@@ -1,0 +1,28 @@
+server:
+  port: 2102
+  mode: "dev"
+  host: "localhost"
+
+database:
+  driver: "postgres"
+  host: "localhost"
+  port: 2011
+  username: "admin"
+  password: "admin"
+  database: "identity"
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_lifetime: 300
+
+jwt:
+  secret: "${JWT_SECRET}"
+  private_key_path: "./certs/private_key.pem"
+  public_key_path: "./certs/public_key.pem"
+
+logger:
+  log_level: debug
+  file_log_name: "./storages/logs/app.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true
