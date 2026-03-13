@@ -13,6 +13,9 @@ const (
 	ResourceKeyInvoice             = "invoices"
 	ResourceKeyPlan                = "plans"
 	ResourceKeySubscription        = "subscriptions"
+	ResourceKeyProblem             = "problem"
+	ResourceKeyTestCase            = "test_case"
+	ResourceKeyTag                 = "tag"
 )
 
 // Permission Scopes (Bitmask)

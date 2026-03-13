@@ -13,8 +13,8 @@ import (
 	"github.com/huynhanx03/judgify/pkg/constraints"
 	"github.com/huynhanx03/judgify/pkg/permissions"
 
-	"github.com/huynhanx03/judgify/internal/constant"
-	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/identity/constant"
+	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
 // PermissionChecker holds dependencies for DB-based permission checking with local cache.

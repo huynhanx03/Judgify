@@ -36,20 +36,16 @@ func NewHTTPServer() *Server {
 
 	// Create PermissionChecker with DB repos + local cache
 	permChecker := middlewares.NewPermissionChecker(
-		c.UserContainer.Repository,
-		c.RoleContainer.Repository,
-		c.PermissionContainer.Repository,
+		c.Identity.UserRepo,
+		c.Identity.RoleRepo,
+		c.Identity.PermissionRepo,
 		global.Tinylfu,
 	)
 
-	// Create router group with all handlers
+	// Create router group with modular handlers from domain containers
 	routerGroup := NewRouterGroup(
-		c.RoleContainer.Handler,
-		c.PermissionContainer.Handler,
-		c.ResourceContainer.Handler,
-		c.AttributeDefinitionContainer.Handler,
-		c.AuthenticationContainer.Handler,
-		c.UserContainer.Handler,
+		c.Identity.IdentityHandler,
+		c.Problem.ProblemHandlerGroup,
 		permChecker,
 	)
 
