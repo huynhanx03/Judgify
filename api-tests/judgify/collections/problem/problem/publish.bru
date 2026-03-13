@@ -1,0 +1,21 @@
+meta {
+  name: Publish
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{base_url}}/problems/{{problem_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "is_published": true
+  }
+}

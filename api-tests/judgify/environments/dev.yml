@@ -1,0 +1,22 @@
+name: dev
+variables:
+  - name: base_url
+    value: http://localhost:8000
+  - name: access_token
+    value: ""
+  - name: refresh_token
+    value: ""
+  - name: role_id
+    value: "1"
+  - name: permission_id
+    value: "1"
+  - name: resource_id
+    value: "1"
+  - name: attr_def_id
+    value: "1"
+  - name: problem_id
+    value: "1"
+  - name: test_case_id
+    value: "1"
+  - name: tag_id
+    value: "1"

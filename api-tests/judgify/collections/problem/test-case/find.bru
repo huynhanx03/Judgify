@@ -1,0 +1,15 @@
+meta {
+  name: Find By Problem
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/problems/{{problem_id}}/test-cases
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

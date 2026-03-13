@@ -1,0 +1,29 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/attribute-definitions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "key": "department",
+    "name": "Department",
+    "type": "string"
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("attr_def_id", res.body.data.id);
+  }
+}

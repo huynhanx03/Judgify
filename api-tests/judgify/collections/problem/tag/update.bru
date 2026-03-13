@@ -1,0 +1,21 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/tags/{{tag_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "array-updated"
+  }
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{base_url}}/users/profile
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "first_name": "Updated",
+    "last_name": "Name"
+  }
+}

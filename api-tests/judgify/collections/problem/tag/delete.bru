@@ -1,0 +1,15 @@
+meta {
+  name: Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/tags/{{tag_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

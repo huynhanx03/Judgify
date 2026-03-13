@@ -1,0 +1,16 @@
+opencollection: 1.0.0
+info:
+  name: "judgify"
+  type: workspace
+
+collections:
+  - name: "Identity"
+    path: "collections/identity"
+  - name: "Problem"
+    path: "collections/problem"
+
+specs:
+
+docs: ''
+
+activeEnvironmentUid: 1noh8pa00000000000000
