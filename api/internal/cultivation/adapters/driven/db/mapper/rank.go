@@ -13,7 +13,6 @@ func ToRankEntity(m *generate.Rank) *entity.Rank {
 	return &entity.Rank{
 		ID:          m.ID,
 		Name:        m.Name,
-		Order:       m.Order,
 		MinRating:   m.MinRating,
 		Description: m.Description,
 		CreatedAt:   m.CreatedAt,

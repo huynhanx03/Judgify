@@ -85,12 +85,6 @@ func (_c *LevelCreate) SetName(v string) *LevelCreate {
 	return _c
 }
 
-// SetOrder sets the "order" field.
-func (_c *LevelCreate) SetOrder(v int) *LevelCreate {
-	_c.mutation.SetOrder(v)
-	return _c
-}
-
 // SetMinExp sets the "min_exp" field.
 func (_c *LevelCreate) SetMinExp(v int64) *LevelCreate {
 	_c.mutation.SetMinExp(v)
@@ -208,14 +202,6 @@ func (_c *LevelCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Level.name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Order(); !ok {
-		return &ValidationError{Name: "order", err: errors.New(`generate: missing required field "Level.order"`)}
-	}
-	if v, ok := _c.mutation.Order(); ok {
-		if err := level.OrderValidator(v); err != nil {
-			return &ValidationError{Name: "order", err: fmt.Errorf(`generate: validator failed for field "Level.order": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.MinExp(); !ok {
 		return &ValidationError{Name: "min_exp", err: errors.New(`generate: missing required field "Level.min_exp"`)}
 	}
@@ -275,10 +261,6 @@ func (_c *LevelCreate) createSpec() (*Level, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(level.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := _c.mutation.Order(); ok {
-		_spec.SetField(level.FieldOrder, field.TypeInt, value)
-		_node.Order = value
 	}
 	if value, ok := _c.mutation.MinExp(); ok {
 		_spec.SetField(level.FieldMinExp, field.TypeInt64, value)
@@ -419,24 +401,6 @@ func (u *LevelUpsert) SetName(v string) *LevelUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *LevelUpsert) UpdateName() *LevelUpsert {
 	u.SetExcluded(level.FieldName)
-	return u
-}
-
-// SetOrder sets the "order" field.
-func (u *LevelUpsert) SetOrder(v int) *LevelUpsert {
-	u.Set(level.FieldOrder, v)
-	return u
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *LevelUpsert) UpdateOrder() *LevelUpsert {
-	u.SetExcluded(level.FieldOrder)
-	return u
-}
-
-// AddOrder adds v to the "order" field.
-func (u *LevelUpsert) AddOrder(v int) *LevelUpsert {
-	u.Add(level.FieldOrder, v)
 	return u
 }
 
@@ -595,27 +559,6 @@ func (u *LevelUpsertOne) SetName(v string) *LevelUpsertOne {
 func (u *LevelUpsertOne) UpdateName() *LevelUpsertOne {
 	return u.Update(func(s *LevelUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetOrder sets the "order" field.
-func (u *LevelUpsertOne) SetOrder(v int) *LevelUpsertOne {
-	return u.Update(func(s *LevelUpsert) {
-		s.SetOrder(v)
-	})
-}
-
-// AddOrder adds v to the "order" field.
-func (u *LevelUpsertOne) AddOrder(v int) *LevelUpsertOne {
-	return u.Update(func(s *LevelUpsert) {
-		s.AddOrder(v)
-	})
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *LevelUpsertOne) UpdateOrder() *LevelUpsertOne {
-	return u.Update(func(s *LevelUpsert) {
-		s.UpdateOrder()
 	})
 }
 
@@ -951,27 +894,6 @@ func (u *LevelUpsertBulk) SetName(v string) *LevelUpsertBulk {
 func (u *LevelUpsertBulk) UpdateName() *LevelUpsertBulk {
 	return u.Update(func(s *LevelUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetOrder sets the "order" field.
-func (u *LevelUpsertBulk) SetOrder(v int) *LevelUpsertBulk {
-	return u.Update(func(s *LevelUpsert) {
-		s.SetOrder(v)
-	})
-}
-
-// AddOrder adds v to the "order" field.
-func (u *LevelUpsertBulk) AddOrder(v int) *LevelUpsertBulk {
-	return u.Update(func(s *LevelUpsert) {
-		s.AddOrder(v)
-	})
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *LevelUpsertBulk) UpdateOrder() *LevelUpsertBulk {
-	return u.Update(func(s *LevelUpsert) {
-		s.UpdateOrder()
 	})
 }
 

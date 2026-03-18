@@ -96,27 +96,6 @@ func (_u *RankUpdate) SetNillableName(v *string) *RankUpdate {
 	return _u
 }
 
-// SetOrder sets the "order" field.
-func (_u *RankUpdate) SetOrder(v int) *RankUpdate {
-	_u.mutation.ResetOrder()
-	_u.mutation.SetOrder(v)
-	return _u
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_u *RankUpdate) SetNillableOrder(v *int) *RankUpdate {
-	if v != nil {
-		_u.SetOrder(*v)
-	}
-	return _u
-}
-
-// AddOrder adds value to the "order" field.
-func (_u *RankUpdate) AddOrder(v int) *RankUpdate {
-	_u.mutation.AddOrder(v)
-	return _u
-}
-
 // SetMinRating sets the "min_rating" field.
 func (_u *RankUpdate) SetMinRating(v int) *RankUpdate {
 	_u.mutation.ResetMinRating()
@@ -212,11 +191,6 @@ func (_u *RankUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Rank.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Order(); ok {
-		if err := rank.OrderValidator(v); err != nil {
-			return &ValidationError{Name: "order", err: fmt.Errorf(`generate: validator failed for field "Rank.order": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Description(); ok {
 		if err := rank.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Rank.description": %w`, err)}
@@ -263,12 +237,6 @@ func (_u *RankUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(rank.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.Order(); ok {
-		_spec.SetField(rank.FieldOrder, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrder(); ok {
-		_spec.AddField(rank.FieldOrder, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.MinRating(); ok {
 		_spec.SetField(rank.FieldMinRating, field.TypeInt, value)
@@ -368,27 +336,6 @@ func (_u *RankUpdateOne) SetNillableName(v *string) *RankUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
 	}
-	return _u
-}
-
-// SetOrder sets the "order" field.
-func (_u *RankUpdateOne) SetOrder(v int) *RankUpdateOne {
-	_u.mutation.ResetOrder()
-	_u.mutation.SetOrder(v)
-	return _u
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_u *RankUpdateOne) SetNillableOrder(v *int) *RankUpdateOne {
-	if v != nil {
-		_u.SetOrder(*v)
-	}
-	return _u
-}
-
-// AddOrder adds value to the "order" field.
-func (_u *RankUpdateOne) AddOrder(v int) *RankUpdateOne {
-	_u.mutation.AddOrder(v)
 	return _u
 }
 
@@ -500,11 +447,6 @@ func (_u *RankUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Rank.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Order(); ok {
-		if err := rank.OrderValidator(v); err != nil {
-			return &ValidationError{Name: "order", err: fmt.Errorf(`generate: validator failed for field "Rank.order": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Description(); ok {
 		if err := rank.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Rank.description": %w`, err)}
@@ -568,12 +510,6 @@ func (_u *RankUpdateOne) sqlSave(ctx context.Context) (_node *Rank, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(rank.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.Order(); ok {
-		_spec.SetField(rank.FieldOrder, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrder(); ok {
-		_spec.AddField(rank.FieldOrder, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.MinRating(); ok {
 		_spec.SetField(rank.FieldMinRating, field.TypeInt, value)

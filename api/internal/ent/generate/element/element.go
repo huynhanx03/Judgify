@@ -29,12 +29,6 @@ const (
 	FieldCode = "code"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldColor holds the string denoting the color field in the database.
-	FieldColor = "color"
-	// FieldIcon holds the string denoting the icon field in the database.
-	FieldIcon = "icon"
-	// FieldOrder holds the string denoting the order field in the database.
-	FieldOrder = "order"
 	// EdgeUserElementExps holds the string denoting the user_element_exps edge name in mutations.
 	EdgeUserElementExps = "user_element_exps"
 	// Table holds the table name of the element in the database.
@@ -58,9 +52,6 @@ var Columns = []string{
 	FieldName,
 	FieldCode,
 	FieldDescription,
-	FieldColor,
-	FieldIcon,
-	FieldOrder,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -93,12 +84,6 @@ var (
 	CodeValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
-	// ColorValidator is a validator for the "color" field. It is called by the builders before save.
-	ColorValidator func(string) error
-	// IconValidator is a validator for the "icon" field. It is called by the builders before save.
-	IconValidator func(string) error
-	// DefaultOrder holds the default value on creation for the "order" field.
-	DefaultOrder int
 )
 
 // OrderOption defines the ordering options for the Element queries.
@@ -142,21 +127,6 @@ func ByCode(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
-}
-
-// ByColor orders the results by the color field.
-func ByColor(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldColor, opts...).ToFunc()
-}
-
-// ByIcon orders the results by the icon field.
-func ByIcon(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIcon, opts...).ToFunc()
-}
-
-// ByOrder orders the results by the order field.
-func ByOrder(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrder, opts...).ToFunc()
 }
 
 // ByUserElementExpsCount orders the results by user_element_exps count.

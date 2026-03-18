@@ -27,8 +27,6 @@ type Rank struct {
 	DeletedBy *int `json:"deleted_by,omitempty"`
 	// Title: Tan Tu, Ngoai Mon De Tu, Noi Mon De Tu...
 	Name string `json:"name,omitempty"`
-	// Progression order
-	Order int `json:"order,omitempty"`
 	// Minimum rating to earn this title
 	MinRating int `json:"min_rating,omitempty"`
 	// Description holds the value of the "description" field.
@@ -41,7 +39,7 @@ func (*Rank) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case rank.FieldID, rank.FieldDeletedBy, rank.FieldOrder, rank.FieldMinRating:
+		case rank.FieldID, rank.FieldDeletedBy, rank.FieldMinRating:
 			values[i] = new(sql.NullInt64)
 		case rank.FieldName, rank.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -99,12 +97,6 @@ func (_m *Rank) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
-			}
-		case rank.FieldOrder:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field order", values[i])
-			} else if value.Valid {
-				_m.Order = int(value.Int64)
 			}
 		case rank.FieldMinRating:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -172,9 +164,6 @@ func (_m *Rank) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
-	builder.WriteString(", ")
-	builder.WriteString("order=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Order))
 	builder.WriteString(", ")
 	builder.WriteString("min_rating=")
 	builder.WriteString(fmt.Sprintf("%v", _m.MinRating))

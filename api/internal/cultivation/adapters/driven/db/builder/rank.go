@@ -12,7 +12,6 @@ import (
 func BuildCreateRank(ctx context.Context, e *entity.Rank) *generate.RankCreate {
 	b := global.EntClient.DB(ctx).Rank.Create().
 		SetName(e.Name).
-		SetOrder(e.Order).
 		SetMinRating(e.MinRating).
 		SetDescription(e.Description)
 
@@ -26,7 +25,6 @@ func BuildCreateRank(ctx context.Context, e *entity.Rank) *generate.RankCreate {
 func BuildUpdateRank(ctx context.Context, e *entity.Rank) *generate.RankUpdateOne {
 	return global.EntClient.DB(ctx).Rank.UpdateOneID(e.ID).
 		SetName(e.Name).
-		SetOrder(e.Order).
 		SetMinRating(e.MinRating).
 		SetDescription(e.Description)
 }

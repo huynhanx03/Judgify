@@ -15,9 +15,6 @@ func ToElementEntity(m *generate.Element) *entity.Element {
 		Name:        m.Name,
 		Code:        m.Code,
 		Description: m.Description,
-		Color:       m.Color,
-		Icon:        m.Icon,
-		Order:       m.Order,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 	}

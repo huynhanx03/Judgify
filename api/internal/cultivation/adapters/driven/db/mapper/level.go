@@ -13,7 +13,6 @@ func ToLevelEntity(m *generate.Level) *entity.Level {
 	return &entity.Level{
 		ID:          m.ID,
 		Name:        m.Name,
-		Order:       m.Order,
 		MinExp:      m.MinExp,
 		Description: m.Description,
 		CreatedAt:   m.CreatedAt,

@@ -13,10 +13,7 @@ func BuildCreateElement(ctx context.Context, e *entity.Element) *generate.Elemen
 	b := global.EntClient.DB(ctx).Element.Create().
 		SetName(e.Name).
 		SetCode(e.Code).
-		SetDescription(e.Description).
-		SetColor(e.Color).
-		SetIcon(e.Icon).
-		SetOrder(e.Order)
+		SetDescription(e.Description)
 
 	if e.ID != 0 {
 		b.SetID(e.ID)
@@ -29,8 +26,5 @@ func BuildUpdateElement(ctx context.Context, e *entity.Element) *generate.Elemen
 	return global.EntClient.DB(ctx).Element.UpdateOneID(e.ID).
 		SetName(e.Name).
 		SetCode(e.Code).
-		SetDescription(e.Description).
-		SetColor(e.Color).
-		SetIcon(e.Icon).
-		SetOrder(e.Order)
+		SetDescription(e.Description)
 }

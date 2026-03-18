@@ -12,7 +12,6 @@ import (
 func BuildCreateLevel(ctx context.Context, e *entity.Level) *generate.LevelCreate {
 	b := global.EntClient.DB(ctx).Level.Create().
 		SetName(e.Name).
-		SetOrder(e.Order).
 		SetMinExp(e.MinExp).
 		SetDescription(e.Description)
 
@@ -26,7 +25,6 @@ func BuildCreateLevel(ctx context.Context, e *entity.Level) *generate.LevelCreat
 func BuildUpdateLevel(ctx context.Context, e *entity.Level) *generate.LevelUpdateOne {
 	return global.EntClient.DB(ctx).Level.UpdateOneID(e.ID).
 		SetName(e.Name).
-		SetOrder(e.Order).
 		SetMinExp(e.MinExp).
 		SetDescription(e.Description)
 }

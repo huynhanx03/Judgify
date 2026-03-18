@@ -131,67 +131,6 @@ func (_u *ElementUpdate) ClearDescription() *ElementUpdate {
 	return _u
 }
 
-// SetColor sets the "color" field.
-func (_u *ElementUpdate) SetColor(v string) *ElementUpdate {
-	_u.mutation.SetColor(v)
-	return _u
-}
-
-// SetNillableColor sets the "color" field if the given value is not nil.
-func (_u *ElementUpdate) SetNillableColor(v *string) *ElementUpdate {
-	if v != nil {
-		_u.SetColor(*v)
-	}
-	return _u
-}
-
-// ClearColor clears the value of the "color" field.
-func (_u *ElementUpdate) ClearColor() *ElementUpdate {
-	_u.mutation.ClearColor()
-	return _u
-}
-
-// SetIcon sets the "icon" field.
-func (_u *ElementUpdate) SetIcon(v string) *ElementUpdate {
-	_u.mutation.SetIcon(v)
-	return _u
-}
-
-// SetNillableIcon sets the "icon" field if the given value is not nil.
-func (_u *ElementUpdate) SetNillableIcon(v *string) *ElementUpdate {
-	if v != nil {
-		_u.SetIcon(*v)
-	}
-	return _u
-}
-
-// ClearIcon clears the value of the "icon" field.
-func (_u *ElementUpdate) ClearIcon() *ElementUpdate {
-	_u.mutation.ClearIcon()
-	return _u
-}
-
-// SetOrder sets the "order" field.
-func (_u *ElementUpdate) SetOrder(v int) *ElementUpdate {
-	_u.mutation.ResetOrder()
-	_u.mutation.SetOrder(v)
-	return _u
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_u *ElementUpdate) SetNillableOrder(v *int) *ElementUpdate {
-	if v != nil {
-		_u.SetOrder(*v)
-	}
-	return _u
-}
-
-// AddOrder adds value to the "order" field.
-func (_u *ElementUpdate) AddOrder(v int) *ElementUpdate {
-	_u.mutation.AddOrder(v)
-	return _u
-}
-
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
 func (_u *ElementUpdate) AddUserElementExpIDs(ids ...int) *ElementUpdate {
 	_u.mutation.AddUserElementExpIDs(ids...)
@@ -292,16 +231,6 @@ func (_u *ElementUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Element.description": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Color(); ok {
-		if err := element.ColorValidator(v); err != nil {
-			return &ValidationError{Name: "color", err: fmt.Errorf(`generate: validator failed for field "Element.color": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Icon(); ok {
-		if err := element.IconValidator(v); err != nil {
-			return &ValidationError{Name: "icon", err: fmt.Errorf(`generate: validator failed for field "Element.icon": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -352,24 +281,6 @@ func (_u *ElementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(element.FieldDescription, field.TypeString)
-	}
-	if value, ok := _u.mutation.Color(); ok {
-		_spec.SetField(element.FieldColor, field.TypeString, value)
-	}
-	if _u.mutation.ColorCleared() {
-		_spec.ClearField(element.FieldColor, field.TypeString)
-	}
-	if value, ok := _u.mutation.Icon(); ok {
-		_spec.SetField(element.FieldIcon, field.TypeString, value)
-	}
-	if _u.mutation.IconCleared() {
-		_spec.ClearField(element.FieldIcon, field.TypeString)
-	}
-	if value, ok := _u.mutation.Order(); ok {
-		_spec.SetField(element.FieldOrder, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrder(); ok {
-		_spec.AddField(element.FieldOrder, field.TypeInt, value)
 	}
 	if _u.mutation.UserElementExpsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -539,67 +450,6 @@ func (_u *ElementUpdateOne) ClearDescription() *ElementUpdateOne {
 	return _u
 }
 
-// SetColor sets the "color" field.
-func (_u *ElementUpdateOne) SetColor(v string) *ElementUpdateOne {
-	_u.mutation.SetColor(v)
-	return _u
-}
-
-// SetNillableColor sets the "color" field if the given value is not nil.
-func (_u *ElementUpdateOne) SetNillableColor(v *string) *ElementUpdateOne {
-	if v != nil {
-		_u.SetColor(*v)
-	}
-	return _u
-}
-
-// ClearColor clears the value of the "color" field.
-func (_u *ElementUpdateOne) ClearColor() *ElementUpdateOne {
-	_u.mutation.ClearColor()
-	return _u
-}
-
-// SetIcon sets the "icon" field.
-func (_u *ElementUpdateOne) SetIcon(v string) *ElementUpdateOne {
-	_u.mutation.SetIcon(v)
-	return _u
-}
-
-// SetNillableIcon sets the "icon" field if the given value is not nil.
-func (_u *ElementUpdateOne) SetNillableIcon(v *string) *ElementUpdateOne {
-	if v != nil {
-		_u.SetIcon(*v)
-	}
-	return _u
-}
-
-// ClearIcon clears the value of the "icon" field.
-func (_u *ElementUpdateOne) ClearIcon() *ElementUpdateOne {
-	_u.mutation.ClearIcon()
-	return _u
-}
-
-// SetOrder sets the "order" field.
-func (_u *ElementUpdateOne) SetOrder(v int) *ElementUpdateOne {
-	_u.mutation.ResetOrder()
-	_u.mutation.SetOrder(v)
-	return _u
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_u *ElementUpdateOne) SetNillableOrder(v *int) *ElementUpdateOne {
-	if v != nil {
-		_u.SetOrder(*v)
-	}
-	return _u
-}
-
-// AddOrder adds value to the "order" field.
-func (_u *ElementUpdateOne) AddOrder(v int) *ElementUpdateOne {
-	_u.mutation.AddOrder(v)
-	return _u
-}
-
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
 func (_u *ElementUpdateOne) AddUserElementExpIDs(ids ...int) *ElementUpdateOne {
 	_u.mutation.AddUserElementExpIDs(ids...)
@@ -713,16 +563,6 @@ func (_u *ElementUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Element.description": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Color(); ok {
-		if err := element.ColorValidator(v); err != nil {
-			return &ValidationError{Name: "color", err: fmt.Errorf(`generate: validator failed for field "Element.color": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Icon(); ok {
-		if err := element.IconValidator(v); err != nil {
-			return &ValidationError{Name: "icon", err: fmt.Errorf(`generate: validator failed for field "Element.icon": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -790,24 +630,6 @@ func (_u *ElementUpdateOne) sqlSave(ctx context.Context) (_node *Element, err er
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(element.FieldDescription, field.TypeString)
-	}
-	if value, ok := _u.mutation.Color(); ok {
-		_spec.SetField(element.FieldColor, field.TypeString, value)
-	}
-	if _u.mutation.ColorCleared() {
-		_spec.ClearField(element.FieldColor, field.TypeString)
-	}
-	if value, ok := _u.mutation.Icon(); ok {
-		_spec.SetField(element.FieldIcon, field.TypeString, value)
-	}
-	if _u.mutation.IconCleared() {
-		_spec.ClearField(element.FieldIcon, field.TypeString)
-	}
-	if value, ok := _u.mutation.Order(); ok {
-		_spec.SetField(element.FieldOrder, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrder(); ok {
-		_spec.AddField(element.FieldOrder, field.TypeInt, value)
 	}
 	if _u.mutation.UserElementExpsCleared() {
 		edge := &sqlgraph.EdgeSpec{

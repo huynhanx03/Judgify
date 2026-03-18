@@ -31,12 +31,6 @@ type Element struct {
 	Code string `json:"code,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// Hex color for UI display
-	Color string `json:"color,omitempty"`
-	// Icon path or class name
-	Icon string `json:"icon,omitempty"`
-	// Display order
-	Order int `json:"order,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ElementQuery when eager-loading is set.
 	Edges        ElementEdges `json:"edges"`
@@ -66,9 +60,9 @@ func (*Element) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case element.FieldID, element.FieldDeletedBy, element.FieldOrder:
+		case element.FieldID, element.FieldDeletedBy:
 			values[i] = new(sql.NullInt64)
-		case element.FieldName, element.FieldCode, element.FieldDescription, element.FieldColor, element.FieldIcon:
+		case element.FieldName, element.FieldCode, element.FieldDescription:
 			values[i] = new(sql.NullString)
 		case element.FieldCreatedAt, element.FieldUpdatedAt, element.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -137,24 +131,6 @@ func (_m *Element) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = value.String
 			}
-		case element.FieldColor:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field color", values[i])
-			} else if value.Valid {
-				_m.Color = value.String
-			}
-		case element.FieldIcon:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field icon", values[i])
-			} else if value.Valid {
-				_m.Icon = value.String
-			}
-		case element.FieldOrder:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field order", values[i])
-			} else if value.Valid {
-				_m.Order = int(value.Int64)
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -220,15 +196,6 @@ func (_m *Element) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
-	builder.WriteString(", ")
-	builder.WriteString("color=")
-	builder.WriteString(_m.Color)
-	builder.WriteString(", ")
-	builder.WriteString("icon=")
-	builder.WriteString(_m.Icon)
-	builder.WriteString(", ")
-	builder.WriteString("order=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Order))
 	builder.WriteByte(')')
 	return builder.String()
 }

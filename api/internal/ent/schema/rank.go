@@ -29,10 +29,6 @@ func (Rank) Fields() []ent.Field {
 			NotEmpty().
 			MaxLen(100).
 			Comment("Title: Tan Tu, Ngoai Mon De Tu, Noi Mon De Tu..."),
-		field.Int("order").
-			Unique().
-			NonNegative().
-			Comment("Progression order"),
 		field.Int("min_rating").
 			Default(0).
 			Comment("Minimum rating to earn this title"),

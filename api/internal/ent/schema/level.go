@@ -30,10 +30,6 @@ func (Level) Fields() []ent.Field {
 			NotEmpty().
 			MaxLen(100).
 			Comment("Realm name: Luyen Khi, Truc Co, Kim Dan..."),
-		field.Int("order").
-			Unique().
-			NonNegative().
-			Comment("Progression order, lower = earlier realm"),
 		field.Int64("min_exp").
 			Default(0).
 			NonNegative().

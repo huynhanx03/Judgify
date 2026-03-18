@@ -13,7 +13,6 @@ func ToLevelResponse(e *entity.Level) *dto.LevelResponse {
 	return &dto.LevelResponse{
 		ID:          e.ID,
 		Name:        e.Name,
-		Order:       e.Order,
 		MinExp:      e.MinExp,
 		Description: e.Description,
 	}
@@ -23,7 +22,6 @@ func ToLevelResponse(e *entity.Level) *dto.LevelResponse {
 func ToLevelEntityFromCreate(req *dto.CreateLevelRequest) *entity.Level {
 	return &entity.Level{
 		Name:        req.Name,
-		Order:       req.Order,
 		MinExp:      req.MinExp,
 		Description: req.Description,
 	}

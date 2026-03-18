@@ -75,16 +75,6 @@ func (s *elementService) Update(ctx context.Context, id int, req *dto.UpdateElem
 	if req.Description != nil {
 		e.Description = *req.Description
 	}
-	if req.Color != nil {
-		e.Color = *req.Color
-	}
-	if req.Icon != nil {
-		e.Icon = *req.Icon
-	}
-	if req.Order != nil {
-		e.Order = *req.Order
-	}
-
 	if err := s.elementRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}

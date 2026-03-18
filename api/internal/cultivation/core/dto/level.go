@@ -3,7 +3,6 @@ package dto
 // CreateLevelRequest represents request to create a cultivation level.
 type CreateLevelRequest struct {
 	Name        string `json:"name" validate:"required,min=1,max=100"`
-	Order       int    `json:"order" validate:"min=0"`
 	MinExp      int64  `json:"min_exp" validate:"min=0"`
 	Description string `json:"description" validate:"omitempty,max=500"`
 }
@@ -12,7 +11,6 @@ type CreateLevelRequest struct {
 type UpdateLevelRequest struct {
 	ID          int     `json:"-" uri:"id"`
 	Name        *string `json:"name" validate:"omitempty,min=1,max=100"`
-	Order       *int    `json:"order" validate:"omitempty,min=0"`
 	MinExp      *int64  `json:"min_exp" validate:"omitempty,min=0"`
 	Description *string `json:"description" validate:"omitempty,max=500"`
 }
@@ -31,7 +29,6 @@ type DeleteLevelRequest struct {
 type LevelResponse struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
-	Order       int    `json:"order"`
 	MinExp      int64  `json:"min_exp"`
 	Description string `json:"description,omitempty"`
 }

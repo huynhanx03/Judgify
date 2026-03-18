@@ -60,9 +60,6 @@ var (
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
 		{Name: "code", Type: field.TypeString, Unique: true, Size: 20},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
-		{Name: "color", Type: field.TypeString, Nullable: true, Size: 20},
-		{Name: "icon", Type: field.TypeString, Nullable: true, Size: 100},
-		{Name: "order", Type: field.TypeInt, Default: 0},
 	}
 	// ElementsTable holds the schema information for the "elements" table.
 	ElementsTable = &schema.Table{
@@ -115,7 +112,6 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
-		{Name: "order", Type: field.TypeInt, Unique: true},
 		{Name: "min_exp", Type: field.TypeInt64, Default: 0},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 	}
@@ -201,7 +197,6 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
-		{Name: "order", Type: field.TypeInt, Unique: true},
 		{Name: "min_rating", Type: field.TypeInt, Default: 0},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 	}

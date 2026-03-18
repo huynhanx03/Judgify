@@ -97,27 +97,6 @@ func (_u *LevelUpdate) SetNillableName(v *string) *LevelUpdate {
 	return _u
 }
 
-// SetOrder sets the "order" field.
-func (_u *LevelUpdate) SetOrder(v int) *LevelUpdate {
-	_u.mutation.ResetOrder()
-	_u.mutation.SetOrder(v)
-	return _u
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_u *LevelUpdate) SetNillableOrder(v *int) *LevelUpdate {
-	if v != nil {
-		_u.SetOrder(*v)
-	}
-	return _u
-}
-
-// AddOrder adds value to the "order" field.
-func (_u *LevelUpdate) AddOrder(v int) *LevelUpdate {
-	_u.mutation.AddOrder(v)
-	return _u
-}
-
 // SetMinExp sets the "min_exp" field.
 func (_u *LevelUpdate) SetMinExp(v int64) *LevelUpdate {
 	_u.mutation.ResetMinExp()
@@ -249,11 +228,6 @@ func (_u *LevelUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Level.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Order(); ok {
-		if err := level.OrderValidator(v); err != nil {
-			return &ValidationError{Name: "order", err: fmt.Errorf(`generate: validator failed for field "Level.order": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.MinExp(); ok {
 		if err := level.MinExpValidator(v); err != nil {
 			return &ValidationError{Name: "min_exp", err: fmt.Errorf(`generate: validator failed for field "Level.min_exp": %w`, err)}
@@ -305,12 +279,6 @@ func (_u *LevelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(level.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.Order(); ok {
-		_spec.SetField(level.FieldOrder, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrder(); ok {
-		_spec.AddField(level.FieldOrder, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.MinExp(); ok {
 		_spec.SetField(level.FieldMinExp, field.TypeInt64, value)
@@ -458,27 +426,6 @@ func (_u *LevelUpdateOne) SetNillableName(v *string) *LevelUpdateOne {
 	return _u
 }
 
-// SetOrder sets the "order" field.
-func (_u *LevelUpdateOne) SetOrder(v int) *LevelUpdateOne {
-	_u.mutation.ResetOrder()
-	_u.mutation.SetOrder(v)
-	return _u
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_u *LevelUpdateOne) SetNillableOrder(v *int) *LevelUpdateOne {
-	if v != nil {
-		_u.SetOrder(*v)
-	}
-	return _u
-}
-
-// AddOrder adds value to the "order" field.
-func (_u *LevelUpdateOne) AddOrder(v int) *LevelUpdateOne {
-	_u.mutation.AddOrder(v)
-	return _u
-}
-
 // SetMinExp sets the "min_exp" field.
 func (_u *LevelUpdateOne) SetMinExp(v int64) *LevelUpdateOne {
 	_u.mutation.ResetMinExp()
@@ -623,11 +570,6 @@ func (_u *LevelUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Level.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Order(); ok {
-		if err := level.OrderValidator(v); err != nil {
-			return &ValidationError{Name: "order", err: fmt.Errorf(`generate: validator failed for field "Level.order": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.MinExp(); ok {
 		if err := level.MinExpValidator(v); err != nil {
 			return &ValidationError{Name: "min_exp", err: fmt.Errorf(`generate: validator failed for field "Level.min_exp": %w`, err)}
@@ -696,12 +638,6 @@ func (_u *LevelUpdateOne) sqlSave(ctx context.Context) (_node *Level, err error)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(level.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.Order(); ok {
-		_spec.SetField(level.FieldOrder, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrder(); ok {
-		_spec.AddField(level.FieldOrder, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.MinExp(); ok {
 		_spec.SetField(level.FieldMinExp, field.TypeInt64, value)

@@ -139,18 +139,6 @@ func init() {
 	elementDescDescription := elementFields[2].Descriptor()
 	// element.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	element.DescriptionValidator = elementDescDescription.Validators[0].(func(string) error)
-	// elementDescColor is the schema descriptor for color field.
-	elementDescColor := elementFields[3].Descriptor()
-	// element.ColorValidator is a validator for the "color" field. It is called by the builders before save.
-	element.ColorValidator = elementDescColor.Validators[0].(func(string) error)
-	// elementDescIcon is the schema descriptor for icon field.
-	elementDescIcon := elementFields[4].Descriptor()
-	// element.IconValidator is a validator for the "icon" field. It is called by the builders before save.
-	element.IconValidator = elementDescIcon.Validators[0].(func(string) error)
-	// elementDescOrder is the schema descriptor for order field.
-	elementDescOrder := elementFields[5].Descriptor()
-	// element.DefaultOrder holds the default value on creation for the order field.
-	element.DefaultOrder = elementDescOrder.Default.(int)
 	federatedidentityMixin := schema.FederatedIdentity{}.Mixin()
 	federatedidentityMixinHooks1 := federatedidentityMixin[1].Hooks()
 	federatedidentity.Hooks[0] = federatedidentityMixinHooks1[0]
@@ -215,18 +203,14 @@ func init() {
 			return nil
 		}
 	}()
-	// levelDescOrder is the schema descriptor for order field.
-	levelDescOrder := levelFields[1].Descriptor()
-	// level.OrderValidator is a validator for the "order" field. It is called by the builders before save.
-	level.OrderValidator = levelDescOrder.Validators[0].(func(int) error)
 	// levelDescMinExp is the schema descriptor for min_exp field.
-	levelDescMinExp := levelFields[2].Descriptor()
+	levelDescMinExp := levelFields[1].Descriptor()
 	// level.DefaultMinExp holds the default value on creation for the min_exp field.
 	level.DefaultMinExp = levelDescMinExp.Default.(int64)
 	// level.MinExpValidator is a validator for the "min_exp" field. It is called by the builders before save.
 	level.MinExpValidator = levelDescMinExp.Validators[0].(func(int64) error)
 	// levelDescDescription is the schema descriptor for description field.
-	levelDescDescription := levelFields[3].Descriptor()
+	levelDescDescription := levelFields[2].Descriptor()
 	// level.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	level.DescriptionValidator = levelDescDescription.Validators[0].(func(string) error)
 	permissionMixin := schema.Permission{}.Mixin()
@@ -342,16 +326,12 @@ func init() {
 			return nil
 		}
 	}()
-	// rankDescOrder is the schema descriptor for order field.
-	rankDescOrder := rankFields[1].Descriptor()
-	// rank.OrderValidator is a validator for the "order" field. It is called by the builders before save.
-	rank.OrderValidator = rankDescOrder.Validators[0].(func(int) error)
 	// rankDescMinRating is the schema descriptor for min_rating field.
-	rankDescMinRating := rankFields[2].Descriptor()
+	rankDescMinRating := rankFields[1].Descriptor()
 	// rank.DefaultMinRating holds the default value on creation for the min_rating field.
 	rank.DefaultMinRating = rankDescMinRating.Default.(int)
 	// rankDescDescription is the schema descriptor for description field.
-	rankDescDescription := rankFields[3].Descriptor()
+	rankDescDescription := rankFields[2].Descriptor()
 	// rank.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	rank.DescriptionValidator = rankDescDescription.Validators[0].(func(string) error)
 	resourceMixin := schema.Resource{}.Mixin()

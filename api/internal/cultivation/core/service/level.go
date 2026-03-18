@@ -69,9 +69,6 @@ func (s *levelService) Update(ctx context.Context, id int, req *dto.UpdateLevelR
 	if req.Name != nil {
 		e.Name = *req.Name
 	}
-	if req.Order != nil {
-		e.Order = *req.Order
-	}
 	if req.MinExp != nil {
 		e.MinExp = *req.MinExp
 	}

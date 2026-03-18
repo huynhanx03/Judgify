@@ -1,0 +1,29 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/levels
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Qi Condensation",
+    "min_exp": 0,
+    "description": "The first step on the path of cultivation"
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("level_id", res.body.data.id);
+  }
+}

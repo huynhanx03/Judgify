@@ -69,9 +69,6 @@ func (s *rankService) Update(ctx context.Context, id int, req *dto.UpdateRankReq
 	if req.Name != nil {
 		e.Name = *req.Name
 	}
-	if req.Order != nil {
-		e.Order = *req.Order
-	}
 	if req.MinRating != nil {
 		e.MinRating = *req.MinRating
 	}

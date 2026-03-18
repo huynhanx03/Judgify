@@ -1697,10 +1697,6 @@ type ElementMutation struct {
 	name                     *string
 	code                     *string
 	description              *string
-	color                    *string
-	icon                     *string
-	_order                   *int
-	add_order                *int
 	clearedFields            map[string]struct{}
 	user_element_exps        map[int]struct{}
 	removeduser_element_exps map[int]struct{}
@@ -2120,160 +2116,6 @@ func (m *ElementMutation) ResetDescription() {
 	delete(m.clearedFields, element.FieldDescription)
 }
 
-// SetColor sets the "color" field.
-func (m *ElementMutation) SetColor(s string) {
-	m.color = &s
-}
-
-// Color returns the value of the "color" field in the mutation.
-func (m *ElementMutation) Color() (r string, exists bool) {
-	v := m.color
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldColor returns the old "color" field's value of the Element entity.
-// If the Element object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ElementMutation) OldColor(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldColor is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldColor requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldColor: %w", err)
-	}
-	return oldValue.Color, nil
-}
-
-// ClearColor clears the value of the "color" field.
-func (m *ElementMutation) ClearColor() {
-	m.color = nil
-	m.clearedFields[element.FieldColor] = struct{}{}
-}
-
-// ColorCleared returns if the "color" field was cleared in this mutation.
-func (m *ElementMutation) ColorCleared() bool {
-	_, ok := m.clearedFields[element.FieldColor]
-	return ok
-}
-
-// ResetColor resets all changes to the "color" field.
-func (m *ElementMutation) ResetColor() {
-	m.color = nil
-	delete(m.clearedFields, element.FieldColor)
-}
-
-// SetIcon sets the "icon" field.
-func (m *ElementMutation) SetIcon(s string) {
-	m.icon = &s
-}
-
-// Icon returns the value of the "icon" field in the mutation.
-func (m *ElementMutation) Icon() (r string, exists bool) {
-	v := m.icon
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIcon returns the old "icon" field's value of the Element entity.
-// If the Element object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ElementMutation) OldIcon(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIcon is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIcon requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIcon: %w", err)
-	}
-	return oldValue.Icon, nil
-}
-
-// ClearIcon clears the value of the "icon" field.
-func (m *ElementMutation) ClearIcon() {
-	m.icon = nil
-	m.clearedFields[element.FieldIcon] = struct{}{}
-}
-
-// IconCleared returns if the "icon" field was cleared in this mutation.
-func (m *ElementMutation) IconCleared() bool {
-	_, ok := m.clearedFields[element.FieldIcon]
-	return ok
-}
-
-// ResetIcon resets all changes to the "icon" field.
-func (m *ElementMutation) ResetIcon() {
-	m.icon = nil
-	delete(m.clearedFields, element.FieldIcon)
-}
-
-// SetOrder sets the "order" field.
-func (m *ElementMutation) SetOrder(i int) {
-	m._order = &i
-	m.add_order = nil
-}
-
-// Order returns the value of the "order" field in the mutation.
-func (m *ElementMutation) Order() (r int, exists bool) {
-	v := m._order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrder returns the old "order" field's value of the Element entity.
-// If the Element object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ElementMutation) OldOrder(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrder is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrder requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrder: %w", err)
-	}
-	return oldValue.Order, nil
-}
-
-// AddOrder adds i to the "order" field.
-func (m *ElementMutation) AddOrder(i int) {
-	if m.add_order != nil {
-		*m.add_order += i
-	} else {
-		m.add_order = &i
-	}
-}
-
-// AddedOrder returns the value that was added to the "order" field in this mutation.
-func (m *ElementMutation) AddedOrder() (r int, exists bool) {
-	v := m.add_order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetOrder resets all changes to the "order" field.
-func (m *ElementMutation) ResetOrder() {
-	m._order = nil
-	m.add_order = nil
-}
-
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by ids.
 func (m *ElementMutation) AddUserElementExpIDs(ids ...int) {
 	if m.user_element_exps == nil {
@@ -2362,7 +2204,7 @@ func (m *ElementMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ElementMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, element.FieldCreatedAt)
 	}
@@ -2383,15 +2225,6 @@ func (m *ElementMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, element.FieldDescription)
-	}
-	if m.color != nil {
-		fields = append(fields, element.FieldColor)
-	}
-	if m.icon != nil {
-		fields = append(fields, element.FieldIcon)
-	}
-	if m._order != nil {
-		fields = append(fields, element.FieldOrder)
 	}
 	return fields
 }
@@ -2415,12 +2248,6 @@ func (m *ElementMutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case element.FieldDescription:
 		return m.Description()
-	case element.FieldColor:
-		return m.Color()
-	case element.FieldIcon:
-		return m.Icon()
-	case element.FieldOrder:
-		return m.Order()
 	}
 	return nil, false
 }
@@ -2444,12 +2271,6 @@ func (m *ElementMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCode(ctx)
 	case element.FieldDescription:
 		return m.OldDescription(ctx)
-	case element.FieldColor:
-		return m.OldColor(ctx)
-	case element.FieldIcon:
-		return m.OldIcon(ctx)
-	case element.FieldOrder:
-		return m.OldOrder(ctx)
 	}
 	return nil, fmt.Errorf("unknown Element field %s", name)
 }
@@ -2508,27 +2329,6 @@ func (m *ElementMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
-	case element.FieldColor:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetColor(v)
-		return nil
-	case element.FieldIcon:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIcon(v)
-		return nil
-	case element.FieldOrder:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrder(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Element field %s", name)
 }
@@ -2540,9 +2340,6 @@ func (m *ElementMutation) AddedFields() []string {
 	if m.adddeleted_by != nil {
 		fields = append(fields, element.FieldDeletedBy)
 	}
-	if m.add_order != nil {
-		fields = append(fields, element.FieldOrder)
-	}
 	return fields
 }
 
@@ -2553,8 +2350,6 @@ func (m *ElementMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case element.FieldDeletedBy:
 		return m.AddedDeletedBy()
-	case element.FieldOrder:
-		return m.AddedOrder()
 	}
 	return nil, false
 }
@@ -2570,13 +2365,6 @@ func (m *ElementMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDeletedBy(v)
-		return nil
-	case element.FieldOrder:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddOrder(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Element numeric field %s", name)
@@ -2594,12 +2382,6 @@ func (m *ElementMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(element.FieldDescription) {
 		fields = append(fields, element.FieldDescription)
-	}
-	if m.FieldCleared(element.FieldColor) {
-		fields = append(fields, element.FieldColor)
-	}
-	if m.FieldCleared(element.FieldIcon) {
-		fields = append(fields, element.FieldIcon)
 	}
 	return fields
 }
@@ -2623,12 +2405,6 @@ func (m *ElementMutation) ClearField(name string) error {
 		return nil
 	case element.FieldDescription:
 		m.ClearDescription()
-		return nil
-	case element.FieldColor:
-		m.ClearColor()
-		return nil
-	case element.FieldIcon:
-		m.ClearIcon()
 		return nil
 	}
 	return fmt.Errorf("unknown Element nullable field %s", name)
@@ -2658,15 +2434,6 @@ func (m *ElementMutation) ResetField(name string) error {
 		return nil
 	case element.FieldDescription:
 		m.ResetDescription()
-		return nil
-	case element.FieldColor:
-		m.ResetColor()
-		return nil
-	case element.FieldIcon:
-		m.ResetIcon()
-		return nil
-	case element.FieldOrder:
-		m.ResetOrder()
 		return nil
 	}
 	return fmt.Errorf("unknown Element field %s", name)
@@ -3550,8 +3317,6 @@ type LevelMutation struct {
 	deleted_by        *int
 	adddeleted_by     *int
 	name              *string
-	_order            *int
-	add_order         *int
 	min_exp           *int64
 	addmin_exp        *int64
 	description       *string
@@ -3889,62 +3654,6 @@ func (m *LevelMutation) ResetName() {
 	m.name = nil
 }
 
-// SetOrder sets the "order" field.
-func (m *LevelMutation) SetOrder(i int) {
-	m._order = &i
-	m.add_order = nil
-}
-
-// Order returns the value of the "order" field in the mutation.
-func (m *LevelMutation) Order() (r int, exists bool) {
-	v := m._order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrder returns the old "order" field's value of the Level entity.
-// If the Level object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LevelMutation) OldOrder(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrder is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrder requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrder: %w", err)
-	}
-	return oldValue.Order, nil
-}
-
-// AddOrder adds i to the "order" field.
-func (m *LevelMutation) AddOrder(i int) {
-	if m.add_order != nil {
-		*m.add_order += i
-	} else {
-		m.add_order = &i
-	}
-}
-
-// AddedOrder returns the value that was added to the "order" field in this mutation.
-func (m *LevelMutation) AddedOrder() (r int, exists bool) {
-	v := m.add_order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetOrder resets all changes to the "order" field.
-func (m *LevelMutation) ResetOrder() {
-	m._order = nil
-	m.add_order = nil
-}
-
 // SetMinExp sets the "min_exp" field.
 func (m *LevelMutation) SetMinExp(i int64) {
 	m.min_exp = &i
@@ -4138,7 +3847,7 @@ func (m *LevelMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LevelMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, level.FieldCreatedAt)
 	}
@@ -4153,9 +3862,6 @@ func (m *LevelMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, level.FieldName)
-	}
-	if m._order != nil {
-		fields = append(fields, level.FieldOrder)
 	}
 	if m.min_exp != nil {
 		fields = append(fields, level.FieldMinExp)
@@ -4181,8 +3887,6 @@ func (m *LevelMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedBy()
 	case level.FieldName:
 		return m.Name()
-	case level.FieldOrder:
-		return m.Order()
 	case level.FieldMinExp:
 		return m.MinExp()
 	case level.FieldDescription:
@@ -4206,8 +3910,6 @@ func (m *LevelMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDeletedBy(ctx)
 	case level.FieldName:
 		return m.OldName(ctx)
-	case level.FieldOrder:
-		return m.OldOrder(ctx)
 	case level.FieldMinExp:
 		return m.OldMinExp(ctx)
 	case level.FieldDescription:
@@ -4256,13 +3958,6 @@ func (m *LevelMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case level.FieldOrder:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrder(v)
-		return nil
 	case level.FieldMinExp:
 		v, ok := value.(int64)
 		if !ok {
@@ -4288,9 +3983,6 @@ func (m *LevelMutation) AddedFields() []string {
 	if m.adddeleted_by != nil {
 		fields = append(fields, level.FieldDeletedBy)
 	}
-	if m.add_order != nil {
-		fields = append(fields, level.FieldOrder)
-	}
 	if m.addmin_exp != nil {
 		fields = append(fields, level.FieldMinExp)
 	}
@@ -4304,8 +3996,6 @@ func (m *LevelMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case level.FieldDeletedBy:
 		return m.AddedDeletedBy()
-	case level.FieldOrder:
-		return m.AddedOrder()
 	case level.FieldMinExp:
 		return m.AddedMinExp()
 	}
@@ -4323,13 +4013,6 @@ func (m *LevelMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDeletedBy(v)
-		return nil
-	case level.FieldOrder:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddOrder(v)
 		return nil
 	case level.FieldMinExp:
 		v, ok := value.(int64)
@@ -4400,9 +4083,6 @@ func (m *LevelMutation) ResetField(name string) error {
 		return nil
 	case level.FieldName:
 		m.ResetName()
-		return nil
-	case level.FieldOrder:
-		m.ResetOrder()
 		return nil
 	case level.FieldMinExp:
 		m.ResetMinExp()
@@ -6676,8 +6356,6 @@ type RankMutation struct {
 	deleted_by    *int
 	adddeleted_by *int
 	name          *string
-	_order        *int
-	add_order     *int
 	min_rating    *int
 	addmin_rating *int
 	description   *string
@@ -7012,62 +6690,6 @@ func (m *RankMutation) ResetName() {
 	m.name = nil
 }
 
-// SetOrder sets the "order" field.
-func (m *RankMutation) SetOrder(i int) {
-	m._order = &i
-	m.add_order = nil
-}
-
-// Order returns the value of the "order" field in the mutation.
-func (m *RankMutation) Order() (r int, exists bool) {
-	v := m._order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrder returns the old "order" field's value of the Rank entity.
-// If the Rank object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RankMutation) OldOrder(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrder is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrder requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrder: %w", err)
-	}
-	return oldValue.Order, nil
-}
-
-// AddOrder adds i to the "order" field.
-func (m *RankMutation) AddOrder(i int) {
-	if m.add_order != nil {
-		*m.add_order += i
-	} else {
-		m.add_order = &i
-	}
-}
-
-// AddedOrder returns the value that was added to the "order" field in this mutation.
-func (m *RankMutation) AddedOrder() (r int, exists bool) {
-	v := m.add_order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetOrder resets all changes to the "order" field.
-func (m *RankMutation) ResetOrder() {
-	m._order = nil
-	m.add_order = nil
-}
-
 // SetMinRating sets the "min_rating" field.
 func (m *RankMutation) SetMinRating(i int) {
 	m.min_rating = &i
@@ -7207,7 +6829,7 @@ func (m *RankMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RankMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, rank.FieldCreatedAt)
 	}
@@ -7222,9 +6844,6 @@ func (m *RankMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, rank.FieldName)
-	}
-	if m._order != nil {
-		fields = append(fields, rank.FieldOrder)
 	}
 	if m.min_rating != nil {
 		fields = append(fields, rank.FieldMinRating)
@@ -7250,8 +6869,6 @@ func (m *RankMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedBy()
 	case rank.FieldName:
 		return m.Name()
-	case rank.FieldOrder:
-		return m.Order()
 	case rank.FieldMinRating:
 		return m.MinRating()
 	case rank.FieldDescription:
@@ -7275,8 +6892,6 @@ func (m *RankMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDeletedBy(ctx)
 	case rank.FieldName:
 		return m.OldName(ctx)
-	case rank.FieldOrder:
-		return m.OldOrder(ctx)
 	case rank.FieldMinRating:
 		return m.OldMinRating(ctx)
 	case rank.FieldDescription:
@@ -7325,13 +6940,6 @@ func (m *RankMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case rank.FieldOrder:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrder(v)
-		return nil
 	case rank.FieldMinRating:
 		v, ok := value.(int)
 		if !ok {
@@ -7357,9 +6965,6 @@ func (m *RankMutation) AddedFields() []string {
 	if m.adddeleted_by != nil {
 		fields = append(fields, rank.FieldDeletedBy)
 	}
-	if m.add_order != nil {
-		fields = append(fields, rank.FieldOrder)
-	}
 	if m.addmin_rating != nil {
 		fields = append(fields, rank.FieldMinRating)
 	}
@@ -7373,8 +6978,6 @@ func (m *RankMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case rank.FieldDeletedBy:
 		return m.AddedDeletedBy()
-	case rank.FieldOrder:
-		return m.AddedOrder()
 	case rank.FieldMinRating:
 		return m.AddedMinRating()
 	}
@@ -7392,13 +6995,6 @@ func (m *RankMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDeletedBy(v)
-		return nil
-	case rank.FieldOrder:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddOrder(v)
 		return nil
 	case rank.FieldMinRating:
 		v, ok := value.(int)
@@ -7469,9 +7065,6 @@ func (m *RankMutation) ResetField(name string) error {
 		return nil
 	case rank.FieldName:
 		m.ResetName()
-		return nil
-	case rank.FieldOrder:
-		m.ResetOrder()
 		return nil
 	case rank.FieldMinRating:
 		m.ResetMinRating()

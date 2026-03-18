@@ -1,0 +1,42 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/traits
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "type": "root_bone",
+    "name": "Heavenly Spirit Root",
+    "rarity": "heaven",
+    "weight": 10,
+    "description": "A rare spirit root with affinity to all elements",
+    "metadata": {
+      "effects": [
+        {
+          "type": "exp_multiplier",
+          "value": 1.5,
+          "target_scope": "all",
+          "target_elements": [],
+          "daily_limit": null
+        }
+      ]
+    }
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("trait_id", res.body.data.id);
+  }
+}

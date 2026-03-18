@@ -84,12 +84,6 @@ func (_c *RankCreate) SetName(v string) *RankCreate {
 	return _c
 }
 
-// SetOrder sets the "order" field.
-func (_c *RankCreate) SetOrder(v int) *RankCreate {
-	_c.mutation.SetOrder(v)
-	return _c
-}
-
 // SetMinRating sets the "min_rating" field.
 func (_c *RankCreate) SetMinRating(v int) *RankCreate {
 	_c.mutation.SetMinRating(v)
@@ -192,14 +186,6 @@ func (_c *RankCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Rank.name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Order(); !ok {
-		return &ValidationError{Name: "order", err: errors.New(`generate: missing required field "Rank.order"`)}
-	}
-	if v, ok := _c.mutation.Order(); ok {
-		if err := rank.OrderValidator(v); err != nil {
-			return &ValidationError{Name: "order", err: fmt.Errorf(`generate: validator failed for field "Rank.order": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.MinRating(); !ok {
 		return &ValidationError{Name: "min_rating", err: errors.New(`generate: missing required field "Rank.min_rating"`)}
 	}
@@ -254,10 +240,6 @@ func (_c *RankCreate) createSpec() (*Rank, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(rank.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := _c.mutation.Order(); ok {
-		_spec.SetField(rank.FieldOrder, field.TypeInt, value)
-		_node.Order = value
 	}
 	if value, ok := _c.mutation.MinRating(); ok {
 		_spec.SetField(rank.FieldMinRating, field.TypeInt, value)
@@ -382,24 +364,6 @@ func (u *RankUpsert) SetName(v string) *RankUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *RankUpsert) UpdateName() *RankUpsert {
 	u.SetExcluded(rank.FieldName)
-	return u
-}
-
-// SetOrder sets the "order" field.
-func (u *RankUpsert) SetOrder(v int) *RankUpsert {
-	u.Set(rank.FieldOrder, v)
-	return u
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *RankUpsert) UpdateOrder() *RankUpsert {
-	u.SetExcluded(rank.FieldOrder)
-	return u
-}
-
-// AddOrder adds v to the "order" field.
-func (u *RankUpsert) AddOrder(v int) *RankUpsert {
-	u.Add(rank.FieldOrder, v)
 	return u
 }
 
@@ -558,27 +522,6 @@ func (u *RankUpsertOne) SetName(v string) *RankUpsertOne {
 func (u *RankUpsertOne) UpdateName() *RankUpsertOne {
 	return u.Update(func(s *RankUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetOrder sets the "order" field.
-func (u *RankUpsertOne) SetOrder(v int) *RankUpsertOne {
-	return u.Update(func(s *RankUpsert) {
-		s.SetOrder(v)
-	})
-}
-
-// AddOrder adds v to the "order" field.
-func (u *RankUpsertOne) AddOrder(v int) *RankUpsertOne {
-	return u.Update(func(s *RankUpsert) {
-		s.AddOrder(v)
-	})
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *RankUpsertOne) UpdateOrder() *RankUpsertOne {
-	return u.Update(func(s *RankUpsert) {
-		s.UpdateOrder()
 	})
 }
 
@@ -914,27 +857,6 @@ func (u *RankUpsertBulk) SetName(v string) *RankUpsertBulk {
 func (u *RankUpsertBulk) UpdateName() *RankUpsertBulk {
 	return u.Update(func(s *RankUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetOrder sets the "order" field.
-func (u *RankUpsertBulk) SetOrder(v int) *RankUpsertBulk {
-	return u.Update(func(s *RankUpsert) {
-		s.SetOrder(v)
-	})
-}
-
-// AddOrder adds v to the "order" field.
-func (u *RankUpsertBulk) AddOrder(v int) *RankUpsertBulk {
-	return u.Update(func(s *RankUpsert) {
-		s.AddOrder(v)
-	})
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *RankUpsertBulk) UpdateOrder() *RankUpsertBulk {
-	return u.Update(func(s *RankUpsert) {
-		s.UpdateOrder()
 	})
 }
 

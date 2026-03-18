@@ -13,7 +13,6 @@ func ToRankResponse(e *entity.Rank) *dto.RankResponse {
 	return &dto.RankResponse{
 		ID:          e.ID,
 		Name:        e.Name,
-		Order:       e.Order,
 		MinRating:   e.MinRating,
 		Description: e.Description,
 	}
@@ -23,7 +22,6 @@ func ToRankResponse(e *entity.Rank) *dto.RankResponse {
 func ToRankEntityFromCreate(req *dto.CreateRankRequest) *entity.Rank {
 	return &entity.Rank{
 		Name:        req.Name,
-		Order:       req.Order,
 		MinRating:   req.MinRating,
 		Description: req.Description,
 	}

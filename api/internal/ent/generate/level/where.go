@@ -80,11 +80,6 @@ func Name(v string) predicate.Level {
 	return predicate.Level(sql.FieldEQ(FieldName, v))
 }
 
-// Order applies equality check predicate on the "order" field. It's identical to OrderEQ.
-func Order(v int) predicate.Level {
-	return predicate.Level(sql.FieldEQ(FieldOrder, v))
-}
-
 // MinExp applies equality check predicate on the "min_exp" field. It's identical to MinExpEQ.
 func MinExp(v int64) predicate.Level {
 	return predicate.Level(sql.FieldEQ(FieldMinExp, v))
@@ -338,46 +333,6 @@ func NameEqualFold(v string) predicate.Level {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Level {
 	return predicate.Level(sql.FieldContainsFold(FieldName, v))
-}
-
-// OrderEQ applies the EQ predicate on the "order" field.
-func OrderEQ(v int) predicate.Level {
-	return predicate.Level(sql.FieldEQ(FieldOrder, v))
-}
-
-// OrderNEQ applies the NEQ predicate on the "order" field.
-func OrderNEQ(v int) predicate.Level {
-	return predicate.Level(sql.FieldNEQ(FieldOrder, v))
-}
-
-// OrderIn applies the In predicate on the "order" field.
-func OrderIn(vs ...int) predicate.Level {
-	return predicate.Level(sql.FieldIn(FieldOrder, vs...))
-}
-
-// OrderNotIn applies the NotIn predicate on the "order" field.
-func OrderNotIn(vs ...int) predicate.Level {
-	return predicate.Level(sql.FieldNotIn(FieldOrder, vs...))
-}
-
-// OrderGT applies the GT predicate on the "order" field.
-func OrderGT(v int) predicate.Level {
-	return predicate.Level(sql.FieldGT(FieldOrder, v))
-}
-
-// OrderGTE applies the GTE predicate on the "order" field.
-func OrderGTE(v int) predicate.Level {
-	return predicate.Level(sql.FieldGTE(FieldOrder, v))
-}
-
-// OrderLT applies the LT predicate on the "order" field.
-func OrderLT(v int) predicate.Level {
-	return predicate.Level(sql.FieldLT(FieldOrder, v))
-}
-
-// OrderLTE applies the LTE predicate on the "order" field.
-func OrderLTE(v int) predicate.Level {
-	return predicate.Level(sql.FieldLTE(FieldOrder, v))
 }
 
 // MinExpEQ applies the EQ predicate on the "min_exp" field.

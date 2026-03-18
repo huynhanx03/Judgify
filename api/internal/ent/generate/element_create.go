@@ -105,48 +105,6 @@ func (_c *ElementCreate) SetNillableDescription(v *string) *ElementCreate {
 	return _c
 }
 
-// SetColor sets the "color" field.
-func (_c *ElementCreate) SetColor(v string) *ElementCreate {
-	_c.mutation.SetColor(v)
-	return _c
-}
-
-// SetNillableColor sets the "color" field if the given value is not nil.
-func (_c *ElementCreate) SetNillableColor(v *string) *ElementCreate {
-	if v != nil {
-		_c.SetColor(*v)
-	}
-	return _c
-}
-
-// SetIcon sets the "icon" field.
-func (_c *ElementCreate) SetIcon(v string) *ElementCreate {
-	_c.mutation.SetIcon(v)
-	return _c
-}
-
-// SetNillableIcon sets the "icon" field if the given value is not nil.
-func (_c *ElementCreate) SetNillableIcon(v *string) *ElementCreate {
-	if v != nil {
-		_c.SetIcon(*v)
-	}
-	return _c
-}
-
-// SetOrder sets the "order" field.
-func (_c *ElementCreate) SetOrder(v int) *ElementCreate {
-	_c.mutation.SetOrder(v)
-	return _c
-}
-
-// SetNillableOrder sets the "order" field if the given value is not nil.
-func (_c *ElementCreate) SetNillableOrder(v *int) *ElementCreate {
-	if v != nil {
-		_c.SetOrder(*v)
-	}
-	return _c
-}
-
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
 func (_c *ElementCreate) AddUserElementExpIDs(ids ...int) *ElementCreate {
 	_c.mutation.AddUserElementExpIDs(ids...)
@@ -213,10 +171,6 @@ func (_c *ElementCreate) defaults() error {
 		v := element.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.Order(); !ok {
-		v := element.DefaultOrder
-		_c.mutation.SetOrder(v)
-	}
 	return nil
 }
 
@@ -248,19 +202,6 @@ func (_c *ElementCreate) check() error {
 		if err := element.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Element.description": %w`, err)}
 		}
-	}
-	if v, ok := _c.mutation.Color(); ok {
-		if err := element.ColorValidator(v); err != nil {
-			return &ValidationError{Name: "color", err: fmt.Errorf(`generate: validator failed for field "Element.color": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.Icon(); ok {
-		if err := element.IconValidator(v); err != nil {
-			return &ValidationError{Name: "icon", err: fmt.Errorf(`generate: validator failed for field "Element.icon": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.Order(); !ok {
-		return &ValidationError{Name: "order", err: errors.New(`generate: missing required field "Element.order"`)}
 	}
 	return nil
 }
@@ -316,18 +257,6 @@ func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(element.FieldDescription, field.TypeString, value)
 		_node.Description = value
-	}
-	if value, ok := _c.mutation.Color(); ok {
-		_spec.SetField(element.FieldColor, field.TypeString, value)
-		_node.Color = value
-	}
-	if value, ok := _c.mutation.Icon(); ok {
-		_spec.SetField(element.FieldIcon, field.TypeString, value)
-		_node.Icon = value
-	}
-	if value, ok := _c.mutation.Order(); ok {
-		_spec.SetField(element.FieldOrder, field.TypeInt, value)
-		_node.Order = value
 	}
 	if nodes := _c.mutation.UserElementExpsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -493,60 +422,6 @@ func (u *ElementUpsert) ClearDescription() *ElementUpsert {
 	return u
 }
 
-// SetColor sets the "color" field.
-func (u *ElementUpsert) SetColor(v string) *ElementUpsert {
-	u.Set(element.FieldColor, v)
-	return u
-}
-
-// UpdateColor sets the "color" field to the value that was provided on create.
-func (u *ElementUpsert) UpdateColor() *ElementUpsert {
-	u.SetExcluded(element.FieldColor)
-	return u
-}
-
-// ClearColor clears the value of the "color" field.
-func (u *ElementUpsert) ClearColor() *ElementUpsert {
-	u.SetNull(element.FieldColor)
-	return u
-}
-
-// SetIcon sets the "icon" field.
-func (u *ElementUpsert) SetIcon(v string) *ElementUpsert {
-	u.Set(element.FieldIcon, v)
-	return u
-}
-
-// UpdateIcon sets the "icon" field to the value that was provided on create.
-func (u *ElementUpsert) UpdateIcon() *ElementUpsert {
-	u.SetExcluded(element.FieldIcon)
-	return u
-}
-
-// ClearIcon clears the value of the "icon" field.
-func (u *ElementUpsert) ClearIcon() *ElementUpsert {
-	u.SetNull(element.FieldIcon)
-	return u
-}
-
-// SetOrder sets the "order" field.
-func (u *ElementUpsert) SetOrder(v int) *ElementUpsert {
-	u.Set(element.FieldOrder, v)
-	return u
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *ElementUpsert) UpdateOrder() *ElementUpsert {
-	u.SetExcluded(element.FieldOrder)
-	return u
-}
-
-// AddOrder adds v to the "order" field.
-func (u *ElementUpsert) AddOrder(v int) *ElementUpsert {
-	u.Add(element.FieldOrder, v)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -701,69 +576,6 @@ func (u *ElementUpsertOne) UpdateDescription() *ElementUpsertOne {
 func (u *ElementUpsertOne) ClearDescription() *ElementUpsertOne {
 	return u.Update(func(s *ElementUpsert) {
 		s.ClearDescription()
-	})
-}
-
-// SetColor sets the "color" field.
-func (u *ElementUpsertOne) SetColor(v string) *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.SetColor(v)
-	})
-}
-
-// UpdateColor sets the "color" field to the value that was provided on create.
-func (u *ElementUpsertOne) UpdateColor() *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.UpdateColor()
-	})
-}
-
-// ClearColor clears the value of the "color" field.
-func (u *ElementUpsertOne) ClearColor() *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.ClearColor()
-	})
-}
-
-// SetIcon sets the "icon" field.
-func (u *ElementUpsertOne) SetIcon(v string) *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.SetIcon(v)
-	})
-}
-
-// UpdateIcon sets the "icon" field to the value that was provided on create.
-func (u *ElementUpsertOne) UpdateIcon() *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.UpdateIcon()
-	})
-}
-
-// ClearIcon clears the value of the "icon" field.
-func (u *ElementUpsertOne) ClearIcon() *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.ClearIcon()
-	})
-}
-
-// SetOrder sets the "order" field.
-func (u *ElementUpsertOne) SetOrder(v int) *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.SetOrder(v)
-	})
-}
-
-// AddOrder adds v to the "order" field.
-func (u *ElementUpsertOne) AddOrder(v int) *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.AddOrder(v)
-	})
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *ElementUpsertOne) UpdateOrder() *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.UpdateOrder()
 	})
 }
 
@@ -1092,69 +904,6 @@ func (u *ElementUpsertBulk) UpdateDescription() *ElementUpsertBulk {
 func (u *ElementUpsertBulk) ClearDescription() *ElementUpsertBulk {
 	return u.Update(func(s *ElementUpsert) {
 		s.ClearDescription()
-	})
-}
-
-// SetColor sets the "color" field.
-func (u *ElementUpsertBulk) SetColor(v string) *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.SetColor(v)
-	})
-}
-
-// UpdateColor sets the "color" field to the value that was provided on create.
-func (u *ElementUpsertBulk) UpdateColor() *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.UpdateColor()
-	})
-}
-
-// ClearColor clears the value of the "color" field.
-func (u *ElementUpsertBulk) ClearColor() *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.ClearColor()
-	})
-}
-
-// SetIcon sets the "icon" field.
-func (u *ElementUpsertBulk) SetIcon(v string) *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.SetIcon(v)
-	})
-}
-
-// UpdateIcon sets the "icon" field to the value that was provided on create.
-func (u *ElementUpsertBulk) UpdateIcon() *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.UpdateIcon()
-	})
-}
-
-// ClearIcon clears the value of the "icon" field.
-func (u *ElementUpsertBulk) ClearIcon() *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.ClearIcon()
-	})
-}
-
-// SetOrder sets the "order" field.
-func (u *ElementUpsertBulk) SetOrder(v int) *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.SetOrder(v)
-	})
-}
-
-// AddOrder adds v to the "order" field.
-func (u *ElementUpsertBulk) AddOrder(v int) *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.AddOrder(v)
-	})
-}
-
-// UpdateOrder sets the "order" field to the value that was provided on create.
-func (u *ElementUpsertBulk) UpdateOrder() *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.UpdateOrder()
 	})
 }
 

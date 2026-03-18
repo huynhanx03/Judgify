@@ -24,8 +24,6 @@ const (
 	FieldDeletedBy = "deleted_by"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldOrder holds the string denoting the order field in the database.
-	FieldOrder = "order"
 	// FieldMinRating holds the string denoting the min_rating field in the database.
 	FieldMinRating = "min_rating"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -42,7 +40,6 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldDeletedBy,
 	FieldName,
-	FieldOrder,
 	FieldMinRating,
 	FieldDescription,
 }
@@ -73,8 +70,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// OrderValidator is a validator for the "order" field. It is called by the builders before save.
-	OrderValidator func(int) error
 	// DefaultMinRating holds the default value on creation for the "min_rating" field.
 	DefaultMinRating int
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
@@ -112,11 +107,6 @@ func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
-}
-
-// ByOrder orders the results by the order field.
-func ByOrder(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrder, opts...).ToFunc()
 }
 
 // ByMinRating orders the results by the min_rating field.

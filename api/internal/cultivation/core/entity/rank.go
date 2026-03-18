@@ -6,7 +6,6 @@ import "time"
 type Rank struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
-	Order       int       `json:"order"`
 	MinRating   int       `json:"min_rating"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`

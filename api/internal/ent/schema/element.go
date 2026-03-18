@@ -37,17 +37,6 @@ func (Element) Fields() []ent.Field {
 		field.String("description").
 			Optional().
 			MaxLen(255),
-		field.String("color").
-			Optional().
-			MaxLen(20).
-			Comment("Hex color for UI display"),
-		field.String("icon").
-			Optional().
-			MaxLen(100).
-			Comment("Icon path or class name"),
-		field.Int("order").
-			Default(0).
-			Comment("Display order"),
 	}
 }
 

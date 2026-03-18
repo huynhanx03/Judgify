@@ -15,9 +15,6 @@ func ToElementResponse(e *entity.Element) *dto.ElementResponse {
 		Name:        e.Name,
 		Code:        e.Code,
 		Description: e.Description,
-		Color:       e.Color,
-		Icon:        e.Icon,
-		Order:       e.Order,
 	}
 }
 
@@ -27,8 +24,5 @@ func ToElementEntityFromCreate(req *dto.CreateElementRequest) *entity.Element {
 		Name:        req.Name,
 		Code:        req.Code,
 		Description: req.Description,
-		Color:       req.Color,
-		Icon:        req.Icon,
-		Order:       req.Order,
 	}
 }
