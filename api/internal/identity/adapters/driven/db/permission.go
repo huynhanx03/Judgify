@@ -118,7 +118,12 @@ func (r *PermissionRepository) Delete(ctx context.Context, id int) error {
 
 func (r *PermissionRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).Permission.Query().Where(permission.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, permissionRepoName)
+
+	if err != nil {
+		return false, commonEnt.MapEntError(err, permissionRepoName)
+	}
+
+	return exists, nil
 }
 
 func (r *PermissionRepository) FindByRoleIDs(ctx context.Context, roleIDs []int) ([]*entity.Permission, error) {

@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema/field"
 
 	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
 // Credential holds the schema definition for the Credential entity.
@@ -17,7 +18,7 @@ type Credential struct {
 func (Credential) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		e.TimeMixin{},
-		e.SoftDeleteMixin{},
+		mixin.SoftDeleteMixin{},
 	}
 }
 

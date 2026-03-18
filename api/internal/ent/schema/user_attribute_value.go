@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
 // UserAttributeValue holds the schema definition for the UserAttributeValue entity.
@@ -18,7 +19,7 @@ type UserAttributeValue struct {
 func (UserAttributeValue) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		e.TimeMixin{},
-		e.SoftDeleteMixin{},
+		mixin.SoftDeleteMixin{},
 	}
 }
 

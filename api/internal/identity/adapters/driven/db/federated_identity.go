@@ -121,5 +121,10 @@ func (r *FederatedIdentityRepository) Delete(ctx context.Context, id int) error 
 
 func (r *FederatedIdentityRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).FederatedIdentity.Query().Where(federatedidentity.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, fedIdentityRepoName)
+
+	if err != nil {
+		return false, commonEnt.MapEntError(err, fedIdentityRepoName)
+	}
+
+	return exists, nil
 }

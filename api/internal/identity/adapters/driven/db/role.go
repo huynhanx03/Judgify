@@ -158,7 +158,12 @@ func (r *RoleRepository) Delete(ctx context.Context, id int) error {
 
 func (r *RoleRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).Role.Query().Where(role.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, roleRepoName)
+
+	if err != nil {
+		return false, commonEnt.MapEntError(err, roleRepoName)
+	}
+
+	return exists, nil
 }
 
 func (r *RoleRepository) FindDescendants(ctx context.Context, lft, rgt int) ([]*entity.Role, error) {

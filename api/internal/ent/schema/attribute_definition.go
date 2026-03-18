@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema/field"
 
 	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
 // AttributeDefinition holds the schema definition for the AttributeDefinition entity.
@@ -17,7 +18,7 @@ type AttributeDefinition struct {
 func (AttributeDefinition) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		e.TimeMixin{},
-		e.SoftDeleteMixin{},
+		mixin.SoftDeleteMixin{},
 	}
 }
 

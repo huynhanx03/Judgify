@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/huynhanx03/judgify/internal/identity/adapters/driven/db/builder"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/identity/adapters/driven/db/builder"
 	"github.com/huynhanx03/judgify/internal/identity/adapters/driven/db/mapper"
 	"github.com/huynhanx03/judgify/internal/identity/core/entity"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
@@ -140,5 +140,10 @@ func (r *AttributeDefinitionRepository) Delete(ctx context.Context, id int) erro
 
 func (r *AttributeDefinitionRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).AttributeDefinition.Query().Where(attributedefinition.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, attrDefRepoName)
+
+	if err != nil {
+		return false, commonEnt.MapEntError(err, attrDefRepoName)
+	}
+
+	return exists, nil
 }

@@ -57,7 +57,7 @@ INSERT INTO "users" (id, username, role_id, created_at, updated_at) OVERRIDING S
 (1, 'admin', 1, NOW(), NOW());
 
 INSERT INTO "credentials" (user_id, type, credential_data, created_at, updated_at) VALUES
-(1, 'password', '{"hash": "$2a$10$r9c9v6X7.8S.mU/o0Y0VPe1.z.Z1qO.Z6vE1pQ1.vV1vV1vV1vV1."}', NOW(), NOW());
+(1, 'password', '{"hash": "$2y$12$/BYlRUwtO/rPeAhWaS5jLeYPhXNpRSqbQHB.WBTxXRC6Ltd4ysDOq"}', NOW(), NOW());
 
 -- Reset Sequences (For PostgreSQL identity columns)
 SELECT setval(pg_get_serial_sequence('roles', 'id'), coalesce(max(id), 1), max(id) IS NOT NULL) FROM "roles";

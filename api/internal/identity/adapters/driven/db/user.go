@@ -125,9 +125,11 @@ func (r *UserRepository) Delete(ctx context.Context, id int) error {
 
 func (r *UserRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).User.Query().Where(user.ID(id)).Exist(ctx)
+
 	if err != nil {
-		return exists, commonEnt.MapEntError(err, userRepoName)
+		return false, commonEnt.MapEntError(err, userRepoName)
 	}
+
 	return exists, nil
 }
 

@@ -40,7 +40,6 @@ func NewEntClient(dbSettings settings.Database, debug bool, log *zap.Logger) (*E
 	}
 
 	client := generate.NewClient(generate.Driver(driver))
-	registerSoftDeleteHook(client)
 
 	if debug {
 		client = client.Debug()
@@ -51,7 +50,6 @@ func NewEntClient(dbSettings settings.Database, debug bool, log *zap.Logger) (*E
 
 // WrapClient wraps an existing generated client.
 func WrapClient(client *generate.Client, log *zap.Logger) *EntClient {
-	registerSoftDeleteHook(client)
 	return &EntClient{client: client, log: log}
 }
 

@@ -118,7 +118,12 @@ func (r *ResourceRepository) Delete(ctx context.Context, id int) error {
 
 func (r *ResourceRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).Resource.Query().Where(resource.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, resourceRepoName)
+
+	if err != nil {
+		return false, commonEnt.MapEntError(err, resourceRepoName)
+	}
+
+	return exists, nil
 }
 
 func (r *ResourceRepository) FindByIDs(ctx context.Context, ids []int) ([]*entity.Resource, error) {

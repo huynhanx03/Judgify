@@ -131,5 +131,10 @@ func (r *CredentialRepository) Delete(ctx context.Context, id int) error {
 
 func (r *CredentialRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).Credential.Query().Where(credential.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, credentialRepoName)
+
+	if err != nil {
+		return false, commonEnt.MapEntError(err, credentialRepoName)
+	}
+
+	return exists, nil
 }

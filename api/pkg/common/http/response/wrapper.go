@@ -64,7 +64,7 @@ func ErrorResponse(c *gin.Context, code int, err any) {
 	httpCode = GetHTTPCode(code)
 	msgStr = Msg[code]
 
-	if e, ok := err.(*apperr.AppError); ok {
+	if e, ok := err.(*apperr.AppError); ok && e != nil {
 		// Custom AppError
 		if e.Code != 0 {
 			code = e.Code
@@ -75,7 +75,7 @@ func ErrorResponse(c *gin.Context, code int, err any) {
 		if e.Message != "" {
 			msgStr = e.Message
 		}
-	} else if e, ok := err.(error); ok {
+	} else if e, ok := err.(error); ok && e != nil {
 		// Standard error
 		// We deliberately keep msgStr as the safe default (Msg[code])
 		// to prevent leaking internal system errors to the client.
