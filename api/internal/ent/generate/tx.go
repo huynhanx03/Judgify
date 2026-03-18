@@ -18,12 +18,18 @@ type Tx struct {
 	AttributeDefinition *AttributeDefinitionClient
 	// Credential is the client for interacting with the Credential builders.
 	Credential *CredentialClient
+	// Element is the client for interacting with the Element builders.
+	Element *ElementClient
 	// FederatedIdentity is the client for interacting with the FederatedIdentity builders.
 	FederatedIdentity *FederatedIdentityClient
+	// Level is the client for interacting with the Level builders.
+	Level *LevelClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
+	// Rank is the client for interacting with the Rank builders.
+	Rank *RankClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
@@ -32,10 +38,18 @@ type Tx struct {
 	Tag *TagClient
 	// TestCase is the client for interacting with the TestCase builders.
 	TestCase *TestCaseClient
+	// Trait is the client for interacting with the Trait builders.
+	Trait *TraitClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserAttributeValue is the client for interacting with the UserAttributeValue builders.
 	UserAttributeValue *UserAttributeValueClient
+	// UserElementExp is the client for interacting with the UserElementExp builders.
+	UserElementExp *UserElementExpClient
+	// UserStats is the client for interacting with the UserStats builders.
+	UserStats *UserStatsClient
+	// UserTrait is the client for interacting with the UserTrait builders.
+	UserTrait *UserTraitClient
 
 	// lazily loaded.
 	client     *Client
@@ -169,15 +183,22 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AttributeDefinition = NewAttributeDefinitionClient(tx.config)
 	tx.Credential = NewCredentialClient(tx.config)
+	tx.Element = NewElementClient(tx.config)
 	tx.FederatedIdentity = NewFederatedIdentityClient(tx.config)
+	tx.Level = NewLevelClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)
+	tx.Rank = NewRankClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)
 	tx.TestCase = NewTestCaseClient(tx.config)
+	tx.Trait = NewTraitClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserAttributeValue = NewUserAttributeValueClient(tx.config)
+	tx.UserElementExp = NewUserElementExpClient(tx.config)
+	tx.UserStats = NewUserStatsClient(tx.config)
+	tx.UserTrait = NewUserTraitClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

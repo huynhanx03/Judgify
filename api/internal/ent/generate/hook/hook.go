@@ -33,6 +33,18 @@ func (f CredentialFunc) Mutate(ctx context.Context, m generate.Mutation) (genera
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.CredentialMutation", m)
 }
 
+// The ElementFunc type is an adapter to allow the use of ordinary
+// function as Element mutator.
+type ElementFunc func(context.Context, *generate.ElementMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ElementFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.ElementMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.ElementMutation", m)
+}
+
 // The FederatedIdentityFunc type is an adapter to allow the use of ordinary
 // function as FederatedIdentity mutator.
 type FederatedIdentityFunc func(context.Context, *generate.FederatedIdentityMutation) (generate.Value, error)
@@ -43,6 +55,18 @@ func (f FederatedIdentityFunc) Mutate(ctx context.Context, m generate.Mutation) 
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.FederatedIdentityMutation", m)
+}
+
+// The LevelFunc type is an adapter to allow the use of ordinary
+// function as Level mutator.
+type LevelFunc func(context.Context, *generate.LevelMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LevelFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.LevelMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.LevelMutation", m)
 }
 
 // The PermissionFunc type is an adapter to allow the use of ordinary
@@ -67,6 +91,18 @@ func (f ProblemFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.ProblemMutation", m)
+}
+
+// The RankFunc type is an adapter to allow the use of ordinary
+// function as Rank mutator.
+type RankFunc func(context.Context, *generate.RankMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RankFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.RankMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.RankMutation", m)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary
@@ -117,6 +153,18 @@ func (f TestCaseFunc) Mutate(ctx context.Context, m generate.Mutation) (generate
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TestCaseMutation", m)
 }
 
+// The TraitFunc type is an adapter to allow the use of ordinary
+// function as Trait mutator.
+type TraitFunc func(context.Context, *generate.TraitMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TraitFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.TraitMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TraitMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *generate.UserMutation) (generate.Value, error)
@@ -139,6 +187,42 @@ func (f UserAttributeValueFunc) Mutate(ctx context.Context, m generate.Mutation)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserAttributeValueMutation", m)
+}
+
+// The UserElementExpFunc type is an adapter to allow the use of ordinary
+// function as UserElementExp mutator.
+type UserElementExpFunc func(context.Context, *generate.UserElementExpMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserElementExpFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.UserElementExpMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserElementExpMutation", m)
+}
+
+// The UserStatsFunc type is an adapter to allow the use of ordinary
+// function as UserStats mutator.
+type UserStatsFunc func(context.Context, *generate.UserStatsMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserStatsFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.UserStatsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserStatsMutation", m)
+}
+
+// The UserTraitFunc type is an adapter to allow the use of ordinary
+// function as UserTrait mutator.
+type UserTraitFunc func(context.Context, *generate.UserTraitMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserTraitFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.UserTraitMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserTraitMutation", m)
 }
 
 // Condition is a hook condition function.

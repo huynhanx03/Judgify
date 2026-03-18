@@ -14,15 +14,22 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -85,15 +92,22 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			attributedefinition.Table: attributedefinition.ValidColumn,
 			credential.Table:          credential.ValidColumn,
+			element.Table:             element.ValidColumn,
 			federatedidentity.Table:   federatedidentity.ValidColumn,
+			level.Table:               level.ValidColumn,
 			permission.Table:          permission.ValidColumn,
 			problem.Table:             problem.ValidColumn,
+			rank.Table:                rank.ValidColumn,
 			resource.Table:            resource.ValidColumn,
 			role.Table:                role.ValidColumn,
 			tag.Table:                 tag.ValidColumn,
 			testcase.Table:            testcase.ValidColumn,
+			trait.Table:               trait.ValidColumn,
 			user.Table:                user.ValidColumn,
 			userattributevalue.Table:  userattributevalue.ValidColumn,
+			userelementexp.Table:      userelementexp.ValidColumn,
+			userstats.Table:           userstats.ValidColumn,
+			usertrait.Table:           usertrait.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

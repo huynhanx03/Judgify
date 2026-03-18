@@ -465,6 +465,75 @@ func HasProblemsWith(preds ...predicate.Problem) predicate.User {
 	})
 }
 
+// HasUserTraits applies the HasEdge predicate on the "user_traits" edge.
+func HasUserTraits() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserTraitsTable, UserTraitsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserTraitsWith applies the HasEdge predicate on the "user_traits" edge with a given conditions (other predicates).
+func HasUserTraitsWith(preds ...predicate.UserTrait) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newUserTraitsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasUserElementExps applies the HasEdge predicate on the "user_element_exps" edge.
+func HasUserElementExps() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserElementExpsTable, UserElementExpsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserElementExpsWith applies the HasEdge predicate on the "user_element_exps" edge with a given conditions (other predicates).
+func HasUserElementExpsWith(preds ...predicate.UserElementExp) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newUserElementExpsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasUserStats applies the HasEdge predicate on the "user_stats" edge.
+func HasUserStats() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserStatsTable, UserStatsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserStatsWith applies the HasEdge predicate on the "user_stats" edge with a given conditions (other predicates).
+func HasUserStatsWith(preds ...predicate.UserStats) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newUserStatsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

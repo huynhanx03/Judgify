@@ -8,27 +8,31 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/huynhanx03/judgify/global"
+	cultivationHttp "github.com/huynhanx03/judgify/internal/cultivation/adapters/driver/http"
 	identityHttp "github.com/huynhanx03/judgify/internal/identity/adapters/driver/http"
 	problemHttp "github.com/huynhanx03/judgify/internal/problem/adapters/driver/http"
 )
 
 // RouterGroup contains all handlers and permission checker.
 type RouterGroup struct {
-	IdentityHandler *identityHttp.IdentityHandler
-	ProblemHandler  *problemHttp.ProblemHandlerGroup
-	PermChecker      *middlewares.PermissionChecker
+	IdentityHandler    *identityHttp.IdentityHandler
+	ProblemHandler     *problemHttp.ProblemHandlerGroup
+	CultivationHandler *cultivationHttp.CultivationHandlerGroup
+	PermChecker        *middlewares.PermissionChecker
 }
 
 // NewRouterGroup creates a new RouterGroup.
 func NewRouterGroup(
 	identityHandler *identityHttp.IdentityHandler,
 	problemHandler *problemHttp.ProblemHandlerGroup,
+	cultivationHandler *cultivationHttp.CultivationHandlerGroup,
 	permChecker *middlewares.PermissionChecker,
 ) *RouterGroup {
 	return &RouterGroup{
-		IdentityHandler: identityHandler,
-		ProblemHandler:  problemHandler,
-		PermChecker:     permChecker,
+		IdentityHandler:    identityHandler,
+		ProblemHandler:     problemHandler,
+		CultivationHandler: cultivationHandler,
+		PermChecker:        permChecker,
 	}
 }
 
@@ -43,6 +47,7 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 	{
 		rg.IdentityHandler.RegisterProtected(protected, rg.PermChecker)
 		rg.ProblemHandler.RegisterProtected(protected, rg.PermChecker)
+		rg.CultivationHandler.RegisterProtected(protected, rg.PermChecker)
 	}
 }
 

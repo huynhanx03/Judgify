@@ -12,14 +12,23 @@ type AttributeDefinition func(*sql.Selector)
 // Credential is the predicate function for credential builders.
 type Credential func(*sql.Selector)
 
+// Element is the predicate function for element builders.
+type Element func(*sql.Selector)
+
 // FederatedIdentity is the predicate function for federatedidentity builders.
 type FederatedIdentity func(*sql.Selector)
+
+// Level is the predicate function for level builders.
+type Level func(*sql.Selector)
 
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
 
 // Problem is the predicate function for problem builders.
 type Problem func(*sql.Selector)
+
+// Rank is the predicate function for rank builders.
+type Rank func(*sql.Selector)
 
 // Resource is the predicate function for resource builders.
 type Resource func(*sql.Selector)
@@ -33,8 +42,20 @@ type Tag func(*sql.Selector)
 // TestCase is the predicate function for testcase builders.
 type TestCase func(*sql.Selector)
 
+// Trait is the predicate function for trait builders.
+type Trait func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 
 // UserAttributeValue is the predicate function for userattributevalue builders.
 type UserAttributeValue func(*sql.Selector)
+
+// UserElementExp is the predicate function for userelementexp builders.
+type UserElementExp func(*sql.Selector)
+
+// UserStats is the predicate function for userstats builders.
+type UserStats func(*sql.Selector)
+
+// UserTrait is the predicate function for usertrait builders.
+type UserTrait func(*sql.Selector)

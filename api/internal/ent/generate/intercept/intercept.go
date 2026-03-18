@@ -10,16 +10,23 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
 // The Query interface represents an operation that queries a graph.
@@ -132,6 +139,33 @@ func (f TraverseCredential) Traverse(ctx context.Context, q generate.Query) erro
 	return fmt.Errorf("unexpected query type %T. expect *generate.CredentialQuery", q)
 }
 
+// The ElementFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ElementFunc func(context.Context, *generate.ElementQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f ElementFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.ElementQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.ElementQuery", q)
+}
+
+// The TraverseElement type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseElement func(context.Context, *generate.ElementQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseElement) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseElement) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.ElementQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.ElementQuery", q)
+}
+
 // The FederatedIdentityFunc type is an adapter to allow the use of ordinary function as a Querier.
 type FederatedIdentityFunc func(context.Context, *generate.FederatedIdentityQuery) (generate.Value, error)
 
@@ -157,6 +191,33 @@ func (f TraverseFederatedIdentity) Traverse(ctx context.Context, q generate.Quer
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.FederatedIdentityQuery", q)
+}
+
+// The LevelFunc type is an adapter to allow the use of ordinary function as a Querier.
+type LevelFunc func(context.Context, *generate.LevelQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f LevelFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.LevelQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.LevelQuery", q)
+}
+
+// The TraverseLevel type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseLevel func(context.Context, *generate.LevelQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseLevel) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseLevel) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.LevelQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.LevelQuery", q)
 }
 
 // The PermissionFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -211,6 +272,33 @@ func (f TraverseProblem) Traverse(ctx context.Context, q generate.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.ProblemQuery", q)
+}
+
+// The RankFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RankFunc func(context.Context, *generate.RankQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f RankFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.RankQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.RankQuery", q)
+}
+
+// The TraverseRank type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRank func(context.Context, *generate.RankQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRank) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRank) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.RankQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.RankQuery", q)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -321,6 +409,33 @@ func (f TraverseTestCase) Traverse(ctx context.Context, q generate.Query) error 
 	return fmt.Errorf("unexpected query type %T. expect *generate.TestCaseQuery", q)
 }
 
+// The TraitFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TraitFunc func(context.Context, *generate.TraitQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f TraitFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.TraitQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.TraitQuery", q)
+}
+
+// The TraverseTrait type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTrait func(context.Context, *generate.TraitQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTrait) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTrait) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.TraitQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.TraitQuery", q)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary function as a Querier.
 type UserFunc func(context.Context, *generate.UserQuery) (generate.Value, error)
 
@@ -375,6 +490,87 @@ func (f TraverseUserAttributeValue) Traverse(ctx context.Context, q generate.Que
 	return fmt.Errorf("unexpected query type %T. expect *generate.UserAttributeValueQuery", q)
 }
 
+// The UserElementExpFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UserElementExpFunc func(context.Context, *generate.UserElementExpQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f UserElementExpFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.UserElementExpQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.UserElementExpQuery", q)
+}
+
+// The TraverseUserElementExp type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUserElementExp func(context.Context, *generate.UserElementExpQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUserElementExp) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUserElementExp) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.UserElementExpQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.UserElementExpQuery", q)
+}
+
+// The UserStatsFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UserStatsFunc func(context.Context, *generate.UserStatsQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f UserStatsFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.UserStatsQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.UserStatsQuery", q)
+}
+
+// The TraverseUserStats type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUserStats func(context.Context, *generate.UserStatsQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUserStats) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUserStats) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.UserStatsQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.UserStatsQuery", q)
+}
+
+// The UserTraitFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UserTraitFunc func(context.Context, *generate.UserTraitQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f UserTraitFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.UserTraitQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.UserTraitQuery", q)
+}
+
+// The TraverseUserTrait type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUserTrait func(context.Context, *generate.UserTraitQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUserTrait) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUserTrait) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.UserTraitQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.UserTraitQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q generate.Query) (Query, error) {
 	switch q := q.(type) {
@@ -382,12 +578,18 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.AttributeDefinitionQuery, predicate.AttributeDefinition, attributedefinition.OrderOption]{typ: generate.TypeAttributeDefinition, tq: q}, nil
 	case *generate.CredentialQuery:
 		return &query[*generate.CredentialQuery, predicate.Credential, credential.OrderOption]{typ: generate.TypeCredential, tq: q}, nil
+	case *generate.ElementQuery:
+		return &query[*generate.ElementQuery, predicate.Element, element.OrderOption]{typ: generate.TypeElement, tq: q}, nil
 	case *generate.FederatedIdentityQuery:
 		return &query[*generate.FederatedIdentityQuery, predicate.FederatedIdentity, federatedidentity.OrderOption]{typ: generate.TypeFederatedIdentity, tq: q}, nil
+	case *generate.LevelQuery:
+		return &query[*generate.LevelQuery, predicate.Level, level.OrderOption]{typ: generate.TypeLevel, tq: q}, nil
 	case *generate.PermissionQuery:
 		return &query[*generate.PermissionQuery, predicate.Permission, permission.OrderOption]{typ: generate.TypePermission, tq: q}, nil
 	case *generate.ProblemQuery:
 		return &query[*generate.ProblemQuery, predicate.Problem, problem.OrderOption]{typ: generate.TypeProblem, tq: q}, nil
+	case *generate.RankQuery:
+		return &query[*generate.RankQuery, predicate.Rank, rank.OrderOption]{typ: generate.TypeRank, tq: q}, nil
 	case *generate.ResourceQuery:
 		return &query[*generate.ResourceQuery, predicate.Resource, resource.OrderOption]{typ: generate.TypeResource, tq: q}, nil
 	case *generate.RoleQuery:
@@ -396,10 +598,18 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.TagQuery, predicate.Tag, tag.OrderOption]{typ: generate.TypeTag, tq: q}, nil
 	case *generate.TestCaseQuery:
 		return &query[*generate.TestCaseQuery, predicate.TestCase, testcase.OrderOption]{typ: generate.TypeTestCase, tq: q}, nil
+	case *generate.TraitQuery:
+		return &query[*generate.TraitQuery, predicate.Trait, trait.OrderOption]{typ: generate.TypeTrait, tq: q}, nil
 	case *generate.UserQuery:
 		return &query[*generate.UserQuery, predicate.User, user.OrderOption]{typ: generate.TypeUser, tq: q}, nil
 	case *generate.UserAttributeValueQuery:
 		return &query[*generate.UserAttributeValueQuery, predicate.UserAttributeValue, userattributevalue.OrderOption]{typ: generate.TypeUserAttributeValue, tq: q}, nil
+	case *generate.UserElementExpQuery:
+		return &query[*generate.UserElementExpQuery, predicate.UserElementExp, userelementexp.OrderOption]{typ: generate.TypeUserElementExp, tq: q}, nil
+	case *generate.UserStatsQuery:
+		return &query[*generate.UserStatsQuery, predicate.UserStats, userstats.OrderOption]{typ: generate.TypeUserStats, tq: q}, nil
+	case *generate.UserTraitQuery:
+		return &query[*generate.UserTraitQuery, predicate.UserTrait, usertrait.OrderOption]{typ: generate.TypeUserTrait, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

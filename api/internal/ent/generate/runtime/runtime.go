@@ -7,15 +7,22 @@ import (
 
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 	"github.com/huynhanx03/judgify/internal/ent/schema"
 )
 
@@ -73,6 +80,77 @@ func init() {
 	credentialDescType := credentialFields[1].Descriptor()
 	// credential.TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	credential.TypeValidator = credentialDescType.Validators[0].(func(string) error)
+	elementMixin := schema.Element{}.Mixin()
+	elementMixinHooks1 := elementMixin[1].Hooks()
+	element.Hooks[0] = elementMixinHooks1[0]
+	elementMixinInters1 := elementMixin[1].Interceptors()
+	element.Interceptors[0] = elementMixinInters1[0]
+	elementMixinFields0 := elementMixin[0].Fields()
+	_ = elementMixinFields0
+	elementFields := schema.Element{}.Fields()
+	_ = elementFields
+	// elementDescCreatedAt is the schema descriptor for created_at field.
+	elementDescCreatedAt := elementMixinFields0[0].Descriptor()
+	// element.DefaultCreatedAt holds the default value on creation for the created_at field.
+	element.DefaultCreatedAt = elementDescCreatedAt.Default.(func() time.Time)
+	// elementDescUpdatedAt is the schema descriptor for updated_at field.
+	elementDescUpdatedAt := elementMixinFields0[1].Descriptor()
+	// element.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	element.DefaultUpdatedAt = elementDescUpdatedAt.Default.(func() time.Time)
+	// element.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	element.UpdateDefaultUpdatedAt = elementDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// elementDescName is the schema descriptor for name field.
+	elementDescName := elementFields[0].Descriptor()
+	// element.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	element.NameValidator = func() func(string) error {
+		validators := elementDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// elementDescCode is the schema descriptor for code field.
+	elementDescCode := elementFields[1].Descriptor()
+	// element.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	element.CodeValidator = func() func(string) error {
+		validators := elementDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// elementDescDescription is the schema descriptor for description field.
+	elementDescDescription := elementFields[2].Descriptor()
+	// element.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	element.DescriptionValidator = elementDescDescription.Validators[0].(func(string) error)
+	// elementDescColor is the schema descriptor for color field.
+	elementDescColor := elementFields[3].Descriptor()
+	// element.ColorValidator is a validator for the "color" field. It is called by the builders before save.
+	element.ColorValidator = elementDescColor.Validators[0].(func(string) error)
+	// elementDescIcon is the schema descriptor for icon field.
+	elementDescIcon := elementFields[4].Descriptor()
+	// element.IconValidator is a validator for the "icon" field. It is called by the builders before save.
+	element.IconValidator = elementDescIcon.Validators[0].(func(string) error)
+	// elementDescOrder is the schema descriptor for order field.
+	elementDescOrder := elementFields[5].Descriptor()
+	// element.DefaultOrder holds the default value on creation for the order field.
+	element.DefaultOrder = elementDescOrder.Default.(int)
 	federatedidentityMixin := schema.FederatedIdentity{}.Mixin()
 	federatedidentityMixinHooks1 := federatedidentityMixin[1].Hooks()
 	federatedidentity.Hooks[0] = federatedidentityMixinHooks1[0]
@@ -100,6 +178,57 @@ func init() {
 	federatedidentityDescExternalID := federatedidentityFields[2].Descriptor()
 	// federatedidentity.ExternalIDValidator is a validator for the "external_id" field. It is called by the builders before save.
 	federatedidentity.ExternalIDValidator = federatedidentityDescExternalID.Validators[0].(func(string) error)
+	levelMixin := schema.Level{}.Mixin()
+	levelMixinHooks1 := levelMixin[1].Hooks()
+	level.Hooks[0] = levelMixinHooks1[0]
+	levelMixinInters1 := levelMixin[1].Interceptors()
+	level.Interceptors[0] = levelMixinInters1[0]
+	levelMixinFields0 := levelMixin[0].Fields()
+	_ = levelMixinFields0
+	levelFields := schema.Level{}.Fields()
+	_ = levelFields
+	// levelDescCreatedAt is the schema descriptor for created_at field.
+	levelDescCreatedAt := levelMixinFields0[0].Descriptor()
+	// level.DefaultCreatedAt holds the default value on creation for the created_at field.
+	level.DefaultCreatedAt = levelDescCreatedAt.Default.(func() time.Time)
+	// levelDescUpdatedAt is the schema descriptor for updated_at field.
+	levelDescUpdatedAt := levelMixinFields0[1].Descriptor()
+	// level.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	level.DefaultUpdatedAt = levelDescUpdatedAt.Default.(func() time.Time)
+	// level.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	level.UpdateDefaultUpdatedAt = levelDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// levelDescName is the schema descriptor for name field.
+	levelDescName := levelFields[0].Descriptor()
+	// level.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	level.NameValidator = func() func(string) error {
+		validators := levelDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// levelDescOrder is the schema descriptor for order field.
+	levelDescOrder := levelFields[1].Descriptor()
+	// level.OrderValidator is a validator for the "order" field. It is called by the builders before save.
+	level.OrderValidator = levelDescOrder.Validators[0].(func(int) error)
+	// levelDescMinExp is the schema descriptor for min_exp field.
+	levelDescMinExp := levelFields[2].Descriptor()
+	// level.DefaultMinExp holds the default value on creation for the min_exp field.
+	level.DefaultMinExp = levelDescMinExp.Default.(int64)
+	// level.MinExpValidator is a validator for the "min_exp" field. It is called by the builders before save.
+	level.MinExpValidator = levelDescMinExp.Validators[0].(func(int64) error)
+	// levelDescDescription is the schema descriptor for description field.
+	levelDescDescription := levelFields[3].Descriptor()
+	// level.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	level.DescriptionValidator = levelDescDescription.Validators[0].(func(string) error)
 	permissionMixin := schema.Permission{}.Mixin()
 	permissionMixinHooks1 := permissionMixin[1].Hooks()
 	permission.Hooks[0] = permissionMixinHooks1[0]
@@ -176,6 +305,55 @@ func init() {
 	problemDescIsPublished := problemFields[6].Descriptor()
 	// problem.DefaultIsPublished holds the default value on creation for the is_published field.
 	problem.DefaultIsPublished = problemDescIsPublished.Default.(bool)
+	rankMixin := schema.Rank{}.Mixin()
+	rankMixinHooks1 := rankMixin[1].Hooks()
+	rank.Hooks[0] = rankMixinHooks1[0]
+	rankMixinInters1 := rankMixin[1].Interceptors()
+	rank.Interceptors[0] = rankMixinInters1[0]
+	rankMixinFields0 := rankMixin[0].Fields()
+	_ = rankMixinFields0
+	rankFields := schema.Rank{}.Fields()
+	_ = rankFields
+	// rankDescCreatedAt is the schema descriptor for created_at field.
+	rankDescCreatedAt := rankMixinFields0[0].Descriptor()
+	// rank.DefaultCreatedAt holds the default value on creation for the created_at field.
+	rank.DefaultCreatedAt = rankDescCreatedAt.Default.(func() time.Time)
+	// rankDescUpdatedAt is the schema descriptor for updated_at field.
+	rankDescUpdatedAt := rankMixinFields0[1].Descriptor()
+	// rank.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	rank.DefaultUpdatedAt = rankDescUpdatedAt.Default.(func() time.Time)
+	// rank.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	rank.UpdateDefaultUpdatedAt = rankDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// rankDescName is the schema descriptor for name field.
+	rankDescName := rankFields[0].Descriptor()
+	// rank.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	rank.NameValidator = func() func(string) error {
+		validators := rankDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// rankDescOrder is the schema descriptor for order field.
+	rankDescOrder := rankFields[1].Descriptor()
+	// rank.OrderValidator is a validator for the "order" field. It is called by the builders before save.
+	rank.OrderValidator = rankDescOrder.Validators[0].(func(int) error)
+	// rankDescMinRating is the schema descriptor for min_rating field.
+	rankDescMinRating := rankFields[2].Descriptor()
+	// rank.DefaultMinRating holds the default value on creation for the min_rating field.
+	rank.DefaultMinRating = rankDescMinRating.Default.(int)
+	// rankDescDescription is the schema descriptor for description field.
+	rankDescDescription := rankFields[3].Descriptor()
+	// rank.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	rank.DescriptionValidator = rankDescDescription.Validators[0].(func(string) error)
 	resourceMixin := schema.Resource{}.Mixin()
 	resourceMixinHooks1 := resourceMixin[1].Hooks()
 	resource.Hooks[0] = resourceMixinHooks1[0]
@@ -306,6 +484,53 @@ func init() {
 	testcaseDescIsSample := testcaseFields[3].Descriptor()
 	// testcase.DefaultIsSample holds the default value on creation for the is_sample field.
 	testcase.DefaultIsSample = testcaseDescIsSample.Default.(bool)
+	traitMixin := schema.Trait{}.Mixin()
+	traitMixinHooks1 := traitMixin[1].Hooks()
+	trait.Hooks[0] = traitMixinHooks1[0]
+	traitMixinInters1 := traitMixin[1].Interceptors()
+	trait.Interceptors[0] = traitMixinInters1[0]
+	traitMixinFields0 := traitMixin[0].Fields()
+	_ = traitMixinFields0
+	traitFields := schema.Trait{}.Fields()
+	_ = traitFields
+	// traitDescCreatedAt is the schema descriptor for created_at field.
+	traitDescCreatedAt := traitMixinFields0[0].Descriptor()
+	// trait.DefaultCreatedAt holds the default value on creation for the created_at field.
+	trait.DefaultCreatedAt = traitDescCreatedAt.Default.(func() time.Time)
+	// traitDescUpdatedAt is the schema descriptor for updated_at field.
+	traitDescUpdatedAt := traitMixinFields0[1].Descriptor()
+	// trait.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	trait.DefaultUpdatedAt = traitDescUpdatedAt.Default.(func() time.Time)
+	// trait.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	trait.UpdateDefaultUpdatedAt = traitDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// traitDescName is the schema descriptor for name field.
+	traitDescName := traitFields[1].Descriptor()
+	// trait.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	trait.NameValidator = func() func(string) error {
+		validators := traitDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// traitDescWeight is the schema descriptor for weight field.
+	traitDescWeight := traitFields[3].Descriptor()
+	// trait.DefaultWeight holds the default value on creation for the weight field.
+	trait.DefaultWeight = traitDescWeight.Default.(int)
+	// trait.WeightValidator is a validator for the "weight" field. It is called by the builders before save.
+	trait.WeightValidator = traitDescWeight.Validators[0].(func(int) error)
+	// traitDescDescription is the schema descriptor for description field.
+	traitDescDescription := traitFields[4].Descriptor()
+	// trait.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	trait.DescriptionValidator = traitDescDescription.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()
 	userMixinHooks1 := userMixin[1].Hooks()
 	user.Hooks[0] = userMixinHooks1[0]
@@ -352,6 +577,79 @@ func init() {
 	userattributevalueDescValue := userattributevalueFields[2].Descriptor()
 	// userattributevalue.ValueValidator is a validator for the "value" field. It is called by the builders before save.
 	userattributevalue.ValueValidator = userattributevalueDescValue.Validators[0].(func(string) error)
+	userelementexpMixin := schema.UserElementExp{}.Mixin()
+	userelementexpMixinHooks1 := userelementexpMixin[1].Hooks()
+	userelementexp.Hooks[0] = userelementexpMixinHooks1[0]
+	userelementexpMixinInters1 := userelementexpMixin[1].Interceptors()
+	userelementexp.Interceptors[0] = userelementexpMixinInters1[0]
+	userelementexpMixinFields0 := userelementexpMixin[0].Fields()
+	_ = userelementexpMixinFields0
+	userelementexpFields := schema.UserElementExp{}.Fields()
+	_ = userelementexpFields
+	// userelementexpDescCreatedAt is the schema descriptor for created_at field.
+	userelementexpDescCreatedAt := userelementexpMixinFields0[0].Descriptor()
+	// userelementexp.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userelementexp.DefaultCreatedAt = userelementexpDescCreatedAt.Default.(func() time.Time)
+	// userelementexpDescUpdatedAt is the schema descriptor for updated_at field.
+	userelementexpDescUpdatedAt := userelementexpMixinFields0[1].Descriptor()
+	// userelementexp.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userelementexp.DefaultUpdatedAt = userelementexpDescUpdatedAt.Default.(func() time.Time)
+	// userelementexp.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userelementexp.UpdateDefaultUpdatedAt = userelementexpDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userelementexpDescExp is the schema descriptor for exp field.
+	userelementexpDescExp := userelementexpFields[2].Descriptor()
+	// userelementexp.DefaultExp holds the default value on creation for the exp field.
+	userelementexp.DefaultExp = userelementexpDescExp.Default.(int64)
+	// userelementexp.ExpValidator is a validator for the "exp" field. It is called by the builders before save.
+	userelementexp.ExpValidator = userelementexpDescExp.Validators[0].(func(int64) error)
+	userstatsMixin := schema.UserStats{}.Mixin()
+	userstatsMixinHooks1 := userstatsMixin[1].Hooks()
+	userstats.Hooks[0] = userstatsMixinHooks1[0]
+	userstatsMixinInters1 := userstatsMixin[1].Interceptors()
+	userstats.Interceptors[0] = userstatsMixinInters1[0]
+	userstatsMixinFields0 := userstatsMixin[0].Fields()
+	_ = userstatsMixinFields0
+	userstatsFields := schema.UserStats{}.Fields()
+	_ = userstatsFields
+	// userstatsDescCreatedAt is the schema descriptor for created_at field.
+	userstatsDescCreatedAt := userstatsMixinFields0[0].Descriptor()
+	// userstats.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userstats.DefaultCreatedAt = userstatsDescCreatedAt.Default.(func() time.Time)
+	// userstatsDescUpdatedAt is the schema descriptor for updated_at field.
+	userstatsDescUpdatedAt := userstatsMixinFields0[1].Descriptor()
+	// userstats.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userstats.DefaultUpdatedAt = userstatsDescUpdatedAt.Default.(func() time.Time)
+	// userstats.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userstats.UpdateDefaultUpdatedAt = userstatsDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userstatsDescTotalExp is the schema descriptor for total_exp field.
+	userstatsDescTotalExp := userstatsFields[1].Descriptor()
+	// userstats.DefaultTotalExp holds the default value on creation for the total_exp field.
+	userstats.DefaultTotalExp = userstatsDescTotalExp.Default.(int64)
+	// userstats.TotalExpValidator is a validator for the "total_exp" field. It is called by the builders before save.
+	userstats.TotalExpValidator = userstatsDescTotalExp.Validators[0].(func(int64) error)
+	// userstatsDescRating is the schema descriptor for rating field.
+	userstatsDescRating := userstatsFields[3].Descriptor()
+	// userstats.DefaultRating holds the default value on creation for the rating field.
+	userstats.DefaultRating = userstatsDescRating.Default.(int)
+	usertraitMixin := schema.UserTrait{}.Mixin()
+	usertraitMixinHooks1 := usertraitMixin[1].Hooks()
+	usertrait.Hooks[0] = usertraitMixinHooks1[0]
+	usertraitMixinInters1 := usertraitMixin[1].Interceptors()
+	usertrait.Interceptors[0] = usertraitMixinInters1[0]
+	usertraitMixinFields0 := usertraitMixin[0].Fields()
+	_ = usertraitMixinFields0
+	usertraitFields := schema.UserTrait{}.Fields()
+	_ = usertraitFields
+	// usertraitDescCreatedAt is the schema descriptor for created_at field.
+	usertraitDescCreatedAt := usertraitMixinFields0[0].Descriptor()
+	// usertrait.DefaultCreatedAt holds the default value on creation for the created_at field.
+	usertrait.DefaultCreatedAt = usertraitDescCreatedAt.Default.(func() time.Time)
+	// usertraitDescUpdatedAt is the schema descriptor for updated_at field.
+	usertraitDescUpdatedAt := usertraitMixinFields0[1].Descriptor()
+	// usertrait.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	usertrait.DefaultUpdatedAt = usertraitDescUpdatedAt.Default.(func() time.Time)
+	// usertrait.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	usertrait.UpdateDefaultUpdatedAt = usertraitDescUpdatedAt.UpdateDefault.(func() time.Time)
 }
 
 const (

@@ -18,6 +18,9 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -180,6 +183,51 @@ func (_u *UserUpdate) AddProblems(v ...*Problem) *UserUpdate {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
+func (_u *UserUpdate) AddUserTraitIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddUserTraitIDs(ids...)
+	return _u
+}
+
+// AddUserTraits adds the "user_traits" edges to the UserTrait entity.
+func (_u *UserUpdate) AddUserTraits(v ...*UserTrait) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserTraitIDs(ids...)
+}
+
+// AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
+func (_u *UserUpdate) AddUserElementExpIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddUserElementExpIDs(ids...)
+	return _u
+}
+
+// AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
+func (_u *UserUpdate) AddUserElementExps(v ...*UserElementExp) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserElementExpIDs(ids...)
+}
+
+// AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
+func (_u *UserUpdate) AddUserStatIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddUserStatIDs(ids...)
+	return _u
+}
+
+// AddUserStats adds the "user_stats" edges to the UserStats entity.
+func (_u *UserUpdate) AddUserStats(v ...*UserStats) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserStatIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -273,6 +321,69 @@ func (_u *UserUpdate) RemoveProblems(v ...*Problem) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearUserTraits clears all "user_traits" edges to the UserTrait entity.
+func (_u *UserUpdate) ClearUserTraits() *UserUpdate {
+	_u.mutation.ClearUserTraits()
+	return _u
+}
+
+// RemoveUserTraitIDs removes the "user_traits" edge to UserTrait entities by IDs.
+func (_u *UserUpdate) RemoveUserTraitIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveUserTraitIDs(ids...)
+	return _u
+}
+
+// RemoveUserTraits removes "user_traits" edges to UserTrait entities.
+func (_u *UserUpdate) RemoveUserTraits(v ...*UserTrait) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserTraitIDs(ids...)
+}
+
+// ClearUserElementExps clears all "user_element_exps" edges to the UserElementExp entity.
+func (_u *UserUpdate) ClearUserElementExps() *UserUpdate {
+	_u.mutation.ClearUserElementExps()
+	return _u
+}
+
+// RemoveUserElementExpIDs removes the "user_element_exps" edge to UserElementExp entities by IDs.
+func (_u *UserUpdate) RemoveUserElementExpIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveUserElementExpIDs(ids...)
+	return _u
+}
+
+// RemoveUserElementExps removes "user_element_exps" edges to UserElementExp entities.
+func (_u *UserUpdate) RemoveUserElementExps(v ...*UserElementExp) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserElementExpIDs(ids...)
+}
+
+// ClearUserStats clears all "user_stats" edges to the UserStats entity.
+func (_u *UserUpdate) ClearUserStats() *UserUpdate {
+	_u.mutation.ClearUserStats()
+	return _u
+}
+
+// RemoveUserStatIDs removes the "user_stats" edge to UserStats entities by IDs.
+func (_u *UserUpdate) RemoveUserStatIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveUserStatIDs(ids...)
+	return _u
+}
+
+// RemoveUserStats removes "user_stats" edges to UserStats entities.
+func (_u *UserUpdate) RemoveUserStats(v ...*UserStats) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserStatIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -578,6 +689,141 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.UserTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserTraitsIDs(); len(nodes) > 0 && !_u.mutation.UserTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserTraitsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserElementExpsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserElementExpsIDs(); len(nodes) > 0 && !_u.mutation.UserElementExpsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserElementExpsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserStatsIDs(); len(nodes) > 0 && !_u.mutation.UserStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -746,6 +992,51 @@ func (_u *UserUpdateOne) AddProblems(v ...*Problem) *UserUpdateOne {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
+func (_u *UserUpdateOne) AddUserTraitIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddUserTraitIDs(ids...)
+	return _u
+}
+
+// AddUserTraits adds the "user_traits" edges to the UserTrait entity.
+func (_u *UserUpdateOne) AddUserTraits(v ...*UserTrait) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserTraitIDs(ids...)
+}
+
+// AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
+func (_u *UserUpdateOne) AddUserElementExpIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddUserElementExpIDs(ids...)
+	return _u
+}
+
+// AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
+func (_u *UserUpdateOne) AddUserElementExps(v ...*UserElementExp) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserElementExpIDs(ids...)
+}
+
+// AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
+func (_u *UserUpdateOne) AddUserStatIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddUserStatIDs(ids...)
+	return _u
+}
+
+// AddUserStats adds the "user_stats" edges to the UserStats entity.
+func (_u *UserUpdateOne) AddUserStats(v ...*UserStats) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserStatIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -839,6 +1130,69 @@ func (_u *UserUpdateOne) RemoveProblems(v ...*Problem) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearUserTraits clears all "user_traits" edges to the UserTrait entity.
+func (_u *UserUpdateOne) ClearUserTraits() *UserUpdateOne {
+	_u.mutation.ClearUserTraits()
+	return _u
+}
+
+// RemoveUserTraitIDs removes the "user_traits" edge to UserTrait entities by IDs.
+func (_u *UserUpdateOne) RemoveUserTraitIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveUserTraitIDs(ids...)
+	return _u
+}
+
+// RemoveUserTraits removes "user_traits" edges to UserTrait entities.
+func (_u *UserUpdateOne) RemoveUserTraits(v ...*UserTrait) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserTraitIDs(ids...)
+}
+
+// ClearUserElementExps clears all "user_element_exps" edges to the UserElementExp entity.
+func (_u *UserUpdateOne) ClearUserElementExps() *UserUpdateOne {
+	_u.mutation.ClearUserElementExps()
+	return _u
+}
+
+// RemoveUserElementExpIDs removes the "user_element_exps" edge to UserElementExp entities by IDs.
+func (_u *UserUpdateOne) RemoveUserElementExpIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveUserElementExpIDs(ids...)
+	return _u
+}
+
+// RemoveUserElementExps removes "user_element_exps" edges to UserElementExp entities.
+func (_u *UserUpdateOne) RemoveUserElementExps(v ...*UserElementExp) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserElementExpIDs(ids...)
+}
+
+// ClearUserStats clears all "user_stats" edges to the UserStats entity.
+func (_u *UserUpdateOne) ClearUserStats() *UserUpdateOne {
+	_u.mutation.ClearUserStats()
+	return _u
+}
+
+// RemoveUserStatIDs removes the "user_stats" edge to UserStats entities by IDs.
+func (_u *UserUpdateOne) RemoveUserStatIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveUserStatIDs(ids...)
+	return _u
+}
+
+// RemoveUserStats removes "user_stats" edges to UserStats entities.
+func (_u *UserUpdateOne) RemoveUserStats(v ...*UserStats) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserStatIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1167,6 +1521,141 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserTraitsIDs(); len(nodes) > 0 && !_u.mutation.UserTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserTraitsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserElementExpsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserElementExpsIDs(); len(nodes) > 0 && !_u.mutation.UserElementExpsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserElementExpsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserStatsIDs(); len(nodes) > 0 && !_u.mutation.UserStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

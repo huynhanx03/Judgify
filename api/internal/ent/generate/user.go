@@ -48,9 +48,15 @@ type UserEdges struct {
 	FederatedIdentities []*FederatedIdentity `json:"federated_identities,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
+	// UserTraits holds the value of the user_traits edge.
+	UserTraits []*UserTrait `json:"user_traits,omitempty"`
+	// UserElementExps holds the value of the user_element_exps edge.
+	UserElementExps []*UserElementExp `json:"user_element_exps,omitempty"`
+	// UserStats holds the value of the user_stats edge.
+	UserStats []*UserStats `json:"user_stats,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [8]bool
 }
 
 // RoleOrErr returns the Role value or an error if the edge
@@ -98,6 +104,33 @@ func (e UserEdges) ProblemsOrErr() ([]*Problem, error) {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
+}
+
+// UserTraitsOrErr returns the UserTraits value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UserTraitsOrErr() ([]*UserTrait, error) {
+	if e.loadedTypes[5] {
+		return e.UserTraits, nil
+	}
+	return nil, &NotLoadedError{edge: "user_traits"}
+}
+
+// UserElementExpsOrErr returns the UserElementExps value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
+	if e.loadedTypes[6] {
+		return e.UserElementExps, nil
+	}
+	return nil, &NotLoadedError{edge: "user_element_exps"}
+}
+
+// UserStatsOrErr returns the UserStats value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UserStatsOrErr() ([]*UserStats, error) {
+	if e.loadedTypes[7] {
+		return e.UserStats, nil
+	}
+	return nil, &NotLoadedError{edge: "user_stats"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -206,6 +239,21 @@ func (_m *User) QueryFederatedIdentities() *FederatedIdentityQuery {
 // QueryProblems queries the "problems" edge of the User entity.
 func (_m *User) QueryProblems() *ProblemQuery {
 	return NewUserClient(_m.config).QueryProblems(_m)
+}
+
+// QueryUserTraits queries the "user_traits" edge of the User entity.
+func (_m *User) QueryUserTraits() *UserTraitQuery {
+	return NewUserClient(_m.config).QueryUserTraits(_m)
+}
+
+// QueryUserElementExps queries the "user_element_exps" edge of the User entity.
+func (_m *User) QueryUserElementExps() *UserElementExpQuery {
+	return NewUserClient(_m.config).QueryUserElementExps(_m)
+}
+
+// QueryUserStats queries the "user_stats" edge of the User entity.
+func (_m *User) QueryUserStats() *UserStatsQuery {
+	return NewUserClient(_m.config).QueryUserStats(_m)
 }
 
 // Update returns a builder for updating this User.

@@ -46,6 +46,7 @@ func NewHTTPServer() *Server {
 	routerGroup := NewRouterGroup(
 		c.Identity.IdentityHandler,
 		c.Problem.ProblemHandlerGroup,
+		c.Cultivation.CultivationHandlerGroup,
 		permChecker,
 	)
 

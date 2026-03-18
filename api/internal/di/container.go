@@ -1,14 +1,16 @@
 package di
 
 import (
+	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
 )
 
 // Container holds all domain-specific dependency containers.
 type Container struct {
-	Identity *identityDi.IdentityContainer
-	Problem  *problemDi.ProblemContainer
+	Identity    *identityDi.IdentityContainer
+	Problem     *problemDi.ProblemContainer
+	Cultivation *cultivationDi.CultivationContainer
 }
 
 // GlobalContainer is the global instance of Container.

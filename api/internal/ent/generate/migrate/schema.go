@@ -50,6 +50,26 @@ var (
 			},
 		},
 	}
+	// ElementsColumns holds the columns for the "elements" table.
+	ElementsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "code", Type: field.TypeString, Unique: true, Size: 20},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "color", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "icon", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "order", Type: field.TypeInt, Default: 0},
+	}
+	// ElementsTable holds the schema information for the "elements" table.
+	ElementsTable = &schema.Table{
+		Name:       "elements",
+		Columns:    ElementsColumns,
+		PrimaryKey: []*schema.Column{ElementsColumns[0]},
+	}
 	// FederatedIdentitiesColumns holds the columns for the "federated_identities" table.
 	FederatedIdentitiesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -86,6 +106,24 @@ var (
 				Columns: []*schema.Column{FederatedIdentitiesColumns[5], FederatedIdentitiesColumns[6]},
 			},
 		},
+	}
+	// LevelsColumns holds the columns for the "levels" table.
+	LevelsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "order", Type: field.TypeInt, Unique: true},
+		{Name: "min_exp", Type: field.TypeInt64, Default: 0},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+	}
+	// LevelsTable holds the schema information for the "levels" table.
+	LevelsTable = &schema.Table{
+		Name:       "levels",
+		Columns:    LevelsColumns,
+		PrimaryKey: []*schema.Column{LevelsColumns[0]},
 	}
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
@@ -154,6 +192,24 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
+	}
+	// RanksColumns holds the columns for the "ranks" table.
+	RanksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "order", Type: field.TypeInt, Unique: true},
+		{Name: "min_rating", Type: field.TypeInt, Default: 0},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+	}
+	// RanksTable holds the schema information for the "ranks" table.
+	RanksTable = &schema.Table{
+		Name:       "ranks",
+		Columns:    RanksColumns,
+		PrimaryKey: []*schema.Column{RanksColumns[0]},
 	}
 	// ResourcesColumns holds the columns for the "resources" table.
 	ResourcesColumns = []*schema.Column{
@@ -232,6 +288,26 @@ var (
 			},
 		},
 	}
+	// TraitsColumns holds the columns for the "traits" table.
+	TraitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"root_bone", "talent"}},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "rarity", Type: field.TypeEnum, Enums: []string{"mortal", "earth", "heaven", "divine"}, Default: "mortal"},
+		{Name: "weight", Type: field.TypeInt, Default: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
+	}
+	// TraitsTable holds the schema information for the "traits" table.
+	TraitsTable = &schema.Table{
+		Name:       "traits",
+		Columns:    TraitsColumns,
+		PrimaryKey: []*schema.Column{TraitsColumns[0]},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -294,6 +370,120 @@ var (
 			},
 		},
 	}
+	// UserElementExpsColumns holds the columns for the "user_element_exps" table.
+	UserElementExpsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "exp", Type: field.TypeInt64, Default: 0},
+		{Name: "element_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// UserElementExpsTable holds the schema information for the "user_element_exps" table.
+	UserElementExpsTable = &schema.Table{
+		Name:       "user_element_exps",
+		Columns:    UserElementExpsColumns,
+		PrimaryKey: []*schema.Column{UserElementExpsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_element_exps_elements_user_element_exps",
+				Columns:    []*schema.Column{UserElementExpsColumns[6]},
+				RefColumns: []*schema.Column{ElementsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_element_exps_users_user_element_exps",
+				Columns:    []*schema.Column{UserElementExpsColumns[7]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userelementexp_user_id_element_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserElementExpsColumns[7], UserElementExpsColumns[6]},
+			},
+		},
+	}
+	// UserStatsColumns holds the columns for the "user_stats" table.
+	UserStatsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "total_exp", Type: field.TypeInt64, Default: 0},
+		{Name: "rating", Type: field.TypeInt, Default: 0},
+		{Name: "current_level_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// UserStatsTable holds the schema information for the "user_stats" table.
+	UserStatsTable = &schema.Table{
+		Name:       "user_stats",
+		Columns:    UserStatsColumns,
+		PrimaryKey: []*schema.Column{UserStatsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_stats_levels_user_stats",
+				Columns:    []*schema.Column{UserStatsColumns[7]},
+				RefColumns: []*schema.Column{LevelsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_stats_users_user_stats",
+				Columns:    []*schema.Column{UserStatsColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userstats_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserStatsColumns[8]},
+			},
+		},
+	}
+	// UserTraitsColumns holds the columns for the "user_traits" table.
+	UserTraitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "trait_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// UserTraitsTable holds the schema information for the "user_traits" table.
+	UserTraitsTable = &schema.Table{
+		Name:       "user_traits",
+		Columns:    UserTraitsColumns,
+		PrimaryKey: []*schema.Column{UserTraitsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_traits_traits_user_traits",
+				Columns:    []*schema.Column{UserTraitsColumns[5]},
+				RefColumns: []*schema.Column{TraitsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_traits_users_user_traits",
+				Columns:    []*schema.Column{UserTraitsColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "usertrait_user_id_trait_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserTraitsColumns[6], UserTraitsColumns[5]},
+			},
+		},
+	}
 	// ProblemTagsColumns holds the columns for the "problem_tags" table.
 	ProblemTagsColumns = []*schema.Column{
 		{Name: "problem_id", Type: field.TypeInt},
@@ -323,15 +513,22 @@ var (
 	Tables = []*schema.Table{
 		AttributeDefinitionsTable,
 		CredentialsTable,
+		ElementsTable,
 		FederatedIdentitiesTable,
+		LevelsTable,
 		PermissionsTable,
 		ProblemsTable,
+		RanksTable,
 		ResourcesTable,
 		RolesTable,
 		TagsTable,
 		TestCasesTable,
+		TraitsTable,
 		UsersTable,
 		UserAttributeValuesTable,
+		UserElementExpsTable,
+		UserStatsTable,
+		UserTraitsTable,
 		ProblemTagsTable,
 	}
 )
@@ -346,6 +543,12 @@ func init() {
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 	UserAttributeValuesTable.ForeignKeys[0].RefTable = AttributeDefinitionsTable
 	UserAttributeValuesTable.ForeignKeys[1].RefTable = UsersTable
+	UserElementExpsTable.ForeignKeys[0].RefTable = ElementsTable
+	UserElementExpsTable.ForeignKeys[1].RefTable = UsersTable
+	UserStatsTable.ForeignKeys[0].RefTable = LevelsTable
+	UserStatsTable.ForeignKeys[1].RefTable = UsersTable
+	UserTraitsTable.ForeignKeys[0].RefTable = TraitsTable
+	UserTraitsTable.ForeignKeys[1].RefTable = UsersTable
 	ProblemTagsTable.ForeignKeys[0].RefTable = ProblemsTable
 	ProblemTagsTable.ForeignKeys[1].RefTable = TagsTable
 }

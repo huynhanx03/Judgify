@@ -37,6 +37,12 @@ const (
 	EdgeFederatedIdentities = "federated_identities"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
+	// EdgeUserTraits holds the string denoting the user_traits edge name in mutations.
+	EdgeUserTraits = "user_traits"
+	// EdgeUserElementExps holds the string denoting the user_element_exps edge name in mutations.
+	EdgeUserElementExps = "user_element_exps"
+	// EdgeUserStats holds the string denoting the user_stats edge name in mutations.
+	EdgeUserStats = "user_stats"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleTable is the table that holds the role relation/edge.
@@ -74,6 +80,27 @@ const (
 	ProblemsInverseTable = "problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
 	ProblemsColumn = "author_id"
+	// UserTraitsTable is the table that holds the user_traits relation/edge.
+	UserTraitsTable = "user_traits"
+	// UserTraitsInverseTable is the table name for the UserTrait entity.
+	// It exists in this package in order to avoid circular dependency with the "usertrait" package.
+	UserTraitsInverseTable = "user_traits"
+	// UserTraitsColumn is the table column denoting the user_traits relation/edge.
+	UserTraitsColumn = "user_id"
+	// UserElementExpsTable is the table that holds the user_element_exps relation/edge.
+	UserElementExpsTable = "user_element_exps"
+	// UserElementExpsInverseTable is the table name for the UserElementExp entity.
+	// It exists in this package in order to avoid circular dependency with the "userelementexp" package.
+	UserElementExpsInverseTable = "user_element_exps"
+	// UserElementExpsColumn is the table column denoting the user_element_exps relation/edge.
+	UserElementExpsColumn = "user_id"
+	// UserStatsTable is the table that holds the user_stats relation/edge.
+	UserStatsTable = "user_stats"
+	// UserStatsInverseTable is the table name for the UserStats entity.
+	// It exists in this package in order to avoid circular dependency with the "userstats" package.
+	UserStatsInverseTable = "user_stats"
+	// UserStatsColumn is the table column denoting the user_stats relation/edge.
+	UserStatsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -215,6 +242,48 @@ func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUserTraitsCount orders the results by user_traits count.
+func ByUserTraitsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserTraitsStep(), opts...)
+	}
+}
+
+// ByUserTraits orders the results by user_traits terms.
+func ByUserTraits(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserTraitsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByUserElementExpsCount orders the results by user_element_exps count.
+func ByUserElementExpsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserElementExpsStep(), opts...)
+	}
+}
+
+// ByUserElementExps orders the results by user_element_exps terms.
+func ByUserElementExps(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserElementExpsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByUserStatsCount orders the results by user_stats count.
+func ByUserStatsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserStatsStep(), opts...)
+	}
+}
+
+// ByUserStats orders the results by user_stats terms.
+func ByUserStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRoleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -248,5 +317,26 @@ func newProblemsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+	)
+}
+func newUserTraitsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserTraitsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserTraitsTable, UserTraitsColumn),
+	)
+}
+func newUserElementExpsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserElementExpsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserElementExpsTable, UserElementExpsColumn),
+	)
+}
+func newUserStatsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserStatsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserStatsTable, UserStatsColumn),
 	)
 }

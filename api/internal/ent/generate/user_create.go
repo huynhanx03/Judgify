@@ -17,6 +17,9 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -158,6 +161,51 @@ func (_c *UserCreate) AddProblems(v ...*Problem) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddProblemIDs(ids...)
+}
+
+// AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
+func (_c *UserCreate) AddUserTraitIDs(ids ...int) *UserCreate {
+	_c.mutation.AddUserTraitIDs(ids...)
+	return _c
+}
+
+// AddUserTraits adds the "user_traits" edges to the UserTrait entity.
+func (_c *UserCreate) AddUserTraits(v ...*UserTrait) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserTraitIDs(ids...)
+}
+
+// AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
+func (_c *UserCreate) AddUserElementExpIDs(ids ...int) *UserCreate {
+	_c.mutation.AddUserElementExpIDs(ids...)
+	return _c
+}
+
+// AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
+func (_c *UserCreate) AddUserElementExps(v ...*UserElementExp) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserElementExpIDs(ids...)
+}
+
+// AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
+func (_c *UserCreate) AddUserStatIDs(ids ...int) *UserCreate {
+	_c.mutation.AddUserStatIDs(ids...)
+	return _c
+}
+
+// AddUserStats adds the "user_stats" edges to the UserStats entity.
+func (_c *UserCreate) AddUserStats(v ...*UserStats) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserStatIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -357,6 +405,54 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UserTraitsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserTraitsTable,
+			Columns: []string{user.UserTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UserElementExpsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserElementExpsTable,
+			Columns: []string{user.UserElementExpsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UserStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserStatsTable,
+			Columns: []string{user.UserStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
