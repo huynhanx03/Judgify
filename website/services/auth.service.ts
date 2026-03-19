@@ -52,6 +52,35 @@ export async function register(
   return { success: true };
 }
 
+/**
+ * Sends a password reset email to the user.
+ *
+ * Backend endpoint: POST /auth/forgot-password
+ */
+export async function forgotPassword(username: string): Promise<{ success: boolean }> {
+  // TODO: Replace with real API call when backend is ready
+  // return apiClient.post(AUTH_API.FORGOT_PASSWORD, { username }, { skipAuth: true });
+
+  void username;
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return { success: true };
+}
+
+/**
+ * Resets user password using a token.
+ *
+ * Backend endpoint: POST /auth/reset-password
+ */
+export async function resetPassword(token: string, newPassword: string): Promise<{ success: boolean }> {
+  // TODO: Replace with real API call when backend is ready
+  // return apiClient.post(AUTH_API.RESET_PASSWORD, { token, new_password: newPassword }, { skipAuth: true });
+
+  void token;
+  void newPassword;
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  return { success: true };
+}
+
 /** Clears stored tokens and ends the user session. */
 export function logout(): void {
   clearTokens();

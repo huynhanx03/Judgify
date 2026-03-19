@@ -6,6 +6,7 @@
  * Now receives sorting state from parent (ArenaClient).
  */
 
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -101,7 +102,9 @@ export function ProblemTable({ problems, sortField, sortDirection, onSort }: Pro
               </TableCell>
               
               <TableCell className="font-medium group-hover:text-primary transition-colors text-base truncate max-w-0" title={problem.title}>
-                {problem.title}
+                <Link href={`/arena/${problem.id}`} className="hover:underline">
+                  {problem.title}
+                </Link>
               </TableCell>
               
               <TableCell>

@@ -8,17 +8,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Bell, LogOut, Search, Settings } from "lucide-react";
+import { Bell } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { MAIN_NAV_ITEMS } from "@/constants/navigation";
 import { TEXT } from "@/constants/text";
 
@@ -74,36 +66,14 @@ export function Header() {
 
           <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block"></div>
 
-          {/* User avatar dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform hover:scale-105">
-              <Avatar className="h-8 w-8 border border-border/50">
-                <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
-                  {TEXT.HEADER.AVATAR_FALLBACK}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 glass-card">
-              <div className="flex items-center justify-start gap-2 p-2">
-                <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium text-sm">{TEXT.HEADER.GUEST_NAME}</p>
-                  <p className="w-[200px] truncate text-xs text-muted-foreground">
-                    {TEXT.HEADER.GUEST_RANK}
-                  </p>
-                </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
-                {TEXT.NAV.SETTINGS}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                {TEXT.NAV.LOGOUT}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* User avatar — click to go to profile */}
+          <Link href="/profile" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform hover:scale-105">
+            <Avatar className="h-8 w-8 border border-border/50 cursor-pointer">
+              <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
+                {TEXT.HEADER.AVATAR_FALLBACK}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
         </div>
       </header>
     </div>

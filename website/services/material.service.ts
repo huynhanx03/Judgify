@@ -1,25 +1,28 @@
-import { MOCK_MATERIALS } from "@/mock/materials";
-import type { Material } from "@/types/material";
+import { MOCK_ARTICLES, MOCK_CATEGORIES } from "@/mock/materials";
+import type { MaterialArticle, MaterialCategory } from "@/types/material";
 
 /**
- * Service for managing Library Materials (Tàng Kinh Các).
+ * Service for managing Knowledge Base materials (Tàng Kinh Các).
  * Simulated async behavior for future API integration.
  */
 export const materialService = {
-  /**
-   * Fetch all available materials.
-   */
-  async getMaterials(): Promise<Material[]> {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    return MOCK_MATERIALS;
+  async getCategories(): Promise<MaterialCategory[]> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return MOCK_CATEGORIES;
   },
 
-  /**
-   * Fetch a single material by ID.
-   */
-  async getMaterialById(id: number): Promise<Material | undefined> {
+  async getArticles(): Promise<MaterialArticle[]> {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    return MOCK_ARTICLES;
+  },
+
+  async getArticlesByCategory(categoryId: string): Promise<MaterialArticle[]> {
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return MOCK_MATERIALS.find((m) => m.id === id);
+    return MOCK_ARTICLES.filter((a) => a.categoryId === categoryId);
+  },
+
+  async getArticleById(id: string): Promise<MaterialArticle | null> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return MOCK_ARTICLES.find((a) => a.id === id) ?? null;
   },
 };
