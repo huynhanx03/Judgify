@@ -25,7 +25,9 @@ type Config struct {
 }
 
 // Cache is a high-performance, thread-safe LFU cache with TTL support.
-type Cache[K hash.Key, V any] struct {
+type Cache[K any, V any] struct {
+	unsupportedOps[K, V]
+
 	store      *shardedmap.Map[uint64, *storeItem[V]]
 	controller *Controller[V]
 	getBuf     *batcher.StripedBatcher[uint64]
@@ -36,6 +38,9 @@ type Cache[K hash.Key, V any] struct {
 	cost       func(V) int64
 	onEvict    func(*Item[V])
 	isClosed   atomic.Bool
+
+	hits       atomic.Int64
+	misses     atomic.Int64
 }
 
 // storeItem uses int64 expiration for minimal memory.
@@ -51,7 +56,7 @@ func (i *storeItem[V]) IsExpired(now int64) bool {
 }
 
 // New creates a new TinyLFU cache.
-func New[K hash.Key, V any](cfg Config) *Cache[K, V] {
+func New[K any, V any](cfg Config) *Cache[K, V] {
 	if cfg.MaxCost <= 0 {
 		cfg.MaxCost = 1 << 20
 	}
@@ -76,7 +81,7 @@ func New[K hash.Key, V any](cfg Config) *Cache[K, V] {
 	}
 
 	if c.timer == nil {
-		c.timer = &stdTimer{}
+		c.timer = timer.SystemTimer{}
 	}
 
 	c.getBuf = batcher.New[uint64](c.controller, batcher.Config{StripeSize: cfg.BufferSize})
@@ -96,21 +101,25 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 	keyHash, conflict := hash.KeyToHash(key)
 	item, ok := c.store.Get(keyHash)
 	if !ok {
+		c.misses.Add(1)
 		var zero V
 		return zero, false
 	}
 
 	if conflict != 0 && item.conflict != conflict {
+		c.misses.Add(1)
 		var zero V
 		return zero, false
 	}
 
-	// Lazy expiration
-	if item.IsExpired(c.timer.Now().Unix()) {
+	// Lazy expiration: convert cached nanos to unix seconds
+	if item.IsExpired(c.timer.Now() / int64(time.Second)) {
+		c.misses.Add(1)
 		var zero V
 		return zero, false
 	}
 
+	c.hits.Add(1)
 	c.getBuf.Push(keyHash)
 	return item.value, true
 }
@@ -137,7 +146,7 @@ func (c *Cache[K, V]) SetWithTTL(key K, value V, cost int64, ttl time.Duration) 
 
 	var expiration int64
 	if ttl > 0 {
-		expiration = c.timer.Now().Add(ttl).Unix()
+		expiration = (c.timer.Now() + int64(ttl)) / int64(time.Second)
 	}
 
 	// Get Item from pool
@@ -186,13 +195,14 @@ func (c *Cache[K, V]) Close() {
 	}
 }
 
-// stdTimer wraps time.Now to implement timer.Timer
-type stdTimer struct{}
-
-func (t *stdTimer) Now() time.Time {
-	return time.Now()
+// Stats returns basic statistics about the cache.
+func (c *Cache[K, V]) Stats() cache.Stats {
+	return cache.Stats{
+		Hits:   c.hits.Load(),
+		Misses: c.misses.Load(),
+	}
 }
-func (t *stdTimer) Stop() {}
+
 
 // SetCostFunc sets a function to calculate item cost.
 func (c *Cache[K, V]) SetCostFunc(fn func(V) int64) {

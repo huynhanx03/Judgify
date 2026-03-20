@@ -12,13 +12,15 @@ import (
 type (
 	softDeleteKey struct{}
 
-	// SoftDeleteQuery is implemented by all generated query types.
+	// Query defines the requirements for soft-delete filtering.
 	SoftDeleteQuery interface {
 		WhereP(...func(*sql.Selector))
 	}
 )
 
-// SoftDeleteMixin adds deleted_at/deleted_by fields and auto-filters soft-deleted rows.
+// SoftDeleteMixin provides soft-delete fields and predicate helper.
+// Hooks and Interceptors are implemented in the schema package
+// where the generated client type is available.
 type SoftDeleteMixin struct {
 	mixin.Schema
 }
@@ -35,35 +37,10 @@ func (SoftDeleteMixin) Fields() []ent.Field {
 	}
 }
 
-// Hooks returns a no-op hook to satisfy the generated runtime init expectations.
-// Actual soft delete is handled at the repository layer via UpdateOneID().SetDeletedAt().
-func (SoftDeleteMixin) Hooks() []ent.Hook {
-	return []ent.Hook{
-		func(next ent.Mutator) ent.Mutator {
-			return next
-		},
-	}
-}
-
-// Interceptors auto-applies WHERE deleted_at IS NULL to all queries.
-func (d SoftDeleteMixin) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			if IsSkipSoftDelete(ctx) {
-				return nil
-			}
-			if query, ok := q.(SoftDeleteQuery); ok {
-				d.P(query)
-			}
-			return nil
-		}),
-	}
-}
-
 // P appends the deleted_at IS NULL predicate.
-func (d SoftDeleteMixin) P(w SoftDeleteQuery) {
+func (SoftDeleteMixin) P(w SoftDeleteQuery) {
 	w.WhereP(
-		sql.FieldIsNull(d.Fields()[0].Descriptor().Name),
+		sql.FieldIsNull(SoftDeleteAtColumnName),
 	)
 }
 

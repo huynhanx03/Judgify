@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/huynhanx03/judgify/pkg/common/locks"
+	"github.com/huynhanx03/judgify/pkg/timer"
 )
 
 const (
@@ -77,13 +78,16 @@ type poolCommon struct {
 	purgeCtx  context.Context
 	stopPurge context.CancelFunc
 
-	// ticktock is the context for updating the current time.
+	// ticktock is the context for updating the current time (used when no external timer).
 	ticktockDone int32
 	ticktockCtx  context.Context
 	stopTicktock context.CancelFunc
 
-	// now is the current time.
-	now atomic.Value
+	// now is the current time in unix nanoseconds (used when no external timer).
+	now int64
+
+	// timer is an optional external time source that replaces the ticktock goroutine.
+	timer timer.Timer
 
 	// workers is a slice that store the available workers.
 	workers Queue
@@ -114,6 +118,7 @@ func newPoolCommon(size int, options ...Option) (*poolCommon, error) {
 		options:  opts,
 		allDone:  make(chan struct{}),
 		once:     &sync.Once{},
+		timer:    opts.Timer,
 	}
 	p.cond = sync.NewCond(p.lock)
 
@@ -121,9 +126,9 @@ func newPoolCommon(size int, options ...Option) (*poolCommon, error) {
 		if size == -1 {
 			return nil, ErrInvalidPreAllocSize
 		}
-		p.workers = newQueue(QueueTypeFIFO, size)
+		p.workers = newQueue(QueueTypeLoopQueue, size)
 	} else {
-		p.workers = newQueue(QueueTypeLIFO, 0)
+		p.workers = newQueue(QueueTypeStack, 0)
 	}
 
 	p.goPurge()
@@ -248,7 +253,7 @@ func (p *poolCommon) ticktock(ctx context.Context) {
 			break
 		}
 
-		p.now.Store(time.Now())
+		atomic.StoreInt64(&p.now, time.Now().UnixNano())
 	}
 }
 
@@ -264,15 +269,24 @@ func (p *poolCommon) goPurge() {
 }
 
 // goTicktock starts a goroutine to update the current time in the pool regularly.
+// Skipped when an external timer is provided via WithTimer option.
 func (p *poolCommon) goTicktock() {
-	p.now.Store(time.Now())
+	if p.timer != nil {
+		// External timer handles time updates — no goroutine needed.
+		atomic.StoreInt32(&p.ticktockDone, DONE)
+		return
+	}
+	atomic.StoreInt64(&p.now, time.Now().UnixNano())
 	p.ticktockCtx, p.stopTicktock = context.WithCancel(context.Background())
 	go p.ticktock(p.ticktockCtx)
 }
 
-// nowTime returns the current time in the pool.
-func (p *poolCommon) nowTime() time.Time {
-	return p.now.Load().(time.Time)
+// nowTime returns the current time in unix nanoseconds.
+func (p *poolCommon) nowTime() int64 {
+	if p.timer != nil {
+		return p.timer.Now()
+	}
+	return atomic.LoadInt64(&p.now)
 }
 
 // retrieveWorker returns an available worker to run the tasks.
@@ -364,7 +378,7 @@ func (p *poolCommon) Release() {
 
 // ReleaseTimeout is like Release but with a timeout, it waits all workers to exit before timing out.
 func (p *poolCommon) ReleaseTimeout(timeout time.Duration) error {
-	if p.IsClosed() || (!p.options.DisablePurge && p.stopPurge == nil) || p.stopTicktock == nil {
+	if p.IsClosed() || (!p.options.DisablePurge && p.stopPurge == nil) || (p.timer == nil && p.stopTicktock == nil) {
 		return ErrPoolClosed
 	}
 
@@ -383,15 +397,17 @@ func (p *poolCommon) ReleaseTimeout(timeout time.Duration) error {
 		})
 	}
 
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
+	t := time.NewTimer(timeout)
+	defer t.Stop()
 	for {
 		select {
-		case <-timer.C:
+		case <-t.C:
 			return ErrTimeout
 		case <-p.allDone:
 			<-purgeCh
-			<-p.ticktockCtx.Done()
+			if p.ticktockCtx != nil {
+				<-p.ticktockCtx.Done()
+			}
 			if p.Running() == 0 &&
 				(p.options.DisablePurge || atomic.LoadInt32(&p.purgeDone) == DONE) &&
 				atomic.LoadInt32(&p.ticktockDone) == DONE {

@@ -16,6 +16,13 @@ const (
 	ResourceKeyProblem             = "problem"
 	ResourceKeyTestCase            = "test_case"
 	ResourceKeyTag                 = "tag"
+	ResourceKeyElement             = "element"
+	ResourceKeyTrait               = "trait"
+	ResourceKeyUserTrait           = "user_trait"
+	ResourceKeyUserElementExp      = "user_element_exp"
+	ResourceKeyLevel               = "level"
+	ResourceKeyRank                = "rank"
+	ResourceKeyUserStats           = "user_stats"
 )
 
 // Permission Scopes (Bitmask)

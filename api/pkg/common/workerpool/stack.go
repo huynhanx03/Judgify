@@ -1,42 +1,38 @@
 package workerpool
 
-import (
-	"time"
+import "time"
 
-	"github.com/huynhanx03/judgify/pkg/algorithm"
-)
+var _ Queue = (*stack)(nil)
 
-var _ Queue = (*lifoQueue)(nil)
-
-type lifoQueue struct {
+type stack struct {
 	items  []Worker
 	expiry []Worker
 }
 
-func newLIFOQueue(size int) *lifoQueue {
-	return &lifoQueue{
+func newStack(size int) *stack {
+	return &stack{
 		items: make([]Worker, 0, size),
 	}
 }
 
 // len returns the number of workers in the queue.
-func (ws *lifoQueue) len() int {
+func (ws *stack) len() int {
 	return len(ws.items)
 }
 
 // isEmpty returns true if the queue is empty.
-func (ws *lifoQueue) isEmpty() bool {
+func (ws *stack) isEmpty() bool {
 	return len(ws.items) == 0
 }
 
 // insert inserts a worker into the queue.
-func (ws *lifoQueue) insert(w Worker) error {
+func (ws *stack) insert(w Worker) error {
 	ws.items = append(ws.items, w)
 	return nil
 }
 
 // detach removes and returns the worker at the end of the queue.
-func (ws *lifoQueue) detach() Worker {
+func (ws *stack) detach() Worker {
 	l := ws.len()
 	if l == 0 {
 		return nil
@@ -50,25 +46,27 @@ func (ws *lifoQueue) detach() Worker {
 }
 
 // refresh retrieves and removes all expired workers.
-// In a LIFO stack, workers are appended to the end, so the oldest workers (lowest lastUsedTime)
-// are at the beginning (index 0).
-// We binary search for the first non-expired worker. All workers before this index are expired.
-// We then shifts the remaining valid workers down to the start of the slice.
-func (ws *lifoQueue) refresh(duration time.Duration) []Worker {
+func (ws *stack) refresh(duration time.Duration) []Worker {
 	n := ws.len()
 	if n == 0 {
 		return nil
 	}
 
-	expiryTime := time.Now().Add(-duration)
+	expiryTime := time.Now().Add(-duration).UnixNano()
 
 	// Find the index of the first valid (non-expired) worker.
 	// Since items are sorted by time (oldest at 0), this gives us the split point.
-	index := algorithm.BinarySearch(0, n-1, func(i int) bool {
-		return expiryTime.Before(ws.items[i].lastUsedTime())
-	})
+	l, r := 0, n-1
+	for l <= r {
+		mid := l + (r-l)/2
+		if expiryTime < ws.items[mid].lastUsedTime() {
+			r = mid - 1
+		} else {
+			l = mid + 1
+		}
+	}
 
-	lastExpiredIndex := index - 1
+	lastExpiredIndex := r
 	if lastExpiredIndex < 0 {
 		return nil
 	}
@@ -90,7 +88,7 @@ func (ws *lifoQueue) refresh(duration time.Duration) []Worker {
 }
 
 // reset resets the queue.
-func (ws *lifoQueue) reset() {
+func (ws *stack) reset() {
 	for i := 0; i < ws.len(); i++ {
 		ws.items[i].finish()
 		ws.items[i] = nil

@@ -2,6 +2,14 @@ server:
   port: 8000
   mode: "dev"
   host: "localhost"
+  rate_limit:
+    limit: 100
+    burst: 50
+    window: 60 # seconds
+  circuit_breaker:
+    failure_threshold: 5
+    success_threshold: 2
+    open_timeout: 30 # seconds
 
 database:
   driver: "postgres"

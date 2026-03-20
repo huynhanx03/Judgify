@@ -2,13 +2,11 @@ package workerpool
 
 import (
 	"time"
-
-	"github.com/huynhanx03/judgify/pkg/algorithm"
 )
 
-var _ Queue = (*fifoQueue)(nil)
+var _ Queue = (*loopQueue)(nil)
 
-type fifoQueue struct {
+type loopQueue struct {
 	items  []Worker
 	expiry []Worker
 	head   int
@@ -17,18 +15,18 @@ type fifoQueue struct {
 	isFull bool
 }
 
-func newFIFOQueue(size int) *fifoQueue {
+func newLoopQueue(size int) *loopQueue {
 	if size <= 0 {
 		return nil
 	}
-	return &fifoQueue{
+	return &loopQueue{
 		items: make([]Worker, size),
 		size:  size,
 	}
 }
 
 // len returns the number of workers in the queue.
-func (wq *fifoQueue) len() int {
+func (wq *loopQueue) len() int {
 	if wq.size == 0 || wq.isEmpty() {
 		return 0
 	}
@@ -45,12 +43,12 @@ func (wq *fifoQueue) len() int {
 }
 
 // isEmpty returns true if the queue is empty.
-func (wq *fifoQueue) isEmpty() bool {
+func (wq *loopQueue) isEmpty() bool {
 	return wq.head == wq.tail && !wq.isFull
 }
 
 // insert inserts a worker into the queue.
-func (wq *fifoQueue) insert(w Worker) error {
+func (wq *loopQueue) insert(w Worker) error {
 	if wq.size == 0 {
 		return nil
 	}
@@ -68,7 +66,7 @@ func (wq *fifoQueue) insert(w Worker) error {
 }
 
 // detach removes and returns the worker at the head of the queue.
-func (wq *fifoQueue) detach() Worker {
+func (wq *loopQueue) detach() Worker {
 	if wq.isEmpty() {
 		return nil
 	}
@@ -83,12 +81,9 @@ func (wq *fifoQueue) detach() Worker {
 }
 
 // refresh retrieves and removes all expired workers from the queue.
-// Since the queue is a circular buffer sorted by time (oldest at head),
-// we identify the range of expired workers and extract them.
-// The range might wrap around the buffer, requiring segmented extraction.
-func (wq *fifoQueue) refresh(duration time.Duration) []Worker {
-	expiryTime := time.Now().Add(-duration)
-	index := wq.indexExpired(expiryTime)
+func (wq *loopQueue) refresh(duration time.Duration) []Worker {
+	expiryTime := time.Now().Add(-duration).UnixNano()
+	index := wq.binarySearch(expiryTime)
 	if index == -1 {
 		return nil
 	}
@@ -120,32 +115,35 @@ func (wq *fifoQueue) refresh(duration time.Duration) []Worker {
 	return wq.expiry
 }
 
-// indexExpired uses binary search to find the index of the last expired worker.
-// The queue is ordered by time (head is oldest). We search for the first valid (non-expired) worker.
-// The worker immediately preceding the first valid worker is the last expired one.
-func (wq *fifoQueue) indexExpired(expiryTime time.Time) int {
-	if wq.isEmpty() || expiryTime.Before(wq.items[wq.head].lastUsedTime()) {
-		return -1
-	}
-
+func (wq *loopQueue) binarySearch(expiryTime int64) int {
 	nlen := len(wq.items)
 
-	// BinarySearch finds the first index i where function returns true (i.e., worker is valid).
-	firstValid := algorithm.BinarySearch(0, wq.len()-1, func(i int) bool {
-		pi := (wq.head + i) % nlen
-		return expiryTime.Before(wq.items[pi].lastUsedTime())
-	})
-
-	if firstValid == 0 {
+	if wq.isEmpty() || expiryTime < wq.items[wq.head].lastUsedTime() {
 		return -1
 	}
 
-	// firstValid - 1 is the last expired worker relative to head.
-	return (wq.head + (firstValid - 1)) % nlen
+	// map head and tail to effective left and right
+	// Example from ants:
+	// r is the logical index of the last element
+	r := (wq.tail - 1 - wq.head + nlen) % nlen
+	basel := wq.head
+	l := 0
+	for l <= r {
+		mid := l + ((r - l) >> 1)
+		// calculate true mid position from mapped mid position
+		tmid := (mid + basel) % nlen
+		if expiryTime < wq.items[tmid].lastUsedTime() {
+			r = mid - 1
+		} else {
+			l = mid + 1
+		}
+	}
+	// return true position from mapped position
+	return (r + basel) % nlen
 }
 
 // reset resets the queue.
-func (wq *fifoQueue) reset() {
+func (wq *loopQueue) reset() {
 	if wq.isEmpty() {
 		return
 	}

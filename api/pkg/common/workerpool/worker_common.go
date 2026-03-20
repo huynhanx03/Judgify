@@ -1,28 +1,26 @@
 package workerpool
 
-import "time"
-
 // Worker is the interface for a worker that runs tasks.
 type Worker interface {
 	run()
 	finish()
-	lastUsedTime() time.Time
-	setLastUsedTime(t time.Time)
+	lastUsedTime() int64
+	setLastUsedTime(t int64)
 	inputFunc(func())
 	inputParam(any) // Added for Generic Pool support
 }
 
 // workerCommon contains common fields and methods for workers.
 type workerCommon struct {
-	lastUsed time.Time
+	lastUsed int64
 }
 
 // lastUsedTime returns the last used time of the worker.
-func (w *workerCommon) lastUsedTime() time.Time {
+func (w *workerCommon) lastUsedTime() int64 {
 	return w.lastUsed
 }
 
 // setLastUsedTime sets the last used time of the worker.
-func (w *workerCommon) setLastUsedTime(t time.Time) {
+func (w *workerCommon) setLastUsedTime(t int64) {
 	w.lastUsed = t
 }

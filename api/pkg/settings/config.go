@@ -40,9 +40,23 @@ type Database struct {
 
 // Server is the configuration for the server
 type Server struct {
-	Mode     string `mapstructure:"mode"`
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
+	Mode           string               `mapstructure:"mode"`
+	Host           string               `mapstructure:"host"`
+	Port           int                  `mapstructure:"port"`
+	RateLimit      RateLimitConfig      `mapstructure:"rate_limit"`
+	CircuitBreaker CircuitBreakerConfig `mapstructure:"circuit_breaker"`
+}
+
+type RateLimitConfig struct {
+	Limit  int `mapstructure:"limit"`
+	Burst  int `mapstructure:"burst"`
+	Window int `mapstructure:"window"` // in seconds
+}
+
+type CircuitBreakerConfig struct {
+	FailureThreshold int `mapstructure:"failure_threshold"`
+	SuccessThreshold int `mapstructure:"success_threshold"`
+	OpenTimeout      int `mapstructure:"open_timeout"` // in seconds
 }
 
 
