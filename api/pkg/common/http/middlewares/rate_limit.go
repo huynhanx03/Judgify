@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -48,6 +49,9 @@ type RateLimitConfig struct {
 
 	// Skip returns true to bypass rate limiting for this request.
 	Skip func(*gin.Context) bool
+
+	// Ctx controls the cleanup goroutine lifetime. Defaults to context.Background().
+	Ctx context.Context
 }
 
 // rateLimiterEntry holds a per-key limiter and its last access time.
@@ -71,23 +75,31 @@ func RateLimit(cfg RateLimitConfig) gin.HandlerFunc {
 	if cfg.KeyFunc == nil {
 		cfg.KeyFunc = func(c *gin.Context) string { return c.ClientIP() }
 	}
+	if cfg.Ctx == nil {
+		cfg.Ctx = context.Background()
+	}
 
 	mu := locks.NewSpinLock()
 	limiters := make(map[string]*rateLimiterEntry)
 
-	// Background cleanup of stale limiters
+	// Background cleanup of stale limiters (stops when cfg.Ctx is cancelled).
 	go func() {
 		ticker := time.NewTicker(defaultCleanupEvery)
 		defer ticker.Stop()
-		for range ticker.C {
-			mu.Lock()
-			now := time.Now()
-			for key, entry := range limiters {
-				if now.Sub(entry.lastSeen) > defaultIdleExpiry {
-					delete(limiters, key)
+		for {
+			select {
+			case <-cfg.Ctx.Done():
+				return
+			case <-ticker.C:
+				mu.Lock()
+				now := time.Now()
+				for key, entry := range limiters {
+					if now.Sub(entry.lastSeen) > defaultIdleExpiry {
+						delete(limiters, key)
+					}
 				}
+				mu.Unlock()
 			}
-			mu.Unlock()
 		}
 	}()
 
@@ -113,12 +125,15 @@ func RateLimit(cfg RateLimitConfig) gin.HandlerFunc {
 		entry.lastSeen = time.Now()
 		mu.Unlock()
 
+		// Try to consume a token first, then report accurate remaining count.
+		allowed := entry.bucket.AllowOne()
 		remaining := int(entry.bucket.Tokens())
+
 		c.Header(headerRateLimit, strconv.Itoa(cfg.Limit))
 		c.Header(headerRateRemaining, strconv.Itoa(remaining))
 		c.Header(headerRateReset, strconv.FormatInt(time.Now().Add(cfg.Window).Unix(), 10))
 
-		if !entry.bucket.AllowOne() {
+		if !allowed {
 			retryAfter := cfg.Window.Seconds()
 			c.Header(headerRetryAfter, fmt.Sprintf("%.0f", retryAfter))
 			response.ErrorResponse(c, response.CodeTooManyRequests, apperr.New(

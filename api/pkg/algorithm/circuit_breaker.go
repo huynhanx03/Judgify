@@ -105,14 +105,20 @@ func NewCircuitBreaker(opts ...CircuitBreakerOption) *CircuitBreaker {
 // Returns ErrCircuitOpen if the circuit is open.
 func (cb *CircuitBreaker) Allow() error {
 	cb.mu.Lock()
-	defer cb.mu.Unlock()
+	var notify func()
+	defer func() {
+		cb.mu.Unlock()
+		if notify != nil {
+			notify()
+		}
+	}()
 
 	switch cb.state {
 	case StateClosed:
 		return nil
 	case StateOpen:
 		if cb.now()-cb.lastFailure >= int64(cb.openTimeout) {
-			cb.transition(StateHalfOpen)
+			notify = cb.transition(StateHalfOpen)
 			return nil
 		}
 		return ErrCircuitOpen
@@ -126,7 +132,13 @@ func (cb *CircuitBreaker) Allow() error {
 // RecordSuccess records a successful operation.
 func (cb *CircuitBreaker) RecordSuccess() {
 	cb.mu.Lock()
-	defer cb.mu.Unlock()
+	var notify func()
+	defer func() {
+		cb.mu.Unlock()
+		if notify != nil {
+			notify()
+		}
+	}()
 
 	switch cb.state {
 	case StateClosed:
@@ -134,7 +146,7 @@ func (cb *CircuitBreaker) RecordSuccess() {
 	case StateHalfOpen:
 		cb.successCount++
 		if cb.successCount >= cb.successThreshold {
-			cb.transition(StateClosed)
+			notify = cb.transition(StateClosed)
 		}
 	}
 }
@@ -142,7 +154,13 @@ func (cb *CircuitBreaker) RecordSuccess() {
 // RecordFailure records a failed operation.
 func (cb *CircuitBreaker) RecordFailure() {
 	cb.mu.Lock()
-	defer cb.mu.Unlock()
+	var notify func()
+	defer func() {
+		cb.mu.Unlock()
+		if notify != nil {
+			notify()
+		}
+	}()
 
 	cb.lastFailure = cb.now()
 
@@ -150,10 +168,10 @@ func (cb *CircuitBreaker) RecordFailure() {
 	case StateClosed:
 		cb.failureCount++
 		if cb.failureCount >= cb.failureThreshold {
-			cb.transition(StateOpen)
+			notify = cb.transition(StateOpen)
 		}
 	case StateHalfOpen:
-		cb.transition(StateOpen)
+		notify = cb.transition(StateOpen)
 	}
 }
 
@@ -167,8 +185,11 @@ func (cb *CircuitBreaker) State() string {
 // Reset returns the circuit breaker to the closed state.
 func (cb *CircuitBreaker) Reset() {
 	cb.mu.Lock()
-	defer cb.mu.Unlock()
-	cb.transition(StateClosed)
+	notify := cb.transition(StateClosed)
+	cb.mu.Unlock()
+	if notify != nil {
+		notify()
+	}
 }
 
 // Counts returns current failure and success counters.
@@ -178,15 +199,17 @@ func (cb *CircuitBreaker) Counts() (failures, successes int) {
 	return cb.failureCount, cb.successCount
 }
 
-// transition moves to a new state and fires the callback.
+// transition moves to a new state and returns a callback to fire AFTER releasing the lock.
 // Caller must hold cb.mu.
-func (cb *CircuitBreaker) transition(to string) {
+func (cb *CircuitBreaker) transition(to string) func() {
 	from := cb.state
 	cb.state = to
 	cb.failureCount = 0
 	cb.successCount = 0
 
 	if cb.onStateChange != nil && from != to {
-		cb.onStateChange(from, to)
+		fn := cb.onStateChange
+		return func() { fn(from, to) }
 	}
+	return nil
 }
