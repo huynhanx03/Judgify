@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"sort"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/identity/constant"
@@ -17,7 +18,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const roleServiceName = "RoleService"
 
 type roleService struct {
 	roleRepo     ports.RoleRepository
@@ -75,7 +75,7 @@ func (s *roleService) Create(ctx context.Context, req *dto.CreateRoleRequest) (*
 		}
 
 		if err := s.rebuildTree(ctx); err != nil {
-			return apperr.NewError(roleServiceName, response.CodeDatabaseError, constant.MsgRebuildTreeFailed, http.StatusInternalServerError, err)
+			return apperr.New(response.CodeDatabaseError, constant.MsgRebuildTreeFailed, err)
 		}
 		return nil
 	})
@@ -89,6 +89,7 @@ func (s *roleService) Create(ctx context.Context, req *dto.CreateRoleRequest) (*
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("role created successfully", zap.Int("role_id", role.ID))
 	return mapper.ToRoleResponse(role), nil
 }
 
@@ -113,7 +114,7 @@ func (s *roleService) Update(ctx context.Context, id int, req *dto.UpdateRoleReq
 		if req.ParentID != nil {
 			if role.ParentID != *req.ParentID {
 				if *req.ParentID == id {
-					return apperr.NewError(roleServiceName, response.CodeInvalidID, constant.MsgInvalidParentID, http.StatusBadRequest, nil)
+					return apperr.New(response.CodeInvalidID, constant.MsgInvalidParentID, nil)
 				}
 				role.ParentID = *req.ParentID
 				parentChanged = true
@@ -142,6 +143,7 @@ func (s *roleService) Update(ctx context.Context, id int, req *dto.UpdateRoleReq
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("role updated successfully", zap.Int("role_id", role.ID))
 	return mapper.ToRoleResponse(role), nil
 }
 
@@ -154,7 +156,7 @@ func (s *roleService) Delete(ctx context.Context, id int) error {
 		}
 
 		if !exists {
-			return apperr.NewError(roleServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+			return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 		}
 
 		if err := s.roleRepo.Delete(ctx, id); err != nil {
@@ -162,7 +164,7 @@ func (s *roleService) Delete(ctx context.Context, id int) error {
 		}
 
 		if err := s.rebuildTree(ctx); err != nil {
-			return apperr.NewError(roleServiceName, response.CodeDatabaseError, constant.MsgRebuildTreeFailed, http.StatusInternalServerError, err)
+			return apperr.New(response.CodeDatabaseError, constant.MsgRebuildTreeFailed, err)
 		}
 		return nil
 	})
@@ -176,6 +178,7 @@ func (s *roleService) Delete(ctx context.Context, id int) error {
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("role deleted successfully", zap.Int("role_id", id))
 	return nil
 }
 

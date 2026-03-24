@@ -43,6 +43,8 @@ const (
 	EdgeDifficulty = "difficulty"
 	// EdgeTestCases holds the string denoting the test_cases edge name in mutations.
 	EdgeTestCases = "test_cases"
+	// EdgeSubmissions holds the string denoting the submissions edge name in mutations.
+	EdgeSubmissions = "submissions"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
 	EdgeTags = "tags"
 	// Table holds the table name of the problem in the database.
@@ -68,6 +70,13 @@ const (
 	TestCasesInverseTable = "test_cases"
 	// TestCasesColumn is the table column denoting the test_cases relation/edge.
 	TestCasesColumn = "problem_id"
+	// SubmissionsTable is the table that holds the submissions relation/edge.
+	SubmissionsTable = "submissions"
+	// SubmissionsInverseTable is the table name for the Submission entity.
+	// It exists in this package in order to avoid circular dependency with the "submission" package.
+	SubmissionsInverseTable = "submissions"
+	// SubmissionsColumn is the table column denoting the submissions relation/edge.
+	SubmissionsColumn = "problem_id"
 	// TagsTable is the table that holds the tags relation/edge. The primary key declared below.
 	TagsTable = "problem_tags"
 	// TagsInverseTable is the table name for the Tag entity.
@@ -224,6 +233,20 @@ func ByTestCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// BySubmissionsCount orders the results by submissions count.
+func BySubmissionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubmissionsStep(), opts...)
+	}
+}
+
+// BySubmissions orders the results by submissions terms.
+func BySubmissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubmissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByTagsCount orders the results by tags count.
 func ByTagsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -256,6 +279,13 @@ func newTestCasesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TestCasesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TestCasesTable, TestCasesColumn),
+	)
+}
+func newSubmissionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubmissionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionsTable, SubmissionsColumn),
 	)
 }
 func newTagsStep() *sqlgraph.Step {

@@ -10,6 +10,7 @@ import (
 	cultivationHttp "github.com/huynhanx03/judgify/internal/cultivation/adapters/driver/http"
 	identityHttp "github.com/huynhanx03/judgify/internal/identity/adapters/driver/http"
 	problemHttp "github.com/huynhanx03/judgify/internal/problem/adapters/driver/http"
+	submissionHttp "github.com/huynhanx03/judgify/internal/submission/adapters/driver/http"
 	"github.com/huynhanx03/judgify/pkg/algorithm"
 	"github.com/huynhanx03/judgify/pkg/common/http/middlewares"
 )
@@ -19,6 +20,7 @@ type RouterGroup struct {
 	IdentityHandler    *identityHttp.IdentityHandler
 	ProblemHandler     *problemHttp.ProblemHandlerGroup
 	CultivationHandler *cultivationHttp.CultivationHandlerGroup
+	SubmissionHandler  *submissionHttp.SubmissionHandlerGroup
 	PermChecker        *middlewares.PermissionChecker
 }
 
@@ -27,12 +29,14 @@ func NewRouterGroup(
 	identityHandler *identityHttp.IdentityHandler,
 	problemHandler *problemHttp.ProblemHandlerGroup,
 	cultivationHandler *cultivationHttp.CultivationHandlerGroup,
+	submissionHandler *submissionHttp.SubmissionHandlerGroup,
 	permChecker *middlewares.PermissionChecker,
 ) *RouterGroup {
 	return &RouterGroup{
 		IdentityHandler:    identityHandler,
 		ProblemHandler:     problemHandler,
 		CultivationHandler: cultivationHandler,
+		SubmissionHandler:  submissionHandler,
 		PermChecker:        permChecker,
 	}
 }
@@ -53,6 +57,7 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 		rg.IdentityHandler.RegisterProtected(protected, rg.PermChecker)
 		rg.ProblemHandler.RegisterProtected(protected, rg.PermChecker)
 		rg.CultivationHandler.RegisterProtected(protected, rg.PermChecker)
+		rg.SubmissionHandler.RegisterProtected(protected)
 	}
 }
 
@@ -72,6 +77,7 @@ func NewEngine(routerGroup *RouterGroup) *gin.Engine {
 
 	r := gin.New()
 	r.Use(middlewares.RecoveryMiddleware)
+	r.Use(middlewares.RequestLogger())
 	r.Use(middlewares.CORSMiddleware)
 
 	r.GET("/ping", Ping)

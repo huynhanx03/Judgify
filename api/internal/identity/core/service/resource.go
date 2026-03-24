@@ -2,18 +2,18 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/mapper"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const resourceServiceName = "ResourceService"
 
 type resourceService struct {
 	resourceRepo ports.ResourceRepository
@@ -74,6 +74,7 @@ func (s *resourceService) Create(ctx context.Context, req *dto.CreateResourceReq
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("resource created", zap.Int("resource_id", resource.ID))
 	return mapper.ToResourceResponse(resource), nil
 }
 
@@ -101,6 +102,7 @@ func (s *resourceService) Update(ctx context.Context, id int, req *dto.UpdateRes
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("resource updated", zap.Int("resource_id", resource.ID))
 	return mapper.ToResourceResponse(resource), nil
 }
 
@@ -112,7 +114,7 @@ func (s *resourceService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(resourceServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
 	if err := s.resourceRepo.Delete(ctx, id); err != nil {
@@ -124,5 +126,6 @@ func (s *resourceService) Delete(ctx context.Context, id int) error {
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("resource deleted", zap.Int("resource_id", id))
 	return nil
 }

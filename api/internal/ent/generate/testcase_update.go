@@ -125,16 +125,16 @@ func (_u *TestCaseUpdate) SetNillableExpectedOutput(v *string) *TestCaseUpdate {
 	return _u
 }
 
-// SetIsSample sets the "is_sample" field.
-func (_u *TestCaseUpdate) SetIsSample(v bool) *TestCaseUpdate {
-	_u.mutation.SetIsSample(v)
+// SetIsHidden sets the "is_hidden" field.
+func (_u *TestCaseUpdate) SetIsHidden(v bool) *TestCaseUpdate {
+	_u.mutation.SetIsHidden(v)
 	return _u
 }
 
-// SetNillableIsSample sets the "is_sample" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableIsSample(v *bool) *TestCaseUpdate {
+// SetNillableIsHidden sets the "is_hidden" field if the given value is not nil.
+func (_u *TestCaseUpdate) SetNillableIsHidden(v *bool) *TestCaseUpdate {
 	if v != nil {
-		_u.SetIsSample(*v)
+		_u.SetIsHidden(*v)
 	}
 	return _u
 }
@@ -278,8 +278,8 @@ func (_u *TestCaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ExpectedOutput(); ok {
 		_spec.SetField(testcase.FieldExpectedOutput, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.IsSample(); ok {
-		_spec.SetField(testcase.FieldIsSample, field.TypeBool, value)
+	if value, ok := _u.mutation.IsHidden(); ok {
+		_spec.SetField(testcase.FieldIsHidden, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.OrderIndex(); ok {
 		_spec.SetField(testcase.FieldOrderIndex, field.TypeInt, value)
@@ -433,16 +433,16 @@ func (_u *TestCaseUpdateOne) SetNillableExpectedOutput(v *string) *TestCaseUpdat
 	return _u
 }
 
-// SetIsSample sets the "is_sample" field.
-func (_u *TestCaseUpdateOne) SetIsSample(v bool) *TestCaseUpdateOne {
-	_u.mutation.SetIsSample(v)
+// SetIsHidden sets the "is_hidden" field.
+func (_u *TestCaseUpdateOne) SetIsHidden(v bool) *TestCaseUpdateOne {
+	_u.mutation.SetIsHidden(v)
 	return _u
 }
 
-// SetNillableIsSample sets the "is_sample" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableIsSample(v *bool) *TestCaseUpdateOne {
+// SetNillableIsHidden sets the "is_hidden" field if the given value is not nil.
+func (_u *TestCaseUpdateOne) SetNillableIsHidden(v *bool) *TestCaseUpdateOne {
 	if v != nil {
-		_u.SetIsSample(*v)
+		_u.SetIsHidden(*v)
 	}
 	return _u
 }
@@ -616,8 +616,8 @@ func (_u *TestCaseUpdateOne) sqlSave(ctx context.Context) (_node *TestCase, err 
 	if value, ok := _u.mutation.ExpectedOutput(); ok {
 		_spec.SetField(testcase.FieldExpectedOutput, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.IsSample(); ok {
-		_spec.SetField(testcase.FieldIsSample, field.TypeBool, value)
+	if value, ok := _u.mutation.IsHidden(); ok {
+		_spec.SetField(testcase.FieldIsHidden, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.OrderIndex(); ok {
 		_spec.SetField(testcase.FieldOrderIndex, field.TypeInt, value)

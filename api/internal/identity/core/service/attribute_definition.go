@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"strconv"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/cache"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/identity/constant"
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
@@ -17,7 +18,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const attrDefServiceName = "AttributeDefinitionService"
 
 type attributeDefinitionService struct {
 	attrDefRepo ports.AttributeDefinitionRepository
@@ -84,6 +84,7 @@ func (s *attributeDefinitionService) Create(ctx context.Context, req *dto.Create
 		return nil, err
 	}
 
+	logger.FromContext(ctx).Info("attribute definition created", zap.Int("attribute_definition_id", attrDef.ID))
 	return mapper.ToAttributeDefinitionResponse(attrDef), nil
 }
 
@@ -115,6 +116,7 @@ func (s *attributeDefinitionService) Update(ctx context.Context, id int, req *dt
 	cache.SetLocal(s.cache, cacheKeyID, attrDef, constant.CacheCostID)
 	cache.DeleteLocal(s.cache, cacheKeyKey)
 
+	logger.FromContext(ctx).Info("attribute definition updated", zap.Int("attribute_definition_id", attrDef.ID))
 	return mapper.ToAttributeDefinitionResponse(attrDef), nil
 }
 
@@ -126,7 +128,7 @@ func (s *attributeDefinitionService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(attrDefServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
 	if err := s.attrDefRepo.Delete(ctx, id); err != nil {
@@ -136,5 +138,6 @@ func (s *attributeDefinitionService) Delete(ctx context.Context, id int) error {
 	cacheKeyID := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
 	cache.DeleteLocal(s.cache, cacheKeyID)
 
+	logger.FromContext(ctx).Info("attribute definition deleted", zap.Int("attribute_definition_id", id))
 	return nil
 }

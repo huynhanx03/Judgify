@@ -2,18 +2,18 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/mapper"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const permissionServiceName = "PermissionService"
 
 type permissionService struct {
 	permissionRepo ports.PermissionRepository
@@ -74,6 +74,7 @@ func (s *permissionService) Create(ctx context.Context, req *dto.CreatePermissio
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("permission created", zap.Int("permission_id", permission.ID))
 	return mapper.ToPermissionResponse(permission), nil
 }
 
@@ -101,6 +102,7 @@ func (s *permissionService) Update(ctx context.Context, id int, req *dto.UpdateP
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("permission updated", zap.Int("permission_id", permission.ID))
 	return mapper.ToPermissionResponse(permission), nil
 }
 
@@ -112,7 +114,7 @@ func (s *permissionService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(permissionServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
 	if err := s.permissionRepo.Delete(ctx, id); err != nil {
@@ -124,5 +126,6 @@ func (s *permissionService) Delete(ctx context.Context, id int) error {
 		// Log error but don't fail request
 	}
 
+	logger.FromContext(ctx).Info("permission deleted", zap.Int("permission_id", id))
 	return nil
 }

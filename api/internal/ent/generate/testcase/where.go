@@ -90,9 +90,9 @@ func ExpectedOutput(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldExpectedOutput, v))
 }
 
-// IsSample applies equality check predicate on the "is_sample" field. It's identical to IsSampleEQ.
-func IsSample(v bool) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldIsSample, v))
+// IsHidden applies equality check predicate on the "is_hidden" field. It's identical to IsHiddenEQ.
+func IsHidden(v bool) predicate.TestCase {
+	return predicate.TestCase(sql.FieldEQ(FieldIsHidden, v))
 }
 
 // OrderIndex applies equality check predicate on the "order_index" field. It's identical to OrderIndexEQ.
@@ -430,14 +430,14 @@ func ExpectedOutputContainsFold(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldContainsFold(FieldExpectedOutput, v))
 }
 
-// IsSampleEQ applies the EQ predicate on the "is_sample" field.
-func IsSampleEQ(v bool) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldIsSample, v))
+// IsHiddenEQ applies the EQ predicate on the "is_hidden" field.
+func IsHiddenEQ(v bool) predicate.TestCase {
+	return predicate.TestCase(sql.FieldEQ(FieldIsHidden, v))
 }
 
-// IsSampleNEQ applies the NEQ predicate on the "is_sample" field.
-func IsSampleNEQ(v bool) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNEQ(FieldIsSample, v))
+// IsHiddenNEQ applies the NEQ predicate on the "is_hidden" field.
+func IsHiddenNEQ(v bool) predicate.TestCase {
+	return predicate.TestCase(sql.FieldNEQ(FieldIsHidden, v))
 }
 
 // OrderIndexEQ applies the EQ predicate on the "order_index" field.

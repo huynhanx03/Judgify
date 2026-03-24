@@ -47,6 +47,7 @@ func (Problem) Edges() []ent.Edge {
 		edge.From("author", User.Type).Ref("problems").Field("author_id").Unique().Required(),
 		edge.From("difficulty", Difficulty.Type).Ref("problems").Field("difficulty_id").Unique().Required(),
 		edge.To("test_cases", TestCase.Type),
+		edge.To("submissions", Submission.Type),
 		edge.To("tags", Tag.Type),
 	}
 }

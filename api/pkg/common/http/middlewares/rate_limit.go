@@ -3,7 +3,7 @@ package middlewares
 import (
 	"context"
 	"fmt"
-	"net/http"
+
 	"strconv"
 	"time"
 
@@ -139,7 +139,6 @@ func RateLimit(cfg RateLimitConfig) gin.HandlerFunc {
 			response.ErrorResponse(c, response.CodeTooManyRequests, apperr.New(
 				response.CodeTooManyRequests,
 				"rate limit exceeded",
-				http.StatusTooManyRequests,
 				nil,
 			))
 			c.Abort()

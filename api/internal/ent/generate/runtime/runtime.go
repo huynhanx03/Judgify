@@ -17,6 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
@@ -514,6 +515,37 @@ func init() {
 	roleDescRgt := roleFields[4].Descriptor()
 	// role.DefaultRgt holds the default value on creation for the rgt field.
 	role.DefaultRgt = roleDescRgt.Default.(int)
+	submissionMixin := schema.Submission{}.Mixin()
+	submissionMixinHooks1 := submissionMixin[1].Hooks()
+	submission.Hooks[0] = submissionMixinHooks1[0]
+	submissionMixinInters1 := submissionMixin[1].Interceptors()
+	submission.Interceptors[0] = submissionMixinInters1[0]
+	submissionMixinFields0 := submissionMixin[0].Fields()
+	_ = submissionMixinFields0
+	submissionFields := schema.Submission{}.Fields()
+	_ = submissionFields
+	// submissionDescCreatedAt is the schema descriptor for created_at field.
+	submissionDescCreatedAt := submissionMixinFields0[0].Descriptor()
+	// submission.DefaultCreatedAt holds the default value on creation for the created_at field.
+	submission.DefaultCreatedAt = submissionDescCreatedAt.Default.(func() time.Time)
+	// submissionDescUpdatedAt is the schema descriptor for updated_at field.
+	submissionDescUpdatedAt := submissionMixinFields0[1].Descriptor()
+	// submission.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	submission.DefaultUpdatedAt = submissionDescUpdatedAt.Default.(func() time.Time)
+	// submission.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	submission.UpdateDefaultUpdatedAt = submissionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// submissionDescSourceCode is the schema descriptor for source_code field.
+	submissionDescSourceCode := submissionFields[3].Descriptor()
+	// submission.SourceCodeValidator is a validator for the "source_code" field. It is called by the builders before save.
+	submission.SourceCodeValidator = submissionDescSourceCode.Validators[0].(func(string) error)
+	// submissionDescPassedCount is the schema descriptor for passed_count field.
+	submissionDescPassedCount := submissionFields[5].Descriptor()
+	// submission.DefaultPassedCount holds the default value on creation for the passed_count field.
+	submission.DefaultPassedCount = submissionDescPassedCount.Default.(int)
+	// submissionDescTotalCount is the schema descriptor for total_count field.
+	submissionDescTotalCount := submissionFields[6].Descriptor()
+	// submission.DefaultTotalCount holds the default value on creation for the total_count field.
+	submission.DefaultTotalCount = submissionDescTotalCount.Default.(int)
 	tagMixin := schema.Tag{}.Mixin()
 	tagMixinHooks1 := tagMixin[1].Hooks()
 	tag.Hooks[0] = tagMixinHooks1[0]
@@ -578,10 +610,10 @@ func init() {
 	testcaseDescExpectedOutput := testcaseFields[2].Descriptor()
 	// testcase.ExpectedOutputValidator is a validator for the "expected_output" field. It is called by the builders before save.
 	testcase.ExpectedOutputValidator = testcaseDescExpectedOutput.Validators[0].(func(string) error)
-	// testcaseDescIsSample is the schema descriptor for is_sample field.
-	testcaseDescIsSample := testcaseFields[3].Descriptor()
-	// testcase.DefaultIsSample holds the default value on creation for the is_sample field.
-	testcase.DefaultIsSample = testcaseDescIsSample.Default.(bool)
+	// testcaseDescIsHidden is the schema descriptor for is_hidden field.
+	testcaseDescIsHidden := testcaseFields[3].Descriptor()
+	// testcase.DefaultIsHidden holds the default value on creation for the is_hidden field.
+	testcase.DefaultIsHidden = testcaseDescIsHidden.Default.(bool)
 	traitMixin := schema.Trait{}.Mixin()
 	traitMixinHooks1 := traitMixin[1].Hooks()
 	trait.Hooks[0] = traitMixinHooks1[0]

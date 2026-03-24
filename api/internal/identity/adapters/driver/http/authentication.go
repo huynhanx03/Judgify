@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/handler"
@@ -89,12 +88,12 @@ func (h *authenticationHandler) ResetPassword(ctx context.Context, req *dto.Rese
 func (h *authenticationHandler) getUserID(ctx context.Context) (int, error) {
 	userIDVal := ctx.Value(constraints.ContextKeyUserID)
 	if userIDVal == nil {
-		return 0, apperr.New(response.CodeUnauthorized, "user id not found in context", http.StatusUnauthorized, nil)
+		return 0, apperr.New(response.CodeUnauthorized, "user id not found in context", nil)
 	}
 
 	userID, ok := userIDVal.(int)
 	if !ok {
-		return 0, apperr.New(response.CodeInternalError, "invalid user id type", http.StatusInternalServerError, nil)
+		return 0, apperr.New(response.CodeInternalError, "invalid user id type", nil)
 	}
 	return userID, nil
 }

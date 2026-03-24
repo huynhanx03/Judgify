@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/handler"
@@ -44,11 +43,11 @@ func (h *problemHandler) Get(ctx context.Context, req *dto.GetProblemRequest) (*
 func (h *problemHandler) Create(ctx context.Context, req *dto.CreateProblemRequest) (*dto.ProblemResponse, error) {
 	userIDVal := ctx.Value(constraints.ContextKeyUserID)
 	if userIDVal == nil {
-		return nil, apperr.New(response.CodeUnauthorized, "user id not found in context", http.StatusUnauthorized, nil)
+		return nil, apperr.New(response.CodeUnauthorized, "user id not found in context", nil)
 	}
 	userID, ok := userIDVal.(int)
 	if !ok {
-		return nil, apperr.New(response.CodeInternalError, "invalid user id type", http.StatusInternalServerError, nil)
+		return nil, apperr.New(response.CodeInternalError, "invalid user id type", nil)
 	}
 
 	return h.problemService.Create(ctx, userID, req)

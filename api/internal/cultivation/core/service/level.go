@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const levelServiceName = "LevelService"
 
 type levelService struct {
 	levelRepo ports.LevelRepository
@@ -57,6 +57,7 @@ func (s *levelService) Create(ctx context.Context, req *dto.CreateLevelRequest) 
 	if err := s.levelRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("level created", zap.Int("level_id", e.ID))
 	return mapper.ToLevelResponse(e), nil
 }
 
@@ -79,6 +80,7 @@ func (s *levelService) Update(ctx context.Context, id int, req *dto.UpdateLevelR
 	if err := s.levelRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("level updated", zap.Int("level_id", e.ID))
 	return mapper.ToLevelResponse(e), nil
 }
 
@@ -88,7 +90,11 @@ func (s *levelService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(levelServiceName, response.CodeNotFound, constant.MsgLevelNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgLevelNotFound, nil)
 	}
-	return s.levelRepo.Delete(ctx, id)
+	if err := s.levelRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("level deleted", zap.Int("level_id", id))
+	return nil
 }

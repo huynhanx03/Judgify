@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const elementServiceName = "ElementService"
 
 type elementService struct {
 	elementRepo ports.ElementRepository
@@ -57,6 +57,7 @@ func (s *elementService) Create(ctx context.Context, req *dto.CreateElementReque
 	if err := s.elementRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("element created", zap.Int("element_id", e.ID))
 	return mapper.ToElementResponse(e), nil
 }
 
@@ -78,6 +79,7 @@ func (s *elementService) Update(ctx context.Context, id int, req *dto.UpdateElem
 	if err := s.elementRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("element updated", zap.Int("element_id", e.ID))
 	return mapper.ToElementResponse(e), nil
 }
 
@@ -87,7 +89,11 @@ func (s *elementService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(elementServiceName, response.CodeNotFound, constant.MsgElementNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgElementNotFound, nil)
 	}
-	return s.elementRepo.Delete(ctx, id)
+	if err := s.elementRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("element deleted", zap.Int("element_id", id))
+	return nil
 }

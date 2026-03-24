@@ -29,8 +29,8 @@ const (
 	FieldInput = "input"
 	// FieldExpectedOutput holds the string denoting the expected_output field in the database.
 	FieldExpectedOutput = "expected_output"
-	// FieldIsSample holds the string denoting the is_sample field in the database.
-	FieldIsSample = "is_sample"
+	// FieldIsHidden holds the string denoting the is_hidden field in the database.
+	FieldIsHidden = "is_hidden"
 	// FieldOrderIndex holds the string denoting the order_index field in the database.
 	FieldOrderIndex = "order_index"
 	// EdgeProblem holds the string denoting the problem edge name in mutations.
@@ -56,7 +56,7 @@ var Columns = []string{
 	FieldProblemID,
 	FieldInput,
 	FieldExpectedOutput,
-	FieldIsSample,
+	FieldIsHidden,
 	FieldOrderIndex,
 }
 
@@ -88,8 +88,8 @@ var (
 	InputValidator func(string) error
 	// ExpectedOutputValidator is a validator for the "expected_output" field. It is called by the builders before save.
 	ExpectedOutputValidator func(string) error
-	// DefaultIsSample holds the default value on creation for the "is_sample" field.
-	DefaultIsSample bool
+	// DefaultIsHidden holds the default value on creation for the "is_hidden" field.
+	DefaultIsHidden bool
 )
 
 // OrderOption defines the ordering options for the TestCase queries.
@@ -135,9 +135,9 @@ func ByExpectedOutput(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExpectedOutput, opts...).ToFunc()
 }
 
-// ByIsSample orders the results by the is_sample field.
-func ByIsSample(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsSample, opts...).ToFunc()
+// ByIsHidden orders the results by the is_hidden field.
+func ByIsHidden(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsHidden, opts...).ToFunc()
 }
 
 // ByOrderIndex orders the results by the order_index field.

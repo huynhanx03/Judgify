@@ -2,18 +2,18 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const difficultyServiceName = "DifficultyService"
 
 type difficultyService struct {
 	difficultyRepo ports.DifficultyRepository
@@ -65,6 +65,7 @@ func (s *difficultyService) Create(ctx context.Context, req *dto.CreateDifficult
 	if err := s.difficultyRepo.Create(ctx, difficulty); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("difficulty created", zap.Int("difficulty_id", difficulty.ID))
 	return mapper.ToDifficultyResponse(difficulty), nil
 }
 
@@ -93,6 +94,7 @@ func (s *difficultyService) Update(ctx context.Context, id int, req *dto.UpdateD
 		return nil, err
 	}
 
+	logger.FromContext(ctx).Info("difficulty updated", zap.Int("difficulty_id", difficulty.ID))
 	return mapper.ToDifficultyResponse(difficulty), nil
 }
 
@@ -104,8 +106,12 @@ func (s *difficultyService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(difficultyServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
-	return s.difficultyRepo.Delete(ctx, id)
+	if err := s.difficultyRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("difficulty deleted", zap.Int("difficulty_id", id))
+	return nil
 }

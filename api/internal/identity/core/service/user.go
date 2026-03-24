@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"strconv"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/cache"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/identity/constant"
@@ -17,7 +18,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/utils"
 )
 
-const userServiceName = "UserService"
 
 type userService struct {
 	userRepo      ports.UserRepository
@@ -55,10 +55,15 @@ func (s *userService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(userServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
-	return s.userRepo.Delete(ctx, id)
+	if err := s.userRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	logger.FromContext(ctx).Info("user deleted successfully", zap.Int("user_id", id))
+	return nil
 }
 
 // UpdateProfile updates user profile attributes.
@@ -130,6 +135,8 @@ func (s *userService) UpdateProfile(ctx context.Context, userID int, req *dto.Up
 	if err != nil {
 		return nil, err
 	}
+
+	logger.FromContext(ctx).Info("user profile updated successfully", zap.Int("user_id", userID))
 
 	gender, _ := strconv.Atoi(attrUpdates[constant.AttributeKeyGender])
 

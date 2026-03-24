@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const traitServiceName = "TraitService"
 
 type traitService struct {
 	traitRepo ports.TraitRepository
@@ -57,6 +57,7 @@ func (s *traitService) Create(ctx context.Context, req *dto.CreateTraitRequest) 
 	if err := s.traitRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("trait created", zap.Int("trait_id", e.ID))
 	return mapper.ToTraitResponse(e), nil
 }
 
@@ -85,6 +86,7 @@ func (s *traitService) Update(ctx context.Context, id int, req *dto.UpdateTraitR
 	if err := s.traitRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("trait updated", zap.Int("trait_id", e.ID))
 	return mapper.ToTraitResponse(e), nil
 }
 
@@ -94,7 +96,11 @@ func (s *traitService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(traitServiceName, response.CodeNotFound, constant.MsgTraitNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgTraitNotFound, nil)
 	}
-	return s.traitRepo.Delete(ctx, id)
+	if err := s.traitRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("trait deleted", zap.Int("trait_id", id))
+	return nil
 }

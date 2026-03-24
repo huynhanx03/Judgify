@@ -14,7 +14,7 @@ func BuildCreateTestCase(ctx context.Context, e *entity.TestCase) *generate.Test
 		SetProblemID(e.ProblemID).
 		SetInput(e.Input).
 		SetExpectedOutput(e.ExpectedOutput).
-		SetIsSample(e.IsSample).
+		SetIsHidden(e.IsHidden).
 		SetOrderIndex(e.OrderIndex)
 }
 
@@ -23,6 +23,6 @@ func BuildUpdateTestCase(ctx context.Context, e *entity.TestCase) *generate.Test
 	return global.EntClient.DB(ctx).TestCase.UpdateOneID(e.ID).
 		SetInput(e.Input).
 		SetExpectedOutput(e.ExpectedOutput).
-		SetIsSample(e.IsSample).
+		SetIsHidden(e.IsHidden).
 		SetOrderIndex(e.OrderIndex)
 }

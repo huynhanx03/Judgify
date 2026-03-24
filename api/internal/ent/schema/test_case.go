@@ -30,7 +30,7 @@ func (TestCase) Fields() []ent.Field {
 			NotEmpty(),
 		field.Text("expected_output").
 			NotEmpty(),
-		field.Bool("is_sample").
+		field.Bool("is_hidden").
 			Default(false),
 		field.Int("order_index"),
 	}

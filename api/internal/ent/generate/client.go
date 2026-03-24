@@ -27,6 +27,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
@@ -68,6 +69,8 @@ type Client struct {
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// Submission is the client for interacting with the Submission builders.
+	Submission *SubmissionClient
 	// Tag is the client for interacting with the Tag builders.
 	Tag *TagClient
 	// TestCase is the client for interacting with the TestCase builders.
@@ -107,6 +110,7 @@ func (c *Client) init() {
 	c.Rarity = NewRarityClient(c.config)
 	c.Resource = NewResourceClient(c.config)
 	c.Role = NewRoleClient(c.config)
+	c.Submission = NewSubmissionClient(c.config)
 	c.Tag = NewTagClient(c.config)
 	c.TestCase = NewTestCaseClient(c.config)
 	c.Trait = NewTraitClient(c.config)
@@ -219,6 +223,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Rarity:              NewRarityClient(cfg),
 		Resource:            NewResourceClient(cfg),
 		Role:                NewRoleClient(cfg),
+		Submission:          NewSubmissionClient(cfg),
 		Tag:                 NewTagClient(cfg),
 		TestCase:            NewTestCaseClient(cfg),
 		Trait:               NewTraitClient(cfg),
@@ -258,6 +263,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Rarity:              NewRarityClient(cfg),
 		Resource:            NewResourceClient(cfg),
 		Role:                NewRoleClient(cfg),
+		Submission:          NewSubmissionClient(cfg),
 		Tag:                 NewTagClient(cfg),
 		TestCase:            NewTestCaseClient(cfg),
 		Trait:               NewTraitClient(cfg),
@@ -297,8 +303,8 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
 		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
-		c.Resource, c.Role, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
-		c.UserElementExp, c.UserStats, c.UserTrait,
+		c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait, c.User,
+		c.UserAttributeValue, c.UserElementExp, c.UserStats, c.UserTrait,
 	} {
 		n.Use(hooks...)
 	}
@@ -310,8 +316,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
 		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
-		c.Resource, c.Role, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
-		c.UserElementExp, c.UserStats, c.UserTrait,
+		c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait, c.User,
+		c.UserAttributeValue, c.UserElementExp, c.UserStats, c.UserTrait,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -344,6 +350,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Resource.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
+	case *SubmissionMutation:
+		return c.Submission.mutate(ctx, m)
 	case *TagMutation:
 		return c.Tag.mutate(ctx, m)
 	case *TestCaseMutation:
@@ -1610,6 +1618,22 @@ func (c *ProblemClient) QueryTestCases(_m *Problem) *TestCaseQuery {
 	return query
 }
 
+// QuerySubmissions queries the submissions edge of a Problem.
+func (c *ProblemClient) QuerySubmissions(_m *Problem) *SubmissionQuery {
+	query := (&SubmissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionsTable, problem.SubmissionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryTags queries the tags edge of a Problem.
 func (c *ProblemClient) QueryTags(_m *Problem) *TagQuery {
 	query := (&TagClient{config: c.config}).Query()
@@ -2254,6 +2278,173 @@ func (c *RoleClient) mutate(ctx context.Context, m *RoleMutation) (Value, error)
 		return (&RoleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("generate: unknown Role mutation op: %q", m.Op())
+	}
+}
+
+// SubmissionClient is a client for the Submission schema.
+type SubmissionClient struct {
+	config
+}
+
+// NewSubmissionClient returns a client for the Submission from the given config.
+func NewSubmissionClient(c config) *SubmissionClient {
+	return &SubmissionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `submission.Hooks(f(g(h())))`.
+func (c *SubmissionClient) Use(hooks ...Hook) {
+	c.hooks.Submission = append(c.hooks.Submission, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `submission.Intercept(f(g(h())))`.
+func (c *SubmissionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Submission = append(c.inters.Submission, interceptors...)
+}
+
+// Create returns a builder for creating a Submission entity.
+func (c *SubmissionClient) Create() *SubmissionCreate {
+	mutation := newSubmissionMutation(c.config, OpCreate)
+	return &SubmissionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Submission entities.
+func (c *SubmissionClient) CreateBulk(builders ...*SubmissionCreate) *SubmissionCreateBulk {
+	return &SubmissionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SubmissionClient) MapCreateBulk(slice any, setFunc func(*SubmissionCreate, int)) *SubmissionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SubmissionCreateBulk{err: fmt.Errorf("calling to SubmissionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SubmissionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SubmissionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Submission.
+func (c *SubmissionClient) Update() *SubmissionUpdate {
+	mutation := newSubmissionMutation(c.config, OpUpdate)
+	return &SubmissionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SubmissionClient) UpdateOne(_m *Submission) *SubmissionUpdateOne {
+	mutation := newSubmissionMutation(c.config, OpUpdateOne, withSubmission(_m))
+	return &SubmissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SubmissionClient) UpdateOneID(id int) *SubmissionUpdateOne {
+	mutation := newSubmissionMutation(c.config, OpUpdateOne, withSubmissionID(id))
+	return &SubmissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Submission.
+func (c *SubmissionClient) Delete() *SubmissionDelete {
+	mutation := newSubmissionMutation(c.config, OpDelete)
+	return &SubmissionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SubmissionClient) DeleteOne(_m *Submission) *SubmissionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SubmissionClient) DeleteOneID(id int) *SubmissionDeleteOne {
+	builder := c.Delete().Where(submission.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SubmissionDeleteOne{builder}
+}
+
+// Query returns a query builder for Submission.
+func (c *SubmissionClient) Query() *SubmissionQuery {
+	return &SubmissionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSubmission},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Submission entity by its id.
+func (c *SubmissionClient) Get(ctx context.Context, id int) (*Submission, error) {
+	return c.Query().Where(submission.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SubmissionClient) GetX(ctx context.Context, id int) *Submission {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProblem queries the problem edge of a Submission.
+func (c *SubmissionClient) QueryProblem(_m *Submission) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.ProblemTable, submission.ProblemColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a Submission.
+func (c *SubmissionClient) QueryUser(_m *Submission) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.UserTable, submission.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SubmissionClient) Hooks() []Hook {
+	hooks := c.hooks.Submission
+	return append(hooks[:len(hooks):len(hooks)], submission.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *SubmissionClient) Interceptors() []Interceptor {
+	inters := c.inters.Submission
+	return append(inters[:len(inters):len(inters)], submission.Interceptors[:]...)
+}
+
+func (c *SubmissionClient) mutate(ctx context.Context, m *SubmissionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SubmissionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SubmissionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SubmissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SubmissionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown Submission mutation op: %q", m.Op())
 	}
 }
 
@@ -2923,6 +3114,22 @@ func (c *UserClient) QueryProblems(_m *User) *ProblemQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ProblemsTable, user.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmissions queries the submissions edge of a User.
+func (c *UserClient) QuerySubmissions(_m *User) *SubmissionQuery {
+	query := (&SubmissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmissionsTable, user.SubmissionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3677,13 +3884,15 @@ func (c *UserTraitClient) mutate(ctx context.Context, m *UserTraitMutation) (Val
 type (
 	hooks struct {
 		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
-		Permission, Problem, Rank, Rarity, Resource, Role, Tag, TestCase, Trait, User,
-		UserAttributeValue, UserElementExp, UserStats, UserTrait []ent.Hook
+		Permission, Problem, Rank, Rarity, Resource, Role, Submission, Tag, TestCase,
+		Trait, User, UserAttributeValue, UserElementExp, UserStats,
+		UserTrait []ent.Hook
 	}
 	inters struct {
 		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
-		Permission, Problem, Rank, Rarity, Resource, Role, Tag, TestCase, Trait, User,
-		UserAttributeValue, UserElementExp, UserStats, UserTrait []ent.Interceptor
+		Permission, Problem, Rank, Rarity, Resource, Role, Submission, Tag, TestCase,
+		Trait, User, UserAttributeValue, UserElementExp, UserStats,
+		UserTrait []ent.Interceptor
 	}
 )
 

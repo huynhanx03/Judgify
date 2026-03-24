@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -171,6 +172,21 @@ func (_c *ProblemCreate) AddTestCases(v ...*TestCase) *ProblemCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddTestCaseIDs(ids...)
+}
+
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (_c *ProblemCreate) AddSubmissionIDs(ids ...int) *ProblemCreate {
+	_c.mutation.AddSubmissionIDs(ids...)
+	return _c
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (_c *ProblemCreate) AddSubmissions(v ...*Submission) *ProblemCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSubmissionIDs(ids...)
 }
 
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
@@ -405,6 +421,22 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	"log"
+	"go.uber.org/zap"
 
 	pkgEnt "github.com/huynhanx03/judgify/pkg/database/ent"
 
@@ -14,10 +14,11 @@ import (
 func SetupEnt() {
 	driver, err := pkgEnt.NewDriver(global.Config.Database)
 	if err != nil {
-		log.Fatalf("failed opening connection to ent: %v", err)
+		global.LoggerZap.Fatal("failed opening connection to ent", zap.Error(err))
 	}
 
 	client := generate.NewClient(generate.Driver(driver))
 
+	global.LoggerZap.Named("db").Info("Database connected")
 	global.EntClient = internalEnt.WrapClient(client, global.LoggerZap.Logger)
 }

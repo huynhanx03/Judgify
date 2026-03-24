@@ -47,6 +47,7 @@ func NewHTTPServer() *Server {
 		c.Identity.IdentityHandler,
 		c.Problem.ProblemHandlerGroup,
 		c.Cultivation.CultivationHandlerGroup,
+		c.Submission.SubmissionHandlerGroup,
 		permChecker,
 	)
 
@@ -101,5 +102,8 @@ func (s *Server) Run() error {
 	}
 
 	global.LoggerZap.Info("Server exited")
+
+	// Flush any buffered log entries before exit
+	_ = global.LoggerZap.Sync()
 	return nil
 }

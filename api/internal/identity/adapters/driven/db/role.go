@@ -8,8 +8,7 @@ import (
 
 	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
 	d "github.com/huynhanx03/judgify/pkg/dto"
-
-	"github.com/huynhanx03/judgify/global"
+	"github.com/huynhanx03/judgify/pkg/logger"
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/identity/adapters/driven/db/builder"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
@@ -105,11 +104,10 @@ func (r *RoleRepository) GetByName(ctx context.Context, name string) (*entity.Ro
 	record, err := r.client.DB(ctx).Role.Query().
 		Where(role.Name(name)).
 		Only(ctx)
-	global.LoggerZap.Error("RoleRepository.GetByName", zap.String("name", name), zap.Any("err", err))
 	if err != nil {
+		logger.FromContext(ctx).Error("RoleRepository.GetByName", zap.String("name", name), zap.Error(err))
 		return nil, commonEnt.MapEntError(err, roleRepoName)
 	}
-	global.LoggerZap.Info("RoleRepository.GetByName", zap.String("name", name), zap.Any("record", record))
 	return mapper.ToRoleEntity(record), nil
 }
 

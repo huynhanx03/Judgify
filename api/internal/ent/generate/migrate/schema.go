@@ -283,6 +283,44 @@ var (
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
 	}
+	// SubmissionsColumns holds the columns for the "submissions" table.
+	SubmissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "language", Type: field.TypeEnum, Enums: []string{"cpp", "python", "java", "go"}},
+		{Name: "source_code", Type: field.TypeString, Size: 2147483647},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "judging", "accepted", "wrong_answer", "time_limit_exceeded", "memory_limit_exceeded", "runtime_error", "compile_error"}, Default: "pending"},
+		{Name: "passed_count", Type: field.TypeInt, Default: 0},
+		{Name: "total_count", Type: field.TypeInt, Default: 0},
+		{Name: "time_ms", Type: field.TypeInt, Nullable: true},
+		{Name: "memory_kb", Type: field.TypeInt, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// SubmissionsTable holds the schema information for the "submissions" table.
+	SubmissionsTable = &schema.Table{
+		Name:       "submissions",
+		Columns:    SubmissionsColumns,
+		PrimaryKey: []*schema.Column{SubmissionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "submissions_problems_submissions",
+				Columns:    []*schema.Column{SubmissionsColumns[13]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "submissions_users_submissions",
+				Columns:    []*schema.Column{SubmissionsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// TagsColumns holds the columns for the "tags" table.
 	TagsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -307,7 +345,7 @@ var (
 		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
 		{Name: "input", Type: field.TypeString, Size: 2147483647},
 		{Name: "expected_output", Type: field.TypeString, Size: 2147483647},
-		{Name: "is_sample", Type: field.TypeBool, Default: false},
+		{Name: "is_hidden", Type: field.TypeBool, Default: false},
 		{Name: "order_index", Type: field.TypeInt},
 		{Name: "problem_id", Type: field.TypeInt},
 	}
@@ -592,6 +630,7 @@ var (
 		RaritiesTable,
 		ResourcesTable,
 		RolesTable,
+		SubmissionsTable,
 		TagsTable,
 		TestCasesTable,
 		TraitsTable,
@@ -612,6 +651,8 @@ func init() {
 	PermissionsTable.ForeignKeys[1].RefTable = RolesTable
 	ProblemsTable.ForeignKeys[0].RefTable = DifficultiesTable
 	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
+	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
+	SubmissionsTable.ForeignKeys[1].RefTable = UsersTable
 	TestCasesTable.ForeignKeys[0].RefTable = ProblemsTable
 	TraitsTable.ForeignKeys[0].RefTable = RaritiesTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable

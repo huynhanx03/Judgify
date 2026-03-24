@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const userElementExpServiceName = "UserElementExpService"
 
 type userElementExpService struct {
 	userElementExpRepo ports.UserElementExpRepository
@@ -57,6 +57,7 @@ func (s *userElementExpService) Create(ctx context.Context, req *dto.CreateUserE
 	if err := s.userElementExpRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("user element exp created", zap.Int("user_element_exp_id", e.ID), zap.Int("user_id", e.UserID), zap.Int("element_id", e.ElementID))
 	return mapper.ToUserElementExpResponse(e), nil
 }
 
@@ -73,6 +74,7 @@ func (s *userElementExpService) Update(ctx context.Context, id int, req *dto.Upd
 	if err := s.userElementExpRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("user element exp updated", zap.Int("user_element_exp_id", e.ID), zap.Int("user_id", e.UserID))
 	return mapper.ToUserElementExpResponse(e), nil
 }
 
@@ -82,7 +84,11 @@ func (s *userElementExpService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(userElementExpServiceName, response.CodeNotFound, constant.MsgUserElementExpNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgUserElementExpNotFound, nil)
 	}
-	return s.userElementExpRepo.Delete(ctx, id)
+	if err := s.userElementExpRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("user element exp deleted", zap.Int("user_element_exp_id", id))
+	return nil
 }

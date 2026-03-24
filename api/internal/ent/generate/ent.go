@@ -24,6 +24,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
@@ -104,6 +105,7 @@ func checkColumn(t, c string) error {
 			rarity.Table:              rarity.ValidColumn,
 			resource.Table:            resource.ValidColumn,
 			role.Table:                role.ValidColumn,
+			submission.Table:          submission.ValidColumn,
 			tag.Table:                 tag.ValidColumn,
 			testcase.Table:            testcase.ValidColumn,
 			trait.Table:               trait.ValidColumn,

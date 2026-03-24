@@ -15,6 +15,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
@@ -161,6 +162,21 @@ func (_c *UserCreate) AddProblems(v ...*Problem) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddProblemIDs(ids...)
+}
+
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (_c *UserCreate) AddSubmissionIDs(ids ...int) *UserCreate {
+	_c.mutation.AddSubmissionIDs(ids...)
+	return _c
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (_c *UserCreate) AddSubmissions(v ...*Submission) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSubmissionIDs(ids...)
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
@@ -405,6 +421,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

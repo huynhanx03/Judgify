@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -50,11 +49,11 @@ func (h *userHandler) Delete(ctx context.Context, req *dto.DeleteUserRequest) (*
 func (h *userHandler) UpdateProfile(ctx context.Context, req *dto.UpdateProfileRequest) (*dto.ProfileResponse, error) {
 	userIDVal := ctx.Value(constraints.ContextKeyUserID)
 	if userIDVal == nil {
-		return nil, apperr.New(response.CodeUnauthorized, "user id not found in context", http.StatusUnauthorized, nil)
+		return nil, apperr.New(response.CodeUnauthorized, "user id not found in context", nil)
 	}
 	userID, ok := userIDVal.(int)
 	if !ok {
-		return nil, apperr.New(response.CodeInternalError, "invalid user id type", http.StatusInternalServerError, nil)
+		return nil, apperr.New(response.CodeInternalError, "invalid user id type", nil)
 	}
 
 	return h.userService.UpdateProfile(ctx, userID, req)
@@ -63,11 +62,11 @@ func (h *userHandler) UpdateProfile(ctx context.Context, req *dto.UpdateProfileR
 func (h *userHandler) GetProfile(ctx context.Context, req *dto.GetProfileRequest) (*dto.ProfileResponse, error) {
 	userIDVal := ctx.Value(constraints.ContextKeyUserID)
 	if userIDVal == nil {
-		return nil, apperr.New(response.CodeUnauthorized, "user id not found in context", http.StatusUnauthorized, nil)
+		return nil, apperr.New(response.CodeUnauthorized, "user id not found in context", nil)
 	}
 	userID, ok := userIDVal.(int)
 	if !ok {
-		return nil, apperr.New(response.CodeInternalError, "invalid user id type", http.StatusInternalServerError, nil)
+		return nil, apperr.New(response.CodeInternalError, "invalid user id type", nil)
 	}
 
 	return h.userService.GetProfile(ctx, userID)

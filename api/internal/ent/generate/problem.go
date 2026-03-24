@@ -55,11 +55,13 @@ type ProblemEdges struct {
 	Difficulty *Difficulty `json:"difficulty,omitempty"`
 	// TestCases holds the value of the test_cases edge.
 	TestCases []*TestCase `json:"test_cases,omitempty"`
+	// Submissions holds the value of the submissions edge.
+	Submissions []*Submission `json:"submissions,omitempty"`
 	// Tags holds the value of the tags edge.
 	Tags []*Tag `json:"tags,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -93,10 +95,19 @@ func (e ProblemEdges) TestCasesOrErr() ([]*TestCase, error) {
 	return nil, &NotLoadedError{edge: "test_cases"}
 }
 
+// SubmissionsOrErr returns the Submissions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) SubmissionsOrErr() ([]*Submission, error) {
+	if e.loadedTypes[3] {
+		return e.Submissions, nil
+	}
+	return nil, &NotLoadedError{edge: "submissions"}
+}
+
 // TagsOrErr returns the Tags value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) TagsOrErr() ([]*Tag, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.Tags, nil
 	}
 	return nil, &NotLoadedError{edge: "tags"}
@@ -230,6 +241,11 @@ func (_m *Problem) QueryDifficulty() *DifficultyQuery {
 // QueryTestCases queries the "test_cases" edge of the Problem entity.
 func (_m *Problem) QueryTestCases() *TestCaseQuery {
 	return NewProblemClient(_m.config).QueryTestCases(_m)
+}
+
+// QuerySubmissions queries the "submissions" edge of the Problem entity.
+func (_m *Problem) QuerySubmissions() *SubmissionQuery {
+	return NewProblemClient(_m.config).QuerySubmissions(_m)
 }
 
 // QueryTags queries the "tags" edge of the Problem entity.

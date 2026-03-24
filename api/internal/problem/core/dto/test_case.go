@@ -5,7 +5,7 @@ type CreateTestCaseRequest struct {
 	ProblemID      int    `json:"-" uri:"id"`
 	Input          string `json:"input" validate:"required"`
 	ExpectedOutput string `json:"expected_output" validate:"required"`
-	IsSample       *bool  `json:"is_sample"`
+	IsHidden       *bool  `json:"is_hidden"`
 	OrderIndex     int    `json:"order_index" validate:"min=0"`
 }
 
@@ -14,7 +14,7 @@ type UpdateTestCaseRequest struct {
 	ID             int     `json:"-" uri:"id"`
 	Input          *string `json:"input" validate:"omitempty"`
 	ExpectedOutput *string `json:"expected_output" validate:"omitempty"`
-	IsSample       *bool   `json:"is_sample" validate:"omitempty"`
+	IsHidden       *bool   `json:"is_hidden" validate:"omitempty"`
 	OrderIndex     *int    `json:"order_index" validate:"omitempty,min=0"`
 }
 
@@ -34,6 +34,6 @@ type TestCaseResponse struct {
 	ProblemID      int    `json:"problem_id"`
 	Input          string `json:"input"`
 	ExpectedOutput string `json:"expected_output"`
-	IsSample       bool   `json:"is_sample"`
+	IsHidden       bool   `json:"is_hidden"`
 	OrderIndex     int    `json:"order_index"`
 }

@@ -15,7 +15,7 @@ func ToTestCaseEntity(m *generate.TestCase) *entity.TestCase {
 		ProblemID:      m.ProblemID,
 		Input:          m.Input,
 		ExpectedOutput: m.ExpectedOutput,
-		IsSample:       m.IsSample,
+		IsHidden:       m.IsHidden,
 		OrderIndex:     m.OrderIndex,
 		CreatedAt:      m.CreatedAt,
 		UpdatedAt:      m.UpdatedAt,

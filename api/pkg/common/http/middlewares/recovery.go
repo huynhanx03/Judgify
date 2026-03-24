@@ -2,14 +2,14 @@ package middlewares
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 	"runtime/debug"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/logger"
 )
 
 // RecoveryMiddleware captures panics and returns a 500 error
@@ -25,14 +25,15 @@ func RecoveryMiddleware(c *gin.Context) {
 			}
 
 			// Log the stack trace
-			log.Printf("Panic recovered: %v\nStack: %s\n", appErr, string(debug.Stack()))
+			logger.FromContext(c.Request.Context()).Error("panic recovered",
+				zap.Error(appErr),
+				zap.String("stack", string(debug.Stack())),
+			)
 
 			// Return standardized error response
-			response.ErrorResponse(c, response.CodeInternalServer, apperr.NewError(
-				"RecoveryMiddleware",
+			response.ErrorResponse(c, response.CodeInternalServer, apperr.New(
 				response.CodeInternalServer,
 				"Internal Server Error",
-				http.StatusInternalServerError,
 				appErr,
 			))
 			// Ensure we abort the context to stop propagation

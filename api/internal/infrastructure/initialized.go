@@ -21,7 +21,7 @@ func setupResourceMapping() {
 
 	resources, err := global.EntClient.DB(context.Background()).Resource.Query().All(context.Background())
 	if err != nil {
-		global.LoggerZap.Fatal("Failed to load resources for mapping: %v", zap.Error(err))
+		global.LoggerZap.Fatal("Failed to load resources for mapping", zap.Error(err))
 	}
 
 	mapping := make(map[string]int)

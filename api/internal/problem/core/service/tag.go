@@ -2,18 +2,18 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const tagServiceName = "TagService"
 
 type tagService struct {
 	tagRepo ports.TagRepository
@@ -65,6 +65,7 @@ func (s *tagService) Create(ctx context.Context, req *dto.CreateTagRequest) (*dt
 	if err := s.tagRepo.Create(ctx, tag); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("tag created", zap.Int("tag_id", tag.ID))
 	return mapper.ToTagResponse(tag), nil
 }
 
@@ -84,6 +85,7 @@ func (s *tagService) Update(ctx context.Context, id int, req *dto.UpdateTagReque
 		return nil, err
 	}
 
+	logger.FromContext(ctx).Info("tag updated", zap.Int("tag_id", tag.ID))
 	return mapper.ToTagResponse(tag), nil
 }
 
@@ -95,8 +97,12 @@ func (s *tagService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(tagServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
-	return s.tagRepo.Delete(ctx, id)
+	if err := s.tagRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("tag deleted", zap.Int("tag_id", id))
+	return nil
 }

@@ -619,6 +619,29 @@ func HasTestCasesWith(preds ...predicate.TestCase) predicate.Problem {
 	})
 }
 
+// HasSubmissions applies the HasEdge predicate on the "submissions" edge.
+func HasSubmissions() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionsTable, SubmissionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubmissionsWith applies the HasEdge predicate on the "submissions" edge with a given conditions (other predicates).
+func HasSubmissionsWith(preds ...predicate.Submission) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newSubmissionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasTags applies the HasEdge predicate on the "tags" edge.
 func HasTags() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {

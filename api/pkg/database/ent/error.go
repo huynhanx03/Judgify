@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"strings"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
@@ -127,99 +126,43 @@ func MapEntError(err error, messagePrefix string) *apperr.AppError {
 	}
 
 	if IsNotFound(err) {
-		return apperr.New(
-			response.CodeNotFound,
-			fmt.Sprintf("%s not found", messagePrefix),
-			http.StatusNotFound,
-			err,
-		)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf("%s not found", messagePrefix), err)
 	}
 
 	if IsValidationError(err) {
-		return apperr.New(
-			response.CodeValidationFailed,
-			fmt.Sprintf("%s validation failed", messagePrefix),
-			http.StatusUnprocessableEntity,
-			err,
-		)
+		return apperr.New(response.CodeValidationFailed, fmt.Sprintf("%s validation failed", messagePrefix), err)
 	}
 
 	if IsConstraintError(err) {
 		errStr := strings.ToLower(err.Error())
 
 		switch {
-		// Duplicate entry
 		case strings.Contains(errStr, "duplicate") || strings.Contains(errStr, "unique constraint"):
-			return apperr.New(
-				response.CodeConflict,
-				fmt.Sprintf("%s already exists", messagePrefix),
-				http.StatusConflict,
-				err,
-			)
+			return apperr.New(response.CodeConflict, fmt.Sprintf("%s already exists", messagePrefix), err)
 
-		// Foreign Key Constraint
 		case strings.Contains(errStr, "foreign key") || strings.Contains(errStr, "constraint"):
 			if strings.Contains(errStr, "delete") || strings.Contains(errStr, "update") {
-				return apperr.New(
-					response.CodeConflict,
-					fmt.Sprintf("%s cannot be modified because it is referenced by other records", messagePrefix),
-					http.StatusConflict,
-					err,
-				)
+				return apperr.New(response.CodeConflict, fmt.Sprintf("%s cannot be modified because it is referenced by other records", messagePrefix), err)
 			}
-			// Invalid reference (e.g. creating with invalid FK)
-			return apperr.New(
-				response.CodeBadRequest,
-				fmt.Sprintf("%s contains invalid reference data", messagePrefix),
-				http.StatusBadRequest,
-				err,
-			)
+			return apperr.New(response.CodeBadRequest, fmt.Sprintf("%s contains invalid reference data", messagePrefix), err)
 
-		// Deadlock
 		case strings.Contains(errStr, "deadlock"):
 			slog.Error("Database deadlock occurred", "error", err)
-			return apperr.New(
-				response.CodeDatabaseError,
-				"Operation temporarily unavailable, please try again",
-				http.StatusServiceUnavailable,
-				err,
-			)
+			return apperr.New(response.CodeDatabaseError, "Operation temporarily unavailable, please try again", err)
 		}
 
-		// Fallback for generic constraint error
-		return apperr.New(
-			response.CodeConflict,
-			fmt.Sprintf("%s constraint failed", messagePrefix),
-			http.StatusConflict,
-			err,
-		)
+		return apperr.New(response.CodeConflict, fmt.Sprintf("%s constraint failed", messagePrefix), err)
 	}
 
 	if IsNotLoaded(err) {
 		slog.Error("Server logic error: edge was not loaded before access", "error", err)
-		return apperr.New(
-			response.CodeInternalServer,
-			"Internal server error",
-			http.StatusInternalServerError,
-			err,
-		)
+		return apperr.New(response.CodeInternalServer, "Internal server error", err)
 	}
 
 	if IsNotSingular(err) {
-		return apperr.New(
-			response.CodeInternalError,
-			fmt.Sprintf("%s is not uniquely identifiable", messagePrefix),
-			http.StatusBadRequest,
-			err,
-		)
+		return apperr.New(response.CodeInternalError, fmt.Sprintf("%s is not uniquely identifiable", messagePrefix), err)
 	}
 
-	// Default: Generic Database Error
 	slog.Error("Unexpected database error", "error", err)
-	return apperr.New(
-		response.CodeDatabaseError,
-		"An unexpected database error occurred",
-		http.StatusInternalServerError,
-		err,
-	)
+	return apperr.New(response.CodeDatabaseError, "An unexpected database error occurred", err)
 }

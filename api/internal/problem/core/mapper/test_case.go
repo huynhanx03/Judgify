@@ -15,7 +15,7 @@ func ToTestCaseResponse(e *entity.TestCase) *dto.TestCaseResponse {
 		ProblemID:      e.ProblemID,
 		Input:          e.Input,
 		ExpectedOutput: e.ExpectedOutput,
-		IsSample:       e.IsSample,
+		IsHidden:       e.IsHidden,
 		OrderIndex:     e.OrderIndex,
 	}
 }
@@ -28,8 +28,8 @@ func ToTestCaseEntityFromCreate(req *dto.CreateTestCaseRequest) *entity.TestCase
 		ExpectedOutput: req.ExpectedOutput,
 		OrderIndex:     req.OrderIndex,
 	}
-	if req.IsSample != nil {
-		e.IsSample = *req.IsSample
+	if req.IsHidden != nil {
+		e.IsHidden = *req.IsHidden
 	}
 	return e
 }

@@ -38,6 +38,8 @@ type Tx struct {
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// Submission is the client for interacting with the Submission builders.
+	Submission *SubmissionClient
 	// Tag is the client for interacting with the Tag builders.
 	Tag *TagClient
 	// TestCase is the client for interacting with the TestCase builders.
@@ -197,6 +199,7 @@ func (tx *Tx) init() {
 	tx.Rarity = NewRarityClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.Submission = NewSubmissionClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)
 	tx.TestCase = NewTestCaseClient(tx.config)
 	tx.Trait = NewTraitClient(tx.config)

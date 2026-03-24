@@ -21,6 +21,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
@@ -411,6 +412,33 @@ func (f TraverseRole) Traverse(ctx context.Context, q generate.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *generate.RoleQuery", q)
 }
 
+// The SubmissionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type SubmissionFunc func(context.Context, *generate.SubmissionQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f SubmissionFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.SubmissionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.SubmissionQuery", q)
+}
+
+// The TraverseSubmission type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseSubmission func(context.Context, *generate.SubmissionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseSubmission) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseSubmission) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.SubmissionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.SubmissionQuery", q)
+}
+
 // The TagFunc type is an adapter to allow the use of ordinary function as a Querier.
 type TagFunc func(context.Context, *generate.TagQuery) (generate.Value, error)
 
@@ -654,6 +682,8 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.ResourceQuery, predicate.Resource, resource.OrderOption]{typ: generate.TypeResource, tq: q}, nil
 	case *generate.RoleQuery:
 		return &query[*generate.RoleQuery, predicate.Role, role.OrderOption]{typ: generate.TypeRole, tq: q}, nil
+	case *generate.SubmissionQuery:
+		return &query[*generate.SubmissionQuery, predicate.Submission, submission.OrderOption]{typ: generate.TypeSubmission, tq: q}, nil
 	case *generate.TagQuery:
 		return &query[*generate.TagQuery, predicate.Tag, tag.OrderOption]{typ: generate.TypeTag, tq: q}, nil
 	case *generate.TestCaseQuery:

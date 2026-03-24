@@ -2,18 +2,18 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const problemServiceName = "ProblemService"
 
 type problemService struct {
 	problemRepo    ports.ProblemRepository
@@ -95,6 +95,8 @@ func (s *problemService) Create(ctx context.Context, authorID int, req *dto.Crea
 	if err == nil {
 		resp.Tags = tags
 	}
+
+	logger.FromContext(ctx).Info("problem created successfully", zap.Int("problem_id", problem.ID), zap.Int("author_id", authorID))
 	return resp, nil
 }
 
@@ -142,6 +144,8 @@ func (s *problemService) Update(ctx context.Context, id int, req *dto.UpdateProb
 	if tagErr == nil {
 		resp.Tags = tags
 	}
+
+	logger.FromContext(ctx).Info("problem updated successfully", zap.Int("problem_id", id))
 	return resp, nil
 }
 
@@ -153,10 +157,15 @@ func (s *problemService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(problemServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
-	return s.problemRepo.Delete(ctx, id)
+	if err := s.problemRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	logger.FromContext(ctx).Info("problem deleted successfully", zap.Int("problem_id", id))
+	return nil
 }
 
 // attachDifficulty fetches and attaches difficulty to a problem response.

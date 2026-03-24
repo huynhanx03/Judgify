@@ -40,6 +40,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("attributes", UserAttributeValue.Type),
 		edge.To("federated_identities", FederatedIdentity.Type),
 		edge.To("problems", Problem.Type),
+		edge.To("submissions", Submission.Type),
 		edge.To("user_traits", UserTrait.Type),
 		edge.To("user_element_exps", UserElementExp.Type),
 		edge.To("user_stats", UserStats.Type),

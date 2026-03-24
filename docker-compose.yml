@@ -14,3 +14,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  sandbox:
+    build:
+      context: ./docker/sandbox
+      dockerfile: Dockerfile
+    image: judgify/sandbox:latest
+    profiles:
+      - build

@@ -48,6 +48,8 @@ type UserEdges struct {
 	FederatedIdentities []*FederatedIdentity `json:"federated_identities,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
+	// Submissions holds the value of the submissions edge.
+	Submissions []*Submission `json:"submissions,omitempty"`
 	// UserTraits holds the value of the user_traits edge.
 	UserTraits []*UserTrait `json:"user_traits,omitempty"`
 	// UserElementExps holds the value of the user_element_exps edge.
@@ -56,7 +58,7 @@ type UserEdges struct {
 	UserStats []*UserStats `json:"user_stats,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [9]bool
 }
 
 // RoleOrErr returns the Role value or an error if the edge
@@ -106,10 +108,19 @@ func (e UserEdges) ProblemsOrErr() ([]*Problem, error) {
 	return nil, &NotLoadedError{edge: "problems"}
 }
 
+// SubmissionsOrErr returns the Submissions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SubmissionsOrErr() ([]*Submission, error) {
+	if e.loadedTypes[5] {
+		return e.Submissions, nil
+	}
+	return nil, &NotLoadedError{edge: "submissions"}
+}
+
 // UserTraitsOrErr returns the UserTraits value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserTraitsOrErr() ([]*UserTrait, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		return e.UserTraits, nil
 	}
 	return nil, &NotLoadedError{edge: "user_traits"}
@@ -118,7 +129,7 @@ func (e UserEdges) UserTraitsOrErr() ([]*UserTrait, error) {
 // UserElementExpsOrErr returns the UserElementExps value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.UserElementExps, nil
 	}
 	return nil, &NotLoadedError{edge: "user_element_exps"}
@@ -127,7 +138,7 @@ func (e UserEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
 // UserStatsOrErr returns the UserStats value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserStatsOrErr() ([]*UserStats, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.UserStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_stats"}
@@ -239,6 +250,11 @@ func (_m *User) QueryFederatedIdentities() *FederatedIdentityQuery {
 // QueryProblems queries the "problems" edge of the User entity.
 func (_m *User) QueryProblems() *ProblemQuery {
 	return NewUserClient(_m.config).QueryProblems(_m)
+}
+
+// QuerySubmissions queries the "submissions" edge of the User entity.
+func (_m *User) QuerySubmissions() *SubmissionQuery {
+	return NewUserClient(_m.config).QuerySubmissions(_m)
 }
 
 // QueryUserTraits queries the "user_traits" edge of the User entity.

@@ -465,6 +465,29 @@ func HasProblemsWith(preds ...predicate.Problem) predicate.User {
 	})
 }
 
+// HasSubmissions applies the HasEdge predicate on the "submissions" edge.
+func HasSubmissions() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionsTable, SubmissionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubmissionsWith applies the HasEdge predicate on the "submissions" edge with a given conditions (other predicates).
+func HasSubmissionsWith(preds ...predicate.Submission) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newSubmissionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUserTraits applies the HasEdge predicate on the "user_traits" edge.
 func HasUserTraits() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

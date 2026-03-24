@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const userStatsServiceName = "UserStatsService"
 
 type userStatsService struct {
 	userStatsRepo ports.UserStatsRepository
@@ -57,6 +57,7 @@ func (s *userStatsService) Create(ctx context.Context, req *dto.CreateUserStatsR
 	if err := s.userStatsRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("user stats created", zap.Int("user_stats_id", e.ID), zap.Int("user_id", e.UserID))
 	return mapper.ToUserStatsResponse(e), nil
 }
 
@@ -79,6 +80,7 @@ func (s *userStatsService) Update(ctx context.Context, id int, req *dto.UpdateUs
 	if err := s.userStatsRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("user stats updated", zap.Int("user_stats_id", e.ID), zap.Int("user_id", e.UserID))
 	return mapper.ToUserStatsResponse(e), nil
 }
 
@@ -88,7 +90,11 @@ func (s *userStatsService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(userStatsServiceName, response.CodeNotFound, constant.MsgUserStatsNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgUserStatsNotFound, nil)
 	}
-	return s.userStatsRepo.Delete(ctx, id)
+	if err := s.userStatsRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("user stats deleted", zap.Int("user_stats_id", id))
+	return nil
 }

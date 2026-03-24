@@ -32,8 +32,8 @@ type TestCase struct {
 	Input string `json:"input,omitempty"`
 	// ExpectedOutput holds the value of the "expected_output" field.
 	ExpectedOutput string `json:"expected_output,omitempty"`
-	// IsSample holds the value of the "is_sample" field.
-	IsSample bool `json:"is_sample,omitempty"`
+	// IsHidden holds the value of the "is_hidden" field.
+	IsHidden bool `json:"is_hidden,omitempty"`
 	// OrderIndex holds the value of the "order_index" field.
 	OrderIndex int `json:"order_index,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -67,7 +67,7 @@ func (*TestCase) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testcase.FieldIsSample:
+		case testcase.FieldIsHidden:
 			values[i] = new(sql.NullBool)
 		case testcase.FieldID, testcase.FieldDeletedBy, testcase.FieldProblemID, testcase.FieldOrderIndex:
 			values[i] = new(sql.NullInt64)
@@ -140,11 +140,11 @@ func (_m *TestCase) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ExpectedOutput = value.String
 			}
-		case testcase.FieldIsSample:
+		case testcase.FieldIsHidden:
 			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_sample", values[i])
+				return fmt.Errorf("unexpected type %T for field is_hidden", values[i])
 			} else if value.Valid {
-				_m.IsSample = value.Bool
+				_m.IsHidden = value.Bool
 			}
 		case testcase.FieldOrderIndex:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -218,8 +218,8 @@ func (_m *TestCase) String() string {
 	builder.WriteString("expected_output=")
 	builder.WriteString(_m.ExpectedOutput)
 	builder.WriteString(", ")
-	builder.WriteString("is_sample=")
-	builder.WriteString(fmt.Sprintf("%v", _m.IsSample))
+	builder.WriteString("is_hidden=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsHidden))
 	builder.WriteString(", ")
 	builder.WriteString("order_index=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OrderIndex))

@@ -18,6 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
@@ -37,6 +38,7 @@ type UserQuery struct {
 	withAttributes          *UserAttributeValueQuery
 	withFederatedIdentities *FederatedIdentityQuery
 	withProblems            *ProblemQuery
+	withSubmissions         *SubmissionQuery
 	withUserTraits          *UserTraitQuery
 	withUserElementExps     *UserElementExpQuery
 	withUserStats           *UserStatsQuery
@@ -180,6 +182,28 @@ func (_q *UserQuery) QueryProblems() *ProblemQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(problem.Table, problem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ProblemsTable, user.ProblemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySubmissions chains the current query on the "submissions" edge.
+func (_q *UserQuery) QuerySubmissions() *SubmissionQuery {
+	query := (&SubmissionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmissionsTable, user.SubmissionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -450,6 +474,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withAttributes:          _q.withAttributes.Clone(),
 		withFederatedIdentities: _q.withFederatedIdentities.Clone(),
 		withProblems:            _q.withProblems.Clone(),
+		withSubmissions:         _q.withSubmissions.Clone(),
 		withUserTraits:          _q.withUserTraits.Clone(),
 		withUserElementExps:     _q.withUserElementExps.Clone(),
 		withUserStats:           _q.withUserStats.Clone(),
@@ -512,6 +537,17 @@ func (_q *UserQuery) WithProblems(opts ...func(*ProblemQuery)) *UserQuery {
 		opt(query)
 	}
 	_q.withProblems = query
+	return _q
+}
+
+// WithSubmissions tells the query-builder to eager-load the nodes that are connected to
+// the "submissions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithSubmissions(opts ...func(*SubmissionQuery)) *UserQuery {
+	query := (&SubmissionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSubmissions = query
 	return _q
 }
 
@@ -626,12 +662,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [9]bool{
 			_q.withRole != nil,
 			_q.withCredentials != nil,
 			_q.withAttributes != nil,
 			_q.withFederatedIdentities != nil,
 			_q.withProblems != nil,
+			_q.withSubmissions != nil,
 			_q.withUserTraits != nil,
 			_q.withUserElementExps != nil,
 			_q.withUserStats != nil,
@@ -707,6 +744,18 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 				n.Edges.Problems = append(n.Edges.Problems, e)
 				if !e.Edges.loadedTypes[0] {
 					e.Edges.Author = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSubmissions; query != nil {
+		if err := _q.loadSubmissions(ctx, query, nodes,
+			func(n *User) { n.Edges.Submissions = []*Submission{} },
+			func(n *User, e *Submission) {
+				n.Edges.Submissions = append(n.Edges.Submissions, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
 				}
 			}); err != nil {
 			return nil, err
@@ -895,6 +944,36 @@ func (_q *UserQuery) loadProblems(ctx context.Context, query *ProblemQuery, node
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "author_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadSubmissions(ctx context.Context, query *SubmissionQuery, nodes []*User, init func(*User), assign func(*User, *Submission)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(submission.FieldUserID)
+	}
+	query.Where(predicate.Submission(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.SubmissionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

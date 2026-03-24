@@ -8,7 +8,7 @@ type TestCase struct {
 	ProblemID      int       `json:"problem_id"`
 	Input          string    `json:"input"`
 	ExpectedOutput string    `json:"expected_output"`
-	IsSample       bool      `json:"is_sample"`
+	IsHidden       bool      `json:"is_hidden"`
 	OrderIndex     int       `json:"order_index"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`

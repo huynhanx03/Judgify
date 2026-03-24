@@ -2,17 +2,17 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const testCaseServiceName = "TestCaseService"
 
 type testCaseService struct {
 	testCaseRepo ports.TestCaseRepository
@@ -32,7 +32,7 @@ func (s *testCaseService) FindByProblemID(ctx context.Context, problemID int) ([
 		return nil, err
 	}
 	if !exists {
-		return nil, apperr.NewError(testCaseServiceName, response.CodeNotFound, "problem not found", http.StatusNotFound, nil)
+		return nil, apperr.New(response.CodeNotFound, "problem not found", nil)
 	}
 
 	testCases, err := s.testCaseRepo.FindByProblemID(ctx, problemID)
@@ -64,13 +64,15 @@ func (s *testCaseService) Create(ctx context.Context, req *dto.CreateTestCaseReq
 		return nil, err
 	}
 	if !exists {
-		return nil, apperr.NewError(testCaseServiceName, response.CodeNotFound, "problem not found", http.StatusNotFound, nil)
+		return nil, apperr.New(response.CodeNotFound, "problem not found", nil)
 	}
 
 	tc := mapper.ToTestCaseEntityFromCreate(req)
 	if err := s.testCaseRepo.Create(ctx, tc); err != nil {
 		return nil, err
 	}
+
+	logger.FromContext(ctx).Info("test case created successfully", zap.Int("test_case_id", tc.ID), zap.Int("problem_id", tc.ProblemID))
 
 	return mapper.ToTestCaseResponse(tc), nil
 }
@@ -88,8 +90,8 @@ func (s *testCaseService) Update(ctx context.Context, id int, req *dto.UpdateTes
 	if req.ExpectedOutput != nil {
 		tc.ExpectedOutput = *req.ExpectedOutput
 	}
-	if req.IsSample != nil {
-		tc.IsSample = *req.IsSample
+	if req.IsHidden != nil {
+		tc.IsHidden = *req.IsHidden
 	}
 	if req.OrderIndex != nil {
 		tc.OrderIndex = *req.OrderIndex
@@ -99,6 +101,8 @@ func (s *testCaseService) Update(ctx context.Context, id int, req *dto.UpdateTes
 	if err := s.testCaseRepo.Update(ctx, tc); err != nil {
 		return nil, err
 	}
+
+	logger.FromContext(ctx).Info("test case updated successfully", zap.Int("test_case_id", tc.ID), zap.Int("problem_id", tc.ProblemID))
 
 	return mapper.ToTestCaseResponse(tc), nil
 }
@@ -111,8 +115,13 @@ func (s *testCaseService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.NewError(testCaseServiceName, response.CodeNotFound, apperr.MsgNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
 	}
 
-	return s.testCaseRepo.Delete(ctx, id)
+	if err := s.testCaseRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	logger.FromContext(ctx).Info("test case deleted successfully", zap.Int("test_case_id", id))
+	return nil
 }

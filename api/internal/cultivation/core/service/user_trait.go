@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const userTraitServiceName = "UserTraitService"
 
 type userTraitService struct {
 	userTraitRepo ports.UserTraitRepository
@@ -57,6 +57,7 @@ func (s *userTraitService) Create(ctx context.Context, req *dto.CreateUserTraitR
 	if err := s.userTraitRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("user assigned new trait", zap.Int("user_trait_id", e.ID), zap.Int("user_id", e.UserID), zap.Int("trait_id", e.TraitID))
 	return mapper.ToUserTraitResponse(e), nil
 }
 
@@ -66,7 +67,11 @@ func (s *userTraitService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(userTraitServiceName, response.CodeNotFound, constant.MsgUserTraitNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgUserTraitNotFound, nil)
 	}
-	return s.userTraitRepo.Delete(ctx, id)
+	if err := s.userTraitRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("user trait deleted", zap.Int("user_trait_id", id))
+	return nil
 }

@@ -97,16 +97,16 @@ func (_c *TestCaseCreate) SetExpectedOutput(v string) *TestCaseCreate {
 	return _c
 }
 
-// SetIsSample sets the "is_sample" field.
-func (_c *TestCaseCreate) SetIsSample(v bool) *TestCaseCreate {
-	_c.mutation.SetIsSample(v)
+// SetIsHidden sets the "is_hidden" field.
+func (_c *TestCaseCreate) SetIsHidden(v bool) *TestCaseCreate {
+	_c.mutation.SetIsHidden(v)
 	return _c
 }
 
-// SetNillableIsSample sets the "is_sample" field if the given value is not nil.
-func (_c *TestCaseCreate) SetNillableIsSample(v *bool) *TestCaseCreate {
+// SetNillableIsHidden sets the "is_hidden" field if the given value is not nil.
+func (_c *TestCaseCreate) SetNillableIsHidden(v *bool) *TestCaseCreate {
 	if v != nil {
-		_c.SetIsSample(*v)
+		_c.SetIsHidden(*v)
 	}
 	return _c
 }
@@ -173,9 +173,9 @@ func (_c *TestCaseCreate) defaults() error {
 		v := testcase.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.IsSample(); !ok {
-		v := testcase.DefaultIsSample
-		_c.mutation.SetIsSample(v)
+	if _, ok := _c.mutation.IsHidden(); !ok {
+		v := testcase.DefaultIsHidden
+		_c.mutation.SetIsHidden(v)
 	}
 	return nil
 }
@@ -207,8 +207,8 @@ func (_c *TestCaseCreate) check() error {
 			return &ValidationError{Name: "expected_output", err: fmt.Errorf(`generate: validator failed for field "TestCase.expected_output": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.IsSample(); !ok {
-		return &ValidationError{Name: "is_sample", err: errors.New(`generate: missing required field "TestCase.is_sample"`)}
+	if _, ok := _c.mutation.IsHidden(); !ok {
+		return &ValidationError{Name: "is_hidden", err: errors.New(`generate: missing required field "TestCase.is_hidden"`)}
 	}
 	if _, ok := _c.mutation.OrderIndex(); !ok {
 		return &ValidationError{Name: "order_index", err: errors.New(`generate: missing required field "TestCase.order_index"`)}
@@ -267,9 +267,9 @@ func (_c *TestCaseCreate) createSpec() (*TestCase, *sqlgraph.CreateSpec) {
 		_spec.SetField(testcase.FieldExpectedOutput, field.TypeString, value)
 		_node.ExpectedOutput = value
 	}
-	if value, ok := _c.mutation.IsSample(); ok {
-		_spec.SetField(testcase.FieldIsSample, field.TypeBool, value)
-		_node.IsSample = value
+	if value, ok := _c.mutation.IsHidden(); ok {
+		_spec.SetField(testcase.FieldIsHidden, field.TypeBool, value)
+		_node.IsHidden = value
 	}
 	if value, ok := _c.mutation.OrderIndex(); ok {
 		_spec.SetField(testcase.FieldOrderIndex, field.TypeInt, value)
@@ -434,15 +434,15 @@ func (u *TestCaseUpsert) UpdateExpectedOutput() *TestCaseUpsert {
 	return u
 }
 
-// SetIsSample sets the "is_sample" field.
-func (u *TestCaseUpsert) SetIsSample(v bool) *TestCaseUpsert {
-	u.Set(testcase.FieldIsSample, v)
+// SetIsHidden sets the "is_hidden" field.
+func (u *TestCaseUpsert) SetIsHidden(v bool) *TestCaseUpsert {
+	u.Set(testcase.FieldIsHidden, v)
 	return u
 }
 
-// UpdateIsSample sets the "is_sample" field to the value that was provided on create.
-func (u *TestCaseUpsert) UpdateIsSample() *TestCaseUpsert {
-	u.SetExcluded(testcase.FieldIsSample)
+// UpdateIsHidden sets the "is_hidden" field to the value that was provided on create.
+func (u *TestCaseUpsert) UpdateIsHidden() *TestCaseUpsert {
+	u.SetExcluded(testcase.FieldIsHidden)
 	return u
 }
 
@@ -614,17 +614,17 @@ func (u *TestCaseUpsertOne) UpdateExpectedOutput() *TestCaseUpsertOne {
 	})
 }
 
-// SetIsSample sets the "is_sample" field.
-func (u *TestCaseUpsertOne) SetIsSample(v bool) *TestCaseUpsertOne {
+// SetIsHidden sets the "is_hidden" field.
+func (u *TestCaseUpsertOne) SetIsHidden(v bool) *TestCaseUpsertOne {
 	return u.Update(func(s *TestCaseUpsert) {
-		s.SetIsSample(v)
+		s.SetIsHidden(v)
 	})
 }
 
-// UpdateIsSample sets the "is_sample" field to the value that was provided on create.
-func (u *TestCaseUpsertOne) UpdateIsSample() *TestCaseUpsertOne {
+// UpdateIsHidden sets the "is_hidden" field to the value that was provided on create.
+func (u *TestCaseUpsertOne) UpdateIsHidden() *TestCaseUpsertOne {
 	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateIsSample()
+		s.UpdateIsHidden()
 	})
 }
 
@@ -970,17 +970,17 @@ func (u *TestCaseUpsertBulk) UpdateExpectedOutput() *TestCaseUpsertBulk {
 	})
 }
 
-// SetIsSample sets the "is_sample" field.
-func (u *TestCaseUpsertBulk) SetIsSample(v bool) *TestCaseUpsertBulk {
+// SetIsHidden sets the "is_hidden" field.
+func (u *TestCaseUpsertBulk) SetIsHidden(v bool) *TestCaseUpsertBulk {
 	return u.Update(func(s *TestCaseUpsert) {
-		s.SetIsSample(v)
+		s.SetIsHidden(v)
 	})
 }
 
-// UpdateIsSample sets the "is_sample" field to the value that was provided on create.
-func (u *TestCaseUpsertBulk) UpdateIsSample() *TestCaseUpsertBulk {
+// UpdateIsHidden sets the "is_hidden" field to the value that was provided on create.
+func (u *TestCaseUpsertBulk) UpdateIsHidden() *TestCaseUpsertBulk {
 	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateIsSample()
+		s.UpdateIsHidden()
 	})
 }
 

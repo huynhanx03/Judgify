@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/judgify/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/cultivation/constant"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/dto"
@@ -14,7 +15,6 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const rankServiceName = "RankService"
 
 type rankService struct {
 	rankRepo ports.RankRepository
@@ -57,6 +57,7 @@ func (s *rankService) Create(ctx context.Context, req *dto.CreateRankRequest) (*
 	if err := s.rankRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("rank created", zap.Int("rank_id", e.ID))
 	return mapper.ToRankResponse(e), nil
 }
 
@@ -79,6 +80,7 @@ func (s *rankService) Update(ctx context.Context, id int, req *dto.UpdateRankReq
 	if err := s.rankRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	logger.FromContext(ctx).Info("rank updated", zap.Int("rank_id", e.ID))
 	return mapper.ToRankResponse(e), nil
 }
 
@@ -88,7 +90,11 @@ func (s *rankService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.NewError(rankServiceName, response.CodeNotFound, constant.MsgRankNotFound, http.StatusNotFound, nil)
+		return apperr.New(response.CodeNotFound, constant.MsgRankNotFound, nil)
 	}
-	return s.rankRepo.Delete(ctx, id)
+	if err := s.rankRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	logger.FromContext(ctx).Info("rank deleted", zap.Int("rank_id", id))
+	return nil
 }

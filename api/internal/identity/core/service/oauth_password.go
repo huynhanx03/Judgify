@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -51,7 +50,7 @@ type resetClaims struct {
 func (s *authenticationService) getProvider(name string) (oauth.Provider, error) {
 	p, ok := s.oauthProviders[name]
 	if !ok {
-		return nil, apperr.NewError(authServiceName, response.CodeBadRequest, fmt.Sprintf("unsupported oauth provider: %s", name), http.StatusBadRequest, nil)
+		return nil, apperr.New(response.CodeBadRequest, fmt.Sprintf("unsupported oauth provider: %s", name), nil)
 	}
 	return p, nil
 }
@@ -65,7 +64,7 @@ func (s *authenticationService) OAuthCallback(ctx context.Context, req *dto.OAut
 
 	userInfo, err := provider.ExchangeCode(ctx, req.Code)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeBadRequest, "failed to exchange oauth code", http.StatusBadRequest)
+		return nil, apperr.MapError(err, response.CodeBadRequest, "failed to exchange oauth code")
 	}
 
 	// Check if this external identity is already linked to an existing user.
@@ -78,12 +77,12 @@ func (s *authenticationService) OAuthCallback(ctx context.Context, req *dto.OAut
 
 		refreshToken, err := s.generateToken(user, utils.RefreshToken)
 		if err != nil {
-			return nil, apperr.MapError(authServiceName, err, response.CodeInternalError, apperr.MsgGenFailed, http.StatusInternalServerError)
+			return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 		}
 
 		accessToken, err := s.generateToken(user, utils.AccessToken)
 		if err != nil {
-			return nil, apperr.MapError(authServiceName, err, response.CodeInternalError, apperr.MsgGenFailed, http.StatusInternalServerError)
+			return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 		}
 
 		return &dto.OAuthCallbackResponse{
@@ -96,7 +95,7 @@ func (s *authenticationService) OAuthCallback(ctx context.Context, req *dto.OAut
 	email, _ := userInfo.Metadata[credentialKeyEmail].(string)
 	tempToken, err := s.generateOAuthTempToken(req.Provider, email, userInfo.ExternalID)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeInternalError, apperr.MsgGenFailed, http.StatusInternalServerError)
+		return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 	}
 
 	return &dto.OAuthCallbackResponse{
@@ -109,11 +108,11 @@ func (s *authenticationService) OAuthCallback(ctx context.Context, req *dto.OAut
 func (s *authenticationService) OAuthRegister(ctx context.Context, req *dto.OAuthRegisterRequest) (*dto.LoginResponse, error) {
 	claims, err := s.parseOAuthTempToken(req.OAuthToken)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeBadRequest, constant.MsgInvalidGoogleToken, http.StatusBadRequest)
+		return nil, apperr.MapError(err, response.CodeBadRequest, constant.MsgInvalidGoogleToken)
 	}
 
 	if req.Provider != "" && req.Provider != claims.Provider {
-		return nil, apperr.NewError(authServiceName, response.CodeBadRequest, "provider mismatch", http.StatusBadRequest, nil)
+		return nil, apperr.New(response.CodeBadRequest, "provider mismatch", nil)
 	}
 
 	// Resolve default role for new user
@@ -166,12 +165,12 @@ func (s *authenticationService) OAuthRegister(ctx context.Context, req *dto.OAut
 
 	refreshToken, err := s.generateToken(user, utils.RefreshToken)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeInternalError, apperr.MsgGenFailed, http.StatusInternalServerError)
+		return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 	}
 
 	accessToken, err := s.generateToken(user, utils.AccessToken)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeInternalError, apperr.MsgGenFailed, http.StatusInternalServerError)
+		return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 	}
 
 	return &dto.LoginResponse{
@@ -189,12 +188,12 @@ func (s *authenticationService) LinkOAuth(ctx context.Context, userID int, req *
 
 	userInfo, err := provider.ExchangeCode(ctx, req.Code)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeBadRequest, "failed to exchange oauth code", http.StatusBadRequest)
+		return nil, apperr.MapError(err, response.CodeBadRequest, "failed to exchange oauth code")
 	}
 
 	existing, _ := s.fedIdentityRepo.GetByProviderAndExternalID(ctx, req.Provider, userInfo.ExternalID)
 	if existing != nil {
-		return nil, apperr.NewError(authServiceName, response.CodeConflict, constant.MsgGoogleAlreadyUsed, http.StatusConflict, nil)
+		return nil, apperr.New(response.CodeConflict, constant.MsgGoogleAlreadyUsed, nil)
 	}
 
 	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
@@ -238,7 +237,7 @@ func (s *authenticationService) ForgotPassword(ctx context.Context, req *dto.For
 
 	rateLimitKey := constant.CacheKeyAuthRateLimitForgot + req.Username
 	if _, found := cache.GetLocal[string](global.Tinylfu, rateLimitKey); found {
-		return nil, apperr.NewError(authServiceName, response.CodeBadRequest, constant.MsgRateLimitForgot, http.StatusBadRequest, nil)
+		return nil, apperr.New(response.CodeBadRequest, constant.MsgRateLimitForgot, nil)
 	}
 
 	user, err := s.userRepo.GetByUsername(ctx, req.Username)
@@ -282,17 +281,17 @@ func (s *authenticationService) findUserEmail(ctx context.Context, userID int) s
 func (s *authenticationService) ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) (*dto.ResetPasswordResponse, error) {
 	claims, err := s.parseResetToken(req.Token)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeBadRequest, constant.MsgInvalidResetToken, http.StatusBadRequest)
+		return nil, apperr.MapError(err, response.CodeBadRequest, constant.MsgInvalidResetToken)
 	}
 
 	blacklistKey := constant.CacheKeyAuthBlacklistJTI + claims.ID
 	if _, found := cache.GetLocal[string](global.Tinylfu, blacklistKey); found {
-		return nil, apperr.NewError(authServiceName, response.CodeBadRequest, constant.MsgTokenAlreadyUsed, http.StatusBadRequest, nil)
+		return nil, apperr.New(response.CodeBadRequest, constant.MsgTokenAlreadyUsed, nil)
 	}
 
 	newHash, err := security.HashPassword(req.NewPassword)
 	if err != nil {
-		return nil, apperr.MapError(authServiceName, err, response.CodeInternalError, apperr.MsgGenFailed, http.StatusInternalServerError)
+		return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 	}
 
 	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {

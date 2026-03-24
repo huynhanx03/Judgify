@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/huynhanx03/judgify/pkg/algorithm"
@@ -24,7 +22,6 @@ func CircuitBreakerMiddleware(cb *algorithm.CircuitBreaker) gin.HandlerFunc {
 			response.ErrorResponse(c, response.CodeInternalServer, apperr.New(
 				response.CodeInternalServer,
 				"service temporarily unavailable",
-				http.StatusServiceUnavailable,
 				err,
 			))
 			c.Abort()

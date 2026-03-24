@@ -153,6 +153,18 @@ func (f RoleFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.RoleMutation", m)
 }
 
+// The SubmissionFunc type is an adapter to allow the use of ordinary
+// function as Submission mutator.
+type SubmissionFunc func(context.Context, *generate.SubmissionMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubmissionFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.SubmissionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.SubmissionMutation", m)
+}
+
 // The TagFunc type is an adapter to allow the use of ordinary
 // function as Tag mutator.
 type TagFunc func(context.Context, *generate.TagMutation) (generate.Value, error)

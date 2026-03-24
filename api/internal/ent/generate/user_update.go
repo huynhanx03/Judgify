@@ -16,6 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
@@ -183,6 +184,21 @@ func (_u *UserUpdate) AddProblems(v ...*Problem) *UserUpdate {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (_u *UserUpdate) AddSubmissionIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddSubmissionIDs(ids...)
+	return _u
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (_u *UserUpdate) AddSubmissions(v ...*Submission) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSubmissionIDs(ids...)
+}
+
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
 func (_u *UserUpdate) AddUserTraitIDs(ids ...int) *UserUpdate {
 	_u.mutation.AddUserTraitIDs(ids...)
@@ -321,6 +337,27 @@ func (_u *UserUpdate) RemoveProblems(v ...*Problem) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearSubmissions clears all "submissions" edges to the Submission entity.
+func (_u *UserUpdate) ClearSubmissions() *UserUpdate {
+	_u.mutation.ClearSubmissions()
+	return _u
+}
+
+// RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
+func (_u *UserUpdate) RemoveSubmissionIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveSubmissionIDs(ids...)
+	return _u
+}
+
+// RemoveSubmissions removes "submissions" edges to Submission entities.
+func (_u *UserUpdate) RemoveSubmissions(v ...*Submission) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSubmissionIDs(ids...)
 }
 
 // ClearUserTraits clears all "user_traits" edges to the UserTrait entity.
@@ -689,6 +726,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSubmissionsIDs(); len(nodes) > 0 && !_u.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _u.mutation.UserTraitsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -992,6 +1074,21 @@ func (_u *UserUpdateOne) AddProblems(v ...*Problem) *UserUpdateOne {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (_u *UserUpdateOne) AddSubmissionIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddSubmissionIDs(ids...)
+	return _u
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (_u *UserUpdateOne) AddSubmissions(v ...*Submission) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSubmissionIDs(ids...)
+}
+
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
 func (_u *UserUpdateOne) AddUserTraitIDs(ids ...int) *UserUpdateOne {
 	_u.mutation.AddUserTraitIDs(ids...)
@@ -1130,6 +1227,27 @@ func (_u *UserUpdateOne) RemoveProblems(v ...*Problem) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearSubmissions clears all "submissions" edges to the Submission entity.
+func (_u *UserUpdateOne) ClearSubmissions() *UserUpdateOne {
+	_u.mutation.ClearSubmissions()
+	return _u
+}
+
+// RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
+func (_u *UserUpdateOne) RemoveSubmissionIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveSubmissionIDs(ids...)
+	return _u
+}
+
+// RemoveSubmissions removes "submissions" edges to Submission entities.
+func (_u *UserUpdateOne) RemoveSubmissions(v ...*Submission) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSubmissionIDs(ids...)
 }
 
 // ClearUserTraits clears all "user_traits" edges to the UserTrait entity.
@@ -1521,6 +1639,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSubmissionsIDs(); len(nodes) > 0 && !_u.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionsTable,
+			Columns: []string{user.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
