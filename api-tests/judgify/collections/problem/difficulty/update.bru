@@ -1,0 +1,24 @@
+meta {
+  name: Update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{base_url}}/difficulties/{{difficulty_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Hard Updated",
+    "level": 4,
+    "exp_reward": 100,
+    "description": "Updated hard difficulty"
+  }
+}
