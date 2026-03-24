@@ -1,0 +1,29 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/submissions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "problem_id": 1,
+    "language": "cpp",
+    "source_code": "#include <iostream>\r\nusing namespace std;\r\nint main() {\r\n  int a, b;\r\n  cin >> a >> b;\r\n  cout << a + b << endl;\r\n  return 0;\r\n}"
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("submission_id", res.body.data.id);
+  }
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/submissions/{{submission_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "status": "accepted",
+    "passed_count": 6,
+    "total_count": 6,
+    "time_ms": 15,
+    "memory_kb": 2560
+  }
+}
