@@ -14,7 +14,7 @@ func ToProblemResponse(e *entity.Problem) *dto.ProblemResponse {
 		ID:            e.ID,
 		Title:         e.Title,
 		Description:   e.Description,
-		Difficulty:    e.Difficulty,
+		DifficultyID:  e.DifficultyID,
 		TimeLimitMs:   e.TimeLimitMs,
 		MemoryLimitKb: e.MemoryLimitKb,
 		AuthorID:      e.AuthorID,
@@ -27,10 +27,10 @@ func ToProblemResponse(e *entity.Problem) *dto.ProblemResponse {
 // ToProblemEntityFromCreate converts CreateProblemRequest to Problem entity.
 func ToProblemEntityFromCreate(authorID int, req *dto.CreateProblemRequest) *entity.Problem {
 	e := &entity.Problem{
-		Title:       req.Title,
-		Description: req.Description,
-		Difficulty:  req.Difficulty,
-		AuthorID:    authorID,
+		Title:        req.Title,
+		Description:  req.Description,
+		DifficultyID: req.DifficultyID,
+		AuthorID:     authorID,
 	}
 	if req.TimeLimitMs != nil {
 		e.TimeLimitMs = *req.TimeLimitMs

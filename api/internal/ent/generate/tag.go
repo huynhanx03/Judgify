@@ -37,9 +37,11 @@ type Tag struct {
 type TagEdges struct {
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
+	// Elements holds the value of the elements edge.
+	Elements []*Element `json:"elements,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -49,6 +51,15 @@ func (e TagEdges) ProblemsOrErr() ([]*Problem, error) {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
+}
+
+// ElementsOrErr returns the Elements value or an error if the edge
+// was not loaded in eager-loading.
+func (e TagEdges) ElementsOrErr() ([]*Element, error) {
+	if e.loadedTypes[1] {
+		return e.Elements, nil
+	}
+	return nil, &NotLoadedError{edge: "elements"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -131,6 +142,11 @@ func (_m *Tag) Value(name string) (ent.Value, error) {
 // QueryProblems queries the "problems" edge of the Tag entity.
 func (_m *Tag) QueryProblems() *ProblemQuery {
 	return NewTagClient(_m.config).QueryProblems(_m)
+}
+
+// QueryElements queries the "elements" edge of the Tag entity.
+func (_m *Tag) QueryElements() *ElementQuery {
+	return NewTagClient(_m.config).QueryElements(_m)
 }
 
 // Update returns a builder for updating this Tag.

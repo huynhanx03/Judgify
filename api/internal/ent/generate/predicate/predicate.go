@@ -12,6 +12,9 @@ type AttributeDefinition func(*sql.Selector)
 // Credential is the predicate function for credential builders.
 type Credential func(*sql.Selector)
 
+// Difficulty is the predicate function for difficulty builders.
+type Difficulty func(*sql.Selector)
+
 // Element is the predicate function for element builders.
 type Element func(*sql.Selector)
 
@@ -29,6 +32,9 @@ type Problem func(*sql.Selector)
 
 // Rank is the predicate function for rank builders.
 type Rank func(*sql.Selector)
+
+// Rarity is the predicate function for rarity builders.
+type Rarity func(*sql.Selector)
 
 // Resource is the predicate function for resource builders.
 type Resource func(*sql.Selector)

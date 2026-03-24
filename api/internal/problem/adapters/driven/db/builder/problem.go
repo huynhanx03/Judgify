@@ -5,7 +5,6 @@ import (
 
 	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/problem/core/entity"
 )
 
@@ -14,7 +13,7 @@ func BuildCreateProblem(ctx context.Context, e *entity.Problem) *generate.Proble
 	return global.EntClient.DB(ctx).Problem.Create().
 		SetTitle(e.Title).
 		SetDescription(e.Description).
-		SetDifficulty(problem.Difficulty(e.Difficulty)).
+		SetDifficultyID(e.DifficultyID).
 		SetTimeLimitMs(e.TimeLimitMs).
 		SetMemoryLimitKB(e.MemoryLimitKb).
 		SetAuthorID(e.AuthorID).
@@ -26,7 +25,7 @@ func BuildUpdateProblem(ctx context.Context, e *entity.Problem) *generate.Proble
 	return global.EntClient.DB(ctx).Problem.UpdateOneID(e.ID).
 		SetTitle(e.Title).
 		SetDescription(e.Description).
-		SetDifficulty(problem.Difficulty(e.Difficulty)).
+		SetDifficultyID(e.DifficultyID).
 		SetTimeLimitMs(e.TimeLimitMs).
 		SetMemoryLimitKB(e.MemoryLimitKb).
 		SetIsPublished(e.IsPublished)

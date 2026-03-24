@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
@@ -93,9 +94,9 @@ func (_c *ProblemCreate) SetDescription(v string) *ProblemCreate {
 	return _c
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (_c *ProblemCreate) SetDifficulty(v problem.Difficulty) *ProblemCreate {
-	_c.mutation.SetDifficulty(v)
+// SetDifficultyID sets the "difficulty_id" field.
+func (_c *ProblemCreate) SetDifficultyID(v int) *ProblemCreate {
+	_c.mutation.SetDifficultyID(v)
 	return _c
 }
 
@@ -150,6 +151,11 @@ func (_c *ProblemCreate) SetNillableIsPublished(v *bool) *ProblemCreate {
 // SetAuthor sets the "author" edge to the User entity.
 func (_c *ProblemCreate) SetAuthor(v *User) *ProblemCreate {
 	return _c.SetAuthorID(v.ID)
+}
+
+// SetDifficulty sets the "difficulty" edge to the Difficulty entity.
+func (_c *ProblemCreate) SetDifficulty(v *Difficulty) *ProblemCreate {
+	return _c.SetDifficultyID(v.ID)
 }
 
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by IDs.
@@ -272,13 +278,8 @@ func (_c *ProblemCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Problem.description": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Difficulty(); !ok {
-		return &ValidationError{Name: "difficulty", err: errors.New(`generate: missing required field "Problem.difficulty"`)}
-	}
-	if v, ok := _c.mutation.Difficulty(); ok {
-		if err := problem.DifficultyValidator(v); err != nil {
-			return &ValidationError{Name: "difficulty", err: fmt.Errorf(`generate: validator failed for field "Problem.difficulty": %w`, err)}
-		}
+	if _, ok := _c.mutation.DifficultyID(); !ok {
+		return &ValidationError{Name: "difficulty_id", err: errors.New(`generate: missing required field "Problem.difficulty_id"`)}
 	}
 	if _, ok := _c.mutation.TimeLimitMs(); !ok {
 		return &ValidationError{Name: "time_limit_ms", err: errors.New(`generate: missing required field "Problem.time_limit_ms"`)}
@@ -294,6 +295,9 @@ func (_c *ProblemCreate) check() error {
 	}
 	if len(_c.mutation.AuthorIDs()) == 0 {
 		return &ValidationError{Name: "author", err: errors.New(`generate: missing required edge "Problem.author"`)}
+	}
+	if len(_c.mutation.DifficultyIDs()) == 0 {
+		return &ValidationError{Name: "difficulty", err: errors.New(`generate: missing required edge "Problem.difficulty"`)}
 	}
 	return nil
 }
@@ -346,10 +350,6 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := _c.mutation.Difficulty(); ok {
-		_spec.SetField(problem.FieldDifficulty, field.TypeEnum, value)
-		_node.Difficulty = value
-	}
 	if value, ok := _c.mutation.TimeLimitMs(); ok {
 		_spec.SetField(problem.FieldTimeLimitMs, field.TypeInt, value)
 		_node.TimeLimitMs = value
@@ -377,6 +377,23 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AuthorID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DifficultyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.DifficultyTable,
+			Columns: []string{problem.DifficultyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DifficultyID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.TestCasesIDs(); len(nodes) > 0 {
@@ -541,15 +558,15 @@ func (u *ProblemUpsert) UpdateDescription() *ProblemUpsert {
 	return u
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (u *ProblemUpsert) SetDifficulty(v problem.Difficulty) *ProblemUpsert {
-	u.Set(problem.FieldDifficulty, v)
+// SetDifficultyID sets the "difficulty_id" field.
+func (u *ProblemUpsert) SetDifficultyID(v int) *ProblemUpsert {
+	u.Set(problem.FieldDifficultyID, v)
 	return u
 }
 
-// UpdateDifficulty sets the "difficulty" field to the value that was provided on create.
-func (u *ProblemUpsert) UpdateDifficulty() *ProblemUpsert {
-	u.SetExcluded(problem.FieldDifficulty)
+// UpdateDifficultyID sets the "difficulty_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateDifficultyID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldDifficultyID)
 	return u
 }
 
@@ -749,17 +766,17 @@ func (u *ProblemUpsertOne) UpdateDescription() *ProblemUpsertOne {
 	})
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (u *ProblemUpsertOne) SetDifficulty(v problem.Difficulty) *ProblemUpsertOne {
+// SetDifficultyID sets the "difficulty_id" field.
+func (u *ProblemUpsertOne) SetDifficultyID(v int) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetDifficulty(v)
+		s.SetDifficultyID(v)
 	})
 }
 
-// UpdateDifficulty sets the "difficulty" field to the value that was provided on create.
-func (u *ProblemUpsertOne) UpdateDifficulty() *ProblemUpsertOne {
+// UpdateDifficultyID sets the "difficulty_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateDifficultyID() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateDifficulty()
+		s.UpdateDifficultyID()
 	})
 }
 
@@ -1140,17 +1157,17 @@ func (u *ProblemUpsertBulk) UpdateDescription() *ProblemUpsertBulk {
 	})
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (u *ProblemUpsertBulk) SetDifficulty(v problem.Difficulty) *ProblemUpsertBulk {
+// SetDifficultyID sets the "difficulty_id" field.
+func (u *ProblemUpsertBulk) SetDifficultyID(v int) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetDifficulty(v)
+		s.SetDifficultyID(v)
 	})
 }
 
-// UpdateDifficulty sets the "difficulty" field to the value that was provided on create.
-func (u *ProblemUpsertBulk) UpdateDifficulty() *ProblemUpsertBulk {
+// UpdateDifficultyID sets the "difficulty_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateDifficultyID() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateDifficulty()
+		s.UpdateDifficultyID()
 	})
 }
 

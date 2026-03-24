@@ -7,12 +7,14 @@ import (
 
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -80,6 +82,57 @@ func init() {
 	credentialDescType := credentialFields[1].Descriptor()
 	// credential.TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	credential.TypeValidator = credentialDescType.Validators[0].(func(string) error)
+	difficultyMixin := schema.Difficulty{}.Mixin()
+	difficultyMixinHooks1 := difficultyMixin[1].Hooks()
+	difficulty.Hooks[0] = difficultyMixinHooks1[0]
+	difficultyMixinInters1 := difficultyMixin[1].Interceptors()
+	difficulty.Interceptors[0] = difficultyMixinInters1[0]
+	difficultyMixinFields0 := difficultyMixin[0].Fields()
+	_ = difficultyMixinFields0
+	difficultyFields := schema.Difficulty{}.Fields()
+	_ = difficultyFields
+	// difficultyDescCreatedAt is the schema descriptor for created_at field.
+	difficultyDescCreatedAt := difficultyMixinFields0[0].Descriptor()
+	// difficulty.DefaultCreatedAt holds the default value on creation for the created_at field.
+	difficulty.DefaultCreatedAt = difficultyDescCreatedAt.Default.(func() time.Time)
+	// difficultyDescUpdatedAt is the schema descriptor for updated_at field.
+	difficultyDescUpdatedAt := difficultyMixinFields0[1].Descriptor()
+	// difficulty.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	difficulty.DefaultUpdatedAt = difficultyDescUpdatedAt.Default.(func() time.Time)
+	// difficulty.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	difficulty.UpdateDefaultUpdatedAt = difficultyDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// difficultyDescName is the schema descriptor for name field.
+	difficultyDescName := difficultyFields[0].Descriptor()
+	// difficulty.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	difficulty.NameValidator = func() func(string) error {
+		validators := difficultyDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// difficultyDescLevel is the schema descriptor for level field.
+	difficultyDescLevel := difficultyFields[1].Descriptor()
+	// difficulty.LevelValidator is a validator for the "level" field. It is called by the builders before save.
+	difficulty.LevelValidator = difficultyDescLevel.Validators[0].(func(int) error)
+	// difficultyDescExpReward is the schema descriptor for exp_reward field.
+	difficultyDescExpReward := difficultyFields[2].Descriptor()
+	// difficulty.DefaultExpReward holds the default value on creation for the exp_reward field.
+	difficulty.DefaultExpReward = difficultyDescExpReward.Default.(int64)
+	// difficulty.ExpRewardValidator is a validator for the "exp_reward" field. It is called by the builders before save.
+	difficulty.ExpRewardValidator = difficultyDescExpReward.Validators[0].(func(int64) error)
+	// difficultyDescDescription is the schema descriptor for description field.
+	difficultyDescDescription := difficultyFields[3].Descriptor()
+	// difficulty.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	difficulty.DescriptionValidator = difficultyDescDescription.Validators[0].(func(string) error)
 	elementMixin := schema.Element{}.Mixin()
 	elementMixinHooks1 := elementMixin[1].Hooks()
 	element.Hooks[0] = elementMixinHooks1[0]
@@ -334,6 +387,71 @@ func init() {
 	rankDescDescription := rankFields[2].Descriptor()
 	// rank.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	rank.DescriptionValidator = rankDescDescription.Validators[0].(func(string) error)
+	rarityMixin := schema.Rarity{}.Mixin()
+	rarityMixinHooks1 := rarityMixin[1].Hooks()
+	rarity.Hooks[0] = rarityMixinHooks1[0]
+	rarityMixinInters1 := rarityMixin[1].Interceptors()
+	rarity.Interceptors[0] = rarityMixinInters1[0]
+	rarityMixinFields0 := rarityMixin[0].Fields()
+	_ = rarityMixinFields0
+	rarityFields := schema.Rarity{}.Fields()
+	_ = rarityFields
+	// rarityDescCreatedAt is the schema descriptor for created_at field.
+	rarityDescCreatedAt := rarityMixinFields0[0].Descriptor()
+	// rarity.DefaultCreatedAt holds the default value on creation for the created_at field.
+	rarity.DefaultCreatedAt = rarityDescCreatedAt.Default.(func() time.Time)
+	// rarityDescUpdatedAt is the schema descriptor for updated_at field.
+	rarityDescUpdatedAt := rarityMixinFields0[1].Descriptor()
+	// rarity.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	rarity.DefaultUpdatedAt = rarityDescUpdatedAt.Default.(func() time.Time)
+	// rarity.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	rarity.UpdateDefaultUpdatedAt = rarityDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// rarityDescName is the schema descriptor for name field.
+	rarityDescName := rarityFields[0].Descriptor()
+	// rarity.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	rarity.NameValidator = func() func(string) error {
+		validators := rarityDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// rarityDescCode is the schema descriptor for code field.
+	rarityDescCode := rarityFields[1].Descriptor()
+	// rarity.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	rarity.CodeValidator = func() func(string) error {
+		validators := rarityDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// rarityDescWeight is the schema descriptor for weight field.
+	rarityDescWeight := rarityFields[2].Descriptor()
+	// rarity.DefaultWeight holds the default value on creation for the weight field.
+	rarity.DefaultWeight = rarityDescWeight.Default.(int)
+	// rarity.WeightValidator is a validator for the "weight" field. It is called by the builders before save.
+	rarity.WeightValidator = rarityDescWeight.Validators[0].(func(int) error)
+	// rarityDescDescription is the schema descriptor for description field.
+	rarityDescDescription := rarityFields[3].Descriptor()
+	// rarity.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	rarity.DescriptionValidator = rarityDescDescription.Validators[0].(func(string) error)
 	resourceMixin := schema.Resource{}.Mixin()
 	resourceMixinHooks1 := resourceMixin[1].Hooks()
 	resource.Hooks[0] = resourceMixinHooks1[0]
@@ -501,14 +619,8 @@ func init() {
 			return nil
 		}
 	}()
-	// traitDescWeight is the schema descriptor for weight field.
-	traitDescWeight := traitFields[3].Descriptor()
-	// trait.DefaultWeight holds the default value on creation for the weight field.
-	trait.DefaultWeight = traitDescWeight.Default.(int)
-	// trait.WeightValidator is a validator for the "weight" field. It is called by the builders before save.
-	trait.WeightValidator = traitDescWeight.Validators[0].(func(int) error)
 	// traitDescDescription is the schema descriptor for description field.
-	traitDescDescription := traitFields[4].Descriptor()
+	traitDescDescription := traitFields[3].Descriptor()
 	// trait.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	trait.DescriptionValidator = traitDescDescription.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()

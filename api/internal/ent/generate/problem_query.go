@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -23,14 +24,15 @@ import (
 // ProblemQuery is the builder for querying Problem entities.
 type ProblemQuery struct {
 	config
-	ctx           *QueryContext
-	order         []problem.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.Problem
-	withAuthor    *UserQuery
-	withTestCases *TestCaseQuery
-	withTags      *TagQuery
-	modifiers     []func(*sql.Selector)
+	ctx            *QueryContext
+	order          []problem.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.Problem
+	withAuthor     *UserQuery
+	withDifficulty *DifficultyQuery
+	withTestCases  *TestCaseQuery
+	withTags       *TagQuery
+	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -82,6 +84,28 @@ func (_q *ProblemQuery) QueryAuthor() *UserQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, problem.AuthorTable, problem.AuthorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDifficulty chains the current query on the "difficulty" edge.
+func (_q *ProblemQuery) QueryDifficulty() *DifficultyQuery {
+	query := (&DifficultyClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(difficulty.Table, difficulty.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.DifficultyTable, problem.DifficultyColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -320,14 +344,15 @@ func (_q *ProblemQuery) Clone() *ProblemQuery {
 		return nil
 	}
 	return &ProblemQuery{
-		config:        _q.config,
-		ctx:           _q.ctx.Clone(),
-		order:         append([]problem.OrderOption{}, _q.order...),
-		inters:        append([]Interceptor{}, _q.inters...),
-		predicates:    append([]predicate.Problem{}, _q.predicates...),
-		withAuthor:    _q.withAuthor.Clone(),
-		withTestCases: _q.withTestCases.Clone(),
-		withTags:      _q.withTags.Clone(),
+		config:         _q.config,
+		ctx:            _q.ctx.Clone(),
+		order:          append([]problem.OrderOption{}, _q.order...),
+		inters:         append([]Interceptor{}, _q.inters...),
+		predicates:     append([]predicate.Problem{}, _q.predicates...),
+		withAuthor:     _q.withAuthor.Clone(),
+		withDifficulty: _q.withDifficulty.Clone(),
+		withTestCases:  _q.withTestCases.Clone(),
+		withTags:       _q.withTags.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -343,6 +368,17 @@ func (_q *ProblemQuery) WithAuthor(opts ...func(*UserQuery)) *ProblemQuery {
 		opt(query)
 	}
 	_q.withAuthor = query
+	return _q
+}
+
+// WithDifficulty tells the query-builder to eager-load the nodes that are connected to
+// the "difficulty" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithDifficulty(opts ...func(*DifficultyQuery)) *ProblemQuery {
+	query := (&DifficultyClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDifficulty = query
 	return _q
 }
 
@@ -446,8 +482,9 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	var (
 		nodes       = []*Problem{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withAuthor != nil,
+			_q.withDifficulty != nil,
 			_q.withTestCases != nil,
 			_q.withTags != nil,
 		}
@@ -476,6 +513,12 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	if query := _q.withAuthor; query != nil {
 		if err := _q.loadAuthor(ctx, query, nodes, nil,
 			func(n *Problem, e *User) { n.Edges.Author = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDifficulty; query != nil {
+		if err := _q.loadDifficulty(ctx, query, nodes, nil,
+			func(n *Problem, e *Difficulty) { n.Edges.Difficulty = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -523,6 +566,35 @@ func (_q *ProblemQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes 
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "author_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *ProblemQuery) loadDifficulty(ctx context.Context, query *DifficultyQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Difficulty)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Problem)
+	for i := range nodes {
+		fk := nodes[i].DifficultyID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(difficulty.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "difficulty_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -652,6 +724,9 @@ func (_q *ProblemQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withAuthor != nil {
 			_spec.Node.AddColumnOnce(problem.FieldAuthorID)
+		}
+		if _q.withDifficulty != nil {
+			_spec.Node.AddColumnOnce(problem.FieldDifficultyID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

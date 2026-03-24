@@ -85,6 +85,11 @@ func Description(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldDescription, v))
 }
 
+// DifficultyID applies equality check predicate on the "difficulty_id" field. It's identical to DifficultyIDEQ.
+func DifficultyID(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDifficultyID, v))
+}
+
 // TimeLimitMs applies equality check predicate on the "time_limit_ms" field. It's identical to TimeLimitMsEQ.
 func TimeLimitMs(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldTimeLimitMs, v))
@@ -415,24 +420,24 @@ func DescriptionContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// DifficultyEQ applies the EQ predicate on the "difficulty" field.
-func DifficultyEQ(v Difficulty) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldDifficulty, v))
+// DifficultyIDEQ applies the EQ predicate on the "difficulty_id" field.
+func DifficultyIDEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDifficultyID, v))
 }
 
-// DifficultyNEQ applies the NEQ predicate on the "difficulty" field.
-func DifficultyNEQ(v Difficulty) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldDifficulty, v))
+// DifficultyIDNEQ applies the NEQ predicate on the "difficulty_id" field.
+func DifficultyIDNEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDifficultyID, v))
 }
 
-// DifficultyIn applies the In predicate on the "difficulty" field.
-func DifficultyIn(vs ...Difficulty) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldDifficulty, vs...))
+// DifficultyIDIn applies the In predicate on the "difficulty_id" field.
+func DifficultyIDIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDifficultyID, vs...))
 }
 
-// DifficultyNotIn applies the NotIn predicate on the "difficulty" field.
-func DifficultyNotIn(vs ...Difficulty) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldDifficulty, vs...))
+// DifficultyIDNotIn applies the NotIn predicate on the "difficulty_id" field.
+func DifficultyIDNotIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDifficultyID, vs...))
 }
 
 // TimeLimitMsEQ applies the EQ predicate on the "time_limit_ms" field.
@@ -560,6 +565,29 @@ func HasAuthor() predicate.Problem {
 func HasAuthorWith(preds ...predicate.User) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := newAuthorStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDifficulty applies the HasEdge predicate on the "difficulty" edge.
+func HasDifficulty() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, DifficultyTable, DifficultyColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDifficultyWith applies the HasEdge predicate on the "difficulty" edge with a given conditions (other predicates).
+func HasDifficultyWith(preds ...predicate.Difficulty) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newDifficultyStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

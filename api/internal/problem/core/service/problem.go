@@ -16,13 +16,14 @@ import (
 const problemServiceName = "ProblemService"
 
 type problemService struct {
-	problemRepo ports.ProblemRepository
-	tagRepo     ports.TagRepository
+	problemRepo    ports.ProblemRepository
+	tagRepo        ports.TagRepository
+	difficultyRepo ports.DifficultyRepository
 }
 
 // NewProblemService creates a new ProblemService instance.
-func NewProblemService(problemRepo ports.ProblemRepository, tagRepo ports.TagRepository) ports.ProblemService {
-	return &problemService{problemRepo: problemRepo, tagRepo: tagRepo}
+func NewProblemService(problemRepo ports.ProblemRepository, tagRepo ports.TagRepository, difficultyRepo ports.DifficultyRepository) ports.ProblemService {
+	return &problemService{problemRepo: problemRepo, tagRepo: tagRepo, difficultyRepo: difficultyRepo}
 }
 
 // Find retrieves problems with pagination.
@@ -43,7 +44,7 @@ func (s *problemService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pag
 	responses := make([]*dto.ProblemResponse, len(entities))
 	for i, p := range entities {
 		resp := mapper.ToProblemResponse(p)
-		// Attach tags
+		s.attachDifficulty(ctx, resp, p.DifficultyID)
 		tags, err := s.getTagResponses(ctx, p.ID)
 		if err == nil {
 			resp.Tags = tags
@@ -65,6 +66,7 @@ func (s *problemService) Get(ctx context.Context, id int) (*dto.ProblemResponse,
 	}
 
 	resp := mapper.ToProblemResponse(problem)
+	s.attachDifficulty(ctx, resp, problem.DifficultyID)
 	tags, err := s.getTagResponses(ctx, id)
 	if err == nil {
 		resp.Tags = tags
@@ -88,6 +90,7 @@ func (s *problemService) Create(ctx context.Context, authorID int, req *dto.Crea
 	}
 
 	resp := mapper.ToProblemResponse(problem)
+	s.attachDifficulty(ctx, resp, problem.DifficultyID)
 	tags, err := s.getTagResponses(ctx, problem.ID)
 	if err == nil {
 		resp.Tags = tags
@@ -108,8 +111,8 @@ func (s *problemService) Update(ctx context.Context, id int, req *dto.UpdateProb
 	if req.Description != nil {
 		problem.Description = *req.Description
 	}
-	if req.Difficulty != nil {
-		problem.Difficulty = *req.Difficulty
+	if req.DifficultyID != nil {
+		problem.DifficultyID = *req.DifficultyID
 	}
 	if req.TimeLimitMs != nil {
 		problem.TimeLimitMs = *req.TimeLimitMs
@@ -134,6 +137,7 @@ func (s *problemService) Update(ctx context.Context, id int, req *dto.UpdateProb
 	}
 
 	resp := mapper.ToProblemResponse(problem)
+	s.attachDifficulty(ctx, resp, problem.DifficultyID)
 	tags, tagErr := s.getTagResponses(ctx, id)
 	if tagErr == nil {
 		resp.Tags = tags
@@ -153,6 +157,14 @@ func (s *problemService) Delete(ctx context.Context, id int) error {
 	}
 
 	return s.problemRepo.Delete(ctx, id)
+}
+
+// attachDifficulty fetches and attaches difficulty to a problem response.
+func (s *problemService) attachDifficulty(ctx context.Context, resp *dto.ProblemResponse, difficultyID int) {
+	difficulty, err := s.difficultyRepo.Get(ctx, difficultyID)
+	if err == nil {
+		resp.Difficulty = mapper.ToDifficultyResponse(difficulty)
+	}
 }
 
 // getTagResponses fetches tag responses for a problem.

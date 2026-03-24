@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
@@ -111,38 +112,17 @@ func (_u *TraitUpdate) SetNillableName(v *string) *TraitUpdate {
 	return _u
 }
 
-// SetRarity sets the "rarity" field.
-func (_u *TraitUpdate) SetRarity(v trait.Rarity) *TraitUpdate {
-	_u.mutation.SetRarity(v)
+// SetRarityID sets the "rarity_id" field.
+func (_u *TraitUpdate) SetRarityID(v int) *TraitUpdate {
+	_u.mutation.SetRarityID(v)
 	return _u
 }
 
-// SetNillableRarity sets the "rarity" field if the given value is not nil.
-func (_u *TraitUpdate) SetNillableRarity(v *trait.Rarity) *TraitUpdate {
+// SetNillableRarityID sets the "rarity_id" field if the given value is not nil.
+func (_u *TraitUpdate) SetNillableRarityID(v *int) *TraitUpdate {
 	if v != nil {
-		_u.SetRarity(*v)
+		_u.SetRarityID(*v)
 	}
-	return _u
-}
-
-// SetWeight sets the "weight" field.
-func (_u *TraitUpdate) SetWeight(v int) *TraitUpdate {
-	_u.mutation.ResetWeight()
-	_u.mutation.SetWeight(v)
-	return _u
-}
-
-// SetNillableWeight sets the "weight" field if the given value is not nil.
-func (_u *TraitUpdate) SetNillableWeight(v *int) *TraitUpdate {
-	if v != nil {
-		_u.SetWeight(*v)
-	}
-	return _u
-}
-
-// AddWeight adds value to the "weight" field.
-func (_u *TraitUpdate) AddWeight(v int) *TraitUpdate {
-	_u.mutation.AddWeight(v)
 	return _u
 }
 
@@ -178,6 +158,11 @@ func (_u *TraitUpdate) ClearMetadata() *TraitUpdate {
 	return _u
 }
 
+// SetRarity sets the "rarity" edge to the Rarity entity.
+func (_u *TraitUpdate) SetRarity(v *Rarity) *TraitUpdate {
+	return _u.SetRarityID(v.ID)
+}
+
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
 func (_u *TraitUpdate) AddUserTraitIDs(ids ...int) *TraitUpdate {
 	_u.mutation.AddUserTraitIDs(ids...)
@@ -196,6 +181,12 @@ func (_u *TraitUpdate) AddUserTraits(v ...*UserTrait) *TraitUpdate {
 // Mutation returns the TraitMutation object of the builder.
 func (_u *TraitUpdate) Mutation() *TraitMutation {
 	return _u.mutation
+}
+
+// ClearRarity clears the "rarity" edge to the Rarity entity.
+func (_u *TraitUpdate) ClearRarity() *TraitUpdate {
+	_u.mutation.ClearRarity()
+	return _u
 }
 
 // ClearUserTraits clears all "user_traits" edges to the UserTrait entity.
@@ -273,20 +264,13 @@ func (_u *TraitUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Trait.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Rarity(); ok {
-		if err := trait.RarityValidator(v); err != nil {
-			return &ValidationError{Name: "rarity", err: fmt.Errorf(`generate: validator failed for field "Trait.rarity": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Weight(); ok {
-		if err := trait.WeightValidator(v); err != nil {
-			return &ValidationError{Name: "weight", err: fmt.Errorf(`generate: validator failed for field "Trait.weight": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Description(); ok {
 		if err := trait.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Trait.description": %w`, err)}
 		}
+	}
+	if _u.mutation.RarityCleared() && len(_u.mutation.RarityIDs()) > 0 {
+		return errors.New(`generate: clearing a required unique edge "Trait.rarity"`)
 	}
 	return nil
 }
@@ -333,15 +317,6 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(trait.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Rarity(); ok {
-		_spec.SetField(trait.FieldRarity, field.TypeEnum, value)
-	}
-	if value, ok := _u.mutation.Weight(); ok {
-		_spec.SetField(trait.FieldWeight, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedWeight(); ok {
-		_spec.AddField(trait.FieldWeight, field.TypeInt, value)
-	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(trait.FieldDescription, field.TypeString, value)
 	}
@@ -353,6 +328,35 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(trait.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.RarityCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trait.RarityTable,
+			Columns: []string{trait.RarityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RarityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trait.RarityTable,
+			Columns: []string{trait.RarityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.UserTraitsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -502,38 +506,17 @@ func (_u *TraitUpdateOne) SetNillableName(v *string) *TraitUpdateOne {
 	return _u
 }
 
-// SetRarity sets the "rarity" field.
-func (_u *TraitUpdateOne) SetRarity(v trait.Rarity) *TraitUpdateOne {
-	_u.mutation.SetRarity(v)
+// SetRarityID sets the "rarity_id" field.
+func (_u *TraitUpdateOne) SetRarityID(v int) *TraitUpdateOne {
+	_u.mutation.SetRarityID(v)
 	return _u
 }
 
-// SetNillableRarity sets the "rarity" field if the given value is not nil.
-func (_u *TraitUpdateOne) SetNillableRarity(v *trait.Rarity) *TraitUpdateOne {
+// SetNillableRarityID sets the "rarity_id" field if the given value is not nil.
+func (_u *TraitUpdateOne) SetNillableRarityID(v *int) *TraitUpdateOne {
 	if v != nil {
-		_u.SetRarity(*v)
+		_u.SetRarityID(*v)
 	}
-	return _u
-}
-
-// SetWeight sets the "weight" field.
-func (_u *TraitUpdateOne) SetWeight(v int) *TraitUpdateOne {
-	_u.mutation.ResetWeight()
-	_u.mutation.SetWeight(v)
-	return _u
-}
-
-// SetNillableWeight sets the "weight" field if the given value is not nil.
-func (_u *TraitUpdateOne) SetNillableWeight(v *int) *TraitUpdateOne {
-	if v != nil {
-		_u.SetWeight(*v)
-	}
-	return _u
-}
-
-// AddWeight adds value to the "weight" field.
-func (_u *TraitUpdateOne) AddWeight(v int) *TraitUpdateOne {
-	_u.mutation.AddWeight(v)
 	return _u
 }
 
@@ -569,6 +552,11 @@ func (_u *TraitUpdateOne) ClearMetadata() *TraitUpdateOne {
 	return _u
 }
 
+// SetRarity sets the "rarity" edge to the Rarity entity.
+func (_u *TraitUpdateOne) SetRarity(v *Rarity) *TraitUpdateOne {
+	return _u.SetRarityID(v.ID)
+}
+
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
 func (_u *TraitUpdateOne) AddUserTraitIDs(ids ...int) *TraitUpdateOne {
 	_u.mutation.AddUserTraitIDs(ids...)
@@ -587,6 +575,12 @@ func (_u *TraitUpdateOne) AddUserTraits(v ...*UserTrait) *TraitUpdateOne {
 // Mutation returns the TraitMutation object of the builder.
 func (_u *TraitUpdateOne) Mutation() *TraitMutation {
 	return _u.mutation
+}
+
+// ClearRarity clears the "rarity" edge to the Rarity entity.
+func (_u *TraitUpdateOne) ClearRarity() *TraitUpdateOne {
+	_u.mutation.ClearRarity()
+	return _u
 }
 
 // ClearUserTraits clears all "user_traits" edges to the UserTrait entity.
@@ -677,20 +671,13 @@ func (_u *TraitUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Trait.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Rarity(); ok {
-		if err := trait.RarityValidator(v); err != nil {
-			return &ValidationError{Name: "rarity", err: fmt.Errorf(`generate: validator failed for field "Trait.rarity": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Weight(); ok {
-		if err := trait.WeightValidator(v); err != nil {
-			return &ValidationError{Name: "weight", err: fmt.Errorf(`generate: validator failed for field "Trait.weight": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Description(); ok {
 		if err := trait.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Trait.description": %w`, err)}
 		}
+	}
+	if _u.mutation.RarityCleared() && len(_u.mutation.RarityIDs()) > 0 {
+		return errors.New(`generate: clearing a required unique edge "Trait.rarity"`)
 	}
 	return nil
 }
@@ -754,15 +741,6 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(trait.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Rarity(); ok {
-		_spec.SetField(trait.FieldRarity, field.TypeEnum, value)
-	}
-	if value, ok := _u.mutation.Weight(); ok {
-		_spec.SetField(trait.FieldWeight, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedWeight(); ok {
-		_spec.AddField(trait.FieldWeight, field.TypeInt, value)
-	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(trait.FieldDescription, field.TypeString, value)
 	}
@@ -774,6 +752,35 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(trait.FieldMetadata, field.TypeJSON)
+	}
+	if _u.mutation.RarityCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trait.RarityTable,
+			Columns: []string{trait.RarityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RarityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trait.RarityTable,
+			Columns: []string{trait.RarityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.UserTraitsCleared() {
 		edge := &sqlgraph.EdgeSpec{

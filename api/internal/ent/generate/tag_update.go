@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -112,6 +113,21 @@ func (_u *TagUpdate) AddProblems(v ...*Problem) *TagUpdate {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddElementIDs adds the "elements" edge to the Element entity by IDs.
+func (_u *TagUpdate) AddElementIDs(ids ...int) *TagUpdate {
+	_u.mutation.AddElementIDs(ids...)
+	return _u
+}
+
+// AddElements adds the "elements" edges to the Element entity.
+func (_u *TagUpdate) AddElements(v ...*Element) *TagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddElementIDs(ids...)
+}
+
 // Mutation returns the TagMutation object of the builder.
 func (_u *TagUpdate) Mutation() *TagMutation {
 	return _u.mutation
@@ -136,6 +152,27 @@ func (_u *TagUpdate) RemoveProblems(v ...*Problem) *TagUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearElements clears all "elements" edges to the Element entity.
+func (_u *TagUpdate) ClearElements() *TagUpdate {
+	_u.mutation.ClearElements()
+	return _u
+}
+
+// RemoveElementIDs removes the "elements" edge to Element entities by IDs.
+func (_u *TagUpdate) RemoveElementIDs(ids ...int) *TagUpdate {
+	_u.mutation.RemoveElementIDs(ids...)
+	return _u
+}
+
+// RemoveElements removes "elements" edges to Element entities.
+func (_u *TagUpdate) RemoveElements(v ...*Element) *TagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveElementIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -274,6 +311,51 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.ElementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   tag.ElementsTable,
+			Columns: tag.ElementsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedElementsIDs(); len(nodes) > 0 && !_u.mutation.ElementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   tag.ElementsTable,
+			Columns: tag.ElementsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ElementsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   tag.ElementsTable,
+			Columns: tag.ElementsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -378,6 +460,21 @@ func (_u *TagUpdateOne) AddProblems(v ...*Problem) *TagUpdateOne {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddElementIDs adds the "elements" edge to the Element entity by IDs.
+func (_u *TagUpdateOne) AddElementIDs(ids ...int) *TagUpdateOne {
+	_u.mutation.AddElementIDs(ids...)
+	return _u
+}
+
+// AddElements adds the "elements" edges to the Element entity.
+func (_u *TagUpdateOne) AddElements(v ...*Element) *TagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddElementIDs(ids...)
+}
+
 // Mutation returns the TagMutation object of the builder.
 func (_u *TagUpdateOne) Mutation() *TagMutation {
 	return _u.mutation
@@ -402,6 +499,27 @@ func (_u *TagUpdateOne) RemoveProblems(v ...*Problem) *TagUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearElements clears all "elements" edges to the Element entity.
+func (_u *TagUpdateOne) ClearElements() *TagUpdateOne {
+	_u.mutation.ClearElements()
+	return _u
+}
+
+// RemoveElementIDs removes the "elements" edge to Element entities by IDs.
+func (_u *TagUpdateOne) RemoveElementIDs(ids ...int) *TagUpdateOne {
+	_u.mutation.RemoveElementIDs(ids...)
+	return _u
+}
+
+// RemoveElements removes "elements" edges to Element entities.
+func (_u *TagUpdateOne) RemoveElements(v ...*Element) *TagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveElementIDs(ids...)
 }
 
 // Where appends a list predicates to the TagUpdate builder.
@@ -563,6 +681,51 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ElementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   tag.ElementsTable,
+			Columns: tag.ElementsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedElementsIDs(); len(nodes) > 0 && !_u.mutation.ElementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   tag.ElementsTable,
+			Columns: tag.ElementsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ElementsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   tag.ElementsTable,
+			Columns: tag.ElementsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

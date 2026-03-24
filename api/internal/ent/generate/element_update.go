@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
 )
 
@@ -131,6 +132,21 @@ func (_u *ElementUpdate) ClearDescription() *ElementUpdate {
 	return _u
 }
 
+// AddTagIDs adds the "tags" edge to the Tag entity by IDs.
+func (_u *ElementUpdate) AddTagIDs(ids ...int) *ElementUpdate {
+	_u.mutation.AddTagIDs(ids...)
+	return _u
+}
+
+// AddTags adds the "tags" edges to the Tag entity.
+func (_u *ElementUpdate) AddTags(v ...*Tag) *ElementUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTagIDs(ids...)
+}
+
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
 func (_u *ElementUpdate) AddUserElementExpIDs(ids ...int) *ElementUpdate {
 	_u.mutation.AddUserElementExpIDs(ids...)
@@ -149,6 +165,27 @@ func (_u *ElementUpdate) AddUserElementExps(v ...*UserElementExp) *ElementUpdate
 // Mutation returns the ElementMutation object of the builder.
 func (_u *ElementUpdate) Mutation() *ElementMutation {
 	return _u.mutation
+}
+
+// ClearTags clears all "tags" edges to the Tag entity.
+func (_u *ElementUpdate) ClearTags() *ElementUpdate {
+	_u.mutation.ClearTags()
+	return _u
+}
+
+// RemoveTagIDs removes the "tags" edge to Tag entities by IDs.
+func (_u *ElementUpdate) RemoveTagIDs(ids ...int) *ElementUpdate {
+	_u.mutation.RemoveTagIDs(ids...)
+	return _u
+}
+
+// RemoveTags removes "tags" edges to Tag entities.
+func (_u *ElementUpdate) RemoveTags(v ...*Tag) *ElementUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTagIDs(ids...)
 }
 
 // ClearUserElementExps clears all "user_element_exps" edges to the UserElementExp entity.
@@ -281,6 +318,51 @@ func (_u *ElementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(element.FieldDescription, field.TypeString)
+	}
+	if _u.mutation.TagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTagsIDs(); len(nodes) > 0 && !_u.mutation.TagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.UserElementExpsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -450,6 +532,21 @@ func (_u *ElementUpdateOne) ClearDescription() *ElementUpdateOne {
 	return _u
 }
 
+// AddTagIDs adds the "tags" edge to the Tag entity by IDs.
+func (_u *ElementUpdateOne) AddTagIDs(ids ...int) *ElementUpdateOne {
+	_u.mutation.AddTagIDs(ids...)
+	return _u
+}
+
+// AddTags adds the "tags" edges to the Tag entity.
+func (_u *ElementUpdateOne) AddTags(v ...*Tag) *ElementUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTagIDs(ids...)
+}
+
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
 func (_u *ElementUpdateOne) AddUserElementExpIDs(ids ...int) *ElementUpdateOne {
 	_u.mutation.AddUserElementExpIDs(ids...)
@@ -468,6 +565,27 @@ func (_u *ElementUpdateOne) AddUserElementExps(v ...*UserElementExp) *ElementUpd
 // Mutation returns the ElementMutation object of the builder.
 func (_u *ElementUpdateOne) Mutation() *ElementMutation {
 	return _u.mutation
+}
+
+// ClearTags clears all "tags" edges to the Tag entity.
+func (_u *ElementUpdateOne) ClearTags() *ElementUpdateOne {
+	_u.mutation.ClearTags()
+	return _u
+}
+
+// RemoveTagIDs removes the "tags" edge to Tag entities by IDs.
+func (_u *ElementUpdateOne) RemoveTagIDs(ids ...int) *ElementUpdateOne {
+	_u.mutation.RemoveTagIDs(ids...)
+	return _u
+}
+
+// RemoveTags removes "tags" edges to Tag entities.
+func (_u *ElementUpdateOne) RemoveTags(v ...*Tag) *ElementUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTagIDs(ids...)
 }
 
 // ClearUserElementExps clears all "user_element_exps" edges to the UserElementExp entity.
@@ -630,6 +748,51 @@ func (_u *ElementUpdateOne) sqlSave(ctx context.Context) (_node *Element, err er
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(element.FieldDescription, field.TypeString)
+	}
+	if _u.mutation.TagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTagsIDs(); len(nodes) > 0 && !_u.mutation.TagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.UserElementExpsCleared() {
 		edge := &sqlgraph.EdgeSpec{

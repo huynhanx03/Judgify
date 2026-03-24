@@ -14,7 +14,7 @@ func ToProblemEntity(m *generate.Problem) *entity.Problem {
 		ID:            m.ID,
 		Title:         m.Title,
 		Description:   m.Description,
-		Difficulty:    string(m.Difficulty),
+		DifficultyID:  m.DifficultyID,
 		TimeLimitMs:   m.TimeLimitMs,
 		MemoryLimitKb: m.MemoryLimitKB,
 		AuthorID:      m.AuthorID,

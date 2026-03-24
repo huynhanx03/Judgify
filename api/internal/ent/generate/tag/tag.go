@@ -27,6 +27,8 @@ const (
 	FieldName = "name"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
+	// EdgeElements holds the string denoting the elements edge name in mutations.
+	EdgeElements = "elements"
 	// Table holds the table name of the tag in the database.
 	Table = "tags"
 	// ProblemsTable is the table that holds the problems relation/edge. The primary key declared below.
@@ -34,6 +36,11 @@ const (
 	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemsInverseTable = "problems"
+	// ElementsTable is the table that holds the elements relation/edge. The primary key declared below.
+	ElementsTable = "tag_elements"
+	// ElementsInverseTable is the table name for the Element entity.
+	// It exists in this package in order to avoid circular dependency with the "element" package.
+	ElementsInverseTable = "elements"
 )
 
 // Columns holds all SQL columns for tag fields.
@@ -50,6 +57,9 @@ var (
 	// ProblemsPrimaryKey and ProblemsColumn2 are the table columns denoting the
 	// primary key for the problems relation (M2M).
 	ProblemsPrimaryKey = []string{"problem_id", "tag_id"}
+	// ElementsPrimaryKey and ElementsColumn2 are the table columns denoting the
+	// primary key for the elements relation (M2M).
+	ElementsPrimaryKey = []string{"tag_id", "element_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -126,10 +136,31 @@ func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByElementsCount orders the results by elements count.
+func ByElementsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newElementsStep(), opts...)
+	}
+}
+
+// ByElements orders the results by elements terms.
+func ByElements(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newElementsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, ProblemsTable, ProblemsPrimaryKey...),
+	)
+}
+func newElementsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ElementsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, ElementsTable, ElementsPrimaryKey...),
 	)
 }

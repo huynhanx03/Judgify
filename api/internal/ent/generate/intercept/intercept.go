@@ -10,6 +10,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
@@ -17,6 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -137,6 +139,33 @@ func (f TraverseCredential) Traverse(ctx context.Context, q generate.Query) erro
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.CredentialQuery", q)
+}
+
+// The DifficultyFunc type is an adapter to allow the use of ordinary function as a Querier.
+type DifficultyFunc func(context.Context, *generate.DifficultyQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f DifficultyFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.DifficultyQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.DifficultyQuery", q)
+}
+
+// The TraverseDifficulty type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseDifficulty func(context.Context, *generate.DifficultyQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseDifficulty) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseDifficulty) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.DifficultyQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.DifficultyQuery", q)
 }
 
 // The ElementFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -299,6 +328,33 @@ func (f TraverseRank) Traverse(ctx context.Context, q generate.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.RankQuery", q)
+}
+
+// The RarityFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RarityFunc func(context.Context, *generate.RarityQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f RarityFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.RarityQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.RarityQuery", q)
+}
+
+// The TraverseRarity type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRarity func(context.Context, *generate.RarityQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRarity) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRarity) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.RarityQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.RarityQuery", q)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -578,6 +634,8 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.AttributeDefinitionQuery, predicate.AttributeDefinition, attributedefinition.OrderOption]{typ: generate.TypeAttributeDefinition, tq: q}, nil
 	case *generate.CredentialQuery:
 		return &query[*generate.CredentialQuery, predicate.Credential, credential.OrderOption]{typ: generate.TypeCredential, tq: q}, nil
+	case *generate.DifficultyQuery:
+		return &query[*generate.DifficultyQuery, predicate.Difficulty, difficulty.OrderOption]{typ: generate.TypeDifficulty, tq: q}, nil
 	case *generate.ElementQuery:
 		return &query[*generate.ElementQuery, predicate.Element, element.OrderOption]{typ: generate.TypeElement, tq: q}, nil
 	case *generate.FederatedIdentityQuery:
@@ -590,6 +648,8 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.ProblemQuery, predicate.Problem, problem.OrderOption]{typ: generate.TypeProblem, tq: q}, nil
 	case *generate.RankQuery:
 		return &query[*generate.RankQuery, predicate.Rank, rank.OrderOption]{typ: generate.TypeRank, tq: q}, nil
+	case *generate.RarityQuery:
+		return &query[*generate.RarityQuery, predicate.Rarity, rarity.OrderOption]{typ: generate.TypeRarity, tq: q}, nil
 	case *generate.ResourceQuery:
 		return &query[*generate.ResourceQuery, predicate.Resource, resource.OrderOption]{typ: generate.TypeResource, tq: q}, nil
 	case *generate.RoleQuery:

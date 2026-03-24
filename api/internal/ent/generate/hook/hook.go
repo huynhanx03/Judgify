@@ -33,6 +33,18 @@ func (f CredentialFunc) Mutate(ctx context.Context, m generate.Mutation) (genera
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.CredentialMutation", m)
 }
 
+// The DifficultyFunc type is an adapter to allow the use of ordinary
+// function as Difficulty mutator.
+type DifficultyFunc func(context.Context, *generate.DifficultyMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DifficultyFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.DifficultyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.DifficultyMutation", m)
+}
+
 // The ElementFunc type is an adapter to allow the use of ordinary
 // function as Element mutator.
 type ElementFunc func(context.Context, *generate.ElementMutation) (generate.Value, error)
@@ -103,6 +115,18 @@ func (f RankFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Val
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.RankMutation", m)
+}
+
+// The RarityFunc type is an adapter to allow the use of ordinary
+// function as Rarity mutator.
+type RarityFunc func(context.Context, *generate.RarityMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RarityFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.RarityMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.RarityMutation", m)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary

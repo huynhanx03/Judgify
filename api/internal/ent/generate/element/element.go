@@ -29,10 +29,17 @@ const (
 	FieldCode = "code"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// EdgeTags holds the string denoting the tags edge name in mutations.
+	EdgeTags = "tags"
 	// EdgeUserElementExps holds the string denoting the user_element_exps edge name in mutations.
 	EdgeUserElementExps = "user_element_exps"
 	// Table holds the table name of the element in the database.
 	Table = "elements"
+	// TagsTable is the table that holds the tags relation/edge. The primary key declared below.
+	TagsTable = "tag_elements"
+	// TagsInverseTable is the table name for the Tag entity.
+	// It exists in this package in order to avoid circular dependency with the "tag" package.
+	TagsInverseTable = "tags"
 	// UserElementExpsTable is the table that holds the user_element_exps relation/edge.
 	UserElementExpsTable = "user_element_exps"
 	// UserElementExpsInverseTable is the table name for the UserElementExp entity.
@@ -53,6 +60,12 @@ var Columns = []string{
 	FieldCode,
 	FieldDescription,
 }
+
+var (
+	// TagsPrimaryKey and TagsColumn2 are the table columns denoting the
+	// primary key for the tags relation (M2M).
+	TagsPrimaryKey = []string{"tag_id", "element_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -129,6 +142,20 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
+// ByTagsCount orders the results by tags count.
+func ByTagsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTagsStep(), opts...)
+	}
+}
+
+// ByTags orders the results by tags terms.
+func ByTags(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTagsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByUserElementExpsCount orders the results by user_element_exps count.
 func ByUserElementExpsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -141,6 +168,13 @@ func ByUserElementExps(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newUserElementExpsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newTagsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TagsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, TagsTable, TagsPrimaryKey...),
+	)
 }
 func newUserElementExpsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

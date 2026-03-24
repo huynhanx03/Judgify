@@ -80,9 +80,9 @@ func Name(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldName, v))
 }
 
-// Weight applies equality check predicate on the "weight" field. It's identical to WeightEQ.
-func Weight(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldEQ(FieldWeight, v))
+// RarityID applies equality check predicate on the "rarity_id" field. It's identical to RarityIDEQ.
+func RarityID(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldRarityID, v))
 }
 
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
@@ -355,64 +355,24 @@ func NameContainsFold(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldContainsFold(FieldName, v))
 }
 
-// RarityEQ applies the EQ predicate on the "rarity" field.
-func RarityEQ(v Rarity) predicate.Trait {
-	return predicate.Trait(sql.FieldEQ(FieldRarity, v))
+// RarityIDEQ applies the EQ predicate on the "rarity_id" field.
+func RarityIDEQ(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldRarityID, v))
 }
 
-// RarityNEQ applies the NEQ predicate on the "rarity" field.
-func RarityNEQ(v Rarity) predicate.Trait {
-	return predicate.Trait(sql.FieldNEQ(FieldRarity, v))
+// RarityIDNEQ applies the NEQ predicate on the "rarity_id" field.
+func RarityIDNEQ(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldNEQ(FieldRarityID, v))
 }
 
-// RarityIn applies the In predicate on the "rarity" field.
-func RarityIn(vs ...Rarity) predicate.Trait {
-	return predicate.Trait(sql.FieldIn(FieldRarity, vs...))
+// RarityIDIn applies the In predicate on the "rarity_id" field.
+func RarityIDIn(vs ...int) predicate.Trait {
+	return predicate.Trait(sql.FieldIn(FieldRarityID, vs...))
 }
 
-// RarityNotIn applies the NotIn predicate on the "rarity" field.
-func RarityNotIn(vs ...Rarity) predicate.Trait {
-	return predicate.Trait(sql.FieldNotIn(FieldRarity, vs...))
-}
-
-// WeightEQ applies the EQ predicate on the "weight" field.
-func WeightEQ(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldEQ(FieldWeight, v))
-}
-
-// WeightNEQ applies the NEQ predicate on the "weight" field.
-func WeightNEQ(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldNEQ(FieldWeight, v))
-}
-
-// WeightIn applies the In predicate on the "weight" field.
-func WeightIn(vs ...int) predicate.Trait {
-	return predicate.Trait(sql.FieldIn(FieldWeight, vs...))
-}
-
-// WeightNotIn applies the NotIn predicate on the "weight" field.
-func WeightNotIn(vs ...int) predicate.Trait {
-	return predicate.Trait(sql.FieldNotIn(FieldWeight, vs...))
-}
-
-// WeightGT applies the GT predicate on the "weight" field.
-func WeightGT(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldGT(FieldWeight, v))
-}
-
-// WeightGTE applies the GTE predicate on the "weight" field.
-func WeightGTE(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldGTE(FieldWeight, v))
-}
-
-// WeightLT applies the LT predicate on the "weight" field.
-func WeightLT(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldLT(FieldWeight, v))
-}
-
-// WeightLTE applies the LTE predicate on the "weight" field.
-func WeightLTE(v int) predicate.Trait {
-	return predicate.Trait(sql.FieldLTE(FieldWeight, v))
+// RarityIDNotIn applies the NotIn predicate on the "rarity_id" field.
+func RarityIDNotIn(vs ...int) predicate.Trait {
+	return predicate.Trait(sql.FieldNotIn(FieldRarityID, vs...))
 }
 
 // DescriptionEQ applies the EQ predicate on the "description" field.
@@ -498,6 +458,29 @@ func MetadataIsNil() predicate.Trait {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.Trait {
 	return predicate.Trait(sql.FieldNotNull(FieldMetadata))
+}
+
+// HasRarity applies the HasEdge predicate on the "rarity" edge.
+func HasRarity() predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, RarityTable, RarityColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRarityWith applies the HasEdge predicate on the "rarity" edge with a given conditions (other predicates).
+func HasRarityWith(preds ...predicate.Rarity) predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := newRarityStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // HasUserTraits applies the HasEdge predicate on the "user_traits" edge.

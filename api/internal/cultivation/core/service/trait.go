@@ -72,11 +72,8 @@ func (s *traitService) Update(ctx context.Context, id int, req *dto.UpdateTraitR
 	if req.Name != nil {
 		e.Name = *req.Name
 	}
-	if req.Rarity != nil {
-		e.Rarity = *req.Rarity
-	}
-	if req.Weight != nil {
-		e.Weight = *req.Weight
+	if req.RarityID != nil {
+		e.RarityID = *req.RarityID
 	}
 	if req.Description != nil {
 		e.Description = *req.Description

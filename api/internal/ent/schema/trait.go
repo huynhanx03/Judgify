@@ -33,13 +33,7 @@ func (Trait) Fields() []ent.Field {
 			Unique().
 			NotEmpty().
 			MaxLen(100),
-		field.Enum("rarity").
-			Values("mortal", "earth", "heaven", "divine").
-			Default("mortal"),
-		field.Int("weight").
-			Default(100).
-			Positive().
-			Comment("Gacha weight, higher = more likely"),
+		field.Int("rarity_id"),
 		field.String("description").
 			Optional().
 			MaxLen(500),
@@ -55,6 +49,7 @@ func (Trait) Fields() []ent.Field {
 // Edges of the Trait.
 func (Trait) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("rarity", Rarity.Type).Ref("traits").Field("rarity_id").Unique().Required(),
 		edge.To("user_traits", UserTrait.Type),
 	}
 }

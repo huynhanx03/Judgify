@@ -36,5 +36,6 @@ func (Tag) Fields() []ent.Field {
 func (Tag) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("problems", Problem.Type).Ref("tags"),
+		edge.To("elements", Element.Type),
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
 )
 
@@ -103,6 +104,21 @@ func (_c *ElementCreate) SetNillableDescription(v *string) *ElementCreate {
 		_c.SetDescription(*v)
 	}
 	return _c
+}
+
+// AddTagIDs adds the "tags" edge to the Tag entity by IDs.
+func (_c *ElementCreate) AddTagIDs(ids ...int) *ElementCreate {
+	_c.mutation.AddTagIDs(ids...)
+	return _c
+}
+
+// AddTags adds the "tags" edges to the Tag entity.
+func (_c *ElementCreate) AddTags(v ...*Tag) *ElementCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTagIDs(ids...)
 }
 
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
@@ -257,6 +273,22 @@ func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(element.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if nodes := _c.mutation.TagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   element.TagsTable,
+			Columns: element.TagsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.UserElementExpsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -43,6 +43,7 @@ func (Element) Fields() []ent.Field {
 // Edges of the Element.
 func (Element) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("tags", Tag.Type).Ref("elements"),
 		edge.To("user_element_exps", UserElementExp.Type),
 	}
 }

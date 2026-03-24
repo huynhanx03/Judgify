@@ -39,17 +39,28 @@ type Element struct {
 
 // ElementEdges holds the relations/edges for other nodes in the graph.
 type ElementEdges struct {
+	// Tags holds the value of the tags edge.
+	Tags []*Tag `json:"tags,omitempty"`
 	// UserElementExps holds the value of the user_element_exps edge.
 	UserElementExps []*UserElementExp `json:"user_element_exps,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
+}
+
+// TagsOrErr returns the Tags value or an error if the edge
+// was not loaded in eager-loading.
+func (e ElementEdges) TagsOrErr() ([]*Tag, error) {
+	if e.loadedTypes[0] {
+		return e.Tags, nil
+	}
+	return nil, &NotLoadedError{edge: "tags"}
 }
 
 // UserElementExpsOrErr returns the UserElementExps value or an error if the edge
 // was not loaded in eager-loading.
 func (e ElementEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.UserElementExps, nil
 	}
 	return nil, &NotLoadedError{edge: "user_element_exps"}
@@ -142,6 +153,11 @@ func (_m *Element) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Element) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryTags queries the "tags" edge of the Element entity.
+func (_m *Element) QueryTags() *TagQuery {
+	return NewElementClient(_m.config).QueryTags(_m)
 }
 
 // QueryUserElementExps queries the "user_element_exps" edge of the Element entity.

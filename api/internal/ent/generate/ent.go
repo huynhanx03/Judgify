@@ -14,12 +14,14 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -92,12 +94,14 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			attributedefinition.Table: attributedefinition.ValidColumn,
 			credential.Table:          credential.ValidColumn,
+			difficulty.Table:          difficulty.ValidColumn,
 			element.Table:             element.ValidColumn,
 			federatedidentity.Table:   federatedidentity.ValidColumn,
 			level.Table:               level.ValidColumn,
 			permission.Table:          permission.ValidColumn,
 			problem.Table:             problem.ValidColumn,
 			rank.Table:                rank.ValidColumn,
+			rarity.Table:              rarity.ValidColumn,
 			resource.Table:            resource.ValidColumn,
 			role.Table:                role.ValidColumn,
 			tag.Table:                 tag.ValidColumn,

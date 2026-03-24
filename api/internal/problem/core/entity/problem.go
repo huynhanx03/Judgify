@@ -7,7 +7,7 @@ type Problem struct {
 	ID            int       `json:"id"`
 	Title         string    `json:"title"`
 	Description   string    `json:"description"`
-	Difficulty    string    `json:"difficulty"`
+	DifficultyID  int       `json:"difficulty_id"`
 	TimeLimitMs   int       `json:"time_limit_ms"`
 	MemoryLimitKb int       `json:"memory_limit_kb"`
 	AuthorID      int       `json:"author_id"`

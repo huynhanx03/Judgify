@@ -17,12 +17,14 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -46,6 +48,8 @@ type Client struct {
 	AttributeDefinition *AttributeDefinitionClient
 	// Credential is the client for interacting with the Credential builders.
 	Credential *CredentialClient
+	// Difficulty is the client for interacting with the Difficulty builders.
+	Difficulty *DifficultyClient
 	// Element is the client for interacting with the Element builders.
 	Element *ElementClient
 	// FederatedIdentity is the client for interacting with the FederatedIdentity builders.
@@ -58,6 +62,8 @@ type Client struct {
 	Problem *ProblemClient
 	// Rank is the client for interacting with the Rank builders.
 	Rank *RankClient
+	// Rarity is the client for interacting with the Rarity builders.
+	Rarity *RarityClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
@@ -91,12 +97,14 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AttributeDefinition = NewAttributeDefinitionClient(c.config)
 	c.Credential = NewCredentialClient(c.config)
+	c.Difficulty = NewDifficultyClient(c.config)
 	c.Element = NewElementClient(c.config)
 	c.FederatedIdentity = NewFederatedIdentityClient(c.config)
 	c.Level = NewLevelClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.Problem = NewProblemClient(c.config)
 	c.Rank = NewRankClient(c.config)
+	c.Rarity = NewRarityClient(c.config)
 	c.Resource = NewResourceClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.Tag = NewTagClient(c.config)
@@ -201,12 +209,14 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:              cfg,
 		AttributeDefinition: NewAttributeDefinitionClient(cfg),
 		Credential:          NewCredentialClient(cfg),
+		Difficulty:          NewDifficultyClient(cfg),
 		Element:             NewElementClient(cfg),
 		FederatedIdentity:   NewFederatedIdentityClient(cfg),
 		Level:               NewLevelClient(cfg),
 		Permission:          NewPermissionClient(cfg),
 		Problem:             NewProblemClient(cfg),
 		Rank:                NewRankClient(cfg),
+		Rarity:              NewRarityClient(cfg),
 		Resource:            NewResourceClient(cfg),
 		Role:                NewRoleClient(cfg),
 		Tag:                 NewTagClient(cfg),
@@ -238,12 +248,14 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:              cfg,
 		AttributeDefinition: NewAttributeDefinitionClient(cfg),
 		Credential:          NewCredentialClient(cfg),
+		Difficulty:          NewDifficultyClient(cfg),
 		Element:             NewElementClient(cfg),
 		FederatedIdentity:   NewFederatedIdentityClient(cfg),
 		Level:               NewLevelClient(cfg),
 		Permission:          NewPermissionClient(cfg),
 		Problem:             NewProblemClient(cfg),
 		Rank:                NewRankClient(cfg),
+		Rarity:              NewRarityClient(cfg),
 		Resource:            NewResourceClient(cfg),
 		Role:                NewRoleClient(cfg),
 		Tag:                 NewTagClient(cfg),
@@ -283,10 +295,10 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AttributeDefinition, c.Credential, c.Element, c.FederatedIdentity, c.Level,
-		c.Permission, c.Problem, c.Rank, c.Resource, c.Role, c.Tag, c.TestCase,
-		c.Trait, c.User, c.UserAttributeValue, c.UserElementExp, c.UserStats,
-		c.UserTrait,
+		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
+		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
+		c.Resource, c.Role, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
+		c.UserElementExp, c.UserStats, c.UserTrait,
 	} {
 		n.Use(hooks...)
 	}
@@ -296,10 +308,10 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AttributeDefinition, c.Credential, c.Element, c.FederatedIdentity, c.Level,
-		c.Permission, c.Problem, c.Rank, c.Resource, c.Role, c.Tag, c.TestCase,
-		c.Trait, c.User, c.UserAttributeValue, c.UserElementExp, c.UserStats,
-		c.UserTrait,
+		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
+		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
+		c.Resource, c.Role, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
+		c.UserElementExp, c.UserStats, c.UserTrait,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -312,6 +324,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AttributeDefinition.mutate(ctx, m)
 	case *CredentialMutation:
 		return c.Credential.mutate(ctx, m)
+	case *DifficultyMutation:
+		return c.Difficulty.mutate(ctx, m)
 	case *ElementMutation:
 		return c.Element.mutate(ctx, m)
 	case *FederatedIdentityMutation:
@@ -324,6 +338,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Problem.mutate(ctx, m)
 	case *RankMutation:
 		return c.Rank.mutate(ctx, m)
+	case *RarityMutation:
+		return c.Rarity.mutate(ctx, m)
 	case *ResourceMutation:
 		return c.Resource.mutate(ctx, m)
 	case *RoleMutation:
@@ -651,6 +667,157 @@ func (c *CredentialClient) mutate(ctx context.Context, m *CredentialMutation) (V
 	}
 }
 
+// DifficultyClient is a client for the Difficulty schema.
+type DifficultyClient struct {
+	config
+}
+
+// NewDifficultyClient returns a client for the Difficulty from the given config.
+func NewDifficultyClient(c config) *DifficultyClient {
+	return &DifficultyClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `difficulty.Hooks(f(g(h())))`.
+func (c *DifficultyClient) Use(hooks ...Hook) {
+	c.hooks.Difficulty = append(c.hooks.Difficulty, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `difficulty.Intercept(f(g(h())))`.
+func (c *DifficultyClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Difficulty = append(c.inters.Difficulty, interceptors...)
+}
+
+// Create returns a builder for creating a Difficulty entity.
+func (c *DifficultyClient) Create() *DifficultyCreate {
+	mutation := newDifficultyMutation(c.config, OpCreate)
+	return &DifficultyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Difficulty entities.
+func (c *DifficultyClient) CreateBulk(builders ...*DifficultyCreate) *DifficultyCreateBulk {
+	return &DifficultyCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DifficultyClient) MapCreateBulk(slice any, setFunc func(*DifficultyCreate, int)) *DifficultyCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DifficultyCreateBulk{err: fmt.Errorf("calling to DifficultyClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DifficultyCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DifficultyCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Difficulty.
+func (c *DifficultyClient) Update() *DifficultyUpdate {
+	mutation := newDifficultyMutation(c.config, OpUpdate)
+	return &DifficultyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DifficultyClient) UpdateOne(_m *Difficulty) *DifficultyUpdateOne {
+	mutation := newDifficultyMutation(c.config, OpUpdateOne, withDifficulty(_m))
+	return &DifficultyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DifficultyClient) UpdateOneID(id int) *DifficultyUpdateOne {
+	mutation := newDifficultyMutation(c.config, OpUpdateOne, withDifficultyID(id))
+	return &DifficultyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Difficulty.
+func (c *DifficultyClient) Delete() *DifficultyDelete {
+	mutation := newDifficultyMutation(c.config, OpDelete)
+	return &DifficultyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DifficultyClient) DeleteOne(_m *Difficulty) *DifficultyDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DifficultyClient) DeleteOneID(id int) *DifficultyDeleteOne {
+	builder := c.Delete().Where(difficulty.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DifficultyDeleteOne{builder}
+}
+
+// Query returns a query builder for Difficulty.
+func (c *DifficultyClient) Query() *DifficultyQuery {
+	return &DifficultyQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDifficulty},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Difficulty entity by its id.
+func (c *DifficultyClient) Get(ctx context.Context, id int) (*Difficulty, error) {
+	return c.Query().Where(difficulty.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DifficultyClient) GetX(ctx context.Context, id int) *Difficulty {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProblems queries the problems edge of a Difficulty.
+func (c *DifficultyClient) QueryProblems(_m *Difficulty) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(difficulty.Table, difficulty.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.ProblemsTable, difficulty.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DifficultyClient) Hooks() []Hook {
+	hooks := c.hooks.Difficulty
+	return append(hooks[:len(hooks):len(hooks)], difficulty.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *DifficultyClient) Interceptors() []Interceptor {
+	inters := c.inters.Difficulty
+	return append(inters[:len(inters):len(inters)], difficulty.Interceptors[:]...)
+}
+
+func (c *DifficultyClient) mutate(ctx context.Context, m *DifficultyMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DifficultyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DifficultyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DifficultyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DifficultyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown Difficulty mutation op: %q", m.Op())
+	}
+}
+
 // ElementClient is a client for the Element schema.
 type ElementClient struct {
 	config
@@ -757,6 +924,22 @@ func (c *ElementClient) GetX(ctx context.Context, id int) *Element {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryTags queries the tags edge of a Element.
+func (c *ElementClient) QueryTags(_m *Element) *TagQuery {
+	query := (&TagClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(element.Table, element.FieldID, id),
+			sqlgraph.To(tag.Table, tag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, element.TagsTable, element.TagsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryUserElementExps queries the user_element_exps edge of a Element.
@@ -1395,6 +1578,22 @@ func (c *ProblemClient) QueryAuthor(_m *Problem) *UserQuery {
 	return query
 }
 
+// QueryDifficulty queries the difficulty edge of a Problem.
+func (c *ProblemClient) QueryDifficulty(_m *Problem) *DifficultyQuery {
+	query := (&DifficultyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(difficulty.Table, difficulty.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.DifficultyTable, problem.DifficultyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryTestCases queries the test_cases edge of a Problem.
 func (c *ProblemClient) QueryTestCases(_m *Problem) *TestCaseQuery {
 	query := (&TestCaseClient{config: c.config}).Query()
@@ -1586,6 +1785,157 @@ func (c *RankClient) mutate(ctx context.Context, m *RankMutation) (Value, error)
 		return (&RankDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("generate: unknown Rank mutation op: %q", m.Op())
+	}
+}
+
+// RarityClient is a client for the Rarity schema.
+type RarityClient struct {
+	config
+}
+
+// NewRarityClient returns a client for the Rarity from the given config.
+func NewRarityClient(c config) *RarityClient {
+	return &RarityClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `rarity.Hooks(f(g(h())))`.
+func (c *RarityClient) Use(hooks ...Hook) {
+	c.hooks.Rarity = append(c.hooks.Rarity, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `rarity.Intercept(f(g(h())))`.
+func (c *RarityClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Rarity = append(c.inters.Rarity, interceptors...)
+}
+
+// Create returns a builder for creating a Rarity entity.
+func (c *RarityClient) Create() *RarityCreate {
+	mutation := newRarityMutation(c.config, OpCreate)
+	return &RarityCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Rarity entities.
+func (c *RarityClient) CreateBulk(builders ...*RarityCreate) *RarityCreateBulk {
+	return &RarityCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RarityClient) MapCreateBulk(slice any, setFunc func(*RarityCreate, int)) *RarityCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RarityCreateBulk{err: fmt.Errorf("calling to RarityClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RarityCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RarityCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Rarity.
+func (c *RarityClient) Update() *RarityUpdate {
+	mutation := newRarityMutation(c.config, OpUpdate)
+	return &RarityUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RarityClient) UpdateOne(_m *Rarity) *RarityUpdateOne {
+	mutation := newRarityMutation(c.config, OpUpdateOne, withRarity(_m))
+	return &RarityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RarityClient) UpdateOneID(id int) *RarityUpdateOne {
+	mutation := newRarityMutation(c.config, OpUpdateOne, withRarityID(id))
+	return &RarityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Rarity.
+func (c *RarityClient) Delete() *RarityDelete {
+	mutation := newRarityMutation(c.config, OpDelete)
+	return &RarityDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RarityClient) DeleteOne(_m *Rarity) *RarityDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RarityClient) DeleteOneID(id int) *RarityDeleteOne {
+	builder := c.Delete().Where(rarity.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RarityDeleteOne{builder}
+}
+
+// Query returns a query builder for Rarity.
+func (c *RarityClient) Query() *RarityQuery {
+	return &RarityQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRarity},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Rarity entity by its id.
+func (c *RarityClient) Get(ctx context.Context, id int) (*Rarity, error) {
+	return c.Query().Where(rarity.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RarityClient) GetX(ctx context.Context, id int) *Rarity {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTraits queries the traits edge of a Rarity.
+func (c *RarityClient) QueryTraits(_m *Rarity) *TraitQuery {
+	query := (&TraitClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(rarity.Table, rarity.FieldID, id),
+			sqlgraph.To(trait.Table, trait.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, rarity.TraitsTable, rarity.TraitsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RarityClient) Hooks() []Hook {
+	hooks := c.hooks.Rarity
+	return append(hooks[:len(hooks):len(hooks)], rarity.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *RarityClient) Interceptors() []Interceptor {
+	inters := c.inters.Rarity
+	return append(inters[:len(inters):len(inters)], rarity.Interceptors[:]...)
+}
+
+func (c *RarityClient) mutate(ctx context.Context, m *RarityMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RarityCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RarityUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RarityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RarityDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown Rarity mutation op: %q", m.Op())
 	}
 }
 
@@ -2031,6 +2381,22 @@ func (c *TagClient) QueryProblems(_m *Tag) *ProblemQuery {
 	return query
 }
 
+// QueryElements queries the elements edge of a Tag.
+func (c *TagClient) QueryElements(_m *Tag) *ElementQuery {
+	query := (&ElementClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, id),
+			sqlgraph.To(element.Table, element.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, tag.ElementsTable, tag.ElementsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TagClient) Hooks() []Hook {
 	hooks := c.hooks.Tag
@@ -2315,6 +2681,22 @@ func (c *TraitClient) GetX(ctx context.Context, id int) *Trait {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryRarity queries the rarity edge of a Trait.
+func (c *TraitClient) QueryRarity(_m *Trait) *RarityQuery {
+	query := (&RarityClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trait.Table, trait.FieldID, id),
+			sqlgraph.To(rarity.Table, rarity.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, trait.RarityTable, trait.RarityColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryUserTraits queries the user_traits edge of a Trait.
@@ -3294,14 +3676,14 @@ func (c *UserTraitClient) mutate(ctx context.Context, m *UserTraitMutation) (Val
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AttributeDefinition, Credential, Element, FederatedIdentity, Level, Permission,
-		Problem, Rank, Resource, Role, Tag, TestCase, Trait, User, UserAttributeValue,
-		UserElementExp, UserStats, UserTrait []ent.Hook
+		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
+		Permission, Problem, Rank, Rarity, Resource, Role, Tag, TestCase, Trait, User,
+		UserAttributeValue, UserElementExp, UserStats, UserTrait []ent.Hook
 	}
 	inters struct {
-		AttributeDefinition, Credential, Element, FederatedIdentity, Level, Permission,
-		Problem, Rank, Resource, Role, Tag, TestCase, Trait, User, UserAttributeValue,
-		UserElementExp, UserStats, UserTrait []ent.Interceptor
+		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
+		Permission, Problem, Rank, Rarity, Resource, Role, Tag, TestCase, Trait, User,
+		UserAttributeValue, UserElementExp, UserStats, UserTrait []ent.Interceptor
 	}
 )
 

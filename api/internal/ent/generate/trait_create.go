@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
@@ -91,31 +92,9 @@ func (_c *TraitCreate) SetName(v string) *TraitCreate {
 	return _c
 }
 
-// SetRarity sets the "rarity" field.
-func (_c *TraitCreate) SetRarity(v trait.Rarity) *TraitCreate {
-	_c.mutation.SetRarity(v)
-	return _c
-}
-
-// SetNillableRarity sets the "rarity" field if the given value is not nil.
-func (_c *TraitCreate) SetNillableRarity(v *trait.Rarity) *TraitCreate {
-	if v != nil {
-		_c.SetRarity(*v)
-	}
-	return _c
-}
-
-// SetWeight sets the "weight" field.
-func (_c *TraitCreate) SetWeight(v int) *TraitCreate {
-	_c.mutation.SetWeight(v)
-	return _c
-}
-
-// SetNillableWeight sets the "weight" field if the given value is not nil.
-func (_c *TraitCreate) SetNillableWeight(v *int) *TraitCreate {
-	if v != nil {
-		_c.SetWeight(*v)
-	}
+// SetRarityID sets the "rarity_id" field.
+func (_c *TraitCreate) SetRarityID(v int) *TraitCreate {
+	_c.mutation.SetRarityID(v)
 	return _c
 }
 
@@ -137,6 +116,11 @@ func (_c *TraitCreate) SetNillableDescription(v *string) *TraitCreate {
 func (_c *TraitCreate) SetMetadata(v map[string]interface{}) *TraitCreate {
 	_c.mutation.SetMetadata(v)
 	return _c
+}
+
+// SetRarity sets the "rarity" edge to the Rarity entity.
+func (_c *TraitCreate) SetRarity(v *Rarity) *TraitCreate {
+	return _c.SetRarityID(v.ID)
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
@@ -205,14 +189,6 @@ func (_c *TraitCreate) defaults() error {
 		v := trait.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.Rarity(); !ok {
-		v := trait.DefaultRarity
-		_c.mutation.SetRarity(v)
-	}
-	if _, ok := _c.mutation.Weight(); !ok {
-		v := trait.DefaultWeight
-		_c.mutation.SetWeight(v)
-	}
 	return nil
 }
 
@@ -240,26 +216,16 @@ func (_c *TraitCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Trait.name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Rarity(); !ok {
-		return &ValidationError{Name: "rarity", err: errors.New(`generate: missing required field "Trait.rarity"`)}
-	}
-	if v, ok := _c.mutation.Rarity(); ok {
-		if err := trait.RarityValidator(v); err != nil {
-			return &ValidationError{Name: "rarity", err: fmt.Errorf(`generate: validator failed for field "Trait.rarity": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.Weight(); !ok {
-		return &ValidationError{Name: "weight", err: errors.New(`generate: missing required field "Trait.weight"`)}
-	}
-	if v, ok := _c.mutation.Weight(); ok {
-		if err := trait.WeightValidator(v); err != nil {
-			return &ValidationError{Name: "weight", err: fmt.Errorf(`generate: validator failed for field "Trait.weight": %w`, err)}
-		}
+	if _, ok := _c.mutation.RarityID(); !ok {
+		return &ValidationError{Name: "rarity_id", err: errors.New(`generate: missing required field "Trait.rarity_id"`)}
 	}
 	if v, ok := _c.mutation.Description(); ok {
 		if err := trait.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Trait.description": %w`, err)}
 		}
+	}
+	if len(_c.mutation.RarityIDs()) == 0 {
+		return &ValidationError{Name: "rarity", err: errors.New(`generate: missing required edge "Trait.rarity"`)}
 	}
 	return nil
 }
@@ -312,14 +278,6 @@ func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 		_spec.SetField(trait.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := _c.mutation.Rarity(); ok {
-		_spec.SetField(trait.FieldRarity, field.TypeEnum, value)
-		_node.Rarity = value
-	}
-	if value, ok := _c.mutation.Weight(); ok {
-		_spec.SetField(trait.FieldWeight, field.TypeInt, value)
-		_node.Weight = value
-	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(trait.FieldDescription, field.TypeString, value)
 		_node.Description = value
@@ -327,6 +285,23 @@ func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(trait.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
+	}
+	if nodes := _c.mutation.RarityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trait.RarityTable,
+			Columns: []string{trait.RarityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.RarityID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.UserTraitsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -474,33 +449,15 @@ func (u *TraitUpsert) UpdateName() *TraitUpsert {
 	return u
 }
 
-// SetRarity sets the "rarity" field.
-func (u *TraitUpsert) SetRarity(v trait.Rarity) *TraitUpsert {
-	u.Set(trait.FieldRarity, v)
+// SetRarityID sets the "rarity_id" field.
+func (u *TraitUpsert) SetRarityID(v int) *TraitUpsert {
+	u.Set(trait.FieldRarityID, v)
 	return u
 }
 
-// UpdateRarity sets the "rarity" field to the value that was provided on create.
-func (u *TraitUpsert) UpdateRarity() *TraitUpsert {
-	u.SetExcluded(trait.FieldRarity)
-	return u
-}
-
-// SetWeight sets the "weight" field.
-func (u *TraitUpsert) SetWeight(v int) *TraitUpsert {
-	u.Set(trait.FieldWeight, v)
-	return u
-}
-
-// UpdateWeight sets the "weight" field to the value that was provided on create.
-func (u *TraitUpsert) UpdateWeight() *TraitUpsert {
-	u.SetExcluded(trait.FieldWeight)
-	return u
-}
-
-// AddWeight adds v to the "weight" field.
-func (u *TraitUpsert) AddWeight(v int) *TraitUpsert {
-	u.Add(trait.FieldWeight, v)
+// UpdateRarityID sets the "rarity_id" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateRarityID() *TraitUpsert {
+	u.SetExcluded(trait.FieldRarityID)
 	return u
 }
 
@@ -676,38 +633,17 @@ func (u *TraitUpsertOne) UpdateName() *TraitUpsertOne {
 	})
 }
 
-// SetRarity sets the "rarity" field.
-func (u *TraitUpsertOne) SetRarity(v trait.Rarity) *TraitUpsertOne {
+// SetRarityID sets the "rarity_id" field.
+func (u *TraitUpsertOne) SetRarityID(v int) *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
-		s.SetRarity(v)
+		s.SetRarityID(v)
 	})
 }
 
-// UpdateRarity sets the "rarity" field to the value that was provided on create.
-func (u *TraitUpsertOne) UpdateRarity() *TraitUpsertOne {
+// UpdateRarityID sets the "rarity_id" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateRarityID() *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
-		s.UpdateRarity()
-	})
-}
-
-// SetWeight sets the "weight" field.
-func (u *TraitUpsertOne) SetWeight(v int) *TraitUpsertOne {
-	return u.Update(func(s *TraitUpsert) {
-		s.SetWeight(v)
-	})
-}
-
-// AddWeight adds v to the "weight" field.
-func (u *TraitUpsertOne) AddWeight(v int) *TraitUpsertOne {
-	return u.Update(func(s *TraitUpsert) {
-		s.AddWeight(v)
-	})
-}
-
-// UpdateWeight sets the "weight" field to the value that was provided on create.
-func (u *TraitUpsertOne) UpdateWeight() *TraitUpsertOne {
-	return u.Update(func(s *TraitUpsert) {
-		s.UpdateWeight()
+		s.UpdateRarityID()
 	})
 }
 
@@ -1060,38 +996,17 @@ func (u *TraitUpsertBulk) UpdateName() *TraitUpsertBulk {
 	})
 }
 
-// SetRarity sets the "rarity" field.
-func (u *TraitUpsertBulk) SetRarity(v trait.Rarity) *TraitUpsertBulk {
+// SetRarityID sets the "rarity_id" field.
+func (u *TraitUpsertBulk) SetRarityID(v int) *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
-		s.SetRarity(v)
+		s.SetRarityID(v)
 	})
 }
 
-// UpdateRarity sets the "rarity" field to the value that was provided on create.
-func (u *TraitUpsertBulk) UpdateRarity() *TraitUpsertBulk {
+// UpdateRarityID sets the "rarity_id" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateRarityID() *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
-		s.UpdateRarity()
-	})
-}
-
-// SetWeight sets the "weight" field.
-func (u *TraitUpsertBulk) SetWeight(v int) *TraitUpsertBulk {
-	return u.Update(func(s *TraitUpsert) {
-		s.SetWeight(v)
-	})
-}
-
-// AddWeight adds v to the "weight" field.
-func (u *TraitUpsertBulk) AddWeight(v int) *TraitUpsertBulk {
-	return u.Update(func(s *TraitUpsert) {
-		s.AddWeight(v)
-	})
-}
-
-// UpdateWeight sets the "weight" field to the value that was provided on create.
-func (u *TraitUpsertBulk) UpdateWeight() *TraitUpsertBulk {
-	return u.Update(func(s *TraitUpsert) {
-		s.UpdateWeight()
+		s.UpdateRarityID()
 	})
 }
 

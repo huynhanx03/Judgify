@@ -30,8 +30,7 @@ func (Problem) Fields() []ent.Field {
 			MaxLen(300),
 		field.Text("description").
 			NotEmpty(),
-		field.Enum("difficulty").
-			Values("easy", "medium", "hard"),
+		field.Int("difficulty_id"),
 		field.Int("time_limit_ms").
 			Default(1000),
 		field.Int("memory_limit_kb").
@@ -46,6 +45,7 @@ func (Problem) Fields() []ent.Field {
 func (Problem) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("author", User.Type).Ref("problems").Field("author_id").Unique().Required(),
+		edge.From("difficulty", Difficulty.Type).Ref("problems").Field("difficulty_id").Unique().Required(),
 		edge.To("test_cases", TestCase.Type),
 		edge.To("tags", Tag.Type),
 	}

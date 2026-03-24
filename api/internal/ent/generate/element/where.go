@@ -475,6 +475,29 @@ func DescriptionContainsFold(v string) predicate.Element {
 	return predicate.Element(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// HasTags applies the HasEdge predicate on the "tags" edge.
+func HasTags() predicate.Element {
+	return predicate.Element(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, TagsTable, TagsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTagsWith applies the HasEdge predicate on the "tags" edge with a given conditions (other predicates).
+func HasTagsWith(preds ...predicate.Tag) predicate.Element {
+	return predicate.Element(func(s *sql.Selector) {
+		step := newTagsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUserElementExps applies the HasEdge predicate on the "user_element_exps" edge.
 func HasUserElementExps() predicate.Element {
 	return predicate.Element(func(s *sql.Selector) {

@@ -28,18 +28,25 @@ const (
 	FieldType = "type"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldRarity holds the string denoting the rarity field in the database.
-	FieldRarity = "rarity"
-	// FieldWeight holds the string denoting the weight field in the database.
-	FieldWeight = "weight"
+	// FieldRarityID holds the string denoting the rarity_id field in the database.
+	FieldRarityID = "rarity_id"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// EdgeRarity holds the string denoting the rarity edge name in mutations.
+	EdgeRarity = "rarity"
 	// EdgeUserTraits holds the string denoting the user_traits edge name in mutations.
 	EdgeUserTraits = "user_traits"
 	// Table holds the table name of the trait in the database.
 	Table = "traits"
+	// RarityTable is the table that holds the rarity relation/edge.
+	RarityTable = "traits"
+	// RarityInverseTable is the table name for the Rarity entity.
+	// It exists in this package in order to avoid circular dependency with the "rarity" package.
+	RarityInverseTable = "rarities"
+	// RarityColumn is the table column denoting the rarity relation/edge.
+	RarityColumn = "rarity_id"
 	// UserTraitsTable is the table that holds the user_traits relation/edge.
 	UserTraitsTable = "user_traits"
 	// UserTraitsInverseTable is the table name for the UserTrait entity.
@@ -58,8 +65,7 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldType,
 	FieldName,
-	FieldRarity,
-	FieldWeight,
+	FieldRarityID,
 	FieldDescription,
 	FieldMetadata,
 }
@@ -90,10 +96,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// DefaultWeight holds the default value on creation for the "weight" field.
-	DefaultWeight int
-	// WeightValidator is a validator for the "weight" field. It is called by the builders before save.
-	WeightValidator func(int) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
 )
@@ -118,34 +120,6 @@ func TypeValidator(_type Type) error {
 		return nil
 	default:
 		return fmt.Errorf("trait: invalid enum value for type field: %q", _type)
-	}
-}
-
-// Rarity defines the type for the "rarity" enum field.
-type Rarity string
-
-// RarityMortal is the default value of the Rarity enum.
-const DefaultRarity = RarityMortal
-
-// Rarity values.
-const (
-	RarityMortal Rarity = "mortal"
-	RarityEarth  Rarity = "earth"
-	RarityHeaven Rarity = "heaven"
-	RarityDivine Rarity = "divine"
-)
-
-func (r Rarity) String() string {
-	return string(r)
-}
-
-// RarityValidator is a validator for the "rarity" field enum values. It is called by the builders before save.
-func RarityValidator(r Rarity) error {
-	switch r {
-	case RarityMortal, RarityEarth, RarityHeaven, RarityDivine:
-		return nil
-	default:
-		return fmt.Errorf("trait: invalid enum value for rarity field: %q", r)
 	}
 }
 
@@ -187,19 +161,21 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByRarity orders the results by the rarity field.
-func ByRarity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRarity, opts...).ToFunc()
-}
-
-// ByWeight orders the results by the weight field.
-func ByWeight(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldWeight, opts...).ToFunc()
+// ByRarityID orders the results by the rarity_id field.
+func ByRarityID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRarityID, opts...).ToFunc()
 }
 
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByRarityField orders the results by rarity field.
+func ByRarityField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRarityStep(), sql.OrderByField(field, opts...))
+	}
 }
 
 // ByUserTraitsCount orders the results by user_traits count.
@@ -214,6 +190,13 @@ func ByUserTraits(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newUserTraitsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newRarityStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RarityInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, RarityTable, RarityColumn),
+	)
 }
 func newUserTraitsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

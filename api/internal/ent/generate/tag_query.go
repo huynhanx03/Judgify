@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -26,6 +27,7 @@ type TagQuery struct {
 	inters       []Interceptor
 	predicates   []predicate.Tag
 	withProblems *ProblemQuery
+	withElements *ElementQuery
 	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -78,6 +80,28 @@ func (_q *TagQuery) QueryProblems() *ProblemQuery {
 			sqlgraph.From(tag.Table, tag.FieldID, selector),
 			sqlgraph.To(problem.Table, problem.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, tag.ProblemsTable, tag.ProblemsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryElements chains the current query on the "elements" edge.
+func (_q *TagQuery) QueryElements() *ElementQuery {
+	query := (&ElementClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, selector),
+			sqlgraph.To(element.Table, element.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, tag.ElementsTable, tag.ElementsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -278,6 +302,7 @@ func (_q *TagQuery) Clone() *TagQuery {
 		inters:       append([]Interceptor{}, _q.inters...),
 		predicates:   append([]predicate.Tag{}, _q.predicates...),
 		withProblems: _q.withProblems.Clone(),
+		withElements: _q.withElements.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -293,6 +318,17 @@ func (_q *TagQuery) WithProblems(opts ...func(*ProblemQuery)) *TagQuery {
 		opt(query)
 	}
 	_q.withProblems = query
+	return _q
+}
+
+// WithElements tells the query-builder to eager-load the nodes that are connected to
+// the "elements" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TagQuery) WithElements(opts ...func(*ElementQuery)) *TagQuery {
+	query := (&ElementClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withElements = query
 	return _q
 }
 
@@ -374,8 +410,9 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 	var (
 		nodes       = []*Tag{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withProblems != nil,
+			_q.withElements != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -403,6 +440,13 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 		if err := _q.loadProblems(ctx, query, nodes,
 			func(n *Tag) { n.Edges.Problems = []*Problem{} },
 			func(n *Tag, e *Problem) { n.Edges.Problems = append(n.Edges.Problems, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withElements; query != nil {
+		if err := _q.loadElements(ctx, query, nodes,
+			func(n *Tag) { n.Edges.Elements = []*Element{} },
+			func(n *Tag, e *Element) { n.Edges.Elements = append(n.Edges.Elements, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -463,6 +507,67 @@ func (_q *TagQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes
 		nodes, ok := nids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected "problems" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (_q *TagQuery) loadElements(ctx context.Context, query *ElementQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *Element)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Tag)
+	nids := make(map[int]map[*Tag]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(tag.ElementsTable)
+		s.Join(joinT).On(s.C(element.FieldID), joinT.C(tag.ElementsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(tag.ElementsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(tag.ElementsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Tag]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Element](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "elements" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

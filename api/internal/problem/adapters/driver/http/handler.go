@@ -8,9 +8,10 @@ import (
 )
 
 type ProblemHandlerGroup struct {
-	ProblemHandler  ProblemHandler
-	TestCaseHandler TestCaseHandler
-	TagHandler      TagHandler
+	ProblemHandler    ProblemHandler
+	TestCaseHandler   TestCaseHandler
+	TagHandler        TagHandler
+	DifficultyHandler DifficultyHandler
 }
 
 func (h *ProblemHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.PermissionChecker) {
@@ -43,5 +44,15 @@ func (h *ProblemHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker 
 		tags.POST("", permChecker.RequirePermission(permissions.ResourceKeyTag, permissions.PermissionScopeCreate), handler.Wrap(h.TagHandler.Create))
 		tags.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyTag, permissions.PermissionScopeUpdate), handler.Wrap(h.TagHandler.Update))
 		tags.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyTag, permissions.PermissionScopeDelete), handler.Wrap(h.TagHandler.Delete))
+	}
+
+	// Difficulties
+	difficulties := r.Group("/difficulties")
+	{
+		difficulties.POST("/find", handler.Wrap(h.DifficultyHandler.Find))
+		difficulties.GET("/:id", handler.Wrap(h.DifficultyHandler.Get))
+		difficulties.POST("", permChecker.RequirePermission(permissions.ResourceKeyDifficulty, permissions.PermissionScopeCreate), handler.Wrap(h.DifficultyHandler.Create))
+		difficulties.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyDifficulty, permissions.PermissionScopeUpdate), handler.Wrap(h.DifficultyHandler.Update))
+		difficulties.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyDifficulty, permissions.PermissionScopeDelete), handler.Wrap(h.DifficultyHandler.Delete))
 	}
 }

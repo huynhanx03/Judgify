@@ -348,6 +348,29 @@ func HasProblemsWith(preds ...predicate.Problem) predicate.Tag {
 	})
 }
 
+// HasElements applies the HasEdge predicate on the "elements" edge.
+func HasElements() predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, ElementsTable, ElementsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasElementsWith applies the HasEdge predicate on the "elements" edge with a given conditions (other predicates).
+func HasElementsWith(preds ...predicate.Element) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		step := newElementsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Tag) predicate.Tag {
 	return predicate.Tag(sql.AndPredicates(predicates...))

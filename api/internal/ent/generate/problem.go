@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -30,8 +31,8 @@ type Problem struct {
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// Difficulty holds the value of the "difficulty" field.
-	Difficulty problem.Difficulty `json:"difficulty,omitempty"`
+	// DifficultyID holds the value of the "difficulty_id" field.
+	DifficultyID int `json:"difficulty_id,omitempty"`
 	// TimeLimitMs holds the value of the "time_limit_ms" field.
 	TimeLimitMs int `json:"time_limit_ms,omitempty"`
 	// MemoryLimitKB holds the value of the "memory_limit_kb" field.
@@ -50,13 +51,15 @@ type Problem struct {
 type ProblemEdges struct {
 	// Author holds the value of the author edge.
 	Author *User `json:"author,omitempty"`
+	// Difficulty holds the value of the difficulty edge.
+	Difficulty *Difficulty `json:"difficulty,omitempty"`
 	// TestCases holds the value of the test_cases edge.
 	TestCases []*TestCase `json:"test_cases,omitempty"`
 	// Tags holds the value of the tags edge.
 	Tags []*Tag `json:"tags,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -70,10 +73,21 @@ func (e ProblemEdges) AuthorOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "author"}
 }
 
+// DifficultyOrErr returns the Difficulty value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProblemEdges) DifficultyOrErr() (*Difficulty, error) {
+	if e.Difficulty != nil {
+		return e.Difficulty, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: difficulty.Label}
+	}
+	return nil, &NotLoadedError{edge: "difficulty"}
+}
+
 // TestCasesOrErr returns the TestCases value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) TestCasesOrErr() ([]*TestCase, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.TestCases, nil
 	}
 	return nil, &NotLoadedError{edge: "test_cases"}
@@ -82,7 +96,7 @@ func (e ProblemEdges) TestCasesOrErr() ([]*TestCase, error) {
 // TagsOrErr returns the Tags value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) TagsOrErr() ([]*Tag, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.Tags, nil
 	}
 	return nil, &NotLoadedError{edge: "tags"}
@@ -95,9 +109,9 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problem.FieldIsPublished:
 			values[i] = new(sql.NullBool)
-		case problem.FieldID, problem.FieldDeletedBy, problem.FieldTimeLimitMs, problem.FieldMemoryLimitKB, problem.FieldAuthorID:
+		case problem.FieldID, problem.FieldDeletedBy, problem.FieldDifficultyID, problem.FieldTimeLimitMs, problem.FieldMemoryLimitKB, problem.FieldAuthorID:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldTitle, problem.FieldDescription, problem.FieldDifficulty:
+		case problem.FieldTitle, problem.FieldDescription:
 			values[i] = new(sql.NullString)
 		case problem.FieldCreatedAt, problem.FieldUpdatedAt, problem.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -160,11 +174,11 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = value.String
 			}
-		case problem.FieldDifficulty:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field difficulty", values[i])
+		case problem.FieldDifficultyID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field difficulty_id", values[i])
 			} else if value.Valid {
-				_m.Difficulty = problem.Difficulty(value.String)
+				_m.DifficultyID = int(value.Int64)
 			}
 		case problem.FieldTimeLimitMs:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -206,6 +220,11 @@ func (_m *Problem) Value(name string) (ent.Value, error) {
 // QueryAuthor queries the "author" edge of the Problem entity.
 func (_m *Problem) QueryAuthor() *UserQuery {
 	return NewProblemClient(_m.config).QueryAuthor(_m)
+}
+
+// QueryDifficulty queries the "difficulty" edge of the Problem entity.
+func (_m *Problem) QueryDifficulty() *DifficultyQuery {
+	return NewProblemClient(_m.config).QueryDifficulty(_m)
 }
 
 // QueryTestCases queries the "test_cases" edge of the Problem entity.
@@ -263,8 +282,8 @@ func (_m *Problem) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
-	builder.WriteString("difficulty=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Difficulty))
+	builder.WriteString("difficulty_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DifficultyID))
 	builder.WriteString(", ")
 	builder.WriteString("time_limit_ms=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TimeLimitMs))

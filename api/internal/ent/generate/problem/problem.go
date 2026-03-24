@@ -3,7 +3,6 @@
 package problem
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent"
@@ -28,8 +27,8 @@ const (
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldDifficulty holds the string denoting the difficulty field in the database.
-	FieldDifficulty = "difficulty"
+	// FieldDifficultyID holds the string denoting the difficulty_id field in the database.
+	FieldDifficultyID = "difficulty_id"
 	// FieldTimeLimitMs holds the string denoting the time_limit_ms field in the database.
 	FieldTimeLimitMs = "time_limit_ms"
 	// FieldMemoryLimitKB holds the string denoting the memory_limit_kb field in the database.
@@ -40,6 +39,8 @@ const (
 	FieldIsPublished = "is_published"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
+	// EdgeDifficulty holds the string denoting the difficulty edge name in mutations.
+	EdgeDifficulty = "difficulty"
 	// EdgeTestCases holds the string denoting the test_cases edge name in mutations.
 	EdgeTestCases = "test_cases"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
@@ -53,6 +54,13 @@ const (
 	AuthorInverseTable = "users"
 	// AuthorColumn is the table column denoting the author relation/edge.
 	AuthorColumn = "author_id"
+	// DifficultyTable is the table that holds the difficulty relation/edge.
+	DifficultyTable = "problems"
+	// DifficultyInverseTable is the table name for the Difficulty entity.
+	// It exists in this package in order to avoid circular dependency with the "difficulty" package.
+	DifficultyInverseTable = "difficulties"
+	// DifficultyColumn is the table column denoting the difficulty relation/edge.
+	DifficultyColumn = "difficulty_id"
 	// TestCasesTable is the table that holds the test_cases relation/edge.
 	TestCasesTable = "test_cases"
 	// TestCasesInverseTable is the table name for the TestCase entity.
@@ -76,7 +84,7 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldTitle,
 	FieldDescription,
-	FieldDifficulty,
+	FieldDifficultyID,
 	FieldTimeLimitMs,
 	FieldMemoryLimitKB,
 	FieldAuthorID,
@@ -125,30 +133,6 @@ var (
 	DefaultIsPublished bool
 )
 
-// Difficulty defines the type for the "difficulty" enum field.
-type Difficulty string
-
-// Difficulty values.
-const (
-	DifficultyEasy   Difficulty = "easy"
-	DifficultyMedium Difficulty = "medium"
-	DifficultyHard   Difficulty = "hard"
-)
-
-func (d Difficulty) String() string {
-	return string(d)
-}
-
-// DifficultyValidator is a validator for the "difficulty" field enum values. It is called by the builders before save.
-func DifficultyValidator(d Difficulty) error {
-	switch d {
-	case DifficultyEasy, DifficultyMedium, DifficultyHard:
-		return nil
-	default:
-		return fmt.Errorf("problem: invalid enum value for difficulty field: %q", d)
-	}
-}
-
 // OrderOption defines the ordering options for the Problem queries.
 type OrderOption func(*sql.Selector)
 
@@ -187,9 +171,9 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByDifficulty orders the results by the difficulty field.
-func ByDifficulty(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDifficulty, opts...).ToFunc()
+// ByDifficultyID orders the results by the difficulty_id field.
+func ByDifficultyID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDifficultyID, opts...).ToFunc()
 }
 
 // ByTimeLimitMs orders the results by the time_limit_ms field.
@@ -216,6 +200,13 @@ func ByIsPublished(opts ...sql.OrderTermOption) OrderOption {
 func ByAuthorField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newAuthorStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByDifficultyField orders the results by difficulty field.
+func ByDifficultyField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDifficultyStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -251,6 +242,13 @@ func newAuthorStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AuthorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AuthorTable, AuthorColumn),
+	)
+}
+func newDifficultyStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DifficultyInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DifficultyTable, DifficultyColumn),
 	)
 }
 func newTestCasesStep() *sqlgraph.Step {

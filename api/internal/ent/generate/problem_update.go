@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -113,16 +114,16 @@ func (_u *ProblemUpdate) SetNillableDescription(v *string) *ProblemUpdate {
 	return _u
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (_u *ProblemUpdate) SetDifficulty(v problem.Difficulty) *ProblemUpdate {
-	_u.mutation.SetDifficulty(v)
+// SetDifficultyID sets the "difficulty_id" field.
+func (_u *ProblemUpdate) SetDifficultyID(v int) *ProblemUpdate {
+	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
-// SetNillableDifficulty sets the "difficulty" field if the given value is not nil.
-func (_u *ProblemUpdate) SetNillableDifficulty(v *problem.Difficulty) *ProblemUpdate {
+// SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableDifficultyID(v *int) *ProblemUpdate {
 	if v != nil {
-		_u.SetDifficulty(*v)
+		_u.SetDifficultyID(*v)
 	}
 	return _u
 }
@@ -202,6 +203,11 @@ func (_u *ProblemUpdate) SetAuthor(v *User) *ProblemUpdate {
 	return _u.SetAuthorID(v.ID)
 }
 
+// SetDifficulty sets the "difficulty" edge to the Difficulty entity.
+func (_u *ProblemUpdate) SetDifficulty(v *Difficulty) *ProblemUpdate {
+	return _u.SetDifficultyID(v.ID)
+}
+
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by IDs.
 func (_u *ProblemUpdate) AddTestCaseIDs(ids ...int) *ProblemUpdate {
 	_u.mutation.AddTestCaseIDs(ids...)
@@ -240,6 +246,12 @@ func (_u *ProblemUpdate) Mutation() *ProblemMutation {
 // ClearAuthor clears the "author" edge to the User entity.
 func (_u *ProblemUpdate) ClearAuthor() *ProblemUpdate {
 	_u.mutation.ClearAuthor()
+	return _u
+}
+
+// ClearDifficulty clears the "difficulty" edge to the Difficulty entity.
+func (_u *ProblemUpdate) ClearDifficulty() *ProblemUpdate {
+	_u.mutation.ClearDifficulty()
 	return _u
 }
 
@@ -339,13 +351,11 @@ func (_u *ProblemUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Problem.description": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Difficulty(); ok {
-		if err := problem.DifficultyValidator(v); err != nil {
-			return &ValidationError{Name: "difficulty", err: fmt.Errorf(`generate: validator failed for field "Problem.difficulty": %w`, err)}
-		}
-	}
 	if _u.mutation.AuthorCleared() && len(_u.mutation.AuthorIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Problem.author"`)
+	}
+	if _u.mutation.DifficultyCleared() && len(_u.mutation.DifficultyIDs()) > 0 {
+		return errors.New(`generate: clearing a required unique edge "Problem.difficulty"`)
 	}
 	return nil
 }
@@ -392,9 +402,6 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(problem.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Difficulty(); ok {
-		_spec.SetField(problem.FieldDifficulty, field.TypeEnum, value)
-	}
 	if value, ok := _u.mutation.TimeLimitMs(); ok {
 		_spec.SetField(problem.FieldTimeLimitMs, field.TypeInt, value)
 	}
@@ -432,6 +439,35 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DifficultyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.DifficultyTable,
+			Columns: []string{problem.DifficultyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DifficultyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.DifficultyTable,
+			Columns: []string{problem.DifficultyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -632,16 +668,16 @@ func (_u *ProblemUpdateOne) SetNillableDescription(v *string) *ProblemUpdateOne 
 	return _u
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (_u *ProblemUpdateOne) SetDifficulty(v problem.Difficulty) *ProblemUpdateOne {
-	_u.mutation.SetDifficulty(v)
+// SetDifficultyID sets the "difficulty_id" field.
+func (_u *ProblemUpdateOne) SetDifficultyID(v int) *ProblemUpdateOne {
+	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
-// SetNillableDifficulty sets the "difficulty" field if the given value is not nil.
-func (_u *ProblemUpdateOne) SetNillableDifficulty(v *problem.Difficulty) *ProblemUpdateOne {
+// SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableDifficultyID(v *int) *ProblemUpdateOne {
 	if v != nil {
-		_u.SetDifficulty(*v)
+		_u.SetDifficultyID(*v)
 	}
 	return _u
 }
@@ -721,6 +757,11 @@ func (_u *ProblemUpdateOne) SetAuthor(v *User) *ProblemUpdateOne {
 	return _u.SetAuthorID(v.ID)
 }
 
+// SetDifficulty sets the "difficulty" edge to the Difficulty entity.
+func (_u *ProblemUpdateOne) SetDifficulty(v *Difficulty) *ProblemUpdateOne {
+	return _u.SetDifficultyID(v.ID)
+}
+
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by IDs.
 func (_u *ProblemUpdateOne) AddTestCaseIDs(ids ...int) *ProblemUpdateOne {
 	_u.mutation.AddTestCaseIDs(ids...)
@@ -759,6 +800,12 @@ func (_u *ProblemUpdateOne) Mutation() *ProblemMutation {
 // ClearAuthor clears the "author" edge to the User entity.
 func (_u *ProblemUpdateOne) ClearAuthor() *ProblemUpdateOne {
 	_u.mutation.ClearAuthor()
+	return _u
+}
+
+// ClearDifficulty clears the "difficulty" edge to the Difficulty entity.
+func (_u *ProblemUpdateOne) ClearDifficulty() *ProblemUpdateOne {
+	_u.mutation.ClearDifficulty()
 	return _u
 }
 
@@ -871,13 +918,11 @@ func (_u *ProblemUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Problem.description": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Difficulty(); ok {
-		if err := problem.DifficultyValidator(v); err != nil {
-			return &ValidationError{Name: "difficulty", err: fmt.Errorf(`generate: validator failed for field "Problem.difficulty": %w`, err)}
-		}
-	}
 	if _u.mutation.AuthorCleared() && len(_u.mutation.AuthorIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Problem.author"`)
+	}
+	if _u.mutation.DifficultyCleared() && len(_u.mutation.DifficultyIDs()) > 0 {
+		return errors.New(`generate: clearing a required unique edge "Problem.difficulty"`)
 	}
 	return nil
 }
@@ -941,9 +986,6 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(problem.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Difficulty(); ok {
-		_spec.SetField(problem.FieldDifficulty, field.TypeEnum, value)
-	}
 	if value, ok := _u.mutation.TimeLimitMs(); ok {
 		_spec.SetField(problem.FieldTimeLimitMs, field.TypeInt, value)
 	}
@@ -981,6 +1023,35 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DifficultyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.DifficultyTable,
+			Columns: []string{problem.DifficultyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DifficultyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.DifficultyTable,
+			Columns: []string{problem.DifficultyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

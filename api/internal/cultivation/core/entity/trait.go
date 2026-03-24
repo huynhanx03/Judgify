@@ -16,8 +16,7 @@ type Trait struct {
 	ID          int                    `json:"id"`
 	Type        string                 `json:"type"`
 	Name        string                 `json:"name"`
-	Rarity      string                 `json:"rarity"`
-	Weight      int                    `json:"weight"`
+	RarityID    int                    `json:"rarity_id"`
 	Description string                 `json:"description"`
 	Metadata    map[string]interface{} `json:"metadata"`
 	CreatedAt   time.Time              `json:"created_at"`

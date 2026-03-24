@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
 )
 
@@ -25,6 +26,7 @@ type ElementQuery struct {
 	order               []element.OrderOption
 	inters              []Interceptor
 	predicates          []predicate.Element
+	withTags            *TagQuery
 	withUserElementExps *UserElementExpQuery
 	modifiers           []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -61,6 +63,28 @@ func (_q *ElementQuery) Unique(unique bool) *ElementQuery {
 func (_q *ElementQuery) Order(o ...element.OrderOption) *ElementQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryTags chains the current query on the "tags" edge.
+func (_q *ElementQuery) QueryTags() *TagQuery {
+	query := (&TagClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(element.Table, element.FieldID, selector),
+			sqlgraph.To(tag.Table, tag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, element.TagsTable, element.TagsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryUserElementExps chains the current query on the "user_element_exps" edge.
@@ -277,12 +301,24 @@ func (_q *ElementQuery) Clone() *ElementQuery {
 		order:               append([]element.OrderOption{}, _q.order...),
 		inters:              append([]Interceptor{}, _q.inters...),
 		predicates:          append([]predicate.Element{}, _q.predicates...),
+		withTags:            _q.withTags.Clone(),
 		withUserElementExps: _q.withUserElementExps.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
+}
+
+// WithTags tells the query-builder to eager-load the nodes that are connected to
+// the "tags" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ElementQuery) WithTags(opts ...func(*TagQuery)) *ElementQuery {
+	query := (&TagClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTags = query
+	return _q
 }
 
 // WithUserElementExps tells the query-builder to eager-load the nodes that are connected to
@@ -374,7 +410,8 @@ func (_q *ElementQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Elem
 	var (
 		nodes       = []*Element{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
+			_q.withTags != nil,
 			_q.withUserElementExps != nil,
 		}
 	)
@@ -399,6 +436,13 @@ func (_q *ElementQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Elem
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withTags; query != nil {
+		if err := _q.loadTags(ctx, query, nodes,
+			func(n *Element) { n.Edges.Tags = []*Tag{} },
+			func(n *Element, e *Tag) { n.Edges.Tags = append(n.Edges.Tags, e) }); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withUserElementExps; query != nil {
 		if err := _q.loadUserElementExps(ctx, query, nodes,
 			func(n *Element) { n.Edges.UserElementExps = []*UserElementExp{} },
@@ -414,6 +458,67 @@ func (_q *ElementQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Elem
 	return nodes, nil
 }
 
+func (_q *ElementQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*Element, init func(*Element), assign func(*Element, *Tag)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Element)
+	nids := make(map[int]map[*Element]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(element.TagsTable)
+		s.Join(joinT).On(s.C(tag.FieldID), joinT.C(element.TagsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(element.TagsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(element.TagsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Element]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Tag](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "tags" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
 func (_q *ElementQuery) loadUserElementExps(ctx context.Context, query *UserElementExpQuery, nodes []*Element, init func(*Element), assign func(*Element, *UserElementExp)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Element)

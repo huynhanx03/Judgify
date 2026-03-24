@@ -18,6 +18,8 @@ type Tx struct {
 	AttributeDefinition *AttributeDefinitionClient
 	// Credential is the client for interacting with the Credential builders.
 	Credential *CredentialClient
+	// Difficulty is the client for interacting with the Difficulty builders.
+	Difficulty *DifficultyClient
 	// Element is the client for interacting with the Element builders.
 	Element *ElementClient
 	// FederatedIdentity is the client for interacting with the FederatedIdentity builders.
@@ -30,6 +32,8 @@ type Tx struct {
 	Problem *ProblemClient
 	// Rank is the client for interacting with the Rank builders.
 	Rank *RankClient
+	// Rarity is the client for interacting with the Rarity builders.
+	Rarity *RarityClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
@@ -183,12 +187,14 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AttributeDefinition = NewAttributeDefinitionClient(tx.config)
 	tx.Credential = NewCredentialClient(tx.config)
+	tx.Difficulty = NewDifficultyClient(tx.config)
 	tx.Element = NewElementClient(tx.config)
 	tx.FederatedIdentity = NewFederatedIdentityClient(tx.config)
 	tx.Level = NewLevelClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)
 	tx.Rank = NewRankClient(tx.config)
+	tx.Rarity = NewRarityClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)

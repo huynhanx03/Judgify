@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 )
 
@@ -30,10 +31,8 @@ type Trait struct {
 	Type trait.Type `json:"type,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Rarity holds the value of the "rarity" field.
-	Rarity trait.Rarity `json:"rarity,omitempty"`
-	// Gacha weight, higher = more likely
-	Weight int `json:"weight,omitempty"`
+	// RarityID holds the value of the "rarity_id" field.
+	RarityID int `json:"rarity_id,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Buff config: {type, value, target_scope, target_elements, daily_limit}
@@ -46,17 +45,30 @@ type Trait struct {
 
 // TraitEdges holds the relations/edges for other nodes in the graph.
 type TraitEdges struct {
+	// Rarity holds the value of the rarity edge.
+	Rarity *Rarity `json:"rarity,omitempty"`
 	// UserTraits holds the value of the user_traits edge.
 	UserTraits []*UserTrait `json:"user_traits,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
+}
+
+// RarityOrErr returns the Rarity value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TraitEdges) RarityOrErr() (*Rarity, error) {
+	if e.Rarity != nil {
+		return e.Rarity, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: rarity.Label}
+	}
+	return nil, &NotLoadedError{edge: "rarity"}
 }
 
 // UserTraitsOrErr returns the UserTraits value or an error if the edge
 // was not loaded in eager-loading.
 func (e TraitEdges) UserTraitsOrErr() ([]*UserTrait, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.UserTraits, nil
 	}
 	return nil, &NotLoadedError{edge: "user_traits"}
@@ -69,9 +81,9 @@ func (*Trait) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case trait.FieldMetadata:
 			values[i] = new([]byte)
-		case trait.FieldID, trait.FieldDeletedBy, trait.FieldWeight:
+		case trait.FieldID, trait.FieldDeletedBy, trait.FieldRarityID:
 			values[i] = new(sql.NullInt64)
-		case trait.FieldType, trait.FieldName, trait.FieldRarity, trait.FieldDescription:
+		case trait.FieldType, trait.FieldName, trait.FieldDescription:
 			values[i] = new(sql.NullString)
 		case trait.FieldCreatedAt, trait.FieldUpdatedAt, trait.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -134,17 +146,11 @@ func (_m *Trait) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Name = value.String
 			}
-		case trait.FieldRarity:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field rarity", values[i])
-			} else if value.Valid {
-				_m.Rarity = trait.Rarity(value.String)
-			}
-		case trait.FieldWeight:
+		case trait.FieldRarityID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field weight", values[i])
+				return fmt.Errorf("unexpected type %T for field rarity_id", values[i])
 			} else if value.Valid {
-				_m.Weight = int(value.Int64)
+				_m.RarityID = int(value.Int64)
 			}
 		case trait.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -171,6 +177,11 @@ func (_m *Trait) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Trait) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryRarity queries the "rarity" edge of the Trait entity.
+func (_m *Trait) QueryRarity() *RarityQuery {
+	return NewTraitClient(_m.config).QueryRarity(_m)
 }
 
 // QueryUserTraits queries the "user_traits" edge of the Trait entity.
@@ -223,11 +234,8 @@ func (_m *Trait) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
-	builder.WriteString("rarity=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Rarity))
-	builder.WriteString(", ")
-	builder.WriteString("weight=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Weight))
+	builder.WriteString("rarity_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RarityID))
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)

@@ -50,6 +50,24 @@ var (
 			},
 		},
 	}
+	// DifficultiesColumns holds the columns for the "difficulties" table.
+	DifficultiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "level", Type: field.TypeInt, Unique: true},
+		{Name: "exp_reward", Type: field.TypeInt64, Default: 0},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+	}
+	// DifficultiesTable holds the schema information for the "difficulties" table.
+	DifficultiesTable = &schema.Table{
+		Name:       "difficulties",
+		Columns:    DifficultiesColumns,
+		PrimaryKey: []*schema.Column{DifficultiesColumns[0]},
+	}
 	// ElementsColumns holds the columns for the "elements" table.
 	ElementsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -169,10 +187,10 @@ var (
 		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
 		{Name: "title", Type: field.TypeString, Size: 300},
 		{Name: "description", Type: field.TypeString, Size: 2147483647},
-		{Name: "difficulty", Type: field.TypeEnum, Enums: []string{"easy", "medium", "hard"}},
 		{Name: "time_limit_ms", Type: field.TypeInt, Default: 1000},
 		{Name: "memory_limit_kb", Type: field.TypeInt, Default: 262144},
 		{Name: "is_published", Type: field.TypeBool, Default: false},
+		{Name: "difficulty_id", Type: field.TypeInt},
 		{Name: "author_id", Type: field.TypeInt},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
@@ -181,6 +199,12 @@ var (
 		Columns:    ProblemsColumns,
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "problems_difficulties_problems",
+				Columns:    []*schema.Column{ProblemsColumns[10]},
+				RefColumns: []*schema.Column{DifficultiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
 			{
 				Symbol:     "problems_users_problems",
 				Columns:    []*schema.Column{ProblemsColumns[11]},
@@ -205,6 +229,24 @@ var (
 		Name:       "ranks",
 		Columns:    RanksColumns,
 		PrimaryKey: []*schema.Column{RanksColumns[0]},
+	}
+	// RaritiesColumns holds the columns for the "rarities" table.
+	RaritiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "code", Type: field.TypeString, Unique: true, Size: 20},
+		{Name: "weight", Type: field.TypeInt, Default: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+	}
+	// RaritiesTable holds the schema information for the "rarities" table.
+	RaritiesTable = &schema.Table{
+		Name:       "rarities",
+		Columns:    RaritiesColumns,
+		PrimaryKey: []*schema.Column{RaritiesColumns[0]},
 	}
 	// ResourcesColumns holds the columns for the "resources" table.
 	ResourcesColumns = []*schema.Column{
@@ -292,16 +334,23 @@ var (
 		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"root_bone", "talent"}},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
-		{Name: "rarity", Type: field.TypeEnum, Enums: []string{"mortal", "earth", "heaven", "divine"}, Default: "mortal"},
-		{Name: "weight", Type: field.TypeInt, Default: 100},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "rarity_id", Type: field.TypeInt},
 	}
 	// TraitsTable holds the schema information for the "traits" table.
 	TraitsTable = &schema.Table{
 		Name:       "traits",
 		Columns:    TraitsColumns,
 		PrimaryKey: []*schema.Column{TraitsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "traits_rarities_traits",
+				Columns:    []*schema.Column{TraitsColumns[9]},
+				RefColumns: []*schema.Column{RaritiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -504,16 +553,43 @@ var (
 			},
 		},
 	}
+	// TagElementsColumns holds the columns for the "tag_elements" table.
+	TagElementsColumns = []*schema.Column{
+		{Name: "tag_id", Type: field.TypeInt},
+		{Name: "element_id", Type: field.TypeInt},
+	}
+	// TagElementsTable holds the schema information for the "tag_elements" table.
+	TagElementsTable = &schema.Table{
+		Name:       "tag_elements",
+		Columns:    TagElementsColumns,
+		PrimaryKey: []*schema.Column{TagElementsColumns[0], TagElementsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tag_elements_tag_id",
+				Columns:    []*schema.Column{TagElementsColumns[0]},
+				RefColumns: []*schema.Column{TagsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "tag_elements_element_id",
+				Columns:    []*schema.Column{TagElementsColumns[1]},
+				RefColumns: []*schema.Column{ElementsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AttributeDefinitionsTable,
 		CredentialsTable,
+		DifficultiesTable,
 		ElementsTable,
 		FederatedIdentitiesTable,
 		LevelsTable,
 		PermissionsTable,
 		ProblemsTable,
 		RanksTable,
+		RaritiesTable,
 		ResourcesTable,
 		RolesTable,
 		TagsTable,
@@ -525,6 +601,7 @@ var (
 		UserStatsTable,
 		UserTraitsTable,
 		ProblemTagsTable,
+		TagElementsTable,
 	}
 )
 
@@ -533,8 +610,10 @@ func init() {
 	FederatedIdentitiesTable.ForeignKeys[0].RefTable = UsersTable
 	PermissionsTable.ForeignKeys[0].RefTable = ResourcesTable
 	PermissionsTable.ForeignKeys[1].RefTable = RolesTable
-	ProblemsTable.ForeignKeys[0].RefTable = UsersTable
+	ProblemsTable.ForeignKeys[0].RefTable = DifficultiesTable
+	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
 	TestCasesTable.ForeignKeys[0].RefTable = ProblemsTable
+	TraitsTable.ForeignKeys[0].RefTable = RaritiesTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 	UserAttributeValuesTable.ForeignKeys[0].RefTable = AttributeDefinitionsTable
 	UserAttributeValuesTable.ForeignKeys[1].RefTable = UsersTable
@@ -546,4 +625,6 @@ func init() {
 	UserTraitsTable.ForeignKeys[1].RefTable = UsersTable
 	ProblemTagsTable.ForeignKeys[0].RefTable = ProblemsTable
 	ProblemTagsTable.ForeignKeys[1].RefTable = TagsTable
+	TagElementsTable.ForeignKeys[0].RefTable = TagsTable
+	TagElementsTable.ForeignKeys[1].RefTable = ElementsTable
 }

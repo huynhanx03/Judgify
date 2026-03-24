@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
@@ -20,6 +21,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
@@ -43,12 +45,14 @@ const (
 	// Node types.
 	TypeAttributeDefinition = "AttributeDefinition"
 	TypeCredential          = "Credential"
+	TypeDifficulty          = "Difficulty"
 	TypeElement             = "Element"
 	TypeFederatedIdentity   = "FederatedIdentity"
 	TypeLevel               = "Level"
 	TypePermission          = "Permission"
 	TypeProblem             = "Problem"
 	TypeRank                = "Rank"
+	TypeRarity              = "Rarity"
 	TypeResource            = "Resource"
 	TypeRole                = "Role"
 	TypeTag                 = "Tag"
@@ -1683,6 +1687,966 @@ func (m *CredentialMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Credential edge %s", name)
 }
 
+// DifficultyMutation represents an operation that mutates the Difficulty nodes in the graph.
+type DifficultyMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	created_at      *time.Time
+	updated_at      *time.Time
+	deleted_at      *time.Time
+	deleted_by      *int
+	adddeleted_by   *int
+	name            *string
+	level           *int
+	addlevel        *int
+	exp_reward      *int64
+	addexp_reward   *int64
+	description     *string
+	clearedFields   map[string]struct{}
+	problems        map[int]struct{}
+	removedproblems map[int]struct{}
+	clearedproblems bool
+	done            bool
+	oldValue        func(context.Context) (*Difficulty, error)
+	predicates      []predicate.Difficulty
+}
+
+var _ ent.Mutation = (*DifficultyMutation)(nil)
+
+// difficultyOption allows management of the mutation configuration using functional options.
+type difficultyOption func(*DifficultyMutation)
+
+// newDifficultyMutation creates new mutation for the Difficulty entity.
+func newDifficultyMutation(c config, op Op, opts ...difficultyOption) *DifficultyMutation {
+	m := &DifficultyMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDifficulty,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDifficultyID sets the ID field of the mutation.
+func withDifficultyID(id int) difficultyOption {
+	return func(m *DifficultyMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Difficulty
+		)
+		m.oldValue = func(ctx context.Context) (*Difficulty, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Difficulty.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDifficulty sets the old Difficulty of the mutation.
+func withDifficulty(node *Difficulty) difficultyOption {
+	return func(m *DifficultyMutation) {
+		m.oldValue = func(context.Context) (*Difficulty, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DifficultyMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DifficultyMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("generate: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DifficultyMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DifficultyMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Difficulty.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DifficultyMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DifficultyMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DifficultyMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DifficultyMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DifficultyMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DifficultyMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *DifficultyMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *DifficultyMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *DifficultyMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[difficulty.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *DifficultyMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[difficulty.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *DifficultyMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, difficulty.FieldDeletedAt)
+}
+
+// SetDeletedBy sets the "deleted_by" field.
+func (m *DifficultyMutation) SetDeletedBy(i int) {
+	m.deleted_by = &i
+	m.adddeleted_by = nil
+}
+
+// DeletedBy returns the value of the "deleted_by" field in the mutation.
+func (m *DifficultyMutation) DeletedBy() (r int, exists bool) {
+	v := m.deleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedBy returns the old "deleted_by" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldDeletedBy(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedBy: %w", err)
+	}
+	return oldValue.DeletedBy, nil
+}
+
+// AddDeletedBy adds i to the "deleted_by" field.
+func (m *DifficultyMutation) AddDeletedBy(i int) {
+	if m.adddeleted_by != nil {
+		*m.adddeleted_by += i
+	} else {
+		m.adddeleted_by = &i
+	}
+}
+
+// AddedDeletedBy returns the value that was added to the "deleted_by" field in this mutation.
+func (m *DifficultyMutation) AddedDeletedBy() (r int, exists bool) {
+	v := m.adddeleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeletedBy clears the value of the "deleted_by" field.
+func (m *DifficultyMutation) ClearDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	m.clearedFields[difficulty.FieldDeletedBy] = struct{}{}
+}
+
+// DeletedByCleared returns if the "deleted_by" field was cleared in this mutation.
+func (m *DifficultyMutation) DeletedByCleared() bool {
+	_, ok := m.clearedFields[difficulty.FieldDeletedBy]
+	return ok
+}
+
+// ResetDeletedBy resets all changes to the "deleted_by" field.
+func (m *DifficultyMutation) ResetDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	delete(m.clearedFields, difficulty.FieldDeletedBy)
+}
+
+// SetName sets the "name" field.
+func (m *DifficultyMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *DifficultyMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *DifficultyMutation) ResetName() {
+	m.name = nil
+}
+
+// SetLevel sets the "level" field.
+func (m *DifficultyMutation) SetLevel(i int) {
+	m.level = &i
+	m.addlevel = nil
+}
+
+// Level returns the value of the "level" field in the mutation.
+func (m *DifficultyMutation) Level() (r int, exists bool) {
+	v := m.level
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLevel returns the old "level" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldLevel(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLevel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLevel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLevel: %w", err)
+	}
+	return oldValue.Level, nil
+}
+
+// AddLevel adds i to the "level" field.
+func (m *DifficultyMutation) AddLevel(i int) {
+	if m.addlevel != nil {
+		*m.addlevel += i
+	} else {
+		m.addlevel = &i
+	}
+}
+
+// AddedLevel returns the value that was added to the "level" field in this mutation.
+func (m *DifficultyMutation) AddedLevel() (r int, exists bool) {
+	v := m.addlevel
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLevel resets all changes to the "level" field.
+func (m *DifficultyMutation) ResetLevel() {
+	m.level = nil
+	m.addlevel = nil
+}
+
+// SetExpReward sets the "exp_reward" field.
+func (m *DifficultyMutation) SetExpReward(i int64) {
+	m.exp_reward = &i
+	m.addexp_reward = nil
+}
+
+// ExpReward returns the value of the "exp_reward" field in the mutation.
+func (m *DifficultyMutation) ExpReward() (r int64, exists bool) {
+	v := m.exp_reward
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpReward returns the old "exp_reward" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldExpReward(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpReward is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpReward requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpReward: %w", err)
+	}
+	return oldValue.ExpReward, nil
+}
+
+// AddExpReward adds i to the "exp_reward" field.
+func (m *DifficultyMutation) AddExpReward(i int64) {
+	if m.addexp_reward != nil {
+		*m.addexp_reward += i
+	} else {
+		m.addexp_reward = &i
+	}
+}
+
+// AddedExpReward returns the value that was added to the "exp_reward" field in this mutation.
+func (m *DifficultyMutation) AddedExpReward() (r int64, exists bool) {
+	v := m.addexp_reward
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetExpReward resets all changes to the "exp_reward" field.
+func (m *DifficultyMutation) ResetExpReward() {
+	m.exp_reward = nil
+	m.addexp_reward = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *DifficultyMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *DifficultyMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Difficulty entity.
+// If the Difficulty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DifficultyMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *DifficultyMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[difficulty.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *DifficultyMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[difficulty.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *DifficultyMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, difficulty.FieldDescription)
+}
+
+// AddProblemIDs adds the "problems" edge to the Problem entity by ids.
+func (m *DifficultyMutation) AddProblemIDs(ids ...int) {
+	if m.problems == nil {
+		m.problems = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.problems[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (m *DifficultyMutation) ClearProblems() {
+	m.clearedproblems = true
+}
+
+// ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
+func (m *DifficultyMutation) ProblemsCleared() bool {
+	return m.clearedproblems
+}
+
+// RemoveProblemIDs removes the "problems" edge to the Problem entity by IDs.
+func (m *DifficultyMutation) RemoveProblemIDs(ids ...int) {
+	if m.removedproblems == nil {
+		m.removedproblems = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.problems, ids[i])
+		m.removedproblems[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProblems returns the removed IDs of the "problems" edge to the Problem entity.
+func (m *DifficultyMutation) RemovedProblemsIDs() (ids []int) {
+	for id := range m.removedproblems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProblemsIDs returns the "problems" edge IDs in the mutation.
+func (m *DifficultyMutation) ProblemsIDs() (ids []int) {
+	for id := range m.problems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProblems resets all changes to the "problems" edge.
+func (m *DifficultyMutation) ResetProblems() {
+	m.problems = nil
+	m.clearedproblems = false
+	m.removedproblems = nil
+}
+
+// Where appends a list predicates to the DifficultyMutation builder.
+func (m *DifficultyMutation) Where(ps ...predicate.Difficulty) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DifficultyMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DifficultyMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Difficulty, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DifficultyMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DifficultyMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Difficulty).
+func (m *DifficultyMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DifficultyMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.created_at != nil {
+		fields = append(fields, difficulty.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, difficulty.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, difficulty.FieldDeletedAt)
+	}
+	if m.deleted_by != nil {
+		fields = append(fields, difficulty.FieldDeletedBy)
+	}
+	if m.name != nil {
+		fields = append(fields, difficulty.FieldName)
+	}
+	if m.level != nil {
+		fields = append(fields, difficulty.FieldLevel)
+	}
+	if m.exp_reward != nil {
+		fields = append(fields, difficulty.FieldExpReward)
+	}
+	if m.description != nil {
+		fields = append(fields, difficulty.FieldDescription)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DifficultyMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case difficulty.FieldCreatedAt:
+		return m.CreatedAt()
+	case difficulty.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case difficulty.FieldDeletedAt:
+		return m.DeletedAt()
+	case difficulty.FieldDeletedBy:
+		return m.DeletedBy()
+	case difficulty.FieldName:
+		return m.Name()
+	case difficulty.FieldLevel:
+		return m.Level()
+	case difficulty.FieldExpReward:
+		return m.ExpReward()
+	case difficulty.FieldDescription:
+		return m.Description()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DifficultyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case difficulty.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case difficulty.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case difficulty.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case difficulty.FieldDeletedBy:
+		return m.OldDeletedBy(ctx)
+	case difficulty.FieldName:
+		return m.OldName(ctx)
+	case difficulty.FieldLevel:
+		return m.OldLevel(ctx)
+	case difficulty.FieldExpReward:
+		return m.OldExpReward(ctx)
+	case difficulty.FieldDescription:
+		return m.OldDescription(ctx)
+	}
+	return nil, fmt.Errorf("unknown Difficulty field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DifficultyMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case difficulty.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case difficulty.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case difficulty.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case difficulty.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedBy(v)
+		return nil
+	case difficulty.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case difficulty.FieldLevel:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLevel(v)
+		return nil
+	case difficulty.FieldExpReward:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpReward(v)
+		return nil
+	case difficulty.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Difficulty field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DifficultyMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_by != nil {
+		fields = append(fields, difficulty.FieldDeletedBy)
+	}
+	if m.addlevel != nil {
+		fields = append(fields, difficulty.FieldLevel)
+	}
+	if m.addexp_reward != nil {
+		fields = append(fields, difficulty.FieldExpReward)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DifficultyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case difficulty.FieldDeletedBy:
+		return m.AddedDeletedBy()
+	case difficulty.FieldLevel:
+		return m.AddedLevel()
+	case difficulty.FieldExpReward:
+		return m.AddedExpReward()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DifficultyMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case difficulty.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedBy(v)
+		return nil
+	case difficulty.FieldLevel:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLevel(v)
+		return nil
+	case difficulty.FieldExpReward:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddExpReward(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Difficulty numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DifficultyMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(difficulty.FieldDeletedAt) {
+		fields = append(fields, difficulty.FieldDeletedAt)
+	}
+	if m.FieldCleared(difficulty.FieldDeletedBy) {
+		fields = append(fields, difficulty.FieldDeletedBy)
+	}
+	if m.FieldCleared(difficulty.FieldDescription) {
+		fields = append(fields, difficulty.FieldDescription)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DifficultyMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DifficultyMutation) ClearField(name string) error {
+	switch name {
+	case difficulty.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case difficulty.FieldDeletedBy:
+		m.ClearDeletedBy()
+		return nil
+	case difficulty.FieldDescription:
+		m.ClearDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown Difficulty nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DifficultyMutation) ResetField(name string) error {
+	switch name {
+	case difficulty.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case difficulty.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case difficulty.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case difficulty.FieldDeletedBy:
+		m.ResetDeletedBy()
+		return nil
+	case difficulty.FieldName:
+		m.ResetName()
+		return nil
+	case difficulty.FieldLevel:
+		m.ResetLevel()
+		return nil
+	case difficulty.FieldExpReward:
+		m.ResetExpReward()
+		return nil
+	case difficulty.FieldDescription:
+		m.ResetDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown Difficulty field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DifficultyMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.problems != nil {
+		edges = append(edges, difficulty.EdgeProblems)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DifficultyMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case difficulty.EdgeProblems:
+		ids := make([]ent.Value, 0, len(m.problems))
+		for id := range m.problems {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DifficultyMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedproblems != nil {
+		edges = append(edges, difficulty.EdgeProblems)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DifficultyMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case difficulty.EdgeProblems:
+		ids := make([]ent.Value, 0, len(m.removedproblems))
+		for id := range m.removedproblems {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DifficultyMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedproblems {
+		edges = append(edges, difficulty.EdgeProblems)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DifficultyMutation) EdgeCleared(name string) bool {
+	switch name {
+	case difficulty.EdgeProblems:
+		return m.clearedproblems
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DifficultyMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Difficulty unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DifficultyMutation) ResetEdge(name string) error {
+	switch name {
+	case difficulty.EdgeProblems:
+		m.ResetProblems()
+		return nil
+	}
+	return fmt.Errorf("unknown Difficulty edge %s", name)
+}
+
 // ElementMutation represents an operation that mutates the Element nodes in the graph.
 type ElementMutation struct {
 	config
@@ -1698,6 +2662,9 @@ type ElementMutation struct {
 	code                     *string
 	description              *string
 	clearedFields            map[string]struct{}
+	tags                     map[int]struct{}
+	removedtags              map[int]struct{}
+	clearedtags              bool
 	user_element_exps        map[int]struct{}
 	removeduser_element_exps map[int]struct{}
 	cleareduser_element_exps bool
@@ -2116,6 +3083,60 @@ func (m *ElementMutation) ResetDescription() {
 	delete(m.clearedFields, element.FieldDescription)
 }
 
+// AddTagIDs adds the "tags" edge to the Tag entity by ids.
+func (m *ElementMutation) AddTagIDs(ids ...int) {
+	if m.tags == nil {
+		m.tags = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.tags[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTags clears the "tags" edge to the Tag entity.
+func (m *ElementMutation) ClearTags() {
+	m.clearedtags = true
+}
+
+// TagsCleared reports if the "tags" edge to the Tag entity was cleared.
+func (m *ElementMutation) TagsCleared() bool {
+	return m.clearedtags
+}
+
+// RemoveTagIDs removes the "tags" edge to the Tag entity by IDs.
+func (m *ElementMutation) RemoveTagIDs(ids ...int) {
+	if m.removedtags == nil {
+		m.removedtags = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.tags, ids[i])
+		m.removedtags[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTags returns the removed IDs of the "tags" edge to the Tag entity.
+func (m *ElementMutation) RemovedTagsIDs() (ids []int) {
+	for id := range m.removedtags {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TagsIDs returns the "tags" edge IDs in the mutation.
+func (m *ElementMutation) TagsIDs() (ids []int) {
+	for id := range m.tags {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTags resets all changes to the "tags" edge.
+func (m *ElementMutation) ResetTags() {
+	m.tags = nil
+	m.clearedtags = false
+	m.removedtags = nil
+}
+
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by ids.
 func (m *ElementMutation) AddUserElementExpIDs(ids ...int) {
 	if m.user_element_exps == nil {
@@ -2441,7 +3462,10 @@ func (m *ElementMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ElementMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.tags != nil {
+		edges = append(edges, element.EdgeTags)
+	}
 	if m.user_element_exps != nil {
 		edges = append(edges, element.EdgeUserElementExps)
 	}
@@ -2452,6 +3476,12 @@ func (m *ElementMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ElementMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case element.EdgeTags:
+		ids := make([]ent.Value, 0, len(m.tags))
+		for id := range m.tags {
+			ids = append(ids, id)
+		}
+		return ids
 	case element.EdgeUserElementExps:
 		ids := make([]ent.Value, 0, len(m.user_element_exps))
 		for id := range m.user_element_exps {
@@ -2464,7 +3494,10 @@ func (m *ElementMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ElementMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.removedtags != nil {
+		edges = append(edges, element.EdgeTags)
+	}
 	if m.removeduser_element_exps != nil {
 		edges = append(edges, element.EdgeUserElementExps)
 	}
@@ -2475,6 +3508,12 @@ func (m *ElementMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *ElementMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case element.EdgeTags:
+		ids := make([]ent.Value, 0, len(m.removedtags))
+		for id := range m.removedtags {
+			ids = append(ids, id)
+		}
+		return ids
 	case element.EdgeUserElementExps:
 		ids := make([]ent.Value, 0, len(m.removeduser_element_exps))
 		for id := range m.removeduser_element_exps {
@@ -2487,7 +3526,10 @@ func (m *ElementMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ElementMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.clearedtags {
+		edges = append(edges, element.EdgeTags)
+	}
 	if m.cleareduser_element_exps {
 		edges = append(edges, element.EdgeUserElementExps)
 	}
@@ -2498,6 +3540,8 @@ func (m *ElementMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ElementMutation) EdgeCleared(name string) bool {
 	switch name {
+	case element.EdgeTags:
+		return m.clearedtags
 	case element.EdgeUserElementExps:
 		return m.cleareduser_element_exps
 	}
@@ -2516,6 +3560,9 @@ func (m *ElementMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ElementMutation) ResetEdge(name string) error {
 	switch name {
+	case element.EdgeTags:
+		m.ResetTags()
+		return nil
 	case element.EdgeUserElementExps:
 		m.ResetUserElementExps()
 		return nil
@@ -5125,7 +6172,6 @@ type ProblemMutation struct {
 	adddeleted_by      *int
 	title              *string
 	description        *string
-	difficulty         *problem.Difficulty
 	time_limit_ms      *int
 	addtime_limit_ms   *int
 	memory_limit_kb    *int
@@ -5134,6 +6180,8 @@ type ProblemMutation struct {
 	clearedFields      map[string]struct{}
 	author             *int
 	clearedauthor      bool
+	difficulty         *int
+	cleareddifficulty  bool
 	test_cases         map[int]struct{}
 	removedtest_cases  map[int]struct{}
 	clearedtest_cases  bool
@@ -5506,13 +6554,13 @@ func (m *ProblemMutation) ResetDescription() {
 	m.description = nil
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (m *ProblemMutation) SetDifficulty(pr problem.Difficulty) {
-	m.difficulty = &pr
+// SetDifficultyID sets the "difficulty_id" field.
+func (m *ProblemMutation) SetDifficultyID(i int) {
+	m.difficulty = &i
 }
 
-// Difficulty returns the value of the "difficulty" field in the mutation.
-func (m *ProblemMutation) Difficulty() (r problem.Difficulty, exists bool) {
+// DifficultyID returns the value of the "difficulty_id" field in the mutation.
+func (m *ProblemMutation) DifficultyID() (r int, exists bool) {
 	v := m.difficulty
 	if v == nil {
 		return
@@ -5520,25 +6568,25 @@ func (m *ProblemMutation) Difficulty() (r problem.Difficulty, exists bool) {
 	return *v, true
 }
 
-// OldDifficulty returns the old "difficulty" field's value of the Problem entity.
+// OldDifficultyID returns the old "difficulty_id" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldDifficulty(ctx context.Context) (v problem.Difficulty, err error) {
+func (m *ProblemMutation) OldDifficultyID(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDifficulty is only allowed on UpdateOne operations")
+		return v, errors.New("OldDifficultyID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDifficulty requires an ID field in the mutation")
+		return v, errors.New("OldDifficultyID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDifficulty: %w", err)
+		return v, fmt.Errorf("querying old value for OldDifficultyID: %w", err)
 	}
-	return oldValue.Difficulty, nil
+	return oldValue.DifficultyID, nil
 }
 
-// ResetDifficulty resets all changes to the "difficulty" field.
-func (m *ProblemMutation) ResetDifficulty() {
+// ResetDifficultyID resets all changes to the "difficulty_id" field.
+func (m *ProblemMutation) ResetDifficultyID() {
 	m.difficulty = nil
 }
 
@@ -5753,6 +6801,33 @@ func (m *ProblemMutation) ResetAuthor() {
 	m.clearedauthor = false
 }
 
+// ClearDifficulty clears the "difficulty" edge to the Difficulty entity.
+func (m *ProblemMutation) ClearDifficulty() {
+	m.cleareddifficulty = true
+	m.clearedFields[problem.FieldDifficultyID] = struct{}{}
+}
+
+// DifficultyCleared reports if the "difficulty" edge to the Difficulty entity was cleared.
+func (m *ProblemMutation) DifficultyCleared() bool {
+	return m.cleareddifficulty
+}
+
+// DifficultyIDs returns the "difficulty" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DifficultyID instead. It exists only for internal usage by the builders.
+func (m *ProblemMutation) DifficultyIDs() (ids []int) {
+	if id := m.difficulty; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDifficulty resets all changes to the "difficulty" edge.
+func (m *ProblemMutation) ResetDifficulty() {
+	m.difficulty = nil
+	m.cleareddifficulty = false
+}
+
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by ids.
 func (m *ProblemMutation) AddTestCaseIDs(ids ...int) {
 	if m.test_cases == nil {
@@ -5915,7 +6990,7 @@ func (m *ProblemMutation) Fields() []string {
 		fields = append(fields, problem.FieldDescription)
 	}
 	if m.difficulty != nil {
-		fields = append(fields, problem.FieldDifficulty)
+		fields = append(fields, problem.FieldDifficultyID)
 	}
 	if m.time_limit_ms != nil {
 		fields = append(fields, problem.FieldTimeLimitMs)
@@ -5949,8 +7024,8 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case problem.FieldDescription:
 		return m.Description()
-	case problem.FieldDifficulty:
-		return m.Difficulty()
+	case problem.FieldDifficultyID:
+		return m.DifficultyID()
 	case problem.FieldTimeLimitMs:
 		return m.TimeLimitMs()
 	case problem.FieldMemoryLimitKB:
@@ -5980,8 +7055,8 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTitle(ctx)
 	case problem.FieldDescription:
 		return m.OldDescription(ctx)
-	case problem.FieldDifficulty:
-		return m.OldDifficulty(ctx)
+	case problem.FieldDifficultyID:
+		return m.OldDifficultyID(ctx)
 	case problem.FieldTimeLimitMs:
 		return m.OldTimeLimitMs(ctx)
 	case problem.FieldMemoryLimitKB:
@@ -6041,12 +7116,12 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
-	case problem.FieldDifficulty:
-		v, ok := value.(problem.Difficulty)
+	case problem.FieldDifficultyID:
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDifficulty(v)
+		m.SetDifficultyID(v)
 		return nil
 	case problem.FieldTimeLimitMs:
 		v, ok := value.(int)
@@ -6197,8 +7272,8 @@ func (m *ProblemMutation) ResetField(name string) error {
 	case problem.FieldDescription:
 		m.ResetDescription()
 		return nil
-	case problem.FieldDifficulty:
-		m.ResetDifficulty()
+	case problem.FieldDifficultyID:
+		m.ResetDifficultyID()
 		return nil
 	case problem.FieldTimeLimitMs:
 		m.ResetTimeLimitMs()
@@ -6218,9 +7293,12 @@ func (m *ProblemMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProblemMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.author != nil {
 		edges = append(edges, problem.EdgeAuthor)
+	}
+	if m.difficulty != nil {
+		edges = append(edges, problem.EdgeDifficulty)
 	}
 	if m.test_cases != nil {
 		edges = append(edges, problem.EdgeTestCases)
@@ -6237,6 +7315,10 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case problem.EdgeAuthor:
 		if id := m.author; id != nil {
+			return []ent.Value{*id}
+		}
+	case problem.EdgeDifficulty:
+		if id := m.difficulty; id != nil {
 			return []ent.Value{*id}
 		}
 	case problem.EdgeTestCases:
@@ -6257,7 +7339,7 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProblemMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedtest_cases != nil {
 		edges = append(edges, problem.EdgeTestCases)
 	}
@@ -6289,9 +7371,12 @@ func (m *ProblemMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProblemMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedauthor {
 		edges = append(edges, problem.EdgeAuthor)
+	}
+	if m.cleareddifficulty {
+		edges = append(edges, problem.EdgeDifficulty)
 	}
 	if m.clearedtest_cases {
 		edges = append(edges, problem.EdgeTestCases)
@@ -6308,6 +7393,8 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 	switch name {
 	case problem.EdgeAuthor:
 		return m.clearedauthor
+	case problem.EdgeDifficulty:
+		return m.cleareddifficulty
 	case problem.EdgeTestCases:
 		return m.clearedtest_cases
 	case problem.EdgeTags:
@@ -6323,6 +7410,9 @@ func (m *ProblemMutation) ClearEdge(name string) error {
 	case problem.EdgeAuthor:
 		m.ClearAuthor()
 		return nil
+	case problem.EdgeDifficulty:
+		m.ClearDifficulty()
+		return nil
 	}
 	return fmt.Errorf("unknown Problem unique edge %s", name)
 }
@@ -6333,6 +7423,9 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 	switch name {
 	case problem.EdgeAuthor:
 		m.ResetAuthor()
+		return nil
+	case problem.EdgeDifficulty:
+		m.ResetDifficulty()
 		return nil
 	case problem.EdgeTestCases:
 		m.ResetTestCases()
@@ -7122,6 +8215,933 @@ func (m *RankMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *RankMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Rank edge %s", name)
+}
+
+// RarityMutation represents an operation that mutates the Rarity nodes in the graph.
+type RarityMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
+	deleted_by    *int
+	adddeleted_by *int
+	name          *string
+	code          *string
+	weight        *int
+	addweight     *int
+	description   *string
+	clearedFields map[string]struct{}
+	traits        map[int]struct{}
+	removedtraits map[int]struct{}
+	clearedtraits bool
+	done          bool
+	oldValue      func(context.Context) (*Rarity, error)
+	predicates    []predicate.Rarity
+}
+
+var _ ent.Mutation = (*RarityMutation)(nil)
+
+// rarityOption allows management of the mutation configuration using functional options.
+type rarityOption func(*RarityMutation)
+
+// newRarityMutation creates new mutation for the Rarity entity.
+func newRarityMutation(c config, op Op, opts ...rarityOption) *RarityMutation {
+	m := &RarityMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeRarity,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withRarityID sets the ID field of the mutation.
+func withRarityID(id int) rarityOption {
+	return func(m *RarityMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Rarity
+		)
+		m.oldValue = func(ctx context.Context) (*Rarity, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Rarity.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withRarity sets the old Rarity of the mutation.
+func withRarity(node *Rarity) rarityOption {
+	return func(m *RarityMutation) {
+		m.oldValue = func(context.Context) (*Rarity, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m RarityMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m RarityMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("generate: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *RarityMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *RarityMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Rarity.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *RarityMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *RarityMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *RarityMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *RarityMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *RarityMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *RarityMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *RarityMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *RarityMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *RarityMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[rarity.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *RarityMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[rarity.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *RarityMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, rarity.FieldDeletedAt)
+}
+
+// SetDeletedBy sets the "deleted_by" field.
+func (m *RarityMutation) SetDeletedBy(i int) {
+	m.deleted_by = &i
+	m.adddeleted_by = nil
+}
+
+// DeletedBy returns the value of the "deleted_by" field in the mutation.
+func (m *RarityMutation) DeletedBy() (r int, exists bool) {
+	v := m.deleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedBy returns the old "deleted_by" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldDeletedBy(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedBy: %w", err)
+	}
+	return oldValue.DeletedBy, nil
+}
+
+// AddDeletedBy adds i to the "deleted_by" field.
+func (m *RarityMutation) AddDeletedBy(i int) {
+	if m.adddeleted_by != nil {
+		*m.adddeleted_by += i
+	} else {
+		m.adddeleted_by = &i
+	}
+}
+
+// AddedDeletedBy returns the value that was added to the "deleted_by" field in this mutation.
+func (m *RarityMutation) AddedDeletedBy() (r int, exists bool) {
+	v := m.adddeleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeletedBy clears the value of the "deleted_by" field.
+func (m *RarityMutation) ClearDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	m.clearedFields[rarity.FieldDeletedBy] = struct{}{}
+}
+
+// DeletedByCleared returns if the "deleted_by" field was cleared in this mutation.
+func (m *RarityMutation) DeletedByCleared() bool {
+	_, ok := m.clearedFields[rarity.FieldDeletedBy]
+	return ok
+}
+
+// ResetDeletedBy resets all changes to the "deleted_by" field.
+func (m *RarityMutation) ResetDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	delete(m.clearedFields, rarity.FieldDeletedBy)
+}
+
+// SetName sets the "name" field.
+func (m *RarityMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *RarityMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *RarityMutation) ResetName() {
+	m.name = nil
+}
+
+// SetCode sets the "code" field.
+func (m *RarityMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *RarityMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old "code" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *RarityMutation) ResetCode() {
+	m.code = nil
+}
+
+// SetWeight sets the "weight" field.
+func (m *RarityMutation) SetWeight(i int) {
+	m.weight = &i
+	m.addweight = nil
+}
+
+// Weight returns the value of the "weight" field in the mutation.
+func (m *RarityMutation) Weight() (r int, exists bool) {
+	v := m.weight
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWeight returns the old "weight" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldWeight(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWeight is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWeight requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWeight: %w", err)
+	}
+	return oldValue.Weight, nil
+}
+
+// AddWeight adds i to the "weight" field.
+func (m *RarityMutation) AddWeight(i int) {
+	if m.addweight != nil {
+		*m.addweight += i
+	} else {
+		m.addweight = &i
+	}
+}
+
+// AddedWeight returns the value that was added to the "weight" field in this mutation.
+func (m *RarityMutation) AddedWeight() (r int, exists bool) {
+	v := m.addweight
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWeight resets all changes to the "weight" field.
+func (m *RarityMutation) ResetWeight() {
+	m.weight = nil
+	m.addweight = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *RarityMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *RarityMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Rarity entity.
+// If the Rarity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RarityMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *RarityMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[rarity.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *RarityMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[rarity.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *RarityMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, rarity.FieldDescription)
+}
+
+// AddTraitIDs adds the "traits" edge to the Trait entity by ids.
+func (m *RarityMutation) AddTraitIDs(ids ...int) {
+	if m.traits == nil {
+		m.traits = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.traits[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTraits clears the "traits" edge to the Trait entity.
+func (m *RarityMutation) ClearTraits() {
+	m.clearedtraits = true
+}
+
+// TraitsCleared reports if the "traits" edge to the Trait entity was cleared.
+func (m *RarityMutation) TraitsCleared() bool {
+	return m.clearedtraits
+}
+
+// RemoveTraitIDs removes the "traits" edge to the Trait entity by IDs.
+func (m *RarityMutation) RemoveTraitIDs(ids ...int) {
+	if m.removedtraits == nil {
+		m.removedtraits = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.traits, ids[i])
+		m.removedtraits[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTraits returns the removed IDs of the "traits" edge to the Trait entity.
+func (m *RarityMutation) RemovedTraitsIDs() (ids []int) {
+	for id := range m.removedtraits {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TraitsIDs returns the "traits" edge IDs in the mutation.
+func (m *RarityMutation) TraitsIDs() (ids []int) {
+	for id := range m.traits {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTraits resets all changes to the "traits" edge.
+func (m *RarityMutation) ResetTraits() {
+	m.traits = nil
+	m.clearedtraits = false
+	m.removedtraits = nil
+}
+
+// Where appends a list predicates to the RarityMutation builder.
+func (m *RarityMutation) Where(ps ...predicate.Rarity) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the RarityMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *RarityMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Rarity, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *RarityMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *RarityMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Rarity).
+func (m *RarityMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *RarityMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.created_at != nil {
+		fields = append(fields, rarity.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, rarity.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, rarity.FieldDeletedAt)
+	}
+	if m.deleted_by != nil {
+		fields = append(fields, rarity.FieldDeletedBy)
+	}
+	if m.name != nil {
+		fields = append(fields, rarity.FieldName)
+	}
+	if m.code != nil {
+		fields = append(fields, rarity.FieldCode)
+	}
+	if m.weight != nil {
+		fields = append(fields, rarity.FieldWeight)
+	}
+	if m.description != nil {
+		fields = append(fields, rarity.FieldDescription)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *RarityMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case rarity.FieldCreatedAt:
+		return m.CreatedAt()
+	case rarity.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case rarity.FieldDeletedAt:
+		return m.DeletedAt()
+	case rarity.FieldDeletedBy:
+		return m.DeletedBy()
+	case rarity.FieldName:
+		return m.Name()
+	case rarity.FieldCode:
+		return m.Code()
+	case rarity.FieldWeight:
+		return m.Weight()
+	case rarity.FieldDescription:
+		return m.Description()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *RarityMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case rarity.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case rarity.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case rarity.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case rarity.FieldDeletedBy:
+		return m.OldDeletedBy(ctx)
+	case rarity.FieldName:
+		return m.OldName(ctx)
+	case rarity.FieldCode:
+		return m.OldCode(ctx)
+	case rarity.FieldWeight:
+		return m.OldWeight(ctx)
+	case rarity.FieldDescription:
+		return m.OldDescription(ctx)
+	}
+	return nil, fmt.Errorf("unknown Rarity field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RarityMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case rarity.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case rarity.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case rarity.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case rarity.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedBy(v)
+		return nil
+	case rarity.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case rarity.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case rarity.FieldWeight:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWeight(v)
+		return nil
+	case rarity.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Rarity field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *RarityMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_by != nil {
+		fields = append(fields, rarity.FieldDeletedBy)
+	}
+	if m.addweight != nil {
+		fields = append(fields, rarity.FieldWeight)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *RarityMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case rarity.FieldDeletedBy:
+		return m.AddedDeletedBy()
+	case rarity.FieldWeight:
+		return m.AddedWeight()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RarityMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case rarity.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedBy(v)
+		return nil
+	case rarity.FieldWeight:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWeight(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Rarity numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *RarityMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(rarity.FieldDeletedAt) {
+		fields = append(fields, rarity.FieldDeletedAt)
+	}
+	if m.FieldCleared(rarity.FieldDeletedBy) {
+		fields = append(fields, rarity.FieldDeletedBy)
+	}
+	if m.FieldCleared(rarity.FieldDescription) {
+		fields = append(fields, rarity.FieldDescription)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *RarityMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *RarityMutation) ClearField(name string) error {
+	switch name {
+	case rarity.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case rarity.FieldDeletedBy:
+		m.ClearDeletedBy()
+		return nil
+	case rarity.FieldDescription:
+		m.ClearDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown Rarity nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *RarityMutation) ResetField(name string) error {
+	switch name {
+	case rarity.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case rarity.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case rarity.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case rarity.FieldDeletedBy:
+		m.ResetDeletedBy()
+		return nil
+	case rarity.FieldName:
+		m.ResetName()
+		return nil
+	case rarity.FieldCode:
+		m.ResetCode()
+		return nil
+	case rarity.FieldWeight:
+		m.ResetWeight()
+		return nil
+	case rarity.FieldDescription:
+		m.ResetDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown Rarity field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *RarityMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.traits != nil {
+		edges = append(edges, rarity.EdgeTraits)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *RarityMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case rarity.EdgeTraits:
+		ids := make([]ent.Value, 0, len(m.traits))
+		for id := range m.traits {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *RarityMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedtraits != nil {
+		edges = append(edges, rarity.EdgeTraits)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *RarityMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case rarity.EdgeTraits:
+		ids := make([]ent.Value, 0, len(m.removedtraits))
+		for id := range m.removedtraits {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *RarityMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedtraits {
+		edges = append(edges, rarity.EdgeTraits)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *RarityMutation) EdgeCleared(name string) bool {
+	switch name {
+	case rarity.EdgeTraits:
+		return m.clearedtraits
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *RarityMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Rarity unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *RarityMutation) ResetEdge(name string) error {
+	switch name {
+	case rarity.EdgeTraits:
+		m.ResetTraits()
+		return nil
+	}
+	return fmt.Errorf("unknown Rarity edge %s", name)
 }
 
 // ResourceMutation represents an operation that mutates the Resource nodes in the graph.
@@ -9070,6 +11090,9 @@ type TagMutation struct {
 	problems        map[int]struct{}
 	removedproblems map[int]struct{}
 	clearedproblems bool
+	elements        map[int]struct{}
+	removedelements map[int]struct{}
+	clearedelements bool
 	done            bool
 	oldValue        func(context.Context) (*Tag, error)
 	predicates      []predicate.Tag
@@ -9454,6 +11477,60 @@ func (m *TagMutation) ResetProblems() {
 	m.removedproblems = nil
 }
 
+// AddElementIDs adds the "elements" edge to the Element entity by ids.
+func (m *TagMutation) AddElementIDs(ids ...int) {
+	if m.elements == nil {
+		m.elements = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.elements[ids[i]] = struct{}{}
+	}
+}
+
+// ClearElements clears the "elements" edge to the Element entity.
+func (m *TagMutation) ClearElements() {
+	m.clearedelements = true
+}
+
+// ElementsCleared reports if the "elements" edge to the Element entity was cleared.
+func (m *TagMutation) ElementsCleared() bool {
+	return m.clearedelements
+}
+
+// RemoveElementIDs removes the "elements" edge to the Element entity by IDs.
+func (m *TagMutation) RemoveElementIDs(ids ...int) {
+	if m.removedelements == nil {
+		m.removedelements = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.elements, ids[i])
+		m.removedelements[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedElements returns the removed IDs of the "elements" edge to the Element entity.
+func (m *TagMutation) RemovedElementsIDs() (ids []int) {
+	for id := range m.removedelements {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ElementsIDs returns the "elements" edge IDs in the mutation.
+func (m *TagMutation) ElementsIDs() (ids []int) {
+	for id := range m.elements {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetElements resets all changes to the "elements" edge.
+func (m *TagMutation) ResetElements() {
+	m.elements = nil
+	m.clearedelements = false
+	m.removedelements = nil
+}
+
 // Where appends a list predicates to the TagMutation builder.
 func (m *TagMutation) Where(ps ...predicate.Tag) {
 	m.predicates = append(m.predicates, ps...)
@@ -9685,9 +11762,12 @@ func (m *TagMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TagMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.problems != nil {
 		edges = append(edges, tag.EdgeProblems)
+	}
+	if m.elements != nil {
+		edges = append(edges, tag.EdgeElements)
 	}
 	return edges
 }
@@ -9702,15 +11782,24 @@ func (m *TagMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case tag.EdgeElements:
+		ids := make([]ent.Value, 0, len(m.elements))
+		for id := range m.elements {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TagMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedproblems != nil {
 		edges = append(edges, tag.EdgeProblems)
+	}
+	if m.removedelements != nil {
+		edges = append(edges, tag.EdgeElements)
 	}
 	return edges
 }
@@ -9725,15 +11814,24 @@ func (m *TagMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case tag.EdgeElements:
+		ids := make([]ent.Value, 0, len(m.removedelements))
+		for id := range m.removedelements {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TagMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedproblems {
 		edges = append(edges, tag.EdgeProblems)
+	}
+	if m.clearedelements {
+		edges = append(edges, tag.EdgeElements)
 	}
 	return edges
 }
@@ -9744,6 +11842,8 @@ func (m *TagMutation) EdgeCleared(name string) bool {
 	switch name {
 	case tag.EdgeProblems:
 		return m.clearedproblems
+	case tag.EdgeElements:
+		return m.clearedelements
 	}
 	return false
 }
@@ -9762,6 +11862,9 @@ func (m *TagMutation) ResetEdge(name string) error {
 	switch name {
 	case tag.EdgeProblems:
 		m.ResetProblems()
+		return nil
+	case tag.EdgeElements:
+		m.ResetElements()
 		return nil
 	}
 	return fmt.Errorf("unknown Tag edge %s", name)
@@ -10703,12 +12806,11 @@ type TraitMutation struct {
 	adddeleted_by      *int
 	_type              *trait.Type
 	name               *string
-	rarity             *trait.Rarity
-	weight             *int
-	addweight          *int
 	description        *string
 	metadata           *map[string]interface{}
 	clearedFields      map[string]struct{}
+	rarity             *int
+	clearedrarity      bool
 	user_traits        map[int]struct{}
 	removeduser_traits map[int]struct{}
 	cleareduser_traits bool
@@ -11078,13 +13180,13 @@ func (m *TraitMutation) ResetName() {
 	m.name = nil
 }
 
-// SetRarity sets the "rarity" field.
-func (m *TraitMutation) SetRarity(t trait.Rarity) {
-	m.rarity = &t
+// SetRarityID sets the "rarity_id" field.
+func (m *TraitMutation) SetRarityID(i int) {
+	m.rarity = &i
 }
 
-// Rarity returns the value of the "rarity" field in the mutation.
-func (m *TraitMutation) Rarity() (r trait.Rarity, exists bool) {
+// RarityID returns the value of the "rarity_id" field in the mutation.
+func (m *TraitMutation) RarityID() (r int, exists bool) {
 	v := m.rarity
 	if v == nil {
 		return
@@ -11092,82 +13194,26 @@ func (m *TraitMutation) Rarity() (r trait.Rarity, exists bool) {
 	return *v, true
 }
 
-// OldRarity returns the old "rarity" field's value of the Trait entity.
+// OldRarityID returns the old "rarity_id" field's value of the Trait entity.
 // If the Trait object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TraitMutation) OldRarity(ctx context.Context) (v trait.Rarity, err error) {
+func (m *TraitMutation) OldRarityID(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRarity is only allowed on UpdateOne operations")
+		return v, errors.New("OldRarityID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRarity requires an ID field in the mutation")
+		return v, errors.New("OldRarityID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRarity: %w", err)
+		return v, fmt.Errorf("querying old value for OldRarityID: %w", err)
 	}
-	return oldValue.Rarity, nil
+	return oldValue.RarityID, nil
 }
 
-// ResetRarity resets all changes to the "rarity" field.
-func (m *TraitMutation) ResetRarity() {
+// ResetRarityID resets all changes to the "rarity_id" field.
+func (m *TraitMutation) ResetRarityID() {
 	m.rarity = nil
-}
-
-// SetWeight sets the "weight" field.
-func (m *TraitMutation) SetWeight(i int) {
-	m.weight = &i
-	m.addweight = nil
-}
-
-// Weight returns the value of the "weight" field in the mutation.
-func (m *TraitMutation) Weight() (r int, exists bool) {
-	v := m.weight
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldWeight returns the old "weight" field's value of the Trait entity.
-// If the Trait object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TraitMutation) OldWeight(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldWeight is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldWeight requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldWeight: %w", err)
-	}
-	return oldValue.Weight, nil
-}
-
-// AddWeight adds i to the "weight" field.
-func (m *TraitMutation) AddWeight(i int) {
-	if m.addweight != nil {
-		*m.addweight += i
-	} else {
-		m.addweight = &i
-	}
-}
-
-// AddedWeight returns the value that was added to the "weight" field in this mutation.
-func (m *TraitMutation) AddedWeight() (r int, exists bool) {
-	v := m.addweight
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetWeight resets all changes to the "weight" field.
-func (m *TraitMutation) ResetWeight() {
-	m.weight = nil
-	m.addweight = nil
 }
 
 // SetDescription sets the "description" field.
@@ -11268,6 +13314,33 @@ func (m *TraitMutation) ResetMetadata() {
 	delete(m.clearedFields, trait.FieldMetadata)
 }
 
+// ClearRarity clears the "rarity" edge to the Rarity entity.
+func (m *TraitMutation) ClearRarity() {
+	m.clearedrarity = true
+	m.clearedFields[trait.FieldRarityID] = struct{}{}
+}
+
+// RarityCleared reports if the "rarity" edge to the Rarity entity was cleared.
+func (m *TraitMutation) RarityCleared() bool {
+	return m.clearedrarity
+}
+
+// RarityIDs returns the "rarity" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RarityID instead. It exists only for internal usage by the builders.
+func (m *TraitMutation) RarityIDs() (ids []int) {
+	if id := m.rarity; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRarity resets all changes to the "rarity" edge.
+func (m *TraitMutation) ResetRarity() {
+	m.rarity = nil
+	m.clearedrarity = false
+}
+
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by ids.
 func (m *TraitMutation) AddUserTraitIDs(ids ...int) {
 	if m.user_traits == nil {
@@ -11356,7 +13429,7 @@ func (m *TraitMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TraitMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, trait.FieldCreatedAt)
 	}
@@ -11376,10 +13449,7 @@ func (m *TraitMutation) Fields() []string {
 		fields = append(fields, trait.FieldName)
 	}
 	if m.rarity != nil {
-		fields = append(fields, trait.FieldRarity)
-	}
-	if m.weight != nil {
-		fields = append(fields, trait.FieldWeight)
+		fields = append(fields, trait.FieldRarityID)
 	}
 	if m.description != nil {
 		fields = append(fields, trait.FieldDescription)
@@ -11407,10 +13477,8 @@ func (m *TraitMutation) Field(name string) (ent.Value, bool) {
 		return m.GetType()
 	case trait.FieldName:
 		return m.Name()
-	case trait.FieldRarity:
-		return m.Rarity()
-	case trait.FieldWeight:
-		return m.Weight()
+	case trait.FieldRarityID:
+		return m.RarityID()
 	case trait.FieldDescription:
 		return m.Description()
 	case trait.FieldMetadata:
@@ -11436,10 +13504,8 @@ func (m *TraitMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldType(ctx)
 	case trait.FieldName:
 		return m.OldName(ctx)
-	case trait.FieldRarity:
-		return m.OldRarity(ctx)
-	case trait.FieldWeight:
-		return m.OldWeight(ctx)
+	case trait.FieldRarityID:
+		return m.OldRarityID(ctx)
 	case trait.FieldDescription:
 		return m.OldDescription(ctx)
 	case trait.FieldMetadata:
@@ -11495,19 +13561,12 @@ func (m *TraitMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case trait.FieldRarity:
-		v, ok := value.(trait.Rarity)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRarity(v)
-		return nil
-	case trait.FieldWeight:
+	case trait.FieldRarityID:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetWeight(v)
+		m.SetRarityID(v)
 		return nil
 	case trait.FieldDescription:
 		v, ok := value.(string)
@@ -11534,9 +13593,6 @@ func (m *TraitMutation) AddedFields() []string {
 	if m.adddeleted_by != nil {
 		fields = append(fields, trait.FieldDeletedBy)
 	}
-	if m.addweight != nil {
-		fields = append(fields, trait.FieldWeight)
-	}
 	return fields
 }
 
@@ -11547,8 +13603,6 @@ func (m *TraitMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case trait.FieldDeletedBy:
 		return m.AddedDeletedBy()
-	case trait.FieldWeight:
-		return m.AddedWeight()
 	}
 	return nil, false
 }
@@ -11564,13 +13618,6 @@ func (m *TraitMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDeletedBy(v)
-		return nil
-	case trait.FieldWeight:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddWeight(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Trait numeric field %s", name)
@@ -11644,11 +13691,8 @@ func (m *TraitMutation) ResetField(name string) error {
 	case trait.FieldName:
 		m.ResetName()
 		return nil
-	case trait.FieldRarity:
-		m.ResetRarity()
-		return nil
-	case trait.FieldWeight:
-		m.ResetWeight()
+	case trait.FieldRarityID:
+		m.ResetRarityID()
 		return nil
 	case trait.FieldDescription:
 		m.ResetDescription()
@@ -11662,7 +13706,10 @@ func (m *TraitMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TraitMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.rarity != nil {
+		edges = append(edges, trait.EdgeRarity)
+	}
 	if m.user_traits != nil {
 		edges = append(edges, trait.EdgeUserTraits)
 	}
@@ -11673,6 +13720,10 @@ func (m *TraitMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *TraitMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case trait.EdgeRarity:
+		if id := m.rarity; id != nil {
+			return []ent.Value{*id}
+		}
 	case trait.EdgeUserTraits:
 		ids := make([]ent.Value, 0, len(m.user_traits))
 		for id := range m.user_traits {
@@ -11685,7 +13736,7 @@ func (m *TraitMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TraitMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removeduser_traits != nil {
 		edges = append(edges, trait.EdgeUserTraits)
 	}
@@ -11708,7 +13759,10 @@ func (m *TraitMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TraitMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.clearedrarity {
+		edges = append(edges, trait.EdgeRarity)
+	}
 	if m.cleareduser_traits {
 		edges = append(edges, trait.EdgeUserTraits)
 	}
@@ -11719,6 +13773,8 @@ func (m *TraitMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *TraitMutation) EdgeCleared(name string) bool {
 	switch name {
+	case trait.EdgeRarity:
+		return m.clearedrarity
 	case trait.EdgeUserTraits:
 		return m.cleareduser_traits
 	}
@@ -11729,6 +13785,9 @@ func (m *TraitMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *TraitMutation) ClearEdge(name string) error {
 	switch name {
+	case trait.EdgeRarity:
+		m.ClearRarity()
+		return nil
 	}
 	return fmt.Errorf("unknown Trait unique edge %s", name)
 }
@@ -11737,6 +13796,9 @@ func (m *TraitMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TraitMutation) ResetEdge(name string) error {
 	switch name {
+	case trait.EdgeRarity:
+		m.ResetRarity()
+		return nil
 	case trait.EdgeUserTraits:
 		m.ResetUserTraits()
 		return nil

@@ -4,8 +4,7 @@ package dto
 type CreateTraitRequest struct {
 	Type        string                 `json:"type" validate:"required,oneof=root_bone talent"`
 	Name        string                 `json:"name" validate:"required,min=1,max=100"`
-	Rarity      string                 `json:"rarity" validate:"required,oneof=mortal earth heaven divine"`
-	Weight      int                    `json:"weight" validate:"required,min=1"`
+	RarityID    int                    `json:"rarity_id" validate:"required,min=1"`
 	Description string                 `json:"description" validate:"omitempty,max=500"`
 	Metadata    map[string]interface{} `json:"metadata"`
 }
@@ -15,8 +14,7 @@ type UpdateTraitRequest struct {
 	ID          int                     `json:"-" uri:"id"`
 	Type        *string                 `json:"type" validate:"omitempty,oneof=root_bone talent"`
 	Name        *string                 `json:"name" validate:"omitempty,min=1,max=100"`
-	Rarity      *string                 `json:"rarity" validate:"omitempty,oneof=mortal earth heaven divine"`
-	Weight      *int                    `json:"weight" validate:"omitempty,min=1"`
+	RarityID    *int                    `json:"rarity_id" validate:"omitempty,min=1"`
 	Description *string                 `json:"description" validate:"omitempty,max=500"`
 	Metadata    *map[string]interface{} `json:"metadata"`
 }
@@ -36,8 +34,7 @@ type TraitResponse struct {
 	ID          int                    `json:"id"`
 	Type        string                 `json:"type"`
 	Name        string                 `json:"name"`
-	Rarity      string                 `json:"rarity"`
-	Weight      int                    `json:"weight"`
+	RarityID    int                    `json:"rarity_id"`
 	Description string                 `json:"description,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }

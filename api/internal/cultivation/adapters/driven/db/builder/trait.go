@@ -14,8 +14,7 @@ func BuildCreateTrait(ctx context.Context, e *entity.Trait) *generate.TraitCreat
 	b := global.EntClient.DB(ctx).Trait.Create().
 		SetType(trait.Type(e.Type)).
 		SetName(e.Name).
-		SetRarity(trait.Rarity(e.Rarity)).
-		SetWeight(e.Weight).
+		SetRarityID(e.RarityID).
 		SetDescription(e.Description)
 
 	if e.Metadata != nil {
@@ -32,8 +31,7 @@ func BuildUpdateTrait(ctx context.Context, e *entity.Trait) *generate.TraitUpdat
 	b := global.EntClient.DB(ctx).Trait.UpdateOneID(e.ID).
 		SetType(trait.Type(e.Type)).
 		SetName(e.Name).
-		SetRarity(trait.Rarity(e.Rarity)).
-		SetWeight(e.Weight).
+		SetRarityID(e.RarityID).
 		SetDescription(e.Description)
 
 	if e.Metadata != nil {
