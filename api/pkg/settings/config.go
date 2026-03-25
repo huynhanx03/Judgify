@@ -11,6 +11,16 @@ type Config struct {
 	Google        Google        `mapstructure:"google"`
 	Resend        Resend        `mapstructure:"resend"`
 	FCM           FCM           `mapstructure:"fcm"`
+	Judge         Judge         `mapstructure:"judge"`
+}
+
+// Judge is the configuration for the code judge system.
+type Judge struct {
+	DockerImage      string `mapstructure:"docker_image"`
+	PoolSize         int    `mapstructure:"pool_size"`
+	WorkerCount      int    `mapstructure:"worker_count"`
+	CompileTimeoutMs int    `mapstructure:"compile_timeout_ms"`
+	NetworkDisabled  bool   `mapstructure:"network_disabled"`
 }
 
 
@@ -40,9 +50,23 @@ type Database struct {
 
 // Server is the configuration for the server
 type Server struct {
-	Mode     string `mapstructure:"mode"`
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
+	Mode           string               `mapstructure:"mode"`
+	Host           string               `mapstructure:"host"`
+	Port           int                  `mapstructure:"port"`
+	RateLimit      RateLimitConfig      `mapstructure:"rate_limit"`
+	CircuitBreaker CircuitBreakerConfig `mapstructure:"circuit_breaker"`
+}
+
+type RateLimitConfig struct {
+	Limit  int `mapstructure:"limit"`
+	Burst  int `mapstructure:"burst"`
+	Window int `mapstructure:"window"` // in seconds
+}
+
+type CircuitBreakerConfig struct {
+	FailureThreshold int `mapstructure:"failure_threshold"`
+	SuccessThreshold int `mapstructure:"success_threshold"`
+	OpenTimeout      int `mapstructure:"open_timeout"` // in seconds
 }
 
 

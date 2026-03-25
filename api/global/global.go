@@ -5,12 +5,12 @@ import (
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"github.com/huynhanx03/judgify/pkg/settings"
 
-	dbEnt "github.com/huynhanx03/judgify/internal/adapters/driven/db/ent"
+	"github.com/huynhanx03/judgify/internal/ent"
 )
 
 var (
 	Config    settings.Config
 	LoggerZap *logger.LoggerZap
-	EntClient *dbEnt.EntClient
+	EntClient *ent.EntClient
 	Tinylfu   cache.LocalCache[string, any]
 )

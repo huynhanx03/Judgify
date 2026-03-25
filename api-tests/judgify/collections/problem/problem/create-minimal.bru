@@ -1,0 +1,29 @@
+meta {
+  name: Create (Minimal)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/problems
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "title": "Hello World",
+    "description": "Print Hello World to stdout.",
+    "difficulty": "easy"
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("problem_id", res.body.data.id);
+  }
+}

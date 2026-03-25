@@ -62,6 +62,8 @@ func GetHTTPCode(code int) int {
 		return http.StatusForbidden // 403
 	case CodeNotFound:
 		return http.StatusNotFound // 404
+	case CodeTooManyRequests:
+		return http.StatusTooManyRequests // 429
 	case CodeConflict:
 		return http.StatusConflict // 409
 	case CodeValidationFailed:
@@ -78,6 +80,8 @@ func GetHTTPCode(code int) int {
 		return http.StatusBadRequest
 	case code >= 41000 && code < 42000:
 		return http.StatusUnauthorized
+	case code >= 42900 && code < 43000:
+		return http.StatusTooManyRequests
 	case code >= 43000 && code < 44000:
 		return http.StatusForbidden
 	case code >= 44000 && code < 45000:

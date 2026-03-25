@@ -1,6 +1,10 @@
 package workerpool
 
-import "time"
+import (
+	"time"
+
+	"github.com/huynhanx03/judgify/pkg/timer"
+)
 
 // Option represents the optional function.
 type Option func(opts *Options)
@@ -32,6 +36,10 @@ type Options struct {
 
 	// DisablePurge indicates whether to turn off the automatic purge of expired workers.
 	DisablePurge bool
+
+	// Timer is an external time source. When provided, the pool skips
+	// spawning its own ticktock goroutine and reads time from this timer.
+	Timer timer.Timer
 }
 
 // WithExpiryDuration sets up the interval time of cleaning up goroutines.
@@ -73,5 +81,12 @@ func WithPanicHandler(panicHandler func(any)) Option {
 func WithDisablePurge(disable bool) Option {
 	return func(opts *Options) {
 		opts.DisablePurge = disable
+	}
+}
+
+// WithTimer injects an external timer, eliminating the internal ticktock goroutine.
+func WithTimer(t timer.Timer) Option {
+	return func(opts *Options) {
+		opts.Timer = t
 	}
 }

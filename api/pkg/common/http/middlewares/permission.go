@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"context"
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +12,8 @@ import (
 	"github.com/huynhanx03/judgify/pkg/constraints"
 	"github.com/huynhanx03/judgify/pkg/permissions"
 
-	"github.com/huynhanx03/judgify/internal/constant"
-	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/identity/constant"
+	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
 // PermissionChecker holds dependencies for DB-based permission checking with local cache.
@@ -85,35 +84,35 @@ func (pc *PermissionChecker) RequirePermission(resourceKey string, requiredScope
 
 		userID, ok := ctx.Value(constraints.ContextKeyUserID).(int)
 		if !ok {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "user not authenticated", http.StatusUnauthorized, nil))
+			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "user not authenticated", nil))
 			c.Abort()
 			return
 		}
 
 		user, err := pc.userRepo.Get(ctx, userID)
 		if err != nil {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "user not found", http.StatusForbidden, nil))
+			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "user not found", nil))
 			c.Abort()
 			return
 		}
 
 		perms, err := pc.getRolePermissions(ctx, user.RoleID)
 		if err != nil {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "failed to load permissions", http.StatusForbidden, nil))
+			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "failed to load permissions", nil))
 			c.Abort()
 			return
 		}
 
 		resourceID := permissions.GetResourceID(resourceKey)
 		if resourceID == 0 {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "unknown resource", http.StatusForbidden, nil))
+			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "unknown resource", nil))
 			c.Abort()
 			return
 		}
 
 		scopeMask, exists := perms[resourceID]
 		if !exists || (scopeMask&requiredScope) != requiredScope {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "permission denied", http.StatusForbidden, nil))
+			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "permission denied", nil))
 			c.Abort()
 			return
 		}
@@ -130,14 +129,14 @@ func (pc *PermissionChecker) RequireRole(maxLevel int) gin.HandlerFunc {
 
 		userID, ok := ctx.Value(constraints.ContextKeyUserID).(int)
 		if !ok {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "user not authenticated", http.StatusUnauthorized, nil))
+			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "user not authenticated", nil))
 			c.Abort()
 			return
 		}
 
 		user, err := pc.userRepo.Get(ctx, userID)
 		if err != nil {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "user not found", http.StatusForbidden, nil))
+			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "user not found", nil))
 			c.Abort()
 			return
 		}
@@ -150,7 +149,7 @@ func (pc *PermissionChecker) RequireRole(maxLevel int) gin.HandlerFunc {
 		} else {
 			role, err := pc.roleRepo.Get(ctx, user.RoleID)
 			if err != nil {
-				response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "role not found", http.StatusForbidden, nil))
+				response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "role not found", nil))
 				c.Abort()
 				return
 			}
@@ -159,7 +158,7 @@ func (pc *PermissionChecker) RequireRole(maxLevel int) gin.HandlerFunc {
 		}
 
 		if roleLevel > maxLevel {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "insufficient role level", http.StatusForbidden, nil))
+			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "insufficient role level", nil))
 			c.Abort()
 			return
 		}

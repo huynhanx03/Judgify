@@ -73,3 +73,9 @@ func UpdateLocal[T any](c LocalCache[string, any], key string, value T, cost int
 func DeleteLocal(c LocalCache[string, any], key string) {
 	c.Delete(key)
 }
+
+// Put is a convenient helper to set a value in LocalCache with a default cost of 0.
+// This is very useful for caches that do not rely on variable item costs (e.g. Ember).
+func Put[T any](c LocalCache[string, any], key string, value T) bool {
+	return c.Set(key, any(value), 0)
+}

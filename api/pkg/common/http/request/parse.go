@@ -18,11 +18,11 @@ func ParseRequest[T any](c *gin.Context) (*T, error) {
 	_ = c.ShouldBindUri(&req)
 
 	if err := c.ShouldBindJSON(&req); err != nil && err != io.EOF {
-		return nil, apperr.New(response.CodeParamInvalid, err.Error(), 0, err)
+		return nil, apperr.New(response.CodeParamInvalid, err.Error(), err)
 	}
 
 	if ok, msg := validation.IsRequestValid(req); !ok {
-		return nil, apperr.New(response.CodeValidationFailed, string(msg), 0, nil)
+		return nil, apperr.New(response.CodeValidationFailed, string(msg), nil)
 	}
 
 	return &req, nil

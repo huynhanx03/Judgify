@@ -1,0 +1,30 @@
+meta {
+  name: Create (Hidden)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/problems/{{problem_id}}/test-cases
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "input": "nums = [3,2,4], target = 6",
+    "expected_output": "[1,2]",
+    "is_sample": false,
+    "order_index": 1
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("test_case_id", res.body.data.id);
+  }
+}

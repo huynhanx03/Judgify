@@ -36,20 +36,18 @@ func NewHTTPServer() *Server {
 
 	// Create PermissionChecker with DB repos + local cache
 	permChecker := middlewares.NewPermissionChecker(
-		c.UserContainer.Repository,
-		c.RoleContainer.Repository,
-		c.PermissionContainer.Repository,
+		c.Identity.UserRepo,
+		c.Identity.RoleRepo,
+		c.Identity.PermissionRepo,
 		global.Tinylfu,
 	)
 
-	// Create router group with all handlers
+	// Create router group with modular handlers from domain containers
 	routerGroup := NewRouterGroup(
-		c.RoleContainer.Handler,
-		c.PermissionContainer.Handler,
-		c.ResourceContainer.Handler,
-		c.AttributeDefinitionContainer.Handler,
-		c.AuthenticationContainer.Handler,
-		c.UserContainer.Handler,
+		c.Identity.IdentityHandler,
+		c.Problem.ProblemHandlerGroup,
+		c.Cultivation.CultivationHandlerGroup,
+		c.Submission.SubmissionHandlerGroup,
 		permChecker,
 	)
 
@@ -104,5 +102,8 @@ func (s *Server) Run() error {
 	}
 
 	global.LoggerZap.Info("Server exited")
+
+	// Flush any buffered log entries before exit
+	_ = global.LoggerZap.Sync()
 	return nil
 }

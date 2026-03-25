@@ -1,0 +1,30 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/rarities
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Thần Phẩm",
+    "code": "divine",
+    "weight": 5,
+    "description": "Phẩm chất truyền thuyết"
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("rarity_id", res.body.data.id);
+  }
+}

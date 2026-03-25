@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/huynhanx03/judgify/pkg/utils"
+	"github.com/huynhanx03/judgify/pkg/algorithm"
 )
 
 type HTTPClientPool struct {
@@ -91,8 +91,9 @@ func (p *HTTPClientPool) RequestWithRetry(ctx context.Context, req *http.Request
 				lastErr = err
 			}
 
-			// Calculate backoff using shared utility with attempt cap
-			waitDuration := utils.CalculateBackoffByAttempt(attempt, 1*time.Second, maxRetries)
+			// Calculate backoff using exponential backoff with jitter
+			backoff := algorithm.NewExponentialBackoff(1*time.Second, 30*time.Second, 2.0)
+			waitDuration := algorithm.NewJitterBackoff(backoff).Delay(attempt)
 
 			timer := time.NewTimer(waitDuration)
 			select {

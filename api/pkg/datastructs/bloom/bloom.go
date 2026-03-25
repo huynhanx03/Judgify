@@ -127,3 +127,9 @@ func (b *Bloom) UnmarshalJSON(data []byte) error {
 func (b *Bloom) TotalSize() uint64 {
 	return b.m
 }
+
+// K returns the number of hash functions.
+func (b *Bloom) K() uint64 {
+	return b.k
+}
+

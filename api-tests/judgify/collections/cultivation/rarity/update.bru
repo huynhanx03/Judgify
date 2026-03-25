@@ -1,0 +1,23 @@
+meta {
+  name: Update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{base_url}}/rarities/{{rarity_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Thần Phẩm Updated",
+    "code": "divine_updated",
+    "weight": 10
+  }
+}

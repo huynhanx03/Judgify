@@ -20,14 +20,14 @@ var _ cache.LocalCache[string, any] = (*Cache[string, any])(nil)
 
 type mockTimer struct {
 	mu      sync.Mutex
-	current time.Time
+	current int64 // unix nanoseconds
 }
 
 func newMockTimer(t time.Time) *mockTimer {
-	return &mockTimer{current: t}
+	return &mockTimer{current: t.UnixNano()}
 }
 
-func (m *mockTimer) Now() time.Time {
+func (m *mockTimer) Now() int64 {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.current
@@ -38,7 +38,7 @@ func (m *mockTimer) Stop() {}
 func (m *mockTimer) Advance(d time.Duration) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.current = m.current.Add(d)
+	m.current += int64(d)
 }
 
 // ============================================================================

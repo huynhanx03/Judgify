@@ -3,7 +3,6 @@ package middlewares
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -20,14 +19,14 @@ func Authentication(publicKey interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader(constraints.HeaderAuthorization)
 		if authHeader == "" {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "missing authorization header", http.StatusUnauthorized, nil))
+			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "missing authorization header", nil))
 			c.Abort()
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != constraints.TokenTypeBearer {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "invalid authorization header format", http.StatusUnauthorized, nil))
+			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "invalid authorization header format", nil))
 			c.Abort()
 			return
 		}
@@ -43,7 +42,7 @@ func Authentication(publicKey interface{}) gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "invalid or expired token", http.StatusUnauthorized, nil))
+			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "invalid or expired token", nil))
 			c.Abort()
 			return
 		}
@@ -55,7 +54,7 @@ func Authentication(publicKey interface{}) gin.HandlerFunc {
 			ctx = context.WithValue(ctx, constraints.ContextKeyUsername, claims.Username)
 			c.Request = c.Request.WithContext(ctx)
 		} else {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "invalid token claims", http.StatusUnauthorized, nil))
+			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "invalid token claims", nil))
 			c.Abort()
 			return
 		}
