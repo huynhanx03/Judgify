@@ -3,6 +3,7 @@ import { Inter, Russo_One, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppProviders } from "@/components/app-providers";
 import { TEXT } from "@/constants/text";
 
 const inter = Inter({
@@ -45,7 +46,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>{children}</TooltipProvider>
+          <AppProviders>
+            <TooltipProvider>{children}</TooltipProvider>
+          </AppProviders>
         </ThemeProvider>
       </body>
     </html>

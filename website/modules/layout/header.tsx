@@ -2,20 +2,23 @@
 
 /**
  * Top Header Navigation component.
- * Premium floating capsule layout with logo, main navigation links, and right-aligned actions.
+ * Auth-aware: shows login/register when unauthenticated, avatar/notification when authenticated.
  */
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Bell } from "lucide-react";
+import { Bell, LogIn, UserPlus } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import { MAIN_NAV_ITEMS } from "@/constants/navigation";
 import { TEXT } from "@/constants/text";
+import { useAuth } from "@/contexts/auth-context";
 
 export function Header() {
   const pathname = usePathname();
+  const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <div className="sticky top-4 z-40 w-full px-4 sm:px-6 lg:px-8 flex justify-center transition-all">
@@ -58,24 +61,57 @@ export function Header() {
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
           <ThemeToggle />
-          
-          <button className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary glow-amber"></span>
-          </button>
 
-          <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block"></div>
-
-          {/* User avatar — click to go to profile */}
-          <Link href="/profile" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform hover:scale-105">
-            <Avatar className="h-8 w-8 border border-border/50 cursor-pointer">
-              <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
-                {TEXT.HEADER.AVATAR_FALLBACK}
-              </AvatarFallback>
-            </Avatar>
-          </Link>
+          {!isLoading && (
+            isAuthenticated ? (
+              <AuthenticatedActions />
+            ) : (
+              <GuestActions />
+            )
+          )}
         </div>
       </header>
     </div>
+  );
+}
+
+/** Notification bell + avatar for logged-in users. */
+function AuthenticatedActions() {
+  return (
+    <>
+      <button className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring relative">
+        <Bell className="h-5 w-5" />
+        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary glow-amber"></span>
+      </button>
+
+      <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block"></div>
+
+      <Link href="/profile" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform hover:scale-105">
+        <Avatar className="h-8 w-8 border border-border/50 cursor-pointer">
+          <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
+            {TEXT.HEADER.AVATAR_FALLBACK}
+          </AvatarFallback>
+        </Avatar>
+      </Link>
+    </>
+  );
+}
+
+/** Login + Register buttons for guests. */
+function GuestActions() {
+  return (
+    <>
+      <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block"></div>
+
+      <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-muted-foreground hover:text-foreground gap-1.5")}>
+        <LogIn className="h-4 w-4" />
+        <span className="hidden sm:inline">{TEXT.AUTH.LOGIN}</span>
+      </Link>
+
+      <Link href="/register" className={cn(buttonVariants({ size: "sm" }), "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-[0_0_12px_rgba(245,158,11,0.3)] gap-1.5")}>
+        <UserPlus className="h-4 w-4" />
+        <span className="hidden sm:inline">{TEXT.AUTH.REGISTER}</span>
+      </Link>
+    </>
   );
 }
