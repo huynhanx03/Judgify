@@ -8,6 +8,8 @@ collections:
     path: "collections/identity"
   - name: "Problem"
     path: "collections/problem"
+  - name: "Cultivation"
+    path: "collections/cultivation"
 
 specs:
 

@@ -1,15 +1,11 @@
-FROM ubuntu:22.04
-
-# Avoid interactive prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
+FROM alpine:3.20
 
 # Install compilers and runtimes: C++, Python, Java, Go
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache \
     g++ \
     python3 \
-    default-jdk-headless \
-    golang-go \
-    && rm -rf /var/lib/apt/lists/*
+    openjdk17-jdk \
+    go
 
 # Create sandbox working directory
 RUN mkdir -p /sandbox && chmod 777 /sandbox

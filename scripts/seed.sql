@@ -36,7 +36,14 @@ INSERT INTO "resources" (id, key, description, created_at, updated_at) OVERRIDIN
 (8, 'tag', 'Tag management', NOW(), NOW()),
 (9, 'generation', 'Link generation management', NOW(), NOW()),
 (10, 'difficulty', 'Difficulty management', NOW(), NOW()),
-(11, 'rarity', 'Rarity management', NOW(), NOW());
+(11, 'rarity', 'Rarity management', NOW(), NOW()),
+(12, 'element', 'Element management', NOW(), NOW()),
+(13, 'trait', 'Trait management', NOW(), NOW()),
+(14, 'user_trait', 'User trait management', NOW(), NOW()),
+(15, 'user_element_exp', 'User element exp management', NOW(), NOW()),
+(16, 'level', 'Level management', NOW(), NOW()),
+(17, 'rank', 'Rank management', NOW(), NOW()),
+(18, 'user_stats', 'User stats management', NOW(), NOW());
 
 -- Insert Permissions (Admin has full CRUD: 15)
 INSERT INTO "permissions" (role_id, resource_id, description, scopes, created_at, updated_at) VALUES
@@ -50,6 +57,13 @@ INSERT INTO "permissions" (role_id, resource_id, description, scopes, created_at
 (1, 8, 'Admin: Full tag management', 15, NOW(), NOW()),
 (1, 10, 'Admin: Full difficulty management', 15, NOW(), NOW()),
 (1, 11, 'Admin: Full rarity management', 15, NOW(), NOW()),
+(1, 12, 'Admin: Full element management', 15, NOW(), NOW()),
+(1, 13, 'Admin: Full trait management', 15, NOW(), NOW()),
+(1, 14, 'Admin: Full user trait management', 15, NOW(), NOW()),
+(1, 15, 'Admin: Full user element exp management', 15, NOW(), NOW()),
+(1, 16, 'Admin: Full level management', 15, NOW(), NOW()),
+(1, 17, 'Admin: Full rank management', 15, NOW(), NOW()),
+(1, 18, 'Admin: Full user stats management', 15, NOW(), NOW()),
 -- Teacher permissions
 (2, 6, 'Teacher: Manage problems', 15, NOW(), NOW()),
 (2, 7, 'Teacher: Manage test cases', 15, NOW(), NOW()),
@@ -330,11 +344,6 @@ SELECT setval(pg_get_serial_sequence('rarities', 'id'), coalesce(max(id), 1), ma
 SELECT setval(pg_get_serial_sequence('traits', 'id'), coalesce(max(id), 1), max(id) IS NOT NULL) FROM "traits";
 
 
--- Insert a difficulty level (Easy) if not exists
-INSERT INTO difficulties (id, name, created_at, updated_at)
-VALUES (1, 'Easy', NOW(), NOW())
-ON CONFLICT (id) DO NOTHING;
-
 -- Insert seed problem: Sum of A + B
 -- author_id = 1 assumes an admin/seed user exists
 INSERT INTO problems (id, title, description, difficulty_id, time_limit_ms, memory_limit_kb, author_id, is_published, created_at, updated_at)
@@ -398,4 +407,10 @@ VALUES
   (1, '1000000000 1000000000', '2000000000', true, 4, NOW(), NOW()),
   (1, '-1000000000 -1000000000', '-2000000000', true, 5, NOW(), NOW()),
   (1, '-1000000000 1000000000', '0', true, 6, NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Problem-Tag associations (problem_id, tag_id)
+INSERT INTO problem_tags (problem_id, tag_id) VALUES
+  (1, 5),   -- "Tính tổng A + B" → Math
+  (1, 1)    -- "Tính tổng A + B" → Array
 ON CONFLICT DO NOTHING;
