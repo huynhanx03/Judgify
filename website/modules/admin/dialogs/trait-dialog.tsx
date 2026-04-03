@@ -15,10 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem,
-  SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { TEXT } from "@/constants/text";
 import type { TraitResponse, RarityResponse } from "@/types/cultivation";
 
@@ -73,15 +69,14 @@ export function TraitDialog({ open, editing, onSave, onClose, isSaving, rarities
         <div className="space-y-4 py-2">
           <div className="space-y-2">
             <Label>{TEXT.ADMIN.FIELDS.TYPE}</Label>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="root_bone">{TEXT.ADMIN.FIELDS.TYPE_ROOT_BONE}</SelectItem>
-                <SelectItem value="talent">{TEXT.ADMIN.FIELDS.TYPE_TALENT}</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="root_bone">{TEXT.ADMIN.FIELDS.TYPE_ROOT_BONE}</option>
+              <option value="talent">{TEXT.ADMIN.FIELDS.TYPE_TALENT}</option>
+            </select>
           </div>
           <div className="space-y-2">
             <Label>{TEXT.ADMIN.FIELDS.NAME}</Label>
@@ -89,16 +84,16 @@ export function TraitDialog({ open, editing, onSave, onClose, isSaving, rarities
           </div>
           <div className="space-y-2">
             <Label>{TEXT.ADMIN.FIELDS.RARITY}</Label>
-            <Select value={rarityId} onValueChange={setRarityId}>
-              <SelectTrigger>
-                <SelectValue placeholder={TEXT.ADMIN.FIELDS.SELECT_RARITY_PLACEHOLDER} />
-              </SelectTrigger>
-              <SelectContent>
-                {rarities.map((r) => (
-                  <SelectItem key={r.id} value={String(r.id)}>{r.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={rarityId}
+              onChange={(e) => setRarityId(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">{TEXT.ADMIN.FIELDS.SELECT_RARITY_PLACEHOLDER}</option>
+              {rarities.map((r) => (
+                <option key={r.id} value={String(r.id)}>{r.name}</option>
+              ))}
+            </select>
           </div>
           <div className="space-y-2">
             <Label>{TEXT.ADMIN.FIELDS.DESCRIPTION}</Label>
