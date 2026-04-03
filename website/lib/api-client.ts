@@ -218,6 +218,22 @@ export const apiClient = {
     );
   },
 
+  /** Send a PATCH request with a JSON body and parse response data. */
+  patch<T>(
+    endpoint: string,
+    body?: unknown,
+    config?: RequestConfig
+  ): Promise<T> {
+    return request<T>(
+      endpoint,
+      {
+        method: "PATCH",
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      config
+    );
+  },
+
   /** Send a DELETE request and parse response data. */
   delete<T>(endpoint: string, config?: RequestConfig): Promise<T> {
     return request<T>(endpoint, { method: "DELETE" }, config);

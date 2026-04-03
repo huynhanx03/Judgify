@@ -19,8 +19,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
@@ -244,6 +247,51 @@ func (_u *UserUpdate) AddUserStats(v ...*UserStats) *UserUpdate {
 	return _u.AddUserStatIDs(ids...)
 }
 
+// AddSolvedProblemIDs adds the "solved_problems" edge to the UserSolvedProblem entity by IDs.
+func (_u *UserUpdate) AddSolvedProblemIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddSolvedProblemIDs(ids...)
+	return _u
+}
+
+// AddSolvedProblems adds the "solved_problems" edges to the UserSolvedProblem entity.
+func (_u *UserUpdate) AddSolvedProblems(v ...*UserSolvedProblem) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSolvedProblemIDs(ids...)
+}
+
+// AddDifficultyStatIDs adds the "difficulty_stats" edge to the UserDifficultyStats entity by IDs.
+func (_u *UserUpdate) AddDifficultyStatIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddDifficultyStatIDs(ids...)
+	return _u
+}
+
+// AddDifficultyStats adds the "difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *UserUpdate) AddDifficultyStats(v ...*UserDifficultyStats) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDifficultyStatIDs(ids...)
+}
+
+// AddTagStatIDs adds the "tag_stats" edge to the UserTagStats entity by IDs.
+func (_u *UserUpdate) AddTagStatIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddTagStatIDs(ids...)
+	return _u
+}
+
+// AddTagStats adds the "tag_stats" edges to the UserTagStats entity.
+func (_u *UserUpdate) AddTagStats(v ...*UserTagStats) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTagStatIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -421,6 +469,69 @@ func (_u *UserUpdate) RemoveUserStats(v ...*UserStats) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserStatIDs(ids...)
+}
+
+// ClearSolvedProblems clears all "solved_problems" edges to the UserSolvedProblem entity.
+func (_u *UserUpdate) ClearSolvedProblems() *UserUpdate {
+	_u.mutation.ClearSolvedProblems()
+	return _u
+}
+
+// RemoveSolvedProblemIDs removes the "solved_problems" edge to UserSolvedProblem entities by IDs.
+func (_u *UserUpdate) RemoveSolvedProblemIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveSolvedProblemIDs(ids...)
+	return _u
+}
+
+// RemoveSolvedProblems removes "solved_problems" edges to UserSolvedProblem entities.
+func (_u *UserUpdate) RemoveSolvedProblems(v ...*UserSolvedProblem) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSolvedProblemIDs(ids...)
+}
+
+// ClearDifficultyStats clears all "difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *UserUpdate) ClearDifficultyStats() *UserUpdate {
+	_u.mutation.ClearDifficultyStats()
+	return _u
+}
+
+// RemoveDifficultyStatIDs removes the "difficulty_stats" edge to UserDifficultyStats entities by IDs.
+func (_u *UserUpdate) RemoveDifficultyStatIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveDifficultyStatIDs(ids...)
+	return _u
+}
+
+// RemoveDifficultyStats removes "difficulty_stats" edges to UserDifficultyStats entities.
+func (_u *UserUpdate) RemoveDifficultyStats(v ...*UserDifficultyStats) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDifficultyStatIDs(ids...)
+}
+
+// ClearTagStats clears all "tag_stats" edges to the UserTagStats entity.
+func (_u *UserUpdate) ClearTagStats() *UserUpdate {
+	_u.mutation.ClearTagStats()
+	return _u
+}
+
+// RemoveTagStatIDs removes the "tag_stats" edge to UserTagStats entities by IDs.
+func (_u *UserUpdate) RemoveTagStatIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveTagStatIDs(ids...)
+	return _u
+}
+
+// RemoveTagStats removes "tag_stats" edges to UserTagStats entities.
+func (_u *UserUpdate) RemoveTagStats(v ...*UserTagStats) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTagStatIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -906,6 +1017,141 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.SolvedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSolvedProblemsIDs(); len(nodes) > 0 && !_u.mutation.SolvedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SolvedProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDifficultyStatsIDs(); len(nodes) > 0 && !_u.mutation.DifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DifficultyStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTagStatsIDs(); len(nodes) > 0 && !_u.mutation.TagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TagStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1134,6 +1380,51 @@ func (_u *UserUpdateOne) AddUserStats(v ...*UserStats) *UserUpdateOne {
 	return _u.AddUserStatIDs(ids...)
 }
 
+// AddSolvedProblemIDs adds the "solved_problems" edge to the UserSolvedProblem entity by IDs.
+func (_u *UserUpdateOne) AddSolvedProblemIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddSolvedProblemIDs(ids...)
+	return _u
+}
+
+// AddSolvedProblems adds the "solved_problems" edges to the UserSolvedProblem entity.
+func (_u *UserUpdateOne) AddSolvedProblems(v ...*UserSolvedProblem) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSolvedProblemIDs(ids...)
+}
+
+// AddDifficultyStatIDs adds the "difficulty_stats" edge to the UserDifficultyStats entity by IDs.
+func (_u *UserUpdateOne) AddDifficultyStatIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddDifficultyStatIDs(ids...)
+	return _u
+}
+
+// AddDifficultyStats adds the "difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *UserUpdateOne) AddDifficultyStats(v ...*UserDifficultyStats) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDifficultyStatIDs(ids...)
+}
+
+// AddTagStatIDs adds the "tag_stats" edge to the UserTagStats entity by IDs.
+func (_u *UserUpdateOne) AddTagStatIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddTagStatIDs(ids...)
+	return _u
+}
+
+// AddTagStats adds the "tag_stats" edges to the UserTagStats entity.
+func (_u *UserUpdateOne) AddTagStats(v ...*UserTagStats) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTagStatIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -1311,6 +1602,69 @@ func (_u *UserUpdateOne) RemoveUserStats(v ...*UserStats) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserStatIDs(ids...)
+}
+
+// ClearSolvedProblems clears all "solved_problems" edges to the UserSolvedProblem entity.
+func (_u *UserUpdateOne) ClearSolvedProblems() *UserUpdateOne {
+	_u.mutation.ClearSolvedProblems()
+	return _u
+}
+
+// RemoveSolvedProblemIDs removes the "solved_problems" edge to UserSolvedProblem entities by IDs.
+func (_u *UserUpdateOne) RemoveSolvedProblemIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveSolvedProblemIDs(ids...)
+	return _u
+}
+
+// RemoveSolvedProblems removes "solved_problems" edges to UserSolvedProblem entities.
+func (_u *UserUpdateOne) RemoveSolvedProblems(v ...*UserSolvedProblem) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSolvedProblemIDs(ids...)
+}
+
+// ClearDifficultyStats clears all "difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *UserUpdateOne) ClearDifficultyStats() *UserUpdateOne {
+	_u.mutation.ClearDifficultyStats()
+	return _u
+}
+
+// RemoveDifficultyStatIDs removes the "difficulty_stats" edge to UserDifficultyStats entities by IDs.
+func (_u *UserUpdateOne) RemoveDifficultyStatIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveDifficultyStatIDs(ids...)
+	return _u
+}
+
+// RemoveDifficultyStats removes "difficulty_stats" edges to UserDifficultyStats entities.
+func (_u *UserUpdateOne) RemoveDifficultyStats(v ...*UserDifficultyStats) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDifficultyStatIDs(ids...)
+}
+
+// ClearTagStats clears all "tag_stats" edges to the UserTagStats entity.
+func (_u *UserUpdateOne) ClearTagStats() *UserUpdateOne {
+	_u.mutation.ClearTagStats()
+	return _u
+}
+
+// RemoveTagStatIDs removes the "tag_stats" edge to UserTagStats entities by IDs.
+func (_u *UserUpdateOne) RemoveTagStatIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveTagStatIDs(ids...)
+	return _u
+}
+
+// RemoveTagStats removes "tag_stats" edges to UserTagStats entities.
+func (_u *UserUpdateOne) RemoveTagStats(v ...*UserTagStats) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTagStatIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1819,6 +2173,141 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SolvedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSolvedProblemsIDs(); len(nodes) > 0 && !_u.mutation.SolvedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SolvedProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDifficultyStatsIDs(); len(nodes) > 0 && !_u.mutation.DifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DifficultyStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTagStatsIDs(); len(nodes) > 0 && !_u.mutation.TagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TagStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

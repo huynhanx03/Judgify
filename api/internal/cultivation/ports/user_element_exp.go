@@ -17,6 +17,10 @@ type UserElementExpRepository interface {
 	Update(ctx context.Context, e *entity.UserElementExp) error
 	Delete(ctx context.Context, id int) error
 	Exists(ctx context.Context, id int) (bool, error)
+	// AddExpByElement atomically adds EXP for a user+element. Creates row if not exists.
+	AddExpByElement(ctx context.Context, userID, elementID int, exp int64) error
+	// GetByUserID returns element exp details (with element name/code) for a given user.
+	GetByUserID(ctx context.Context, userID int) ([]entity.ElementExpDetail, error)
 }
 
 // UserElementExpService defines the user element EXP business logic interface.

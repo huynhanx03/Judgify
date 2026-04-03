@@ -15,12 +15,14 @@ func ToSubmissionResponse(e *entity.Submission) *dto.SubmissionResponse {
 		ProblemID:    e.ProblemID,
 		UserID:       e.UserID,
 		Language:     e.Language,
+		SourceCode:   e.SourceCode,
 		Status:       e.Status,
 		PassedCount:  e.PassedCount,
 		TotalCount:   e.TotalCount,
 		TimeMs:       e.TimeMs,
 		MemoryKb:     e.MemoryKb,
 		ErrorMessage: e.ErrorMessage,
+		CreatedAt:    e.CreatedAt,
 	}
 }
 

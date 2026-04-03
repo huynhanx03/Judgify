@@ -13,6 +13,7 @@ import (
 // TraitHandler defines the trait HTTP handler interface.
 type TraitHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.TraitResponse], error)
+	FindAll(ctx context.Context, req *dto.FindAllTraitsRequest) ([]*dto.TraitResponse, error)
 	Get(ctx context.Context, req *dto.GetTraitRequest) (*dto.TraitResponse, error)
 	Create(ctx context.Context, req *dto.CreateTraitRequest) (*dto.TraitResponse, error)
 	Update(ctx context.Context, req *dto.UpdateTraitRequest) (*dto.TraitResponse, error)
@@ -30,6 +31,10 @@ func NewTraitHandler(svc ports.TraitService) TraitHandler {
 
 func (h *traitHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.TraitResponse], error) {
 	return h.traitService.Find(ctx, req)
+}
+
+func (h *traitHandler) FindAll(ctx context.Context, _ *dto.FindAllTraitsRequest) ([]*dto.TraitResponse, error) {
+	return h.traitService.FindAll(ctx)
 }
 
 func (h *traitHandler) Get(ctx context.Context, req *dto.GetTraitRequest) (*dto.TraitResponse, error) {

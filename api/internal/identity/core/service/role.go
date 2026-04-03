@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
@@ -27,6 +28,19 @@ type roleService struct {
 // NewRoleService creates a new RoleService instance.
 func NewRoleService(roleRepo ports.RoleRepository, cacheService ports.CacheService) ports.RoleService {
 	return &roleService{roleRepo: roleRepo, cacheService: cacheService}
+}
+
+// FindAll retrieves all roles without pagination.
+func (s *roleService) FindAll(ctx context.Context) ([]*dto.RoleResponse, error) {
+	roles, err := s.roleRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.RoleResponse, len(roles))
+	for i, r := range roles {
+		responses[i] = mapper.ToRoleResponse(r)
+	}
+	return responses, nil
 }
 
 // Find retrieves roles with pagination.
@@ -156,7 +170,7 @@ func (s *roleService) Delete(ctx context.Context, id int) error {
 		}
 
 		if !exists {
-			return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+			return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjRole), nil)
 		}
 
 		if err := s.roleRepo.Delete(ctx, id); err != nil {

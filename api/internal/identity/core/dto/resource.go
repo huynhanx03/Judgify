@@ -23,6 +23,9 @@ type DeleteResourceRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllResourcesRequest is an empty request for GET /resources.
+type FindAllResourcesRequest struct{}
+
 // ResourceResponse represents resource data in API response.
 type ResourceResponse struct {
 	ID          int     `json:"id"`

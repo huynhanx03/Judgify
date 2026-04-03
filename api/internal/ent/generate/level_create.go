@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
-	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
 
 // LevelCreate is the builder for creating a Level entity.
@@ -111,21 +110,6 @@ func (_c *LevelCreate) SetNillableDescription(v *string) *LevelCreate {
 		_c.SetDescription(*v)
 	}
 	return _c
-}
-
-// AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
-func (_c *LevelCreate) AddUserStatIDs(ids ...int) *LevelCreate {
-	_c.mutation.AddUserStatIDs(ids...)
-	return _c
-}
-
-// AddUserStats adds the "user_stats" edges to the UserStats entity.
-func (_c *LevelCreate) AddUserStats(v ...*UserStats) *LevelCreate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _c.AddUserStatIDs(ids...)
 }
 
 // Mutation returns the LevelMutation object of the builder.
@@ -269,22 +253,6 @@ func (_c *LevelCreate) createSpec() (*Level, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(level.FieldDescription, field.TypeString, value)
 		_node.Description = value
-	}
-	if nodes := _c.mutation.UserStatsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

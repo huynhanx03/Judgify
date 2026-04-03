@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
@@ -119,20 +118,6 @@ func (_u *UserStatsUpdate) AddTotalExp(v int64) *UserStatsUpdate {
 	return _u
 }
 
-// SetCurrentLevelID sets the "current_level_id" field.
-func (_u *UserStatsUpdate) SetCurrentLevelID(v int) *UserStatsUpdate {
-	_u.mutation.SetCurrentLevelID(v)
-	return _u
-}
-
-// SetNillableCurrentLevelID sets the "current_level_id" field if the given value is not nil.
-func (_u *UserStatsUpdate) SetNillableCurrentLevelID(v *int) *UserStatsUpdate {
-	if v != nil {
-		_u.SetCurrentLevelID(*v)
-	}
-	return _u
-}
-
 // SetRating sets the "rating" field.
 func (_u *UserStatsUpdate) SetRating(v int) *UserStatsUpdate {
 	_u.mutation.ResetRating()
@@ -154,14 +139,51 @@ func (_u *UserStatsUpdate) AddRating(v int) *UserStatsUpdate {
 	return _u
 }
 
+// SetTotalSubmissions sets the "total_submissions" field.
+func (_u *UserStatsUpdate) SetTotalSubmissions(v int) *UserStatsUpdate {
+	_u.mutation.ResetTotalSubmissions()
+	_u.mutation.SetTotalSubmissions(v)
+	return _u
+}
+
+// SetNillableTotalSubmissions sets the "total_submissions" field if the given value is not nil.
+func (_u *UserStatsUpdate) SetNillableTotalSubmissions(v *int) *UserStatsUpdate {
+	if v != nil {
+		_u.SetTotalSubmissions(*v)
+	}
+	return _u
+}
+
+// AddTotalSubmissions adds value to the "total_submissions" field.
+func (_u *UserStatsUpdate) AddTotalSubmissions(v int) *UserStatsUpdate {
+	_u.mutation.AddTotalSubmissions(v)
+	return _u
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (_u *UserStatsUpdate) SetAcceptedCount(v int) *UserStatsUpdate {
+	_u.mutation.ResetAcceptedCount()
+	_u.mutation.SetAcceptedCount(v)
+	return _u
+}
+
+// SetNillableAcceptedCount sets the "accepted_count" field if the given value is not nil.
+func (_u *UserStatsUpdate) SetNillableAcceptedCount(v *int) *UserStatsUpdate {
+	if v != nil {
+		_u.SetAcceptedCount(*v)
+	}
+	return _u
+}
+
+// AddAcceptedCount adds value to the "accepted_count" field.
+func (_u *UserStatsUpdate) AddAcceptedCount(v int) *UserStatsUpdate {
+	_u.mutation.AddAcceptedCount(v)
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *UserStatsUpdate) SetUser(v *User) *UserStatsUpdate {
 	return _u.SetUserID(v.ID)
-}
-
-// SetCurrentLevel sets the "current_level" edge to the Level entity.
-func (_u *UserStatsUpdate) SetCurrentLevel(v *Level) *UserStatsUpdate {
-	return _u.SetCurrentLevelID(v.ID)
 }
 
 // Mutation returns the UserStatsMutation object of the builder.
@@ -172,12 +194,6 @@ func (_u *UserStatsUpdate) Mutation() *UserStatsMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *UserStatsUpdate) ClearUser() *UserStatsUpdate {
 	_u.mutation.ClearUser()
-	return _u
-}
-
-// ClearCurrentLevel clears the "current_level" edge to the Level entity.
-func (_u *UserStatsUpdate) ClearCurrentLevel() *UserStatsUpdate {
-	_u.mutation.ClearCurrentLevel()
 	return _u
 }
 
@@ -230,11 +246,18 @@ func (_u *UserStatsUpdate) check() error {
 			return &ValidationError{Name: "total_exp", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_exp": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.TotalSubmissions(); ok {
+		if err := userstats.TotalSubmissionsValidator(v); err != nil {
+			return &ValidationError{Name: "total_submissions", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_submissions": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AcceptedCount(); ok {
+		if err := userstats.AcceptedCountValidator(v); err != nil {
+			return &ValidationError{Name: "accepted_count", err: fmt.Errorf(`generate: validator failed for field "UserStats.accepted_count": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "UserStats.user"`)
-	}
-	if _u.mutation.CurrentLevelCleared() && len(_u.mutation.CurrentLevelIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "UserStats.current_level"`)
 	}
 	return nil
 }
@@ -287,6 +310,18 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedRating(); ok {
 		_spec.AddField(userstats.FieldRating, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.TotalSubmissions(); ok {
+		_spec.SetField(userstats.FieldTotalSubmissions, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTotalSubmissions(); ok {
+		_spec.AddField(userstats.FieldTotalSubmissions, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AcceptedCount(); ok {
+		_spec.SetField(userstats.FieldAcceptedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAcceptedCount(); ok {
+		_spec.AddField(userstats.FieldAcceptedCount, field.TypeInt, value)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -309,35 +344,6 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.CurrentLevelCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   userstats.CurrentLevelTable,
-			Columns: []string{userstats.CurrentLevelColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.CurrentLevelIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   userstats.CurrentLevelTable,
-			Columns: []string{userstats.CurrentLevelColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -455,20 +461,6 @@ func (_u *UserStatsUpdateOne) AddTotalExp(v int64) *UserStatsUpdateOne {
 	return _u
 }
 
-// SetCurrentLevelID sets the "current_level_id" field.
-func (_u *UserStatsUpdateOne) SetCurrentLevelID(v int) *UserStatsUpdateOne {
-	_u.mutation.SetCurrentLevelID(v)
-	return _u
-}
-
-// SetNillableCurrentLevelID sets the "current_level_id" field if the given value is not nil.
-func (_u *UserStatsUpdateOne) SetNillableCurrentLevelID(v *int) *UserStatsUpdateOne {
-	if v != nil {
-		_u.SetCurrentLevelID(*v)
-	}
-	return _u
-}
-
 // SetRating sets the "rating" field.
 func (_u *UserStatsUpdateOne) SetRating(v int) *UserStatsUpdateOne {
 	_u.mutation.ResetRating()
@@ -490,14 +482,51 @@ func (_u *UserStatsUpdateOne) AddRating(v int) *UserStatsUpdateOne {
 	return _u
 }
 
+// SetTotalSubmissions sets the "total_submissions" field.
+func (_u *UserStatsUpdateOne) SetTotalSubmissions(v int) *UserStatsUpdateOne {
+	_u.mutation.ResetTotalSubmissions()
+	_u.mutation.SetTotalSubmissions(v)
+	return _u
+}
+
+// SetNillableTotalSubmissions sets the "total_submissions" field if the given value is not nil.
+func (_u *UserStatsUpdateOne) SetNillableTotalSubmissions(v *int) *UserStatsUpdateOne {
+	if v != nil {
+		_u.SetTotalSubmissions(*v)
+	}
+	return _u
+}
+
+// AddTotalSubmissions adds value to the "total_submissions" field.
+func (_u *UserStatsUpdateOne) AddTotalSubmissions(v int) *UserStatsUpdateOne {
+	_u.mutation.AddTotalSubmissions(v)
+	return _u
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (_u *UserStatsUpdateOne) SetAcceptedCount(v int) *UserStatsUpdateOne {
+	_u.mutation.ResetAcceptedCount()
+	_u.mutation.SetAcceptedCount(v)
+	return _u
+}
+
+// SetNillableAcceptedCount sets the "accepted_count" field if the given value is not nil.
+func (_u *UserStatsUpdateOne) SetNillableAcceptedCount(v *int) *UserStatsUpdateOne {
+	if v != nil {
+		_u.SetAcceptedCount(*v)
+	}
+	return _u
+}
+
+// AddAcceptedCount adds value to the "accepted_count" field.
+func (_u *UserStatsUpdateOne) AddAcceptedCount(v int) *UserStatsUpdateOne {
+	_u.mutation.AddAcceptedCount(v)
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *UserStatsUpdateOne) SetUser(v *User) *UserStatsUpdateOne {
 	return _u.SetUserID(v.ID)
-}
-
-// SetCurrentLevel sets the "current_level" edge to the Level entity.
-func (_u *UserStatsUpdateOne) SetCurrentLevel(v *Level) *UserStatsUpdateOne {
-	return _u.SetCurrentLevelID(v.ID)
 }
 
 // Mutation returns the UserStatsMutation object of the builder.
@@ -508,12 +537,6 @@ func (_u *UserStatsUpdateOne) Mutation() *UserStatsMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *UserStatsUpdateOne) ClearUser() *UserStatsUpdateOne {
 	_u.mutation.ClearUser()
-	return _u
-}
-
-// ClearCurrentLevel clears the "current_level" edge to the Level entity.
-func (_u *UserStatsUpdateOne) ClearCurrentLevel() *UserStatsUpdateOne {
-	_u.mutation.ClearCurrentLevel()
 	return _u
 }
 
@@ -579,11 +602,18 @@ func (_u *UserStatsUpdateOne) check() error {
 			return &ValidationError{Name: "total_exp", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_exp": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.TotalSubmissions(); ok {
+		if err := userstats.TotalSubmissionsValidator(v); err != nil {
+			return &ValidationError{Name: "total_submissions", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_submissions": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AcceptedCount(); ok {
+		if err := userstats.AcceptedCountValidator(v); err != nil {
+			return &ValidationError{Name: "accepted_count", err: fmt.Errorf(`generate: validator failed for field "UserStats.accepted_count": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "UserStats.user"`)
-	}
-	if _u.mutation.CurrentLevelCleared() && len(_u.mutation.CurrentLevelIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "UserStats.current_level"`)
 	}
 	return nil
 }
@@ -653,6 +683,18 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 	if value, ok := _u.mutation.AddedRating(); ok {
 		_spec.AddField(userstats.FieldRating, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.TotalSubmissions(); ok {
+		_spec.SetField(userstats.FieldTotalSubmissions, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTotalSubmissions(); ok {
+		_spec.AddField(userstats.FieldTotalSubmissions, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AcceptedCount(); ok {
+		_spec.SetField(userstats.FieldAcceptedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAcceptedCount(); ok {
+		_spec.AddField(userstats.FieldAcceptedCount, field.TypeInt, value)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -675,35 +717,6 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.CurrentLevelCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   userstats.CurrentLevelTable,
-			Columns: []string{userstats.CurrentLevelColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.CurrentLevelIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   userstats.CurrentLevelTable,
-			Columns: []string{userstats.CurrentLevelColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

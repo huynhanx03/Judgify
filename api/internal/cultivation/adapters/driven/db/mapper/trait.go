@@ -10,7 +10,7 @@ func ToTraitEntity(m *generate.Trait) *entity.Trait {
 	if m == nil {
 		return nil
 	}
-	return &entity.Trait{
+	t := &entity.Trait{
 		ID:          m.ID,
 		Type:        string(m.Type),
 		Name:        m.Name,
@@ -20,4 +20,13 @@ func ToTraitEntity(m *generate.Trait) *entity.Trait {
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 	}
+	if r, err := m.Edges.RarityOrErr(); err == nil && r != nil {
+		t.Rarity = &entity.TraitRarity{
+			ID:     r.ID,
+			Name:   r.Name,
+			Code:   r.Code,
+			Weight: r.Weight,
+		}
+	}
+	return t
 }

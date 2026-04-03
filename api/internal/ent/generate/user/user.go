@@ -45,6 +45,12 @@ const (
 	EdgeUserElementExps = "user_element_exps"
 	// EdgeUserStats holds the string denoting the user_stats edge name in mutations.
 	EdgeUserStats = "user_stats"
+	// EdgeSolvedProblems holds the string denoting the solved_problems edge name in mutations.
+	EdgeSolvedProblems = "solved_problems"
+	// EdgeDifficultyStats holds the string denoting the difficulty_stats edge name in mutations.
+	EdgeDifficultyStats = "difficulty_stats"
+	// EdgeTagStats holds the string denoting the tag_stats edge name in mutations.
+	EdgeTagStats = "tag_stats"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleTable is the table that holds the role relation/edge.
@@ -110,6 +116,27 @@ const (
 	UserStatsInverseTable = "user_stats"
 	// UserStatsColumn is the table column denoting the user_stats relation/edge.
 	UserStatsColumn = "user_id"
+	// SolvedProblemsTable is the table that holds the solved_problems relation/edge.
+	SolvedProblemsTable = "user_solved_problems"
+	// SolvedProblemsInverseTable is the table name for the UserSolvedProblem entity.
+	// It exists in this package in order to avoid circular dependency with the "usersolvedproblem" package.
+	SolvedProblemsInverseTable = "user_solved_problems"
+	// SolvedProblemsColumn is the table column denoting the solved_problems relation/edge.
+	SolvedProblemsColumn = "user_id"
+	// DifficultyStatsTable is the table that holds the difficulty_stats relation/edge.
+	DifficultyStatsTable = "user_difficulty_stats"
+	// DifficultyStatsInverseTable is the table name for the UserDifficultyStats entity.
+	// It exists in this package in order to avoid circular dependency with the "userdifficultystats" package.
+	DifficultyStatsInverseTable = "user_difficulty_stats"
+	// DifficultyStatsColumn is the table column denoting the difficulty_stats relation/edge.
+	DifficultyStatsColumn = "user_id"
+	// TagStatsTable is the table that holds the tag_stats relation/edge.
+	TagStatsTable = "user_tag_stats"
+	// TagStatsInverseTable is the table name for the UserTagStats entity.
+	// It exists in this package in order to avoid circular dependency with the "usertagstats" package.
+	TagStatsInverseTable = "user_tag_stats"
+	// TagStatsColumn is the table column denoting the tag_stats relation/edge.
+	TagStatsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -307,6 +334,48 @@ func ByUserStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySolvedProblemsCount orders the results by solved_problems count.
+func BySolvedProblemsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSolvedProblemsStep(), opts...)
+	}
+}
+
+// BySolvedProblems orders the results by solved_problems terms.
+func BySolvedProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSolvedProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByDifficultyStatsCount orders the results by difficulty_stats count.
+func ByDifficultyStatsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDifficultyStatsStep(), opts...)
+	}
+}
+
+// ByDifficultyStats orders the results by difficulty_stats terms.
+func ByDifficultyStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDifficultyStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTagStatsCount orders the results by tag_stats count.
+func ByTagStatsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTagStatsStep(), opts...)
+	}
+}
+
+// ByTagStats orders the results by tag_stats terms.
+func ByTagStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTagStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRoleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -368,5 +437,26 @@ func newUserStatsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserStatsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserStatsTable, UserStatsColumn),
+	)
+}
+func newSolvedProblemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SolvedProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SolvedProblemsTable, SolvedProblemsColumn),
+	)
+}
+func newDifficultyStatsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DifficultyStatsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DifficultyStatsTable, DifficultyStatsColumn),
+	)
+}
+func newTagStatsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TagStatsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TagStatsTable, TagStatsColumn),
 	)
 }

@@ -8,6 +8,12 @@ import {
   FileCode2,
   Tags,
   ShieldCheck,
+  Flame,
+  Sparkles,
+  Layers,
+  Trophy,
+  BarChart3,
+  Gem,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,6 +40,17 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     items: [
       { label: "Bài Tập", href: "/admin/problems", icon: FileCode2 },
       { label: "Tags", href: "/admin/tags", icon: Tags },
+      { label: "Độ Khó", href: "/admin/difficulties", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "Tu Luyện",
+    items: [
+      { label: "Nguyên Tố", href: "/admin/elements", icon: Flame },
+      { label: "Độ Hiếm", href: "/admin/rarities", icon: Gem },
+      { label: "Đặc Tính", href: "/admin/traits", icon: Sparkles },
+      { label: "Cảnh Giới", href: "/admin/levels", icon: Layers },
+      { label: "Danh Hiệu", href: "/admin/ranks", icon: Trophy },
     ],
   },
   {

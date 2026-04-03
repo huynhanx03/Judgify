@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
@@ -448,29 +447,6 @@ func DescriptionEqualFold(v string) predicate.Level {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.Level {
 	return predicate.Level(sql.FieldContainsFold(FieldDescription, v))
-}
-
-// HasUserStats applies the HasEdge predicate on the "user_stats" edge.
-func HasUserStats() predicate.Level {
-	return predicate.Level(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserStatsTable, UserStatsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasUserStatsWith applies the HasEdge predicate on the "user_stats" edge with a given conditions (other predicates).
-func HasUserStatsWith(preds ...predicate.UserStats) predicate.Level {
-	return predicate.Level(func(s *sql.Selector) {
-		step := newUserStatsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

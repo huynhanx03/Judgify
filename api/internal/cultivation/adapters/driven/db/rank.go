@@ -16,7 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const rankRepoName = "RankRepository"
+const rankRepoName = "Rank"
 
 type RankRepository struct {
 	client *dbEnt.EntClient
@@ -109,4 +109,16 @@ func (r *RankRepository) Exists(ctx context.Context, id int) (bool, error) {
 		return false, commonEnt.MapEntError(err, rankRepoName)
 	}
 	return exists, nil
+}
+
+func (r *RankRepository) FindAll(ctx context.Context) ([]*entity.Rank, error) {
+	records, err := r.client.DB(ctx).Rank.Query().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, rankRepoName)
+	}
+	entities := make([]*entity.Rank, len(records))
+	for i, rec := range records {
+		entities[i] = mapper.ToRankEntity(rec)
+	}
+	return entities, nil
 }

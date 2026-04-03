@@ -30,29 +30,8 @@ type Level struct {
 	// Minimum EXP required to attempt breakthrough
 	MinExp int64 `json:"min_exp,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the LevelQuery when eager-loading is set.
-	Edges        LevelEdges `json:"edges"`
+	Description  string `json:"description,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// LevelEdges holds the relations/edges for other nodes in the graph.
-type LevelEdges struct {
-	// UserStats holds the value of the user_stats edge.
-	UserStats []*UserStats `json:"user_stats,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-}
-
-// UserStatsOrErr returns the UserStats value or an error if the edge
-// was not loaded in eager-loading.
-func (e LevelEdges) UserStatsOrErr() ([]*UserStats, error) {
-	if e.loadedTypes[0] {
-		return e.UserStats, nil
-	}
-	return nil, &NotLoadedError{edge: "user_stats"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -142,11 +121,6 @@ func (_m *Level) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Level) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
-}
-
-// QueryUserStats queries the "user_stats" edge of the Level entity.
-func (_m *Level) QueryUserStats() *UserStatsQuery {
-	return NewLevelClient(_m.config).QueryUserStats(_m)
 }
 
 // Update returns a builder for updating this Level.

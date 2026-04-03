@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -9,6 +10,7 @@ import (
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
+	"github.com/huynhanx03/judgify/internal/identity/constant"
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/mapper"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
@@ -23,6 +25,19 @@ type resourceService struct {
 // NewResourceService creates a new ResourceService instance.
 func NewResourceService(resourceRepo ports.ResourceRepository, cacheService ports.CacheService) ports.ResourceService {
 	return &resourceService{resourceRepo: resourceRepo, cacheService: cacheService}
+}
+
+// FindAll retrieves all resources without pagination.
+func (s *resourceService) FindAll(ctx context.Context) ([]*dto.ResourceResponse, error) {
+	resources, err := s.resourceRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.ResourceResponse, len(resources))
+	for i, r := range resources {
+		responses[i] = mapper.ToResourceResponse(r)
+	}
+	return responses, nil
 }
 
 // Find retrieves resources with pagination.
@@ -114,7 +129,7 @@ func (s *resourceService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjResource), nil)
 	}
 
 	if err := s.resourceRepo.Delete(ctx, id); err != nil {

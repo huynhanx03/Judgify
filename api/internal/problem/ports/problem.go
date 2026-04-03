@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	d "github.com/huynhanx03/judgify/pkg/dto"
 
@@ -21,6 +22,10 @@ type ProblemRepository interface {
 	RemoveTags(ctx context.Context, problemID int, tagIDs []int) error
 	ReplaceTags(ctx context.Context, problemID int, tagIDs []int) error
 	GetTagIDs(ctx context.Context, problemID int) ([]int, error)
+	InsertUserSolved(ctx context.Context, userID, problemID int) error
+	IsFirstSolve(ctx context.Context, userID, problemID int) (bool, error)
+	GetSolvedProblemIDs(ctx context.Context, userID int, problemIDs []int) (map[int]bool, error)
+	RecalculateStats(ctx context.Context, since *time.Time) error
 }
 
 // ProblemService defines the problem business logic interface.

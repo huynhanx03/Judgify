@@ -85,14 +85,19 @@ func TotalExp(v int64) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldTotalExp, v))
 }
 
-// CurrentLevelID applies equality check predicate on the "current_level_id" field. It's identical to CurrentLevelIDEQ.
-func CurrentLevelID(v int) predicate.UserStats {
-	return predicate.UserStats(sql.FieldEQ(FieldCurrentLevelID, v))
-}
-
 // Rating applies equality check predicate on the "rating" field. It's identical to RatingEQ.
 func Rating(v int) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldRating, v))
+}
+
+// TotalSubmissions applies equality check predicate on the "total_submissions" field. It's identical to TotalSubmissionsEQ.
+func TotalSubmissions(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldTotalSubmissions, v))
+}
+
+// AcceptedCount applies equality check predicate on the "accepted_count" field. It's identical to AcceptedCountEQ.
+func AcceptedCount(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldAcceptedCount, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -335,26 +340,6 @@ func TotalExpLTE(v int64) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLTE(FieldTotalExp, v))
 }
 
-// CurrentLevelIDEQ applies the EQ predicate on the "current_level_id" field.
-func CurrentLevelIDEQ(v int) predicate.UserStats {
-	return predicate.UserStats(sql.FieldEQ(FieldCurrentLevelID, v))
-}
-
-// CurrentLevelIDNEQ applies the NEQ predicate on the "current_level_id" field.
-func CurrentLevelIDNEQ(v int) predicate.UserStats {
-	return predicate.UserStats(sql.FieldNEQ(FieldCurrentLevelID, v))
-}
-
-// CurrentLevelIDIn applies the In predicate on the "current_level_id" field.
-func CurrentLevelIDIn(vs ...int) predicate.UserStats {
-	return predicate.UserStats(sql.FieldIn(FieldCurrentLevelID, vs...))
-}
-
-// CurrentLevelIDNotIn applies the NotIn predicate on the "current_level_id" field.
-func CurrentLevelIDNotIn(vs ...int) predicate.UserStats {
-	return predicate.UserStats(sql.FieldNotIn(FieldCurrentLevelID, vs...))
-}
-
 // RatingEQ applies the EQ predicate on the "rating" field.
 func RatingEQ(v int) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldRating, v))
@@ -395,6 +380,86 @@ func RatingLTE(v int) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLTE(FieldRating, v))
 }
 
+// TotalSubmissionsEQ applies the EQ predicate on the "total_submissions" field.
+func TotalSubmissionsEQ(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldTotalSubmissions, v))
+}
+
+// TotalSubmissionsNEQ applies the NEQ predicate on the "total_submissions" field.
+func TotalSubmissionsNEQ(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNEQ(FieldTotalSubmissions, v))
+}
+
+// TotalSubmissionsIn applies the In predicate on the "total_submissions" field.
+func TotalSubmissionsIn(vs ...int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldIn(FieldTotalSubmissions, vs...))
+}
+
+// TotalSubmissionsNotIn applies the NotIn predicate on the "total_submissions" field.
+func TotalSubmissionsNotIn(vs ...int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotIn(FieldTotalSubmissions, vs...))
+}
+
+// TotalSubmissionsGT applies the GT predicate on the "total_submissions" field.
+func TotalSubmissionsGT(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGT(FieldTotalSubmissions, v))
+}
+
+// TotalSubmissionsGTE applies the GTE predicate on the "total_submissions" field.
+func TotalSubmissionsGTE(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGTE(FieldTotalSubmissions, v))
+}
+
+// TotalSubmissionsLT applies the LT predicate on the "total_submissions" field.
+func TotalSubmissionsLT(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLT(FieldTotalSubmissions, v))
+}
+
+// TotalSubmissionsLTE applies the LTE predicate on the "total_submissions" field.
+func TotalSubmissionsLTE(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLTE(FieldTotalSubmissions, v))
+}
+
+// AcceptedCountEQ applies the EQ predicate on the "accepted_count" field.
+func AcceptedCountEQ(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldAcceptedCount, v))
+}
+
+// AcceptedCountNEQ applies the NEQ predicate on the "accepted_count" field.
+func AcceptedCountNEQ(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNEQ(FieldAcceptedCount, v))
+}
+
+// AcceptedCountIn applies the In predicate on the "accepted_count" field.
+func AcceptedCountIn(vs ...int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldIn(FieldAcceptedCount, vs...))
+}
+
+// AcceptedCountNotIn applies the NotIn predicate on the "accepted_count" field.
+func AcceptedCountNotIn(vs ...int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotIn(FieldAcceptedCount, vs...))
+}
+
+// AcceptedCountGT applies the GT predicate on the "accepted_count" field.
+func AcceptedCountGT(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGT(FieldAcceptedCount, v))
+}
+
+// AcceptedCountGTE applies the GTE predicate on the "accepted_count" field.
+func AcceptedCountGTE(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGTE(FieldAcceptedCount, v))
+}
+
+// AcceptedCountLT applies the LT predicate on the "accepted_count" field.
+func AcceptedCountLT(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLT(FieldAcceptedCount, v))
+}
+
+// AcceptedCountLTE applies the LTE predicate on the "accepted_count" field.
+func AcceptedCountLTE(v int) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLTE(FieldAcceptedCount, v))
+}
+
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.UserStats {
 	return predicate.UserStats(func(s *sql.Selector) {
@@ -410,29 +475,6 @@ func HasUser() predicate.UserStats {
 func HasUserWith(preds ...predicate.User) predicate.UserStats {
 	return predicate.UserStats(func(s *sql.Selector) {
 		step := newUserStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasCurrentLevel applies the HasEdge predicate on the "current_level" edge.
-func HasCurrentLevel() predicate.UserStats {
-	return predicate.UserStats(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, CurrentLevelTable, CurrentLevelColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasCurrentLevelWith applies the HasEdge predicate on the "current_level" edge with a given conditions (other predicates).
-func HasCurrentLevelWith(preds ...predicate.Level) predicate.UserStats {
-	return predicate.UserStats(func(s *sql.Selector) {
-		step := newCurrentLevelStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

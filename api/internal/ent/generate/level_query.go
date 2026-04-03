@@ -4,7 +4,6 @@ package generate
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -15,18 +14,16 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
 
 // LevelQuery is the builder for querying Level entities.
 type LevelQuery struct {
 	config
-	ctx           *QueryContext
-	order         []level.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.Level
-	withUserStats *UserStatsQuery
-	modifiers     []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []level.OrderOption
+	inters     []Interceptor
+	predicates []predicate.Level
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,28 +58,6 @@ func (_q *LevelQuery) Unique(unique bool) *LevelQuery {
 func (_q *LevelQuery) Order(o ...level.OrderOption) *LevelQuery {
 	_q.order = append(_q.order, o...)
 	return _q
-}
-
-// QueryUserStats chains the current query on the "user_stats" edge.
-func (_q *LevelQuery) QueryUserStats() *UserStatsQuery {
-	query := (&UserStatsClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(level.Table, level.FieldID, selector),
-			sqlgraph.To(userstats.Table, userstats.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, level.UserStatsTable, level.UserStatsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first Level entity from the query.
@@ -272,28 +247,16 @@ func (_q *LevelQuery) Clone() *LevelQuery {
 		return nil
 	}
 	return &LevelQuery{
-		config:        _q.config,
-		ctx:           _q.ctx.Clone(),
-		order:         append([]level.OrderOption{}, _q.order...),
-		inters:        append([]Interceptor{}, _q.inters...),
-		predicates:    append([]predicate.Level{}, _q.predicates...),
-		withUserStats: _q.withUserStats.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]level.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.Level{}, _q.predicates...),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
-}
-
-// WithUserStats tells the query-builder to eager-load the nodes that are connected to
-// the "user_stats" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *LevelQuery) WithUserStats(opts ...func(*UserStatsQuery)) *LevelQuery {
-	query := (&UserStatsClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withUserStats = query
-	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -372,11 +335,8 @@ func (_q *LevelQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *LevelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Level, error) {
 	var (
-		nodes       = []*Level{}
-		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
-			_q.withUserStats != nil,
-		}
+		nodes = []*Level{}
+		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Level).scanValues(nil, columns)
@@ -384,7 +344,6 @@ func (_q *LevelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Level,
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Level{config: _q.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(_q.modifiers) > 0 {
@@ -399,50 +358,7 @@ func (_q *LevelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Level,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withUserStats; query != nil {
-		if err := _q.loadUserStats(ctx, query, nodes,
-			func(n *Level) { n.Edges.UserStats = []*UserStats{} },
-			func(n *Level, e *UserStats) {
-				n.Edges.UserStats = append(n.Edges.UserStats, e)
-				if !e.Edges.loadedTypes[1] {
-					e.Edges.CurrentLevel = n
-				}
-			}); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (_q *LevelQuery) loadUserStats(ctx context.Context, query *UserStatsQuery, nodes []*Level, init func(*Level), assign func(*Level, *UserStats)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Level)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(userstats.FieldCurrentLevelID)
-	}
-	query.Where(predicate.UserStats(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(level.UserStatsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.CurrentLevelID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "current_level_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
 }
 
 func (_q *LevelQuery) sqlCount(ctx context.Context) (int, error) {

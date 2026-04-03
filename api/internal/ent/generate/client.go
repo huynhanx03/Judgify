@@ -33,8 +33,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 
 	stdsql "database/sql"
@@ -81,10 +84,16 @@ type Client struct {
 	User *UserClient
 	// UserAttributeValue is the client for interacting with the UserAttributeValue builders.
 	UserAttributeValue *UserAttributeValueClient
+	// UserDifficultyStats is the client for interacting with the UserDifficultyStats builders.
+	UserDifficultyStats *UserDifficultyStatsClient
 	// UserElementExp is the client for interacting with the UserElementExp builders.
 	UserElementExp *UserElementExpClient
+	// UserSolvedProblem is the client for interacting with the UserSolvedProblem builders.
+	UserSolvedProblem *UserSolvedProblemClient
 	// UserStats is the client for interacting with the UserStats builders.
 	UserStats *UserStatsClient
+	// UserTagStats is the client for interacting with the UserTagStats builders.
+	UserTagStats *UserTagStatsClient
 	// UserTrait is the client for interacting with the UserTrait builders.
 	UserTrait *UserTraitClient
 }
@@ -116,8 +125,11 @@ func (c *Client) init() {
 	c.Trait = NewTraitClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserAttributeValue = NewUserAttributeValueClient(c.config)
+	c.UserDifficultyStats = NewUserDifficultyStatsClient(c.config)
 	c.UserElementExp = NewUserElementExpClient(c.config)
+	c.UserSolvedProblem = NewUserSolvedProblemClient(c.config)
 	c.UserStats = NewUserStatsClient(c.config)
+	c.UserTagStats = NewUserTagStatsClient(c.config)
 	c.UserTrait = NewUserTraitClient(c.config)
 }
 
@@ -229,8 +241,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Trait:               NewTraitClient(cfg),
 		User:                NewUserClient(cfg),
 		UserAttributeValue:  NewUserAttributeValueClient(cfg),
+		UserDifficultyStats: NewUserDifficultyStatsClient(cfg),
 		UserElementExp:      NewUserElementExpClient(cfg),
+		UserSolvedProblem:   NewUserSolvedProblemClient(cfg),
 		UserStats:           NewUserStatsClient(cfg),
+		UserTagStats:        NewUserTagStatsClient(cfg),
 		UserTrait:           NewUserTraitClient(cfg),
 	}, nil
 }
@@ -269,8 +284,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Trait:               NewTraitClient(cfg),
 		User:                NewUserClient(cfg),
 		UserAttributeValue:  NewUserAttributeValueClient(cfg),
+		UserDifficultyStats: NewUserDifficultyStatsClient(cfg),
 		UserElementExp:      NewUserElementExpClient(cfg),
+		UserSolvedProblem:   NewUserSolvedProblemClient(cfg),
 		UserStats:           NewUserStatsClient(cfg),
+		UserTagStats:        NewUserTagStatsClient(cfg),
 		UserTrait:           NewUserTraitClient(cfg),
 	}, nil
 }
@@ -304,7 +322,8 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
 		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
 		c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait, c.User,
-		c.UserAttributeValue, c.UserElementExp, c.UserStats, c.UserTrait,
+		c.UserAttributeValue, c.UserDifficultyStats, c.UserElementExp,
+		c.UserSolvedProblem, c.UserStats, c.UserTagStats, c.UserTrait,
 	} {
 		n.Use(hooks...)
 	}
@@ -317,7 +336,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
 		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
 		c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait, c.User,
-		c.UserAttributeValue, c.UserElementExp, c.UserStats, c.UserTrait,
+		c.UserAttributeValue, c.UserDifficultyStats, c.UserElementExp,
+		c.UserSolvedProblem, c.UserStats, c.UserTagStats, c.UserTrait,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -362,10 +382,16 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	case *UserAttributeValueMutation:
 		return c.UserAttributeValue.mutate(ctx, m)
+	case *UserDifficultyStatsMutation:
+		return c.UserDifficultyStats.mutate(ctx, m)
 	case *UserElementExpMutation:
 		return c.UserElementExp.mutate(ctx, m)
+	case *UserSolvedProblemMutation:
+		return c.UserSolvedProblem.mutate(ctx, m)
 	case *UserStatsMutation:
 		return c.UserStats.mutate(ctx, m)
+	case *UserTagStatsMutation:
+		return c.UserTagStats.mutate(ctx, m)
 	case *UserTraitMutation:
 		return c.UserTrait.mutate(ctx, m)
 	default:
@@ -792,6 +818,22 @@ func (c *DifficultyClient) QueryProblems(_m *Difficulty) *ProblemQuery {
 			sqlgraph.From(difficulty.Table, difficulty.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.ProblemsTable, difficulty.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUserDifficultyStats queries the user_difficulty_stats edge of a Difficulty.
+func (c *DifficultyClient) QueryUserDifficultyStats(_m *Difficulty) *UserDifficultyStatsQuery {
+	query := (&UserDifficultyStatsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(difficulty.Table, difficulty.FieldID, id),
+			sqlgraph.To(userdifficultystats.Table, userdifficultystats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.UserDifficultyStatsTable, difficulty.UserDifficultyStatsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1252,22 +1294,6 @@ func (c *LevelClient) GetX(ctx context.Context, id int) *Level {
 	return obj
 }
 
-// QueryUserStats queries the user_stats edge of a Level.
-func (c *LevelClient) QueryUserStats(_m *Level) *UserStatsQuery {
-	query := (&UserStatsClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(level.Table, level.FieldID, id),
-			sqlgraph.To(userstats.Table, userstats.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, level.UserStatsTable, level.UserStatsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *LevelClient) Hooks() []Hook {
 	hooks := c.hooks.Level
@@ -1643,6 +1669,22 @@ func (c *ProblemClient) QueryTags(_m *Problem) *TagQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(tag.Table, tag.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, problem.TagsTable, problem.TagsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySolvers queries the solvers edge of a Problem.
+func (c *ProblemClient) QuerySolvers(_m *Problem) *UserSolvedProblemQuery {
+	query := (&UserSolvedProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(usersolvedproblem.Table, usersolvedproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.SolversTable, problem.SolversColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2588,6 +2630,22 @@ func (c *TagClient) QueryElements(_m *Tag) *ElementQuery {
 	return query
 }
 
+// QueryUserTagStats queries the user_tag_stats edge of a Tag.
+func (c *TagClient) QueryUserTagStats(_m *Tag) *UserTagStatsQuery {
+	query := (&UserTagStatsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, id),
+			sqlgraph.To(usertagstats.Table, usertagstats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tag.UserTagStatsTable, tag.UserTagStatsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TagClient) Hooks() []Hook {
 	hooks := c.hooks.Tag
@@ -3185,6 +3243,54 @@ func (c *UserClient) QueryUserStats(_m *User) *UserStatsQuery {
 	return query
 }
 
+// QuerySolvedProblems queries the solved_problems edge of a User.
+func (c *UserClient) QuerySolvedProblems(_m *User) *UserSolvedProblemQuery {
+	query := (&UserSolvedProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(usersolvedproblem.Table, usersolvedproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SolvedProblemsTable, user.SolvedProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDifficultyStats queries the difficulty_stats edge of a User.
+func (c *UserClient) QueryDifficultyStats(_m *User) *UserDifficultyStatsQuery {
+	query := (&UserDifficultyStatsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(userdifficultystats.Table, userdifficultystats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DifficultyStatsTable, user.DifficultyStatsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTagStats queries the tag_stats edge of a User.
+func (c *UserClient) QueryTagStats(_m *User) *UserTagStatsQuery {
+	query := (&UserTagStatsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(usertagstats.Table, usertagstats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.TagStatsTable, user.TagStatsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	hooks := c.hooks.User
@@ -3379,6 +3485,171 @@ func (c *UserAttributeValueClient) mutate(ctx context.Context, m *UserAttributeV
 	}
 }
 
+// UserDifficultyStatsClient is a client for the UserDifficultyStats schema.
+type UserDifficultyStatsClient struct {
+	config
+}
+
+// NewUserDifficultyStatsClient returns a client for the UserDifficultyStats from the given config.
+func NewUserDifficultyStatsClient(c config) *UserDifficultyStatsClient {
+	return &UserDifficultyStatsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `userdifficultystats.Hooks(f(g(h())))`.
+func (c *UserDifficultyStatsClient) Use(hooks ...Hook) {
+	c.hooks.UserDifficultyStats = append(c.hooks.UserDifficultyStats, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `userdifficultystats.Intercept(f(g(h())))`.
+func (c *UserDifficultyStatsClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserDifficultyStats = append(c.inters.UserDifficultyStats, interceptors...)
+}
+
+// Create returns a builder for creating a UserDifficultyStats entity.
+func (c *UserDifficultyStatsClient) Create() *UserDifficultyStatsCreate {
+	mutation := newUserDifficultyStatsMutation(c.config, OpCreate)
+	return &UserDifficultyStatsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserDifficultyStats entities.
+func (c *UserDifficultyStatsClient) CreateBulk(builders ...*UserDifficultyStatsCreate) *UserDifficultyStatsCreateBulk {
+	return &UserDifficultyStatsCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserDifficultyStatsClient) MapCreateBulk(slice any, setFunc func(*UserDifficultyStatsCreate, int)) *UserDifficultyStatsCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserDifficultyStatsCreateBulk{err: fmt.Errorf("calling to UserDifficultyStatsClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserDifficultyStatsCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserDifficultyStatsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserDifficultyStats.
+func (c *UserDifficultyStatsClient) Update() *UserDifficultyStatsUpdate {
+	mutation := newUserDifficultyStatsMutation(c.config, OpUpdate)
+	return &UserDifficultyStatsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserDifficultyStatsClient) UpdateOne(_m *UserDifficultyStats) *UserDifficultyStatsUpdateOne {
+	mutation := newUserDifficultyStatsMutation(c.config, OpUpdateOne, withUserDifficultyStats(_m))
+	return &UserDifficultyStatsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserDifficultyStatsClient) UpdateOneID(id int) *UserDifficultyStatsUpdateOne {
+	mutation := newUserDifficultyStatsMutation(c.config, OpUpdateOne, withUserDifficultyStatsID(id))
+	return &UserDifficultyStatsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserDifficultyStats.
+func (c *UserDifficultyStatsClient) Delete() *UserDifficultyStatsDelete {
+	mutation := newUserDifficultyStatsMutation(c.config, OpDelete)
+	return &UserDifficultyStatsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserDifficultyStatsClient) DeleteOne(_m *UserDifficultyStats) *UserDifficultyStatsDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserDifficultyStatsClient) DeleteOneID(id int) *UserDifficultyStatsDeleteOne {
+	builder := c.Delete().Where(userdifficultystats.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserDifficultyStatsDeleteOne{builder}
+}
+
+// Query returns a query builder for UserDifficultyStats.
+func (c *UserDifficultyStatsClient) Query() *UserDifficultyStatsQuery {
+	return &UserDifficultyStatsQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserDifficultyStats},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserDifficultyStats entity by its id.
+func (c *UserDifficultyStatsClient) Get(ctx context.Context, id int) (*UserDifficultyStats, error) {
+	return c.Query().Where(userdifficultystats.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserDifficultyStatsClient) GetX(ctx context.Context, id int) *UserDifficultyStats {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UserDifficultyStats.
+func (c *UserDifficultyStatsClient) QueryUser(_m *UserDifficultyStats) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userdifficultystats.Table, userdifficultystats.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userdifficultystats.UserTable, userdifficultystats.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDifficulty queries the difficulty edge of a UserDifficultyStats.
+func (c *UserDifficultyStatsClient) QueryDifficulty(_m *UserDifficultyStats) *DifficultyQuery {
+	query := (&DifficultyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userdifficultystats.Table, userdifficultystats.FieldID, id),
+			sqlgraph.To(difficulty.Table, difficulty.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userdifficultystats.DifficultyTable, userdifficultystats.DifficultyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UserDifficultyStatsClient) Hooks() []Hook {
+	return c.hooks.UserDifficultyStats
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserDifficultyStatsClient) Interceptors() []Interceptor {
+	return c.inters.UserDifficultyStats
+}
+
+func (c *UserDifficultyStatsClient) mutate(ctx context.Context, m *UserDifficultyStatsMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserDifficultyStatsCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserDifficultyStatsUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserDifficultyStatsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserDifficultyStatsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown UserDifficultyStats mutation op: %q", m.Op())
+	}
+}
+
 // UserElementExpClient is a client for the UserElementExp schema.
 type UserElementExpClient struct {
 	config
@@ -3546,6 +3817,171 @@ func (c *UserElementExpClient) mutate(ctx context.Context, m *UserElementExpMuta
 	}
 }
 
+// UserSolvedProblemClient is a client for the UserSolvedProblem schema.
+type UserSolvedProblemClient struct {
+	config
+}
+
+// NewUserSolvedProblemClient returns a client for the UserSolvedProblem from the given config.
+func NewUserSolvedProblemClient(c config) *UserSolvedProblemClient {
+	return &UserSolvedProblemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usersolvedproblem.Hooks(f(g(h())))`.
+func (c *UserSolvedProblemClient) Use(hooks ...Hook) {
+	c.hooks.UserSolvedProblem = append(c.hooks.UserSolvedProblem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `usersolvedproblem.Intercept(f(g(h())))`.
+func (c *UserSolvedProblemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserSolvedProblem = append(c.inters.UserSolvedProblem, interceptors...)
+}
+
+// Create returns a builder for creating a UserSolvedProblem entity.
+func (c *UserSolvedProblemClient) Create() *UserSolvedProblemCreate {
+	mutation := newUserSolvedProblemMutation(c.config, OpCreate)
+	return &UserSolvedProblemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserSolvedProblem entities.
+func (c *UserSolvedProblemClient) CreateBulk(builders ...*UserSolvedProblemCreate) *UserSolvedProblemCreateBulk {
+	return &UserSolvedProblemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserSolvedProblemClient) MapCreateBulk(slice any, setFunc func(*UserSolvedProblemCreate, int)) *UserSolvedProblemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserSolvedProblemCreateBulk{err: fmt.Errorf("calling to UserSolvedProblemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserSolvedProblemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserSolvedProblemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserSolvedProblem.
+func (c *UserSolvedProblemClient) Update() *UserSolvedProblemUpdate {
+	mutation := newUserSolvedProblemMutation(c.config, OpUpdate)
+	return &UserSolvedProblemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserSolvedProblemClient) UpdateOne(_m *UserSolvedProblem) *UserSolvedProblemUpdateOne {
+	mutation := newUserSolvedProblemMutation(c.config, OpUpdateOne, withUserSolvedProblem(_m))
+	return &UserSolvedProblemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserSolvedProblemClient) UpdateOneID(id int) *UserSolvedProblemUpdateOne {
+	mutation := newUserSolvedProblemMutation(c.config, OpUpdateOne, withUserSolvedProblemID(id))
+	return &UserSolvedProblemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserSolvedProblem.
+func (c *UserSolvedProblemClient) Delete() *UserSolvedProblemDelete {
+	mutation := newUserSolvedProblemMutation(c.config, OpDelete)
+	return &UserSolvedProblemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserSolvedProblemClient) DeleteOne(_m *UserSolvedProblem) *UserSolvedProblemDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserSolvedProblemClient) DeleteOneID(id int) *UserSolvedProblemDeleteOne {
+	builder := c.Delete().Where(usersolvedproblem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserSolvedProblemDeleteOne{builder}
+}
+
+// Query returns a query builder for UserSolvedProblem.
+func (c *UserSolvedProblemClient) Query() *UserSolvedProblemQuery {
+	return &UserSolvedProblemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserSolvedProblem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserSolvedProblem entity by its id.
+func (c *UserSolvedProblemClient) Get(ctx context.Context, id int) (*UserSolvedProblem, error) {
+	return c.Query().Where(usersolvedproblem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserSolvedProblemClient) GetX(ctx context.Context, id int) *UserSolvedProblem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UserSolvedProblem.
+func (c *UserSolvedProblemClient) QueryUser(_m *UserSolvedProblem) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usersolvedproblem.Table, usersolvedproblem.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usersolvedproblem.UserTable, usersolvedproblem.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblem queries the problem edge of a UserSolvedProblem.
+func (c *UserSolvedProblemClient) QueryProblem(_m *UserSolvedProblem) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usersolvedproblem.Table, usersolvedproblem.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usersolvedproblem.ProblemTable, usersolvedproblem.ProblemColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UserSolvedProblemClient) Hooks() []Hook {
+	return c.hooks.UserSolvedProblem
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserSolvedProblemClient) Interceptors() []Interceptor {
+	return c.inters.UserSolvedProblem
+}
+
+func (c *UserSolvedProblemClient) mutate(ctx context.Context, m *UserSolvedProblemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserSolvedProblemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserSolvedProblemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserSolvedProblemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserSolvedProblemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown UserSolvedProblem mutation op: %q", m.Op())
+	}
+}
+
 // UserStatsClient is a client for the UserStats schema.
 type UserStatsClient struct {
 	config
@@ -3670,22 +4106,6 @@ func (c *UserStatsClient) QueryUser(_m *UserStats) *UserQuery {
 	return query
 }
 
-// QueryCurrentLevel queries the current_level edge of a UserStats.
-func (c *UserStatsClient) QueryCurrentLevel(_m *UserStats) *LevelQuery {
-	query := (&LevelClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(userstats.Table, userstats.FieldID, id),
-			sqlgraph.To(level.Table, level.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, userstats.CurrentLevelTable, userstats.CurrentLevelColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *UserStatsClient) Hooks() []Hook {
 	hooks := c.hooks.UserStats
@@ -3710,6 +4130,171 @@ func (c *UserStatsClient) mutate(ctx context.Context, m *UserStatsMutation) (Val
 		return (&UserStatsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("generate: unknown UserStats mutation op: %q", m.Op())
+	}
+}
+
+// UserTagStatsClient is a client for the UserTagStats schema.
+type UserTagStatsClient struct {
+	config
+}
+
+// NewUserTagStatsClient returns a client for the UserTagStats from the given config.
+func NewUserTagStatsClient(c config) *UserTagStatsClient {
+	return &UserTagStatsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usertagstats.Hooks(f(g(h())))`.
+func (c *UserTagStatsClient) Use(hooks ...Hook) {
+	c.hooks.UserTagStats = append(c.hooks.UserTagStats, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `usertagstats.Intercept(f(g(h())))`.
+func (c *UserTagStatsClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserTagStats = append(c.inters.UserTagStats, interceptors...)
+}
+
+// Create returns a builder for creating a UserTagStats entity.
+func (c *UserTagStatsClient) Create() *UserTagStatsCreate {
+	mutation := newUserTagStatsMutation(c.config, OpCreate)
+	return &UserTagStatsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserTagStats entities.
+func (c *UserTagStatsClient) CreateBulk(builders ...*UserTagStatsCreate) *UserTagStatsCreateBulk {
+	return &UserTagStatsCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserTagStatsClient) MapCreateBulk(slice any, setFunc func(*UserTagStatsCreate, int)) *UserTagStatsCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserTagStatsCreateBulk{err: fmt.Errorf("calling to UserTagStatsClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserTagStatsCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserTagStatsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserTagStats.
+func (c *UserTagStatsClient) Update() *UserTagStatsUpdate {
+	mutation := newUserTagStatsMutation(c.config, OpUpdate)
+	return &UserTagStatsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserTagStatsClient) UpdateOne(_m *UserTagStats) *UserTagStatsUpdateOne {
+	mutation := newUserTagStatsMutation(c.config, OpUpdateOne, withUserTagStats(_m))
+	return &UserTagStatsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserTagStatsClient) UpdateOneID(id int) *UserTagStatsUpdateOne {
+	mutation := newUserTagStatsMutation(c.config, OpUpdateOne, withUserTagStatsID(id))
+	return &UserTagStatsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserTagStats.
+func (c *UserTagStatsClient) Delete() *UserTagStatsDelete {
+	mutation := newUserTagStatsMutation(c.config, OpDelete)
+	return &UserTagStatsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserTagStatsClient) DeleteOne(_m *UserTagStats) *UserTagStatsDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserTagStatsClient) DeleteOneID(id int) *UserTagStatsDeleteOne {
+	builder := c.Delete().Where(usertagstats.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserTagStatsDeleteOne{builder}
+}
+
+// Query returns a query builder for UserTagStats.
+func (c *UserTagStatsClient) Query() *UserTagStatsQuery {
+	return &UserTagStatsQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserTagStats},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserTagStats entity by its id.
+func (c *UserTagStatsClient) Get(ctx context.Context, id int) (*UserTagStats, error) {
+	return c.Query().Where(usertagstats.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserTagStatsClient) GetX(ctx context.Context, id int) *UserTagStats {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UserTagStats.
+func (c *UserTagStatsClient) QueryUser(_m *UserTagStats) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usertagstats.Table, usertagstats.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usertagstats.UserTable, usertagstats.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTag queries the tag edge of a UserTagStats.
+func (c *UserTagStatsClient) QueryTag(_m *UserTagStats) *TagQuery {
+	query := (&TagClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usertagstats.Table, usertagstats.FieldID, id),
+			sqlgraph.To(tag.Table, tag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usertagstats.TagTable, usertagstats.TagColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UserTagStatsClient) Hooks() []Hook {
+	return c.hooks.UserTagStats
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserTagStatsClient) Interceptors() []Interceptor {
+	return c.inters.UserTagStats
+}
+
+func (c *UserTagStatsClient) mutate(ctx context.Context, m *UserTagStatsMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserTagStatsCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserTagStatsUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserTagStatsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserTagStatsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown UserTagStats mutation op: %q", m.Op())
 	}
 }
 
@@ -3885,14 +4470,14 @@ type (
 	hooks struct {
 		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
 		Permission, Problem, Rank, Rarity, Resource, Role, Submission, Tag, TestCase,
-		Trait, User, UserAttributeValue, UserElementExp, UserStats,
-		UserTrait []ent.Hook
+		Trait, User, UserAttributeValue, UserDifficultyStats, UserElementExp,
+		UserSolvedProblem, UserStats, UserTagStats, UserTrait []ent.Hook
 	}
 	inters struct {
 		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
 		Permission, Problem, Rank, Rarity, Resource, Role, Submission, Tag, TestCase,
-		Trait, User, UserAttributeValue, UserElementExp, UserStats,
-		UserTrait []ent.Interceptor
+		Trait, User, UserAttributeValue, UserDifficultyStats, UserElementExp,
+		UserSolvedProblem, UserStats, UserTagStats, UserTrait []ent.Interceptor
 	}
 )
 

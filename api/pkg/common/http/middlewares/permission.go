@@ -43,7 +43,7 @@ func NewPermissionChecker(
 // Returns map[resourceID]scopeMask. Results are cached locally.
 func (pc *PermissionChecker) getRolePermissions(ctx context.Context, roleID int) (map[int]int, error) {
 	cacheKey := constant.CacheKeyPrefixRolePermissions + strconv.Itoa(roleID)
-	if perms, found := cache.GetLocal[map[int]int](pc.cache, cacheKey); found {
+	if perms, found := cache.LocalGet[map[int]int](pc.cache, cacheKey); found {
 		return perms, nil
 	}
 
@@ -72,12 +72,11 @@ func (pc *PermissionChecker) getRolePermissions(ctx context.Context, roleID int)
 		perms[p.ResourceID] |= p.Scopes
 	}
 
-	cache.SetLocal(pc.cache, cacheKey, perms, constant.CacheCostRolePermissions)
+	cache.LocalSet(pc.cache, cacheKey, perms)
 	return perms, nil
 }
 
 // RequirePermission checks if the authenticated user's role has the required permission scope for a resource.
-// It resolves: UserID → User.RoleID → Role permissions (cached) → check (resourceKey, scope).
 func (pc *PermissionChecker) RequirePermission(resourceKey string, requiredScope int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -113,52 +112,6 @@ func (pc *PermissionChecker) RequirePermission(resourceKey string, requiredScope
 		scopeMask, exists := perms[resourceID]
 		if !exists || (scopeMask&requiredScope) != requiredScope {
 			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "permission denied", nil))
-			c.Abort()
-			return
-		}
-
-		c.Next()
-	}
-}
-
-// RequireRole checks if the authenticated user has a role with level <= the specified role's level.
-// Lower level = more privileged. E.g., admin(0) < teacher(1) < student(2).
-func (pc *PermissionChecker) RequireRole(maxLevel int) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := c.Request.Context()
-
-		userID, ok := ctx.Value(constraints.ContextKeyUserID).(int)
-		if !ok {
-			response.ErrorResponse(c, response.CodeUnauthorized, apperr.New(response.CodeUnauthorized, "user not authenticated", nil))
-			c.Abort()
-			return
-		}
-
-		user, err := pc.userRepo.Get(ctx, userID)
-		if err != nil {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "user not found", nil))
-			c.Abort()
-			return
-		}
-
-		// Cache role lookup
-		cacheKey := constant.CacheKeyPrefixRoleID + strconv.Itoa(user.RoleID)
-		var roleLevel int
-		if cachedRole, found := cache.GetLocal[int](pc.cache, cacheKey); found {
-			roleLevel = cachedRole
-		} else {
-			role, err := pc.roleRepo.Get(ctx, user.RoleID)
-			if err != nil {
-				response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "role not found", nil))
-				c.Abort()
-				return
-			}
-			roleLevel = role.Level
-			cache.SetLocal(pc.cache, cacheKey, roleLevel, constant.CacheCostID)
-		}
-
-		if roleLevel > maxLevel {
-			response.ErrorResponse(c, response.CodeForbidden, apperr.New(response.CodeForbidden, "insufficient role level", nil))
 			c.Abort()
 			return
 		}

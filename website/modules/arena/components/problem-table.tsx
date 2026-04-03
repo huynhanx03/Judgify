@@ -2,8 +2,7 @@
 
 /**
  * Problem table component for the Arena page.
- * Clean, minimalistic UI with columns for status, Title, Difficulty, Tags, Acpt Rate, and Solved Count.
- * Now receives sorting state from parent (ArenaClient).
+ * Uses real stats from API: acceptance_rate, submission_count, is_solved.
  */
 
 import Link from "next/link";
@@ -25,7 +24,7 @@ export type SortField = 'acceptance' | 'solved' | 'none';
 export type SortDirection = 'asc' | 'desc';
 
 interface ProblemTableProps {
-  problems: (Problem & { acceptance: number, solved: number, isSolved: boolean })[];
+  problems: Problem[];
   sortField: SortField;
   sortDirection: SortDirection;
   onSort: (field: SortField) => void;
@@ -59,8 +58,8 @@ export function ProblemTable({ problems, sortField, sortDirection, onSort }: Pro
               {TEXT.ARENA.DIFFICULTY}
             </TableHead>
             <TableHead className="w-[200px] font-semibold md:w-[250px]">{TEXT.ARENA.TAGS_TITLE}</TableHead>
-            <TableHead 
-              className="w-28 text-center font-semibold cursor-pointer select-none group hidden md:table-cell hover:bg-muted/30 transition-colors" 
+            <TableHead
+              className="w-28 text-center font-semibold cursor-pointer select-none group hidden md:table-cell hover:bg-muted/30 transition-colors"
               onClick={() => onSort('acceptance')}
             >
               <div className="flex items-center justify-center gap-1.5 group-hover:text-foreground transition-colors">
@@ -72,11 +71,11 @@ export function ProblemTable({ problems, sortField, sortDirection, onSort }: Pro
                 )}
               </div>
             </TableHead>
-            <TableHead 
-              className="w-32 text-center font-semibold cursor-pointer select-none group hidden lg:table-cell hover:bg-muted/30 transition-colors" 
+            <TableHead
+              className="w-32 text-center font-semibold cursor-pointer select-none group hidden lg:table-cell hover:bg-muted/30 transition-colors"
               onClick={() => onSort('solved')}
             >
-               <div className="flex items-center justify-center gap-1.5 group-hover:text-foreground transition-colors">
+              <div className="flex items-center justify-center gap-1.5 group-hover:text-foreground transition-colors">
                 {TEXT.ARENA.SOLVED}
                 {sortField === 'solved' ? (
                   sortDirection === 'desc' ? <ArrowDown className="h-3.5 w-3.5 text-primary" /> : <ArrowUp className="h-3.5 w-3.5 text-primary" />
@@ -94,29 +93,29 @@ export function ProblemTable({ problems, sortField, sortDirection, onSort }: Pro
               className="group cursor-pointer transition-colors duration-200 hover:bg-muted/30 border-border/20 last:border-0"
             >
               <TableCell className="text-center">
-                {problem.isSolved ? (
+                {problem.is_solved ? (
                   <CheckCircle2 className="mx-auto h-[20px] w-[20px] text-emerald-500 drop-shadow-[0_0_2px_rgba(16,185,129,0.5)]" />
                 ) : (
                   <Circle className="mx-auto h-[20px] w-[20px] text-muted-foreground/30 group-hover:text-muted-foreground/50 transition-colors" />
                 )}
               </TableCell>
-              
+
               <TableCell className="font-medium group-hover:text-primary transition-colors text-base truncate max-w-0" title={problem.title}>
                 <Link href={`/arena/${problem.id}`} className="hover:underline">
                   {problem.title}
                 </Link>
               </TableCell>
-              
+
               <TableCell>
                 <DifficultyBadge difficulty={problem.difficulty} />
               </TableCell>
-              
+
               <TableCell>
                 <div className="flex flex-wrap gap-1.5">
                   {problem.tags?.slice(0, 3).map((tag) => (
-                    <Badge 
-                      key={tag.id} 
-                      variant="secondary" 
+                    <Badge
+                      key={tag.id}
+                      variant="secondary"
                       className="text-[12px] px-2 py-0.5 h-auto font-medium bg-violet-500/10 text-violet-600 dark:text-violet-400 border-0 hover:bg-violet-500/20 transition-colors rounded-full"
                     >
                       {tag.name}
@@ -131,11 +130,11 @@ export function ProblemTable({ problems, sortField, sortDirection, onSort }: Pro
               </TableCell>
 
               <TableCell className="text-center text-muted-foreground text-base font-medium hidden md:table-cell group-hover:text-foreground transition-colors">
-                {problem.acceptance.toFixed(1)}%
+                {problem.acceptance_rate.toFixed(1)}%
               </TableCell>
 
               <TableCell className="text-center text-muted-foreground text-base font-medium hidden lg:table-cell group-hover:text-foreground transition-colors">
-                {new Intl.NumberFormat('en-US').format(problem.solved)}
+                {new Intl.NumberFormat('en-US').format(problem.submission_count)}
               </TableCell>
             </TableRow>
           ))}

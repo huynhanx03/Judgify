@@ -39,7 +39,7 @@ func NewHTTPServer() *Server {
 		c.Identity.UserRepo,
 		c.Identity.RoleRepo,
 		c.Identity.PermissionRepo,
-		global.Tinylfu,
+		global.Ember,
 	)
 
 	// Create router group with modular handlers from domain containers

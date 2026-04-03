@@ -16,7 +16,8 @@ import (
 type SubmissionHandler interface {
 	Submit(ctx context.Context, req *dto.CreateSubmissionRequest) (*dto.SubmissionResponse, error)
 	Get(ctx context.Context, req *dto.GetSubmissionRequest) (*dto.SubmissionResponse, error)
-	FindByProblem(ctx context.Context, req *dto.ListByProblemRequest) ([]*dto.SubmissionResponse, error)
+	FindByProblem(ctx context.Context, req *dto.ProblemSubmissionsRequest) ([]*dto.SubmissionResponse, error)
+	FindMySubmissions(ctx context.Context, req *dto.ProblemSubmissionsRequest) ([]*dto.SubmissionResponse, error)
 }
 
 type submissionHandler struct {
@@ -42,6 +43,15 @@ func (h *submissionHandler) Get(ctx context.Context, req *dto.GetSubmissionReque
 	return h.submissionService.Get(ctx, req.ID)
 }
 
-func (h *submissionHandler) FindByProblem(ctx context.Context, req *dto.ListByProblemRequest) ([]*dto.SubmissionResponse, error) {
+func (h *submissionHandler) FindByProblem(ctx context.Context, req *dto.ProblemSubmissionsRequest) ([]*dto.SubmissionResponse, error) {
 	return h.submissionService.FindByProblemID(ctx, req.ProblemID)
+}
+
+func (h *submissionHandler) FindMySubmissions(ctx context.Context, req *dto.ProblemSubmissionsRequest) ([]*dto.SubmissionResponse, error) {
+	userIDVal := ctx.Value(constraints.ContextKeyUserID)
+	userID, ok := userIDVal.(int)
+	if !ok {
+		return nil, apperr.New(response.CodeUnauthorized, "unauthorized", nil)
+	}
+	return h.submissionService.FindByUserAndProblem(ctx, userID, req.ProblemID)
 }

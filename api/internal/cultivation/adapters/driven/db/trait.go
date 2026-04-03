@@ -16,7 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const traitRepoName = "TraitRepository"
+const traitRepoName = "Trait"
 
 type TraitRepository struct {
 	client *dbEnt.EntClient
@@ -46,7 +46,7 @@ func (r *TraitRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pa
 		})
 	}
 
-	records, err := query.All(ctx)
+	records, err := query.WithRarity().All(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, traitRepoName)
 	}
@@ -68,8 +68,39 @@ func (r *TraitRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pa
 	return &d.Paginated[*entity.Trait]{Records: &entities, Pagination: meta}, nil
 }
 
+func (r *TraitRepository) FindAll(ctx context.Context) ([]*entity.Trait, error) {
+	records, err := r.client.DB(ctx).Trait.Query().WithRarity().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, traitRepoName)
+	}
+
+	entities := make([]*entity.Trait, len(records))
+	for i, rec := range records {
+		entities[i] = mapper.ToTraitEntity(rec)
+	}
+	return entities, nil
+}
+
+func (r *TraitRepository) FindAllWithWeight(ctx context.Context) ([]*entity.TraitWithWeight, error) {
+	records, err := r.client.DB(ctx).Trait.Query().WithRarity().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, traitRepoName)
+	}
+
+	result := make([]*entity.TraitWithWeight, 0, len(records))
+	for _, rec := range records {
+		t := mapper.ToTraitEntity(rec)
+		weight := 100 // default
+		if rarity, err := rec.Edges.RarityOrErr(); err == nil {
+			weight = rarity.Weight
+		}
+		result = append(result, &entity.TraitWithWeight{Trait: t, Weight: weight})
+	}
+	return result, nil
+}
+
 func (r *TraitRepository) Get(ctx context.Context, id int) (*entity.Trait, error) {
-	rec, err := r.client.DB(ctx).Trait.Get(ctx, id)
+	rec, err := r.client.DB(ctx).Trait.Query().Where(trait.ID(id)).WithRarity().Only(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, traitRepoName)
 	}

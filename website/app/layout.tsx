@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProviders } from "@/components/app-providers";
+import { AppToaster } from "@/components/app-toaster";
 import { TEXT } from "@/constants/text";
 
 const inter = Inter({
@@ -43,11 +44,13 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          forcedTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <AppProviders>
             <TooltipProvider>{children}</TooltipProvider>
+            <AppToaster />
           </AppProviders>
         </ThemeProvider>
       </body>

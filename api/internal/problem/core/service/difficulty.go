@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -9,6 +10,7 @@ import (
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
+	"github.com/huynhanx03/judgify/internal/problem/constant"
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
@@ -106,7 +108,7 @@ func (s *difficultyService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjDifficulty), nil)
 	}
 
 	if err := s.difficultyRepo.Delete(ctx, id); err != nil {
@@ -114,4 +116,17 @@ func (s *difficultyService) Delete(ctx context.Context, id int) error {
 	}
 	logger.FromContext(ctx).Info("difficulty deleted", zap.Int("difficulty_id", id))
 	return nil
+}
+
+// FindAll retrieves all difficulties without pagination.
+func (s *difficultyService) FindAll(ctx context.Context) ([]*dto.DifficultyResponse, error) {
+	difficulties, err := s.difficultyRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.DifficultyResponse, len(difficulties))
+	for i, d := range difficulties {
+		responses[i] = mapper.ToDifficultyResponse(d)
+	}
+	return responses, nil
 }

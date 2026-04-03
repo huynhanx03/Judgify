@@ -1,75 +1,61 @@
 "use client";
 
 /**
- * Reusable markdown renderer for rendering simple markdown text.
- * Supports: headings (###), bullet lists (- ), inline code (`code`),
- * bold (**text**), and paragraph breaks.
- * Used across problem descriptions, editorial content, etc.
+ * Markdown renderer with LaTeX math support (KaTeX) + GFM.
+ * Identical rendering to admin MDEditor preview.
+ *
+ * Syntax:
+ *   Inline math:  $-10^9 \le a, b \le 10^9$
+ *   Block math:   $$f(x) = x^2 + 2x + 1$$
+ *   GFM: tables, strikethrough, autolinks, task lists, code blocks
  */
+
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
 
-/** Renders inline markdown: `code` and **bold**. */
-function InlineMarkdown({ text }: { text: string }) {
-  // Split by backtick-wrapped code and bold patterns
-  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("`") && part.endsWith("`")) {
-          return (
-            <code
-              key={i}
-              className="px-1.5 py-0.5 rounded bg-muted text-primary text-sm font-mono"
-            >
-              {part.slice(1, -1)}
-            </code>
-          );
-        }
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return (
-            <strong key={i} className="font-semibold text-foreground">
-              {part.slice(2, -2)}
-            </strong>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-    </>
-  );
-}
-
 export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
-  const lines = content.split("\n");
-
   return (
     <div className={`prose dark:prose-invert max-w-none text-base leading-relaxed ${className}`}>
-      {lines.map((line, i) => {
-        if (line.startsWith("### ")) {
-          return (
-            <h3 key={i} className="text-lg font-bold mt-5 mb-2 text-foreground">
-              <InlineMarkdown text={line.replace("### ", "")} />
-            </h3>
-          );
-        }
-        if (line.startsWith("- ")) {
-          return (
-            <p key={i} className="text-muted-foreground ml-5 my-1">
-              <span className="text-primary mr-1">&#8226;</span>
-              <InlineMarkdown text={line.replace("- ", "")} />
-            </p>
-          );
-        }
-        if (line.trim() === "") return <div key={i} className="h-2" />;
-        return (
-          <p key={i} className="text-muted-foreground my-1">
-            <InlineMarkdown text={line} />
-          </p>
-        );
-      })}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        components={{
+          code({ className, children, ...props }) {
+            const isBlock = className?.startsWith("language-");
+            if (isBlock) {
+              return (
+                <code
+                  className={`${className} block bg-muted/50 rounded-lg p-4 overflow-x-auto text-sm font-mono`}
+                  {...props}
+                >
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <code
+                className="px-1.5 py-0.5 rounded bg-muted text-primary text-sm font-mono"
+                {...props}
+              >
+                {children}
+              </code>
+            );
+          },
+          pre({ children }) {
+            return <>{children}</>;
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }

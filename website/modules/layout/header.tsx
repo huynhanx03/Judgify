@@ -8,9 +8,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Bell, LogIn, UserPlus } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bell, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { MAIN_NAV_ITEMS } from "@/constants/navigation";
 import { TEXT } from "@/constants/text";
@@ -26,6 +25,9 @@ export function Header() {
         {/* Left: Logo & Main Navigation */}
         <div className="flex items-center gap-6 lg:gap-10">
           <Link href="/arena" className="flex items-center gap-3 shrink-0 group">
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-primary/50 shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+              <img src="/images/logo.png" alt="Judgify" className="w-full h-full object-cover" />
+            </div>
             <h1 className="text-xl font-bold tracking-tight heading-gaming text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-amber-400 to-amber-200 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] transition-transform group-hover:scale-105 hidden sm:block">
               {TEXT.APP_NAME}
             </h1>
@@ -60,7 +62,7 @@ export function Header() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
 
           {!isLoading && (
             isAuthenticated ? (
@@ -75,8 +77,12 @@ export function Header() {
   );
 }
 
-/** Notification bell + avatar for logged-in users. */
+/** Notification bell + avatar + username for logged-in users. */
 function AuthenticatedActions() {
+  const { user, logout } = useAuth();
+  const displayName = user?.username || TEXT.HEADER.AVATAR_FALLBACK;
+  const initials = displayName.slice(0, 2).toUpperCase();
+
   return (
     <>
       <button className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring relative">
@@ -86,13 +92,25 @@ function AuthenticatedActions() {
 
       <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block"></div>
 
-      <Link href="/profile" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform hover:scale-105">
-        <Avatar className="h-8 w-8 border border-border/50 cursor-pointer">
+      <Link href="/profile" className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform hover:scale-105">
+        <Avatar className="h-8 w-8 border border-primary/30 cursor-pointer">
+          <AvatarImage src="/images/default_avatar.png" alt={displayName} />
           <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
-            {TEXT.HEADER.AVATAR_FALLBACK}
+            {initials}
           </AvatarFallback>
         </Avatar>
+        <span className="text-sm font-medium text-foreground hidden sm:inline max-w-[120px] truncate">
+          {displayName}
+        </span>
       </Link>
+
+      <button
+        onClick={logout}
+        className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+        title="Đăng xuất"
+      >
+        <LogOut className="h-4 w-4" />
+      </button>
     </>
   );
 }

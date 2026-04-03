@@ -60,11 +60,20 @@ type User func(*sql.Selector)
 // UserAttributeValue is the predicate function for userattributevalue builders.
 type UserAttributeValue func(*sql.Selector)
 
+// UserDifficultyStats is the predicate function for userdifficultystats builders.
+type UserDifficultyStats func(*sql.Selector)
+
 // UserElementExp is the predicate function for userelementexp builders.
 type UserElementExp func(*sql.Selector)
 
+// UserSolvedProblem is the predicate function for usersolvedproblem builders.
+type UserSolvedProblem func(*sql.Selector)
+
 // UserStats is the predicate function for userstats builders.
 type UserStats func(*sql.Selector)
+
+// UserTagStats is the predicate function for usertagstats builders.
+type UserTagStats func(*sql.Selector)
 
 // UserTrait is the predicate function for usertrait builders.
 type UserTrait func(*sql.Selector)

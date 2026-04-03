@@ -25,6 +25,9 @@ type DeleteElementRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllElementsRequest is an empty request for GET /elements.
+type FindAllElementsRequest struct{}
+
 // ElementResponse represents element data in API response.
 type ElementResponse struct {
 	ID          int    `json:"id"`

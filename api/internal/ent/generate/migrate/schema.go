@@ -190,6 +190,8 @@ var (
 		{Name: "time_limit_ms", Type: field.TypeInt, Default: 1000},
 		{Name: "memory_limit_kb", Type: field.TypeInt, Default: 262144},
 		{Name: "is_published", Type: field.TypeBool, Default: false},
+		{Name: "submission_count", Type: field.TypeInt, Default: 0},
+		{Name: "accepted_count", Type: field.TypeInt, Default: 0},
 		{Name: "difficulty_id", Type: field.TypeInt},
 		{Name: "author_id", Type: field.TypeInt},
 	}
@@ -201,13 +203,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "problems_difficulties_problems",
-				Columns:    []*schema.Column{ProblemsColumns[10]},
+				Columns:    []*schema.Column{ProblemsColumns[12]},
 				RefColumns: []*schema.Column{DifficultiesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "problems_users_problems",
-				Columns:    []*schema.Column{ProblemsColumns[11]},
+				Columns:    []*schema.Column{ProblemsColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -318,6 +320,23 @@ var (
 				Columns:    []*schema.Column{SubmissionsColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "submission_user_id_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[14], SubmissionsColumns[13]},
+			},
+			{
+				Name:    "submission_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[14]},
+			},
+			{
+				Name:    "submission_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[13]},
 			},
 		},
 	}
@@ -452,6 +471,45 @@ var (
 			},
 		},
 	}
+	// UserDifficultyStatsColumns holds the columns for the "user_difficulty_stats" table.
+	UserDifficultyStatsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "solved_count", Type: field.TypeInt, Default: 0},
+		{Name: "difficulty_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// UserDifficultyStatsTable holds the schema information for the "user_difficulty_stats" table.
+	UserDifficultyStatsTable = &schema.Table{
+		Name:       "user_difficulty_stats",
+		Columns:    UserDifficultyStatsColumns,
+		PrimaryKey: []*schema.Column{UserDifficultyStatsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_difficulty_stats_difficulties_user_difficulty_stats",
+				Columns:    []*schema.Column{UserDifficultyStatsColumns[2]},
+				RefColumns: []*schema.Column{DifficultiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_difficulty_stats_users_difficulty_stats",
+				Columns:    []*schema.Column{UserDifficultyStatsColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userdifficultystats_user_id_difficulty_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserDifficultyStatsColumns[3], UserDifficultyStatsColumns[2]},
+			},
+			{
+				Name:    "userdifficultystats_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserDifficultyStatsColumns[3]},
+			},
+		},
+	}
 	// UserElementExpsColumns holds the columns for the "user_element_exps" table.
 	UserElementExpsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -490,6 +548,45 @@ var (
 			},
 		},
 	}
+	// UserSolvedProblemsColumns holds the columns for the "user_solved_problems" table.
+	UserSolvedProblemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "solved_at", Type: field.TypeTime},
+		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// UserSolvedProblemsTable holds the schema information for the "user_solved_problems" table.
+	UserSolvedProblemsTable = &schema.Table{
+		Name:       "user_solved_problems",
+		Columns:    UserSolvedProblemsColumns,
+		PrimaryKey: []*schema.Column{UserSolvedProblemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_solved_problems_problems_solvers",
+				Columns:    []*schema.Column{UserSolvedProblemsColumns[2]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_solved_problems_users_solved_problems",
+				Columns:    []*schema.Column{UserSolvedProblemsColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "usersolvedproblem_user_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserSolvedProblemsColumns[3], UserSolvedProblemsColumns[2]},
+			},
+			{
+				Name:    "usersolvedproblem_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserSolvedProblemsColumns[3]},
+			},
+		},
+	}
 	// UserStatsColumns holds the columns for the "user_stats" table.
 	UserStatsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -499,7 +596,8 @@ var (
 		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
 		{Name: "total_exp", Type: field.TypeInt64, Default: 0},
 		{Name: "rating", Type: field.TypeInt, Default: 0},
-		{Name: "current_level_id", Type: field.TypeInt},
+		{Name: "total_submissions", Type: field.TypeInt, Default: 0},
+		{Name: "accepted_count", Type: field.TypeInt, Default: 0},
 		{Name: "user_id", Type: field.TypeInt},
 	}
 	// UserStatsTable holds the schema information for the "user_stats" table.
@@ -509,14 +607,8 @@ var (
 		PrimaryKey: []*schema.Column{UserStatsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "user_stats_levels_user_stats",
-				Columns:    []*schema.Column{UserStatsColumns[7]},
-				RefColumns: []*schema.Column{LevelsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "user_stats_users_user_stats",
-				Columns:    []*schema.Column{UserStatsColumns[8]},
+				Columns:    []*schema.Column{UserStatsColumns[9]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -525,7 +617,46 @@ var (
 			{
 				Name:    "userstats_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserStatsColumns[8]},
+				Columns: []*schema.Column{UserStatsColumns[9]},
+			},
+		},
+	}
+	// UserTagStatsColumns holds the columns for the "user_tag_stats" table.
+	UserTagStatsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "solved_count", Type: field.TypeInt, Default: 0},
+		{Name: "tag_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// UserTagStatsTable holds the schema information for the "user_tag_stats" table.
+	UserTagStatsTable = &schema.Table{
+		Name:       "user_tag_stats",
+		Columns:    UserTagStatsColumns,
+		PrimaryKey: []*schema.Column{UserTagStatsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_tag_stats_tags_user_tag_stats",
+				Columns:    []*schema.Column{UserTagStatsColumns[2]},
+				RefColumns: []*schema.Column{TagsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_tag_stats_users_tag_stats",
+				Columns:    []*schema.Column{UserTagStatsColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "usertagstats_user_id_tag_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserTagStatsColumns[3], UserTagStatsColumns[2]},
+			},
+			{
+				Name:    "usertagstats_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserTagStatsColumns[3]},
 			},
 		},
 	}
@@ -636,8 +767,11 @@ var (
 		TraitsTable,
 		UsersTable,
 		UserAttributeValuesTable,
+		UserDifficultyStatsTable,
 		UserElementExpsTable,
+		UserSolvedProblemsTable,
 		UserStatsTable,
+		UserTagStatsTable,
 		UserTraitsTable,
 		ProblemTagsTable,
 		TagElementsTable,
@@ -658,10 +792,15 @@ func init() {
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 	UserAttributeValuesTable.ForeignKeys[0].RefTable = AttributeDefinitionsTable
 	UserAttributeValuesTable.ForeignKeys[1].RefTable = UsersTable
+	UserDifficultyStatsTable.ForeignKeys[0].RefTable = DifficultiesTable
+	UserDifficultyStatsTable.ForeignKeys[1].RefTable = UsersTable
 	UserElementExpsTable.ForeignKeys[0].RefTable = ElementsTable
 	UserElementExpsTable.ForeignKeys[1].RefTable = UsersTable
-	UserStatsTable.ForeignKeys[0].RefTable = LevelsTable
-	UserStatsTable.ForeignKeys[1].RefTable = UsersTable
+	UserSolvedProblemsTable.ForeignKeys[0].RefTable = ProblemsTable
+	UserSolvedProblemsTable.ForeignKeys[1].RefTable = UsersTable
+	UserStatsTable.ForeignKeys[0].RefTable = UsersTable
+	UserTagStatsTable.ForeignKeys[0].RefTable = TagsTable
+	UserTagStatsTable.ForeignKeys[1].RefTable = UsersTable
 	UserTraitsTable.ForeignKeys[0].RefTable = TraitsTable
 	UserTraitsTable.ForeignKeys[1].RefTable = UsersTable
 	ProblemTagsTable.ForeignKeys[0].RefTable = ProblemsTable

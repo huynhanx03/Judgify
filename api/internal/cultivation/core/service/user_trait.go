@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -67,7 +68,7 @@ func (s *userTraitService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgUserTraitNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjUserTrait), nil)
 	}
 	if err := s.userTraitRepo.Delete(ctx, id); err != nil {
 		return err

@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const credentialRepoName = "CredentialRepository"
+const credentialRepoName = "Credential"
 
 type CredentialRepository struct {
 	client *dbEnt.EntClient

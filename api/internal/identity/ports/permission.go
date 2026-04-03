@@ -11,6 +11,7 @@ import (
 
 // PermissionRepository defines the permission data access interface.
 type PermissionRepository interface {
+	FindAll(ctx context.Context) ([]*entity.Permission, error)
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Permission], error)
 	Get(ctx context.Context, id int) (*entity.Permission, error)
 	Create(ctx context.Context, e *entity.Permission) error
@@ -22,6 +23,7 @@ type PermissionRepository interface {
 
 // PermissionService defines the permission business logic interface.
 type PermissionService interface {
+	FindAll(ctx context.Context) ([]*dto.PermissionResponse, error)
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.PermissionResponse], error)
 	Get(ctx context.Context, id int) (*dto.PermissionResponse, error)
 	Create(ctx context.Context, req *dto.CreatePermissionRequest) (*dto.PermissionResponse, error)

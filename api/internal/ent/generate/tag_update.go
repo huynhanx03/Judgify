@@ -15,6 +15,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 )
 
 // TagUpdate is the builder for updating Tag entities.
@@ -128,6 +129,21 @@ func (_u *TagUpdate) AddElements(v ...*Element) *TagUpdate {
 	return _u.AddElementIDs(ids...)
 }
 
+// AddUserTagStatIDs adds the "user_tag_stats" edge to the UserTagStats entity by IDs.
+func (_u *TagUpdate) AddUserTagStatIDs(ids ...int) *TagUpdate {
+	_u.mutation.AddUserTagStatIDs(ids...)
+	return _u
+}
+
+// AddUserTagStats adds the "user_tag_stats" edges to the UserTagStats entity.
+func (_u *TagUpdate) AddUserTagStats(v ...*UserTagStats) *TagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserTagStatIDs(ids...)
+}
+
 // Mutation returns the TagMutation object of the builder.
 func (_u *TagUpdate) Mutation() *TagMutation {
 	return _u.mutation
@@ -173,6 +189,27 @@ func (_u *TagUpdate) RemoveElements(v ...*Element) *TagUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveElementIDs(ids...)
+}
+
+// ClearUserTagStats clears all "user_tag_stats" edges to the UserTagStats entity.
+func (_u *TagUpdate) ClearUserTagStats() *TagUpdate {
+	_u.mutation.ClearUserTagStats()
+	return _u
+}
+
+// RemoveUserTagStatIDs removes the "user_tag_stats" edge to UserTagStats entities by IDs.
+func (_u *TagUpdate) RemoveUserTagStatIDs(ids ...int) *TagUpdate {
+	_u.mutation.RemoveUserTagStatIDs(ids...)
+	return _u
+}
+
+// RemoveUserTagStats removes "user_tag_stats" edges to UserTagStats entities.
+func (_u *TagUpdate) RemoveUserTagStats(v ...*UserTagStats) *TagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserTagStatIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -356,6 +393,51 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.UserTagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserTagStatsIDs(); len(nodes) > 0 && !_u.mutation.UserTagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserTagStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -475,6 +557,21 @@ func (_u *TagUpdateOne) AddElements(v ...*Element) *TagUpdateOne {
 	return _u.AddElementIDs(ids...)
 }
 
+// AddUserTagStatIDs adds the "user_tag_stats" edge to the UserTagStats entity by IDs.
+func (_u *TagUpdateOne) AddUserTagStatIDs(ids ...int) *TagUpdateOne {
+	_u.mutation.AddUserTagStatIDs(ids...)
+	return _u
+}
+
+// AddUserTagStats adds the "user_tag_stats" edges to the UserTagStats entity.
+func (_u *TagUpdateOne) AddUserTagStats(v ...*UserTagStats) *TagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserTagStatIDs(ids...)
+}
+
 // Mutation returns the TagMutation object of the builder.
 func (_u *TagUpdateOne) Mutation() *TagMutation {
 	return _u.mutation
@@ -520,6 +617,27 @@ func (_u *TagUpdateOne) RemoveElements(v ...*Element) *TagUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveElementIDs(ids...)
+}
+
+// ClearUserTagStats clears all "user_tag_stats" edges to the UserTagStats entity.
+func (_u *TagUpdateOne) ClearUserTagStats() *TagUpdateOne {
+	_u.mutation.ClearUserTagStats()
+	return _u
+}
+
+// RemoveUserTagStatIDs removes the "user_tag_stats" edge to UserTagStats entities by IDs.
+func (_u *TagUpdateOne) RemoveUserTagStatIDs(ids ...int) *TagUpdateOne {
+	_u.mutation.RemoveUserTagStatIDs(ids...)
+	return _u
+}
+
+// RemoveUserTagStats removes "user_tag_stats" edges to UserTagStats entities.
+func (_u *TagUpdateOne) RemoveUserTagStats(v ...*UserTagStats) *TagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserTagStatIDs(ids...)
 }
 
 // Where appends a list predicates to the TagUpdate builder.
@@ -726,6 +844,51 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserTagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserTagStatsIDs(); len(nodes) > 0 && !_u.mutation.UserTagStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserTagStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

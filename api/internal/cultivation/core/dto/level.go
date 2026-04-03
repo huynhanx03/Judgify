@@ -25,6 +25,9 @@ type DeleteLevelRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllLevelsRequest is an empty request for GET /levels.
+type FindAllLevelsRequest struct{}
+
 // LevelResponse represents level data in API response.
 type LevelResponse struct {
 	ID          int    `json:"id"`

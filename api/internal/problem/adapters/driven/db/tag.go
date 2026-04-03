@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const tagRepoName = "TagRepository"
+const tagRepoName = "Tag"
 
 type TagRepository struct {
 	client *dbEnt.EntClient
@@ -30,7 +30,7 @@ func NewTagRepository(client *dbEnt.EntClient) ports.TagRepository {
 func (r *TagRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Tag], error) {
 	client := r.client.DB(ctx)
 
-	query := client.Tag.Query()
+	query := client.Tag.Query().WithElements()
 	if opts != nil {
 		query.Where(func(s *sql.Selector) {
 			commonEnt.ApplyFilters(opts.Filters, s)
@@ -79,7 +79,7 @@ func (r *TagRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pagi
 }
 
 func (r *TagRepository) Get(ctx context.Context, id int) (*entity.Tag, error) {
-	record, err := r.client.DB(ctx).Tag.Get(ctx, id)
+	record, err := r.client.DB(ctx).Tag.Query().Where(tag.ID(id)).WithElements().Only(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, tagRepoName)
 	}
@@ -118,12 +118,16 @@ func (r *TagRepository) Delete(ctx context.Context, id int) error {
 
 func (r *TagRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).Tag.Query().Where(tag.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, tagRepoName)
+	if err != nil {
+		return false, commonEnt.MapEntError(err, tagRepoName)
+	}
+	return exists, nil
 }
 
 func (r *TagRepository) FindByIDs(ctx context.Context, ids []int) ([]*entity.Tag, error) {
 	records, err := r.client.DB(ctx).Tag.Query().
 		Where(tag.IDIn(ids...)).
+		WithElements().
 		All(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, tagRepoName)
@@ -132,6 +136,18 @@ func (r *TagRepository) FindByIDs(ctx context.Context, ids []int) ([]*entity.Tag
 	entities := make([]*entity.Tag, len(records))
 	for i, m := range records {
 		entities[i] = mapper.ToTagEntity(m)
+	}
+	return entities, nil
+}
+
+func (r *TagRepository) FindAll(ctx context.Context) ([]*entity.Tag, error) {
+	records, err := r.client.DB(ctx).Tag.Query().WithElements().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, tagRepoName)
+	}
+	entities := make([]*entity.Tag, len(records))
+	for i, rec := range records {
+		entities[i] = mapper.ToTagEntity(rec)
 	}
 	return entities, nil
 }

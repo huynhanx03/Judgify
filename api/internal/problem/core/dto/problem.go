@@ -44,8 +44,12 @@ type ProblemResponse struct {
 	TimeLimitMs   int            `json:"time_limit_ms"`
 	MemoryLimitKb int            `json:"memory_limit_kb"`
 	AuthorID      int            `json:"author_id"`
-	IsPublished   bool           `json:"is_published"`
-	Tags          []*TagResponse `json:"tags,omitempty"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
+	IsPublished     bool               `json:"is_published"`
+	SubmissionCount int                `json:"submission_count"`
+	AcceptedCount   int                `json:"accepted_count"`
+	AcceptanceRate  float64            `json:"acceptance_rate"`
+	IsSolved        *bool              `json:"is_solved,omitempty"`
+	Tags            []*TagResponse     `json:"tags,omitempty"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
 }

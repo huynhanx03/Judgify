@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -90,11 +91,24 @@ func (s *rankService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgRankNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjRank), nil)
 	}
 	if err := s.rankRepo.Delete(ctx, id); err != nil {
 		return err
 	}
 	logger.FromContext(ctx).Info("rank deleted", zap.Int("rank_id", id))
 	return nil
+}
+
+// FindAll retrieves all ranks without pagination.
+func (s *rankService) FindAll(ctx context.Context) ([]*dto.RankResponse, error) {
+	ranks, err := s.rankRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.RankResponse, len(ranks))
+	for i, e := range ranks {
+		responses[i] = mapper.ToRankResponse(e)
+	}
+	return responses, nil
 }

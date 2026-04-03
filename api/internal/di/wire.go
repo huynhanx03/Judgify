@@ -4,11 +4,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/global"
+	"github.com/huynhanx03/judgify/internal/constant"
 	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
 	submissionDi "github.com/huynhanx03/judgify/internal/submission/di"
-	"github.com/huynhanx03/judgify/internal/submission/constant"
 	"github.com/huynhanx03/judgify/pkg/mq/forge"
 )
 
@@ -26,9 +26,19 @@ func SetupDependencies() *Container {
 		global.LoggerZap.Fatal("failed to create judge producer", zap.Error(err))
 	}
 
-	identityContainer := identityDi.NewIdentityContainer()
-	problemContainer := problemDi.NewProblemContainer()
 	cultivationContainer := cultivationDi.NewCultivationContainer()
+	problemContainer := problemDi.NewProblemContainer()
+	identityContainer := identityDi.NewIdentityContainer(
+		cultivationContainer.UserTraitRepo,
+		cultivationContainer.UserStatsRepo,
+		cultivationContainer.UserElementExpRepo,
+		cultivationContainer.ElementRepo,
+		cultivationContainer.LevelRepo,
+		cultivationContainer.RankRepo,
+		cultivationContainer.UserDifficultyStatsRepo,
+		cultivationContainer.UserTagStatsRepo,
+		problemContainer.DifficultyRepo,
+	)
 	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer)
 
 	container := &Container{

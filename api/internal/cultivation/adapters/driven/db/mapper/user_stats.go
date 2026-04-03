@@ -11,12 +11,13 @@ func ToUserStatsEntity(m *generate.UserStats) *entity.UserStats {
 		return nil
 	}
 	return &entity.UserStats{
-		ID:             m.ID,
-		UserID:         m.UserID,
-		TotalExp:       m.TotalExp,
-		CurrentLevelID: m.CurrentLevelID,
-		Rating:         m.Rating,
-		CreatedAt:      m.CreatedAt,
-		UpdatedAt:      m.UpdatedAt,
+		ID:               m.ID,
+		UserID:           m.UserID,
+		TotalExp:         m.TotalExp,
+		Rating:           m.Rating,
+		TotalSubmissions: m.TotalSubmissions,
+		AcceptedCount:    m.AcceptedCount,
+		CreatedAt:        m.CreatedAt,
+		UpdatedAt:        m.UpdatedAt,
 	}
 }

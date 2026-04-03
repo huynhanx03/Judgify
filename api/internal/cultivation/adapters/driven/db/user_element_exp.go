@@ -16,7 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const userElementExpRepoName = "UserElementExpRepository"
+const userElementExpRepoName = "User Element Exp"
 
 type UserElementExpRepository struct {
 	client *dbEnt.EntClient
@@ -109,4 +109,57 @@ func (r *UserElementExpRepository) Exists(ctx context.Context, id int) (bool, er
 		return false, commonEnt.MapEntError(err, userElementExpRepoName)
 	}
 	return exists, nil
+}
+
+// GetByUserID returns element exp details (with element name/code) for a user.
+func (r *UserElementExpRepository) GetByUserID(ctx context.Context, userID int) ([]entity.ElementExpDetail, error) {
+	records, err := r.client.DB(ctx).UserElementExp.Query().
+		Where(userelementexp.UserID(userID)).
+		WithElement().
+		All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, userElementExpRepoName)
+	}
+
+	details := make([]entity.ElementExpDetail, 0, len(records))
+	for _, rec := range records {
+		el, elErr := rec.Edges.ElementOrErr()
+		if elErr != nil || el == nil {
+			continue
+		}
+		details = append(details, entity.ElementExpDetail{
+			Code: el.Code,
+			Name: el.Name,
+			Exp:  rec.Exp,
+		})
+	}
+	return details, nil
+}
+
+// AddExpByElement atomically adds EXP for a user+element combination.
+// Creates the row if it does not exist yet.
+func (r *UserElementExpRepository) AddExpByElement(ctx context.Context, userID, elementID int, exp int64) error {
+	client := r.client.DB(ctx)
+
+	// Try to update existing row
+	n, err := client.UserElementExp.Update().
+		Where(userelementexp.UserID(userID), userelementexp.ElementID(elementID)).
+		AddExp(exp).
+		Save(ctx)
+	if err != nil {
+		return commonEnt.MapEntError(err, userElementExpRepoName)
+	}
+
+	// No row updated → create new
+	if n == 0 {
+		_, err = client.UserElementExp.Create().
+			SetUserID(userID).
+			SetElementID(elementID).
+			SetExp(exp).
+			Save(ctx)
+		if err != nil {
+			return commonEnt.MapEntError(err, userElementExpRepoName)
+		}
+	}
+	return nil
 }

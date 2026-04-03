@@ -7,7 +7,6 @@
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { clearTokens } from "@/lib/api-client";
 
 /** Map route segments to display labels. */
@@ -58,7 +57,6 @@ export function AdminHeader({ onToggleMobileSidebar }: AdminHeaderProps) {
       <div className="flex-1" />
 
       {/* Actions */}
-      <ThemeToggle />
       <Button
         variant="ghost"
         size="sm"

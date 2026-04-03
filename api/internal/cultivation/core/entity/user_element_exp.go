@@ -11,3 +11,10 @@ type UserElementExp struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+// ElementExpDetail is a joined view of user element EXP with element metadata.
+type ElementExpDetail struct {
+	Code string
+	Name string
+	Exp  int64
+}

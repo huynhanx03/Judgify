@@ -10,13 +10,17 @@ func ToUserEntity(m *generate.User) *entity.User {
 	if m == nil {
 		return nil
 	}
-	return &entity.User{
+	u := &entity.User{
 		ID:        m.ID,
 		Username:  m.Username,
 		RoleID:    m.RoleID,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
 	}
+	if m.Edges.Role != nil {
+		u.RoleName = m.Edges.Role.Name
+	}
+	return u
 }
 
 // ToUserModel converts domain entity to Ent User model.

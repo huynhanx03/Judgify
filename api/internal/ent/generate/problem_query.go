@@ -20,6 +20,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 )
 
 // ProblemQuery is the builder for querying Problem entities.
@@ -34,6 +35,7 @@ type ProblemQuery struct {
 	withTestCases   *TestCaseQuery
 	withSubmissions *SubmissionQuery
 	withTags        *TagQuery
+	withSolvers     *UserSolvedProblemQuery
 	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -174,6 +176,28 @@ func (_q *ProblemQuery) QueryTags() *TagQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(tag.Table, tag.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, problem.TagsTable, problem.TagsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySolvers chains the current query on the "solvers" edge.
+func (_q *ProblemQuery) QuerySolvers() *UserSolvedProblemQuery {
+	query := (&UserSolvedProblemClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(usersolvedproblem.Table, usersolvedproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.SolversTable, problem.SolversColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -378,6 +402,7 @@ func (_q *ProblemQuery) Clone() *ProblemQuery {
 		withTestCases:   _q.withTestCases.Clone(),
 		withSubmissions: _q.withSubmissions.Clone(),
 		withTags:        _q.withTags.Clone(),
+		withSolvers:     _q.withSolvers.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -437,6 +462,17 @@ func (_q *ProblemQuery) WithTags(opts ...func(*TagQuery)) *ProblemQuery {
 		opt(query)
 	}
 	_q.withTags = query
+	return _q
+}
+
+// WithSolvers tells the query-builder to eager-load the nodes that are connected to
+// the "solvers" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithSolvers(opts ...func(*UserSolvedProblemQuery)) *ProblemQuery {
+	query := (&UserSolvedProblemClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSolvers = query
 	return _q
 }
 
@@ -518,12 +554,13 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	var (
 		nodes       = []*Problem{}
 		_spec       = _q.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			_q.withAuthor != nil,
 			_q.withDifficulty != nil,
 			_q.withTestCases != nil,
 			_q.withSubmissions != nil,
 			_q.withTags != nil,
+			_q.withSolvers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -587,6 +624,18 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 		if err := _q.loadTags(ctx, query, nodes,
 			func(n *Problem) { n.Edges.Tags = []*Tag{} },
 			func(n *Problem, e *Tag) { n.Edges.Tags = append(n.Edges.Tags, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSolvers; query != nil {
+		if err := _q.loadSolvers(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Solvers = []*UserSolvedProblem{} },
+			func(n *Problem, e *UserSolvedProblem) {
+				n.Edges.Solvers = append(n.Edges.Solvers, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -769,6 +818,36 @@ func (_q *ProblemQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (_q *ProblemQuery) loadSolvers(ctx context.Context, query *UserSolvedProblemQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *UserSolvedProblem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(usersolvedproblem.FieldProblemID)
+	}
+	query.Where(predicate.UserSolvedProblem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.SolversColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

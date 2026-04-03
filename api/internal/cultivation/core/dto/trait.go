@@ -29,12 +29,23 @@ type DeleteTraitRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllTraitsRequest is an empty request for GET /traits.
+type FindAllTraitsRequest struct{}
+
+// TraitRarityInfo holds nested rarity data in trait response.
+type TraitRarityInfo struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Code   string `json:"code"`
+	Weight int    `json:"weight"`
+}
+
 // TraitResponse represents trait data in API response.
 type TraitResponse struct {
 	ID          int                    `json:"id"`
 	Type        string                 `json:"type"`
 	Name        string                 `json:"name"`
-	RarityID    int                    `json:"rarity_id"`
+	Rarity      *TraitRarityInfo       `json:"rarity"`
 	Description string                 `json:"description,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }

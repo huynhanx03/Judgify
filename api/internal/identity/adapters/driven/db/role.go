@@ -18,7 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const roleRepoName = "RoleRepository"
+const roleRepoName = "Role"
 
 type RoleRepository struct {
 	client *dbEnt.EntClient

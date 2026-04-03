@@ -37,6 +37,10 @@ const (
 	FieldAuthorID = "author_id"
 	// FieldIsPublished holds the string denoting the is_published field in the database.
 	FieldIsPublished = "is_published"
+	// FieldSubmissionCount holds the string denoting the submission_count field in the database.
+	FieldSubmissionCount = "submission_count"
+	// FieldAcceptedCount holds the string denoting the accepted_count field in the database.
+	FieldAcceptedCount = "accepted_count"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
 	// EdgeDifficulty holds the string denoting the difficulty edge name in mutations.
@@ -47,6 +51,8 @@ const (
 	EdgeSubmissions = "submissions"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
 	EdgeTags = "tags"
+	// EdgeSolvers holds the string denoting the solvers edge name in mutations.
+	EdgeSolvers = "solvers"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
 	// AuthorTable is the table that holds the author relation/edge.
@@ -82,6 +88,13 @@ const (
 	// TagsInverseTable is the table name for the Tag entity.
 	// It exists in this package in order to avoid circular dependency with the "tag" package.
 	TagsInverseTable = "tags"
+	// SolversTable is the table that holds the solvers relation/edge.
+	SolversTable = "user_solved_problems"
+	// SolversInverseTable is the table name for the UserSolvedProblem entity.
+	// It exists in this package in order to avoid circular dependency with the "usersolvedproblem" package.
+	SolversInverseTable = "user_solved_problems"
+	// SolversColumn is the table column denoting the solvers relation/edge.
+	SolversColumn = "problem_id"
 )
 
 // Columns holds all SQL columns for problem fields.
@@ -98,6 +111,8 @@ var Columns = []string{
 	FieldMemoryLimitKB,
 	FieldAuthorID,
 	FieldIsPublished,
+	FieldSubmissionCount,
+	FieldAcceptedCount,
 }
 
 var (
@@ -140,6 +155,10 @@ var (
 	DefaultMemoryLimitKB int
 	// DefaultIsPublished holds the default value on creation for the "is_published" field.
 	DefaultIsPublished bool
+	// DefaultSubmissionCount holds the default value on creation for the "submission_count" field.
+	DefaultSubmissionCount int
+	// DefaultAcceptedCount holds the default value on creation for the "accepted_count" field.
+	DefaultAcceptedCount int
 )
 
 // OrderOption defines the ordering options for the Problem queries.
@@ -205,6 +224,16 @@ func ByIsPublished(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsPublished, opts...).ToFunc()
 }
 
+// BySubmissionCount orders the results by the submission_count field.
+func BySubmissionCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubmissionCount, opts...).ToFunc()
+}
+
+// ByAcceptedCount orders the results by the accepted_count field.
+func ByAcceptedCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAcceptedCount, opts...).ToFunc()
+}
+
 // ByAuthorField orders the results by author field.
 func ByAuthorField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -260,6 +289,20 @@ func ByTags(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTagsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySolversCount orders the results by solvers count.
+func BySolversCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSolversStep(), opts...)
+	}
+}
+
+// BySolvers orders the results by solvers terms.
+func BySolvers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSolversStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newAuthorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -293,5 +336,12 @@ func newTagsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TagsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, TagsTable, TagsPrimaryKey...),
+	)
+}
+func newSolversStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SolversInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SolversTable, SolversColumn),
 	)
 }

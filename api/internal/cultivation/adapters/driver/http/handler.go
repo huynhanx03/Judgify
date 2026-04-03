@@ -11,11 +11,44 @@ import (
 type CultivationHandlerGroup struct {
 	ElementHandler        ElementHandler
 	TraitHandler          TraitHandler
+	GachaHandler          GachaHandler
 	UserTraitHandler      UserTraitHandler
 	UserElementExpHandler UserElementExpHandler
 	LevelHandler          LevelHandler
 	RankHandler           RankHandler
 	UserStatsHandler      UserStatsHandler
+	RarityHandler         RarityHandler
+}
+
+// RegisterPublic registers public cultivation routes (no auth required).
+func (h *CultivationHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
+	traits := r.Group("/traits")
+	{
+		traits.GET("", handler.Wrap(h.TraitHandler.FindAll))
+		traits.POST("/find", handler.Wrap(h.TraitHandler.Find))
+		traits.GET("/:id", handler.Wrap(h.TraitHandler.Get))
+		traits.GET("/roll", handler.Wrap(h.GachaHandler.Roll))
+	}
+
+	elements := r.Group("/elements")
+	{
+		elements.GET("", handler.Wrap(h.ElementHandler.FindAll))
+	}
+
+	levels := r.Group("/levels")
+	{
+		levels.GET("", handler.Wrap(h.LevelHandler.FindAll))
+	}
+
+	ranks := r.Group("/ranks")
+	{
+		ranks.GET("", handler.Wrap(h.RankHandler.FindAll))
+	}
+
+	rarities := r.Group("/rarities")
+	{
+		rarities.GET("", handler.Wrap(h.RarityHandler.FindAll))
+	}
 }
 
 // RegisterProtected registers all cultivation protected routes.
@@ -30,11 +63,9 @@ func (h *CultivationHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChec
 		elements.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyElement, permissions.PermissionScopeDelete), handler.Wrap(h.ElementHandler.Delete))
 	}
 
-	// Traits
+	// Traits (find, get, gacha are public — only CUD needs auth)
 	traits := r.Group("/traits", permChecker.RequirePermission(permissions.ResourceKeyTrait, permissions.PermissionScopeRead))
 	{
-		traits.POST("/find", handler.Wrap(h.TraitHandler.Find))
-		traits.GET("/:id", handler.Wrap(h.TraitHandler.Get))
 		traits.POST("", permChecker.RequirePermission(permissions.ResourceKeyTrait, permissions.PermissionScopeCreate), handler.Wrap(h.TraitHandler.Create))
 		traits.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyTrait, permissions.PermissionScopeUpdate), handler.Wrap(h.TraitHandler.Update))
 		traits.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyTrait, permissions.PermissionScopeDelete), handler.Wrap(h.TraitHandler.Delete))
@@ -77,6 +108,16 @@ func (h *CultivationHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChec
 		ranks.POST("", permChecker.RequirePermission(permissions.ResourceKeyRank, permissions.PermissionScopeCreate), handler.Wrap(h.RankHandler.Create))
 		ranks.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyRank, permissions.PermissionScopeUpdate), handler.Wrap(h.RankHandler.Update))
 		ranks.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyRank, permissions.PermissionScopeDelete), handler.Wrap(h.RankHandler.Delete))
+	}
+
+	// Rarities
+	rarities := r.Group("/rarities", permChecker.RequirePermission(permissions.ResourceKeyRarity, permissions.PermissionScopeRead))
+	{
+		rarities.POST("/find", handler.Wrap(h.RarityHandler.Find))
+		rarities.GET("/:id", handler.Wrap(h.RarityHandler.Get))
+		rarities.POST("", permChecker.RequirePermission(permissions.ResourceKeyRarity, permissions.PermissionScopeCreate), handler.Wrap(h.RarityHandler.Create))
+		rarities.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyRarity, permissions.PermissionScopeUpdate), handler.Wrap(h.RarityHandler.Update))
+		rarities.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyRarity, permissions.PermissionScopeDelete), handler.Wrap(h.RarityHandler.Delete))
 	}
 
 	// User Stats

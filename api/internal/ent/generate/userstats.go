@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
@@ -31,10 +30,12 @@ type UserStats struct {
 	UserID int `json:"user_id,omitempty"`
 	// TotalExp holds the value of the "total_exp" field.
 	TotalExp int64 `json:"total_exp,omitempty"`
-	// CurrentLevelID holds the value of the "current_level_id" field.
-	CurrentLevelID int `json:"current_level_id,omitempty"`
 	// Rating holds the value of the "rating" field.
 	Rating int `json:"rating,omitempty"`
+	// TotalSubmissions holds the value of the "total_submissions" field.
+	TotalSubmissions int `json:"total_submissions,omitempty"`
+	// AcceptedCount holds the value of the "accepted_count" field.
+	AcceptedCount int `json:"accepted_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserStatsQuery when eager-loading is set.
 	Edges        UserStatsEdges `json:"edges"`
@@ -45,11 +46,9 @@ type UserStats struct {
 type UserStatsEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
-	// CurrentLevel holds the value of the current_level edge.
-	CurrentLevel *Level `json:"current_level,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [1]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -63,23 +62,12 @@ func (e UserStatsEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
-// CurrentLevelOrErr returns the CurrentLevel value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserStatsEdges) CurrentLevelOrErr() (*Level, error) {
-	if e.CurrentLevel != nil {
-		return e.CurrentLevel, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: level.Label}
-	}
-	return nil, &NotLoadedError{edge: "current_level"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*UserStats) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case userstats.FieldID, userstats.FieldDeletedBy, userstats.FieldUserID, userstats.FieldTotalExp, userstats.FieldCurrentLevelID, userstats.FieldRating:
+		case userstats.FieldID, userstats.FieldDeletedBy, userstats.FieldUserID, userstats.FieldTotalExp, userstats.FieldRating, userstats.FieldTotalSubmissions, userstats.FieldAcceptedCount:
 			values[i] = new(sql.NullInt64)
 		case userstats.FieldCreatedAt, userstats.FieldUpdatedAt, userstats.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -142,17 +130,23 @@ func (_m *UserStats) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.TotalExp = value.Int64
 			}
-		case userstats.FieldCurrentLevelID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field current_level_id", values[i])
-			} else if value.Valid {
-				_m.CurrentLevelID = int(value.Int64)
-			}
 		case userstats.FieldRating:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field rating", values[i])
 			} else if value.Valid {
 				_m.Rating = int(value.Int64)
+			}
+		case userstats.FieldTotalSubmissions:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field total_submissions", values[i])
+			} else if value.Valid {
+				_m.TotalSubmissions = int(value.Int64)
+			}
+		case userstats.FieldAcceptedCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field accepted_count", values[i])
+			} else if value.Valid {
+				_m.AcceptedCount = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -170,11 +164,6 @@ func (_m *UserStats) Value(name string) (ent.Value, error) {
 // QueryUser queries the "user" edge of the UserStats entity.
 func (_m *UserStats) QueryUser() *UserQuery {
 	return NewUserStatsClient(_m.config).QueryUser(_m)
-}
-
-// QueryCurrentLevel queries the "current_level" edge of the UserStats entity.
-func (_m *UserStats) QueryCurrentLevel() *LevelQuery {
-	return NewUserStatsClient(_m.config).QueryCurrentLevel(_m)
 }
 
 // Update returns a builder for updating this UserStats.
@@ -222,11 +211,14 @@ func (_m *UserStats) String() string {
 	builder.WriteString("total_exp=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TotalExp))
 	builder.WriteString(", ")
-	builder.WriteString("current_level_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.CurrentLevelID))
-	builder.WriteString(", ")
 	builder.WriteString("rating=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Rating))
+	builder.WriteString(", ")
+	builder.WriteString("total_submissions=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TotalSubmissions))
+	builder.WriteString(", ")
+	builder.WriteString("accepted_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AcceptedCount))
 	builder.WriteByte(')')
 	return builder.String()
 }

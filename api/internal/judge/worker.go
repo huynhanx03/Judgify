@@ -8,12 +8,14 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/global"
+	"github.com/huynhanx03/judgify/internal/constant"
 	"github.com/huynhanx03/judgify/pkg/common/workerpool"
 	"github.com/huynhanx03/judgify/pkg/mq/forge"
 	"github.com/huynhanx03/judgify/pkg/settings"
 
 	"github.com/huynhanx03/judgify/internal/judge/comparator"
 	"github.com/huynhanx03/judgify/internal/judge/executor"
+	cultivationPorts "github.com/huynhanx03/judgify/internal/cultivation/ports"
 	problemPorts "github.com/huynhanx03/judgify/internal/problem/ports"
 	submissionPorts "github.com/huynhanx03/judgify/internal/submission/ports"
 )
@@ -25,35 +27,41 @@ type JudgeJob struct {
 
 // Worker consumes judge jobs from Forge MQ and processes them.
 type Worker struct {
-	consumer       *forge.Consumer
-	pool           *workerpool.GenericPool[int]
-	dockerPool     *executor.DockerPool
-	submissionRepo submissionPorts.SubmissionRepository
-	problemRepo    problemPorts.ProblemRepository
-	testCaseRepo   problemPorts.TestCaseRepository
-	config         settings.Judge
-	logger         *zap.Logger
-	stopCh         chan struct{}
+	consumer        *forge.Consumer
+	pool            *workerpool.GenericPool[int]
+	dockerPool      *executor.DockerPool
+	expProducer     *forge.Producer
+	submissionRepo  submissionPorts.SubmissionRepository
+	problemRepo     problemPorts.ProblemRepository
+	testCaseRepo    problemPorts.TestCaseRepository
+	userStatsRepo   cultivationPorts.UserStatsRepository
+	config          settings.Judge
+	logger          *zap.Logger
+	stopCh          chan struct{}
 }
 
 // NewWorker creates a judge worker that consumes from MQ and dispatches to GenericPool.
 func NewWorker(
 	consumer *forge.Consumer,
 	dockerPool *executor.DockerPool,
+	expProducer *forge.Producer,
 	submissionRepo submissionPorts.SubmissionRepository,
 	problemRepo problemPorts.ProblemRepository,
 	testCaseRepo problemPorts.TestCaseRepository,
+	userStatsRepo cultivationPorts.UserStatsRepository,
 	config settings.Judge,
 ) (*Worker, error) {
 	w := &Worker{
-		consumer:       consumer,
-		dockerPool:     dockerPool,
-		submissionRepo: submissionRepo,
-		problemRepo:    problemRepo,
-		testCaseRepo:   testCaseRepo,
-		config:         config,
-		logger:         global.LoggerZap.Named("judge"),
-		stopCh:         make(chan struct{}),
+		consumer:        consumer,
+		dockerPool:      dockerPool,
+		expProducer:     expProducer,
+		submissionRepo:  submissionRepo,
+		problemRepo:     problemRepo,
+		testCaseRepo:    testCaseRepo,
+		userStatsRepo:   userStatsRepo,
+		config:          config,
+		logger:          global.LoggerZap.Named("judge"),
+		stopCh:          make(chan struct{}),
 	}
 
 	pool, err := workerpool.NewGenericPool[int](config.WorkerCount, w.processSubmission)
@@ -110,6 +118,29 @@ func (w *Worker) Start(ctx context.Context) {
 func (w *Worker) Stop() {
 	close(w.stopCh)
 	w.pool.Release()
+}
+
+// updateProblemStats increments submission counters and, on accepted, inserts a solved record.
+// Returns isFirstSolve=true when the problem is solved for the first time by this user.
+func (w *Worker) updateProblemStats(ctx context.Context, problemID, userID int, accepted bool, log *zap.Logger) (isFirstSolve bool) {
+	// Always count the submission
+	if err := w.userStatsRepo.IncrementSubmission(ctx, userID, accepted); err != nil {
+		log.Error("failed to increment submission counter", zap.Error(err))
+	}
+
+	if !accepted {
+		return false
+	}
+
+	// Check first solve before inserting
+	isFirst, err := w.problemRepo.IsFirstSolve(ctx, userID, problemID)
+	if err != nil {
+		log.Error("failed to check first solve", zap.Error(err))
+	}
+	if err := w.problemRepo.InsertUserSolved(ctx, userID, problemID); err != nil {
+		log.Error("failed to insert user solved", zap.Error(err))
+	}
+	return isFirst
 }
 
 // processSubmission is the GenericPool handler — judges one submission.
@@ -174,7 +205,8 @@ func (w *Worker) processSubmission(submissionID int) {
 		sub.Status = "compile_error"
 		sub.ErrorMessage = &compileResult.ErrorMessage
 		_ = w.submissionRepo.Update(ctx, sub)
-		log.Info("compile error", zap.String("status", "compile_error"))
+		log.Info("compile error", zap.String("status", "compile_error"), zap.String("error", compileResult.ErrorMessage))
+		w.updateProblemStats(ctx, sub.ProblemID, sub.UserID, false, log)
 		return
 	}
 
@@ -197,6 +229,7 @@ func (w *Worker) processSubmission(submissionID int) {
 			sub.MemoryKb = &maxMemoryKb
 			_ = w.submissionRepo.Update(ctx, sub)
 			log.Info("judged", zap.String("status", sub.Status), zap.Int("time_ms", maxTimeMs))
+			w.updateProblemStats(ctx, sub.ProblemID, sub.UserID, false, log)
 			return
 		case "memory_limit_exceeded":
 			sub.Status = "memory_limit_exceeded"
@@ -204,6 +237,7 @@ func (w *Worker) processSubmission(submissionID int) {
 			sub.MemoryKb = &maxMemoryKb
 			_ = w.submissionRepo.Update(ctx, sub)
 			log.Info("judged", zap.String("status", sub.Status), zap.Int("memory_kb", maxMemoryKb))
+			w.updateProblemStats(ctx, sub.ProblemID, sub.UserID, false, log)
 			return
 		case "runtime_error":
 			sub.Status = "runtime_error"
@@ -215,6 +249,7 @@ func (w *Worker) processSubmission(submissionID int) {
 			sub.MemoryKb = &maxMemoryKb
 			_ = w.submissionRepo.Update(ctx, sub)
 			log.Info("judged", zap.String("status", sub.Status))
+			w.updateProblemStats(ctx, sub.ProblemID, sub.UserID, false, log)
 			return
 		case "ok":
 			if comparator.CompareOutputCF(result.Output, tc.ExpectedOutput) {
@@ -225,6 +260,7 @@ func (w *Worker) processSubmission(submissionID int) {
 				sub.MemoryKb = &maxMemoryKb
 				_ = w.submissionRepo.Update(ctx, sub)
 				log.Info("judged", zap.String("status", sub.Status), zap.Int("passed", sub.PassedCount), zap.Int("total", sub.TotalCount))
+				w.updateProblemStats(ctx, sub.ProblemID, sub.UserID, false, log)
 				return
 			}
 		}
@@ -236,4 +272,31 @@ func (w *Worker) processSubmission(submissionID int) {
 	sub.MemoryKb = &maxMemoryKb
 	_ = w.submissionRepo.Update(ctx, sub)
 	log.Info("judged", zap.String("status", "accepted"), zap.Int("time_ms", maxTimeMs), zap.Int("memory_kb", maxMemoryKb))
+
+	// Update stats: increment counters + mark solved
+	isFirstSolve := w.updateProblemStats(ctx, sub.ProblemID, sub.UserID, true, log)
+
+	// Publish EXP reward event (async)
+	w.publishExpReward(sub.UserID, sub.ProblemID, isFirstSolve)
+}
+
+// publishExpReward sends an EXP reward event to MQ for async processing.
+func (w *Worker) publishExpReward(userID, problemID int, isFirstSolve bool) {
+	if w.expProducer == nil {
+		return
+	}
+
+	payload, err := json.Marshal(ExpRewardJob{
+		UserID:       userID,
+		ProblemID:    problemID,
+		IsFirstSolve: isFirstSolve,
+	})
+	if err != nil {
+		w.logger.Error("failed to marshal exp reward event", zap.Error(err))
+		return
+	}
+
+	if err := w.expProducer.Send([]byte(constant.TopicExpReward), payload, nil); err != nil {
+		w.logger.Error("failed to publish exp reward event", zap.Error(err))
+	}
 }

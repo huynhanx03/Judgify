@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
@@ -64,7 +65,7 @@ func (s *attributeDefinitionService) Find(ctx context.Context, opts *d.QueryOpti
 // Get retrieves an attribute definition by ID.
 func (s *attributeDefinitionService) Get(ctx context.Context, id int) (*dto.AttributeDefinitionResponse, error) {
 	cacheKey := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
-	if d, found := cache.GetLocal[*entity.AttributeDefinition](s.cache, cacheKey); found {
+	if d, found := cache.LocalGet[*entity.AttributeDefinition](s.cache, cacheKey); found {
 		return mapper.ToAttributeDefinitionResponse(d), nil
 	}
 
@@ -73,7 +74,7 @@ func (s *attributeDefinitionService) Get(ctx context.Context, id int) (*dto.Attr
 		return nil, err
 	}
 
-	cache.SetLocal(s.cache, cacheKey, attrDef, constant.CacheCostID)
+	cache.LocalSet(s.cache, cacheKey, attrDef)
 	return mapper.ToAttributeDefinitionResponse(attrDef), nil
 }
 
@@ -113,8 +114,8 @@ func (s *attributeDefinitionService) Update(ctx context.Context, id int, req *dt
 	// Invalidate Cache
 	cacheKeyID := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
 	cacheKeyKey := constant.CacheKeyPrefixAttrKey + attrDef.Key
-	cache.SetLocal(s.cache, cacheKeyID, attrDef, constant.CacheCostID)
-	cache.DeleteLocal(s.cache, cacheKeyKey)
+	cache.LocalSet(s.cache, cacheKeyID, attrDef)
+	cache.LocalDel(s.cache, cacheKeyKey)
 
 	logger.FromContext(ctx).Info("attribute definition updated", zap.Int("attribute_definition_id", attrDef.ID))
 	return mapper.ToAttributeDefinitionResponse(attrDef), nil
@@ -128,7 +129,7 @@ func (s *attributeDefinitionService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjAttributeDefinition), nil)
 	}
 
 	if err := s.attrDefRepo.Delete(ctx, id); err != nil {
@@ -136,7 +137,7 @@ func (s *attributeDefinitionService) Delete(ctx context.Context, id int) error {
 	}
 
 	cacheKeyID := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
-	cache.DeleteLocal(s.cache, cacheKeyID)
+	cache.LocalDel(s.cache, cacheKeyID)
 
 	logger.FromContext(ctx).Info("attribute definition deleted", zap.Int("attribute_definition_id", id))
 	return nil

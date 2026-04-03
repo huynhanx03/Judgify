@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
 
 // LevelUpdate is the builder for updating Level entities.
@@ -138,45 +137,9 @@ func (_u *LevelUpdate) ClearDescription() *LevelUpdate {
 	return _u
 }
 
-// AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
-func (_u *LevelUpdate) AddUserStatIDs(ids ...int) *LevelUpdate {
-	_u.mutation.AddUserStatIDs(ids...)
-	return _u
-}
-
-// AddUserStats adds the "user_stats" edges to the UserStats entity.
-func (_u *LevelUpdate) AddUserStats(v ...*UserStats) *LevelUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUserStatIDs(ids...)
-}
-
 // Mutation returns the LevelMutation object of the builder.
 func (_u *LevelUpdate) Mutation() *LevelMutation {
 	return _u.mutation
-}
-
-// ClearUserStats clears all "user_stats" edges to the UserStats entity.
-func (_u *LevelUpdate) ClearUserStats() *LevelUpdate {
-	_u.mutation.ClearUserStats()
-	return _u
-}
-
-// RemoveUserStatIDs removes the "user_stats" edge to UserStats entities by IDs.
-func (_u *LevelUpdate) RemoveUserStatIDs(ids ...int) *LevelUpdate {
-	_u.mutation.RemoveUserStatIDs(ids...)
-	return _u
-}
-
-// RemoveUserStats removes "user_stats" edges to UserStats entities.
-func (_u *LevelUpdate) RemoveUserStats(v ...*UserStats) *LevelUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUserStatIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -291,51 +254,6 @@ func (_u *LevelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(level.FieldDescription, field.TypeString)
-	}
-	if _u.mutation.UserStatsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUserStatsIDs(); len(nodes) > 0 && !_u.mutation.UserStatsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UserStatsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -467,45 +385,9 @@ func (_u *LevelUpdateOne) ClearDescription() *LevelUpdateOne {
 	return _u
 }
 
-// AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
-func (_u *LevelUpdateOne) AddUserStatIDs(ids ...int) *LevelUpdateOne {
-	_u.mutation.AddUserStatIDs(ids...)
-	return _u
-}
-
-// AddUserStats adds the "user_stats" edges to the UserStats entity.
-func (_u *LevelUpdateOne) AddUserStats(v ...*UserStats) *LevelUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUserStatIDs(ids...)
-}
-
 // Mutation returns the LevelMutation object of the builder.
 func (_u *LevelUpdateOne) Mutation() *LevelMutation {
 	return _u.mutation
-}
-
-// ClearUserStats clears all "user_stats" edges to the UserStats entity.
-func (_u *LevelUpdateOne) ClearUserStats() *LevelUpdateOne {
-	_u.mutation.ClearUserStats()
-	return _u
-}
-
-// RemoveUserStatIDs removes the "user_stats" edge to UserStats entities by IDs.
-func (_u *LevelUpdateOne) RemoveUserStatIDs(ids ...int) *LevelUpdateOne {
-	_u.mutation.RemoveUserStatIDs(ids...)
-	return _u
-}
-
-// RemoveUserStats removes "user_stats" edges to UserStats entities.
-func (_u *LevelUpdateOne) RemoveUserStats(v ...*UserStats) *LevelUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUserStatIDs(ids...)
 }
 
 // Where appends a list predicates to the LevelUpdate builder.
@@ -650,51 +532,6 @@ func (_u *LevelUpdateOne) sqlSave(ctx context.Context) (_node *Level, err error)
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(level.FieldDescription, field.TypeString)
-	}
-	if _u.mutation.UserStatsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUserStatsIDs(); len(nodes) > 0 && !_u.mutation.UserStatsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UserStatsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   level.UserStatsTable,
-			Columns: []string{level.UserStatsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Level{config: _u.config}

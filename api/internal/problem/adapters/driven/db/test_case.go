@@ -14,7 +14,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const testCaseRepoName = "TestCaseRepository"
+const testCaseRepoName = "Test Case"
 
 type TestCaseRepository struct {
 	client *dbEnt.EntClient
@@ -80,10 +80,16 @@ func (r *TestCaseRepository) Delete(ctx context.Context, id int) error {
 
 func (r *TestCaseRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).TestCase.Query().Where(testcase.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, testCaseRepoName)
+	if err != nil {
+		return false, commonEnt.MapEntError(err, testCaseRepoName)
+	}
+	return exists, nil
 }
 
 func (r *TestCaseRepository) CountByProblemID(ctx context.Context, problemID int) (int, error) {
 	count, err := r.client.DB(ctx).TestCase.Query().Where(testcase.ProblemID(problemID)).Count(ctx)
-	return count, commonEnt.MapEntError(err, testCaseRepoName)
+	if err != nil {
+		return 0, commonEnt.MapEntError(err, testCaseRepoName)
+	}
+	return count, nil
 }

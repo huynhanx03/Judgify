@@ -17,6 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 )
 
 // ProblemCreate is the builder for creating a Problem entity.
@@ -149,6 +150,34 @@ func (_c *ProblemCreate) SetNillableIsPublished(v *bool) *ProblemCreate {
 	return _c
 }
 
+// SetSubmissionCount sets the "submission_count" field.
+func (_c *ProblemCreate) SetSubmissionCount(v int) *ProblemCreate {
+	_c.mutation.SetSubmissionCount(v)
+	return _c
+}
+
+// SetNillableSubmissionCount sets the "submission_count" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableSubmissionCount(v *int) *ProblemCreate {
+	if v != nil {
+		_c.SetSubmissionCount(*v)
+	}
+	return _c
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (_c *ProblemCreate) SetAcceptedCount(v int) *ProblemCreate {
+	_c.mutation.SetAcceptedCount(v)
+	return _c
+}
+
+// SetNillableAcceptedCount sets the "accepted_count" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableAcceptedCount(v *int) *ProblemCreate {
+	if v != nil {
+		_c.SetAcceptedCount(*v)
+	}
+	return _c
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_c *ProblemCreate) SetAuthor(v *User) *ProblemCreate {
 	return _c.SetAuthorID(v.ID)
@@ -202,6 +231,21 @@ func (_c *ProblemCreate) AddTags(v ...*Tag) *ProblemCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddTagIDs(ids...)
+}
+
+// AddSolverIDs adds the "solvers" edge to the UserSolvedProblem entity by IDs.
+func (_c *ProblemCreate) AddSolverIDs(ids ...int) *ProblemCreate {
+	_c.mutation.AddSolverIDs(ids...)
+	return _c
+}
+
+// AddSolvers adds the "solvers" edges to the UserSolvedProblem entity.
+func (_c *ProblemCreate) AddSolvers(v ...*UserSolvedProblem) *ProblemCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSolverIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -267,6 +311,14 @@ func (_c *ProblemCreate) defaults() error {
 		v := problem.DefaultIsPublished
 		_c.mutation.SetIsPublished(v)
 	}
+	if _, ok := _c.mutation.SubmissionCount(); !ok {
+		v := problem.DefaultSubmissionCount
+		_c.mutation.SetSubmissionCount(v)
+	}
+	if _, ok := _c.mutation.AcceptedCount(); !ok {
+		v := problem.DefaultAcceptedCount
+		_c.mutation.SetAcceptedCount(v)
+	}
 	return nil
 }
 
@@ -308,6 +360,12 @@ func (_c *ProblemCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsPublished(); !ok {
 		return &ValidationError{Name: "is_published", err: errors.New(`generate: missing required field "Problem.is_published"`)}
+	}
+	if _, ok := _c.mutation.SubmissionCount(); !ok {
+		return &ValidationError{Name: "submission_count", err: errors.New(`generate: missing required field "Problem.submission_count"`)}
+	}
+	if _, ok := _c.mutation.AcceptedCount(); !ok {
+		return &ValidationError{Name: "accepted_count", err: errors.New(`generate: missing required field "Problem.accepted_count"`)}
 	}
 	if len(_c.mutation.AuthorIDs()) == 0 {
 		return &ValidationError{Name: "author", err: errors.New(`generate: missing required edge "Problem.author"`)}
@@ -377,6 +435,14 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IsPublished(); ok {
 		_spec.SetField(problem.FieldIsPublished, field.TypeBool, value)
 		_node.IsPublished = value
+	}
+	if value, ok := _c.mutation.SubmissionCount(); ok {
+		_spec.SetField(problem.FieldSubmissionCount, field.TypeInt, value)
+		_node.SubmissionCount = value
+	}
+	if value, ok := _c.mutation.AcceptedCount(); ok {
+		_spec.SetField(problem.FieldAcceptedCount, field.TypeInt, value)
+		_node.AcceptedCount = value
 	}
 	if nodes := _c.mutation.AuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -453,6 +519,22 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SolversIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -659,6 +741,42 @@ func (u *ProblemUpsert) SetIsPublished(v bool) *ProblemUpsert {
 // UpdateIsPublished sets the "is_published" field to the value that was provided on create.
 func (u *ProblemUpsert) UpdateIsPublished() *ProblemUpsert {
 	u.SetExcluded(problem.FieldIsPublished)
+	return u
+}
+
+// SetSubmissionCount sets the "submission_count" field.
+func (u *ProblemUpsert) SetSubmissionCount(v int) *ProblemUpsert {
+	u.Set(problem.FieldSubmissionCount, v)
+	return u
+}
+
+// UpdateSubmissionCount sets the "submission_count" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateSubmissionCount() *ProblemUpsert {
+	u.SetExcluded(problem.FieldSubmissionCount)
+	return u
+}
+
+// AddSubmissionCount adds v to the "submission_count" field.
+func (u *ProblemUpsert) AddSubmissionCount(v int) *ProblemUpsert {
+	u.Add(problem.FieldSubmissionCount, v)
+	return u
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (u *ProblemUpsert) SetAcceptedCount(v int) *ProblemUpsert {
+	u.Set(problem.FieldAcceptedCount, v)
+	return u
+}
+
+// UpdateAcceptedCount sets the "accepted_count" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateAcceptedCount() *ProblemUpsert {
+	u.SetExcluded(problem.FieldAcceptedCount)
+	return u
+}
+
+// AddAcceptedCount adds v to the "accepted_count" field.
+func (u *ProblemUpsert) AddAcceptedCount(v int) *ProblemUpsert {
+	u.Add(problem.FieldAcceptedCount, v)
 	return u
 }
 
@@ -879,6 +997,48 @@ func (u *ProblemUpsertOne) SetIsPublished(v bool) *ProblemUpsertOne {
 func (u *ProblemUpsertOne) UpdateIsPublished() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateIsPublished()
+	})
+}
+
+// SetSubmissionCount sets the "submission_count" field.
+func (u *ProblemUpsertOne) SetSubmissionCount(v int) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetSubmissionCount(v)
+	})
+}
+
+// AddSubmissionCount adds v to the "submission_count" field.
+func (u *ProblemUpsertOne) AddSubmissionCount(v int) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddSubmissionCount(v)
+	})
+}
+
+// UpdateSubmissionCount sets the "submission_count" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateSubmissionCount() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateSubmissionCount()
+	})
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (u *ProblemUpsertOne) SetAcceptedCount(v int) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetAcceptedCount(v)
+	})
+}
+
+// AddAcceptedCount adds v to the "accepted_count" field.
+func (u *ProblemUpsertOne) AddAcceptedCount(v int) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddAcceptedCount(v)
+	})
+}
+
+// UpdateAcceptedCount sets the "accepted_count" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateAcceptedCount() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateAcceptedCount()
 	})
 }
 
@@ -1270,6 +1430,48 @@ func (u *ProblemUpsertBulk) SetIsPublished(v bool) *ProblemUpsertBulk {
 func (u *ProblemUpsertBulk) UpdateIsPublished() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateIsPublished()
+	})
+}
+
+// SetSubmissionCount sets the "submission_count" field.
+func (u *ProblemUpsertBulk) SetSubmissionCount(v int) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetSubmissionCount(v)
+	})
+}
+
+// AddSubmissionCount adds v to the "submission_count" field.
+func (u *ProblemUpsertBulk) AddSubmissionCount(v int) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddSubmissionCount(v)
+	})
+}
+
+// UpdateSubmissionCount sets the "submission_count" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateSubmissionCount() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateSubmissionCount()
+	})
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (u *ProblemUpsertBulk) SetAcceptedCount(v int) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetAcceptedCount(v)
+	})
+}
+
+// AddAcceptedCount adds v to the "accepted_count" field.
+func (u *ProblemUpsertBulk) AddAcceptedCount(v int) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddAcceptedCount(v)
+	})
+}
+
+// UpdateAcceptedCount sets the "accepted_count" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateAcceptedCount() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateAcceptedCount()
 	})
 }
 

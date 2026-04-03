@@ -1,25 +1,20 @@
 /**
- * Tag service layer.
- * Currently returns mock data. When backend is ready, uncomment apiClient calls.
+ * Tag service layer — calls backend tag module endpoints.
  */
 
-// import { apiClient } from "@/lib/api-client";
-// import { TAG_API } from "@/constants/api";
+import { apiClient } from "@/lib/api-client";
+import { TAG_API } from "@/constants/api";
 import type { Tag } from "@/types/tag";
-import { MOCK_TAGS } from "@/mock/tags";
+import type { Paginated, QueryOptions } from "@/types/api";
 
-/**
- * Fetches all available tags.
- *
- * Backend endpoint: POST /tags/find
- * Backend response format:
- * { code: 200001, message: "success", data: { records: [{ id, name }], pagination: {...} } }
- */
-export async function getTags(): Promise<Tag[]> {
-  // TODO: Replace with real API call when backend is ready
-  // const result = await apiClient.post<Paginated<Tag>>(TAG_API.FIND, {});
-  // return result.records;
+/** Fetches all tags (no pagination, for dropdowns/filters). */
+export async function getAllTags(): Promise<Tag[]> {
+  return apiClient.get<Tag[]>(TAG_API.FIND_ALL);
+}
 
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  return MOCK_TAGS;
+/** Fetches a paginated list of tags. */
+export async function getTags(
+  query?: QueryOptions
+): Promise<Paginated<Tag>> {
+  return apiClient.post<Paginated<Tag>>(TAG_API.FIND, query);
 }

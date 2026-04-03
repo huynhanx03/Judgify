@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -70,9 +71,6 @@ func (s *userStatsService) Update(ctx context.Context, id int, req *dto.UpdateUs
 	if req.TotalExp != nil {
 		e.TotalExp = *req.TotalExp
 	}
-	if req.CurrentLevelID != nil {
-		e.CurrentLevelID = *req.CurrentLevelID
-	}
 	if req.Rating != nil {
 		e.Rating = *req.Rating
 	}
@@ -90,7 +88,7 @@ func (s *userStatsService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgUserStatsNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjUserStats), nil)
 	}
 	if err := s.userStatsRepo.Delete(ctx, id); err != nil {
 		return err

@@ -2,14 +2,18 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/constraints"
 	d "github.com/huynhanx03/judgify/pkg/dto"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
+	"github.com/huynhanx03/judgify/internal/problem/constant"
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
+	"github.com/huynhanx03/judgify/internal/problem/core/entity"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
@@ -26,7 +30,28 @@ func NewProblemService(problemRepo ports.ProblemRepository, tagRepo ports.TagRep
 	return &problemService{problemRepo: problemRepo, tagRepo: tagRepo, difficultyRepo: difficultyRepo}
 }
 
+// enrichSolvedStatus sets IsSolved on entities if user is authenticated.
+func (s *problemService) enrichSolvedStatus(ctx context.Context, entities []*entity.Problem) {
+	userID, ok := ctx.Value(constraints.ContextKeyUserID).(int)
+	if !ok || userID == 0 {
+		return
+	}
+	ids := make([]int, len(entities))
+	for i, p := range entities {
+		ids[i] = p.ID
+	}
+	solvedMap, err := s.problemRepo.GetSolvedProblemIDs(ctx, userID, ids)
+	if err != nil {
+		return
+	}
+	for _, p := range entities {
+		solved := solvedMap[p.ID]
+		p.IsSolved = &solved
+	}
+}
+
 // Find retrieves problems with pagination.
+// Tags (with elements) and difficulty are eager-loaded by the repository — no N+1.
 func (s *problemService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.ProblemResponse], error) {
 	problems, err := s.problemRepo.Find(ctx, opts)
 	if err != nil {
@@ -41,15 +66,11 @@ func (s *problemService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pag
 	}
 
 	entities := *problems.Records
+	s.enrichSolvedStatus(ctx, entities)
+
 	responses := make([]*dto.ProblemResponse, len(entities))
 	for i, p := range entities {
-		resp := mapper.ToProblemResponse(p)
-		s.attachDifficulty(ctx, resp, p.DifficultyID)
-		tags, err := s.getTagResponses(ctx, p.ID)
-		if err == nil {
-			resp.Tags = tags
-		}
-		responses[i] = resp
+		responses[i] = mapper.ToProblemResponse(p)
 	}
 
 	return &d.Paginated[*dto.ProblemResponse]{
@@ -64,14 +85,8 @@ func (s *problemService) Get(ctx context.Context, id int) (*dto.ProblemResponse,
 	if err != nil {
 		return nil, err
 	}
-
-	resp := mapper.ToProblemResponse(problem)
-	s.attachDifficulty(ctx, resp, problem.DifficultyID)
-	tags, err := s.getTagResponses(ctx, id)
-	if err == nil {
-		resp.Tags = tags
-	}
-	return resp, nil
+	s.enrichSolvedStatus(ctx, []*entity.Problem{problem})
+	return mapper.ToProblemResponse(problem), nil
 }
 
 // Create creates a new problem with optional tags.
@@ -89,15 +104,14 @@ func (s *problemService) Create(ctx context.Context, authorID int, req *dto.Crea
 		}
 	}
 
-	resp := mapper.ToProblemResponse(problem)
-	s.attachDifficulty(ctx, resp, problem.DifficultyID)
-	tags, err := s.getTagResponses(ctx, problem.ID)
-	if err == nil {
-		resp.Tags = tags
+	// Re-fetch to get full eager-loaded data (tags with elements, difficulty)
+	created, err := s.problemRepo.Get(ctx, problem.ID)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.FromContext(ctx).Info("problem created successfully", zap.Int("problem_id", problem.ID), zap.Int("author_id", authorID))
-	return resp, nil
+	return mapper.ToProblemResponse(created), nil
 }
 
 // Update updates an existing problem.
@@ -138,15 +152,14 @@ func (s *problemService) Update(ctx context.Context, id int, req *dto.UpdateProb
 		}
 	}
 
-	resp := mapper.ToProblemResponse(problem)
-	s.attachDifficulty(ctx, resp, problem.DifficultyID)
-	tags, tagErr := s.getTagResponses(ctx, id)
-	if tagErr == nil {
-		resp.Tags = tags
+	// Re-fetch to get full eager-loaded data
+	updated, err := s.problemRepo.Get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.FromContext(ctx).Info("problem updated successfully", zap.Int("problem_id", id))
-	return resp, nil
+	return mapper.ToProblemResponse(updated), nil
 }
 
 // Delete removes a problem by ID.
@@ -157,7 +170,7 @@ func (s *problemService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjProblem), nil)
 	}
 
 	if err := s.problemRepo.Delete(ctx, id); err != nil {
@@ -166,34 +179,4 @@ func (s *problemService) Delete(ctx context.Context, id int) error {
 
 	logger.FromContext(ctx).Info("problem deleted successfully", zap.Int("problem_id", id))
 	return nil
-}
-
-// attachDifficulty fetches and attaches difficulty to a problem response.
-func (s *problemService) attachDifficulty(ctx context.Context, resp *dto.ProblemResponse, difficultyID int) {
-	difficulty, err := s.difficultyRepo.Get(ctx, difficultyID)
-	if err == nil {
-		resp.Difficulty = mapper.ToDifficultyResponse(difficulty)
-	}
-}
-
-// getTagResponses fetches tag responses for a problem.
-func (s *problemService) getTagResponses(ctx context.Context, problemID int) ([]*dto.TagResponse, error) {
-	tagIDs, err := s.problemRepo.GetTagIDs(ctx, problemID)
-	if err != nil {
-		return nil, err
-	}
-	if len(tagIDs) == 0 {
-		return []*dto.TagResponse{}, nil
-	}
-
-	tags, err := s.tagRepo.FindByIDs(ctx, tagIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	responses := make([]*dto.TagResponse, len(tags))
-	for i, t := range tags {
-		responses[i] = mapper.ToTagResponse(t)
-	}
-	return responses, nil
 }

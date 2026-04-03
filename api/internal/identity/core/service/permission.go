@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -9,6 +10,7 @@ import (
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
+	"github.com/huynhanx03/judgify/internal/identity/constant"
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/mapper"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
@@ -23,6 +25,19 @@ type permissionService struct {
 // NewPermissionService creates a new PermissionService instance.
 func NewPermissionService(permissionRepo ports.PermissionRepository, cacheService ports.CacheService) ports.PermissionService {
 	return &permissionService{permissionRepo: permissionRepo, cacheService: cacheService}
+}
+
+// FindAll retrieves all permissions without pagination.
+func (s *permissionService) FindAll(ctx context.Context) ([]*dto.PermissionResponse, error) {
+	permissions, err := s.permissionRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.PermissionResponse, len(permissions))
+	for i, p := range permissions {
+		responses[i] = mapper.ToPermissionResponse(p)
+	}
+	return responses, nil
 }
 
 // Find retrieves permissions with pagination.
@@ -114,7 +129,7 @@ func (s *permissionService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjPermission), nil)
 	}
 
 	if err := s.permissionRepo.Delete(ctx, id); err != nil {

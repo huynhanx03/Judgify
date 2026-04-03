@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 )
@@ -119,28 +120,53 @@ func IsNotSingular(err error) bool {
 	return errors.As(err, &e)
 }
 
+// isNotFound checks both custom and generated Ent NotFoundError.
+func isNotFound(err error) bool {
+	return IsNotFound(err) || generate.IsNotFound(err)
+}
+
+// isValidationError checks both custom and generated Ent ValidationError.
+func isValidationError(err error) bool {
+	return IsValidationError(err) || generate.IsValidationError(err)
+}
+
+// isConstraintError checks both custom and generated Ent ConstraintError.
+func isConstraintError(err error) bool {
+	return IsConstraintError(err) || generate.IsConstraintError(err)
+}
+
+// isNotLoaded checks both custom and generated Ent NotLoadedError.
+func isNotLoaded(err error) bool {
+	return IsNotLoaded(err) || generate.IsNotLoaded(err)
+}
+
+// isNotSingular checks both custom and generated Ent NotSingularError.
+func isNotSingular(err error) bool {
+	return IsNotSingular(err) || generate.IsNotSingular(err)
+}
+
 // MapEntError maps Ent errors to apperr.AppError
 func MapEntError(err error, messagePrefix string) *apperr.AppError {
 	if err == nil {
 		return nil
 	}
 
-	if IsNotFound(err) {
+	if isNotFound(err) {
 		return apperr.New(response.CodeNotFound, fmt.Sprintf("%s not found", messagePrefix), err)
 	}
 
-	if IsValidationError(err) {
+	if isValidationError(err) {
 		return apperr.New(response.CodeValidationFailed, fmt.Sprintf("%s validation failed", messagePrefix), err)
 	}
 
-	if IsConstraintError(err) {
+	if isConstraintError(err) {
 		errStr := strings.ToLower(err.Error())
 
 		switch {
-		case strings.Contains(errStr, "duplicate") || strings.Contains(errStr, "unique constraint"):
+		case strings.Contains(errStr, "duplicate") || strings.Contains(errStr, "unique"):
 			return apperr.New(response.CodeConflict, fmt.Sprintf("%s already exists", messagePrefix), err)
 
-		case strings.Contains(errStr, "foreign key") || strings.Contains(errStr, "constraint"):
+		case strings.Contains(errStr, "foreign key"):
 			if strings.Contains(errStr, "delete") || strings.Contains(errStr, "update") {
 				return apperr.New(response.CodeConflict, fmt.Sprintf("%s cannot be modified because it is referenced by other records", messagePrefix), err)
 			}
@@ -154,12 +180,12 @@ func MapEntError(err error, messagePrefix string) *apperr.AppError {
 		return apperr.New(response.CodeConflict, fmt.Sprintf("%s constraint failed", messagePrefix), err)
 	}
 
-	if IsNotLoaded(err) {
+	if isNotLoaded(err) {
 		slog.Error("Server logic error: edge was not loaded before access", "error", err)
 		return apperr.New(response.CodeInternalServer, "Internal server error", err)
 	}
 
-	if IsNotSingular(err) {
+	if isNotSingular(err) {
 		return apperr.New(response.CodeInternalError, fmt.Sprintf("%s is not uniquely identifiable", messagePrefix), err)
 	}
 

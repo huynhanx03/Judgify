@@ -12,6 +12,7 @@ import (
 
 // ResourceHandler defines the resource HTTP handler interface.
 type ResourceHandler interface {
+	FindAll(ctx context.Context, req *dto.FindAllResourcesRequest) ([]*dto.ResourceResponse, error)
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.ResourceResponse], error)
 	Get(ctx context.Context, req *dto.GetResourceRequest) (*dto.ResourceResponse, error)
 	Create(ctx context.Context, req *dto.CreateResourceRequest) (*dto.ResourceResponse, error)
@@ -29,6 +30,11 @@ func NewResourceHandler(resourceService ports.ResourceService) ResourceHandler {
 	return &resourceHandler{
 		resourceService: resourceService,
 	}
+}
+
+// FindAll retrieves all resources without pagination.
+func (h *resourceHandler) FindAll(ctx context.Context, _ *dto.FindAllResourcesRequest) ([]*dto.ResourceResponse, error) {
+	return h.resourceService.FindAll(ctx)
 }
 
 // Find retrieves resources with pagination.

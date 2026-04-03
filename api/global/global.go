@@ -12,5 +12,5 @@ var (
 	Config    settings.Config
 	LoggerZap *logger.LoggerZap
 	EntClient *ent.EntClient
-	Tinylfu   cache.LocalCache[string, any]
+	Ember cache.LocalCache[string, any]
 )

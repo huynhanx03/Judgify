@@ -14,6 +14,44 @@ import (
 	"github.com/huynhanx03/judgify/pkg/utils"
 )
 
+// OptionalAuthentication parses the JWT token if present and sets UserID/Username in context.
+// Unlike Authentication, it does NOT abort on missing or invalid tokens — the handler
+// decides whether to require auth.
+func OptionalAuthentication(publicKey interface{}) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader(constraints.HeaderAuthorization)
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != constraints.TokenTypeBearer {
+			c.Next()
+			return
+		}
+
+		token, err := jwt.ParseWithClaims(parts[1], &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return publicKey, nil
+		})
+
+		if err == nil && token.Valid {
+			if claims, ok := token.Claims.(*utils.Claims); ok {
+				ctx := c.Request.Context()
+				ctx = context.WithValue(ctx, constraints.ContextKeyClaims, claims)
+				ctx = context.WithValue(ctx, constraints.ContextKeyUserID, claims.UserID)
+				ctx = context.WithValue(ctx, constraints.ContextKeyUsername, claims.Username)
+				c.Request = c.Request.WithContext(ctx)
+			}
+		}
+
+		c.Next()
+	}
+}
+
 // Authentication middleware validates the JWT token and sets UserID + Username in the context.
 func Authentication(publicKey interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
@@ -21,13 +20,12 @@ import (
 // UserStatsQuery is the builder for querying UserStats entities.
 type UserStatsQuery struct {
 	config
-	ctx              *QueryContext
-	order            []userstats.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.UserStats
-	withUser         *UserQuery
-	withCurrentLevel *LevelQuery
-	modifiers        []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []userstats.OrderOption
+	inters     []Interceptor
+	predicates []predicate.UserStats
+	withUser   *UserQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,28 +77,6 @@ func (_q *UserStatsQuery) QueryUser() *UserQuery {
 			sqlgraph.From(userstats.Table, userstats.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, userstats.UserTable, userstats.UserColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryCurrentLevel chains the current query on the "current_level" edge.
-func (_q *UserStatsQuery) QueryCurrentLevel() *LevelQuery {
-	query := (&LevelClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(userstats.Table, userstats.FieldID, selector),
-			sqlgraph.To(level.Table, level.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, userstats.CurrentLevelTable, userstats.CurrentLevelColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -295,13 +271,12 @@ func (_q *UserStatsQuery) Clone() *UserStatsQuery {
 		return nil
 	}
 	return &UserStatsQuery{
-		config:           _q.config,
-		ctx:              _q.ctx.Clone(),
-		order:            append([]userstats.OrderOption{}, _q.order...),
-		inters:           append([]Interceptor{}, _q.inters...),
-		predicates:       append([]predicate.UserStats{}, _q.predicates...),
-		withUser:         _q.withUser.Clone(),
-		withCurrentLevel: _q.withCurrentLevel.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]userstats.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.UserStats{}, _q.predicates...),
+		withUser:   _q.withUser.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -317,17 +292,6 @@ func (_q *UserStatsQuery) WithUser(opts ...func(*UserQuery)) *UserStatsQuery {
 		opt(query)
 	}
 	_q.withUser = query
-	return _q
-}
-
-// WithCurrentLevel tells the query-builder to eager-load the nodes that are connected to
-// the "current_level" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserStatsQuery) WithCurrentLevel(opts ...func(*LevelQuery)) *UserStatsQuery {
-	query := (&LevelClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withCurrentLevel = query
 	return _q
 }
 
@@ -409,9 +373,8 @@ func (_q *UserStatsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Us
 	var (
 		nodes       = []*UserStats{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [1]bool{
 			_q.withUser != nil,
-			_q.withCurrentLevel != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,12 +404,6 @@ func (_q *UserStatsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Us
 			return nil, err
 		}
 	}
-	if query := _q.withCurrentLevel; query != nil {
-		if err := _q.loadCurrentLevel(ctx, query, nodes, nil,
-			func(n *UserStats, e *Level) { n.Edges.CurrentLevel = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
@@ -472,35 +429,6 @@ func (_q *UserStatsQuery) loadUser(ctx context.Context, query *UserQuery, nodes 
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (_q *UserStatsQuery) loadCurrentLevel(ctx context.Context, query *LevelQuery, nodes []*UserStats, init func(*UserStats), assign func(*UserStats, *Level)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserStats)
-	for i := range nodes {
-		fk := nodes[i].CurrentLevelID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(level.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "current_level_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -539,9 +467,6 @@ func (_q *UserStatsQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(userstats.FieldUserID)
-		}
-		if _q.withCurrentLevel != nil {
-			_spec.Node.AddColumnOnce(userstats.FieldCurrentLevelID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

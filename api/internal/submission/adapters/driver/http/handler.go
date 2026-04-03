@@ -18,4 +18,5 @@ func (h *SubmissionHandlerGroup) RegisterProtected(r *gin.RouterGroup) {
 
 	// List submissions by problem (nested under problems)
 	r.GET("/problems/:id/submissions", handler.Wrap(h.SubmissionHandler.FindByProblem))
+	r.GET("/problems/:id/my-submissions", handler.Wrap(h.SubmissionHandler.FindMySubmissions))
 }

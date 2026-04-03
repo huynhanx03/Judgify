@@ -24,6 +24,10 @@ export interface RegisterRequest {
   gender: number;
   /** Format: "2006-01-02" */
   birthday: string;
+  /** Selected root bone ID (1 required) */
+  root_bone_id: number;
+  /** Selected talent IDs (exactly 3 required) */
+  talent_ids: number[];
 }
 
 /** POST /auth/register response data. */

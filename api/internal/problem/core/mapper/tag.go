@@ -10,9 +10,14 @@ func ToTagResponse(e *entity.Tag) *dto.TagResponse {
 	if e == nil {
 		return nil
 	}
+	elements := make([]*dto.TagElementInfo, len(e.Elements))
+	for i, el := range e.Elements {
+		elements[i] = &dto.TagElementInfo{ID: el.ID, Name: el.Name, Code: el.Code}
+	}
 	return &dto.TagResponse{
-		ID:   e.ID,
-		Name: e.Name,
+		ID:       e.ID,
+		Name:     e.Name,
+		Elements: elements,
 	}
 }
 

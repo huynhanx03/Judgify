@@ -25,6 +25,9 @@ type DeletePermissionRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllPermissionsRequest is an empty request for GET /permissions.
+type FindAllPermissionsRequest struct{}
+
 // PermissionResponse represents permission data in API response.
 type PermissionResponse struct {
 	ID          int     `json:"id"`

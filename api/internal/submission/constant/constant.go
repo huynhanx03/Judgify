@@ -1,9 +1,7 @@
 package constant
 
+// Object names for the submission domain.
 const (
-	MsgSubmissionNotFound = "submission not found"
-	MsgProblemNotFound    = "problem not found"
-
-	// Forge MQ topic for judge jobs.
-	TopicJudge = "judge"
+	ObjSubmission = "submission"
+	ObjProblem    = "problem"
 )

@@ -1,6 +1,16 @@
 package constant
 
-// Specific Error Messages
+// Object names for the identity domain.
+const (
+	ObjUser                = "user"
+	ObjRole                = "role"
+	ObjPermission          = "permission"
+	ObjResource            = "resource"
+	ObjCredential          = "credential"
+	ObjAttributeDefinition = "attribute definition"
+)
+
+// Domain-specific error messages for the identity domain.
 const (
 	MsgInvalidAuth        = "invalid username or password"
 	MsgInvalidCredData    = "invalid credential data"
@@ -8,7 +18,6 @@ const (
 	MsgPassIncorrect      = "current password incorrect"
 	MsgUsernameExists     = "username already exists"
 	MsgUnauthorized       = "unauthorized"
-	MsgResourceNotFound   = "resource not found"
 	MsgRebuildTreeFailed  = "failed to rebuild role tree"
 	MsgInvalidParentID    = "cannot set parent to self"
 	MsgGoogleAlreadyUsed  = "google account already linked to another user"

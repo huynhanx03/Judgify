@@ -50,10 +50,16 @@ type Tx struct {
 	User *UserClient
 	// UserAttributeValue is the client for interacting with the UserAttributeValue builders.
 	UserAttributeValue *UserAttributeValueClient
+	// UserDifficultyStats is the client for interacting with the UserDifficultyStats builders.
+	UserDifficultyStats *UserDifficultyStatsClient
 	// UserElementExp is the client for interacting with the UserElementExp builders.
 	UserElementExp *UserElementExpClient
+	// UserSolvedProblem is the client for interacting with the UserSolvedProblem builders.
+	UserSolvedProblem *UserSolvedProblemClient
 	// UserStats is the client for interacting with the UserStats builders.
 	UserStats *UserStatsClient
+	// UserTagStats is the client for interacting with the UserTagStats builders.
+	UserTagStats *UserTagStatsClient
 	// UserTrait is the client for interacting with the UserTrait builders.
 	UserTrait *UserTraitClient
 
@@ -205,8 +211,11 @@ func (tx *Tx) init() {
 	tx.Trait = NewTraitClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserAttributeValue = NewUserAttributeValueClient(tx.config)
+	tx.UserDifficultyStats = NewUserDifficultyStatsClient(tx.config)
 	tx.UserElementExp = NewUserElementExpClient(tx.config)
+	tx.UserSolvedProblem = NewUserSolvedProblemClient(tx.config)
 	tx.UserStats = NewUserStatsClient(tx.config)
+	tx.UserTagStats = NewUserTagStatsClient(tx.config)
 	tx.UserTrait = NewUserTraitClient(tx.config)
 }
 

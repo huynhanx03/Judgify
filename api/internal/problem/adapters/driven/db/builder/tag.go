@@ -10,12 +10,16 @@ import (
 
 // BuildCreateTag builds the create mutation for Tag entity.
 func BuildCreateTag(ctx context.Context, e *entity.Tag) *generate.TagCreate {
-	return global.EntClient.DB(ctx).Tag.Create().
-		SetName(e.Name)
+	c := global.EntClient.DB(ctx).Tag.Create().SetName(e.Name)
+	if ids := e.ElementIDs(); len(ids) > 0 {
+		c = c.AddElementIDs(ids...)
+	}
+	return c
 }
 
 // BuildUpdateTag builds the update mutation for Tag entity.
 func BuildUpdateTag(ctx context.Context, e *entity.Tag) *generate.TagUpdateOne {
-	return global.EntClient.DB(ctx).Tag.UpdateOneID(e.ID).
-		SetName(e.Name)
+	u := global.EntClient.DB(ctx).Tag.UpdateOneID(e.ID).SetName(e.Name)
+	u = u.ClearElements().AddElementIDs(e.ElementIDs()...)
+	return u
 }
