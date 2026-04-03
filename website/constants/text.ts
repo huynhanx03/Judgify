@@ -350,6 +350,163 @@ export const TEXT = {
     RESOURCES_UPDATE_ERROR: "Cập nhật tài nguyên thất bại",
     RESOURCES_DELETE_SUCCESS: "Đã xoá tài nguyên",
     RESOURCES_DELETE_ERROR: "Xoá tài nguyên thất bại",
+
+    // Shared form field labels
+    FIELDS: {
+      NAME: "Tên",
+      NAME_PLACEHOLDER: "Nhập tên...",
+      DESCRIPTION: "Mô tả",
+      DESCRIPTION_PLACEHOLDER: "Nhập mô tả (tuỳ chọn)...",
+      CODE: "Mã code",
+      CODE_PLACEHOLDER: "VD: FIRE",
+      WEIGHT: "Trọng số",
+      MIN_RATING: "Rating tối thiểu",
+      MIN_EXP: "EXP tối thiểu",
+      LEVEL_NUM: "Cấp độ",
+      EXP_REWARD: "EXP thưởng",
+      TYPE: "Loại",
+      TYPE_ROOT_BONE: "Căn Cốt",
+      TYPE_TALENT: "Thiên Phú",
+      RARITY: "Phẩm chất",
+      RARITY_ALL: "Tất cả phẩm chất",
+      ELEMENT: "Ngũ Hành",
+      ELEMENT_ALL: "Tất cả ngũ hành",
+      DIFFICULTY: "Độ khó",
+      DIFFICULTY_ALL: "Tất cả độ khó",
+    },
+
+    // Ranks
+    RANKS: {
+      TITLE: "Danh Hiệu",
+      SUBTITLE: "Quản lý các danh hiệu xếp hạng",
+      CREATE: "Tạo Danh Hiệu",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có danh hiệu nào",
+      DIALOG_CREATE_TITLE: "Tạo Danh Hiệu Mới",
+      DIALOG_CREATE_DESC: "Thêm danh hiệu mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Danh Hiệu",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin danh hiệu.",
+      COL_NAME: "Tên",
+      COL_MIN_RATING: "Rating Tối Thiểu",
+      COL_DESC: "Mô Tả",
+    },
+
+    // Levels
+    LEVELS: {
+      TITLE: "Cảnh Giới",
+      SUBTITLE: "Quản lý các cảnh giới tu luyện",
+      CREATE: "Tạo Cảnh Giới",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có cảnh giới nào",
+      DIALOG_CREATE_TITLE: "Tạo Cảnh Giới Mới",
+      DIALOG_CREATE_DESC: "Thêm cảnh giới mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Cảnh Giới",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin cảnh giới.",
+      COL_NAME: "Tên",
+      COL_MIN_EXP: "EXP Tối Thiểu",
+      COL_DESC: "Mô Tả",
+    },
+
+    // Elements
+    ELEMENTS: {
+      TITLE: "Ngũ Hành",
+      SUBTITLE: "Quản lý các hệ ngũ hành linh căn",
+      CREATE: "Tạo Ngũ Hành",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có ngũ hành nào",
+      DIALOG_CREATE_TITLE: "Tạo Ngũ Hành Mới",
+      DIALOG_CREATE_DESC: "Thêm ngũ hành mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Ngũ Hành",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin ngũ hành.",
+      COL_NAME: "Tên",
+      COL_CODE: "Mã Code",
+      COL_DESC: "Mô Tả",
+    },
+
+    // Difficulties
+    DIFFICULTIES: {
+      TITLE: "Độ Khó",
+      SUBTITLE: "Quản lý các mức độ khó của bài tập",
+      CREATE: "Tạo Độ Khó",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có độ khó nào",
+      DIALOG_CREATE_TITLE: "Tạo Độ Khó Mới",
+      DIALOG_CREATE_DESC: "Thêm mức độ khó mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Độ Khó",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin độ khó.",
+      COL_NAME: "Tên",
+      COL_LEVEL: "Cấp Độ",
+      COL_EXP: "EXP Thưởng",
+      COL_DESC: "Mô Tả",
+    },
+
+    // Rarities
+    RARITIES: {
+      TITLE: "Phẩm Chất",
+      SUBTITLE: "Quản lý các bậc phẩm chất vật phẩm",
+      CREATE: "Tạo Phẩm Chất",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có phẩm chất nào",
+      DIALOG_CREATE_TITLE: "Tạo Phẩm Chất Mới",
+      DIALOG_CREATE_DESC: "Thêm phẩm chất mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Phẩm Chất",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin phẩm chất.",
+      COL_NAME: "Tên",
+      COL_CODE: "Mã Code",
+      COL_WEIGHT: "Trọng Số",
+      COL_DESC: "Mô Tả",
+    },
+
+    // Traits
+    TRAITS: {
+      TITLE: "Căn Cốt & Thiên Phú",
+      SUBTITLE: "Quản lý các thiên mệnh của người tu luyện",
+      CREATE: "Tạo Thiên Mệnh",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có thiên mệnh nào",
+      DIALOG_CREATE_TITLE: "Tạo Thiên Mệnh Mới",
+      DIALOG_CREATE_DESC: "Thêm căn cốt hoặc thiên phú mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Thiên Mệnh",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin thiên mệnh.",
+      COL_NAME: "Tên",
+      COL_TYPE: "Loại",
+      COL_RARITY: "Phẩm Chất",
+      COL_DESC: "Mô Tả",
+      FILTER_TYPE_ALL: "Tất cả loại",
+    },
+
+    // Tags
+    TAGS: {
+      TITLE: "Công Pháp (Tags)",
+      SUBTITLE: "Quản lý các thẻ phân loại bài tập",
+      CREATE: "Tạo Tag",
+      SEARCH_PLACEHOLDER: "Tìm theo tên...",
+      EMPTY: "Chưa có tag nào",
+      DIALOG_CREATE_TITLE: "Tạo Tag Mới",
+      DIALOG_CREATE_DESC: "Thêm tag mới vào hệ thống.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Tag",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin tag.",
+      COL_NAME: "Tên",
+      COL_ELEMENTS: "Ngũ Hành",
+      COL_DESC: "Mô Tả",
+    },
+
+    // Problems (list page only — create/edit navigate to separate pages)
+    PROBLEMS: {
+      TITLE: "Bài Tập",
+      SUBTITLE: "Quản lý bài tập và test cases",
+      CREATE: "Tạo Bài Tập",
+      SEARCH_PLACEHOLDER: "Tìm theo tiêu đề...",
+      EMPTY: "Chưa có bài tập nào",
+    },
+
+    // Shared action toast messages
+    CREATE_SUCCESS: "Tạo thành công",
+    UPDATE_SUCCESS: "Cập nhật thành công",
+    DELETE_SUCCESS: "Xoá thành công",
+    LOAD_ERROR: "Không thể tải dữ liệu",
+    SAVE_ERROR: "Thao tác thất bại",
+    DELETE_ERROR: "Không thể xoá",
   },
 
   // Common
