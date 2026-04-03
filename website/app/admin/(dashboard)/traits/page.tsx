@@ -116,6 +116,7 @@ export default function AdminTraitsPage() {
           onSave={crud.handleSave}
           onClose={crud.closeDialog}
           isSaving={crud.isSaving}
+          rarities={rarities}
         />
       }
       confirmDialog={

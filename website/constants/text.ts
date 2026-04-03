@@ -368,6 +368,7 @@ export const TEXT = {
       TYPE_ROOT_BONE: "Căn Cốt",
       TYPE_TALENT: "Thiên Phú",
       RARITY: "Phẩm chất",
+      SELECT_RARITY_PLACEHOLDER: "Chọn phẩm chất...",
       ELEMENT: "Ngũ Hành",
       DIFFICULTY: "Độ khó",
     },
@@ -498,6 +499,11 @@ export const TEXT = {
       SEARCH_PLACEHOLDER: "Tìm theo tiêu đề...",
       EMPTY: "Chưa có bài tập nào",
       FILTER_DIFFICULTY_ALL: "Tất cả độ khó",
+      COL_TITLE: "Tiêu đề",
+      COL_TAGS: "Tags",
+      COL_DIFFICULTY: "Độ khó",
+      COL_STATUS: "Trạng thái",
+      COL_LIMITS: "Giới hạn",
     },
 
     // Shared action toast messages

@@ -107,6 +107,7 @@ export default function AdminTagsPage() {
           onSave={crud.handleSave}
           onClose={crud.closeDialog}
           isSaving={crud.isSaving}
+          elements={elements}
         />
       }
       confirmDialog={

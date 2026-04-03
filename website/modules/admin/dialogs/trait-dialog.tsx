@@ -2,7 +2,7 @@
 
 /**
  * Create / edit dialog for Trait entities.
- * Loads rarities on mount for the rarity select.
+ * Rarities list is passed in from the parent page to avoid duplicate fetching.
  * Form fields: type (select), name (required), rarity_id (required), description (optional).
  */
 
@@ -20,7 +20,6 @@ import {
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { TEXT } from "@/constants/text";
-import { adminService } from "@/services/admin.service";
 import type { TraitResponse, RarityResponse } from "@/types/cultivation";
 
 interface TraitDialogProps {
@@ -29,26 +28,22 @@ interface TraitDialogProps {
   onSave: (input: { type: string; name: string; rarity_id: number; description?: string }) => Promise<void>;
   onClose: () => void;
   isSaving: boolean;
+  /** Rarities list loaded by the parent page — avoids a duplicate network request */
+  rarities: RarityResponse[];
 }
 
-export function TraitDialog({ open, editing, onSave, onClose, isSaving }: TraitDialogProps) {
+export function TraitDialog({ open, editing, onSave, onClose, isSaving, rarities }: TraitDialogProps) {
   const [type, setType] = useState("root_bone");
   const [name, setName] = useState("");
   const [rarityId, setRarityId] = useState("");
   const [description, setDescription] = useState("");
-  const [rarities, setRarities] = useState<RarityResponse[]>([]);
-
-  // Load rarities once on mount
-  useEffect(() => {
-    adminService.getAllRarities().then(setRarities).catch(() => {});
-  }, []);
 
   // Pre-fill when editing
   useEffect(() => {
     if (editing) {
       setType(editing.type);
       setName(editing.name);
-      setRarityId(String(editing.rarity_id));
+      setRarityId(editing.rarity ? String(editing.rarity.id) : "");
       setDescription(editing.description ?? "");
     } else {
       setType("root_bone");
@@ -96,7 +91,7 @@ export function TraitDialog({ open, editing, onSave, onClose, isSaving }: TraitD
             <Label>{TEXT.ADMIN.FIELDS.RARITY}</Label>
             <Select value={rarityId} onValueChange={setRarityId}>
               <SelectTrigger>
-                <SelectValue placeholder={TEXT.ADMIN.TRAITS.FILTER_RARITY_ALL} />
+                <SelectValue placeholder={TEXT.ADMIN.FIELDS.SELECT_RARITY_PLACEHOLDER} />
               </SelectTrigger>
               <SelectContent>
                 {rarities.map((r) => (

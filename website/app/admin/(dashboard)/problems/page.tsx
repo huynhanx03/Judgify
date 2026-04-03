@@ -39,9 +39,9 @@ export default function AdminProblemsPage() {
   const columns: AdminColumn<Problem>[] = [
     { key: "id", label: "ID", className: "w-16",
       render: (p) => <span className="text-xs tabular-nums text-muted-foreground">{p.id}</span> },
-    { key: "title", label: "Tiêu Đề", className: "max-w-[300px]",
+    { key: "title", label: TEXT.ADMIN.PROBLEMS.COL_TITLE, className: "max-w-[300px]",
       render: (p) => <p className="font-medium truncate" title={p.title}>{p.title}</p> },
-    { key: "tags", label: "Tags", className: "max-w-[200px]",
+    { key: "tags", label: TEXT.ADMIN.PROBLEMS.COL_TAGS, className: "max-w-[200px]",
       render: (p) => {
         if (!p.tags?.length) return <span className="text-xs text-muted-foreground">—</span>;
         return (
@@ -55,11 +55,11 @@ export default function AdminProblemsPage() {
           </div>
         );
       } },
-    { key: "difficulty", label: "Độ Khó", className: "w-28",
+    { key: "difficulty", label: TEXT.ADMIN.PROBLEMS.COL_DIFFICULTY, className: "w-28",
       render: (p) => <Badge variant="outline" className="text-[11px] border">{p.difficulty?.name ?? "N/A"}</Badge> },
-    { key: "published", label: "Trạng Thái", className: "w-28",
+    { key: "published", label: TEXT.ADMIN.PROBLEMS.COL_STATUS, className: "w-28",
       render: (p) => <Badge variant={p.is_published ? "default" : "outline"} className="text-[11px]">{p.is_published ? "Published" : "Draft"}</Badge> },
-    { key: "limits", label: "Giới Hạn", className: "w-36",
+    { key: "limits", label: TEXT.ADMIN.PROBLEMS.COL_LIMITS, className: "w-36",
       render: (p) => (
         <div className="flex gap-2 text-xs text-muted-foreground">
           <span>{p.time_limit_ms >= 1000 ? `${(p.time_limit_ms / 1000).toFixed(1)}s` : `${p.time_limit_ms}ms`}</span>

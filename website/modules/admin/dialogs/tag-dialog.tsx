@@ -2,7 +2,7 @@
 
 /**
  * Create / edit dialog for Tag entities.
- * Loads elements on mount for the multi-select checkboxes.
+ * Elements list is passed in from the parent page to avoid duplicate fetching.
  * Form fields: name (required), element_ids (optional multi-select).
  */
 
@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TEXT } from "@/constants/text";
-import { adminService } from "@/services/admin.service";
 import type { Tag } from "@/types/tag";
 import type { ElementResponse } from "@/types/cultivation";
 
@@ -26,17 +25,13 @@ interface TagDialogProps {
   onSave: (input: { name: string; element_ids?: number[] }) => Promise<void>;
   onClose: () => void;
   isSaving: boolean;
+  /** Elements list loaded by the parent page — avoids a duplicate network request */
+  elements: ElementResponse[];
 }
 
-export function TagDialog({ open, editing, onSave, onClose, isSaving }: TagDialogProps) {
+export function TagDialog({ open, editing, onSave, onClose, isSaving, elements }: TagDialogProps) {
   const [name, setName] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [elements, setElements] = useState<ElementResponse[]>([]);
-
-  // Load elements once on mount
-  useEffect(() => {
-    adminService.getAllElements().then(setElements).catch(() => {});
-  }, []);
 
   // Pre-fill when editing
   useEffect(() => {
