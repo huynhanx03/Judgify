@@ -368,11 +368,8 @@ export const TEXT = {
       TYPE_ROOT_BONE: "Căn Cốt",
       TYPE_TALENT: "Thiên Phú",
       RARITY: "Phẩm chất",
-      RARITY_ALL: "Tất cả phẩm chất",
       ELEMENT: "Ngũ Hành",
-      ELEMENT_ALL: "Tất cả ngũ hành",
       DIFFICULTY: "Độ khó",
-      DIFFICULTY_ALL: "Tất cả độ khó",
     },
 
     // Ranks
@@ -387,8 +384,8 @@ export const TEXT = {
       DIALOG_EDIT_TITLE: "Chỉnh Sửa Danh Hiệu",
       DIALOG_EDIT_DESC: "Cập nhật thông tin danh hiệu.",
       COL_NAME: "Tên",
-      COL_MIN_RATING: "Rating Tối Thiểu",
-      COL_DESC: "Mô Tả",
+      COL_MIN_RATING: "Rating tối thiểu",
+      COL_DESC: "Mô tả",
     },
 
     // Levels
@@ -403,8 +400,8 @@ export const TEXT = {
       DIALOG_EDIT_TITLE: "Chỉnh Sửa Cảnh Giới",
       DIALOG_EDIT_DESC: "Cập nhật thông tin cảnh giới.",
       COL_NAME: "Tên",
-      COL_MIN_EXP: "EXP Tối Thiểu",
-      COL_DESC: "Mô Tả",
+      COL_MIN_EXP: "EXP tối thiểu",
+      COL_DESC: "Mô tả",
     },
 
     // Elements
@@ -419,8 +416,8 @@ export const TEXT = {
       DIALOG_EDIT_TITLE: "Chỉnh Sửa Ngũ Hành",
       DIALOG_EDIT_DESC: "Cập nhật thông tin ngũ hành.",
       COL_NAME: "Tên",
-      COL_CODE: "Mã Code",
-      COL_DESC: "Mô Tả",
+      COL_CODE: "Mã code",
+      COL_DESC: "Mô tả",
     },
 
     // Difficulties
@@ -435,9 +432,9 @@ export const TEXT = {
       DIALOG_EDIT_TITLE: "Chỉnh Sửa Độ Khó",
       DIALOG_EDIT_DESC: "Cập nhật thông tin độ khó.",
       COL_NAME: "Tên",
-      COL_LEVEL: "Cấp Độ",
-      COL_EXP: "EXP Thưởng",
-      COL_DESC: "Mô Tả",
+      COL_LEVEL: "Cấp độ",
+      COL_EXP: "EXP thưởng",
+      COL_DESC: "Mô tả",
     },
 
     // Rarities
@@ -452,9 +449,9 @@ export const TEXT = {
       DIALOG_EDIT_TITLE: "Chỉnh Sửa Phẩm Chất",
       DIALOG_EDIT_DESC: "Cập nhật thông tin phẩm chất.",
       COL_NAME: "Tên",
-      COL_CODE: "Mã Code",
-      COL_WEIGHT: "Trọng Số",
-      COL_DESC: "Mô Tả",
+      COL_CODE: "Mã code",
+      COL_WEIGHT: "Trọng số",
+      COL_DESC: "Mô tả",
     },
 
     // Traits
@@ -470,9 +467,10 @@ export const TEXT = {
       DIALOG_EDIT_DESC: "Cập nhật thông tin thiên mệnh.",
       COL_NAME: "Tên",
       COL_TYPE: "Loại",
-      COL_RARITY: "Phẩm Chất",
-      COL_DESC: "Mô Tả",
+      COL_RARITY: "Phẩm chất",
+      COL_DESC: "Mô tả",
       FILTER_TYPE_ALL: "Tất cả loại",
+      FILTER_RARITY_ALL: "Tất cả phẩm chất",
     },
 
     // Tags
@@ -487,8 +485,9 @@ export const TEXT = {
       DIALOG_EDIT_TITLE: "Chỉnh Sửa Tag",
       DIALOG_EDIT_DESC: "Cập nhật thông tin tag.",
       COL_NAME: "Tên",
-      COL_ELEMENTS: "Ngũ Hành",
-      COL_DESC: "Mô Tả",
+      COL_ELEMENTS: "Ngũ hành",
+      COL_DESC: "Mô tả",
+      FILTER_ELEMENT_ALL: "Tất cả ngũ hành",
     },
 
     // Problems (list page only — create/edit navigate to separate pages)
@@ -498,6 +497,7 @@ export const TEXT = {
       CREATE: "Tạo Bài Tập",
       SEARCH_PLACEHOLDER: "Tìm theo tiêu đề...",
       EMPTY: "Chưa có bài tập nào",
+      FILTER_DIFFICULTY_ALL: "Tất cả độ khó",
     },
 
     // Shared action toast messages
