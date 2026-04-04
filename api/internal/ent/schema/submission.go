@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/judgify/pkg/database/ent"
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
@@ -56,6 +57,15 @@ func (Submission) Fields() []ent.Field {
 		field.Text("error_message").
 			Optional().
 			Nillable(),
+	}
+}
+
+// Indexes of the Submission.
+func (Submission) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("user_id", "problem_id"),
+		index.Fields("user_id"),
+		index.Fields("problem_id"),
 	}
 }
 

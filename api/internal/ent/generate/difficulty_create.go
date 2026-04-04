@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 )
 
 // DifficultyCreate is the builder for creating a Difficulty entity.
@@ -132,6 +133,21 @@ func (_c *DifficultyCreate) AddProblems(v ...*Problem) *DifficultyCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddProblemIDs(ids...)
+}
+
+// AddUserDifficultyStatIDs adds the "user_difficulty_stats" edge to the UserDifficultyStats entity by IDs.
+func (_c *DifficultyCreate) AddUserDifficultyStatIDs(ids ...int) *DifficultyCreate {
+	_c.mutation.AddUserDifficultyStatIDs(ids...)
+	return _c
+}
+
+// AddUserDifficultyStats adds the "user_difficulty_stats" edges to the UserDifficultyStats entity.
+func (_c *DifficultyCreate) AddUserDifficultyStats(v ...*UserDifficultyStats) *DifficultyCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserDifficultyStatIDs(ids...)
 }
 
 // Mutation returns the DifficultyMutation object of the builder.
@@ -297,6 +313,22 @@ func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UserDifficultyStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -371,6 +371,29 @@ func HasElementsWith(preds ...predicate.Element) predicate.Tag {
 	})
 }
 
+// HasUserTagStats applies the HasEdge predicate on the "user_tag_stats" edge.
+func HasUserTagStats() predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserTagStatsTable, UserTagStatsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserTagStatsWith applies the HasEdge predicate on the "user_tag_stats" edge with a given conditions (other predicates).
+func HasUserTagStatsWith(preds ...predicate.UserTagStats) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		step := newUserTagStatsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Tag) predicate.Tag {
 	return predicate.Tag(sql.AndPredicates(predicates...))

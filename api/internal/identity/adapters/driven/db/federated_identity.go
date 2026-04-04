@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const fedIdentityRepoName = "FederatedIdentityRepository"
+const fedIdentityRepoName = "Federated Identity"
 
 type FederatedIdentityRepository struct {
 	client *dbEnt.EntClient

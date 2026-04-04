@@ -2,54 +2,43 @@
  * Admin-related types for dashboard management.
  */
 
-/** Role entity from backend. */
+/** Role entity — mirrors BE RoleResponse. */
 export interface Role {
   id: number;
   name: string;
   level: number;
-  parent_id: number;
-  lft: number;
-  rgt: number;
-  created_at: string;
-  updated_at: string;
 }
 
-/** Resource entity from backend. */
+/** Resource entity — mirrors BE ResourceResponse. */
 export interface Resource {
   id: number;
   key: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
+  description?: string;
 }
 
-/** Permission entity from backend. */
+/** Permission entity — mirrors BE PermissionResponse. */
 export interface Permission {
   id: number;
   role_id: number;
   resource_id: number;
+  description?: string;
   scopes: number;
-  description: string;
-  role?: Role;
-  resource?: Resource;
-  created_at: string;
-  updated_at: string;
 }
 
-/** Admin user listing (extended from UserProfile). */
+/** Admin user listing. */
 export interface AdminUser {
   id: number;
   username: string;
   role_id: number;
-  role?: Role;
+  role_name: string;
   created_at: string;
   updated_at: string;
 }
 
 /** Dashboard stats overview. */
 export interface DashboardStats {
-  totalUsers: number;
   totalProblems: number;
   totalTags: number;
   totalRoles: number;
+  totalUsers: number;
 }

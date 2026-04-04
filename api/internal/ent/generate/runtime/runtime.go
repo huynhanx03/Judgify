@@ -23,8 +23,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 	"github.com/huynhanx03/judgify/internal/ent/schema"
 )
@@ -343,6 +346,14 @@ func init() {
 	problemDescIsPublished := problemFields[6].Descriptor()
 	// problem.DefaultIsPublished holds the default value on creation for the is_published field.
 	problem.DefaultIsPublished = problemDescIsPublished.Default.(bool)
+	// problemDescSubmissionCount is the schema descriptor for submission_count field.
+	problemDescSubmissionCount := problemFields[7].Descriptor()
+	// problem.DefaultSubmissionCount holds the default value on creation for the submission_count field.
+	problem.DefaultSubmissionCount = problemDescSubmissionCount.Default.(int)
+	// problemDescAcceptedCount is the schema descriptor for accepted_count field.
+	problemDescAcceptedCount := problemFields[8].Descriptor()
+	// problem.DefaultAcceptedCount holds the default value on creation for the accepted_count field.
+	problem.DefaultAcceptedCount = problemDescAcceptedCount.Default.(int)
 	rankMixin := schema.Rank{}.Mixin()
 	rankMixinHooks1 := rankMixin[1].Hooks()
 	rank.Hooks[0] = rankMixinHooks1[0]
@@ -701,6 +712,14 @@ func init() {
 	userattributevalueDescValue := userattributevalueFields[2].Descriptor()
 	// userattributevalue.ValueValidator is a validator for the "value" field. It is called by the builders before save.
 	userattributevalue.ValueValidator = userattributevalueDescValue.Validators[0].(func(string) error)
+	userdifficultystatsFields := schema.UserDifficultyStats{}.Fields()
+	_ = userdifficultystatsFields
+	// userdifficultystatsDescSolvedCount is the schema descriptor for solved_count field.
+	userdifficultystatsDescSolvedCount := userdifficultystatsFields[2].Descriptor()
+	// userdifficultystats.DefaultSolvedCount holds the default value on creation for the solved_count field.
+	userdifficultystats.DefaultSolvedCount = userdifficultystatsDescSolvedCount.Default.(int)
+	// userdifficultystats.SolvedCountValidator is a validator for the "solved_count" field. It is called by the builders before save.
+	userdifficultystats.SolvedCountValidator = userdifficultystatsDescSolvedCount.Validators[0].(func(int) error)
 	userelementexpMixin := schema.UserElementExp{}.Mixin()
 	userelementexpMixinHooks1 := userelementexpMixin[1].Hooks()
 	userelementexp.Hooks[0] = userelementexpMixinHooks1[0]
@@ -726,6 +745,12 @@ func init() {
 	userelementexp.DefaultExp = userelementexpDescExp.Default.(int64)
 	// userelementexp.ExpValidator is a validator for the "exp" field. It is called by the builders before save.
 	userelementexp.ExpValidator = userelementexpDescExp.Validators[0].(func(int64) error)
+	usersolvedproblemFields := schema.UserSolvedProblem{}.Fields()
+	_ = usersolvedproblemFields
+	// usersolvedproblemDescSolvedAt is the schema descriptor for solved_at field.
+	usersolvedproblemDescSolvedAt := usersolvedproblemFields[2].Descriptor()
+	// usersolvedproblem.DefaultSolvedAt holds the default value on creation for the solved_at field.
+	usersolvedproblem.DefaultSolvedAt = usersolvedproblemDescSolvedAt.Default.(func() time.Time)
 	userstatsMixin := schema.UserStats{}.Mixin()
 	userstatsMixinHooks1 := userstatsMixin[1].Hooks()
 	userstats.Hooks[0] = userstatsMixinHooks1[0]
@@ -752,9 +777,29 @@ func init() {
 	// userstats.TotalExpValidator is a validator for the "total_exp" field. It is called by the builders before save.
 	userstats.TotalExpValidator = userstatsDescTotalExp.Validators[0].(func(int64) error)
 	// userstatsDescRating is the schema descriptor for rating field.
-	userstatsDescRating := userstatsFields[3].Descriptor()
+	userstatsDescRating := userstatsFields[2].Descriptor()
 	// userstats.DefaultRating holds the default value on creation for the rating field.
 	userstats.DefaultRating = userstatsDescRating.Default.(int)
+	// userstatsDescTotalSubmissions is the schema descriptor for total_submissions field.
+	userstatsDescTotalSubmissions := userstatsFields[3].Descriptor()
+	// userstats.DefaultTotalSubmissions holds the default value on creation for the total_submissions field.
+	userstats.DefaultTotalSubmissions = userstatsDescTotalSubmissions.Default.(int)
+	// userstats.TotalSubmissionsValidator is a validator for the "total_submissions" field. It is called by the builders before save.
+	userstats.TotalSubmissionsValidator = userstatsDescTotalSubmissions.Validators[0].(func(int) error)
+	// userstatsDescAcceptedCount is the schema descriptor for accepted_count field.
+	userstatsDescAcceptedCount := userstatsFields[4].Descriptor()
+	// userstats.DefaultAcceptedCount holds the default value on creation for the accepted_count field.
+	userstats.DefaultAcceptedCount = userstatsDescAcceptedCount.Default.(int)
+	// userstats.AcceptedCountValidator is a validator for the "accepted_count" field. It is called by the builders before save.
+	userstats.AcceptedCountValidator = userstatsDescAcceptedCount.Validators[0].(func(int) error)
+	usertagstatsFields := schema.UserTagStats{}.Fields()
+	_ = usertagstatsFields
+	// usertagstatsDescSolvedCount is the schema descriptor for solved_count field.
+	usertagstatsDescSolvedCount := usertagstatsFields[2].Descriptor()
+	// usertagstats.DefaultSolvedCount holds the default value on creation for the solved_count field.
+	usertagstats.DefaultSolvedCount = usertagstatsDescSolvedCount.Default.(int)
+	// usertagstats.SolvedCountValidator is a validator for the "solved_count" field. It is called by the builders before save.
+	usertagstats.SolvedCountValidator = usertagstatsDescSolvedCount.Validators[0].(func(int) error)
 	usertraitMixin := schema.UserTrait{}.Mixin()
 	usertraitMixinHooks1 := usertraitMixin[1].Hooks()
 	usertrait.Hooks[0] = usertraitMixinHooks1[0]
@@ -777,6 +822,6 @@ func init() {
 }
 
 const (
-	Version = "v0.14.5"                                         // Version of ent codegen.
-	Sum     = "h1:Rj2WOYJtCkWyFo6a+5wB3EfBRP0rnx1fMk6gGA0UUe4=" // Sum of ent codegen.
+	Version = "v0.14.6"                                         // Version of ent codegen.
+	Sum     = "h1:/f2696BpwuWAEEG6PVGWflg6+Inrpq4pRWuNlWz/Skk=" // Sum of ent codegen.
 )

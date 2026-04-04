@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/cache"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	d "github.com/huynhanx03/judgify/pkg/dto"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
@@ -47,6 +49,59 @@ func NewUserService(
 	}
 }
 
+// Find retrieves users with pagination.
+func (s *userService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.UserResponse], error) {
+	result, err := s.userRepo.Find(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]*dto.UserResponse, len(*result.Records))
+	for i, u := range *result.Records {
+		responses[i] = &dto.UserResponse{
+			ID:        u.ID,
+			Username:  u.Username,
+			RoleID:    u.RoleID,
+			RoleName:  u.RoleName,
+			CreatedAt: u.CreatedAt.Format("2006-01-02T15:04:05Z"),
+			UpdatedAt: u.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+		}
+	}
+
+	return &d.Paginated[*dto.UserResponse]{
+		Records:    &responses,
+		Pagination: result.Pagination,
+	}, nil
+}
+
+// UpdateUser updates a user's role.
+func (s *userService) UpdateUser(ctx context.Context, req *dto.UpdateUserRequest) (*dto.UserResponse, error) {
+	user, err := s.userRepo.Get(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	role, err := s.roleRepo.Get(ctx, req.RoleID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.RoleID = req.RoleID
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	logger.FromContext(ctx).Info("user role updated", zap.Int("user_id", req.ID), zap.Int("role_id", req.RoleID))
+	return &dto.UserResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		RoleID:    user.RoleID,
+		RoleName:  role.Name,
+		CreatedAt: user.CreatedAt.Format("2006-01-02T15:04:05Z"),
+		UpdatedAt: user.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+	}, nil
+}
+
 // Delete deletes a user by ID.
 func (s *userService) Delete(ctx context.Context, id int) error {
 	exists, err := s.userRepo.Exists(ctx, id)
@@ -55,7 +110,7 @@ func (s *userService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjUser), nil)
 	}
 
 	if err := s.userRepo.Delete(ctx, id); err != nil {
@@ -67,7 +122,7 @@ func (s *userService) Delete(ctx context.Context, id int) error {
 }
 
 // UpdateProfile updates user profile attributes.
-func (s *userService) UpdateProfile(ctx context.Context, userID int, req *dto.UpdateProfileRequest) (*dto.ProfileResponse, error) {
+func (s *userService) UpdateProfile(ctx context.Context, userID int, req *dto.UpdateProfileRequest) (*dto.ProfileAttrs, error) {
 	user, err := s.userRepo.Get(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -140,7 +195,7 @@ func (s *userService) UpdateProfile(ctx context.Context, userID int, req *dto.Up
 
 	gender, _ := strconv.Atoi(attrUpdates[constant.AttributeKeyGender])
 
-	return &dto.ProfileResponse{
+	return &dto.ProfileAttrs{
 		Username:  user.Username,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
@@ -150,7 +205,7 @@ func (s *userService) UpdateProfile(ctx context.Context, userID int, req *dto.Up
 }
 
 // GetProfile gets user profile with attributes.
-func (s *userService) GetProfile(ctx context.Context, userID int) (*dto.ProfileResponse, error) {
+func (s *userService) GetProfile(ctx context.Context, userID int) (*dto.ProfileAttrs, error) {
 	user, err := s.userRepo.Get(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -168,12 +223,13 @@ func (s *userService) GetProfile(ctx context.Context, userID int) (*dto.ProfileR
 
 	genderInt, _ := strconv.Atoi(genderVal)
 
-	return &dto.ProfileResponse{
+	return &dto.ProfileAttrs{
 		Username:  user.Username,
 		FirstName: firstNameVal,
 		LastName:  lastNameVal,
 		Gender:    genderInt,
 		Birthday:  birthdayVal,
+		JoinedAt:  user.CreatedAt.Format("2006-01-02"),
 	}, nil
 }
 

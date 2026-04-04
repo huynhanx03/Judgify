@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { rankingService } from "@/services/ranking.service";
 import type { Cultivator } from "@/types/ranking";
 import { RankingHeroSection } from "@/modules/ranking/ranking-hero-section";
@@ -45,13 +45,7 @@ export default function RankingPage() {
     fetchAll();
   }, []);
 
-  if (isLoading || !data) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading || !data) return <LoadingSpinner />;
 
   return (
     <div className="space-y-12 pb-24">

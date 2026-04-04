@@ -14,6 +14,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 )
 
 // DifficultyUpdate is the builder for updating Difficulty entities.
@@ -174,6 +175,21 @@ func (_u *DifficultyUpdate) AddProblems(v ...*Problem) *DifficultyUpdate {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddUserDifficultyStatIDs adds the "user_difficulty_stats" edge to the UserDifficultyStats entity by IDs.
+func (_u *DifficultyUpdate) AddUserDifficultyStatIDs(ids ...int) *DifficultyUpdate {
+	_u.mutation.AddUserDifficultyStatIDs(ids...)
+	return _u
+}
+
+// AddUserDifficultyStats adds the "user_difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *DifficultyUpdate) AddUserDifficultyStats(v ...*UserDifficultyStats) *DifficultyUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserDifficultyStatIDs(ids...)
+}
+
 // Mutation returns the DifficultyMutation object of the builder.
 func (_u *DifficultyUpdate) Mutation() *DifficultyMutation {
 	return _u.mutation
@@ -198,6 +214,27 @@ func (_u *DifficultyUpdate) RemoveProblems(v ...*Problem) *DifficultyUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearUserDifficultyStats clears all "user_difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *DifficultyUpdate) ClearUserDifficultyStats() *DifficultyUpdate {
+	_u.mutation.ClearUserDifficultyStats()
+	return _u
+}
+
+// RemoveUserDifficultyStatIDs removes the "user_difficulty_stats" edge to UserDifficultyStats entities by IDs.
+func (_u *DifficultyUpdate) RemoveUserDifficultyStatIDs(ids ...int) *DifficultyUpdate {
+	_u.mutation.RemoveUserDifficultyStatIDs(ids...)
+	return _u
+}
+
+// RemoveUserDifficultyStats removes "user_difficulty_stats" edges to UserDifficultyStats entities.
+func (_u *DifficultyUpdate) RemoveUserDifficultyStats(v ...*UserDifficultyStats) *DifficultyUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserDifficultyStatIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -362,6 +399,51 @@ func (_u *DifficultyUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserDifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserDifficultyStatsIDs(); len(nodes) > 0 && !_u.mutation.UserDifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserDifficultyStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -535,6 +617,21 @@ func (_u *DifficultyUpdateOne) AddProblems(v ...*Problem) *DifficultyUpdateOne {
 	return _u.AddProblemIDs(ids...)
 }
 
+// AddUserDifficultyStatIDs adds the "user_difficulty_stats" edge to the UserDifficultyStats entity by IDs.
+func (_u *DifficultyUpdateOne) AddUserDifficultyStatIDs(ids ...int) *DifficultyUpdateOne {
+	_u.mutation.AddUserDifficultyStatIDs(ids...)
+	return _u
+}
+
+// AddUserDifficultyStats adds the "user_difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *DifficultyUpdateOne) AddUserDifficultyStats(v ...*UserDifficultyStats) *DifficultyUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserDifficultyStatIDs(ids...)
+}
+
 // Mutation returns the DifficultyMutation object of the builder.
 func (_u *DifficultyUpdateOne) Mutation() *DifficultyMutation {
 	return _u.mutation
@@ -559,6 +656,27 @@ func (_u *DifficultyUpdateOne) RemoveProblems(v ...*Problem) *DifficultyUpdateOn
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveProblemIDs(ids...)
+}
+
+// ClearUserDifficultyStats clears all "user_difficulty_stats" edges to the UserDifficultyStats entity.
+func (_u *DifficultyUpdateOne) ClearUserDifficultyStats() *DifficultyUpdateOne {
+	_u.mutation.ClearUserDifficultyStats()
+	return _u
+}
+
+// RemoveUserDifficultyStatIDs removes the "user_difficulty_stats" edge to UserDifficultyStats entities by IDs.
+func (_u *DifficultyUpdateOne) RemoveUserDifficultyStatIDs(ids ...int) *DifficultyUpdateOne {
+	_u.mutation.RemoveUserDifficultyStatIDs(ids...)
+	return _u
+}
+
+// RemoveUserDifficultyStats removes "user_difficulty_stats" edges to UserDifficultyStats entities.
+func (_u *DifficultyUpdateOne) RemoveUserDifficultyStats(v ...*UserDifficultyStats) *DifficultyUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserDifficultyStatIDs(ids...)
 }
 
 // Where appends a list predicates to the DifficultyUpdate builder.
@@ -753,6 +871,51 @@ func (_u *DifficultyUpdateOne) sqlSave(ctx context.Context) (_node *Difficulty, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserDifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserDifficultyStatsIDs(); len(nodes) > 0 && !_u.mutation.UserDifficultyStatsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserDifficultyStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.UserDifficultyStatsTable,
+			Columns: []string{difficulty.UserDifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

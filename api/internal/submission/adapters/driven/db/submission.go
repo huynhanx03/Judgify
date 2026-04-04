@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 
+	"entgo.io/ent/dialect/sql"
+
 	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
 
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
@@ -13,7 +15,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/submission/ports"
 )
 
-const submissionRepoName = "SubmissionRepository"
+const submissionRepoName = "Submission"
 
 type SubmissionRepository struct {
 	client *dbEnt.EntClient
@@ -34,7 +36,7 @@ func (r *SubmissionRepository) Get(ctx context.Context, id int) (*entity.Submiss
 func (r *SubmissionRepository) FindByProblemID(ctx context.Context, problemID int) ([]*entity.Submission, error) {
 	records, err := r.client.DB(ctx).Submission.Query().
 		Where(submission.ProblemID(problemID)).
-		Order(submission.ByID()).
+		Order(submission.ByCreatedAt(sql.OrderDesc())).
 		All(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, submissionRepoName)
@@ -50,7 +52,23 @@ func (r *SubmissionRepository) FindByProblemID(ctx context.Context, problemID in
 func (r *SubmissionRepository) FindByUserID(ctx context.Context, userID int) ([]*entity.Submission, error) {
 	records, err := r.client.DB(ctx).Submission.Query().
 		Where(submission.UserID(userID)).
-		Order(submission.ByID()).
+		Order(submission.ByCreatedAt(sql.OrderDesc())).
+		All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, submissionRepoName)
+	}
+
+	entities := make([]*entity.Submission, len(records))
+	for i, record := range records {
+		entities[i] = mapper.ToSubmissionEntity(record)
+	}
+	return entities, nil
+}
+
+func (r *SubmissionRepository) FindByUserAndProblem(ctx context.Context, userID, problemID int) ([]*entity.Submission, error) {
+	records, err := r.client.DB(ctx).Submission.Query().
+		Where(submission.UserID(userID), submission.ProblemID(problemID)).
+		Order(submission.ByCreatedAt(sql.OrderDesc())).
 		All(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, submissionRepoName)

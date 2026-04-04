@@ -10,7 +10,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookOpen, Loader2 } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { materialService } from "@/services/material.service";
 import type { MaterialArticle, MaterialDifficulty } from "@/types/material";
 import { MarkdownRenderer } from "@/modules/shared/markdown-renderer";
@@ -36,13 +37,7 @@ export default function MaterialDetailPage() {
     });
   }, [params.id]);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
 
   if (!article) {
     return (

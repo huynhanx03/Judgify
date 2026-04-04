@@ -1,123 +1,229 @@
 /**
  * Admin service for dashboard management.
- * Uses mock data — replace with apiClient calls when backend is ready.
+ * All calls use real backend API endpoints.
  */
 
-import type { AdminUser, DashboardStats, Role, Permission, Resource } from "@/types/admin";
+import { apiClient } from "@/lib/api-client";
+import {
+  ROLE_API,
+  PERMISSION_API,
+  RESOURCE_API,
+  PROBLEM_API,
+  TAG_API,
+  DIFFICULTY_API,
+  ELEMENT_API,
+  TRAIT_API,
+  LEVEL_API,
+  RARITY_API,
+  RANK_API,
+  USER_API,
+} from "@/constants/api";
+import type { Paginated, QueryOptions } from "@/types/api";
+import type { Role, Permission, Resource, AdminUser } from "@/types/admin";
 import type { Problem } from "@/types/problem";
 import type { Tag } from "@/types/tag";
-
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-const MOCK_ROLES: Role[] = [
-  { id: 1, name: "Admin", level: 0, parent_id: -1, lft: 1, rgt: 6, created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 2, name: "Teacher", level: 1, parent_id: 1, lft: 2, rgt: 5, created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 3, name: "Student", level: 2, parent_id: 2, lft: 3, rgt: 4, created_at: "2025-01-01", updated_at: "2025-01-01" },
-];
-
-const MOCK_RESOURCES: Resource[] = [
-  { id: 1, key: "user", description: "Tài khoản người dùng trong hệ thống", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 2, key: "role", description: "Vai trò và phân cấp quyền hạn", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 3, key: "permission", description: "Quyền truy cập tài nguyên theo vai trò", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 4, key: "resource", description: "Danh mục tài nguyên được bảo vệ", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 5, key: "problem", description: "Đề bài lập trình và mô tả yêu cầu", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 6, key: "test_case", description: "Bộ test đầu vào/đầu ra cho bài tập", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 7, key: "tag", description: "Nhãn phân loại bài tập theo chủ đề", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 8, key: "element", description: "Nguyên tố tu luyện của người dùng", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 9, key: "trait", description: "Đặc tính và thuộc tính đặc biệt", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 10, key: "level", description: "Cấp độ tu luyện và kinh nghiệm", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 11, key: "rank", description: "Danh hiệu và bảng xếp hạng", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 12, key: "user_stats", description: "Thống kê hoạt động và tiến độ người dùng", created_at: "2025-01-01", updated_at: "2025-01-01" },
-];
-
-const MOCK_PERMISSIONS: Permission[] = [
-  // Admin (role 1) — full access everything
-  { id: 1, role_id: 1, resource_id: 1, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 2, role_id: 1, resource_id: 2, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 3, role_id: 1, resource_id: 3, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 4, role_id: 1, resource_id: 4, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 5, role_id: 1, resource_id: 5, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 6, role_id: 1, resource_id: 6, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 7, role_id: 1, resource_id: 7, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 8, role_id: 1, resource_id: 8, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 9, role_id: 1, resource_id: 9, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 10, role_id: 1, resource_id: 10, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 11, role_id: 1, resource_id: 11, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 12, role_id: 1, resource_id: 12, scopes: 15, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  // Teacher (role 2) — CRU problems, CRU test_cases, CRU tags, R users
-  { id: 13, role_id: 2, resource_id: 1, scopes: 2, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 14, role_id: 2, resource_id: 5, scopes: 7, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 15, role_id: 2, resource_id: 6, scopes: 7, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 16, role_id: 2, resource_id: 7, scopes: 7, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  // Student (role 3) — R problems, R tags
-  { id: 17, role_id: 3, resource_id: 5, scopes: 2, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 18, role_id: 3, resource_id: 7, scopes: 2, description: "", created_at: "2025-01-01", updated_at: "2025-01-01" },
-];
-
-const MOCK_USERS: AdminUser[] = [
-  { id: 1, username: "admin", role_id: 1, role: MOCK_ROLES[0], created_at: "2025-01-01", updated_at: "2025-01-01" },
-  { id: 2, username: "teacher01", role_id: 2, role: MOCK_ROLES[1], created_at: "2025-02-15", updated_at: "2025-02-15" },
-  { id: 3, username: "student01", role_id: 3, role: MOCK_ROLES[2], created_at: "2025-03-01", updated_at: "2025-03-01" },
-  { id: 4, username: "student02", role_id: 3, role: MOCK_ROLES[2], created_at: "2025-03-05", updated_at: "2025-03-05" },
-  { id: 5, username: "student03", role_id: 3, role: MOCK_ROLES[2], created_at: "2025-03-10", updated_at: "2025-03-10" },
-];
-
-const MOCK_PROBLEMS: Problem[] = [
-  { id: 1, title: "Two Sum", description: "Tìm hai số có tổng bằng target", difficulty: "easy", time_limit_ms: 1000, memory_limit_kb: 262144, author_id: 2, is_published: true, tags: [{ id: 1, name: "Array" }], created_at: "2025-01-15", updated_at: "2025-01-15" },
-  { id: 2, title: "Longest Substring", description: "Tìm chuỗi con dài nhất không lặp ký tự", difficulty: "medium", time_limit_ms: 2000, memory_limit_kb: 262144, author_id: 2, is_published: true, tags: [{ id: 2, name: "String" }, { id: 3, name: "Sliding Window" }], created_at: "2025-02-01", updated_at: "2025-02-01" },
-  { id: 3, title: "Merge K Sorted Lists", description: "Gộp K danh sách đã sắp xếp", difficulty: "hard", time_limit_ms: 3000, memory_limit_kb: 524288, author_id: 1, is_published: false, tags: [{ id: 4, name: "Heap" }, { id: 5, name: "Linked List" }], created_at: "2025-02-20", updated_at: "2025-02-20" },
-  { id: 4, title: "Binary Search", description: "Tìm kiếm nhị phân cơ bản", difficulty: "easy", time_limit_ms: 1000, memory_limit_kb: 262144, author_id: 2, is_published: true, tags: [{ id: 1, name: "Array" }], created_at: "2025-03-01", updated_at: "2025-03-01" },
-];
-
-const MOCK_TAGS: Tag[] = [
-  { id: 1, name: "Array" },
-  { id: 2, name: "String" },
-  { id: 3, name: "Sliding Window" },
-  { id: 4, name: "Heap" },
-  { id: 5, name: "Linked List" },
-  { id: 6, name: "Dynamic Programming" },
-  { id: 7, name: "Graph" },
-  { id: 8, name: "Tree" },
-];
+import type { DifficultyResponse } from "@/types/difficulty";
+import type { ElementResponse, LevelResponse, RankResponse, RarityResponse, TraitResponse } from "@/types/cultivation";
 
 export const adminService = {
-  async getDashboardStats(): Promise<DashboardStats> {
-    await delay(300);
-    return {
-      totalUsers: MOCK_USERS.length,
-      totalProblems: MOCK_PROBLEMS.length,
-      totalTags: MOCK_TAGS.length,
-      totalRoles: MOCK_ROLES.length,
-    };
+  // Roles
+  async getAllRoles(): Promise<Role[]> {
+    return apiClient.get<Role[]>(ROLE_API.FIND_ALL);
+  },
+  async createRole(data: { name: string; level: number; parent_id?: number }): Promise<Role> {
+    return apiClient.post<Role>(ROLE_API.CREATE, data);
+  },
+  async updateRole(id: number, data: { name?: string; level?: number; parent_id?: number }): Promise<Role> {
+    return apiClient.put<Role>(ROLE_API.UPDATE(id), data);
+  },
+  async deleteRole(id: number): Promise<void> {
+    await apiClient.delete(ROLE_API.DELETE(id));
   },
 
-  async getUsers(): Promise<AdminUser[]> {
-    await delay(400);
-    return MOCK_USERS;
+  // Permissions
+  async getAllPermissions(): Promise<Permission[]> {
+    return apiClient.get<Permission[]>(PERMISSION_API.FIND_ALL);
+  },
+  async createPermission(data: { role_id: number; resource_id: number; scopes: number }): Promise<Permission> {
+    return apiClient.post<Permission>(PERMISSION_API.CREATE, data);
+  },
+  async updatePermission(id: number, data: { scopes?: number }): Promise<Permission> {
+    return apiClient.put<Permission>(PERMISSION_API.UPDATE(id), data);
+  },
+  async deletePermission(id: number): Promise<void> {
+    await apiClient.delete(PERMISSION_API.DELETE(id));
   },
 
-  async getProblems(): Promise<Problem[]> {
-    await delay(400);
-    return MOCK_PROBLEMS;
+  // Resources
+  async getAllResources(): Promise<Resource[]> {
+    return apiClient.get<Resource[]>(RESOURCE_API.FIND_ALL);
+  },
+  async createResource(data: { key: string; description?: string }): Promise<Resource> {
+    return apiClient.post<Resource>(RESOURCE_API.CREATE, data);
+  },
+  async updateResource(id: number, data: { key?: string; description?: string }): Promise<Resource> {
+    return apiClient.put<Resource>(RESOURCE_API.UPDATE(id), data);
+  },
+  async deleteResource(id: number): Promise<void> {
+    await apiClient.delete(RESOURCE_API.DELETE(id));
   },
 
-  async getTags(): Promise<Tag[]> {
-    await delay(300);
-    return MOCK_TAGS;
+  // Problems
+  async findProblems(query: QueryOptions): Promise<Paginated<Problem>> {
+    return apiClient.post<Paginated<Problem>>(PROBLEM_API.FIND, query);
+  },
+  async getProblem(id: number): Promise<Problem> {
+    return apiClient.get<Problem>(PROBLEM_API.GET(id));
+  },
+  async createProblem(data: {
+    title: string; description: string; difficulty_id: number;
+    time_limit_ms?: number; memory_limit_kb?: number; tag_ids?: number[];
+  }): Promise<Problem> {
+    return apiClient.post<Problem>(PROBLEM_API.CREATE, data);
+  },
+  async updateProblem(id: number, data: {
+    title?: string; description?: string; difficulty_id?: number;
+    time_limit_ms?: number; memory_limit_kb?: number; is_published?: boolean; tag_ids?: number[];
+  }): Promise<Problem> {
+    return apiClient.put<Problem>(PROBLEM_API.UPDATE(id), data);
+  },
+  async deleteProblem(id: number): Promise<void> {
+    await apiClient.delete(PROBLEM_API.DELETE(id));
   },
 
-  async getRoles(): Promise<Role[]> {
-    await delay(300);
-    return MOCK_ROLES;
+  // Tags
+  async findTags(query: QueryOptions): Promise<Paginated<Tag>> {
+    return apiClient.post<Paginated<Tag>>(TAG_API.FIND, query);
+  },
+  async getAllTags(): Promise<Tag[]> {
+    return apiClient.get<Tag[]>(TAG_API.FIND_ALL);
+  },
+  async createTag(data: { name: string; element_ids?: number[] }): Promise<Tag> {
+    return apiClient.post<Tag>(TAG_API.CREATE, data);
+  },
+  async updateTag(id: number, data: { name?: string; element_ids?: number[] }): Promise<Tag> {
+    return apiClient.put<Tag>(TAG_API.UPDATE(id), data);
+  },
+  async deleteTag(id: number): Promise<void> {
+    await apiClient.delete(TAG_API.DELETE(id));
   },
 
-  async getPermissions(): Promise<Permission[]> {
-    await delay(300);
-    return MOCK_PERMISSIONS;
+  // Difficulties
+  async findDifficulties(query: QueryOptions): Promise<Paginated<DifficultyResponse>> {
+    return apiClient.post<Paginated<DifficultyResponse>>(DIFFICULTY_API.FIND, query);
+  },
+  async getAllDifficulties(): Promise<DifficultyResponse[]> {
+    return apiClient.get<DifficultyResponse[]>(DIFFICULTY_API.FIND_ALL);
+  },
+  async createDifficulty(data: { name: string; level: number; exp_reward?: number; description?: string }): Promise<DifficultyResponse> {
+    return apiClient.post<DifficultyResponse>(DIFFICULTY_API.CREATE, data);
+  },
+  async updateDifficulty(id: number, data: { name?: string; level?: number; exp_reward?: number; description?: string }): Promise<DifficultyResponse> {
+    return apiClient.put<DifficultyResponse>(DIFFICULTY_API.UPDATE(id), data);
+  },
+  async deleteDifficulty(id: number): Promise<void> {
+    await apiClient.delete(DIFFICULTY_API.DELETE(id));
   },
 
-  async getResources(): Promise<Resource[]> {
-    await delay(300);
-    return MOCK_RESOURCES;
+  // Elements
+  async findElements(query: QueryOptions): Promise<Paginated<ElementResponse>> {
+    return apiClient.post<Paginated<ElementResponse>>(ELEMENT_API.FIND, query);
+  },
+  async getAllElements(): Promise<ElementResponse[]> {
+    return apiClient.get<ElementResponse[]>(ELEMENT_API.FIND_ALL);
+  },
+  async createElement(data: { name: string; code: string; description?: string }): Promise<ElementResponse> {
+    return apiClient.post<ElementResponse>(ELEMENT_API.CREATE, data);
+  },
+  async updateElement(id: number, data: { name?: string; code?: string; description?: string }): Promise<ElementResponse> {
+    return apiClient.put<ElementResponse>(ELEMENT_API.UPDATE(id), data);
+  },
+  async deleteElement(id: number): Promise<void> {
+    await apiClient.delete(ELEMENT_API.DELETE(id));
+  },
+
+  // Traits
+  async findTraits(query: QueryOptions): Promise<Paginated<TraitResponse>> {
+    return apiClient.post<Paginated<TraitResponse>>(TRAIT_API.FIND, query);
+  },
+  async getTraits(): Promise<TraitResponse[]> {
+    return apiClient.get<TraitResponse[]>(TRAIT_API.FIND_ALL);
+  },
+  async createTrait(data: { type: string; name: string; rarity_id: number; description?: string; metadata?: Record<string, unknown> }): Promise<TraitResponse> {
+    return apiClient.post<TraitResponse>(TRAIT_API.CREATE, data);
+  },
+  async updateTrait(id: number, data: { type?: string; name?: string; rarity_id?: number; description?: string; metadata?: Record<string, unknown> }): Promise<TraitResponse> {
+    return apiClient.put<TraitResponse>(TRAIT_API.UPDATE(id), data);
+  },
+  async deleteTrait(id: number): Promise<void> {
+    await apiClient.delete(TRAIT_API.DELETE(id));
+  },
+
+  // Levels
+  async findLevels(query: QueryOptions): Promise<Paginated<LevelResponse>> {
+    return apiClient.post<Paginated<LevelResponse>>(LEVEL_API.FIND, query);
+  },
+  async getAllLevels(): Promise<LevelResponse[]> {
+    return apiClient.get<LevelResponse[]>(LEVEL_API.FIND_ALL);
+  },
+  async createLevel(data: { name: string; min_exp: number; description?: string }): Promise<LevelResponse> {
+    return apiClient.post<LevelResponse>(LEVEL_API.CREATE, data);
+  },
+  async updateLevel(id: number, data: { name?: string; min_exp?: number; description?: string }): Promise<LevelResponse> {
+    return apiClient.put<LevelResponse>(LEVEL_API.UPDATE(id), data);
+  },
+  async deleteLevel(id: number): Promise<void> {
+    await apiClient.delete(LEVEL_API.DELETE(id));
+  },
+
+  // Rarities
+  async findRarities(query: QueryOptions): Promise<Paginated<RarityResponse>> {
+    return apiClient.post<Paginated<RarityResponse>>(RARITY_API.FIND, query);
+  },
+  async getAllRarities(): Promise<RarityResponse[]> {
+    return apiClient.get<RarityResponse[]>(RARITY_API.FIND_ALL);
+  },
+  async createRarity(data: { name: string; code: string; weight: number; description?: string }): Promise<RarityResponse> {
+    return apiClient.post<RarityResponse>(RARITY_API.CREATE, data);
+  },
+  async updateRarity(id: number, data: { name?: string; code?: string; weight?: number; description?: string }): Promise<RarityResponse> {
+    return apiClient.put<RarityResponse>(RARITY_API.UPDATE(id), data);
+  },
+  async deleteRarity(id: number): Promise<void> {
+    await apiClient.delete(RARITY_API.DELETE(id));
+  },
+
+  // Ranks
+  async findRanks(query: QueryOptions): Promise<Paginated<RankResponse>> {
+    return apiClient.post<Paginated<RankResponse>>(RANK_API.FIND, query);
+  },
+  async getAllRanks(): Promise<RankResponse[]> {
+    return apiClient.get<RankResponse[]>(RANK_API.FIND_ALL);
+  },
+  async createRank(data: { name: string; min_rating: number; description?: string }): Promise<RankResponse> {
+    return apiClient.post<RankResponse>(RANK_API.CREATE, data);
+  },
+  async updateRank(id: number, data: { name?: string; min_rating?: number; description?: string }): Promise<RankResponse> {
+    return apiClient.put<RankResponse>(RANK_API.UPDATE(id), data);
+  },
+  async deleteRank(id: number): Promise<void> {
+    await apiClient.delete(RANK_API.DELETE(id));
+  },
+
+  // Users
+  async getUsers(query: QueryOptions = { pagination: { page: 1, page_size: 200 } }): Promise<Paginated<AdminUser>> {
+    return apiClient.post<Paginated<AdminUser>>(USER_API.FIND, query);
+  },
+  async createUser(data: {
+    username: string; password: string; role_id: number;
+    first_name: string; last_name: string; gender: number; birthday: string;
+  }): Promise<void> {
+    await apiClient.post(USER_API.CREATE, data);
+  },
+  async updateUserRole(id: number, data: { role_id: number }): Promise<AdminUser> {
+    return apiClient.patch<AdminUser>(USER_API.UPDATE(id), data);
+  },
+  async deleteUser(id: number): Promise<void> {
+    await apiClient.delete(USER_API.DELETE(id));
   },
 };

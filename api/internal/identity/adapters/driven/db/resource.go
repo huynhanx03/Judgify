@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const resourceRepoName = "ResourceRepository"
+const resourceRepoName = "Resource"
 
 type ResourceRepository struct {
 	client *dbEnt.EntClient
@@ -25,6 +25,18 @@ type ResourceRepository struct {
 
 func NewResourceRepository(client *dbEnt.EntClient) ports.ResourceRepository {
 	return &ResourceRepository{client: client}
+}
+
+func (r *ResourceRepository) FindAll(ctx context.Context) ([]*entity.Resource, error) {
+	records, err := r.client.DB(ctx).Resource.Query().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, resourceRepoName)
+	}
+	entities := make([]*entity.Resource, len(records))
+	for i, m := range records {
+		entities[i] = mapper.ToResourceEntity(m)
+	}
+	return entities, nil
 }
 
 func (r *ResourceRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Resource], error) {

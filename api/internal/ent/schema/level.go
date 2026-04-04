@@ -2,7 +2,6 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 
 	e "github.com/huynhanx03/judgify/pkg/database/ent"
@@ -42,7 +41,5 @@ func (Level) Fields() []ent.Field {
 
 // Edges of the Level.
 func (Level) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("user_stats", UserStats.Type),
-	}
+	return []ent.Edge{}
 }

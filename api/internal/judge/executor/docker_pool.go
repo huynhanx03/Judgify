@@ -14,23 +14,58 @@ type DockerPool struct {
 	image      string
 	network    bool // true = network enabled
 	poolSize   int
+	memoryMb   int // per-container memory limit in MB
+	tmpfsSizeMb int // /sandbox tmpfs size in MB
 }
 
 // NewDockerPool creates and starts N containers from the given image.
-func NewDockerPool(ctx context.Context, image string, poolSize int, networkDisabled bool) (*DockerPool, error) {
-	pool := &DockerPool{
-		containers: make(chan string, poolSize),
-		image:      image,
-		network:    !networkDisabled,
-		poolSize:   poolSize,
+// Containers are created in parallel for faster startup.
+func NewDockerPool(ctx context.Context, image string, poolSize int, networkDisabled bool, memoryMb, tmpfsSizeMb int) (*DockerPool, error) {
+	// Apply defaults
+	if memoryMb <= 0 {
+		memoryMb = 512
+	}
+	if tmpfsSizeMb <= 0 {
+		tmpfsSizeMb = 64
 	}
 
+	pool := &DockerPool{
+		containers:  make(chan string, poolSize),
+		image:       image,
+		network:     !networkDisabled,
+		poolSize:    poolSize,
+		memoryMb:    memoryMb,
+		tmpfsSizeMb: tmpfsSizeMb,
+	}
+
+	// Create containers in parallel
+	type result struct {
+		id  string
+		err error
+	}
+	results := make(chan result, poolSize)
 	for i := 0; i < poolSize; i++ {
-		id, err := pool.createContainer(ctx, i)
-		if err != nil {
-			pool.Shutdown(ctx)
-			return nil, fmt.Errorf("failed to create container %d: %w", i, err)
+		go func(idx int) {
+			id, err := pool.createContainer(ctx, idx)
+			results <- result{id, err}
+		}(i)
+	}
+
+	// Collect results
+	var created []string
+	for i := 0; i < poolSize; i++ {
+		r := <-results
+		if r.err != nil {
+			// Cleanup already-created containers
+			for _, id := range created {
+				_ = stopAndRemove(ctx, id)
+			}
+			return nil, fmt.Errorf("failed to create container: %w", r.err)
 		}
+		created = append(created, r.id)
+	}
+
+	for _, id := range created {
 		pool.containers <- id
 	}
 
@@ -41,16 +76,25 @@ func NewDockerPool(ctx context.Context, image string, poolSize int, networkDisab
 func (p *DockerPool) Acquire(ctx context.Context) (string, error) {
 	select {
 	case id := <-p.containers:
+		// Health check: verify container is still running
+		if !isContainerRunning(ctx, id) {
+			// Replace dead container
+			newID, err := p.recreateContainer(ctx, id)
+			if err != nil {
+				return "", fmt.Errorf("container %s dead, recreate failed: %w", id, err)
+			}
+			return newID, nil
+		}
 		return id, nil
 	case <-ctx.Done():
 		return "", ctx.Err()
 	}
 }
 
-// Release resets the container filesystem and returns it to the pool.
+// Release cleans the container sandbox and returns it to the pool.
 func (p *DockerPool) Release(ctx context.Context, containerID string) {
-	// Clean up any files left by previous execution
-	_ = dockerExec(ctx, containerID, "rm", "-rf", "/sandbox/*")
+	// Clean up files left by previous execution using sh -c for glob expansion
+	_ = dockerExec(ctx, containerID, "sh", "-c", "rm -rf /sandbox/* /tmp/*")
 	p.containers <- containerID
 }
 
@@ -68,15 +112,18 @@ func (p *DockerPool) createContainer(ctx context.Context, index int) (string, er
 	// Remove existing container with same name (if leftover from previous run)
 	_ = stopAndRemove(ctx, name)
 
+	memFlag := fmt.Sprintf("--memory=%dm", p.memoryMb)
+	sandboxTmpfs := fmt.Sprintf("/sandbox:rw,exec,size=%dm", p.tmpfsSizeMb)
+
 	args := []string{
 		"create",
 		"--name", name,
-		"--memory=256m",
+		memFlag,
 		"--cpus=1",
-		"--pids-limit=64",
+		"--pids-limit=128",
 		"--read-only",
-		"--tmpfs", "/sandbox:rw,exec,size=64m",
-		"--tmpfs", "/tmp:rw,size=32m",
+		"--tmpfs", sandboxTmpfs,
+		"--tmpfs", "/tmp:rw,size=256m",
 		"-w", "/sandbox",
 	}
 
@@ -97,6 +144,26 @@ func (p *DockerPool) createContainer(ctx context.Context, index int) (string, er
 	}
 
 	return name, nil
+}
+
+// recreateContainer removes a dead container and creates a fresh one with the same name.
+func (p *DockerPool) recreateContainer(ctx context.Context, name string) (string, error) {
+	_ = stopAndRemove(ctx, name)
+
+	// Extract index from name "judgify-sandbox-N"
+	var index int
+	fmt.Sscanf(name, "judgify-sandbox-%d", &index)
+
+	return p.createContainer(ctx, index)
+}
+
+// isContainerRunning checks if a container is alive via a fast inspect.
+func isContainerRunning(ctx context.Context, containerID string) bool {
+	out, err := exec.CommandContext(ctx, "docker", "inspect", "-f", "{{.State.Running}}", containerID).Output()
+	if err != nil {
+		return false
+	}
+	return len(out) >= 4 && out[0] == 't' // "true\n"
 }
 
 func stopAndRemove(ctx context.Context, name string) error {

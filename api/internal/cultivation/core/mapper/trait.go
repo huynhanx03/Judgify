@@ -10,14 +10,22 @@ func ToTraitResponse(e *entity.Trait) *dto.TraitResponse {
 	if e == nil {
 		return nil
 	}
-	return &dto.TraitResponse{
+	resp := &dto.TraitResponse{
 		ID:          e.ID,
 		Type:        e.Type,
 		Name:        e.Name,
-		RarityID:    e.RarityID,
 		Description: e.Description,
 		Metadata:    e.Metadata,
 	}
+	if e.Rarity != nil {
+		resp.Rarity = &dto.TraitRarityInfo{
+			ID:     e.Rarity.ID,
+			Name:   e.Rarity.Name,
+			Code:   e.Rarity.Code,
+			Weight: e.Rarity.Weight,
+		}
+	}
+	return resp
 }
 
 // ToTraitEntityFromCreate converts CreateTraitRequest to entity.

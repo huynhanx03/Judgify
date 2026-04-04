@@ -50,4 +50,4 @@ migrate-status:
 
 .PHONY: seed
 seed:
-	docker exec -i judgify-postgres psql -U admin -d judgify < ./api/scripts/seed.sql
+	docker exec -i judgify-postgres psql -U admin -d judgify < ./scripts/seed.sql

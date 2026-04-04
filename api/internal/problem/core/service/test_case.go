@@ -2,12 +2,14 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
+	"github.com/huynhanx03/judgify/internal/problem/constant"
 	"github.com/huynhanx03/judgify/internal/problem/core/dto"
 	"github.com/huynhanx03/judgify/internal/problem/core/mapper"
 	"github.com/huynhanx03/judgify/internal/problem/ports"
@@ -32,7 +34,7 @@ func (s *testCaseService) FindByProblemID(ctx context.Context, problemID int) ([
 		return nil, err
 	}
 	if !exists {
-		return nil, apperr.New(response.CodeNotFound, "problem not found", nil)
+		return nil, apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjProblem), nil)
 	}
 
 	testCases, err := s.testCaseRepo.FindByProblemID(ctx, problemID)
@@ -64,7 +66,7 @@ func (s *testCaseService) Create(ctx context.Context, req *dto.CreateTestCaseReq
 		return nil, err
 	}
 	if !exists {
-		return nil, apperr.New(response.CodeNotFound, "problem not found", nil)
+		return nil, apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjProblem), nil)
 	}
 
 	tc := mapper.ToTestCaseEntityFromCreate(req)
@@ -115,7 +117,7 @@ func (s *testCaseService) Delete(ctx context.Context, id int) error {
 	}
 
 	if !exists {
-		return apperr.New(response.CodeNotFound, apperr.MsgNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjTestCase), nil)
 	}
 
 	if err := s.testCaseRepo.Delete(ctx, id); err != nil {

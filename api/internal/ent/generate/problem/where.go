@@ -110,6 +110,16 @@ func IsPublished(v bool) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIsPublished, v))
 }
 
+// SubmissionCount applies equality check predicate on the "submission_count" field. It's identical to SubmissionCountEQ.
+func SubmissionCount(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldSubmissionCount, v))
+}
+
+// AcceptedCount applies equality check predicate on the "accepted_count" field. It's identical to AcceptedCountEQ.
+func AcceptedCount(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldAcceptedCount, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCreatedAt, v))
@@ -550,6 +560,86 @@ func IsPublishedNEQ(v bool) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldIsPublished, v))
 }
 
+// SubmissionCountEQ applies the EQ predicate on the "submission_count" field.
+func SubmissionCountEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldSubmissionCount, v))
+}
+
+// SubmissionCountNEQ applies the NEQ predicate on the "submission_count" field.
+func SubmissionCountNEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldSubmissionCount, v))
+}
+
+// SubmissionCountIn applies the In predicate on the "submission_count" field.
+func SubmissionCountIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldSubmissionCount, vs...))
+}
+
+// SubmissionCountNotIn applies the NotIn predicate on the "submission_count" field.
+func SubmissionCountNotIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldSubmissionCount, vs...))
+}
+
+// SubmissionCountGT applies the GT predicate on the "submission_count" field.
+func SubmissionCountGT(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldSubmissionCount, v))
+}
+
+// SubmissionCountGTE applies the GTE predicate on the "submission_count" field.
+func SubmissionCountGTE(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldSubmissionCount, v))
+}
+
+// SubmissionCountLT applies the LT predicate on the "submission_count" field.
+func SubmissionCountLT(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldSubmissionCount, v))
+}
+
+// SubmissionCountLTE applies the LTE predicate on the "submission_count" field.
+func SubmissionCountLTE(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldSubmissionCount, v))
+}
+
+// AcceptedCountEQ applies the EQ predicate on the "accepted_count" field.
+func AcceptedCountEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldAcceptedCount, v))
+}
+
+// AcceptedCountNEQ applies the NEQ predicate on the "accepted_count" field.
+func AcceptedCountNEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldAcceptedCount, v))
+}
+
+// AcceptedCountIn applies the In predicate on the "accepted_count" field.
+func AcceptedCountIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldAcceptedCount, vs...))
+}
+
+// AcceptedCountNotIn applies the NotIn predicate on the "accepted_count" field.
+func AcceptedCountNotIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldAcceptedCount, vs...))
+}
+
+// AcceptedCountGT applies the GT predicate on the "accepted_count" field.
+func AcceptedCountGT(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldAcceptedCount, v))
+}
+
+// AcceptedCountGTE applies the GTE predicate on the "accepted_count" field.
+func AcceptedCountGTE(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldAcceptedCount, v))
+}
+
+// AcceptedCountLT applies the LT predicate on the "accepted_count" field.
+func AcceptedCountLT(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldAcceptedCount, v))
+}
+
+// AcceptedCountLTE applies the LTE predicate on the "accepted_count" field.
+func AcceptedCountLTE(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldAcceptedCount, v))
+}
+
 // HasAuthor applies the HasEdge predicate on the "author" edge.
 func HasAuthor() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -657,6 +747,29 @@ func HasTags() predicate.Problem {
 func HasTagsWith(preds ...predicate.Tag) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := newTagsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSolvers applies the HasEdge predicate on the "solvers" edge.
+func HasSolvers() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SolversTable, SolversColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSolversWith applies the HasEdge predicate on the "solvers" edge with a given conditions (other predicates).
+func HasSolversWith(preds ...predicate.UserSolvedProblem) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newSolversStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -30,8 +30,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
@@ -111,8 +114,11 @@ func checkColumn(t, c string) error {
 			trait.Table:               trait.ValidColumn,
 			user.Table:                user.ValidColumn,
 			userattributevalue.Table:  userattributevalue.ValidColumn,
+			userdifficultystats.Table: userdifficultystats.ValidColumn,
 			userelementexp.Table:      userelementexp.ValidColumn,
+			usersolvedproblem.Table:   usersolvedproblem.ValidColumn,
 			userstats.Table:           userstats.ValidColumn,
+			usertagstats.Table:        usertagstats.ValidColumn,
 			usertrait.Table:           usertrait.ValidColumn,
 		})
 	})

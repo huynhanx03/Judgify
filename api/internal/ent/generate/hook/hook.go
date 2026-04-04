@@ -225,6 +225,18 @@ func (f UserAttributeValueFunc) Mutate(ctx context.Context, m generate.Mutation)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserAttributeValueMutation", m)
 }
 
+// The UserDifficultyStatsFunc type is an adapter to allow the use of ordinary
+// function as UserDifficultyStats mutator.
+type UserDifficultyStatsFunc func(context.Context, *generate.UserDifficultyStatsMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserDifficultyStatsFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.UserDifficultyStatsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserDifficultyStatsMutation", m)
+}
+
 // The UserElementExpFunc type is an adapter to allow the use of ordinary
 // function as UserElementExp mutator.
 type UserElementExpFunc func(context.Context, *generate.UserElementExpMutation) (generate.Value, error)
@@ -237,6 +249,18 @@ func (f UserElementExpFunc) Mutate(ctx context.Context, m generate.Mutation) (ge
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserElementExpMutation", m)
 }
 
+// The UserSolvedProblemFunc type is an adapter to allow the use of ordinary
+// function as UserSolvedProblem mutator.
+type UserSolvedProblemFunc func(context.Context, *generate.UserSolvedProblemMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserSolvedProblemFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.UserSolvedProblemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserSolvedProblemMutation", m)
+}
+
 // The UserStatsFunc type is an adapter to allow the use of ordinary
 // function as UserStats mutator.
 type UserStatsFunc func(context.Context, *generate.UserStatsMutation) (generate.Value, error)
@@ -247,6 +271,18 @@ func (f UserStatsFunc) Mutate(ctx context.Context, m generate.Mutation) (generat
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserStatsMutation", m)
+}
+
+// The UserTagStatsFunc type is an adapter to allow the use of ordinary
+// function as UserTagStats mutator.
+type UserTagStatsFunc func(context.Context, *generate.UserTagStatsMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserTagStatsFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.UserTagStatsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.UserTagStatsMutation", m)
 }
 
 // The UserTraitFunc type is an adapter to allow the use of ordinary

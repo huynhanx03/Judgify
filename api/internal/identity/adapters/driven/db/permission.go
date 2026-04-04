@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const permissionRepoName = "PermissionRepository"
+const permissionRepoName = "Permission"
 
 type PermissionRepository struct {
 	client *dbEnt.EntClient
@@ -25,6 +25,18 @@ type PermissionRepository struct {
 
 func NewPermissionRepository(client *dbEnt.EntClient) ports.PermissionRepository {
 	return &PermissionRepository{client: client}
+}
+
+func (r *PermissionRepository) FindAll(ctx context.Context) ([]*entity.Permission, error) {
+	records, err := r.client.DB(ctx).Permission.Query().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, permissionRepoName)
+	}
+	entities := make([]*entity.Permission, len(records))
+	for i, m := range records {
+		entities[i] = mapper.ToPermissionEntity(m)
+	}
+	return entities, nil
 }
 
 func (r *PermissionRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Permission], error) {

@@ -16,7 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const elementRepoName = "ElementRepository"
+const elementRepoName = "Element"
 
 type ElementRepository struct {
 	client *dbEnt.EntClient
@@ -109,4 +109,16 @@ func (r *ElementRepository) Exists(ctx context.Context, id int) (bool, error) {
 		return false, commonEnt.MapEntError(err, elementRepoName)
 	}
 	return exists, nil
+}
+
+func (r *ElementRepository) FindAll(ctx context.Context) ([]*entity.Element, error) {
+	records, err := r.client.DB(ctx).Element.Query().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, elementRepoName)
+	}
+	entities := make([]*entity.Element, len(records))
+	for i, rec := range records {
+		entities[i] = mapper.ToElementEntity(rec)
+	}
+	return entities, nil
 }

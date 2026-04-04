@@ -49,7 +49,7 @@ var languages = map[string]langConfig{
 	},
 	"go": {
 		SourceFile: "main.go",
-		Compile:    []string{"go", "build", "-o", "main", "main.go"},
+		Compile:    []string{"sh", "-c", "GOPATH=/tmp/gopath GOCACHE=/tmp/go-build GONOSUMDB=* go mod init solution > /dev/null 2>&1 && GOPATH=/tmp/gopath GOCACHE=/tmp/go-build GONOSUMDB=* go build -o main ."},
 		RunCmd:     []string{"./main"},
 	},
 }
@@ -82,7 +82,7 @@ func Compile(ctx context.Context, containerID, language string, timeoutMs int) C
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	args := append([]string{"exec", containerID}, cfg.Compile...)
+	args := append([]string{"exec", "-w", "/sandbox", containerID}, cfg.Compile...)
 	var stderr bytes.Buffer
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Stderr = &stderr
@@ -97,19 +97,43 @@ func Compile(ctx context.Context, containerID, language string, timeoutMs int) C
 }
 
 // Execute runs the compiled program with the given input and time/memory limits.
+// Optimized: uses a single docker exec call that resets memory peak, runs the program,
+// and reads peak memory — reducing overhead from 4-6 docker exec calls to 1.
 func Execute(ctx context.Context, containerID, language, input string, timeLimitMs, memoryLimitKb int) RunResult {
 	cfg := languages[language]
 
-	// Reset cgroup memory peak counter before execution
-	resetMemoryPeak(ctx, containerID)
-
-	timeout := time.Duration(timeLimitMs+2000) * time.Millisecond // 2s buffer for overhead
+	timeout := time.Duration(timeLimitMs+2000) * time.Millisecond
 	execCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	args := append([]string{"exec", "-i", containerID}, cfg.RunCmd...)
+	// Build a single shell script that:
+	// 1. Resets cgroup memory peak counter
+	// 2. Runs the program
+	// 3. Captures exit code
+	// 4. Reads peak memory
+	// 5. Outputs: EXIT_CODE\nMEMORY_BYTES\n then program stdout before that
+	runCmd := strings.Join(cfg.RunCmd, " ")
+	script := fmt.Sprintf(`
+# Reset cgroup memory peak (best-effort, silent fail)
+echo 0 > /sys/fs/cgroup/memory.peak 2>/dev/null
+echo 0 > /sys/fs/cgroup/memory/memory.max_usage_in_bytes 2>/dev/null
+
+# Run the program, capture stdout to temp file
+%s < /dev/stdin > /tmp/_out 2> /tmp/_err
+EXIT_CODE=$?
+
+# Read peak memory (cgroups v2 first, then v1)
+MEM=$(cat /sys/fs/cgroup/memory.peak 2>/dev/null || cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes 2>/dev/null || echo 0)
+
+# Output: program stdout, then markers with metadata
+cat /tmp/_out
+printf '\n===JUDGIFY_META===\n'
+printf '%%d\n%%s\n' "$EXIT_CODE" "$MEM"
+cat /tmp/_err >&2
+`, runCmd)
+
 	var stdout, stderr bytes.Buffer
-	cmd := exec.CommandContext(execCtx, "docker", args...)
+	cmd := exec.CommandContext(execCtx, "docker", "exec", "-i", "-w", "/sandbox", containerID, "sh", "-c", script)
 	cmd.Stdin = strings.NewReader(input)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -119,21 +143,21 @@ func Execute(ctx context.Context, containerID, language, input string, timeLimit
 	elapsed := time.Since(start)
 	timeMs := int(elapsed.Milliseconds())
 
-	// Read peak memory from cgroup (zero overhead — just reads a file)
-	memoryKb := readPeakMemoryKb(ctx, containerID)
-
 	// TLE: context deadline exceeded
 	if execCtx.Err() == context.DeadlineExceeded {
 		return RunResult{
 			TimeMs:   timeLimitMs,
-			MemoryKb: memoryKb,
+			MemoryKb: 0,
 			Status:   "time_limit_exceeded",
 		}
 	}
 
+	// Parse output: split by marker to get program output and metadata
+	output, exitCode, memoryKb := parseExecutionOutput(stdout.String())
+
 	if err != nil {
 		// MLE: exit code 137 = OOM killed by Docker
-		if exitCode := getExitCode(err); exitCode == 137 {
+		if exitCode == 137 || getExitCode(err) == 137 {
 			return RunResult{
 				TimeMs:   timeMs,
 				MemoryKb: memoryKb,
@@ -152,7 +176,7 @@ func Execute(ctx context.Context, containerID, language, input string, timeLimit
 	// MLE: program finished but exceeded memory limit
 	if memoryLimitKb > 0 && memoryKb > memoryLimitKb {
 		return RunResult{
-			Output:   stdout.String(),
+			Output:   output,
 			TimeMs:   timeMs,
 			MemoryKb: memoryKb,
 			Status:   "memory_limit_exceeded",
@@ -160,11 +184,36 @@ func Execute(ctx context.Context, containerID, language, input string, timeLimit
 	}
 
 	return RunResult{
-		Output:   stdout.String(),
+		Output:   output,
 		TimeMs:   timeMs,
 		MemoryKb: memoryKb,
 		Status:   "ok",
 	}
+}
+
+// parseExecutionOutput splits the combined output into program output, exit code, and memory.
+// Format: <program_output>\n===JUDGIFY_META===\n<exit_code>\n<memory_bytes>\n
+func parseExecutionOutput(raw string) (output string, exitCode int, memoryKb int) {
+	marker := "\n===JUDGIFY_META===\n"
+	idx := strings.LastIndex(raw, marker)
+	if idx == -1 {
+		// No marker found — probably OOM killed before script completed
+		return raw, -1, 0
+	}
+
+	output = raw[:idx]
+	meta := raw[idx+len(marker):]
+	lines := strings.SplitN(strings.TrimSpace(meta), "\n", 2)
+
+	if len(lines) >= 1 {
+		exitCode, _ = strconv.Atoi(strings.TrimSpace(lines[0]))
+	}
+	if len(lines) >= 2 {
+		memBytes, _ := strconv.ParseInt(strings.TrimSpace(lines[1]), 10, 64)
+		memoryKb = int(memBytes / 1024)
+	}
+
+	return output, exitCode, memoryKb
 }
 
 // getExitCode extracts exit code from exec error. Returns -1 if not available.
@@ -173,39 +222,4 @@ func getExitCode(err error) int {
 		return exitErr.ExitCode()
 	}
 	return -1
-}
-
-// readPeakMemoryKb reads peak memory usage from cgroup inside the container.
-// Tries cgroups v2 first, falls back to v1. Returns 0 if unavailable.
-func readPeakMemoryKb(ctx context.Context, containerID string) int {
-	// cgroups v2: memory.peak
-	out, err := exec.CommandContext(ctx, "docker", "exec", containerID,
-		"cat", "/sys/fs/cgroup/memory.peak").Output()
-	if err == nil {
-		if bytes, err := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64); err == nil {
-			return int(bytes / 1024)
-		}
-	}
-
-	// cgroups v1 fallback: memory.max_usage_in_bytes
-	out, err = exec.CommandContext(ctx, "docker", "exec", containerID,
-		"cat", "/sys/fs/cgroup/memory/memory.max_usage_in_bytes").Output()
-	if err == nil {
-		if bytes, err := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64); err == nil {
-			return int(bytes / 1024)
-		}
-	}
-
-	return 0
-}
-
-// resetMemoryPeak resets the cgroup memory peak counter before each test case.
-func resetMemoryPeak(ctx context.Context, containerID string) {
-	// cgroups v2: reset by writing 0 to memory.peak (Linux 6.7+, best-effort)
-	_ = exec.CommandContext(ctx, "docker", "exec", containerID,
-		"sh", "-c", "echo 0 > /sys/fs/cgroup/memory.peak 2>/dev/null").Run()
-
-	// cgroups v1: reset by writing 0 to memory.max_usage_in_bytes
-	_ = exec.CommandContext(ctx, "docker", "exec", containerID,
-		"sh", "-c", "echo 0 > /sys/fs/cgroup/memory/memory.max_usage_in_bytes 2>/dev/null").Run()
 }

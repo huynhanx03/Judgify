@@ -38,6 +38,12 @@ func (Problem) Fields() []ent.Field {
 		field.Int("author_id"),
 		field.Bool("is_published").
 			Default(false),
+		field.Int("submission_count").
+			Default(0).
+			Comment("Denormalized total submission count"),
+		field.Int("accepted_count").
+			Default(0).
+			Comment("Denormalized accepted submission count"),
 	}
 }
 
@@ -49,5 +55,6 @@ func (Problem) Edges() []ent.Edge {
 		edge.To("test_cases", TestCase.Type),
 		edge.To("submissions", Submission.Type),
 		edge.To("tags", Tag.Type),
+		edge.To("solvers", UserSolvedProblem.Type),
 	}
 }

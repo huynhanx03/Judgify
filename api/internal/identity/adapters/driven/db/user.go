@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const userRepoName = "UserRepository"
+const userRepoName = "User"
 
 type UserRepository struct {
 	client *dbEnt.EntClient
@@ -30,7 +30,7 @@ func NewUserRepository(client *dbEnt.EntClient) ports.UserRepository {
 func (r *UserRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.User], error) {
 	client := r.client.DB(ctx)
 
-	query := client.User.Query()
+	query := client.User.Query().WithRole()
 	if opts != nil {
 		query.Where(func(s *sql.Selector) {
 			commonEnt.ApplyFilters(opts.Filters, s)
@@ -136,7 +136,7 @@ func (r *UserRepository) Exists(ctx context.Context, id int) (bool, error) {
 func (r *UserRepository) ExistsByUsername(ctx context.Context, username string) (bool, error) {
 	exists, err := r.client.DB(ctx).User.Query().Where(user.Username(username)).Exist(ctx)
 	if err != nil {
-		return exists, commonEnt.MapEntError(err, userRepoName)
+		return false, commonEnt.MapEntError(err, userRepoName)
 	}
 	return exists, nil
 }

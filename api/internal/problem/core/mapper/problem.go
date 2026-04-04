@@ -6,11 +6,12 @@ import (
 )
 
 // ToProblemResponse converts Problem entity to ProblemResponse DTO.
+// All nested data (difficulty, tags with elements) comes from the entity — no extra queries.
 func ToProblemResponse(e *entity.Problem) *dto.ProblemResponse {
 	if e == nil {
 		return nil
 	}
-	return &dto.ProblemResponse{
+	resp := &dto.ProblemResponse{
 		ID:            e.ID,
 		Title:         e.Title,
 		Description:   e.Description,
@@ -18,10 +19,35 @@ func ToProblemResponse(e *entity.Problem) *dto.ProblemResponse {
 		TimeLimitMs:   e.TimeLimitMs,
 		MemoryLimitKb: e.MemoryLimitKb,
 		AuthorID:      e.AuthorID,
-		IsPublished:   e.IsPublished,
-		CreatedAt:     e.CreatedAt,
-		UpdatedAt:     e.UpdatedAt,
+		IsPublished:     e.IsPublished,
+		SubmissionCount: e.SubmissionCount,
+		AcceptedCount:   e.AcceptedCount,
+		IsSolved:        e.IsSolved,
+		CreatedAt:       e.CreatedAt,
+		UpdatedAt:       e.UpdatedAt,
 	}
+	if e.SubmissionCount > 0 {
+		resp.AcceptanceRate = float64(e.AcceptedCount) * 100.0 / float64(e.SubmissionCount)
+	}
+
+	// Map difficulty from entity
+	if e.Difficulty != nil {
+		resp.Difficulty = &dto.DifficultyResponse{
+			ID: e.Difficulty.ID, Name: e.Difficulty.Name,
+			Level: e.Difficulty.Level, ExpReward: e.Difficulty.ExpReward,
+			Description: e.Difficulty.Description,
+		}
+	}
+
+	// Map tags with nested elements from entity
+	if e.Tags != nil {
+		resp.Tags = make([]*dto.TagResponse, len(e.Tags))
+		for i, t := range e.Tags {
+			resp.Tags[i] = ToTagResponse(&t)
+		}
+	}
+
+	return resp
 }
 
 // ToProblemEntityFromCreate converts CreateProblemRequest to Problem entity.

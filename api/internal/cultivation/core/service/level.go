@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -90,11 +91,24 @@ func (s *levelService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgLevelNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjLevel), nil)
 	}
 	if err := s.levelRepo.Delete(ctx, id); err != nil {
 		return err
 	}
 	logger.FromContext(ctx).Info("level deleted", zap.Int("level_id", id))
 	return nil
+}
+
+// FindAll retrieves all levels without pagination.
+func (s *levelService) FindAll(ctx context.Context) ([]*dto.LevelResponse, error) {
+	levels, err := s.levelRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.LevelResponse, len(levels))
+	for i, e := range levels {
+		responses[i] = mapper.ToLevelResponse(e)
+	}
+	return responses, nil
 }

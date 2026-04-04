@@ -29,6 +29,8 @@ const (
 	EdgeProblems = "problems"
 	// EdgeElements holds the string denoting the elements edge name in mutations.
 	EdgeElements = "elements"
+	// EdgeUserTagStats holds the string denoting the user_tag_stats edge name in mutations.
+	EdgeUserTagStats = "user_tag_stats"
 	// Table holds the table name of the tag in the database.
 	Table = "tags"
 	// ProblemsTable is the table that holds the problems relation/edge. The primary key declared below.
@@ -41,6 +43,13 @@ const (
 	// ElementsInverseTable is the table name for the Element entity.
 	// It exists in this package in order to avoid circular dependency with the "element" package.
 	ElementsInverseTable = "elements"
+	// UserTagStatsTable is the table that holds the user_tag_stats relation/edge.
+	UserTagStatsTable = "user_tag_stats"
+	// UserTagStatsInverseTable is the table name for the UserTagStats entity.
+	// It exists in this package in order to avoid circular dependency with the "usertagstats" package.
+	UserTagStatsInverseTable = "user_tag_stats"
+	// UserTagStatsColumn is the table column denoting the user_tag_stats relation/edge.
+	UserTagStatsColumn = "tag_id"
 )
 
 // Columns holds all SQL columns for tag fields.
@@ -150,6 +159,20 @@ func ByElements(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newElementsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUserTagStatsCount orders the results by user_tag_stats count.
+func ByUserTagStatsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserTagStatsStep(), opts...)
+	}
+}
+
+// ByUserTagStats orders the results by user_tag_stats terms.
+func ByUserTagStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserTagStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -162,5 +185,12 @@ func newElementsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ElementsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, ElementsTable, ElementsPrimaryKey...),
+	)
+}
+func newUserTagStatsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserTagStatsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserTagStatsTable, UserTagStatsColumn),
 	)
 }

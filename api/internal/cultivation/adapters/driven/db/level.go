@@ -16,7 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const levelRepoName = "LevelRepository"
+const levelRepoName = "Level"
 
 type LevelRepository struct {
 	client *dbEnt.EntClient
@@ -109,4 +109,16 @@ func (r *LevelRepository) Exists(ctx context.Context, id int) (bool, error) {
 		return false, commonEnt.MapEntError(err, levelRepoName)
 	}
 	return exists, nil
+}
+
+func (r *LevelRepository) FindAll(ctx context.Context) ([]*entity.Level, error) {
+	records, err := r.client.DB(ctx).Level.Query().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, levelRepoName)
+	}
+	entities := make([]*entity.Level, len(records))
+	for i, rec := range records {
+		entities[i] = mapper.ToLevelEntity(rec)
+	}
+	return entities, nil
 }

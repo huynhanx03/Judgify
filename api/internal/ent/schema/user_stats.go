@@ -31,9 +31,14 @@ func (UserStats) Fields() []ent.Field {
 		field.Int64("total_exp").
 			Default(0).
 			NonNegative(),
-		field.Int("current_level_id"),
 		field.Int("rating").
 			Default(0),
+		field.Int("total_submissions").
+			Default(0).
+			NonNegative(),
+		field.Int("accepted_count").
+			Default(0).
+			NonNegative(),
 	}
 }
 
@@ -41,7 +46,6 @@ func (UserStats) Fields() []ent.Field {
 func (UserStats) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).Ref("user_stats").Field("user_id").Unique().Required(),
-		edge.From("current_level", Level.Type).Ref("user_stats").Field("current_level_id").Unique().Required(),
 	}
 }
 

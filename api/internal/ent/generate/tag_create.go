@@ -14,6 +14,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 )
 
 // TagCreate is the builder for creating a Tag entity.
@@ -114,6 +115,21 @@ func (_c *TagCreate) AddElements(v ...*Element) *TagCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddElementIDs(ids...)
+}
+
+// AddUserTagStatIDs adds the "user_tag_stats" edge to the UserTagStats entity by IDs.
+func (_c *TagCreate) AddUserTagStatIDs(ids ...int) *TagCreate {
+	_c.mutation.AddUserTagStatIDs(ids...)
+	return _c
+}
+
+// AddUserTagStats adds the "user_tag_stats" edges to the UserTagStats entity.
+func (_c *TagCreate) AddUserTagStats(v ...*UserTagStats) *TagCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserTagStatIDs(ids...)
 }
 
 // Mutation returns the TagMutation object of the builder.
@@ -258,6 +274,22 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UserTagStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.UserTagStatsTable,
+			Columns: []string{tag.UserTagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

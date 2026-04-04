@@ -25,6 +25,9 @@ type DeleteRankRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllRanksRequest is an empty request for GET /ranks.
+type FindAllRanksRequest struct{}
+
 // RankResponse represents rank data in API response.
 type RankResponse struct {
 	ID          int    `json:"id"`

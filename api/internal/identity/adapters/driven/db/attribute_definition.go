@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 )
 
-const attrDefRepoName = "AttributeDefinitionRepository"
+const attrDefRepoName = "Attribute Definition"
 
 type AttributeDefinitionRepository struct {
 	client *dbEnt.EntClient

@@ -17,18 +17,20 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 )
 
 // TagQuery is the builder for querying Tag entities.
 type TagQuery struct {
 	config
-	ctx          *QueryContext
-	order        []tag.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Tag
-	withProblems *ProblemQuery
-	withElements *ElementQuery
-	modifiers    []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []tag.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Tag
+	withProblems     *ProblemQuery
+	withElements     *ElementQuery
+	withUserTagStats *UserTagStatsQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +104,28 @@ func (_q *TagQuery) QueryElements() *ElementQuery {
 			sqlgraph.From(tag.Table, tag.FieldID, selector),
 			sqlgraph.To(element.Table, element.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, tag.ElementsTable, tag.ElementsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUserTagStats chains the current query on the "user_tag_stats" edge.
+func (_q *TagQuery) QueryUserTagStats() *UserTagStatsQuery {
+	query := (&UserTagStatsClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, selector),
+			sqlgraph.To(usertagstats.Table, usertagstats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tag.UserTagStatsTable, tag.UserTagStatsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -296,13 +320,14 @@ func (_q *TagQuery) Clone() *TagQuery {
 		return nil
 	}
 	return &TagQuery{
-		config:       _q.config,
-		ctx:          _q.ctx.Clone(),
-		order:        append([]tag.OrderOption{}, _q.order...),
-		inters:       append([]Interceptor{}, _q.inters...),
-		predicates:   append([]predicate.Tag{}, _q.predicates...),
-		withProblems: _q.withProblems.Clone(),
-		withElements: _q.withElements.Clone(),
+		config:           _q.config,
+		ctx:              _q.ctx.Clone(),
+		order:            append([]tag.OrderOption{}, _q.order...),
+		inters:           append([]Interceptor{}, _q.inters...),
+		predicates:       append([]predicate.Tag{}, _q.predicates...),
+		withProblems:     _q.withProblems.Clone(),
+		withElements:     _q.withElements.Clone(),
+		withUserTagStats: _q.withUserTagStats.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -329,6 +354,17 @@ func (_q *TagQuery) WithElements(opts ...func(*ElementQuery)) *TagQuery {
 		opt(query)
 	}
 	_q.withElements = query
+	return _q
+}
+
+// WithUserTagStats tells the query-builder to eager-load the nodes that are connected to
+// the "user_tag_stats" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TagQuery) WithUserTagStats(opts ...func(*UserTagStatsQuery)) *TagQuery {
+	query := (&UserTagStatsClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withUserTagStats = query
 	return _q
 }
 
@@ -410,9 +446,10 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 	var (
 		nodes       = []*Tag{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withProblems != nil,
 			_q.withElements != nil,
+			_q.withUserTagStats != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -447,6 +484,18 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 		if err := _q.loadElements(ctx, query, nodes,
 			func(n *Tag) { n.Edges.Elements = []*Element{} },
 			func(n *Tag, e *Element) { n.Edges.Elements = append(n.Edges.Elements, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withUserTagStats; query != nil {
+		if err := _q.loadUserTagStats(ctx, query, nodes,
+			func(n *Tag) { n.Edges.UserTagStats = []*UserTagStats{} },
+			func(n *Tag, e *UserTagStats) {
+				n.Edges.UserTagStats = append(n.Edges.UserTagStats, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Tag = n
+				}
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -572,6 +621,36 @@ func (_q *TagQuery) loadElements(ctx context.Context, query *ElementQuery, nodes
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (_q *TagQuery) loadUserTagStats(ctx context.Context, query *UserTagStatsQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *UserTagStats)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Tag)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(usertagstats.FieldTagID)
+	}
+	query.Where(predicate.UserTagStats(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(tag.UserTagStatsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TagID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "tag_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

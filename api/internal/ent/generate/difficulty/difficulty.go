@@ -33,6 +33,8 @@ const (
 	FieldDescription = "description"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
+	// EdgeUserDifficultyStats holds the string denoting the user_difficulty_stats edge name in mutations.
+	EdgeUserDifficultyStats = "user_difficulty_stats"
 	// Table holds the table name of the difficulty in the database.
 	Table = "difficulties"
 	// ProblemsTable is the table that holds the problems relation/edge.
@@ -42,6 +44,13 @@ const (
 	ProblemsInverseTable = "problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
 	ProblemsColumn = "difficulty_id"
+	// UserDifficultyStatsTable is the table that holds the user_difficulty_stats relation/edge.
+	UserDifficultyStatsTable = "user_difficulty_stats"
+	// UserDifficultyStatsInverseTable is the table name for the UserDifficultyStats entity.
+	// It exists in this package in order to avoid circular dependency with the "userdifficultystats" package.
+	UserDifficultyStatsInverseTable = "user_difficulty_stats"
+	// UserDifficultyStatsColumn is the table column denoting the user_difficulty_stats relation/edge.
+	UserDifficultyStatsColumn = "difficulty_id"
 )
 
 // Columns holds all SQL columns for difficulty fields.
@@ -154,10 +163,31 @@ func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUserDifficultyStatsCount orders the results by user_difficulty_stats count.
+func ByUserDifficultyStatsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserDifficultyStatsStep(), opts...)
+	}
+}
+
+// ByUserDifficultyStats orders the results by user_difficulty_stats terms.
+func ByUserDifficultyStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserDifficultyStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+	)
+}
+func newUserDifficultyStatsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserDifficultyStatsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserDifficultyStatsTable, UserDifficultyStatsColumn),
 	)
 }

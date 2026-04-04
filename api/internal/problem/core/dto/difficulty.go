@@ -27,6 +27,9 @@ type DeleteDifficultyRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllDifficultiesRequest is an empty request for GET /difficulties.
+type FindAllDifficultiesRequest struct{}
+
 // DifficultyResponse represents difficulty data in API response.
 type DifficultyResponse struct {
 	ID          int    `json:"id"`

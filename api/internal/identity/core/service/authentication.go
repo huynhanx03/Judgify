@@ -18,6 +18,9 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/entity"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
+	cultivationEntity "github.com/huynhanx03/judgify/internal/cultivation/core/entity"
+	cultivationPorts "github.com/huynhanx03/judgify/internal/cultivation/ports"
+	problemPorts "github.com/huynhanx03/judgify/internal/problem/ports"
 	"github.com/huynhanx03/judgify/pkg/oauth"
 )
 
@@ -28,17 +31,23 @@ const (
 )
 
 type authenticationService struct {
-	userRepo        ports.UserRepository
-	credentialRepo  ports.CredentialRepository
-	roleRepo        ports.RoleRepository
-	permissionRepo  ports.PermissionRepository
-	resourceRepo    ports.ResourceRepository
-	attrDefRepo     ports.AttributeDefinitionRepository
-	attrValueRepo   ports.UserAttributeValueRepository
-	fedIdentityRepo ports.FederatedIdentityRepository
-	oauthProviders  map[string]oauth.Provider
-	cache           cache.LocalCache[string, any]
-	cacheService    ports.CacheService
+	userRepo            ports.UserRepository
+	credentialRepo      ports.CredentialRepository
+	roleRepo            ports.RoleRepository
+	permissionRepo      ports.PermissionRepository
+	resourceRepo        ports.ResourceRepository
+	attrDefRepo         ports.AttributeDefinitionRepository
+	attrValueRepo       ports.UserAttributeValueRepository
+	fedIdentityRepo     ports.FederatedIdentityRepository
+	userTraitRepo       cultivationPorts.UserTraitRepository
+	userStatsRepo       cultivationPorts.UserStatsRepository
+	userElementExpRepo  cultivationPorts.UserElementExpRepository
+	elementRepo         cultivationPorts.ElementRepository
+	userDiffStatsRepo   cultivationPorts.UserDifficultyStatsRepository
+	difficultyRepo      problemPorts.DifficultyRepository
+	oauthProviders      map[string]oauth.Provider
+	cache               cache.LocalCache[string, any]
+	cacheService        ports.CacheService
 }
 
 // NewAuthenticationService creates a new AuthenticationService instance.
@@ -51,26 +60,38 @@ func NewAuthenticationService(
 	attrDefRepo ports.AttributeDefinitionRepository,
 	attrValueRepo ports.UserAttributeValueRepository,
 	fedIdentityRepo ports.FederatedIdentityRepository,
+	userTraitRepo cultivationPorts.UserTraitRepository,
+	userStatsRepo cultivationPorts.UserStatsRepository,
+	userElementExpRepo cultivationPorts.UserElementExpRepository,
+	elementRepo cultivationPorts.ElementRepository,
+	userDiffStatsRepo cultivationPorts.UserDifficultyStatsRepository,
+	difficultyRepo problemPorts.DifficultyRepository,
 	oauthProviders map[string]oauth.Provider,
 	cache cache.LocalCache[string, any],
 	cacheService ports.CacheService,
 ) ports.AuthenticationService {
 	return &authenticationService{
-		userRepo:        userRepo,
-		credentialRepo:  credentialRepo,
-		roleRepo:        roleRepo,
-		permissionRepo:  permissionRepo,
-		resourceRepo:    resourceRepo,
-		attrDefRepo:     attrDefRepo,
-		attrValueRepo:   attrValueRepo,
-		fedIdentityRepo: fedIdentityRepo,
-		oauthProviders:  oauthProviders,
-		cache:           cache,
-		cacheService:    cacheService,
+		userRepo:           userRepo,
+		credentialRepo:     credentialRepo,
+		roleRepo:           roleRepo,
+		permissionRepo:     permissionRepo,
+		resourceRepo:       resourceRepo,
+		attrDefRepo:        attrDefRepo,
+		attrValueRepo:      attrValueRepo,
+		fedIdentityRepo:    fedIdentityRepo,
+		userTraitRepo:      userTraitRepo,
+		userStatsRepo:      userStatsRepo,
+		userElementExpRepo: userElementExpRepo,
+		elementRepo:        elementRepo,
+		userDiffStatsRepo:  userDiffStatsRepo,
+		difficultyRepo:     difficultyRepo,
+		oauthProviders:     oauthProviders,
+		cache:              cache,
+		cacheService:       cacheService,
 	}
 }
 
-// Register creates a new user with default "student" role.
+// Register creates a new user with default "student" role and optional trait assignments.
 func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterRequest) (*dto.RegisterResponse, error) {
 	// Resolve the default role
 	defaultRole, err := s.resolveRole(ctx, defaultRoleName)
@@ -79,7 +100,7 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 	}
 
 	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
-		_, err := s.registerInternal(ctx, &dto.CreateUserRequest{
+		user, err := s.registerInternal(ctx, &dto.CreateUserRequest{
 			Username:  req.Username,
 			Password:  req.Password,
 			RoleID:    defaultRole.ID,
@@ -88,7 +109,61 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 			Gender:    req.Gender,
 			Birthday:  req.Birthday,
 		})
-		return err
+		if err != nil {
+			return err
+		}
+
+		// Assign traits: 1 root bone + 3 talents
+		traitIDs := append([]int{req.RootBoneID}, req.TalentIDs...)
+		userTraits := make([]*cultivationEntity.UserTrait, 0, len(traitIDs))
+		for _, traitID := range traitIDs {
+			userTraits = append(userTraits, &cultivationEntity.UserTrait{
+				UserID:  user.ID,
+				TraitID: traitID,
+			})
+		}
+		if err := s.userTraitRepo.CreateBulk(ctx, userTraits); err != nil {
+			return apperr.MapError(err, response.CodeInternalError, "failed to assign traits")
+		}
+
+		// Create user_stats row (level 1, 0 exp)
+		if err := s.userStatsRepo.Create(ctx, &cultivationEntity.UserStats{
+			UserID:   user.ID,
+			TotalExp: 0,
+			Rating:   0,
+		}); err != nil {
+			return apperr.MapError(err, response.CodeInternalError, "failed to init user stats")
+		}
+
+		// Create user_element_exp for ALL elements (0 exp each)
+		elements, err := s.elementRepo.FindAll(ctx)
+		if err != nil {
+			return apperr.MapError(err, response.CodeInternalError, "failed to load elements")
+		}
+		for _, elem := range elements {
+			if err := s.userElementExpRepo.Create(ctx, &cultivationEntity.UserElementExp{
+				UserID:    user.ID,
+				ElementID: elem.ID,
+				Exp:       0,
+			}); err != nil {
+				return apperr.MapError(err, response.CodeInternalError, "failed to init element exp")
+			}
+		}
+
+		// Create user_difficulty_stats for ALL difficulties (0 solved each)
+		difficulties, err := s.difficultyRepo.FindAll(ctx)
+		if err != nil {
+			return apperr.MapError(err, response.CodeInternalError, "failed to load difficulties")
+		}
+		diffIDs := make([]int, len(difficulties))
+		for i, d := range difficulties {
+			diffIDs[i] = d.ID
+		}
+		if err := s.userDiffStatsRepo.CreateBulk(ctx, user.ID, diffIDs); err != nil {
+			return apperr.MapError(err, response.CodeInternalError, "failed to init difficulty stats")
+		}
+
+		return nil
 	})
 
 	if err != nil {
@@ -291,7 +366,7 @@ func (s *authenticationService) generateToken(user *entity.User, tokenType utils
 func (s *authenticationService) resolveRole(ctx context.Context, roleName string) (*entity.Role, error) {
 	cacheKey := constant.CacheKeyPrefixRoleName + roleName
 
-	if role, found := cache.GetLocal[*entity.Role](s.cache, cacheKey); found {
+	if role, found := cache.LocalGet[*entity.Role](s.cache, cacheKey); found {
 		return role, nil
 	}
 
@@ -300,6 +375,6 @@ func (s *authenticationService) resolveRole(ctx context.Context, roleName string
 		return nil, err
 	}
 
-	cache.SetLocal(s.cache, cacheKey, role, constant.CacheCostRoleName)
+	cache.LocalSet(s.cache, cacheKey, role)
 	return role, nil
 }

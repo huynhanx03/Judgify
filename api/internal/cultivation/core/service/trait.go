@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -44,6 +45,19 @@ func (s *traitService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pagin
 	return &d.Paginated[*dto.TraitResponse]{Records: &responses, Pagination: result.Pagination}, nil
 }
 
+func (s *traitService) FindAll(ctx context.Context) ([]*dto.TraitResponse, error) {
+	entities, err := s.traitRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]*dto.TraitResponse, len(entities))
+	for i, e := range entities {
+		responses[i] = mapper.ToTraitResponse(e)
+	}
+	return responses, nil
+}
+
 func (s *traitService) Get(ctx context.Context, id int) (*dto.TraitResponse, error) {
 	e, err := s.traitRepo.Get(ctx, id)
 	if err != nil {
@@ -58,7 +72,12 @@ func (s *traitService) Create(ctx context.Context, req *dto.CreateTraitRequest) 
 		return nil, err
 	}
 	logger.FromContext(ctx).Info("trait created", zap.Int("trait_id", e.ID))
-	return mapper.ToTraitResponse(e), nil
+	// Re-fetch to get full rarity data from eager loading.
+	full, err := s.traitRepo.Get(ctx, e.ID)
+	if err != nil {
+		return nil, err
+	}
+	return mapper.ToTraitResponse(full), nil
 }
 
 func (s *traitService) Update(ctx context.Context, id int, req *dto.UpdateTraitRequest) (*dto.TraitResponse, error) {
@@ -87,7 +106,12 @@ func (s *traitService) Update(ctx context.Context, id int, req *dto.UpdateTraitR
 		return nil, err
 	}
 	logger.FromContext(ctx).Info("trait updated", zap.Int("trait_id", e.ID))
-	return mapper.ToTraitResponse(e), nil
+	// Re-fetch to get full rarity data from eager loading.
+	full, err := s.traitRepo.Get(ctx, e.ID)
+	if err != nil {
+		return nil, err
+	}
+	return mapper.ToTraitResponse(full), nil
 }
 
 func (s *traitService) Delete(ctx context.Context, id int) error {
@@ -96,7 +120,7 @@ func (s *traitService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgTraitNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjTrait), nil)
 	}
 	if err := s.traitRepo.Delete(ctx, id); err != nil {
 		return err

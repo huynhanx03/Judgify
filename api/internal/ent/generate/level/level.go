@@ -7,7 +7,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -29,17 +28,8 @@ const (
 	FieldMinExp = "min_exp"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// EdgeUserStats holds the string denoting the user_stats edge name in mutations.
-	EdgeUserStats = "user_stats"
 	// Table holds the table name of the level in the database.
 	Table = "levels"
-	// UserStatsTable is the table that holds the user_stats relation/edge.
-	UserStatsTable = "user_stats"
-	// UserStatsInverseTable is the table name for the UserStats entity.
-	// It exists in this package in order to avoid circular dependency with the "userstats" package.
-	UserStatsInverseTable = "user_stats"
-	// UserStatsColumn is the table column denoting the user_stats relation/edge.
-	UserStatsColumn = "current_level_id"
 )
 
 // Columns holds all SQL columns for level fields.
@@ -129,25 +119,4 @@ func ByMinExp(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
-}
-
-// ByUserStatsCount orders the results by user_stats count.
-func ByUserStatsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserStatsStep(), opts...)
-	}
-}
-
-// ByUserStats orders the results by user_stats terms.
-func ByUserStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newUserStatsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserStatsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UserStatsTable, UserStatsColumn),
-	)
 }

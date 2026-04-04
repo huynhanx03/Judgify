@@ -12,6 +12,7 @@ import (
 
 // PermissionHandler defines the permission HTTP handler interface.
 type PermissionHandler interface {
+	FindAll(ctx context.Context, req *dto.FindAllPermissionsRequest) ([]*dto.PermissionResponse, error)
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.PermissionResponse], error)
 	Get(ctx context.Context, req *dto.GetPermissionRequest) (*dto.PermissionResponse, error)
 	Create(ctx context.Context, req *dto.CreatePermissionRequest) (*dto.PermissionResponse, error)
@@ -29,6 +30,11 @@ func NewPermissionHandler(permissionService ports.PermissionService) PermissionH
 	return &permissionHandler{
 		permissionService: permissionService,
 	}
+}
+
+// FindAll retrieves all permissions without pagination.
+func (h *permissionHandler) FindAll(ctx context.Context, _ *dto.FindAllPermissionsRequest) ([]*dto.PermissionResponse, error) {
+	return h.permissionService.FindAll(ctx)
 }
 
 // Find retrieves permissions with pagination.

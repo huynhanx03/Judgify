@@ -18,6 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 )
 
 // ProblemUpdate is the builder for updating Problem entities.
@@ -199,6 +200,48 @@ func (_u *ProblemUpdate) SetNillableIsPublished(v *bool) *ProblemUpdate {
 	return _u
 }
 
+// SetSubmissionCount sets the "submission_count" field.
+func (_u *ProblemUpdate) SetSubmissionCount(v int) *ProblemUpdate {
+	_u.mutation.ResetSubmissionCount()
+	_u.mutation.SetSubmissionCount(v)
+	return _u
+}
+
+// SetNillableSubmissionCount sets the "submission_count" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableSubmissionCount(v *int) *ProblemUpdate {
+	if v != nil {
+		_u.SetSubmissionCount(*v)
+	}
+	return _u
+}
+
+// AddSubmissionCount adds value to the "submission_count" field.
+func (_u *ProblemUpdate) AddSubmissionCount(v int) *ProblemUpdate {
+	_u.mutation.AddSubmissionCount(v)
+	return _u
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (_u *ProblemUpdate) SetAcceptedCount(v int) *ProblemUpdate {
+	_u.mutation.ResetAcceptedCount()
+	_u.mutation.SetAcceptedCount(v)
+	return _u
+}
+
+// SetNillableAcceptedCount sets the "accepted_count" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableAcceptedCount(v *int) *ProblemUpdate {
+	if v != nil {
+		_u.SetAcceptedCount(*v)
+	}
+	return _u
+}
+
+// AddAcceptedCount adds value to the "accepted_count" field.
+func (_u *ProblemUpdate) AddAcceptedCount(v int) *ProblemUpdate {
+	_u.mutation.AddAcceptedCount(v)
+	return _u
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_u *ProblemUpdate) SetAuthor(v *User) *ProblemUpdate {
 	return _u.SetAuthorID(v.ID)
@@ -252,6 +295,21 @@ func (_u *ProblemUpdate) AddTags(v ...*Tag) *ProblemUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddTagIDs(ids...)
+}
+
+// AddSolverIDs adds the "solvers" edge to the UserSolvedProblem entity by IDs.
+func (_u *ProblemUpdate) AddSolverIDs(ids ...int) *ProblemUpdate {
+	_u.mutation.AddSolverIDs(ids...)
+	return _u
+}
+
+// AddSolvers adds the "solvers" edges to the UserSolvedProblem entity.
+func (_u *ProblemUpdate) AddSolvers(v ...*UserSolvedProblem) *ProblemUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSolverIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -332,6 +390,27 @@ func (_u *ProblemUpdate) RemoveTags(v ...*Tag) *ProblemUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTagIDs(ids...)
+}
+
+// ClearSolvers clears all "solvers" edges to the UserSolvedProblem entity.
+func (_u *ProblemUpdate) ClearSolvers() *ProblemUpdate {
+	_u.mutation.ClearSolvers()
+	return _u
+}
+
+// RemoveSolverIDs removes the "solvers" edge to UserSolvedProblem entities by IDs.
+func (_u *ProblemUpdate) RemoveSolverIDs(ids ...int) *ProblemUpdate {
+	_u.mutation.RemoveSolverIDs(ids...)
+	return _u
+}
+
+// RemoveSolvers removes "solvers" edges to UserSolvedProblem entities.
+func (_u *ProblemUpdate) RemoveSolvers(v ...*UserSolvedProblem) *ProblemUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSolverIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -453,6 +532,18 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.IsPublished(); ok {
 		_spec.SetField(problem.FieldIsPublished, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.SubmissionCount(); ok {
+		_spec.SetField(problem.FieldSubmissionCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubmissionCount(); ok {
+		_spec.AddField(problem.FieldSubmissionCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AcceptedCount(); ok {
+		_spec.SetField(problem.FieldAcceptedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAcceptedCount(); ok {
+		_spec.AddField(problem.FieldAcceptedCount, field.TypeInt, value)
 	}
 	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -640,6 +731,51 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SolversCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSolversIDs(); len(nodes) > 0 && !_u.mutation.SolversCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SolversIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -834,6 +970,48 @@ func (_u *ProblemUpdateOne) SetNillableIsPublished(v *bool) *ProblemUpdateOne {
 	return _u
 }
 
+// SetSubmissionCount sets the "submission_count" field.
+func (_u *ProblemUpdateOne) SetSubmissionCount(v int) *ProblemUpdateOne {
+	_u.mutation.ResetSubmissionCount()
+	_u.mutation.SetSubmissionCount(v)
+	return _u
+}
+
+// SetNillableSubmissionCount sets the "submission_count" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableSubmissionCount(v *int) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetSubmissionCount(*v)
+	}
+	return _u
+}
+
+// AddSubmissionCount adds value to the "submission_count" field.
+func (_u *ProblemUpdateOne) AddSubmissionCount(v int) *ProblemUpdateOne {
+	_u.mutation.AddSubmissionCount(v)
+	return _u
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (_u *ProblemUpdateOne) SetAcceptedCount(v int) *ProblemUpdateOne {
+	_u.mutation.ResetAcceptedCount()
+	_u.mutation.SetAcceptedCount(v)
+	return _u
+}
+
+// SetNillableAcceptedCount sets the "accepted_count" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableAcceptedCount(v *int) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetAcceptedCount(*v)
+	}
+	return _u
+}
+
+// AddAcceptedCount adds value to the "accepted_count" field.
+func (_u *ProblemUpdateOne) AddAcceptedCount(v int) *ProblemUpdateOne {
+	_u.mutation.AddAcceptedCount(v)
+	return _u
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_u *ProblemUpdateOne) SetAuthor(v *User) *ProblemUpdateOne {
 	return _u.SetAuthorID(v.ID)
@@ -887,6 +1065,21 @@ func (_u *ProblemUpdateOne) AddTags(v ...*Tag) *ProblemUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.AddTagIDs(ids...)
+}
+
+// AddSolverIDs adds the "solvers" edge to the UserSolvedProblem entity by IDs.
+func (_u *ProblemUpdateOne) AddSolverIDs(ids ...int) *ProblemUpdateOne {
+	_u.mutation.AddSolverIDs(ids...)
+	return _u
+}
+
+// AddSolvers adds the "solvers" edges to the UserSolvedProblem entity.
+func (_u *ProblemUpdateOne) AddSolvers(v ...*UserSolvedProblem) *ProblemUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSolverIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -967,6 +1160,27 @@ func (_u *ProblemUpdateOne) RemoveTags(v ...*Tag) *ProblemUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTagIDs(ids...)
+}
+
+// ClearSolvers clears all "solvers" edges to the UserSolvedProblem entity.
+func (_u *ProblemUpdateOne) ClearSolvers() *ProblemUpdateOne {
+	_u.mutation.ClearSolvers()
+	return _u
+}
+
+// RemoveSolverIDs removes the "solvers" edge to UserSolvedProblem entities by IDs.
+func (_u *ProblemUpdateOne) RemoveSolverIDs(ids ...int) *ProblemUpdateOne {
+	_u.mutation.RemoveSolverIDs(ids...)
+	return _u
+}
+
+// RemoveSolvers removes "solvers" edges to UserSolvedProblem entities.
+func (_u *ProblemUpdateOne) RemoveSolvers(v ...*UserSolvedProblem) *ProblemUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSolverIDs(ids...)
 }
 
 // Where appends a list predicates to the ProblemUpdate builder.
@@ -1118,6 +1332,18 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 	}
 	if value, ok := _u.mutation.IsPublished(); ok {
 		_spec.SetField(problem.FieldIsPublished, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.SubmissionCount(); ok {
+		_spec.SetField(problem.FieldSubmissionCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubmissionCount(); ok {
+		_spec.AddField(problem.FieldSubmissionCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AcceptedCount(); ok {
+		_spec.SetField(problem.FieldAcceptedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAcceptedCount(); ok {
+		_spec.AddField(problem.FieldAcceptedCount, field.TypeInt, value)
 	}
 	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1305,6 +1531,51 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SolversCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSolversIDs(); len(nodes) > 0 && !_u.mutation.SolversCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SolversIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SolversTable,
+			Columns: []string{problem.SolversColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

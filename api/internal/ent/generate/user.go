@@ -56,9 +56,15 @@ type UserEdges struct {
 	UserElementExps []*UserElementExp `json:"user_element_exps,omitempty"`
 	// UserStats holds the value of the user_stats edge.
 	UserStats []*UserStats `json:"user_stats,omitempty"`
+	// SolvedProblems holds the value of the solved_problems edge.
+	SolvedProblems []*UserSolvedProblem `json:"solved_problems,omitempty"`
+	// DifficultyStats holds the value of the difficulty_stats edge.
+	DifficultyStats []*UserDifficultyStats `json:"difficulty_stats,omitempty"`
+	// TagStats holds the value of the tag_stats edge.
+	TagStats []*UserTagStats `json:"tag_stats,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [12]bool
 }
 
 // RoleOrErr returns the Role value or an error if the edge
@@ -142,6 +148,33 @@ func (e UserEdges) UserStatsOrErr() ([]*UserStats, error) {
 		return e.UserStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_stats"}
+}
+
+// SolvedProblemsOrErr returns the SolvedProblems value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SolvedProblemsOrErr() ([]*UserSolvedProblem, error) {
+	if e.loadedTypes[9] {
+		return e.SolvedProblems, nil
+	}
+	return nil, &NotLoadedError{edge: "solved_problems"}
+}
+
+// DifficultyStatsOrErr returns the DifficultyStats value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) DifficultyStatsOrErr() ([]*UserDifficultyStats, error) {
+	if e.loadedTypes[10] {
+		return e.DifficultyStats, nil
+	}
+	return nil, &NotLoadedError{edge: "difficulty_stats"}
+}
+
+// TagStatsOrErr returns the TagStats value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) TagStatsOrErr() ([]*UserTagStats, error) {
+	if e.loadedTypes[11] {
+		return e.TagStats, nil
+	}
+	return nil, &NotLoadedError{edge: "tag_stats"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -270,6 +303,21 @@ func (_m *User) QueryUserElementExps() *UserElementExpQuery {
 // QueryUserStats queries the "user_stats" edge of the User entity.
 func (_m *User) QueryUserStats() *UserStatsQuery {
 	return NewUserClient(_m.config).QueryUserStats(_m)
+}
+
+// QuerySolvedProblems queries the "solved_problems" edge of the User entity.
+func (_m *User) QuerySolvedProblems() *UserSolvedProblemQuery {
+	return NewUserClient(_m.config).QuerySolvedProblems(_m)
+}
+
+// QueryDifficultyStats queries the "difficulty_stats" edge of the User entity.
+func (_m *User) QueryDifficultyStats() *UserDifficultyStatsQuery {
+	return NewUserClient(_m.config).QueryDifficultyStats(_m)
+}
+
+// QueryTagStats queries the "tag_stats" edge of the User entity.
+func (_m *User) QueryTagStats() *UserTagStatsQuery {
+	return NewUserClient(_m.config).QueryTagStats(_m)
 }
 
 // Update returns a builder for updating this User.

@@ -13,6 +13,7 @@ import (
 // ElementHandler defines the element HTTP handler interface.
 type ElementHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.ElementResponse], error)
+	FindAll(ctx context.Context, req *dto.FindAllElementsRequest) ([]*dto.ElementResponse, error)
 	Get(ctx context.Context, req *dto.GetElementRequest) (*dto.ElementResponse, error)
 	Create(ctx context.Context, req *dto.CreateElementRequest) (*dto.ElementResponse, error)
 	Update(ctx context.Context, req *dto.UpdateElementRequest) (*dto.ElementResponse, error)
@@ -30,6 +31,10 @@ func NewElementHandler(svc ports.ElementService) ElementHandler {
 
 func (h *elementHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.ElementResponse], error) {
 	return h.elementService.Find(ctx, req)
+}
+
+func (h *elementHandler) FindAll(ctx context.Context, _ *dto.FindAllElementsRequest) ([]*dto.ElementResponse, error) {
+	return h.elementService.FindAll(ctx)
 }
 
 func (h *elementHandler) Get(ctx context.Context, req *dto.GetElementRequest) (*dto.ElementResponse, error) {

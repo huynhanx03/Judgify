@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
@@ -100,12 +99,6 @@ func (_c *UserStatsCreate) SetNillableTotalExp(v *int64) *UserStatsCreate {
 	return _c
 }
 
-// SetCurrentLevelID sets the "current_level_id" field.
-func (_c *UserStatsCreate) SetCurrentLevelID(v int) *UserStatsCreate {
-	_c.mutation.SetCurrentLevelID(v)
-	return _c
-}
-
 // SetRating sets the "rating" field.
 func (_c *UserStatsCreate) SetRating(v int) *UserStatsCreate {
 	_c.mutation.SetRating(v)
@@ -120,14 +113,37 @@ func (_c *UserStatsCreate) SetNillableRating(v *int) *UserStatsCreate {
 	return _c
 }
 
+// SetTotalSubmissions sets the "total_submissions" field.
+func (_c *UserStatsCreate) SetTotalSubmissions(v int) *UserStatsCreate {
+	_c.mutation.SetTotalSubmissions(v)
+	return _c
+}
+
+// SetNillableTotalSubmissions sets the "total_submissions" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableTotalSubmissions(v *int) *UserStatsCreate {
+	if v != nil {
+		_c.SetTotalSubmissions(*v)
+	}
+	return _c
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (_c *UserStatsCreate) SetAcceptedCount(v int) *UserStatsCreate {
+	_c.mutation.SetAcceptedCount(v)
+	return _c
+}
+
+// SetNillableAcceptedCount sets the "accepted_count" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableAcceptedCount(v *int) *UserStatsCreate {
+	if v != nil {
+		_c.SetAcceptedCount(*v)
+	}
+	return _c
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_c *UserStatsCreate) SetUser(v *User) *UserStatsCreate {
 	return _c.SetUserID(v.ID)
-}
-
-// SetCurrentLevel sets the "current_level" edge to the Level entity.
-func (_c *UserStatsCreate) SetCurrentLevel(v *Level) *UserStatsCreate {
-	return _c.SetCurrentLevelID(v.ID)
 }
 
 // Mutation returns the UserStatsMutation object of the builder.
@@ -189,6 +205,14 @@ func (_c *UserStatsCreate) defaults() error {
 		v := userstats.DefaultRating
 		_c.mutation.SetRating(v)
 	}
+	if _, ok := _c.mutation.TotalSubmissions(); !ok {
+		v := userstats.DefaultTotalSubmissions
+		_c.mutation.SetTotalSubmissions(v)
+	}
+	if _, ok := _c.mutation.AcceptedCount(); !ok {
+		v := userstats.DefaultAcceptedCount
+		_c.mutation.SetAcceptedCount(v)
+	}
 	return nil
 }
 
@@ -211,17 +235,27 @@ func (_c *UserStatsCreate) check() error {
 			return &ValidationError{Name: "total_exp", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_exp": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.CurrentLevelID(); !ok {
-		return &ValidationError{Name: "current_level_id", err: errors.New(`generate: missing required field "UserStats.current_level_id"`)}
-	}
 	if _, ok := _c.mutation.Rating(); !ok {
 		return &ValidationError{Name: "rating", err: errors.New(`generate: missing required field "UserStats.rating"`)}
 	}
+	if _, ok := _c.mutation.TotalSubmissions(); !ok {
+		return &ValidationError{Name: "total_submissions", err: errors.New(`generate: missing required field "UserStats.total_submissions"`)}
+	}
+	if v, ok := _c.mutation.TotalSubmissions(); ok {
+		if err := userstats.TotalSubmissionsValidator(v); err != nil {
+			return &ValidationError{Name: "total_submissions", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_submissions": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.AcceptedCount(); !ok {
+		return &ValidationError{Name: "accepted_count", err: errors.New(`generate: missing required field "UserStats.accepted_count"`)}
+	}
+	if v, ok := _c.mutation.AcceptedCount(); ok {
+		if err := userstats.AcceptedCountValidator(v); err != nil {
+			return &ValidationError{Name: "accepted_count", err: fmt.Errorf(`generate: validator failed for field "UserStats.accepted_count": %w`, err)}
+		}
+	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`generate: missing required edge "UserStats.user"`)}
-	}
-	if len(_c.mutation.CurrentLevelIDs()) == 0 {
-		return &ValidationError{Name: "current_level", err: errors.New(`generate: missing required edge "UserStats.current_level"`)}
 	}
 	return nil
 }
@@ -274,6 +308,14 @@ func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 		_spec.SetField(userstats.FieldRating, field.TypeInt, value)
 		_node.Rating = value
 	}
+	if value, ok := _c.mutation.TotalSubmissions(); ok {
+		_spec.SetField(userstats.FieldTotalSubmissions, field.TypeInt, value)
+		_node.TotalSubmissions = value
+	}
+	if value, ok := _c.mutation.AcceptedCount(); ok {
+		_spec.SetField(userstats.FieldAcceptedCount, field.TypeInt, value)
+		_node.AcceptedCount = value
+	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -289,23 +331,6 @@ func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.CurrentLevelIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   userstats.CurrentLevelTable,
-			Columns: []string{userstats.CurrentLevelColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.CurrentLevelID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -444,18 +469,6 @@ func (u *UserStatsUpsert) AddTotalExp(v int64) *UserStatsUpsert {
 	return u
 }
 
-// SetCurrentLevelID sets the "current_level_id" field.
-func (u *UserStatsUpsert) SetCurrentLevelID(v int) *UserStatsUpsert {
-	u.Set(userstats.FieldCurrentLevelID, v)
-	return u
-}
-
-// UpdateCurrentLevelID sets the "current_level_id" field to the value that was provided on create.
-func (u *UserStatsUpsert) UpdateCurrentLevelID() *UserStatsUpsert {
-	u.SetExcluded(userstats.FieldCurrentLevelID)
-	return u
-}
-
 // SetRating sets the "rating" field.
 func (u *UserStatsUpsert) SetRating(v int) *UserStatsUpsert {
 	u.Set(userstats.FieldRating, v)
@@ -471,6 +484,42 @@ func (u *UserStatsUpsert) UpdateRating() *UserStatsUpsert {
 // AddRating adds v to the "rating" field.
 func (u *UserStatsUpsert) AddRating(v int) *UserStatsUpsert {
 	u.Add(userstats.FieldRating, v)
+	return u
+}
+
+// SetTotalSubmissions sets the "total_submissions" field.
+func (u *UserStatsUpsert) SetTotalSubmissions(v int) *UserStatsUpsert {
+	u.Set(userstats.FieldTotalSubmissions, v)
+	return u
+}
+
+// UpdateTotalSubmissions sets the "total_submissions" field to the value that was provided on create.
+func (u *UserStatsUpsert) UpdateTotalSubmissions() *UserStatsUpsert {
+	u.SetExcluded(userstats.FieldTotalSubmissions)
+	return u
+}
+
+// AddTotalSubmissions adds v to the "total_submissions" field.
+func (u *UserStatsUpsert) AddTotalSubmissions(v int) *UserStatsUpsert {
+	u.Add(userstats.FieldTotalSubmissions, v)
+	return u
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (u *UserStatsUpsert) SetAcceptedCount(v int) *UserStatsUpsert {
+	u.Set(userstats.FieldAcceptedCount, v)
+	return u
+}
+
+// UpdateAcceptedCount sets the "accepted_count" field to the value that was provided on create.
+func (u *UserStatsUpsert) UpdateAcceptedCount() *UserStatsUpsert {
+	u.SetExcluded(userstats.FieldAcceptedCount)
+	return u
+}
+
+// AddAcceptedCount adds v to the "accepted_count" field.
+func (u *UserStatsUpsert) AddAcceptedCount(v int) *UserStatsUpsert {
+	u.Add(userstats.FieldAcceptedCount, v)
 	return u
 }
 
@@ -617,20 +666,6 @@ func (u *UserStatsUpsertOne) UpdateTotalExp() *UserStatsUpsertOne {
 	})
 }
 
-// SetCurrentLevelID sets the "current_level_id" field.
-func (u *UserStatsUpsertOne) SetCurrentLevelID(v int) *UserStatsUpsertOne {
-	return u.Update(func(s *UserStatsUpsert) {
-		s.SetCurrentLevelID(v)
-	})
-}
-
-// UpdateCurrentLevelID sets the "current_level_id" field to the value that was provided on create.
-func (u *UserStatsUpsertOne) UpdateCurrentLevelID() *UserStatsUpsertOne {
-	return u.Update(func(s *UserStatsUpsert) {
-		s.UpdateCurrentLevelID()
-	})
-}
-
 // SetRating sets the "rating" field.
 func (u *UserStatsUpsertOne) SetRating(v int) *UserStatsUpsertOne {
 	return u.Update(func(s *UserStatsUpsert) {
@@ -649,6 +684,48 @@ func (u *UserStatsUpsertOne) AddRating(v int) *UserStatsUpsertOne {
 func (u *UserStatsUpsertOne) UpdateRating() *UserStatsUpsertOne {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.UpdateRating()
+	})
+}
+
+// SetTotalSubmissions sets the "total_submissions" field.
+func (u *UserStatsUpsertOne) SetTotalSubmissions(v int) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetTotalSubmissions(v)
+	})
+}
+
+// AddTotalSubmissions adds v to the "total_submissions" field.
+func (u *UserStatsUpsertOne) AddTotalSubmissions(v int) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddTotalSubmissions(v)
+	})
+}
+
+// UpdateTotalSubmissions sets the "total_submissions" field to the value that was provided on create.
+func (u *UserStatsUpsertOne) UpdateTotalSubmissions() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateTotalSubmissions()
+	})
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (u *UserStatsUpsertOne) SetAcceptedCount(v int) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetAcceptedCount(v)
+	})
+}
+
+// AddAcceptedCount adds v to the "accepted_count" field.
+func (u *UserStatsUpsertOne) AddAcceptedCount(v int) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddAcceptedCount(v)
+	})
+}
+
+// UpdateAcceptedCount sets the "accepted_count" field to the value that was provided on create.
+func (u *UserStatsUpsertOne) UpdateAcceptedCount() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateAcceptedCount()
 	})
 }
 
@@ -966,20 +1043,6 @@ func (u *UserStatsUpsertBulk) UpdateTotalExp() *UserStatsUpsertBulk {
 	})
 }
 
-// SetCurrentLevelID sets the "current_level_id" field.
-func (u *UserStatsUpsertBulk) SetCurrentLevelID(v int) *UserStatsUpsertBulk {
-	return u.Update(func(s *UserStatsUpsert) {
-		s.SetCurrentLevelID(v)
-	})
-}
-
-// UpdateCurrentLevelID sets the "current_level_id" field to the value that was provided on create.
-func (u *UserStatsUpsertBulk) UpdateCurrentLevelID() *UserStatsUpsertBulk {
-	return u.Update(func(s *UserStatsUpsert) {
-		s.UpdateCurrentLevelID()
-	})
-}
-
 // SetRating sets the "rating" field.
 func (u *UserStatsUpsertBulk) SetRating(v int) *UserStatsUpsertBulk {
 	return u.Update(func(s *UserStatsUpsert) {
@@ -998,6 +1061,48 @@ func (u *UserStatsUpsertBulk) AddRating(v int) *UserStatsUpsertBulk {
 func (u *UserStatsUpsertBulk) UpdateRating() *UserStatsUpsertBulk {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.UpdateRating()
+	})
+}
+
+// SetTotalSubmissions sets the "total_submissions" field.
+func (u *UserStatsUpsertBulk) SetTotalSubmissions(v int) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetTotalSubmissions(v)
+	})
+}
+
+// AddTotalSubmissions adds v to the "total_submissions" field.
+func (u *UserStatsUpsertBulk) AddTotalSubmissions(v int) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddTotalSubmissions(v)
+	})
+}
+
+// UpdateTotalSubmissions sets the "total_submissions" field to the value that was provided on create.
+func (u *UserStatsUpsertBulk) UpdateTotalSubmissions() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateTotalSubmissions()
+	})
+}
+
+// SetAcceptedCount sets the "accepted_count" field.
+func (u *UserStatsUpsertBulk) SetAcceptedCount(v int) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetAcceptedCount(v)
+	})
+}
+
+// AddAcceptedCount adds v to the "accepted_count" field.
+func (u *UserStatsUpsertBulk) AddAcceptedCount(v int) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddAcceptedCount(v)
+	})
+}
+
+// UpdateAcceptedCount sets the "accepted_count" field to the value that was provided on create.
+func (u *UserStatsUpsertBulk) UpdateAcceptedCount() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateAcceptedCount()
 	})
 }
 

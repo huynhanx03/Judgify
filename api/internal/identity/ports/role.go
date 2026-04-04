@@ -25,6 +25,7 @@ type RoleRepository interface {
 
 // RoleService defines the role business logic interface.
 type RoleService interface {
+	FindAll(ctx context.Context) ([]*dto.RoleResponse, error)
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.RoleResponse], error)
 	Get(ctx context.Context, id int) (*dto.RoleResponse, error)
 	Create(ctx context.Context, req *dto.CreateRoleRequest) (*dto.RoleResponse, error)

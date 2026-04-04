@@ -14,12 +14,29 @@ type ProblemHandlerGroup struct {
 	DifficultyHandler DifficultyHandler
 }
 
-func (h *ProblemHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.PermissionChecker) {
-	// Problems
+// RegisterPublic registers public problem routes (no auth required).
+func (h *ProblemHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 	problems := r.Group("/problems")
 	{
 		problems.POST("/find", handler.Wrap(h.ProblemHandler.Find))
 		problems.GET("/:id", handler.Wrap(h.ProblemHandler.Get))
+	}
+
+	tags := r.Group("/tags")
+	{
+		tags.GET("", handler.Wrap(h.TagHandler.FindAll))
+	}
+
+	difficulties := r.Group("/difficulties")
+	{
+		difficulties.GET("", handler.Wrap(h.DifficultyHandler.FindAll))
+	}
+}
+
+func (h *ProblemHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.PermissionChecker) {
+	// Problems
+	problems := r.Group("/problems")
+	{
 		problems.POST("", permChecker.RequirePermission(permissions.ResourceKeyProblem, permissions.PermissionScopeCreate), handler.Wrap(h.ProblemHandler.Create))
 		problems.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyProblem, permissions.PermissionScopeUpdate), handler.Wrap(h.ProblemHandler.Update))
 		problems.DELETE("/:id", permChecker.RequirePermission(permissions.ResourceKeyProblem, permissions.PermissionScopeDelete), handler.Wrap(h.ProblemHandler.Delete))

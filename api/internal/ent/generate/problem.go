@@ -41,6 +41,10 @@ type Problem struct {
 	AuthorID int `json:"author_id,omitempty"`
 	// IsPublished holds the value of the "is_published" field.
 	IsPublished bool `json:"is_published,omitempty"`
+	// Denormalized total submission count
+	SubmissionCount int `json:"submission_count,omitempty"`
+	// Denormalized accepted submission count
+	AcceptedCount int `json:"accepted_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
 	Edges        ProblemEdges `json:"edges"`
@@ -59,9 +63,11 @@ type ProblemEdges struct {
 	Submissions []*Submission `json:"submissions,omitempty"`
 	// Tags holds the value of the tags edge.
 	Tags []*Tag `json:"tags,omitempty"`
+	// Solvers holds the value of the solvers edge.
+	Solvers []*UserSolvedProblem `json:"solvers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -113,6 +119,15 @@ func (e ProblemEdges) TagsOrErr() ([]*Tag, error) {
 	return nil, &NotLoadedError{edge: "tags"}
 }
 
+// SolversOrErr returns the Solvers value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) SolversOrErr() ([]*UserSolvedProblem, error) {
+	if e.loadedTypes[5] {
+		return e.Solvers, nil
+	}
+	return nil, &NotLoadedError{edge: "solvers"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -120,7 +135,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problem.FieldIsPublished:
 			values[i] = new(sql.NullBool)
-		case problem.FieldID, problem.FieldDeletedBy, problem.FieldDifficultyID, problem.FieldTimeLimitMs, problem.FieldMemoryLimitKB, problem.FieldAuthorID:
+		case problem.FieldID, problem.FieldDeletedBy, problem.FieldDifficultyID, problem.FieldTimeLimitMs, problem.FieldMemoryLimitKB, problem.FieldAuthorID, problem.FieldSubmissionCount, problem.FieldAcceptedCount:
 			values[i] = new(sql.NullInt64)
 		case problem.FieldTitle, problem.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -215,6 +230,18 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.IsPublished = value.Bool
 			}
+		case problem.FieldSubmissionCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field submission_count", values[i])
+			} else if value.Valid {
+				_m.SubmissionCount = int(value.Int64)
+			}
+		case problem.FieldAcceptedCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field accepted_count", values[i])
+			} else if value.Valid {
+				_m.AcceptedCount = int(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -251,6 +278,11 @@ func (_m *Problem) QuerySubmissions() *SubmissionQuery {
 // QueryTags queries the "tags" edge of the Problem entity.
 func (_m *Problem) QueryTags() *TagQuery {
 	return NewProblemClient(_m.config).QueryTags(_m)
+}
+
+// QuerySolvers queries the "solvers" edge of the Problem entity.
+func (_m *Problem) QuerySolvers() *UserSolvedProblemQuery {
+	return NewProblemClient(_m.config).QuerySolvers(_m)
 }
 
 // Update returns a builder for updating this Problem.
@@ -312,6 +344,12 @@ func (_m *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_published=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsPublished))
+	builder.WriteString(", ")
+	builder.WriteString("submission_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SubmissionCount))
+	builder.WriteString(", ")
+	builder.WriteString("accepted_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AcceptedCount))
 	builder.WriteByte(')')
 	return builder.String()
 }

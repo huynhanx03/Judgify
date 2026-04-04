@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ── Remote cache helpers (CacheEngine) ──
+
 // HandleHitCache handles cache hit
 func HandleHitCache(ctx context.Context, model any, c CacheEngine, key string) error {
 	byteData, exists, err := c.Get(ctx, key)
@@ -38,44 +40,68 @@ func HandleDeleteCache(ctx context.Context, c CacheEngine, key string) error {
 	return c.Delete(ctx, key)
 }
 
-// GetLocal retrieves a value from LocalCache and asserts its type.
-func GetLocal[T any](c LocalCache[string, any], key string) (T, bool) {
+// ── Local cache helpers (LocalCache) ──
+// All helpers use cost=0 (Ember doesn't rely on variable costs).
+
+// LocalGet retrieves a typed value from local cache.
+func LocalGet[T any](c LocalCache[string, any], key string) (T, bool) {
 	var zero T
 	val, found := c.Get(key)
 	if !found {
 		return zero, false
 	}
-	// Direct type assertion since Cache is any
 	if typed, ok := val.(T); ok {
 		return typed, true
 	}
 	return zero, false
 }
 
-// SetLocal sets a value in LocalCache.
-func SetLocal[T any](c LocalCache[string, any], key string, value T, cost int64) bool {
-	return c.Set(key, any(value), cost)
+// LocalSet stores a value in local cache.
+func LocalSet[T any](c LocalCache[string, any], key string, value T) bool {
+	return c.Set(key, any(value), 0)
 }
 
-// SetLocalWithTTL sets a value in LocalCache with TTL.
-func SetLocalWithTTL[T any](c LocalCache[string, any], key string, value T, cost int64, ttl time.Duration) bool {
-	return c.SetWithTTL(key, any(value), cost, ttl)
+// LocalSetWithTTL stores a value in local cache with TTL.
+func LocalSetWithTTL[T any](c LocalCache[string, any], key string, value T, ttl time.Duration) bool {
+	return c.SetWithTTL(key, any(value), 0, ttl)
 }
 
-// UpdateLocal helper updates an item in the cache only if it already exists.
-func UpdateLocal[T any](c LocalCache[string, any], key string, value T, cost int64) {
-	if _, found := GetLocal[T](c, key); found {
-		SetLocal(c, key, value, cost)
-	}
-}
-
-// DeleteLocal deletes a value from local cache.
-func DeleteLocal(c LocalCache[string, any], key string) {
+// LocalDel removes a key from local cache.
+func LocalDel(c LocalCache[string, any], key string) {
 	c.Delete(key)
 }
 
-// Put is a convenient helper to set a value in LocalCache with a default cost of 0.
-// This is very useful for caches that do not rely on variable item costs (e.g. Ember).
-func Put[T any](c LocalCache[string, any], key string, value T) bool {
-	return c.Set(key, any(value), 0)
+// LocalUpdate overwrites a key only if it already exists.
+func LocalUpdate[T any](c LocalCache[string, any], key string, value T) {
+	if _, found := LocalGet[T](c, key); found {
+		LocalSet(c, key, value)
+	}
+}
+
+// LocalFetch returns cached value on hit; on miss calls fn, stores result, and returns it.
+func LocalFetch[T any](c LocalCache[string, any], key string, fn func() (T, error)) (T, error) {
+	if val, ok := LocalGet[T](c, key); ok {
+		return val, nil
+	}
+	val, err := fn()
+	if err != nil {
+		var zero T
+		return zero, err
+	}
+	LocalSet(c, key, val)
+	return val, nil
+}
+
+// LocalFetchWithTTL is like LocalFetch but stores with a TTL.
+func LocalFetchWithTTL[T any](c LocalCache[string, any], key string, ttl time.Duration, fn func() (T, error)) (T, error) {
+	if val, ok := LocalGet[T](c, key); ok {
+		return val, nil
+	}
+	val, err := fn()
+	if err != nil {
+		var zero T
+		return zero, err
+	}
+	LocalSetWithTTL(c, key, val, ttl)
+	return val, nil
 }

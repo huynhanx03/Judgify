@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"entgo.io/ent/dialect/sql"
 
@@ -16,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const userStatsRepoName = "UserStatsRepository"
+const userStatsRepoName = "User Stats"
 
 type UserStatsRepository struct {
 	client *dbEnt.EntClient
@@ -119,4 +120,37 @@ func (r *UserStatsRepository) Exists(ctx context.Context, id int) (bool, error) 
 		return false, commonEnt.MapEntError(err, userStatsRepoName)
 	}
 	return exists, nil
+}
+
+// IncrementSubmission atomically increments total_submissions (and accepted_count when accepted).
+func (r *UserStatsRepository) IncrementSubmission(ctx context.Context, userID int, accepted bool) error {
+	client := r.client.DB(ctx)
+	upd := client.UserStats.Update().
+		Where(userstats.UserID(userID)).
+		AddTotalSubmissions(1)
+	if accepted {
+		upd = upd.AddAcceptedCount(1)
+	}
+	_, err := upd.Save(ctx)
+	if err != nil {
+		return commonEnt.MapEntError(err, userStatsRepoName)
+	}
+	return nil
+}
+
+// AddExp atomically adds EXP to user stats. Row must exist (created at registration).
+func (r *UserStatsRepository) AddExp(ctx context.Context, userID int, exp int64) error {
+	client := r.client.DB(ctx)
+
+	n, err := client.UserStats.Update().
+		Where(userstats.UserID(userID)).
+		AddTotalExp(exp).
+		Save(ctx)
+	if err != nil {
+		return commonEnt.MapEntError(err, userStatsRepoName)
+	}
+	if n == 0 {
+		return commonEnt.MapEntError(fmt.Errorf("user stats not found for user_id %d", userID), userStatsRepoName)
+	}
+	return nil
 }

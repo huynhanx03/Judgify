@@ -9,6 +9,7 @@ import {
   Trophy,
   Crown,
   User,
+  Info,
   type LucideIcon,
 } from "lucide-react";
 import { TEXT } from "./text";
@@ -41,6 +42,11 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
     label: TEXT.NAV.RANKING,
     href: "/ranking",
     icon: Crown,
+  },
+  {
+    label: TEXT.NAV.ABOUT,
+    href: "/about",
+    icon: Info,
   },
 ];
 

@@ -9,6 +9,7 @@ import (
 	d "github.com/huynhanx03/judgify/pkg/dto"
 
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/builder"
 	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/mapper"
@@ -16,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-const userTraitRepoName = "UserTraitRepository"
+const userTraitRepoName = "User Trait"
 
 type UserTraitRepository struct {
 	client *dbEnt.EntClient
@@ -87,6 +88,17 @@ func (r *UserTraitRepository) Create(ctx context.Context, e *entity.UserTrait) e
 	return nil
 }
 
+func (r *UserTraitRepository) CreateBulk(ctx context.Context, entities []*entity.UserTrait) error {
+	bulk := make([]*generate.UserTraitCreate, 0, len(entities))
+	for _, e := range entities {
+		bulk = append(bulk, builder.BuildCreateUserTrait(ctx, e))
+	}
+	if _, err := r.client.DB(ctx).UserTrait.CreateBulk(bulk...).Save(ctx); err != nil {
+		return commonEnt.MapEntError(err, userTraitRepoName)
+	}
+	return nil
+}
+
 func (r *UserTraitRepository) Delete(ctx context.Context, id int) error {
 	if err := r.client.DB(ctx).UserTrait.DeleteOneID(id).Exec(ctx); err != nil {
 		return commonEnt.MapEntError(err, userTraitRepoName)
@@ -100,4 +112,27 @@ func (r *UserTraitRepository) Exists(ctx context.Context, id int) (bool, error) 
 		return false, commonEnt.MapEntError(err, userTraitRepoName)
 	}
 	return exists, nil
+}
+
+// GetByUserID returns all traits (with rarity) assigned to a user via eager loading.
+func (r *UserTraitRepository) GetByUserID(ctx context.Context, userID int) ([]*entity.Trait, error) {
+	records, err := r.client.DB(ctx).UserTrait.Query().
+		Where(usertrait.UserID(userID)).
+		WithTrait(func(q *generate.TraitQuery) {
+			q.WithRarity()
+		}).
+		All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, userTraitRepoName)
+	}
+
+	traits := make([]*entity.Trait, 0, len(records))
+	for _, rec := range records {
+		t, err := rec.Edges.TraitOrErr()
+		if err != nil || t == nil {
+			continue
+		}
+		traits = append(traits, mapper.ToTraitEntity(t))
+	}
+	return traits, nil
 }

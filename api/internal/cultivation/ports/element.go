@@ -12,6 +12,7 @@ import (
 // ElementRepository defines the element data access interface.
 type ElementRepository interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Element], error)
+	FindAll(ctx context.Context) ([]*entity.Element, error)
 	Get(ctx context.Context, id int) (*entity.Element, error)
 	Create(ctx context.Context, e *entity.Element) error
 	Update(ctx context.Context, e *entity.Element) error
@@ -22,6 +23,7 @@ type ElementRepository interface {
 // ElementService defines the element business logic interface.
 type ElementService interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.ElementResponse], error)
+	FindAll(ctx context.Context) ([]*dto.ElementResponse, error)
 	Get(ctx context.Context, id int) (*dto.ElementResponse, error)
 	Create(ctx context.Context, req *dto.CreateElementRequest) (*dto.ElementResponse, error)
 	Update(ctx context.Context, id int, req *dto.UpdateElementRequest) (*dto.ElementResponse, error)

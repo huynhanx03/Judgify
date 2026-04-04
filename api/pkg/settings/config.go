@@ -16,14 +16,14 @@ type Config struct {
 
 // Judge is the configuration for the code judge system.
 type Judge struct {
-	DockerImage      string `mapstructure:"docker_image"`
-	PoolSize         int    `mapstructure:"pool_size"`
-	WorkerCount      int    `mapstructure:"worker_count"`
-	CompileTimeoutMs int    `mapstructure:"compile_timeout_ms"`
-	NetworkDisabled  bool   `mapstructure:"network_disabled"`
+	DockerImage        string `mapstructure:"docker_image"`
+	PoolSize           int    `mapstructure:"pool_size"`
+	WorkerCount        int    `mapstructure:"worker_count"`
+	CompileTimeoutMs   int    `mapstructure:"compile_timeout_ms"`
+	NetworkDisabled    bool   `mapstructure:"network_disabled"`
+	ContainerMemoryMb  int    `mapstructure:"container_memory_mb"`  // per-container memory limit (default: 128)
+	SandboxTmpfsSizeMb int    `mapstructure:"sandbox_tmpfs_size_mb"` // /sandbox tmpfs size (default: 64)
 }
-
-
 
 type JWT struct {
 	Secret         string          `mapstructure:"secret"`
@@ -32,8 +32,6 @@ type JWT struct {
 	PrivateKey     *rsa.PrivateKey `mapstructure:"-"`
 	PublicKey      *rsa.PublicKey  `mapstructure:"-"`
 }
-
-
 
 // Database is the configuration for the database
 type Database struct {
@@ -69,8 +67,6 @@ type CircuitBreakerConfig struct {
 	OpenTimeout      int `mapstructure:"open_timeout"` // in seconds
 }
 
-
-
 // Logger is the configuration for the logger
 type Logger struct {
 	LogLevel    string `mapstructure:"log_level"`
@@ -80,12 +76,6 @@ type Logger struct {
 	MaxSize     int    `mapstructure:"max_size"`
 	Compress    bool   `mapstructure:"compress"`
 }
-
-
-
-
-
-
 
 type Snowflake struct {
 	Epoch     int64 `mapstructure:"epoch"`

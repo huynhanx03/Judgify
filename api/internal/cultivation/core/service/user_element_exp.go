@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -84,7 +85,7 @@ func (s *userElementExpService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgUserElementExpNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjUserElementExp), nil)
 	}
 	if err := s.userElementExpRepo.Delete(ctx, id); err != nil {
 		return err

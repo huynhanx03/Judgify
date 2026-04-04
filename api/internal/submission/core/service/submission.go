@@ -10,7 +10,7 @@ import (
 	"github.com/huynhanx03/judgify/pkg/mq/forge"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/judgify/internal/submission/constant"
+	"github.com/huynhanx03/judgify/internal/constant"
 	"github.com/huynhanx03/judgify/internal/submission/core/dto"
 	"github.com/huynhanx03/judgify/internal/submission/core/mapper"
 	"github.com/huynhanx03/judgify/internal/submission/ports"
@@ -37,6 +37,19 @@ func (s *submissionService) Get(ctx context.Context, id int) (*dto.SubmissionRes
 
 func (s *submissionService) FindByProblemID(ctx context.Context, problemID int) ([]*dto.SubmissionResponse, error) {
 	entities, err := s.submissionRepo.FindByProblemID(ctx, problemID)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]*dto.SubmissionResponse, len(entities))
+	for i, e := range entities {
+		responses[i] = mapper.ToSubmissionResponse(e)
+	}
+	return responses, nil
+}
+
+func (s *submissionService) FindByUserAndProblem(ctx context.Context, userID, problemID int) ([]*dto.SubmissionResponse, error) {
+	entities, err := s.submissionRepo.FindByUserAndProblem(ctx, userID, problemID)
 	if err != nil {
 		return nil, err
 	}

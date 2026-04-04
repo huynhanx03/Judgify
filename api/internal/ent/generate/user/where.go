@@ -557,6 +557,75 @@ func HasUserStatsWith(preds ...predicate.UserStats) predicate.User {
 	})
 }
 
+// HasSolvedProblems applies the HasEdge predicate on the "solved_problems" edge.
+func HasSolvedProblems() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SolvedProblemsTable, SolvedProblemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSolvedProblemsWith applies the HasEdge predicate on the "solved_problems" edge with a given conditions (other predicates).
+func HasSolvedProblemsWith(preds ...predicate.UserSolvedProblem) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newSolvedProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDifficultyStats applies the HasEdge predicate on the "difficulty_stats" edge.
+func HasDifficultyStats() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DifficultyStatsTable, DifficultyStatsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDifficultyStatsWith applies the HasEdge predicate on the "difficulty_stats" edge with a given conditions (other predicates).
+func HasDifficultyStatsWith(preds ...predicate.UserDifficultyStats) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newDifficultyStatsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTagStats applies the HasEdge predicate on the "tag_stats" edge.
+func HasTagStats() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TagStatsTable, TagStatsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTagStatsWith applies the HasEdge predicate on the "tag_stats" edge with a given conditions (other predicates).
+func HasTagStatsWith(preds ...predicate.UserTagStats) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newTagStatsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

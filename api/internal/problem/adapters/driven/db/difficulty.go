@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/problem/ports"
 )
 
-const difficultyRepoName = "DifficultyRepository"
+const difficultyRepoName = "Difficulty"
 
 type DifficultyRepository struct {
 	client *dbEnt.EntClient
@@ -118,5 +118,20 @@ func (r *DifficultyRepository) Delete(ctx context.Context, id int) error {
 
 func (r *DifficultyRepository) Exists(ctx context.Context, id int) (bool, error) {
 	exists, err := r.client.DB(ctx).Difficulty.Query().Where(difficulty.ID(id)).Exist(ctx)
-	return exists, commonEnt.MapEntError(err, difficultyRepoName)
+	if err != nil {
+		return false, commonEnt.MapEntError(err, difficultyRepoName)
+	}
+	return exists, nil
+}
+
+func (r *DifficultyRepository) FindAll(ctx context.Context) ([]*entity.Difficulty, error) {
+	records, err := r.client.DB(ctx).Difficulty.Query().All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, difficultyRepoName)
+	}
+	entities := make([]*entity.Difficulty, len(records))
+	for i, rec := range records {
+		entities[i] = mapper.ToDifficultyEntity(rec)
+	}
+	return entities, nil
 }

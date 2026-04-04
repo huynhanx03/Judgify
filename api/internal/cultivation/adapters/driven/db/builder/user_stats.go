@@ -13,7 +13,6 @@ func BuildCreateUserStats(ctx context.Context, e *entity.UserStats) *generate.Us
 	b := global.EntClient.DB(ctx).UserStats.Create().
 		SetUserID(e.UserID).
 		SetTotalExp(e.TotalExp).
-		SetCurrentLevelID(e.CurrentLevelID).
 		SetRating(e.Rating)
 
 	if e.ID != 0 {
@@ -26,6 +25,5 @@ func BuildCreateUserStats(ctx context.Context, e *entity.UserStats) *generate.Us
 func BuildUpdateUserStats(ctx context.Context, e *entity.UserStats) *generate.UserStatsUpdateOne {
 	return global.EntClient.DB(ctx).UserStats.UpdateOneID(e.ID).
 		SetTotalExp(e.TotalExp).
-		SetCurrentLevelID(e.CurrentLevelID).
 		SetRating(e.Rating)
 }

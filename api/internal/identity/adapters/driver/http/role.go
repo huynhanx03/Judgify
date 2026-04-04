@@ -12,6 +12,7 @@ import (
 
 // RoleHandler defines the role HTTP handler interface.
 type RoleHandler interface {
+	FindAll(ctx context.Context, req *dto.FindAllRolesRequest) ([]*dto.RoleResponse, error)
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.RoleResponse], error)
 	Get(ctx context.Context, req *dto.GetRoleRequest) (*dto.RoleResponse, error)
 	Create(ctx context.Context, req *dto.CreateRoleRequest) (*dto.RoleResponse, error)
@@ -29,6 +30,11 @@ func NewRoleHandler(roleService ports.RoleService) RoleHandler {
 	return &roleHandler{
 		roleService: roleService,
 	}
+}
+
+// FindAll retrieves all roles without pagination.
+func (h *roleHandler) FindAll(ctx context.Context, _ *dto.FindAllRolesRequest) ([]*dto.RoleResponse, error) {
+	return h.roleService.FindAll(ctx)
 }
 
 // Find retrieves roles with pagination.

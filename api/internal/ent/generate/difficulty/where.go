@@ -518,6 +518,29 @@ func HasProblemsWith(preds ...predicate.Problem) predicate.Difficulty {
 	})
 }
 
+// HasUserDifficultyStats applies the HasEdge predicate on the "user_difficulty_stats" edge.
+func HasUserDifficultyStats() predicate.Difficulty {
+	return predicate.Difficulty(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserDifficultyStatsTable, UserDifficultyStatsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserDifficultyStatsWith applies the HasEdge predicate on the "user_difficulty_stats" edge with a given conditions (other predicates).
+func HasUserDifficultyStatsWith(preds ...predicate.UserDifficultyStats) predicate.Difficulty {
+	return predicate.Difficulty(func(s *sql.Selector) {
+		step := newUserDifficultyStatsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Difficulty) predicate.Difficulty {
 	return predicate.Difficulty(sql.AndPredicates(predicates...))

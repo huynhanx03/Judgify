@@ -13,6 +13,7 @@ import (
 // RankHandler defines the rank HTTP handler interface.
 type RankHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.RankResponse], error)
+	FindAll(ctx context.Context, req *dto.FindAllRanksRequest) ([]*dto.RankResponse, error)
 	Get(ctx context.Context, req *dto.GetRankRequest) (*dto.RankResponse, error)
 	Create(ctx context.Context, req *dto.CreateRankRequest) (*dto.RankResponse, error)
 	Update(ctx context.Context, req *dto.UpdateRankRequest) (*dto.RankResponse, error)
@@ -30,6 +31,10 @@ func NewRankHandler(svc ports.RankService) RankHandler {
 
 func (h *rankHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.RankResponse], error) {
 	return h.rankService.Find(ctx, req)
+}
+
+func (h *rankHandler) FindAll(ctx context.Context, _ *dto.FindAllRanksRequest) ([]*dto.RankResponse, error) {
+	return h.rankService.FindAll(ctx)
 }
 
 func (h *rankHandler) Get(ctx context.Context, req *dto.GetRankRequest) (*dto.RankResponse, error) {

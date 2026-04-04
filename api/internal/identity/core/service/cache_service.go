@@ -26,13 +26,13 @@ func NewCacheService(cache cache.LocalCache[string, any]) ports.CacheService {
 func (s *cacheService) InvalidatePermissionConfig(ctx context.Context) error {
 	version, _ := s.GetPermissionConfigVersion(ctx)
 	newVersion := version + 1
-	cache.SetLocal(s.cache, constant.CacheKeyPermissionConfigVersion, newVersion, constant.CacheCostID)
+	cache.LocalSet(s.cache, constant.CacheKeyPermissionConfigVersion, newVersion)
 	return nil
 }
 
 // GetPermissionConfigVersion retrieves the current permission config version.
 func (s *cacheService) GetPermissionConfigVersion(ctx context.Context) (int64, error) {
-	if v, found := cache.GetLocal[int64](s.cache, constant.CacheKeyPermissionConfigVersion); found {
+	if v, found := cache.LocalGet[int64](s.cache, constant.CacheKeyPermissionConfigVersion); found {
 		return v, nil
 	}
 

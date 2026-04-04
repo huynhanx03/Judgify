@@ -6,7 +6,8 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { materialService } from "@/services/material.service";
 import type { MaterialArticle, MaterialCategory, MaterialDifficulty } from "@/types/material";
 import { MaterialsHeroSection } from "@/modules/materials/materials-hero-section";
@@ -69,13 +70,7 @@ export default function MaterialsPage() {
     ? categories.find((c) => c.id === activeCategory)?.name
     : null;
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen">

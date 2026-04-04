@@ -1,14 +1,21 @@
 "use client";
 
 /**
- * Admin dashboard overview — stats cards and quick actions.
+ * Admin dashboard overview — stats cards fetched from real API.
+ * Users stat shows 0 — no BE endpoint yet (TODO: wire when available).
  */
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileCode2, Tags, Shield, Loader2 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
-import type { DashboardStats } from "@/types/admin";
+
+interface DashboardStats {
+  totalProblems: number;
+  totalTags: number;
+  totalRoles: number;
+  totalUsers: number;
+}
 
 const STAT_CARDS = [
   { key: "totalUsers" as const, label: "Người Dùng", icon: Users, color: "text-blue-500" },
@@ -22,9 +29,21 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    adminService
-      .getDashboardStats()
-      .then(setStats)
+    const countQuery = { pagination: { page: 1, page_size: 1 } };
+    Promise.all([
+      adminService.findProblems(countQuery),
+      adminService.findTags(countQuery),
+      adminService.getAllRoles(),
+      adminService.getUsers(countQuery),
+    ])
+      .then(([problems, tags, roles, users]) => {
+        setStats({
+          totalProblems: problems.pagination.total_items,
+          totalTags: tags.pagination.total_items,
+          totalRoles: roles.length,
+          totalUsers: users.pagination.total_items,
+        });
+      })
       .catch(console.error)
       .finally(() => setIsLoading(false));
   }, []);

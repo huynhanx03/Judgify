@@ -13,6 +13,7 @@ import (
 // LevelHandler defines the level HTTP handler interface.
 type LevelHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.LevelResponse], error)
+	FindAll(ctx context.Context, req *dto.FindAllLevelsRequest) ([]*dto.LevelResponse, error)
 	Get(ctx context.Context, req *dto.GetLevelRequest) (*dto.LevelResponse, error)
 	Create(ctx context.Context, req *dto.CreateLevelRequest) (*dto.LevelResponse, error)
 	Update(ctx context.Context, req *dto.UpdateLevelRequest) (*dto.LevelResponse, error)
@@ -30,6 +31,10 @@ func NewLevelHandler(svc ports.LevelService) LevelHandler {
 
 func (h *levelHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.LevelResponse], error) {
 	return h.levelService.Find(ctx, req)
+}
+
+func (h *levelHandler) FindAll(ctx context.Context, _ *dto.FindAllLevelsRequest) ([]*dto.LevelResponse, error) {
+	return h.levelService.FindAll(ctx)
 }
 
 func (h *levelHandler) Get(ctx context.Context, req *dto.GetLevelRequest) (*dto.LevelResponse, error) {

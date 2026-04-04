@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
@@ -89,11 +90,24 @@ func (s *elementService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if !exists {
-		return apperr.New(response.CodeNotFound, constant.MsgElementNotFound, nil)
+		return apperr.New(response.CodeNotFound, fmt.Sprintf(apperr.MsgNotFound, constant.ObjElement), nil)
 	}
 	if err := s.elementRepo.Delete(ctx, id); err != nil {
 		return err
 	}
 	logger.FromContext(ctx).Info("element deleted", zap.Int("element_id", id))
 	return nil
+}
+
+// FindAll retrieves all elements without pagination.
+func (s *elementService) FindAll(ctx context.Context) ([]*dto.ElementResponse, error) {
+	elements, err := s.elementRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*dto.ElementResponse, len(elements))
+	for i, e := range elements {
+		responses[i] = mapper.ToElementResponse(e)
+	}
+	return responses, nil
 }

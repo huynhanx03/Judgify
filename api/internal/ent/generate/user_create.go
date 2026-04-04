@@ -18,8 +18,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
@@ -222,6 +225,51 @@ func (_c *UserCreate) AddUserStats(v ...*UserStats) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserStatIDs(ids...)
+}
+
+// AddSolvedProblemIDs adds the "solved_problems" edge to the UserSolvedProblem entity by IDs.
+func (_c *UserCreate) AddSolvedProblemIDs(ids ...int) *UserCreate {
+	_c.mutation.AddSolvedProblemIDs(ids...)
+	return _c
+}
+
+// AddSolvedProblems adds the "solved_problems" edges to the UserSolvedProblem entity.
+func (_c *UserCreate) AddSolvedProblems(v ...*UserSolvedProblem) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSolvedProblemIDs(ids...)
+}
+
+// AddDifficultyStatIDs adds the "difficulty_stats" edge to the UserDifficultyStats entity by IDs.
+func (_c *UserCreate) AddDifficultyStatIDs(ids ...int) *UserCreate {
+	_c.mutation.AddDifficultyStatIDs(ids...)
+	return _c
+}
+
+// AddDifficultyStats adds the "difficulty_stats" edges to the UserDifficultyStats entity.
+func (_c *UserCreate) AddDifficultyStats(v ...*UserDifficultyStats) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddDifficultyStatIDs(ids...)
+}
+
+// AddTagStatIDs adds the "tag_stats" edge to the UserTagStats entity by IDs.
+func (_c *UserCreate) AddTagStatIDs(ids ...int) *UserCreate {
+	_c.mutation.AddTagStatIDs(ids...)
+	return _c
+}
+
+// AddTagStats adds the "tag_stats" edges to the UserTagStats entity.
+func (_c *UserCreate) AddTagStats(v ...*UserTagStats) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTagStatIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -485,6 +533,54 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SolvedProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SolvedProblemsTable,
+			Columns: []string{user.SolvedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DifficultyStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DifficultyStatsTable,
+			Columns: []string{user.DifficultyStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TagStatsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TagStatsTable,
+			Columns: []string{user.TagStatsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

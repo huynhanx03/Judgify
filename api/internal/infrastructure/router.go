@@ -50,6 +50,8 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 		Window: time.Duration(global.Config.Server.RateLimit.Window) * time.Second,
 	}))
 	rg.IdentityHandler.RegisterPublic(publicAuth)
+	rg.ProblemHandler.RegisterPublic(publicAuth)
+	rg.CultivationHandler.RegisterPublic(publicAuth)
 
 	protected := r.Group("/")
 	protected.Use(middlewares.Authentication(global.Config.JWT.PublicKey))

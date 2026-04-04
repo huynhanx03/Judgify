@@ -11,20 +11,18 @@ func ToUserStatsResponse(e *entity.UserStats) *dto.UserStatsResponse {
 		return nil
 	}
 	return &dto.UserStatsResponse{
-		ID:             e.ID,
-		UserID:         e.UserID,
-		TotalExp:       e.TotalExp,
-		CurrentLevelID: e.CurrentLevelID,
-		Rating:         e.Rating,
+		ID:       e.ID,
+		UserID:   e.UserID,
+		TotalExp: e.TotalExp,
+		Rating:   e.Rating,
 	}
 }
 
 // ToUserStatsEntityFromCreate converts CreateUserStatsRequest to entity.
 func ToUserStatsEntityFromCreate(req *dto.CreateUserStatsRequest) *entity.UserStats {
 	return &entity.UserStats{
-		UserID:         req.UserID,
-		CurrentLevelID: req.CurrentLevelID,
-		TotalExp:       req.TotalExp,
-		Rating:         req.Rating,
+		UserID:   req.UserID,
+		TotalExp: req.TotalExp,
+		Rating:   req.Rating,
 	}
 }

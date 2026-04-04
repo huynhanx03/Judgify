@@ -21,8 +21,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
+	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
@@ -42,6 +45,9 @@ type UserQuery struct {
 	withUserTraits          *UserTraitQuery
 	withUserElementExps     *UserElementExpQuery
 	withUserStats           *UserStatsQuery
+	withSolvedProblems      *UserSolvedProblemQuery
+	withDifficultyStats     *UserDifficultyStatsQuery
+	withTagStats            *UserTagStatsQuery
 	modifiers               []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -277,6 +283,72 @@ func (_q *UserQuery) QueryUserStats() *UserStatsQuery {
 	return query
 }
 
+// QuerySolvedProblems chains the current query on the "solved_problems" edge.
+func (_q *UserQuery) QuerySolvedProblems() *UserSolvedProblemQuery {
+	query := (&UserSolvedProblemClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(usersolvedproblem.Table, usersolvedproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SolvedProblemsTable, user.SolvedProblemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDifficultyStats chains the current query on the "difficulty_stats" edge.
+func (_q *UserQuery) QueryDifficultyStats() *UserDifficultyStatsQuery {
+	query := (&UserDifficultyStatsClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(userdifficultystats.Table, userdifficultystats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DifficultyStatsTable, user.DifficultyStatsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTagStats chains the current query on the "tag_stats" edge.
+func (_q *UserQuery) QueryTagStats() *UserTagStatsQuery {
+	query := (&UserTagStatsClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(usertagstats.Table, usertagstats.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.TagStatsTable, user.TagStatsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first User entity from the query.
 // Returns a *NotFoundError when no User was found.
 func (_q *UserQuery) First(ctx context.Context) (*User, error) {
@@ -478,6 +550,9 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withUserTraits:          _q.withUserTraits.Clone(),
 		withUserElementExps:     _q.withUserElementExps.Clone(),
 		withUserStats:           _q.withUserStats.Clone(),
+		withSolvedProblems:      _q.withSolvedProblems.Clone(),
+		withDifficultyStats:     _q.withDifficultyStats.Clone(),
+		withTagStats:            _q.withTagStats.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -584,6 +659,39 @@ func (_q *UserQuery) WithUserStats(opts ...func(*UserStatsQuery)) *UserQuery {
 	return _q
 }
 
+// WithSolvedProblems tells the query-builder to eager-load the nodes that are connected to
+// the "solved_problems" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithSolvedProblems(opts ...func(*UserSolvedProblemQuery)) *UserQuery {
+	query := (&UserSolvedProblemClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSolvedProblems = query
+	return _q
+}
+
+// WithDifficultyStats tells the query-builder to eager-load the nodes that are connected to
+// the "difficulty_stats" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithDifficultyStats(opts ...func(*UserDifficultyStatsQuery)) *UserQuery {
+	query := (&UserDifficultyStatsClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDifficultyStats = query
+	return _q
+}
+
+// WithTagStats tells the query-builder to eager-load the nodes that are connected to
+// the "tag_stats" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithTagStats(opts ...func(*UserTagStatsQuery)) *UserQuery {
+	query := (&UserTagStatsClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTagStats = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -662,7 +770,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [12]bool{
 			_q.withRole != nil,
 			_q.withCredentials != nil,
 			_q.withAttributes != nil,
@@ -672,6 +780,9 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			_q.withUserTraits != nil,
 			_q.withUserElementExps != nil,
 			_q.withUserStats != nil,
+			_q.withSolvedProblems != nil,
+			_q.withDifficultyStats != nil,
+			_q.withTagStats != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -790,6 +901,42 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			func(n *User) { n.Edges.UserStats = []*UserStats{} },
 			func(n *User, e *UserStats) {
 				n.Edges.UserStats = append(n.Edges.UserStats, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSolvedProblems; query != nil {
+		if err := _q.loadSolvedProblems(ctx, query, nodes,
+			func(n *User) { n.Edges.SolvedProblems = []*UserSolvedProblem{} },
+			func(n *User, e *UserSolvedProblem) {
+				n.Edges.SolvedProblems = append(n.Edges.SolvedProblems, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDifficultyStats; query != nil {
+		if err := _q.loadDifficultyStats(ctx, query, nodes,
+			func(n *User) { n.Edges.DifficultyStats = []*UserDifficultyStats{} },
+			func(n *User, e *UserDifficultyStats) {
+				n.Edges.DifficultyStats = append(n.Edges.DifficultyStats, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTagStats; query != nil {
+		if err := _q.loadTagStats(ctx, query, nodes,
+			func(n *User) { n.Edges.TagStats = []*UserTagStats{} },
+			func(n *User, e *UserTagStats) {
+				n.Edges.TagStats = append(n.Edges.TagStats, e)
 				if !e.Edges.loadedTypes[0] {
 					e.Edges.User = n
 				}
@@ -1054,6 +1201,96 @@ func (_q *UserQuery) loadUserStats(ctx context.Context, query *UserStatsQuery, n
 	}
 	query.Where(predicate.UserStats(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.UserStatsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadSolvedProblems(ctx context.Context, query *UserSolvedProblemQuery, nodes []*User, init func(*User), assign func(*User, *UserSolvedProblem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(usersolvedproblem.FieldUserID)
+	}
+	query.Where(predicate.UserSolvedProblem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.SolvedProblemsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadDifficultyStats(ctx context.Context, query *UserDifficultyStatsQuery, nodes []*User, init func(*User), assign func(*User, *UserDifficultyStats)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userdifficultystats.FieldUserID)
+	}
+	query.Where(predicate.UserDifficultyStats(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.DifficultyStatsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadTagStats(ctx context.Context, query *UserTagStatsQuery, nodes []*User, init func(*User), assign func(*User, *UserTagStats)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(usertagstats.FieldUserID)
+	}
+	query.Where(predicate.UserTagStats(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.TagStatsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

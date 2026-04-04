@@ -13,6 +13,7 @@ import (
 // TagHandler defines the tag HTTP handler interface.
 type TagHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.TagResponse], error)
+	FindAll(ctx context.Context, req *dto.FindAllTagsRequest) ([]*dto.TagResponse, error)
 	Get(ctx context.Context, req *dto.GetTagRequest) (*dto.TagResponse, error)
 	Create(ctx context.Context, req *dto.CreateTagRequest) (*dto.TagResponse, error)
 	Update(ctx context.Context, req *dto.UpdateTagRequest) (*dto.TagResponse, error)
@@ -31,6 +32,10 @@ func NewTagHandler(tagService ports.TagService) TagHandler {
 
 func (h *tagHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.TagResponse], error) {
 	return h.tagService.Find(ctx, req)
+}
+
+func (h *tagHandler) FindAll(ctx context.Context, _ *dto.FindAllTagsRequest) ([]*dto.TagResponse, error) {
+	return h.tagService.FindAll(ctx)
 }
 
 func (h *tagHandler) Get(ctx context.Context, req *dto.GetTagRequest) (*dto.TagResponse, error) {

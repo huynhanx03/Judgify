@@ -27,14 +27,14 @@ const (
 	FieldUserID = "user_id"
 	// FieldTotalExp holds the string denoting the total_exp field in the database.
 	FieldTotalExp = "total_exp"
-	// FieldCurrentLevelID holds the string denoting the current_level_id field in the database.
-	FieldCurrentLevelID = "current_level_id"
 	// FieldRating holds the string denoting the rating field in the database.
 	FieldRating = "rating"
+	// FieldTotalSubmissions holds the string denoting the total_submissions field in the database.
+	FieldTotalSubmissions = "total_submissions"
+	// FieldAcceptedCount holds the string denoting the accepted_count field in the database.
+	FieldAcceptedCount = "accepted_count"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
-	// EdgeCurrentLevel holds the string denoting the current_level edge name in mutations.
-	EdgeCurrentLevel = "current_level"
 	// Table holds the table name of the userstats in the database.
 	Table = "user_stats"
 	// UserTable is the table that holds the user relation/edge.
@@ -44,13 +44,6 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
-	// CurrentLevelTable is the table that holds the current_level relation/edge.
-	CurrentLevelTable = "user_stats"
-	// CurrentLevelInverseTable is the table name for the Level entity.
-	// It exists in this package in order to avoid circular dependency with the "level" package.
-	CurrentLevelInverseTable = "levels"
-	// CurrentLevelColumn is the table column denoting the current_level relation/edge.
-	CurrentLevelColumn = "current_level_id"
 )
 
 // Columns holds all SQL columns for userstats fields.
@@ -62,8 +55,9 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldUserID,
 	FieldTotalExp,
-	FieldCurrentLevelID,
 	FieldRating,
+	FieldTotalSubmissions,
+	FieldAcceptedCount,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -96,6 +90,14 @@ var (
 	TotalExpValidator func(int64) error
 	// DefaultRating holds the default value on creation for the "rating" field.
 	DefaultRating int
+	// DefaultTotalSubmissions holds the default value on creation for the "total_submissions" field.
+	DefaultTotalSubmissions int
+	// TotalSubmissionsValidator is a validator for the "total_submissions" field. It is called by the builders before save.
+	TotalSubmissionsValidator func(int) error
+	// DefaultAcceptedCount holds the default value on creation for the "accepted_count" field.
+	DefaultAcceptedCount int
+	// AcceptedCountValidator is a validator for the "accepted_count" field. It is called by the builders before save.
+	AcceptedCountValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the UserStats queries.
@@ -136,14 +138,19 @@ func ByTotalExp(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTotalExp, opts...).ToFunc()
 }
 
-// ByCurrentLevelID orders the results by the current_level_id field.
-func ByCurrentLevelID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCurrentLevelID, opts...).ToFunc()
-}
-
 // ByRating orders the results by the rating field.
 func ByRating(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRating, opts...).ToFunc()
+}
+
+// ByTotalSubmissions orders the results by the total_submissions field.
+func ByTotalSubmissions(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotalSubmissions, opts...).ToFunc()
+}
+
+// ByAcceptedCount orders the results by the accepted_count field.
+func ByAcceptedCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAcceptedCount, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.
@@ -152,24 +159,10 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByCurrentLevelField orders the results by current_level field.
-func ByCurrentLevelField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCurrentLevelStep(), sql.OrderByField(field, opts...))
-	}
-}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-	)
-}
-func newCurrentLevelStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CurrentLevelInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CurrentLevelTable, CurrentLevelColumn),
 	)
 }

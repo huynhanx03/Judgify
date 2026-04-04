@@ -5,10 +5,12 @@ import (
 
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/entity"
+	d "github.com/huynhanx03/judgify/pkg/dto"
 )
 
 // UserRepository defines the interface for user persistence.
 type UserRepository interface {
+	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.User], error)
 	Get(ctx context.Context, id int) (*entity.User, error)
 	GetByUsername(ctx context.Context, username string) (*entity.User, error)
 	Create(ctx context.Context, e *entity.User) error
@@ -20,8 +22,10 @@ type UserRepository interface {
 
 // UserService defines the interface for user business logic.
 type UserService interface {
+	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.UserResponse], error)
+	UpdateUser(ctx context.Context, req *dto.UpdateUserRequest) (*dto.UserResponse, error)
 	Delete(ctx context.Context, id int) error
-	UpdateProfile(ctx context.Context, userID int, req *dto.UpdateProfileRequest) (*dto.ProfileResponse, error)
-	GetProfile(ctx context.Context, userID int) (*dto.ProfileResponse, error)
+	UpdateProfile(ctx context.Context, userID int, req *dto.UpdateProfileRequest) (*dto.ProfileAttrs, error)
+	GetProfile(ctx context.Context, userID int) (*dto.ProfileAttrs, error)
 	GetRole(ctx context.Context, userID int) (*dto.RoleResponse, error)
 }

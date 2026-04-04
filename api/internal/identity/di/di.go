@@ -2,10 +2,12 @@ package di
 
 import (
 	"github.com/huynhanx03/judgify/global"
+	cultivationPorts "github.com/huynhanx03/judgify/internal/cultivation/ports"
 	"github.com/huynhanx03/judgify/internal/identity/adapters/driven/db"
 	"github.com/huynhanx03/judgify/internal/identity/adapters/driver/http"
 	"github.com/huynhanx03/judgify/internal/identity/core/service"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
+	problemPorts "github.com/huynhanx03/judgify/internal/problem/ports"
 	"github.com/huynhanx03/judgify/pkg/oauth"
 )
 
@@ -28,9 +30,19 @@ type IdentityContainer struct {
 }
 
 // NewIdentityContainer creates a new IdentityContainer.
-func NewIdentityContainer() *IdentityContainer {
+func NewIdentityContainer(
+	userTraitRepo cultivationPorts.UserTraitRepository,
+	userStatsRepo cultivationPorts.UserStatsRepository,
+	userElementExpRepo cultivationPorts.UserElementExpRepository,
+	elementRepo cultivationPorts.ElementRepository,
+	levelRepo cultivationPorts.LevelRepository,
+	rankRepo cultivationPorts.RankRepository,
+	userDiffStatsRepo cultivationPorts.UserDifficultyStatsRepository,
+	userTagStatsRepo cultivationPorts.UserTagStatsRepository,
+	difficultyRepo problemPorts.DifficultyRepository,
+) *IdentityContainer {
 	client := global.EntClient
-	localCache := global.Tinylfu
+	localCache := global.Ember
 
 	// Repositories
 	userRepo := db.NewUserRepository(client)
@@ -56,6 +68,12 @@ func NewIdentityContainer() *IdentityContainer {
 		attrDefRepo,
 		attrValueRepo,
 		federatedIdRepo,
+		userTraitRepo,
+		userStatsRepo,
+		userElementExpRepo,
+		elementRepo,
+		userDiffStatsRepo,
+		difficultyRepo,
 		oauthProviders,
 		localCache,
 		cacheService,
@@ -74,6 +92,16 @@ func NewIdentityContainer() *IdentityContainer {
 	)
 
 	// Handlers
+	profileHandler := http.NewProfileHandler(
+		userService,
+		userStatsRepo,
+		userTraitRepo,
+		userElementExpRepo,
+		levelRepo,
+		rankRepo,
+		userDiffStatsRepo,
+		userTagStatsRepo,
+	)
 	identityHandler := &http.IdentityHandler{
 		RoleHandler:                http.NewRoleHandler(roleService),
 		PermissionHandler:          http.NewPermissionHandler(permService),
@@ -81,6 +109,7 @@ func NewIdentityContainer() *IdentityContainer {
 		AttributeDefinitionHandler: http.NewAttributeDefinitionHandler(attrDefService),
 		AuthenticationHandler:      http.NewAuthenticationHandler(authService),
 		UserHandler:                http.NewUserHandler(userService, authService),
+		ProfileHandler:             profileHandler,
 	}
 
 	return &IdentityContainer{

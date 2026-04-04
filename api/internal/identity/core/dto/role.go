@@ -25,6 +25,9 @@ type DeleteRoleRequest struct {
 	ID int `uri:"id" validate:"required"`
 }
 
+// FindAllRolesRequest is an empty request for GET /roles.
+type FindAllRolesRequest struct{}
+
 // RoleResponse represents role data in API response.
 type RoleResponse struct {
 	ID    int    `json:"id"`
