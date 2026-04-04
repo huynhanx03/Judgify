@@ -3,19 +3,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { register } from "@/services/auth.service";
 import { findAllTraits, gachaRoll } from "@/services/cultivation.service";
 import { ApiError } from "@/lib/api-client";
 import { notify } from "@/lib/toast";
 import { TEXT } from "@/constants/text";
-import { TraitCard } from "@/modules/cultivation/trait-card";
+import { PersonalInfoSection } from "@/modules/auth/sections/personal-info-section";
+import { TraitSelectionSection } from "@/modules/auth/sections/trait-selection-section";
 import { TraitCodexModal } from "@/modules/cultivation/trait-codex-modal";
 import type { TraitResponse } from "@/types/cultivation";
-import { Loader2, Eye, EyeOff, Dices, BookOpen } from "lucide-react";
 
 export default function RegisterFlow() {
   const router = useRouter();
@@ -147,123 +145,23 @@ export default function RegisterFlow() {
         </p>
       </div>
 
-      {/* Phàm Trần — Basic Info */}
-      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-sm p-5 space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground border-b border-white/10 pb-2">
-          {TEXT.AUTH.STEP_INFO}
-        </h3>
+      <PersonalInfoSection
+        form={form}
+        updateField={updateField}
+        showPassword={showPassword}
+        onTogglePassword={() => setShowPassword((p) => !p)}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">{TEXT.AUTH.USERNAME}</Label>
-            <Input placeholder={TEXT.AUTH.USERNAME_PLACEHOLDER} value={form.username} onChange={(e) => updateField("username", e.target.value)} className="h-10 bg-muted/30 border-white/10" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">{TEXT.AUTH.PASSWORD}</Label>
-            <div className="relative">
-              <Input type={showPassword ? "text" : "password"} placeholder={TEXT.AUTH.PASSWORD_PLACEHOLDER} value={form.password} onChange={(e) => updateField("password", e.target.value)} className="h-10 bg-muted/30 border-white/10 pr-10" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">{TEXT.AUTH.LAST_NAME}</Label>
-            <Input placeholder={TEXT.AUTH.LAST_NAME_PLACEHOLDER} value={form.last_name} onChange={(e) => updateField("last_name", e.target.value)} className="h-10 bg-muted/30 border-white/10" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">{TEXT.AUTH.FIRST_NAME}</Label>
-            <Input placeholder={TEXT.AUTH.FIRST_NAME_PLACEHOLDER} value={form.first_name} onChange={(e) => updateField("first_name", e.target.value)} className="h-10 bg-muted/30 border-white/10" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">{TEXT.AUTH.GENDER}</Label>
-            <div className="flex gap-1 h-10">
-              {[
-                { v: 0, l: TEXT.AUTH.GENDER_MALE },
-                { v: 1, l: TEXT.AUTH.GENDER_FEMALE },
-                { v: 2, l: TEXT.AUTH.GENDER_OTHER },
-              ].map((opt) => (
-                <button key={opt.v} type="button" onClick={() => updateField("gender", opt.v)}
-                  className={`flex-1 rounded-md text-xs font-medium transition-all ${form.gender === opt.v ? "bg-primary text-primary-foreground" : "bg-muted/30 text-muted-foreground hover:bg-muted"}`}
-                >
-                  {opt.l}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">{TEXT.AUTH.BIRTHDAY}</Label>
-            <Input type="date" value={form.birthday} onChange={(e) => updateField("birthday", e.target.value)} className="h-10 bg-muted/30 border-white/10" />
-          </div>
-        </div>
-      </Card>
-
-      {/* Thiên Mệnh — Trait Selection */}
-      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-sm p-5 space-y-4 mt-6">
-        <div className="flex items-center justify-between border-b border-white/10 pb-2">
-          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-            {TEXT.AUTH.STEP_TRAITS}
-          </h3>
-          <button onClick={openCodex} className="text-muted-foreground hover:text-primary transition-colors" title="Xem tất cả traits">
-            <BookOpen className="w-4 h-4" />
-          </button>
-        </div>
-
-        {traitsLoading ? (
-          <div className="h-[200px] flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : !rolledRootBone && rolledTalents.length === 0 ? (
-          <div className="h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl space-y-3">
-            <p className="text-sm text-muted-foreground">{TEXT.AUTH.TRAIT_SUBTITLE}</p>
-            <Button onClick={rollTraits} disabled={isRolling} className="bg-amber-600 hover:bg-amber-500 text-white font-bold tracking-widest uppercase gap-2">
-              <Dices className="w-4 h-4" />
-              {isRolling ? TEXT.AUTH.TRAIT_ROLLING : TEXT.AUTH.TRAIT_ROLL_BUTTON}
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Root Bone — full width, auto-selected */}
-            {rolledRootBone && (
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2">
-                  {TEXT.AUTH.TRAIT_ROOT_BONE}
-                </p>
-                <TraitCard trait={rolledRootBone} selected animationDelay={0} />
-              </div>
-            )}
-
-            {/* Talents — 3 rows × 2 cols */}
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">
-                {TEXT.AUTH.TRAIT_SELECT_TALENTS} ({selectedTalents.length}/3)
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {rolledTalents.map((trait, i) => (
-                  <TraitCard
-                    key={trait.id}
-                    trait={trait}
-                    selected={selectedTalents.includes(trait.id)}
-                    onClick={() => toggleTalent(trait.id)}
-                    animationDelay={0.15 + i * 0.08}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Reroll */}
-            <div className="flex justify-center">
-              <Button variant="outline" className="px-8 py-2 text-sm gap-2 border-purple-500/40 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400/60 transition-all" onClick={rollTraits} disabled={isRolling}>
-                <Dices className="w-4 h-4" />
-                {isRolling ? TEXT.AUTH.TRAIT_ROLLING : TEXT.AUTH.TRAIT_REROLL}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Card>
+      <TraitSelectionSection
+        rolledRootBone={rolledRootBone}
+        rolledTalents={rolledTalents}
+        selectedTalents={selectedTalents}
+        isRolling={isRolling}
+        traitsLoading={traitsLoading}
+        onRoll={rollTraits}
+        onToggleTalent={toggleTalent}
+        onOpenCodex={openCodex}
+      />
 
       {/* Submit + Link to login */}
       <div className="mt-6 space-y-4">
