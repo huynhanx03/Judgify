@@ -5,7 +5,8 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-table";
@@ -61,11 +62,7 @@ export default function AdminTraitsPage() {
       ) },
   ];
 
-  if (crud.isLoading) return (
-    <div className="flex h-[50vh] items-center justify-center">
-      <Loader2 className="h-8 w-8 text-primary animate-spin" />
-    </div>
-  );
+  if (crud.isLoading) return <LoadingSpinner />;
 
   return (
     <DataTableShell
