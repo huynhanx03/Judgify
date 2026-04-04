@@ -7,7 +7,8 @@
 
 import { useEffect, useState } from "react";
 import { TEXT } from "@/constants/text";
-import { Trophy, Loader2 } from "lucide-react";
+import { Trophy } from "lucide-react";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { contestService } from "@/services/contest.service";
 import type { Contest } from "@/types/contest";
@@ -32,13 +33,7 @@ export default function ContestPage() {
     fetchContests();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-12 pb-20">

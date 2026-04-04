@@ -31,8 +31,8 @@ import type {
   TestCase,
   SubmissionStatus,
 } from "@/types/submission";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import {
-  Loader2,
   ArrowLeft,
   Clock,
   HardDrive,
@@ -171,13 +171,7 @@ export default function ProblemDetailPage({
   }
 
   // Loading state
-  if (isLoadingProblem) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (isLoadingProblem) return <LoadingSpinner />;
 
   // Not found state
   if (!problem) {

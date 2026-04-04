@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Sparkles, Shield, Award, CalendarDays, Cake, Settings, LogOut, Gem, Target, Tag } from "lucide-react"
+import { Sparkles, Shield, Award, CalendarDays, Cake, Settings, LogOut, Gem, Target, Tag } from "lucide-react"
+import { LoadingSpinner } from "@/components/loading-spinner"
 import { getProfile } from "@/services/user.service"
 import { getAllDifficulties } from "@/services/difficulty.service"
 import { useAuth } from "@/hooks/use-auth"
@@ -59,13 +60,7 @@ export default function ProfilePage() {
       .finally(() => setIsLoading(false))
   }, [])
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
+  if (isLoading) return <LoadingSpinner />;
 
   if (!profile) return null
 
