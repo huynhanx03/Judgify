@@ -1,6 +1,7 @@
 "use client"
 
 import { TEXT } from "@/constants/text"
+import { getDifficultyStyle } from "@/constants/styles"
 import type { ProblemStats, DiffStat } from "@/types/user"
 
 interface StatsPanelProps {
@@ -8,16 +9,6 @@ interface StatsPanelProps {
   /** All available difficulties (merged with solved counts, 0 if not solved) */
   difficulties: DiffStat[]
 }
-
-const DIFF_COLORS: Record<number, { stroke: string; text: string; bg: string; border: string }> = {
-  1: { stroke: "#10b981", text: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-  2: { stroke: "#f59e0b", text: "text-amber-500",   bg: "bg-amber-500/10",   border: "border-amber-500/20"   },
-  3: { stroke: "#f43f5e", text: "text-rose-500",    bg: "bg-rose-500/10",    border: "border-rose-500/20"    },
-  4: { stroke: "#a855f7", text: "text-purple-500",  bg: "bg-purple-500/10",  border: "border-purple-500/20"  },
-  5: { stroke: "#06b6d4", text: "text-cyan-500",    bg: "bg-cyan-500/10",    border: "border-cyan-500/20"    },
-}
-const FALLBACK_COLOR = { stroke: "#6b7280", text: "text-slate-400", bg: "bg-slate-400/10", border: "border-slate-400/20" }
-function diffColor(level: number) { return DIFF_COLORS[level] ?? FALLBACK_COLOR }
 
 // circumference = 2π × r = 2π × 32 ≈ 201.06
 const R = 32
@@ -33,7 +24,7 @@ function DonutChart({ diffs, total }: { diffs: DiffStat[]; total: number }) {
           const len = (d.solved_count / total) * C
           const off = offset
           offset += len
-          const c = diffColor(d.level)
+          const c = getDifficultyStyle(d.level)
           return (
             <circle key={d.level} cx="40" cy="40" r={R}
               fill="none" stroke={c.stroke} strokeWidth="6"
@@ -64,7 +55,7 @@ export function StatsPanel({ stats, difficulties }: StatsPanelProps) {
         <DonutChart diffs={difficulties} total={totalSolved} />
         <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: `repeat(${difficulties.length || 3}, 1fr)` }}>
           {difficulties.map((d) => {
-            const c = diffColor(d.level)
+            const c = getDifficultyStyle(d.level)
             const pct = totalSolved > 0 ? Math.round((d.solved_count / totalSolved) * 100) : 0
             return (
               <div key={d.level} className={`rounded-xl border p-3 text-center ${c.bg} ${c.border}`}>

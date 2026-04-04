@@ -4,14 +4,8 @@
  */
 
 import { cn } from "@/lib/utils";
+import { getDifficultyStyle } from "@/constants/styles";
 import type { DifficultyResponse } from "@/types/difficulty";
-
-/** Style config per difficulty level. */
-const LEVEL_STYLES: Record<number, string> = {
-  1: "text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_2px_rgba(16,185,129,0.5)]",
-  2: "text-amber-500 dark:text-amber-400 drop-shadow-[0_0_2px_rgba(245,158,11,0.5)]",
-  3: "text-rose-500 dark:text-rose-400 drop-shadow-[0_0_2px_rgba(244,63,94,0.5)]",
-};
 
 interface DifficultyBadgeProps {
   difficulty?: DifficultyResponse;
@@ -27,11 +21,13 @@ export function DifficultyBadge({
 }: DifficultyBadgeProps) {
   if (!difficulty) return <span className="text-muted-foreground text-sm">N/A</span>;
 
+  const style = getDifficultyStyle(difficulty.level);
+
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 font-medium text-sm transition-colors",
-        LEVEL_STYLES[difficulty.level] ?? LEVEL_STYLES[1],
+        style.text,
         className
       )}
     >
