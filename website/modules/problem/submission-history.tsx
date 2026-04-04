@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TEXT } from "@/constants/text";
+import { formatTime, formatDateTime } from "@/lib/format";
 import type { Submission, SubmissionStatus } from "@/types/submission";
 import { Check, Copy, Loader2 } from "lucide-react";
 
@@ -72,17 +73,6 @@ const LANG_LABELS: Record<string, string> = {
   go: "Go",
 };
 
-function formatTime(dateStr: string): string {
-  const d = new Date(dateStr);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function formatDateTime(dateStr: string): string {
-  const d = new Date(dateStr);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
 
 function SubmissionDetail({ submission }: { submission: Submission }) {
   const [copied, setCopied] = useState(false);
