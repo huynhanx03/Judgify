@@ -1,0 +1,32 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/problems
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "title": "Two Sum",
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+    "difficulty": "easy",
+    "time_limit_ms": 1000,
+    "memory_limit_kb": 262144,
+    "tag_ids": [1]
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("problem_id", res.body.data.id);
+  }
+}

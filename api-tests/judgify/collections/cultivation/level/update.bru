@@ -1,0 +1,22 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/levels/{{level_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Qi Condensation Updated",
+    "min_exp": 100
+  }
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/traits/{{trait_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Heavenly Spirit Root Updated",
+    "rarity_id": 4,
+    "description": "Updated trait description",
+    "metadata": {
+      "exp_multiplier": 2.0,
+      "exp_bonus": 10
+    }
+  }
+}

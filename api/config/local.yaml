@@ -1,0 +1,43 @@
+server:
+  port: 8000
+  mode: "dev"
+  host: "localhost"
+  rate_limit:
+    limit: 100
+    burst: 50
+    window: 60 # seconds
+  circuit_breaker:
+    failure_threshold: 5
+    success_threshold: 2
+    open_timeout: 30 # seconds
+
+database:
+  driver: "postgres"
+  host: "localhost"
+  port: 5432
+  username: "admin"
+  password: "admin"
+  database: "judgify"
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_lifetime: 300
+
+jwt:
+  secret: "${JWT_SECRET}"
+  private_key_path: "./certs/private_key.pem"
+  public_key_path: "./certs/public_key.pem"
+
+judge:
+  docker_image: "judgify/sandbox:latest"
+  pool_size: 3
+  worker_count: 3
+  compile_timeout_ms: 10000
+  network_disabled: true
+
+logger:
+  log_level: debug
+  file_log_name: "./storages/logs/app.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true

@@ -1,0 +1,30 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/difficulties
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Hard",
+    "level": 3,
+    "exp_reward": 50,
+    "description": "Hard difficulty for advanced algorithms."
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("difficulty_id", res.body.data.id);
+  }
+}

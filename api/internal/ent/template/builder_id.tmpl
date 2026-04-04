@@ -1,0 +1,8 @@
+{{ define "create/additional/id" }}
+
+func (c *{{ $.Name }}Create) SetID(id int) *{{ $.Name }}Create {
+	c.mutation.id = &id
+	return c
+}
+
+{{ end }}

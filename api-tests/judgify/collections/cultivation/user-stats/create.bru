@@ -1,0 +1,30 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/user-stats
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "user_id": 1,
+    "current_level_id": 1,
+    "total_exp": 0,
+    "rating": 0
+  }
+}
+
+script:post-response {
+  if (res.body.data && res.body.data.id) {
+    bru.setEnvVar("user_stats_id", res.body.data.id);
+  }
+}

@@ -1,0 +1,11 @@
+{{ define "model/additional" }}
+
+func ({{ $.Receiver }} *{{ $.Name }}) GetID() int {
+	return {{ $.Receiver }}.ID
+}
+
+func ({{ $.Receiver }} *{{ $.Name }}) SetID(id int) {
+	{{ $.Receiver }}.ID = id
+}
+
+{{ end }}

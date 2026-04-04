@@ -1,0 +1,22 @@
+name: dev
+variables:
+  - name: base_url
+    value: http://localhost:8000
+  - name: access_token
+    value: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NDcwNzI5NywiaWF0IjoxNzc0NzA2Mzk3LCJzdWJfaW50IjoxLCJ1c2VybmFtZSI6ImFkbWluIiwidHlwZSI6ImFjY2VzcyJ9.ptjt5DByvlB5N_cX_IUh8UjJjEPvfCh3_XN9-mzPd7j4x_oDEmvW0Z5bKRESIjZeodpemKb-ypkIKLfRpSaz0SqslFO9TZ4PnptbdvLGnXLnnv4Uu4RuZqP-dLLAa9nzQ_grQObmDbQthAjImNYdWAiE98aLEHtoojiqSr8yXCSm39BYuG3Xi7vj01Eq3h-nndtqEUKal1xW2k9eqB7zuV9mIxRxo-g8NLiwVNy58OMRvgwdiogkwOQbzCLNDGUr5zGTyQ0nvPRhJZCSt2_M7RPOeT3fiy0jGyy7a3WDR9IAfeuDiDbfWurgfL0z8wLvR4b0KWf4tl_a5vom2-IV5A
+  - name: refresh_token
+    value: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTMxMTE5NywiaWF0IjoxNzc0NzA2Mzk3LCJzdWJfaW50IjoxLCJ1c2VybmFtZSI6ImFkbWluIiwidHlwZSI6InJlZnJlc2gifQ.YFUxNoxQ_4oVVZCL2eiePKT247ffpp_Y-tQ75S1B_SdfyFlbVqvWZBJnLpbQpA7KeAXfNxAszQ5vVPKY0Y3utvjZnbd--zj_CPGSZlWtXIL-YqXd82C2PiLAw7Q8JCQZCqCb23Uy-tAsqa3HtX3LSNkOwiry0t7DVrlOZTrL2pYFz4fyCZbU8BOUAUfleXg8HCS2vMfCg9B6oxmRruNJkFeiOpGDsb87lIKKrnBicThMuCA51Gn5quOKHM6Y-uhCO8K75s6ThijyAtAwXmMtSQj_H8mOe9GZJtE5eksIeYU3Mm5wxTI_EGrgWU5pqWA9vdEPHMm3Vt3WgFGk4UeuDg
+  - name: role_id
+    value: "1"
+  - name: permission_id
+    value: "1"
+  - name: resource_id
+    value: "1"
+  - name: attr_def_id
+    value: "1"
+  - name: problem_id
+    value: "1"
+  - name: test_case_id
+    value: "1"
+  - name: tag_id
+    value: "1"

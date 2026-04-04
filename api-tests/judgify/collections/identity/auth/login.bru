@@ -1,0 +1,32 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "admin123"
+  }
+}
+
+script:post-response {
+  const body = typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+  
+  const { access_token, refresh_token } = body?.data || {};
+  
+  if (access_token) {
+    bru.setGlobalEnvVar("access_token", access_token);
+  }
+  
+  if (refresh_token) {
+    bru.setGlobalEnvVar("refresh_token", refresh_token);
+  }
+}
