@@ -21,6 +21,42 @@ func (f AttributeDefinitionFunc) Mutate(ctx context.Context, m generate.Mutation
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.AttributeDefinitionMutation", m)
 }
 
+// The ContestFunc type is an adapter to allow the use of ordinary
+// function as Contest mutator.
+type ContestFunc func(context.Context, *generate.ContestMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContestFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.ContestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.ContestMutation", m)
+}
+
+// The ContestRegistrationFunc type is an adapter to allow the use of ordinary
+// function as ContestRegistration mutator.
+type ContestRegistrationFunc func(context.Context, *generate.ContestRegistrationMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContestRegistrationFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.ContestRegistrationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.ContestRegistrationMutation", m)
+}
+
+// The ContestStandingFunc type is an adapter to allow the use of ordinary
+// function as ContestStanding mutator.
+type ContestStandingFunc func(context.Context, *generate.ContestStandingMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContestStandingFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.ContestStandingMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.ContestStandingMutation", m)
+}
+
 // The CredentialFunc type is an adapter to allow the use of ordinary
 // function as Credential mutator.
 type CredentialFunc func(context.Context, *generate.CredentialMutation) (generate.Value, error)
@@ -127,6 +163,18 @@ func (f RarityFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.V
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.RarityMutation", m)
+}
+
+// The RatingHistoryFunc type is an adapter to allow the use of ordinary
+// function as RatingHistory mutator.
+type RatingHistoryFunc func(context.Context, *generate.RatingHistoryMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RatingHistoryFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.RatingHistoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.RatingHistoryMutation", m)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary

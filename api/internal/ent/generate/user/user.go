@@ -51,6 +51,14 @@ const (
 	EdgeDifficultyStats = "difficulty_stats"
 	// EdgeTagStats holds the string denoting the tag_stats edge name in mutations.
 	EdgeTagStats = "tag_stats"
+	// EdgeContests holds the string denoting the contests edge name in mutations.
+	EdgeContests = "contests"
+	// EdgeContestRegistrations holds the string denoting the contest_registrations edge name in mutations.
+	EdgeContestRegistrations = "contest_registrations"
+	// EdgeContestStandings holds the string denoting the contest_standings edge name in mutations.
+	EdgeContestStandings = "contest_standings"
+	// EdgeRatingHistories holds the string denoting the rating_histories edge name in mutations.
+	EdgeRatingHistories = "rating_histories"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleTable is the table that holds the role relation/edge.
@@ -137,6 +145,34 @@ const (
 	TagStatsInverseTable = "user_tag_stats"
 	// TagStatsColumn is the table column denoting the tag_stats relation/edge.
 	TagStatsColumn = "user_id"
+	// ContestsTable is the table that holds the contests relation/edge.
+	ContestsTable = "contests"
+	// ContestsInverseTable is the table name for the Contest entity.
+	// It exists in this package in order to avoid circular dependency with the "contest" package.
+	ContestsInverseTable = "contests"
+	// ContestsColumn is the table column denoting the contests relation/edge.
+	ContestsColumn = "author_id"
+	// ContestRegistrationsTable is the table that holds the contest_registrations relation/edge.
+	ContestRegistrationsTable = "contest_registrations"
+	// ContestRegistrationsInverseTable is the table name for the ContestRegistration entity.
+	// It exists in this package in order to avoid circular dependency with the "contestregistration" package.
+	ContestRegistrationsInverseTable = "contest_registrations"
+	// ContestRegistrationsColumn is the table column denoting the contest_registrations relation/edge.
+	ContestRegistrationsColumn = "user_id"
+	// ContestStandingsTable is the table that holds the contest_standings relation/edge.
+	ContestStandingsTable = "contest_standings"
+	// ContestStandingsInverseTable is the table name for the ContestStanding entity.
+	// It exists in this package in order to avoid circular dependency with the "conteststanding" package.
+	ContestStandingsInverseTable = "contest_standings"
+	// ContestStandingsColumn is the table column denoting the contest_standings relation/edge.
+	ContestStandingsColumn = "user_id"
+	// RatingHistoriesTable is the table that holds the rating_histories relation/edge.
+	RatingHistoriesTable = "rating_histories"
+	// RatingHistoriesInverseTable is the table name for the RatingHistory entity.
+	// It exists in this package in order to avoid circular dependency with the "ratinghistory" package.
+	RatingHistoriesInverseTable = "rating_histories"
+	// RatingHistoriesColumn is the table column denoting the rating_histories relation/edge.
+	RatingHistoriesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -376,6 +412,62 @@ func ByTagStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTagStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByContestsCount orders the results by contests count.
+func ByContestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestsStep(), opts...)
+	}
+}
+
+// ByContests orders the results by contests terms.
+func ByContests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestRegistrationsCount orders the results by contest_registrations count.
+func ByContestRegistrationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestRegistrationsStep(), opts...)
+	}
+}
+
+// ByContestRegistrations orders the results by contest_registrations terms.
+func ByContestRegistrations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestRegistrationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestStandingsCount orders the results by contest_standings count.
+func ByContestStandingsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestStandingsStep(), opts...)
+	}
+}
+
+// ByContestStandings orders the results by contest_standings terms.
+func ByContestStandings(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestStandingsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRatingHistoriesCount orders the results by rating_histories count.
+func ByRatingHistoriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRatingHistoriesStep(), opts...)
+	}
+}
+
+// ByRatingHistories orders the results by rating_histories terms.
+func ByRatingHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRatingHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRoleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -458,5 +550,33 @@ func newTagStatsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TagStatsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TagStatsTable, TagStatsColumn),
+	)
+}
+func newContestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestsTable, ContestsColumn),
+	)
+}
+func newContestRegistrationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestRegistrationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestRegistrationsTable, ContestRegistrationsColumn),
+	)
+}
+func newContestStandingsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestStandingsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestStandingsTable, ContestStandingsColumn),
+	)
+}
+func newRatingHistoriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RatingHistoriesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RatingHistoriesTable, RatingHistoriesColumn),
 	)
 }

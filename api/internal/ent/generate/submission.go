@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -47,6 +48,8 @@ type Submission struct {
 	MemoryKB *int `json:"memory_kb,omitempty"`
 	// ErrorMessage holds the value of the "error_message" field.
 	ErrorMessage *string `json:"error_message,omitempty"`
+	// ContestID holds the value of the "contest_id" field.
+	ContestID *int `json:"contest_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmissionQuery when eager-loading is set.
 	Edges        SubmissionEdges `json:"edges"`
@@ -59,9 +62,11 @@ type SubmissionEdges struct {
 	Problem *Problem `json:"problem,omitempty"`
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// Contest holds the value of the contest edge.
+	Contest *Contest `json:"contest,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ProblemOrErr returns the Problem value or an error if the edge
@@ -86,12 +91,23 @@ func (e SubmissionEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
+// ContestOrErr returns the Contest value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SubmissionEdges) ContestOrErr() (*Contest, error) {
+	if e.Contest != nil {
+		return e.Contest, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: contest.Label}
+	}
+	return nil, &NotLoadedError{edge: "contest"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Submission) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submission.FieldID, submission.FieldDeletedBy, submission.FieldProblemID, submission.FieldUserID, submission.FieldPassedCount, submission.FieldTotalCount, submission.FieldTimeMs, submission.FieldMemoryKB:
+		case submission.FieldID, submission.FieldDeletedBy, submission.FieldProblemID, submission.FieldUserID, submission.FieldPassedCount, submission.FieldTotalCount, submission.FieldTimeMs, submission.FieldMemoryKB, submission.FieldContestID:
 			values[i] = new(sql.NullInt64)
 		case submission.FieldLanguage, submission.FieldSourceCode, submission.FieldStatus, submission.FieldErrorMessage:
 			values[i] = new(sql.NullString)
@@ -207,6 +223,13 @@ func (_m *Submission) assignValues(columns []string, values []any) error {
 				_m.ErrorMessage = new(string)
 				*_m.ErrorMessage = value.String
 			}
+		case submission.FieldContestID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
+			} else if value.Valid {
+				_m.ContestID = new(int)
+				*_m.ContestID = int(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -228,6 +251,11 @@ func (_m *Submission) QueryProblem() *ProblemQuery {
 // QueryUser queries the "user" edge of the Submission entity.
 func (_m *Submission) QueryUser() *UserQuery {
 	return NewSubmissionClient(_m.config).QueryUser(_m)
+}
+
+// QueryContest queries the "contest" edge of the Submission entity.
+func (_m *Submission) QueryContest() *ContestQuery {
+	return NewSubmissionClient(_m.config).QueryContest(_m)
 }
 
 // Update returns a builder for updating this Submission.
@@ -303,6 +331,11 @@ func (_m *Submission) String() string {
 	if v := _m.ErrorMessage; v != nil {
 		builder.WriteString("error_message=")
 		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.ContestID; v != nil {
+		builder.WriteString("contest_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')
 	return builder.String()

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
@@ -270,6 +271,26 @@ func (_u *SubmissionUpdate) ClearErrorMessage() *SubmissionUpdate {
 	return _u
 }
 
+// SetContestID sets the "contest_id" field.
+func (_u *SubmissionUpdate) SetContestID(v int) *SubmissionUpdate {
+	_u.mutation.SetContestID(v)
+	return _u
+}
+
+// SetNillableContestID sets the "contest_id" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableContestID(v *int) *SubmissionUpdate {
+	if v != nil {
+		_u.SetContestID(*v)
+	}
+	return _u
+}
+
+// ClearContestID clears the value of the "contest_id" field.
+func (_u *SubmissionUpdate) ClearContestID() *SubmissionUpdate {
+	_u.mutation.ClearContestID()
+	return _u
+}
+
 // SetProblem sets the "problem" edge to the Problem entity.
 func (_u *SubmissionUpdate) SetProblem(v *Problem) *SubmissionUpdate {
 	return _u.SetProblemID(v.ID)
@@ -278,6 +299,11 @@ func (_u *SubmissionUpdate) SetProblem(v *Problem) *SubmissionUpdate {
 // SetUser sets the "user" edge to the User entity.
 func (_u *SubmissionUpdate) SetUser(v *User) *SubmissionUpdate {
 	return _u.SetUserID(v.ID)
+}
+
+// SetContest sets the "contest" edge to the Contest entity.
+func (_u *SubmissionUpdate) SetContest(v *Contest) *SubmissionUpdate {
+	return _u.SetContestID(v.ID)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -294,6 +320,12 @@ func (_u *SubmissionUpdate) ClearProblem() *SubmissionUpdate {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *SubmissionUpdate) ClearUser() *SubmissionUpdate {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearContest clears the "contest" edge to the Contest entity.
+func (_u *SubmissionUpdate) ClearContest() *SubmissionUpdate {
+	_u.mutation.ClearContest()
 	return _u
 }
 
@@ -497,6 +529,35 @@ func (_u *SubmissionUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   submission.ContestTable,
+			Columns: []string{submission.ContestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   submission.ContestTable,
+			Columns: []string{submission.ContestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -765,6 +826,26 @@ func (_u *SubmissionUpdateOne) ClearErrorMessage() *SubmissionUpdateOne {
 	return _u
 }
 
+// SetContestID sets the "contest_id" field.
+func (_u *SubmissionUpdateOne) SetContestID(v int) *SubmissionUpdateOne {
+	_u.mutation.SetContestID(v)
+	return _u
+}
+
+// SetNillableContestID sets the "contest_id" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableContestID(v *int) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetContestID(*v)
+	}
+	return _u
+}
+
+// ClearContestID clears the value of the "contest_id" field.
+func (_u *SubmissionUpdateOne) ClearContestID() *SubmissionUpdateOne {
+	_u.mutation.ClearContestID()
+	return _u
+}
+
 // SetProblem sets the "problem" edge to the Problem entity.
 func (_u *SubmissionUpdateOne) SetProblem(v *Problem) *SubmissionUpdateOne {
 	return _u.SetProblemID(v.ID)
@@ -773,6 +854,11 @@ func (_u *SubmissionUpdateOne) SetProblem(v *Problem) *SubmissionUpdateOne {
 // SetUser sets the "user" edge to the User entity.
 func (_u *SubmissionUpdateOne) SetUser(v *User) *SubmissionUpdateOne {
 	return _u.SetUserID(v.ID)
+}
+
+// SetContest sets the "contest" edge to the Contest entity.
+func (_u *SubmissionUpdateOne) SetContest(v *Contest) *SubmissionUpdateOne {
+	return _u.SetContestID(v.ID)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -789,6 +875,12 @@ func (_u *SubmissionUpdateOne) ClearProblem() *SubmissionUpdateOne {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *SubmissionUpdateOne) ClearUser() *SubmissionUpdateOne {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearContest clears the "contest" edge to the Contest entity.
+func (_u *SubmissionUpdateOne) ClearContest() *SubmissionUpdateOne {
+	_u.mutation.ClearContest()
 	return _u
 }
 
@@ -1022,6 +1114,35 @@ func (_u *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   submission.ContestTable,
+			Columns: []string{submission.ContestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   submission.ContestTable,
+			Columns: []string{submission.ContestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

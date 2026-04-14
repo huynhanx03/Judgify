@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
@@ -27,6 +28,7 @@ type SubmissionQuery struct {
 	predicates  []predicate.Submission
 	withProblem *ProblemQuery
 	withUser    *UserQuery
+	withContest *ContestQuery
 	modifiers   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -101,6 +103,28 @@ func (_q *SubmissionQuery) QueryUser() *UserQuery {
 			sqlgraph.From(submission.Table, submission.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, submission.UserTable, submission.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContest chains the current query on the "contest" edge.
+func (_q *SubmissionQuery) QueryContest() *ContestQuery {
+	query := (&ContestClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.ContestTable, submission.ContestColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -302,6 +326,7 @@ func (_q *SubmissionQuery) Clone() *SubmissionQuery {
 		predicates:  append([]predicate.Submission{}, _q.predicates...),
 		withProblem: _q.withProblem.Clone(),
 		withUser:    _q.withUser.Clone(),
+		withContest: _q.withContest.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -328,6 +353,17 @@ func (_q *SubmissionQuery) WithUser(opts ...func(*UserQuery)) *SubmissionQuery {
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithContest tells the query-builder to eager-load the nodes that are connected to
+// the "contest" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SubmissionQuery) WithContest(opts ...func(*ContestQuery)) *SubmissionQuery {
+	query := (&ContestClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContest = query
 	return _q
 }
 
@@ -409,9 +445,10 @@ func (_q *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	var (
 		nodes       = []*Submission{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withProblem != nil,
 			_q.withUser != nil,
+			_q.withContest != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -444,6 +481,12 @@ func (_q *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	if query := _q.withUser; query != nil {
 		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *Submission, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContest; query != nil {
+		if err := _q.loadContest(ctx, query, nodes, nil,
+			func(n *Submission, e *Contest) { n.Edges.Contest = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -508,6 +551,38 @@ func (_q *SubmissionQuery) loadUser(ctx context.Context, query *UserQuery, nodes
 	}
 	return nil
 }
+func (_q *SubmissionQuery) loadContest(ctx context.Context, query *ContestQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *Contest)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Submission)
+	for i := range nodes {
+		if nodes[i].ContestID == nil {
+			continue
+		}
+		fk := *nodes[i].ContestID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(contest.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "contest_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *SubmissionQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -542,6 +617,9 @@ func (_q *SubmissionQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(submission.FieldUserID)
+		}
+		if _q.withContest != nil {
+			_spec.Node.AddColumnOnce(submission.FieldContestID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
