@@ -225,6 +225,13 @@ export const TEXT = {
     DETAIL_DESCRIPTION: "Mô Tả",
     DETAIL_INFO: "Thông Tin",
     DETAIT_STANDINGS: "Bảng Xếp Hạng",
+    // Rating changes
+    RATING_CHANGES: "Biến Động Rating",
+    RATING_OLD: "Rating Cũ",
+    RATING_NEW: "Rating Mới",
+    RATING_DELTA: "Thay Đổi",
+    NO_RATING_CHANGES: "Chưa có dữ liệu rating",
+    NO_RATING_CHANGES_DESC: "Rating sẽ được tính sau khi cuộc thi kết thúc.",
   },
 
   // Problem Detail

@@ -30,3 +30,13 @@ export interface Standing {
   penalty: number;
   problem_results: Record<string, unknown>;
 }
+
+/** Rating change row returned by GET /contests/:id/rating-changes. */
+export interface RatingChange {
+  user_id: number;
+  username: string;
+  old_rating: number;
+  new_rating: number;
+  rank: number;
+  delta: number;
+}

@@ -166,4 +166,5 @@ export const CONTEST_API = {
   REGISTER: (id: number) => `/contests/${id}/register`,
   UNREGISTER: (id: number) => `/contests/${id}/unregister`,
   STANDINGS: (id: number) => `/contests/${id}/standings`,
+  RATING_CHANGES: (id: number) => `/contests/${id}/rating-changes`,
 } as const;

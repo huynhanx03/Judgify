@@ -1,21 +1,26 @@
 "use client";
 
 /**
- * Contest detail page — info + realtime ICPC standings via SSE.
- * Tabs: Thông Tin / Bảng Xếp Hạng (SSE live updates).
+ * Contest detail page — info + realtime ICPC standings via SSE + rating changes.
+ * Tabs: Thong Tin / Bang Xep Hang (SSE) / Bien Dong Rating (ended only).
  */
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { getContestById, registerContest, unregisterContest } from "@/services/contest.service";
+import {
+  getContestById,
+  registerContest,
+  unregisterContest,
+  getContestRatingChanges,
+} from "@/services/contest.service";
 import { useContestSSE } from "@/hooks/use-contest-sse";
 import { notify, getErrorMessage } from "@/lib/toast";
 import { TEXT } from "@/constants/text";
-import type { Contest } from "@/types/contest";
+import type { Contest, RatingChange } from "@/types/contest";
 import {
   ArrowLeft,
   Calendar,
@@ -29,6 +34,7 @@ import {
   CheckCircle2,
   Wifi,
   WifiOff,
+  TrendingUp,
 } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -45,7 +51,7 @@ const STATUS_LABELS: Record<string, string> = {
   ended: TEXT.CONTEST.STATUS_ENDED,
 };
 
-type Tab = "info" | "standings";
+type Tab = "info" | "standings" | "rating";
 
 export default function ContestDetailPage({
   params,
@@ -59,8 +65,9 @@ export default function ContestDetailPage({
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("info");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [ratingChanges, setRatingChanges] = useState<RatingChange[]>([]);
 
-  // SSE: only connect when standings tab is active and contest is loaded
+  // SSE: only connect when standings tab is active
   const { standings, isConnected } = useContestSSE(
     contestId,
     activeTab === "standings"
@@ -79,6 +86,21 @@ export default function ContestDetailPage({
     }
     loadContest();
   }, [contestId]);
+
+  // Load rating changes when tab is active and contest is ended
+  const loadRatingChanges = useCallback(async () => {
+    if (activeTab !== "rating" || !contest || contest.status !== "ended") return;
+    try {
+      const data = await getContestRatingChanges(contestId);
+      setRatingChanges(data);
+    } catch {
+      // rating changes stay empty
+    }
+  }, [activeTab, contest, contestId]);
+
+  useEffect(() => {
+    loadRatingChanges();
+  }, [loadRatingChanges]);
 
   async function handleRegister() {
     setIsRegistering(true);
@@ -237,7 +259,6 @@ export default function ContestDetailPage({
           >
             <Trophy className="h-4 w-4" />
             {TEXT.CONTEST.STANDINGS}
-            {/* SSE connection indicator */}
             {activeTab === "standings" && (
               isConnected ? (
                 <Wifi className="h-3.5 w-3.5 text-green-500" />
@@ -246,6 +267,19 @@ export default function ContestDetailPage({
               )
             )}
           </button>
+          {isEnded && (
+            <button
+              onClick={() => setActiveTab("rating")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-colors cursor-pointer ${
+                activeTab === "rating"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <TrendingUp className="h-4 w-4" />
+              {TEXT.CONTEST.RATING_CHANGES}
+            </button>
+          )}
         </div>
 
         {/* Tab content */}
@@ -327,6 +361,55 @@ export default function ContestDetailPage({
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className="font-mono text-muted-foreground">{s.penalty}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+
+          {activeTab === "rating" && isEnded && (
+            ratingChanges.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                <p className="text-lg font-medium">{TEXT.CONTEST.NO_RATING_CHANGES}</p>
+                <p className="text-sm mt-1">{TEXT.CONTEST.NO_RATING_CHANGES_DESC}</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/40">
+                      <th className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
+                      <th className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
+                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_OLD}</th>
+                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_NEW}</th>
+                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_DELTA}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ratingChanges.map((rc) => (
+                      <tr key={rc.user_id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
+                        <td className="py-3 px-4">
+                          <span className={`font-bold ${rc.rank <= 3 ? "text-amber-500" : ""}`}>
+                            {rc.rank <= 3 ? ["🥇", "🥈", "🥉"][rc.rank - 1] : rc.rank}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="font-medium">{rc.username}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-mono text-muted-foreground">{rc.old_rating}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-mono font-bold">{rc.new_rating}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`font-mono font-bold ${rc.delta > 0 ? "text-green-500" : rc.delta < 0 ? "text-red-500" : "text-muted-foreground"}`}>
+                            {rc.delta > 0 ? `+${rc.delta}` : rc.delta}
+                          </span>
                         </td>
                       </tr>
                     ))}

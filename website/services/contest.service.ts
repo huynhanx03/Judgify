@@ -4,7 +4,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { CONTEST_API } from "@/constants/api";
-import type { Contest, Standing } from "@/types/contest";
+import type { Contest, Standing, RatingChange } from "@/types/contest";
 import type { Paginated, QueryOptions } from "@/types/api";
 
 /** Fetches a paginated list of contests. */
@@ -52,4 +52,11 @@ export async function updateContest(
 /** Deletes a contest (admin). */
 export async function deleteContest(id: number): Promise<void> {
   return apiClient.delete(CONTEST_API.DELETE(id));
+}
+
+/** Fetches rating changes for an ended contest. */
+export async function getContestRatingChanges(
+  id: number
+): Promise<RatingChange[]> {
+  return apiClient.get<RatingChange[]>(CONTEST_API.RATING_CHANGES(id));
 }
