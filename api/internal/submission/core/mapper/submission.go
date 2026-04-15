@@ -21,6 +21,7 @@ func ToSubmissionResponse(e *entity.Submission) *dto.SubmissionResponse {
 		TotalCount:   e.TotalCount,
 		TimeMs:       e.TimeMs,
 		MemoryKb:     e.MemoryKb,
+		ContestID:    e.ContestID,
 		ErrorMessage: e.ErrorMessage,
 		CreatedAt:    e.CreatedAt,
 	}
@@ -31,6 +32,7 @@ func ToSubmissionEntityFromCreate(req *dto.CreateSubmissionRequest, userID int) 
 	return &entity.Submission{
 		ProblemID:  req.ProblemID,
 		UserID:     userID,
+		ContestID:  req.ContestID,
 		Language:   req.Language,
 		SourceCode: req.SourceCode,
 		Status:     "pending",

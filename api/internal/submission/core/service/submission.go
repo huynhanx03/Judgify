@@ -18,13 +18,14 @@ import (
 
 
 type submissionService struct {
-	submissionRepo ports.SubmissionRepository
-	producer       *forge.Producer
+	submissionRepo  ports.SubmissionRepository
+	producer        *forge.Producer
+	contestProducer *forge.Producer
 }
 
 // NewSubmissionService creates a new SubmissionService instance.
-func NewSubmissionService(submissionRepo ports.SubmissionRepository, producer *forge.Producer) ports.SubmissionService {
-	return &submissionService{submissionRepo: submissionRepo, producer: producer}
+func NewSubmissionService(submissionRepo ports.SubmissionRepository, producer *forge.Producer, contestProducer *forge.Producer) ports.SubmissionService {
+	return &submissionService{submissionRepo: submissionRepo, producer: producer, contestProducer: contestProducer}
 }
 
 func (s *submissionService) Get(ctx context.Context, id int) (*dto.SubmissionResponse, error) {
@@ -67,8 +68,12 @@ func (s *submissionService) Create(ctx context.Context, userID int, req *dto.Cre
 		return nil, err
 	}
 
-	// Push judge job to MQ
-	if err := s.publishJudgeJob(e.ID); err != nil {
+	// Choose producer based on contest
+	p := s.producer
+	if e.ContestID != nil && s.contestProducer != nil {
+		p = s.contestProducer
+	}
+	if err := s.publishJudgeJob(p, e.ID); err != nil {
 		logger.FromContext(ctx).Error("failed to enqueue judge job", zap.Int("submission_id", e.ID), zap.Error(err))
 		return nil, apperr.New(response.CodeInternalServer, "failed to enqueue judge job", err)
 	}
@@ -78,12 +83,12 @@ func (s *submissionService) Create(ctx context.Context, userID int, req *dto.Cre
 	return mapper.ToSubmissionResponse(e), nil
 }
 
-// publishJudgeJob sends submission ID to the judge topic.
-func (s *submissionService) publishJudgeJob(submissionID int) error {
+// publishJudgeJob sends submission ID to the judge topic via the given producer.
+func (s *submissionService) publishJudgeJob(producer *forge.Producer, submissionID int) error {
 	key := []byte(constant.TopicJudge)
 	value, err := json.Marshal(map[string]int{"submission_id": submissionID})
 	if err != nil {
 		return err
 	}
-	return s.producer.Send(key, value, nil)
+	return producer.Send(key, value, nil)
 }
