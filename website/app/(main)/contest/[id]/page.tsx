@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Contest detail page — info + ICPC standings table.
- * Tabs: Thông Tin (description, schedule, problems) / Bảng Xếp Hạng (standings).
+ * Contest detail page — info + realtime ICPC standings via SSE.
+ * Tabs: Thông Tin / Bảng Xếp Hạng (SSE live updates).
  */
 
 import { useState, useEffect, use } from "react";
@@ -11,10 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { getContestById, getContestStandings, registerContest, unregisterContest } from "@/services/contest.service";
+import { getContestById, registerContest, unregisterContest } from "@/services/contest.service";
+import { useContestSSE } from "@/hooks/use-contest-sse";
 import { notify, getErrorMessage } from "@/lib/toast";
 import { TEXT } from "@/constants/text";
-import type { Contest, Standing } from "@/types/contest";
+import type { Contest } from "@/types/contest";
 import {
   ArrowLeft,
   Calendar,
@@ -26,6 +27,8 @@ import {
   Info,
   UserX,
   CheckCircle2,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -53,51 +56,37 @@ export default function ContestDetailPage({
   const contestId = Number(id);
 
   const [contest, setContest] = useState<Contest | null>(null);
-  const [standings, setStandings] = useState<Standing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingStandings, setIsLoadingStandings] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("info");
   const [isRegistering, setIsRegistering] = useState(false);
 
+  // SSE: only connect when standings tab is active and contest is loaded
+  const { standings, isConnected } = useContestSSE(
+    contestId,
+    activeTab === "standings"
+  );
+
   useEffect(() => {
+    async function loadContest() {
+      try {
+        const data = await getContestById(contestId);
+        setContest(data);
+      } catch {
+        // contest stays null
+      } finally {
+        setIsLoading(false);
+      }
+    }
     loadContest();
   }, [contestId]);
-
-  async function loadContest() {
-    try {
-      const data = await getContestById(contestId);
-      setContest(data);
-    } catch {
-      // contest stays null
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function loadStandings() {
-    setIsLoadingStandings(true);
-    try {
-      const data = await getContestStandings(contestId);
-      setStandings(data);
-    } catch {
-      setStandings([]);
-    } finally {
-      setIsLoadingStandings(false);
-    }
-  }
-
-  useEffect(() => {
-    if (activeTab === "standings") {
-      loadStandings();
-    }
-  }, [activeTab]);
 
   async function handleRegister() {
     setIsRegistering(true);
     try {
       await registerContest(contestId);
       notify.success(TEXT.CONTEST.REGISTER_SUCCESS);
-      loadContest();
+      const data = await getContestById(contestId);
+      setContest(data);
     } catch (err) {
       notify.error(getErrorMessage(err, "Đăng ký thất bại"));
     } finally {
@@ -110,7 +99,8 @@ export default function ContestDetailPage({
     try {
       await unregisterContest(contestId);
       notify.success(TEXT.CONTEST.UNREGISTER_SUCCESS);
-      loadContest();
+      const data = await getContestById(contestId);
+      setContest(data);
     } catch (err) {
       notify.error(getErrorMessage(err, "Hủy đăng ký thất bại"));
     } finally {
@@ -247,6 +237,14 @@ export default function ContestDetailPage({
           >
             <Trophy className="h-4 w-4" />
             {TEXT.CONTEST.STANDINGS}
+            {/* SSE connection indicator */}
+            {activeTab === "standings" && (
+              isConnected ? (
+                <Wifi className="h-3.5 w-3.5 text-green-500" />
+              ) : (
+                <WifiOff className="h-3.5 w-3.5 text-muted-foreground animate-pulse" />
+              )
+            )}
           </button>
         </div>
 
@@ -296,9 +294,7 @@ export default function ContestDetailPage({
           )}
 
           {activeTab === "standings" && (
-            isLoadingStandings ? (
-              <LoadingSpinner />
-            ) : standings.length === 0 ? (
+            standings.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <Swords className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p className="text-lg font-medium">Chưa có dữ liệu xếp hạng</p>
