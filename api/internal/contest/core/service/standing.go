@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"sort"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/contest/core/entity"
 	"github.com/huynhanx03/judgify/internal/contest/core/mapper"
 	"github.com/huynhanx03/judgify/internal/contest/ports"
+	"github.com/huynhanx03/judgify/internal/contest/store"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -20,11 +22,12 @@ const (
 
 type standingService struct {
 	standingRepo ports.StandingRepository
+	hub          *store.LeaderboardHub
 }
 
 // NewStandingService creates a new StandingService instance.
-func NewStandingService(standingRepo ports.StandingRepository) ports.StandingService {
-	return &standingService{standingRepo: standingRepo}
+func NewStandingService(standingRepo ports.StandingRepository, hub *store.LeaderboardHub) ports.StandingService {
+	return &standingService{standingRepo: standingRepo, hub: hub}
 }
 
 // GetStandings returns all standings for a contest, sorted by ICPC rules with computed ranks.
@@ -111,5 +114,24 @@ func (s *standingService) UpdateFromVerdict(ctx context.Context, contestID, user
 		zap.Int("problem_id", problemID),
 		zap.Bool("accepted", accepted),
 	)
+
+	// Broadcast updated standings to SSE subscribers
+	if s.hub != nil {
+		s.broadcastStandings(ctx, contestID)
+	}
+
 	return nil
+}
+
+// broadcastStandings fetches current standings and broadcasts to SSE subscribers.
+func (s *standingService) broadcastStandings(ctx context.Context, contestID int) {
+	standings, err := s.GetStandings(ctx, contestID)
+	if err != nil {
+		return
+	}
+	data, err := json.Marshal(standings)
+	if err != nil {
+		return
+	}
+	s.hub.Broadcast(contestID, data)
 }

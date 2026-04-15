@@ -10,9 +10,9 @@ import (
 
 // ContestHandlerGroup contains all contest-related handlers.
 type ContestHandlerGroup struct {
-	ContestHandler       ContestHandler
-	RegistrationHandler  RegistrationHandler
-	StandingHandler      StandingHandler
+	ContestHandler      ContestHandler
+	RegistrationHandler RegistrationHandler
+	StandingHandler     *standingHandler
 }
 
 // RegisterPublic registers public contest routes.
@@ -22,6 +22,7 @@ func (h *ContestHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 		contests.POST("/find", handler.Wrap(h.ContestHandler.Find))
 		contests.GET("/:id", handler.Wrap(h.ContestHandler.Get))
 		contests.GET("/:id/standings", handler.Wrap(h.StandingHandler.GetStandings))
+		contests.GET("/:id/standings/stream", h.StandingHandler.StreamStandings)
 	}
 }
 
