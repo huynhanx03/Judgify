@@ -5,6 +5,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Users, Clock, Swords, Sparkles, Calendar } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { TEXT } from "@/constants/text";
 import type { Contest } from "@/types/contest";
@@ -40,6 +41,7 @@ export function ContestCard({ contest, index, onRegister, onUnregister }: Contes
   const statusInfo = STATUS_MAP[contest.status] ?? { label: contest.status, color: "bg-zinc-400" };
 
   return (
+    <Link href={`/contest/${contest.id}`} className="block">
     <div
       className={cn(
         "group relative overflow-hidden rounded-[2.5rem] border transition-all duration-700 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-10",
@@ -101,14 +103,14 @@ export function ContestCard({ contest, index, onRegister, onUnregister }: Contes
             </button>
           ) : contest.is_registered ? (
             <button
-              onClick={() => onUnregister?.(contest.id)}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUnregister?.(contest.id); }}
               className="w-full px-12 py-5 rounded-2xl font-black transition-all active:scale-95 shadow-2xl tracking-widest uppercase text-sm bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20"
             >
               {TEXT.CONTEST.UNREGISTER}
             </button>
           ) : (
             <button
-              onClick={() => onRegister?.(contest.id)}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRegister?.(contest.id); }}
               className={cn(
                 "w-full px-12 py-5 rounded-2xl font-black transition-all active:scale-95 shadow-2xl tracking-widest uppercase text-sm",
                 isActive || isUpcoming
@@ -132,5 +134,6 @@ export function ContestCard({ contest, index, onRegister, onUnregister }: Contes
         </>
       )}
     </div>
+    </Link>
   );
 }
