@@ -38,6 +38,10 @@ func Run() error {
 	defer judgeCleanup()
 	_ = judgeWorker
 
+	// Start contest orchestrator
+	container.Contest.Orchestrator.Start(context.Background())
+	log.Info("Contest orchestrator started")
+
 	// Start EXP reward worker
 	expWorker, expCleanup := startExpRewardWorker(container)
 	defer expCleanup()

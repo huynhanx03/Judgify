@@ -5,6 +5,7 @@ import (
 
 	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/constant"
+	contestDi "github.com/huynhanx03/judgify/internal/contest/di"
 	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
@@ -40,12 +41,14 @@ func SetupDependencies() *Container {
 		problemContainer.DifficultyRepo,
 	)
 	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer)
+	contestContainer := contestDi.NewContestContainer()
 
 	container := &Container{
 		Identity:    identityContainer,
 		Problem:     problemContainer,
 		Cultivation: cultivationContainer,
 		Submission:  submissionContainer,
+		Contest:     contestContainer,
 		Broker:      broker,
 	}
 
