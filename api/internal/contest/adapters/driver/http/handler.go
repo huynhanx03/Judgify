@@ -13,6 +13,7 @@ type ContestHandlerGroup struct {
 	ContestHandler      ContestHandler
 	RegistrationHandler RegistrationHandler
 	StandingHandler     *standingHandler
+	RatingHandler       RatingHandler
 }
 
 // RegisterPublic registers public contest routes.
@@ -23,6 +24,7 @@ func (h *ContestHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 		contests.GET("/:id", handler.Wrap(h.ContestHandler.Get))
 		contests.GET("/:id/standings", handler.Wrap(h.StandingHandler.GetStandings))
 		contests.GET("/:id/standings/stream", h.StandingHandler.StreamStandings)
+		contests.GET("/:id/rating-changes", handler.Wrap(h.RatingHandler.GetContestRatingChanges))
 	}
 }
 

@@ -13,14 +13,16 @@ import (
 // ContestOrchestrator periodically transitions contest statuses based on time.
 type ContestOrchestrator struct {
 	contestRepo ports.ContestRepository
+	ratingSvc   ports.RatingService
 	logger      *zap.Logger
 	stopCh      chan struct{}
 }
 
 // NewContestOrchestrator creates a new ContestOrchestrator.
-func NewContestOrchestrator(contestRepo ports.ContestRepository) *ContestOrchestrator {
+func NewContestOrchestrator(contestRepo ports.ContestRepository, ratingSvc ports.RatingService) *ContestOrchestrator {
 	return &ContestOrchestrator{
 		contestRepo: contestRepo,
+		ratingSvc:   ratingSvc,
 		logger:      global.LoggerZap.Named("contest-orchestrator"),
 		stopCh:      make(chan struct{}),
 	}
@@ -90,6 +92,15 @@ func (o *ContestOrchestrator) transitionStatuses(ctx context.Context) {
 				continue
 			}
 			o.logger.Info("contest ended", zap.Int("contest_id", id))
+
+			// Calculate Elo rating changes asynchronously.
+			if o.ratingSvc != nil {
+				go func() {
+					if err := o.ratingSvc.CalculateRating(context.Background(), id); err != nil {
+						o.logger.Error("failed to calculate rating", zap.Int("contest_id", id), zap.Error(err))
+					}
+				}()
+			}
 		}
 	}
 }

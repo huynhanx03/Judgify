@@ -48,7 +48,7 @@ func SetupDependencies() *Container {
 		problemContainer.DifficultyRepo,
 	)
 	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer, contestJudgeProducer)
-	contestContainer := contestDi.NewContestContainer()
+	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo)
 
 	container := &Container{
 		Identity:    identityContainer,
