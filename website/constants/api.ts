@@ -155,3 +155,15 @@ export const SUBMISSION_API = {
   /** Get current user's submissions for a problem. */
   MY_BY_PROBLEM: (problemId: number) => `/problems/${problemId}/my-submissions`,
 } as const;
+
+/** Contest endpoints (Contest module). */
+export const CONTEST_API = {
+  FIND: "/contests/find",
+  GET: (id: number) => `/contests/${id}`,
+  CREATE: "/contests",
+  UPDATE: (id: number) => `/contests/${id}`,
+  DELETE: (id: number) => `/contests/${id}`,
+  REGISTER: (id: number) => `/contests/${id}/register`,
+  UNREGISTER: (id: number) => `/contests/${id}/unregister`,
+  STANDINGS: (id: number) => `/contests/${id}/standings`,
+} as const;

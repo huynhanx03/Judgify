@@ -192,6 +192,41 @@ export const TEXT = {
     DEFAULT: "Mặc định",
   },
 
+  // Contest
+  CONTEST: {
+    TITLE: "Đại Hội Tỷ Thí",
+    SUBTITLE: "Các giải đấu lập trình định kỳ — thi đấu, leo rank, tranh danh hiệu.",
+    SEARCH_PLACEHOLDER: "Tìm kiếm cuộc thi...",
+    NO_CONTESTS: "Chưa có cuộc thi nào",
+    NO_CONTESTS_DESC: "Hiện chưa có đại hội nào được tổ chức.",
+    REGISTER: "Đăng Ký Tham Gia",
+    UNREGISTER: "Hủy Đăng Ký",
+    REGISTERED: "Đã Đăng Ký",
+    REGISTER_SUCCESS: "Đăng ký thành công!",
+    UNREGISTER_SUCCESS: "Đã hủy đăng ký.",
+    PARTICIPANTS: "Người Tham Gia",
+    START_TIME: "Bắt Đầu",
+    END_TIME: "Kết Thúc",
+    STATUS: "Trạng Thái",
+    STANDINGS: "Bảng Xếp Hạng",
+    RANK: "Hạng",
+    USER: "Đại Năng",
+    SOLVED: "AC",
+    PENALTY: "Phạt",
+    PROBLEMS: "Bài",
+    MAX_PARTICIPANTS: "Giới Hạn",
+    // Status labels
+    STATUS_DRAFT: "Nháp",
+    STATUS_UPCOMING: "Sắp Diễn Ra",
+    STATUS_RUNNING: "Đang Diễn Ra",
+    STATUS_ENDED: "Đã Kết Thúc",
+    // Detail
+    BACK_TO_LIST: "Đại Hội Tỷ Thí",
+    DETAIL_DESCRIPTION: "Mô Tả",
+    DETAIL_INFO: "Thông Tin",
+    DETAIT_STANDINGS: "Bảng Xếp Hạng",
+  },
+
   // Problem Detail
   PROBLEM: {
     BACK_TO_ARENA: "Luyện Tập",
@@ -504,6 +539,34 @@ export const TEXT = {
       COL_DIFFICULTY: "Độ khó",
       COL_STATUS: "Trạng thái",
       COL_LIMITS: "Giới hạn",
+    },
+
+    // Contests
+    CONTESTS: {
+      TITLE: "Đại Hội Tỷ Thí",
+      SUBTITLE: "Quản lý các cuộc thi lập trình",
+      CREATE: "Tạo Đại Hội",
+      SEARCH_PLACEHOLDER: "Tìm theo tiêu đề...",
+      EMPTY: "Chưa có cuộc thi nào",
+      COL_TITLE: "Tiêu đề",
+      COL_STATUS: "Trạng thái",
+      COL_START: "Bắt đầu",
+      COL_END: "Kết thúc",
+      COL_PARTICIPANTS: "Tham gia",
+      DIALOG_CREATE_TITLE: "Tạo Đại Hội Mới",
+      DIALOG_CREATE_DESC: "Tạo cuộc thi lập trình mới.",
+      DIALOG_EDIT_TITLE: "Chỉnh Sửa Đại Hội",
+      DIALOG_EDIT_DESC: "Cập nhật thông tin cuộc thi.",
+      FORM_TITLE: "Tiêu đề",
+      FORM_TITLE_PLACEHOLDER: "VD: Đại Hội Mùa Xuân 2026",
+      FORM_DESCRIPTION: "Mô tả",
+      FORM_DESCRIPTION_PLACEHOLDER: "Mô tả cuộc thi...",
+      FORM_START_TIME: "Thời gian bắt đầu",
+      FORM_END_TIME: "Thời gian kết thúc",
+      FORM_MAX_PARTICIPANTS: "Giới hạn người tham gia",
+      FORM_PROBLEM_IDS: "Danh sách bài tập (IDs)",
+      FORM_PROBLEM_IDS_PLACEHOLDER: "VD: 1, 2, 3",
+      FILTER_STATUS_ALL: "Tất cả trạng thái",
     },
 
     // Shared action toast messages

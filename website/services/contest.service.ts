@@ -1,24 +1,55 @@
-import { MOCK_CONTESTS } from "@/mock/contests";
-import type { Contest } from "@/types/contest";
-
 /**
- * Service for managing Great Arena Assembly (Đại Hội Tỷ Thí).
- * Simulated async behavior for future API integration.
+ * Contest service layer — calls backend contest module endpoints.
  */
-export const contestService = {
-  /**
-   * Fetch all contests.
-   */
-  async getContests(): Promise<Contest[]> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return MOCK_CONTESTS;
-  },
 
-  /**
-   * Fetch a single contest by ID.
-   */
-  async getContestById(id: number): Promise<Contest | undefined> {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    return MOCK_CONTESTS.find((c) => c.id === id);
-  },
-};
+import { apiClient } from "@/lib/api-client";
+import { CONTEST_API } from "@/constants/api";
+import type { Contest, Standing } from "@/types/contest";
+import type { Paginated, QueryOptions } from "@/types/api";
+
+/** Fetches a paginated list of contests. */
+export async function getContests(
+  query?: QueryOptions
+): Promise<Paginated<Contest>> {
+  return apiClient.post<Paginated<Contest>>(CONTEST_API.FIND, query);
+}
+
+/** Fetches a single contest by ID. */
+export async function getContestById(id: number): Promise<Contest> {
+  return apiClient.get<Contest>(CONTEST_API.GET(id));
+}
+
+/** Registers current user for a contest. */
+export async function registerContest(id: number): Promise<void> {
+  return apiClient.post(CONTEST_API.REGISTER(id));
+}
+
+/** Unregisters current user from a contest. */
+export async function unregisterContest(id: number): Promise<void> {
+  return apiClient.post(CONTEST_API.UNREGISTER(id));
+}
+
+/** Fetches contest standings (leaderboard). */
+export async function getContestStandings(id: number): Promise<Standing[]> {
+  return apiClient.get<Standing[]>(CONTEST_API.STANDINGS(id));
+}
+
+/** Creates a new contest (admin). */
+export async function createContest(
+  data: Partial<Contest>
+): Promise<Contest> {
+  return apiClient.post<Contest>(CONTEST_API.CREATE, data);
+}
+
+/** Updates a contest (admin). */
+export async function updateContest(
+  id: number,
+  data: Partial<Contest>
+): Promise<Contest> {
+  return apiClient.put<Contest>(CONTEST_API.UPDATE(id), data);
+}
+
+/** Deletes a contest (admin). */
+export async function deleteContest(id: number): Promise<void> {
+  return apiClient.delete(CONTEST_API.DELETE(id));
+}
