@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/sync/singleflight"
 )
 
 // ── Remote cache helpers (CacheEngine) ──
@@ -40,11 +41,11 @@ func HandleDeleteCache(ctx context.Context, c CacheEngine, key string) error {
 	return c.Delete(ctx, key)
 }
 
-// ── Local cache helpers (LocalCache) ──
+// ── Local cache helpers ──
 // All helpers use cost=0 (Ember doesn't rely on variable costs).
 
-// LocalGet retrieves a typed value from local cache.
-func LocalGet[T any](c LocalCache[string, any], key string) (T, bool) {
+// Get retrieves a typed value from local cache.
+func Get[T any](c LocalCache[string, any], key string) (T, bool) {
 	var zero T
 	val, found := c.Get(key)
 	if !found {
@@ -56,52 +57,49 @@ func LocalGet[T any](c LocalCache[string, any], key string) (T, bool) {
 	return zero, false
 }
 
-// LocalSet stores a value in local cache.
-func LocalSet[T any](c LocalCache[string, any], key string, value T) bool {
-	return c.Set(key, any(value), 0)
+// Set stores a value in local cache without TTL.
+func Set[T any](c LocalCache[string, any], key string, value T) bool {
+	return c.Set(key, any(value))
 }
 
-// LocalSetWithTTL stores a value in local cache with TTL.
-func LocalSetWithTTL[T any](c LocalCache[string, any], key string, value T, ttl time.Duration) bool {
-	return c.SetWithTTL(key, any(value), 0, ttl)
+// SetWithTTL stores a value with TTL.
+func SetWithTTL[T any](c LocalCache[string, any], key string, value T, ttl time.Duration) bool {
+	return c.SetWithTTL(key, any(value), ttl)
 }
 
-// LocalDel removes a key from local cache.
-func LocalDel(c LocalCache[string, any], key string) {
+// Del removes a key from local cache.
+func Del(c LocalCache[string, any], key string) {
 	c.Delete(key)
 }
 
-// LocalUpdate overwrites a key only if it already exists.
-func LocalUpdate[T any](c LocalCache[string, any], key string, value T) {
-	if _, found := LocalGet[T](c, key); found {
-		LocalSet(c, key, value)
-	}
-}
-
-// LocalFetch returns cached value on hit; on miss calls fn, stores result, and returns it.
-func LocalFetch[T any](c LocalCache[string, any], key string, fn func() (T, error)) (T, error) {
-	if val, ok := LocalGet[T](c, key); ok {
-		return val, nil
-	}
-	val, err := fn()
+// Fetch retrieves a cached value. On miss, calls fn, caches the result with TTL, and returns it.
+// Uses singleflight to deduplicate concurrent requests for the same key.
+// Cache hit → return immediately, 0 DB queries.
+// Cache miss → singleflight ensures only 1 goroutine calls fn, others wait.
+func Fetch[T any](
+	c   LocalCache[string, any],
+	sf  *singleflight.Group,
+	key string,
+	ttl time.Duration,
+	fn  func() (T, error),
+) (T, error) {
+	v, err, _ := sf.Do(key, func() (any, error) {
+		// Cache hit
+		if val, ok := Get[T](c, key); ok {
+			return val, nil
+		}
+		// Cache miss → query
+		result, err := fn()
+		if err != nil {
+			var zero T
+			return zero, err
+		}
+		SetWithTTL(c, key, result, ttl)
+		return result, nil
+	})
 	if err != nil {
 		var zero T
 		return zero, err
 	}
-	LocalSet(c, key, val)
-	return val, nil
-}
-
-// LocalFetchWithTTL is like LocalFetch but stores with a TTL.
-func LocalFetchWithTTL[T any](c LocalCache[string, any], key string, ttl time.Duration, fn func() (T, error)) (T, error) {
-	if val, ok := LocalGet[T](c, key); ok {
-		return val, nil
-	}
-	val, err := fn()
-	if err != nil {
-		var zero T
-		return zero, err
-	}
-	LocalSetWithTTL(c, key, val, ttl)
-	return val, nil
+	return v.(T), nil
 }

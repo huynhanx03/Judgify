@@ -2,6 +2,7 @@ package ember
 
 import (
 	"context"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -9,9 +10,6 @@ import (
 	"github.com/huynhanx03/judgify/pkg/common/cache"
 	"github.com/huynhanx03/judgify/pkg/hash"
 )
-
-// Ensure Cache implements the full LocalCache interface.
-var _ cache.LocalCache[string, any] = (*Cache[string, any])(nil)
 
 // atomicStats holds thread-safe cache statistics.
 type atomicStats struct {
@@ -77,20 +75,20 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 }
 
 // Set adds or updates a value without TTL.
-func (c *Cache[K, V]) Set(key K, value V, cost int64) bool {
-	return c.SetWithTTL(key, value, cost, 0)
+func (c *Cache[K, V]) Set(key K, value V) bool {
+	return c.SetWithTTL(key, value, 0)
 }
 
 // SetWithTTL adds or updates a value with the specified TTL.
 // Returns false if EvictPolicy is "noeviction" and cache is full.
-func (c *Cache[K, V]) SetWithTTL(key K, value V, cost int64, ttl time.Duration) bool {
+func (c *Cache[K, V]) SetWithTTL(key K, value V, ttl time.Duration) bool {
 	keyStr := hash.ToString(key)
 
 	if !c.evictIfNeeded() {
 		return false
 	}
 
-	obj := NewObject(TypeString, value, cost, c.now())
+	obj := NewObject(TypeString, value, 1, c.now())
 	c.store.set(keyStr, obj, ttl)
 	return true
 }
@@ -133,7 +131,7 @@ func (c *Cache[K, V]) Stats() cache.Stats {
 
 // SetNX sets the value only if the key does not already exist.
 // Returns true if the key was set.
-func (c *Cache[K, V]) SetNX(key K, value V, cost int64, ttl time.Duration) bool {
+func (c *Cache[K, V]) SetNX(key K, value V, ttl time.Duration) bool {
 	keyStr := hash.ToString(key)
 	if _, ok := c.store.getNoTouch(keyStr); ok {
 		return false
@@ -143,7 +141,7 @@ func (c *Cache[K, V]) SetNX(key K, value V, cost int64, ttl time.Duration) bool 
 		return false
 	}
 
-	obj := NewObject(TypeString, value, cost, c.now())
+	obj := NewObject(TypeString, value, 1, c.now())
 	c.store.set(keyStr, obj, ttl)
 	return true
 }
@@ -151,13 +149,13 @@ func (c *Cache[K, V]) SetNX(key K, value V, cost int64, ttl time.Duration) bool 
 // GetOrSet returns the existing value for key. If key doesn't exist,
 // calls fn to compute the value, stores it, and returns it.
 // The second return value indicates if the key already existed.
-func (c *Cache[K, V]) GetOrSet(key K, fn func() (V, int64, time.Duration)) (V, bool) {
+func (c *Cache[K, V]) GetOrSet(key K, fn func() (V, time.Duration)) (V, bool) {
 	if val, ok := c.Get(key); ok {
 		return val, true
 	}
 
-	value, cost, ttl := fn()
-	c.SetWithTTL(key, value, cost, ttl)
+	value, ttl := fn()
+	c.SetWithTTL(key, value, ttl)
 	return value, false
 }
 
@@ -194,12 +192,155 @@ func (c *Cache[K, V]) MGet(keys ...K) []V {
 }
 
 // MSet sets multiple key-value pairs.
-func (c *Cache[K, V]) MSet(keys []K, values []V, cost int64) {
+func (c *Cache[K, V]) MSet(keys []K, values []V) {
 	n := len(keys)
 	if len(values) < n {
 		n = len(values)
 	}
 	for i := 0; i < n; i++ {
-		c.Set(keys[i], values[i], cost)
+		c.Set(keys[i], values[i])
 	}
+}
+
+// -- Counter Operations --
+
+// Incr increments the number stored at key by one.
+func (c *Cache[K, V]) Incr(key K) (int64, error) {
+	return c.IncrBy(key, 1)
+}
+
+// Decr decrements the number stored at key by one.
+func (c *Cache[K, V]) Decr(key K) (int64, error) {
+	return c.IncrBy(key, -1)
+}
+
+// IncrBy increments the number stored at key by n.
+func (c *Cache[K, V]) IncrBy(key K, n int64) (int64, error) {
+	keyStr := hash.ToString(key)
+
+	obj, ok := c.store.get(keyStr)
+	if !ok {
+		newObj := NewObject(TypeString, n, 1, c.now())
+		c.evictIfNeeded()
+		c.store.set(keyStr, newObj, 0)
+		return n, nil
+	}
+
+	currentVal, err := toInt64(obj.Value)
+	if err != nil {
+		return 0, cache.ErrWrongType
+	}
+
+	newVal := currentVal + n
+	obj.Value = newVal
+	obj.Touch(c.now())
+
+	return newVal, nil
+}
+
+// toInt64 converts an arbitrary value to int64.
+func toInt64(v any) (int64, error) {
+	switch val := v.(type) {
+	case int:
+		return int64(val), nil
+	case int64:
+		return val, nil
+	case int32:
+		return int64(val), nil
+	case float64:
+		return int64(val), nil
+	case string:
+		return strconv.ParseInt(val, 10, 64)
+	default:
+		return 0, cache.ErrWrongType
+	}
+}
+
+// -- TTL & Keys --
+
+// Exists returns true if the key exists and has not expired.
+func (c *Cache[K, V]) Exists(key K) bool {
+	keyStr := hash.ToString(key)
+	_, found := c.store.get(keyStr)
+	return found
+}
+
+// TTL returns the remaining time to live of a key.
+// Returns -1 if key exists but has no TTL, -2 if key doesn't exist.
+func (c *Cache[K, V]) TTL(key K) (time.Duration, error) {
+	keyStr := hash.ToString(key)
+
+	if exp, ok := c.store.expires.Get(keyStr); ok {
+		now := c.store.timer.Now()
+		if now >= exp {
+			c.store.del(keyStr)
+			return -2, cache.ErrKeyNotFound
+		}
+		return time.Duration(exp - now), nil
+	}
+
+	if _, ok := c.store.data.Get(keyStr); ok {
+		return -1, nil
+	}
+
+	return -2, cache.ErrKeyNotFound
+}
+
+// Expire sets a timeout on key.
+func (c *Cache[K, V]) Expire(key K, ttl time.Duration) (bool, error) {
+	keyStr := hash.ToString(key)
+
+	if _, ok := c.store.data.Get(keyStr); !ok {
+		return false, cache.ErrKeyNotFound
+	}
+
+	if ttl <= 0 {
+		c.store.del(keyStr)
+		return true, nil
+	}
+
+	c.store.expires.Set(keyStr, c.store.timer.Now()+int64(ttl))
+	return true, nil
+}
+
+// Persist removes the timeout on key, making it persistent.
+func (c *Cache[K, V]) Persist(key K) (bool, error) {
+	keyStr := hash.ToString(key)
+
+	if _, ok := c.store.data.Get(keyStr); !ok {
+		return false, cache.ErrKeyNotFound
+	}
+
+	if _, ok := c.store.expires.Get(keyStr); !ok {
+		return false, nil
+	}
+
+	c.store.expires.Del(keyStr)
+	return true, nil
+}
+
+// Keys returns all keys in the cache.
+func (c *Cache[K, V]) Keys() []K {
+	var results []K
+	c.store.data.Do(func(key string, _ *entry) {
+		if k, ok := any(key).(K); ok {
+			results = append(results, k)
+		}
+	})
+	return results
+}
+
+// DBSize returns the total number of keys.
+func (c *Cache[K, V]) DBSize() int {
+	return c.store.len()
+}
+
+// Type returns the type name of the value stored at key.
+func (c *Cache[K, V]) Type(key K) (string, error) {
+	keyStr := hash.ToString(key)
+	obj, ok := c.store.get(keyStr)
+	if !ok {
+		return "none", cache.ErrKeyNotFound
+	}
+	return obj.TypeName(), nil
 }

@@ -25,6 +25,7 @@ import type { Problem } from "@/types/problem";
 import type { Contest } from "@/types/contest";
 import type { Tag } from "@/types/tag";
 import type { DifficultyResponse } from "@/types/difficulty";
+import type { TestCaseResponse } from "@/types/submission";
 import type { ElementResponse, LevelResponse, RankResponse, RarityResponse, TraitResponse } from "@/types/cultivation";
 
 export const adminService = {
@@ -91,6 +92,24 @@ export const adminService = {
   },
   async deleteProblem(id: number): Promise<void> {
     await apiClient.delete(PROBLEM_API.DELETE(id));
+  },
+
+  // Test Cases
+  async getTestCases(problemId: number): Promise<TestCaseResponse[]> {
+    return apiClient.get<TestCaseResponse[]>(PROBLEM_API.TEST_CASES(problemId));
+  },
+  async createTestCase(problemId: number, data: {
+    input: string; expected_output: string; is_hidden?: boolean; order_index?: number;
+  }): Promise<TestCaseResponse> {
+    return apiClient.post<TestCaseResponse>(PROBLEM_API.TEST_CASES(problemId), data);
+  },
+  async updateTestCase(id: number, data: {
+    input?: string; expected_output?: string; is_hidden?: boolean; order_index?: number;
+  }): Promise<TestCaseResponse> {
+    return apiClient.put<TestCaseResponse>(PROBLEM_API.TEST_CASE_UPDATE(id), data);
+  },
+  async deleteTestCase(id: number): Promise<void> {
+    await apiClient.delete(PROBLEM_API.TEST_CASE_DELETE(id));
   },
 
   // Tags

@@ -37,6 +37,8 @@ export const PROBLEM_API = {
   UPDATE: (id: number) => `/problems/${id}`,
   DELETE: (id: number) => `/problems/${id}`,
   TEST_CASES: (id: number) => `/problems/${id}/test-cases`,
+  TEST_CASE_UPDATE: (id: number) => `/test-cases/${id}`,
+  TEST_CASE_DELETE: (id: number) => `/test-cases/${id}`,
 } as const;
 
 /** Trait endpoints (Cultivation module). */
@@ -167,4 +169,10 @@ export const CONTEST_API = {
   UNREGISTER: (id: number) => `/contests/${id}/unregister`,
   STANDINGS: (id: number) => `/contests/${id}/standings`,
   RATING_CHANGES: (id: number) => `/contests/${id}/rating-changes`,
+} as const;
+
+/** Ranking endpoints (Cultivation module). */
+export const RANKING_API = {
+  TOP_RATING: (limit?: number) => `/rankings/rating${limit ? `?limit=${limit}` : ""}`,
+  TOP_EXP: (limit?: number) => `/rankings/exp${limit ? `?limit=${limit}` : ""}`,
 } as const;

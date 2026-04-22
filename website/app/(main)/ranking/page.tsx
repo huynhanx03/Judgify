@@ -1,20 +1,15 @@
 "use client";
 
 /**
- * Ranking page — single-page layout with:
- * - Hero section
- * - Rating + Level/EXP side by side (top 10, equal height)
- * - 5 spiritual root columns (Kim Mộc Thủy Hỏa Thổ)
+ * Ranking page — rating + level/EXP side by side (top 10).
  */
 
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { rankingService } from "@/services/ranking.service";
+import { getTopByRating, getTopByExp } from "@/services/ranking.service";
 import type { Cultivator } from "@/types/ranking";
 import { RankingHeroSection } from "@/modules/ranking/ranking-hero-section";
 import { RankingTopList } from "@/modules/ranking/ranking-top-list";
-// TODO: Enable when spiritual root ranking is ready
-// import { RankingSpiritualRootGrid } from "@/modules/ranking/ranking-spiritual-root-grid";
 
 interface RankingData {
   rating: Cultivator[];
@@ -26,22 +21,19 @@ export default function RankingPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    async function fetchAll() {
       try {
-        const [leaderboard, level] = await Promise.all([
-          rankingService.getLeaderboard(),
-          rankingService.getLevelRanking(),
+        const [rating, level] = await Promise.all([
+          getTopByRating(10),
+          getTopByExp(10),
         ]);
-        setData({
-          rating: [...leaderboard.topThree, ...leaderboard.others].slice(0, 10),
-          level: level.slice(0, 10),
-        });
+        setData({ rating, level });
       } catch (error) {
         console.error("Failed to fetch ranking data:", error);
       } finally {
         setIsLoading(false);
       }
-    };
+    }
     fetchAll();
   }, []);
 
@@ -51,7 +43,6 @@ export default function RankingPage() {
     <div className="space-y-12 pb-24">
       <RankingHeroSection />
 
-      {/* Rating + Level side by side, equal height */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto px-4 items-stretch">
         <RankingTopList
           title="Thiên Đạo Bảng"
@@ -70,9 +61,6 @@ export default function RankingPage() {
           mode="level"
         />
       </div>
-
-      {/* TODO: Enable when spiritual root ranking is ready */}
-      {/* <RankingSpiritualRootGrid data={data.roots} /> */}
     </div>
   );
 }

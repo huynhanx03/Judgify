@@ -18,7 +18,7 @@ func GetAttributeDefinition(
 	localCache cache.LocalCache[string, any],
 ) (*entity.AttributeDefinition, error) {
 	cacheKey := constant.CacheKeyPrefixAttrKey + key
-	if d, found := cache.LocalGet[*entity.AttributeDefinition](localCache, cacheKey); found {
+	if d, found := cache.Get[*entity.AttributeDefinition](localCache, cacheKey); found {
 		return d, nil
 	}
 
@@ -27,7 +27,7 @@ func GetAttributeDefinition(
 		return nil, err
 	}
 
-	cache.LocalSet(localCache, cacheKey, def)
+	cache.Set(localCache, cacheKey, def)
 	return def, nil
 }
 

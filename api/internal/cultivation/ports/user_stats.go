@@ -20,6 +20,7 @@ type UserStatsRepository interface {
 	Exists(ctx context.Context, id int) (bool, error)
 	AddExp(ctx context.Context, userID int, exp int64) error
 	IncrementSubmission(ctx context.Context, userID int, accepted bool) error
+	GetTopSortedWithUser(ctx context.Context, sortField string, limit int) ([]*entity.UserStatsWithUser, error)
 }
 
 // UserDifficultyStatsRepository defines the difficulty stats data access interface.

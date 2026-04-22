@@ -43,7 +43,7 @@ func NewPermissionChecker(
 // Returns map[resourceID]scopeMask. Results are cached locally.
 func (pc *PermissionChecker) getRolePermissions(ctx context.Context, roleID int) (map[int]int, error) {
 	cacheKey := constant.CacheKeyPrefixRolePermissions + strconv.Itoa(roleID)
-	if perms, found := cache.LocalGet[map[int]int](pc.cache, cacheKey); found {
+	if perms, found := cache.Get[map[int]int](pc.cache, cacheKey); found {
 		return perms, nil
 	}
 
@@ -72,7 +72,7 @@ func (pc *PermissionChecker) getRolePermissions(ctx context.Context, roleID int)
 		perms[p.ResourceID] |= p.Scopes
 	}
 
-	cache.LocalSet(pc.cache, cacheKey, perms)
+	cache.Set(pc.cache, cacheKey, perms)
 	return perms, nil
 }
 
