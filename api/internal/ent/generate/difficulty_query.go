@@ -473,6 +473,7 @@ func (_q *DifficultyQuery) loadProblems(ctx context.Context, query *ProblemQuery
 			init(nodes[i])
 		}
 	}
+	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(problem.FieldDifficultyID)
 	}

@@ -44,10 +44,14 @@ const (
 	FieldMemoryKB = "memory_kb"
 	// FieldErrorMessage holds the string denoting the error_message field in the database.
 	FieldErrorMessage = "error_message"
+	// FieldContestID holds the string denoting the contest_id field in the database.
+	FieldContestID = "contest_id"
 	// EdgeProblem holds the string denoting the problem edge name in mutations.
 	EdgeProblem = "problem"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeContest holds the string denoting the contest edge name in mutations.
+	EdgeContest = "contest"
 	// Table holds the table name of the submission in the database.
 	Table = "submissions"
 	// ProblemTable is the table that holds the problem relation/edge.
@@ -64,6 +68,13 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// ContestTable is the table that holds the contest relation/edge.
+	ContestTable = "submissions"
+	// ContestInverseTable is the table name for the Contest entity.
+	// It exists in this package in order to avoid circular dependency with the "contest" package.
+	ContestInverseTable = "contests"
+	// ContestColumn is the table column denoting the contest relation/edge.
+	ContestColumn = "contest_id"
 )
 
 // Columns holds all SQL columns for submission fields.
@@ -83,6 +94,7 @@ var Columns = []string{
 	FieldTimeMs,
 	FieldMemoryKB,
 	FieldErrorMessage,
+	FieldContestID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -252,6 +264,11 @@ func ByErrorMessage(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldErrorMessage, opts...).ToFunc()
 }
 
+// ByContestID orders the results by the contest_id field.
+func ByContestID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContestID, opts...).ToFunc()
+}
+
 // ByProblemField orders the results by problem field.
 func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -263,6 +280,13 @@ func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
 func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByContestField orders the results by contest field.
+func ByContestField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newProblemStep() *sqlgraph.Step {
@@ -277,5 +301,12 @@ func newUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newContestStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ContestTable, ContestColumn),
 	)
 }

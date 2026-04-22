@@ -57,6 +57,7 @@ func (Submission) Fields() []ent.Field {
 		field.Text("error_message").
 			Optional().
 			Nillable(),
+		field.Int("contest_id").Optional().Nillable(),
 	}
 }
 
@@ -66,6 +67,7 @@ func (Submission) Indexes() []ent.Index {
 		index.Fields("user_id", "problem_id"),
 		index.Fields("user_id"),
 		index.Fields("problem_id"),
+		index.Fields("contest_id"),
 	}
 }
 
@@ -74,5 +76,6 @@ func (Submission) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("problem", Problem.Type).Ref("submissions").Field("problem_id").Unique().Required(),
 		edge.From("user", User.Type).Ref("submissions").Field("user_id").Unique().Required(),
+		edge.From("contest", Contest.Type).Ref("submissions").Field("contest_id").Unique(),
 	}
 }

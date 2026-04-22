@@ -14,6 +14,7 @@ import {
   Trophy,
   BarChart3,
   Gem,
+  Swords,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +42,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
       { label: "Bài Tập", href: "/admin/problems", icon: FileCode2 },
       { label: "Tags", href: "/admin/tags", icon: Tags },
       { label: "Độ Khó", href: "/admin/difficulties", icon: BarChart3 },
+      { label: "Đại Hội", href: "/admin/contests", icon: Swords },
     ],
   },
   {

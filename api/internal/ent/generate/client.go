@@ -16,6 +16,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
@@ -25,6 +28,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
@@ -50,6 +54,12 @@ type Client struct {
 	Schema *migrate.Schema
 	// AttributeDefinition is the client for interacting with the AttributeDefinition builders.
 	AttributeDefinition *AttributeDefinitionClient
+	// Contest is the client for interacting with the Contest builders.
+	Contest *ContestClient
+	// ContestRegistration is the client for interacting with the ContestRegistration builders.
+	ContestRegistration *ContestRegistrationClient
+	// ContestStanding is the client for interacting with the ContestStanding builders.
+	ContestStanding *ContestStandingClient
 	// Credential is the client for interacting with the Credential builders.
 	Credential *CredentialClient
 	// Difficulty is the client for interacting with the Difficulty builders.
@@ -68,6 +78,8 @@ type Client struct {
 	Rank *RankClient
 	// Rarity is the client for interacting with the Rarity builders.
 	Rarity *RarityClient
+	// RatingHistory is the client for interacting with the RatingHistory builders.
+	RatingHistory *RatingHistoryClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
@@ -108,6 +120,9 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AttributeDefinition = NewAttributeDefinitionClient(c.config)
+	c.Contest = NewContestClient(c.config)
+	c.ContestRegistration = NewContestRegistrationClient(c.config)
+	c.ContestStanding = NewContestStandingClient(c.config)
 	c.Credential = NewCredentialClient(c.config)
 	c.Difficulty = NewDifficultyClient(c.config)
 	c.Element = NewElementClient(c.config)
@@ -117,6 +132,7 @@ func (c *Client) init() {
 	c.Problem = NewProblemClient(c.config)
 	c.Rank = NewRankClient(c.config)
 	c.Rarity = NewRarityClient(c.config)
+	c.RatingHistory = NewRatingHistoryClient(c.config)
 	c.Resource = NewResourceClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.Submission = NewSubmissionClient(c.config)
@@ -224,6 +240,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                 ctx,
 		config:              cfg,
 		AttributeDefinition: NewAttributeDefinitionClient(cfg),
+		Contest:             NewContestClient(cfg),
+		ContestRegistration: NewContestRegistrationClient(cfg),
+		ContestStanding:     NewContestStandingClient(cfg),
 		Credential:          NewCredentialClient(cfg),
 		Difficulty:          NewDifficultyClient(cfg),
 		Element:             NewElementClient(cfg),
@@ -233,6 +252,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Problem:             NewProblemClient(cfg),
 		Rank:                NewRankClient(cfg),
 		Rarity:              NewRarityClient(cfg),
+		RatingHistory:       NewRatingHistoryClient(cfg),
 		Resource:            NewResourceClient(cfg),
 		Role:                NewRoleClient(cfg),
 		Submission:          NewSubmissionClient(cfg),
@@ -267,6 +287,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                 ctx,
 		config:              cfg,
 		AttributeDefinition: NewAttributeDefinitionClient(cfg),
+		Contest:             NewContestClient(cfg),
+		ContestRegistration: NewContestRegistrationClient(cfg),
+		ContestStanding:     NewContestStandingClient(cfg),
 		Credential:          NewCredentialClient(cfg),
 		Difficulty:          NewDifficultyClient(cfg),
 		Element:             NewElementClient(cfg),
@@ -276,6 +299,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Problem:             NewProblemClient(cfg),
 		Rank:                NewRankClient(cfg),
 		Rarity:              NewRarityClient(cfg),
+		RatingHistory:       NewRatingHistoryClient(cfg),
 		Resource:            NewResourceClient(cfg),
 		Role:                NewRoleClient(cfg),
 		Submission:          NewSubmissionClient(cfg),
@@ -319,11 +343,12 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
-		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
-		c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait, c.User,
-		c.UserAttributeValue, c.UserDifficultyStats, c.UserElementExp,
-		c.UserSolvedProblem, c.UserStats, c.UserTagStats, c.UserTrait,
+		c.AttributeDefinition, c.Contest, c.ContestRegistration, c.ContestStanding,
+		c.Credential, c.Difficulty, c.Element, c.FederatedIdentity, c.Level,
+		c.Permission, c.Problem, c.Rank, c.Rarity, c.RatingHistory, c.Resource, c.Role,
+		c.Submission, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
+		c.UserDifficultyStats, c.UserElementExp, c.UserSolvedProblem, c.UserStats,
+		c.UserTagStats, c.UserTrait,
 	} {
 		n.Use(hooks...)
 	}
@@ -333,11 +358,12 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AttributeDefinition, c.Credential, c.Difficulty, c.Element,
-		c.FederatedIdentity, c.Level, c.Permission, c.Problem, c.Rank, c.Rarity,
-		c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait, c.User,
-		c.UserAttributeValue, c.UserDifficultyStats, c.UserElementExp,
-		c.UserSolvedProblem, c.UserStats, c.UserTagStats, c.UserTrait,
+		c.AttributeDefinition, c.Contest, c.ContestRegistration, c.ContestStanding,
+		c.Credential, c.Difficulty, c.Element, c.FederatedIdentity, c.Level,
+		c.Permission, c.Problem, c.Rank, c.Rarity, c.RatingHistory, c.Resource, c.Role,
+		c.Submission, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
+		c.UserDifficultyStats, c.UserElementExp, c.UserSolvedProblem, c.UserStats,
+		c.UserTagStats, c.UserTrait,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -348,6 +374,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AttributeDefinitionMutation:
 		return c.AttributeDefinition.mutate(ctx, m)
+	case *ContestMutation:
+		return c.Contest.mutate(ctx, m)
+	case *ContestRegistrationMutation:
+		return c.ContestRegistration.mutate(ctx, m)
+	case *ContestStandingMutation:
+		return c.ContestStanding.mutate(ctx, m)
 	case *CredentialMutation:
 		return c.Credential.mutate(ctx, m)
 	case *DifficultyMutation:
@@ -366,6 +398,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Rank.mutate(ctx, m)
 	case *RarityMutation:
 		return c.Rarity.mutate(ctx, m)
+	case *RatingHistoryMutation:
+		return c.RatingHistory.mutate(ctx, m)
 	case *ResourceMutation:
 		return c.Resource.mutate(ctx, m)
 	case *RoleMutation:
@@ -547,6 +581,567 @@ func (c *AttributeDefinitionClient) mutate(ctx context.Context, m *AttributeDefi
 		return (&AttributeDefinitionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("generate: unknown AttributeDefinition mutation op: %q", m.Op())
+	}
+}
+
+// ContestClient is a client for the Contest schema.
+type ContestClient struct {
+	config
+}
+
+// NewContestClient returns a client for the Contest from the given config.
+func NewContestClient(c config) *ContestClient {
+	return &ContestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `contest.Hooks(f(g(h())))`.
+func (c *ContestClient) Use(hooks ...Hook) {
+	c.hooks.Contest = append(c.hooks.Contest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `contest.Intercept(f(g(h())))`.
+func (c *ContestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Contest = append(c.inters.Contest, interceptors...)
+}
+
+// Create returns a builder for creating a Contest entity.
+func (c *ContestClient) Create() *ContestCreate {
+	mutation := newContestMutation(c.config, OpCreate)
+	return &ContestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Contest entities.
+func (c *ContestClient) CreateBulk(builders ...*ContestCreate) *ContestCreateBulk {
+	return &ContestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ContestClient) MapCreateBulk(slice any, setFunc func(*ContestCreate, int)) *ContestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ContestCreateBulk{err: fmt.Errorf("calling to ContestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ContestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ContestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Contest.
+func (c *ContestClient) Update() *ContestUpdate {
+	mutation := newContestMutation(c.config, OpUpdate)
+	return &ContestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ContestClient) UpdateOne(_m *Contest) *ContestUpdateOne {
+	mutation := newContestMutation(c.config, OpUpdateOne, withContest(_m))
+	return &ContestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ContestClient) UpdateOneID(id int) *ContestUpdateOne {
+	mutation := newContestMutation(c.config, OpUpdateOne, withContestID(id))
+	return &ContestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Contest.
+func (c *ContestClient) Delete() *ContestDelete {
+	mutation := newContestMutation(c.config, OpDelete)
+	return &ContestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ContestClient) DeleteOne(_m *Contest) *ContestDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ContestClient) DeleteOneID(id int) *ContestDeleteOne {
+	builder := c.Delete().Where(contest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ContestDeleteOne{builder}
+}
+
+// Query returns a query builder for Contest.
+func (c *ContestClient) Query() *ContestQuery {
+	return &ContestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeContest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Contest entity by its id.
+func (c *ContestClient) Get(ctx context.Context, id int) (*Contest, error) {
+	return c.Query().Where(contest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ContestClient) GetX(ctx context.Context, id int) *Contest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAuthor queries the author edge of a Contest.
+func (c *ContestClient) QueryAuthor(_m *Contest) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, contest.AuthorTable, contest.AuthorColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblems queries the problems edge of a Contest.
+func (c *ContestClient) QueryProblems(_m *Contest) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemsTable, contest.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRegistrations queries the registrations edge of a Contest.
+func (c *ContestClient) QueryRegistrations(_m *Contest) *ContestRegistrationQuery {
+	query := (&ContestRegistrationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(contestregistration.Table, contestregistration.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.RegistrationsTable, contest.RegistrationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStandings queries the standings edge of a Contest.
+func (c *ContestClient) QueryStandings(_m *Contest) *ContestStandingQuery {
+	query := (&ContestStandingClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(conteststanding.Table, conteststanding.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.StandingsTable, contest.StandingsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmissions queries the submissions edge of a Contest.
+func (c *ContestClient) QuerySubmissions(_m *Contest) *SubmissionQuery {
+	query := (&SubmissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.SubmissionsTable, contest.SubmissionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRatingHistories queries the rating_histories edge of a Contest.
+func (c *ContestClient) QueryRatingHistories(_m *Contest) *RatingHistoryQuery {
+	query := (&RatingHistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(ratinghistory.Table, ratinghistory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.RatingHistoriesTable, contest.RatingHistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ContestClient) Hooks() []Hook {
+	hooks := c.hooks.Contest
+	return append(hooks[:len(hooks):len(hooks)], contest.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ContestClient) Interceptors() []Interceptor {
+	inters := c.inters.Contest
+	return append(inters[:len(inters):len(inters)], contest.Interceptors[:]...)
+}
+
+func (c *ContestClient) mutate(ctx context.Context, m *ContestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ContestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ContestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ContestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ContestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown Contest mutation op: %q", m.Op())
+	}
+}
+
+// ContestRegistrationClient is a client for the ContestRegistration schema.
+type ContestRegistrationClient struct {
+	config
+}
+
+// NewContestRegistrationClient returns a client for the ContestRegistration from the given config.
+func NewContestRegistrationClient(c config) *ContestRegistrationClient {
+	return &ContestRegistrationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `contestregistration.Hooks(f(g(h())))`.
+func (c *ContestRegistrationClient) Use(hooks ...Hook) {
+	c.hooks.ContestRegistration = append(c.hooks.ContestRegistration, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `contestregistration.Intercept(f(g(h())))`.
+func (c *ContestRegistrationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ContestRegistration = append(c.inters.ContestRegistration, interceptors...)
+}
+
+// Create returns a builder for creating a ContestRegistration entity.
+func (c *ContestRegistrationClient) Create() *ContestRegistrationCreate {
+	mutation := newContestRegistrationMutation(c.config, OpCreate)
+	return &ContestRegistrationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ContestRegistration entities.
+func (c *ContestRegistrationClient) CreateBulk(builders ...*ContestRegistrationCreate) *ContestRegistrationCreateBulk {
+	return &ContestRegistrationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ContestRegistrationClient) MapCreateBulk(slice any, setFunc func(*ContestRegistrationCreate, int)) *ContestRegistrationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ContestRegistrationCreateBulk{err: fmt.Errorf("calling to ContestRegistrationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ContestRegistrationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ContestRegistrationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ContestRegistration.
+func (c *ContestRegistrationClient) Update() *ContestRegistrationUpdate {
+	mutation := newContestRegistrationMutation(c.config, OpUpdate)
+	return &ContestRegistrationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ContestRegistrationClient) UpdateOne(_m *ContestRegistration) *ContestRegistrationUpdateOne {
+	mutation := newContestRegistrationMutation(c.config, OpUpdateOne, withContestRegistration(_m))
+	return &ContestRegistrationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ContestRegistrationClient) UpdateOneID(id int) *ContestRegistrationUpdateOne {
+	mutation := newContestRegistrationMutation(c.config, OpUpdateOne, withContestRegistrationID(id))
+	return &ContestRegistrationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ContestRegistration.
+func (c *ContestRegistrationClient) Delete() *ContestRegistrationDelete {
+	mutation := newContestRegistrationMutation(c.config, OpDelete)
+	return &ContestRegistrationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ContestRegistrationClient) DeleteOne(_m *ContestRegistration) *ContestRegistrationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ContestRegistrationClient) DeleteOneID(id int) *ContestRegistrationDeleteOne {
+	builder := c.Delete().Where(contestregistration.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ContestRegistrationDeleteOne{builder}
+}
+
+// Query returns a query builder for ContestRegistration.
+func (c *ContestRegistrationClient) Query() *ContestRegistrationQuery {
+	return &ContestRegistrationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeContestRegistration},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ContestRegistration entity by its id.
+func (c *ContestRegistrationClient) Get(ctx context.Context, id int) (*ContestRegistration, error) {
+	return c.Query().Where(contestregistration.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ContestRegistrationClient) GetX(ctx context.Context, id int) *ContestRegistration {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryContest queries the contest edge of a ContestRegistration.
+func (c *ContestRegistrationClient) QueryContest(_m *ContestRegistration) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contestregistration.Table, contestregistration.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestregistration.ContestTable, contestregistration.ContestColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a ContestRegistration.
+func (c *ContestRegistrationClient) QueryUser(_m *ContestRegistration) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contestregistration.Table, contestregistration.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestregistration.UserTable, contestregistration.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ContestRegistrationClient) Hooks() []Hook {
+	return c.hooks.ContestRegistration
+}
+
+// Interceptors returns the client interceptors.
+func (c *ContestRegistrationClient) Interceptors() []Interceptor {
+	return c.inters.ContestRegistration
+}
+
+func (c *ContestRegistrationClient) mutate(ctx context.Context, m *ContestRegistrationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ContestRegistrationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ContestRegistrationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ContestRegistrationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ContestRegistrationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown ContestRegistration mutation op: %q", m.Op())
+	}
+}
+
+// ContestStandingClient is a client for the ContestStanding schema.
+type ContestStandingClient struct {
+	config
+}
+
+// NewContestStandingClient returns a client for the ContestStanding from the given config.
+func NewContestStandingClient(c config) *ContestStandingClient {
+	return &ContestStandingClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `conteststanding.Hooks(f(g(h())))`.
+func (c *ContestStandingClient) Use(hooks ...Hook) {
+	c.hooks.ContestStanding = append(c.hooks.ContestStanding, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `conteststanding.Intercept(f(g(h())))`.
+func (c *ContestStandingClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ContestStanding = append(c.inters.ContestStanding, interceptors...)
+}
+
+// Create returns a builder for creating a ContestStanding entity.
+func (c *ContestStandingClient) Create() *ContestStandingCreate {
+	mutation := newContestStandingMutation(c.config, OpCreate)
+	return &ContestStandingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ContestStanding entities.
+func (c *ContestStandingClient) CreateBulk(builders ...*ContestStandingCreate) *ContestStandingCreateBulk {
+	return &ContestStandingCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ContestStandingClient) MapCreateBulk(slice any, setFunc func(*ContestStandingCreate, int)) *ContestStandingCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ContestStandingCreateBulk{err: fmt.Errorf("calling to ContestStandingClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ContestStandingCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ContestStandingCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ContestStanding.
+func (c *ContestStandingClient) Update() *ContestStandingUpdate {
+	mutation := newContestStandingMutation(c.config, OpUpdate)
+	return &ContestStandingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ContestStandingClient) UpdateOne(_m *ContestStanding) *ContestStandingUpdateOne {
+	mutation := newContestStandingMutation(c.config, OpUpdateOne, withContestStanding(_m))
+	return &ContestStandingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ContestStandingClient) UpdateOneID(id int) *ContestStandingUpdateOne {
+	mutation := newContestStandingMutation(c.config, OpUpdateOne, withContestStandingID(id))
+	return &ContestStandingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ContestStanding.
+func (c *ContestStandingClient) Delete() *ContestStandingDelete {
+	mutation := newContestStandingMutation(c.config, OpDelete)
+	return &ContestStandingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ContestStandingClient) DeleteOne(_m *ContestStanding) *ContestStandingDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ContestStandingClient) DeleteOneID(id int) *ContestStandingDeleteOne {
+	builder := c.Delete().Where(conteststanding.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ContestStandingDeleteOne{builder}
+}
+
+// Query returns a query builder for ContestStanding.
+func (c *ContestStandingClient) Query() *ContestStandingQuery {
+	return &ContestStandingQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeContestStanding},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ContestStanding entity by its id.
+func (c *ContestStandingClient) Get(ctx context.Context, id int) (*ContestStanding, error) {
+	return c.Query().Where(conteststanding.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ContestStandingClient) GetX(ctx context.Context, id int) *ContestStanding {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryContest queries the contest edge of a ContestStanding.
+func (c *ContestStandingClient) QueryContest(_m *ContestStanding) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(conteststanding.Table, conteststanding.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, conteststanding.ContestTable, conteststanding.ContestColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a ContestStanding.
+func (c *ContestStandingClient) QueryUser(_m *ContestStanding) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(conteststanding.Table, conteststanding.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, conteststanding.UserTable, conteststanding.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ContestStandingClient) Hooks() []Hook {
+	return c.hooks.ContestStanding
+}
+
+// Interceptors returns the client interceptors.
+func (c *ContestStandingClient) Interceptors() []Interceptor {
+	return c.inters.ContestStanding
+}
+
+func (c *ContestStandingClient) mutate(ctx context.Context, m *ContestStandingMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ContestStandingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ContestStandingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ContestStandingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ContestStandingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown ContestStanding mutation op: %q", m.Op())
 	}
 }
 
@@ -2005,6 +2600,171 @@ func (c *RarityClient) mutate(ctx context.Context, m *RarityMutation) (Value, er
 	}
 }
 
+// RatingHistoryClient is a client for the RatingHistory schema.
+type RatingHistoryClient struct {
+	config
+}
+
+// NewRatingHistoryClient returns a client for the RatingHistory from the given config.
+func NewRatingHistoryClient(c config) *RatingHistoryClient {
+	return &RatingHistoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `ratinghistory.Hooks(f(g(h())))`.
+func (c *RatingHistoryClient) Use(hooks ...Hook) {
+	c.hooks.RatingHistory = append(c.hooks.RatingHistory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `ratinghistory.Intercept(f(g(h())))`.
+func (c *RatingHistoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RatingHistory = append(c.inters.RatingHistory, interceptors...)
+}
+
+// Create returns a builder for creating a RatingHistory entity.
+func (c *RatingHistoryClient) Create() *RatingHistoryCreate {
+	mutation := newRatingHistoryMutation(c.config, OpCreate)
+	return &RatingHistoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RatingHistory entities.
+func (c *RatingHistoryClient) CreateBulk(builders ...*RatingHistoryCreate) *RatingHistoryCreateBulk {
+	return &RatingHistoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RatingHistoryClient) MapCreateBulk(slice any, setFunc func(*RatingHistoryCreate, int)) *RatingHistoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RatingHistoryCreateBulk{err: fmt.Errorf("calling to RatingHistoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RatingHistoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RatingHistoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RatingHistory.
+func (c *RatingHistoryClient) Update() *RatingHistoryUpdate {
+	mutation := newRatingHistoryMutation(c.config, OpUpdate)
+	return &RatingHistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RatingHistoryClient) UpdateOne(_m *RatingHistory) *RatingHistoryUpdateOne {
+	mutation := newRatingHistoryMutation(c.config, OpUpdateOne, withRatingHistory(_m))
+	return &RatingHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RatingHistoryClient) UpdateOneID(id int) *RatingHistoryUpdateOne {
+	mutation := newRatingHistoryMutation(c.config, OpUpdateOne, withRatingHistoryID(id))
+	return &RatingHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RatingHistory.
+func (c *RatingHistoryClient) Delete() *RatingHistoryDelete {
+	mutation := newRatingHistoryMutation(c.config, OpDelete)
+	return &RatingHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RatingHistoryClient) DeleteOne(_m *RatingHistory) *RatingHistoryDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RatingHistoryClient) DeleteOneID(id int) *RatingHistoryDeleteOne {
+	builder := c.Delete().Where(ratinghistory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RatingHistoryDeleteOne{builder}
+}
+
+// Query returns a query builder for RatingHistory.
+func (c *RatingHistoryClient) Query() *RatingHistoryQuery {
+	return &RatingHistoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRatingHistory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RatingHistory entity by its id.
+func (c *RatingHistoryClient) Get(ctx context.Context, id int) (*RatingHistory, error) {
+	return c.Query().Where(ratinghistory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RatingHistoryClient) GetX(ctx context.Context, id int) *RatingHistory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a RatingHistory.
+func (c *RatingHistoryClient) QueryUser(_m *RatingHistory) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ratinghistory.Table, ratinghistory.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ratinghistory.UserTable, ratinghistory.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContest queries the contest edge of a RatingHistory.
+func (c *RatingHistoryClient) QueryContest(_m *RatingHistory) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ratinghistory.Table, ratinghistory.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ratinghistory.ContestTable, ratinghistory.ContestColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RatingHistoryClient) Hooks() []Hook {
+	return c.hooks.RatingHistory
+}
+
+// Interceptors returns the client interceptors.
+func (c *RatingHistoryClient) Interceptors() []Interceptor {
+	return c.inters.RatingHistory
+}
+
+func (c *RatingHistoryClient) mutate(ctx context.Context, m *RatingHistoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RatingHistoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RatingHistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RatingHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RatingHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown RatingHistory mutation op: %q", m.Op())
+	}
+}
+
 // ResourceClient is a client for the Resource schema.
 type ResourceClient struct {
 	config
@@ -2456,6 +3216,22 @@ func (c *SubmissionClient) QueryUser(_m *Submission) *UserQuery {
 			sqlgraph.From(submission.Table, submission.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, submission.UserTable, submission.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContest queries the contest edge of a Submission.
+func (c *SubmissionClient) QueryContest(_m *Submission) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.ContestTable, submission.ContestColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3284,6 +4060,70 @@ func (c *UserClient) QueryTagStats(_m *User) *UserTagStatsQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(usertagstats.Table, usertagstats.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.TagStatsTable, user.TagStatsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContests queries the contests edge of a User.
+func (c *UserClient) QueryContests(_m *User) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestsTable, user.ContestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContestRegistrations queries the contest_registrations edge of a User.
+func (c *UserClient) QueryContestRegistrations(_m *User) *ContestRegistrationQuery {
+	query := (&ContestRegistrationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(contestregistration.Table, contestregistration.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestRegistrationsTable, user.ContestRegistrationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContestStandings queries the contest_standings edge of a User.
+func (c *UserClient) QueryContestStandings(_m *User) *ContestStandingQuery {
+	query := (&ContestStandingClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(conteststanding.Table, conteststanding.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestStandingsTable, user.ContestStandingsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRatingHistories queries the rating_histories edge of a User.
+func (c *UserClient) QueryRatingHistories(_m *User) *RatingHistoryQuery {
+	query := (&RatingHistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(ratinghistory.Table, ratinghistory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.RatingHistoriesTable, user.RatingHistoriesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4468,16 +5308,18 @@ func (c *UserTraitClient) mutate(ctx context.Context, m *UserTraitMutation) (Val
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
-		Permission, Problem, Rank, Rarity, Resource, Role, Submission, Tag, TestCase,
-		Trait, User, UserAttributeValue, UserDifficultyStats, UserElementExp,
-		UserSolvedProblem, UserStats, UserTagStats, UserTrait []ent.Hook
+		AttributeDefinition, Contest, ContestRegistration, ContestStanding, Credential,
+		Difficulty, Element, FederatedIdentity, Level, Permission, Problem, Rank,
+		Rarity, RatingHistory, Resource, Role, Submission, Tag, TestCase, Trait, User,
+		UserAttributeValue, UserDifficultyStats, UserElementExp, UserSolvedProblem,
+		UserStats, UserTagStats, UserTrait []ent.Hook
 	}
 	inters struct {
-		AttributeDefinition, Credential, Difficulty, Element, FederatedIdentity, Level,
-		Permission, Problem, Rank, Rarity, Resource, Role, Submission, Tag, TestCase,
-		Trait, User, UserAttributeValue, UserDifficultyStats, UserElementExp,
-		UserSolvedProblem, UserStats, UserTagStats, UserTrait []ent.Interceptor
+		AttributeDefinition, Contest, ContestRegistration, ContestStanding, Credential,
+		Difficulty, Element, FederatedIdentity, Level, Permission, Problem, Rank,
+		Rarity, RatingHistory, Resource, Role, Submission, Tag, TestCase, Trait, User,
+		UserAttributeValue, UserDifficultyStats, UserElementExp, UserSolvedProblem,
+		UserStats, UserTagStats, UserTrait []ent.Interceptor
 	}
 )
 

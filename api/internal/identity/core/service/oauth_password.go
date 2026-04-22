@@ -236,7 +236,7 @@ func (s *authenticationService) ForgotPassword(ctx context.Context, req *dto.For
 	successResp := &dto.ForgotPasswordResponse{Message: constant.MsgForgotPasswordMsg}
 
 	rateLimitKey := constant.CacheKeyAuthRateLimitForgot + req.Username
-	if _, found := cache.LocalGet[string](global.Ember, rateLimitKey); found {
+	if _, found := cache.Get[string](global.Ember, rateLimitKey); found {
 		return nil, apperr.New(response.CodeBadRequest, constant.MsgRateLimitForgot, nil)
 	}
 
@@ -256,7 +256,7 @@ func (s *authenticationService) ForgotPassword(ctx context.Context, req *dto.For
 		return successResp, nil
 	}
 
-	cache.LocalSetWithTTL(global.Ember, rateLimitKey, "1", constant.ForgotRateLimitTTL)
+	cache.SetWithTTL(global.Ember, rateLimitKey, "1", constant.ForgotRateLimitTTL)
 	// Notification event publication removed
 	return successResp, nil
 }
@@ -285,7 +285,7 @@ func (s *authenticationService) ResetPassword(ctx context.Context, req *dto.Rese
 	}
 
 	blacklistKey := constant.CacheKeyAuthBlacklistJTI + claims.ID
-	if _, found := cache.LocalGet[string](global.Ember, blacklistKey); found {
+	if _, found := cache.Get[string](global.Ember, blacklistKey); found {
 		return nil, apperr.New(response.CodeBadRequest, constant.MsgTokenAlreadyUsed, nil)
 	}
 
@@ -303,7 +303,7 @@ func (s *authenticationService) ResetPassword(ctx context.Context, req *dto.Rese
 		if err := s.credentialRepo.Update(ctx, cred); err != nil {
 			return err
 		}
-		cache.LocalSetWithTTL(global.Ember, blacklistKey, "1", constant.ResetTokenTTL)
+		cache.SetWithTTL(global.Ember, blacklistKey, "1", constant.ResetTokenTTL)
 		return nil
 	})
 

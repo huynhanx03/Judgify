@@ -8,6 +8,7 @@ import (
 	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/di"
 	"github.com/huynhanx03/judgify/internal/constant"
+	contestConstant "github.com/huynhanx03/judgify/internal/contest/constant"
 	"github.com/huynhanx03/judgify/internal/judge"
 	"github.com/huynhanx03/judgify/internal/judge/executor"
 )
@@ -37,6 +38,10 @@ func Run() error {
 	judgeWorker, judgeCleanup := startJudgeWorker(container)
 	defer judgeCleanup()
 	_ = judgeWorker
+
+	// Start contest orchestrator
+	container.Contest.Orchestrator.Start(context.Background())
+	log.Info("Contest orchestrator started")
 
 	// Start EXP reward worker
 	expWorker, expCleanup := startExpRewardWorker(container)
@@ -74,6 +79,12 @@ func startJudgeWorker(c *di.Container) (*judge.Worker, func()) {
 		global.LoggerZap.Fatal("failed to create exp reward producer", zap.Error(err))
 	}
 
+	// Create MQ consumer for contest judge jobs
+	contestConsumer, err := c.Broker.NewConsumer("judge-worker-contest", contestConstant.TopicContestJudge)
+	if err != nil {
+		global.LoggerZap.Fatal("failed to create contest judge consumer", zap.Error(err))
+	}
+
 	// Create and start judge worker
 	worker, err := judge.NewWorker(
 		consumer,
@@ -84,6 +95,8 @@ func startJudgeWorker(c *di.Container) (*judge.Worker, func()) {
 		c.Problem.TestCaseRepo,
 		c.Cultivation.UserStatsRepo,
 		cfg,
+		contestConsumer,
+		c.Contest.StandingService,
 	)
 	if err != nil {
 		global.LoggerZap.Fatal("failed to create judge worker", zap.Error(err))

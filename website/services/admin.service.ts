@@ -17,12 +17,15 @@ import {
   RARITY_API,
   RANK_API,
   USER_API,
+  CONTEST_API,
 } from "@/constants/api";
 import type { Paginated, QueryOptions } from "@/types/api";
 import type { Role, Permission, Resource, AdminUser } from "@/types/admin";
 import type { Problem } from "@/types/problem";
+import type { Contest } from "@/types/contest";
 import type { Tag } from "@/types/tag";
 import type { DifficultyResponse } from "@/types/difficulty";
+import type { TestCaseResponse } from "@/types/submission";
 import type { ElementResponse, LevelResponse, RankResponse, RarityResponse, TraitResponse } from "@/types/cultivation";
 
 export const adminService = {
@@ -89,6 +92,24 @@ export const adminService = {
   },
   async deleteProblem(id: number): Promise<void> {
     await apiClient.delete(PROBLEM_API.DELETE(id));
+  },
+
+  // Test Cases
+  async getTestCases(problemId: number): Promise<TestCaseResponse[]> {
+    return apiClient.get<TestCaseResponse[]>(PROBLEM_API.TEST_CASES(problemId));
+  },
+  async createTestCase(problemId: number, data: {
+    input: string; expected_output: string; is_hidden?: boolean; order_index?: number;
+  }): Promise<TestCaseResponse> {
+    return apiClient.post<TestCaseResponse>(PROBLEM_API.TEST_CASES(problemId), data);
+  },
+  async updateTestCase(id: number, data: {
+    input?: string; expected_output?: string; is_hidden?: boolean; order_index?: number;
+  }): Promise<TestCaseResponse> {
+    return apiClient.put<TestCaseResponse>(PROBLEM_API.TEST_CASE_UPDATE(id), data);
+  },
+  async deleteTestCase(id: number): Promise<void> {
+    await apiClient.delete(PROBLEM_API.TEST_CASE_DELETE(id));
   },
 
   // Tags
@@ -225,5 +246,25 @@ export const adminService = {
   },
   async deleteUser(id: number): Promise<void> {
     await apiClient.delete(USER_API.DELETE(id));
+  },
+
+  // Contests
+  async findContests(query: QueryOptions): Promise<Paginated<Contest>> {
+    return apiClient.post<Paginated<Contest>>(CONTEST_API.FIND, query);
+  },
+  async createContest(data: {
+    title: string; description?: string; start_time: string; end_time: string;
+    max_participants?: number; problem_ids?: number[];
+  }): Promise<Contest> {
+    return apiClient.post<Contest>(CONTEST_API.CREATE, data);
+  },
+  async updateContest(id: number, data: {
+    title?: string; description?: string; start_time?: string; end_time?: string;
+    max_participants?: number; problem_ids?: number[];
+  }): Promise<Contest> {
+    return apiClient.put<Contest>(CONTEST_API.UPDATE(id), data);
+  },
+  async deleteContest(id: number): Promise<void> {
+    await apiClient.delete(CONTEST_API.DELETE(id));
   },
 };

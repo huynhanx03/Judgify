@@ -49,6 +49,7 @@ func NewCultivationContainer() *CultivationContainer {
 	rankService := service.NewRankService(rankRepo)
 	userStatsService := service.NewUserStatsService(userStatsRepo)
 	rarityService := service.NewRarityService(rarityRepo)
+	rankingService := service.NewRankingService(userStatsRepo, rankRepo, levelRepo, global.Ember)
 
 	// Handlers
 	handlerGroup := &http.CultivationHandlerGroup{
@@ -61,6 +62,7 @@ func NewCultivationContainer() *CultivationContainer {
 		RankHandler:           http.NewRankHandler(rankService),
 		UserStatsHandler:      http.NewUserStatsHandler(userStatsService),
 		RarityHandler:         http.NewRarityHandler(rarityService),
+		RankingHandler:        http.NewRankingHandler(rankingService),
 	}
 
 	return &CultivationContainer{

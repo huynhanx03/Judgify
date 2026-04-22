@@ -7,6 +7,7 @@ type CreateSubmissionRequest struct {
 	ProblemID  int    `json:"problem_id" validate:"required,min=1"`
 	Language   string `json:"language" validate:"required,oneof=cpp python java go"`
 	SourceCode string `json:"source_code" validate:"required,max=262144"`
+	ContestID  *int   `json:"contest_id,omitempty"`
 }
 
 // GetSubmissionRequest represents request to get a submission by ID.
@@ -24,6 +25,7 @@ type SubmissionResponse struct {
 	ID           int       `json:"id"`
 	ProblemID    int       `json:"problem_id"`
 	UserID       int       `json:"user_id"`
+	ContestID    *int      `json:"contest_id,omitempty"`
 	Language     string    `json:"language"`
 	SourceCode   string    `json:"source_code"`
 	Status       string    `json:"status"`

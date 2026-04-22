@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/huynhanx03/judgify/global"
+	contestHttp "github.com/huynhanx03/judgify/internal/contest/adapters/driver/http"
 	cultivationHttp "github.com/huynhanx03/judgify/internal/cultivation/adapters/driver/http"
 	identityHttp "github.com/huynhanx03/judgify/internal/identity/adapters/driver/http"
 	problemHttp "github.com/huynhanx03/judgify/internal/problem/adapters/driver/http"
@@ -21,6 +22,7 @@ type RouterGroup struct {
 	ProblemHandler     *problemHttp.ProblemHandlerGroup
 	CultivationHandler *cultivationHttp.CultivationHandlerGroup
 	SubmissionHandler  *submissionHttp.SubmissionHandlerGroup
+	ContestHandler     *contestHttp.ContestHandlerGroup
 	PermChecker        *middlewares.PermissionChecker
 }
 
@@ -30,6 +32,7 @@ func NewRouterGroup(
 	problemHandler *problemHttp.ProblemHandlerGroup,
 	cultivationHandler *cultivationHttp.CultivationHandlerGroup,
 	submissionHandler *submissionHttp.SubmissionHandlerGroup,
+	contestHandler *contestHttp.ContestHandlerGroup,
 	permChecker *middlewares.PermissionChecker,
 ) *RouterGroup {
 	return &RouterGroup{
@@ -37,6 +40,7 @@ func NewRouterGroup(
 		ProblemHandler:     problemHandler,
 		CultivationHandler: cultivationHandler,
 		SubmissionHandler:  submissionHandler,
+		ContestHandler:     contestHandler,
 		PermChecker:        permChecker,
 	}
 }
@@ -52,6 +56,7 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 	rg.IdentityHandler.RegisterPublic(publicAuth)
 	rg.ProblemHandler.RegisterPublic(publicAuth)
 	rg.CultivationHandler.RegisterPublic(publicAuth)
+	rg.ContestHandler.RegisterPublic(publicAuth)
 
 	protected := r.Group("/")
 	protected.Use(middlewares.Authentication(global.Config.JWT.PublicKey))
@@ -60,6 +65,7 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 		rg.ProblemHandler.RegisterProtected(protected, rg.PermChecker)
 		rg.CultivationHandler.RegisterProtected(protected, rg.PermChecker)
 		rg.SubmissionHandler.RegisterProtected(protected)
+		rg.ContestHandler.RegisterProtected(protected, rg.PermChecker)
 	}
 }
 

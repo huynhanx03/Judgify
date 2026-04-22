@@ -10,16 +10,6 @@ type ObjectType uint8
 
 const (
 	TypeString ObjectType = iota
-	TypeHash
-	TypeList
-	TypeSet
-	TypeSortedSet
-	TypeBloomFilter
-	TypeCountMinSketch
-	TypeHyperLogLog
-	TypeMorrisCounter
-	TypeCuckooFilter
-	TypeTopK
 )
 
 // Object represents a value stored in the Ember cache with its metadata.
@@ -98,26 +88,6 @@ func (o *Object) TypeName() string {
 	switch o.Type {
 	case TypeString:
 		return "string"
-	case TypeHash:
-		return "hash"
-	case TypeList:
-		return "list"
-	case TypeSet:
-		return "set"
-	case TypeSortedSet:
-		return "zset"
-	case TypeBloomFilter:
-		return "bf"
-	case TypeCountMinSketch:
-		return "cms"
-	case TypeHyperLogLog:
-		return "hll"
-	case TypeMorrisCounter:
-		return "morris"
-	case TypeCuckooFilter:
-		return "cf"
-	case TypeTopK:
-		return "topk"
 	default:
 		return "unknown"
 	}

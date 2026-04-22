@@ -18,6 +18,7 @@ import (
 	cultivationPorts "github.com/huynhanx03/judgify/internal/cultivation/ports"
 	problemPorts "github.com/huynhanx03/judgify/internal/problem/ports"
 	submissionPorts "github.com/huynhanx03/judgify/internal/submission/ports"
+	contestPorts "github.com/huynhanx03/judgify/internal/contest/ports"
 )
 
 // JudgeJob is the MQ message payload.
@@ -36,6 +37,8 @@ type Worker struct {
 	testCaseRepo    problemPorts.TestCaseRepository
 	userStatsRepo   cultivationPorts.UserStatsRepository
 	config          settings.Judge
+	contestConsumer *forge.Consumer
+	standingSvc     contestPorts.StandingService
 	logger          *zap.Logger
 	stopCh          chan struct{}
 }
@@ -50,6 +53,8 @@ func NewWorker(
 	testCaseRepo problemPorts.TestCaseRepository,
 	userStatsRepo cultivationPorts.UserStatsRepository,
 	config settings.Judge,
+	contestConsumer *forge.Consumer,
+	standingSvc contestPorts.StandingService,
 ) (*Worker, error) {
 	w := &Worker{
 		consumer:        consumer,
@@ -60,6 +65,8 @@ func NewWorker(
 		testCaseRepo:    testCaseRepo,
 		userStatsRepo:   userStatsRepo,
 		config:          config,
+		contestConsumer: contestConsumer,
+		standingSvc:     standingSvc,
 		logger:          global.LoggerZap.Named("judge"),
 		stopCh:          make(chan struct{}),
 	}
@@ -75,43 +82,60 @@ func NewWorker(
 
 // Start begins polling the MQ for judge jobs.
 func (w *Worker) Start(ctx context.Context) {
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-w.stopCh:
-				return
-			default:
-				records, err := w.consumer.Poll(10)
-				if err != nil {
-					w.logger.Error("poll error", zap.Error(err))
-					time.Sleep(100 * time.Millisecond)
+	if w.contestConsumer != nil {
+		scheduler := NewFairScheduler(
+			w.contestConsumer, w.consumer,
+			80, 20,
+			func(job JudgeJob) {
+				if err := w.pool.Invoke(job.SubmissionID); err != nil {
+					w.logger.Error("pool invoke error", zap.Int("submission_id", job.SubmissionID), zap.Error(err))
+				}
+			},
+			w.logger,
+		)
+		go scheduler.Run(ctx, w.stopCh)
+	} else {
+		go w.pollRegular(ctx)
+	}
+}
+
+// pollRegular polls the regular judge queue when no contest consumer is configured.
+func (w *Worker) pollRegular(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-w.stopCh:
+			return
+		default:
+			records, err := w.consumer.Poll(10)
+			if err != nil {
+				w.logger.Error("poll error", zap.Error(err))
+				time.Sleep(100 * time.Millisecond)
+				continue
+			}
+
+			if len(records) == 0 {
+				time.Sleep(50 * time.Millisecond)
+				continue
+			}
+
+			for _, rec := range records {
+				var job JudgeJob
+				if err := json.Unmarshal(rec.Value, &job); err != nil {
+					w.logger.Error("invalid job payload", zap.Error(err))
 					continue
 				}
-
-				if len(records) == 0 {
-					time.Sleep(50 * time.Millisecond)
-					continue
-				}
-
-				for _, rec := range records {
-					var job JudgeJob
-					if err := json.Unmarshal(rec.Value, &job); err != nil {
-						w.logger.Error("invalid job payload", zap.Error(err))
-						continue
-					}
-					if err := w.pool.Invoke(job.SubmissionID); err != nil {
-						w.logger.Error("pool invoke error", zap.Int("submission_id", job.SubmissionID), zap.Error(err))
-					}
-				}
-
-				if err := w.consumer.Commit(); err != nil {
-					w.logger.Error("commit error", zap.Error(err))
+				if err := w.pool.Invoke(job.SubmissionID); err != nil {
+					w.logger.Error("pool invoke error", zap.Int("submission_id", job.SubmissionID), zap.Error(err))
 				}
 			}
+
+			if err := w.consumer.Commit(); err != nil {
+				w.logger.Error("commit error", zap.Error(err))
+			}
 		}
-	}()
+	}
 }
 
 // Stop gracefully stops the worker.
@@ -278,6 +302,18 @@ func (w *Worker) processSubmission(submissionID int) {
 
 	// Publish EXP reward event (async)
 	w.publishExpReward(sub.UserID, sub.ProblemID, isFirstSolve)
+
+	// Update contest standing if this is a contest submission
+	if sub.ContestID != nil && w.standingSvc != nil {
+		accepted := sub.Status == "accepted"
+		var submitTimeSec int
+		if !sub.CreatedAt.IsZero() {
+			submitTimeSec = int(sub.CreatedAt.Unix())
+		}
+		if err := w.standingSvc.UpdateFromVerdict(ctx, *sub.ContestID, sub.UserID, sub.ProblemID, accepted, submitTimeSec); err != nil {
+			log.Error("failed to update contest standing", zap.Error(err))
+		}
+	}
 }
 
 // publishExpReward sends an EXP reward event to MQ for async processing.

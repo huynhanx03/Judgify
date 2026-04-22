@@ -1,6 +1,7 @@
 package di
 
 import (
+	contestDi "github.com/huynhanx03/judgify/internal/contest/di"
 	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
@@ -14,6 +15,7 @@ type Container struct {
 	Problem     *problemDi.ProblemContainer
 	Cultivation *cultivationDi.CultivationContainer
 	Submission  *submissionDi.SubmissionContainer
+	Contest     *contestDi.ContestContainer
 	Broker      *forge.Broker
 }
 

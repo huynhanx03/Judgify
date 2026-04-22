@@ -11,10 +11,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -292,6 +296,66 @@ func (_u *UserUpdate) AddTagStats(v ...*UserTagStats) *UserUpdate {
 	return _u.AddTagStatIDs(ids...)
 }
 
+// AddContestIDs adds the "contests" edge to the Contest entity by IDs.
+func (_u *UserUpdate) AddContestIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddContestIDs(ids...)
+	return _u
+}
+
+// AddContests adds the "contests" edges to the Contest entity.
+func (_u *UserUpdate) AddContests(v ...*Contest) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestIDs(ids...)
+}
+
+// AddContestRegistrationIDs adds the "contest_registrations" edge to the ContestRegistration entity by IDs.
+func (_u *UserUpdate) AddContestRegistrationIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddContestRegistrationIDs(ids...)
+	return _u
+}
+
+// AddContestRegistrations adds the "contest_registrations" edges to the ContestRegistration entity.
+func (_u *UserUpdate) AddContestRegistrations(v ...*ContestRegistration) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestRegistrationIDs(ids...)
+}
+
+// AddContestStandingIDs adds the "contest_standings" edge to the ContestStanding entity by IDs.
+func (_u *UserUpdate) AddContestStandingIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddContestStandingIDs(ids...)
+	return _u
+}
+
+// AddContestStandings adds the "contest_standings" edges to the ContestStanding entity.
+func (_u *UserUpdate) AddContestStandings(v ...*ContestStanding) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestStandingIDs(ids...)
+}
+
+// AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
+func (_u *UserUpdate) AddRatingHistoryIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddRatingHistoryIDs(ids...)
+	return _u
+}
+
+// AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
+func (_u *UserUpdate) AddRatingHistories(v ...*RatingHistory) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRatingHistoryIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -532,6 +596,90 @@ func (_u *UserUpdate) RemoveTagStats(v ...*UserTagStats) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTagStatIDs(ids...)
+}
+
+// ClearContests clears all "contests" edges to the Contest entity.
+func (_u *UserUpdate) ClearContests() *UserUpdate {
+	_u.mutation.ClearContests()
+	return _u
+}
+
+// RemoveContestIDs removes the "contests" edge to Contest entities by IDs.
+func (_u *UserUpdate) RemoveContestIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveContestIDs(ids...)
+	return _u
+}
+
+// RemoveContests removes "contests" edges to Contest entities.
+func (_u *UserUpdate) RemoveContests(v ...*Contest) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestIDs(ids...)
+}
+
+// ClearContestRegistrations clears all "contest_registrations" edges to the ContestRegistration entity.
+func (_u *UserUpdate) ClearContestRegistrations() *UserUpdate {
+	_u.mutation.ClearContestRegistrations()
+	return _u
+}
+
+// RemoveContestRegistrationIDs removes the "contest_registrations" edge to ContestRegistration entities by IDs.
+func (_u *UserUpdate) RemoveContestRegistrationIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveContestRegistrationIDs(ids...)
+	return _u
+}
+
+// RemoveContestRegistrations removes "contest_registrations" edges to ContestRegistration entities.
+func (_u *UserUpdate) RemoveContestRegistrations(v ...*ContestRegistration) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestRegistrationIDs(ids...)
+}
+
+// ClearContestStandings clears all "contest_standings" edges to the ContestStanding entity.
+func (_u *UserUpdate) ClearContestStandings() *UserUpdate {
+	_u.mutation.ClearContestStandings()
+	return _u
+}
+
+// RemoveContestStandingIDs removes the "contest_standings" edge to ContestStanding entities by IDs.
+func (_u *UserUpdate) RemoveContestStandingIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveContestStandingIDs(ids...)
+	return _u
+}
+
+// RemoveContestStandings removes "contest_standings" edges to ContestStanding entities.
+func (_u *UserUpdate) RemoveContestStandings(v ...*ContestStanding) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestStandingIDs(ids...)
+}
+
+// ClearRatingHistories clears all "rating_histories" edges to the RatingHistory entity.
+func (_u *UserUpdate) ClearRatingHistories() *UserUpdate {
+	_u.mutation.ClearRatingHistories()
+	return _u
+}
+
+// RemoveRatingHistoryIDs removes the "rating_histories" edge to RatingHistory entities by IDs.
+func (_u *UserUpdate) RemoveRatingHistoryIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveRatingHistoryIDs(ids...)
+	return _u
+}
+
+// RemoveRatingHistories removes "rating_histories" edges to RatingHistory entities.
+func (_u *UserUpdate) RemoveRatingHistories(v ...*RatingHistory) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRatingHistoryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1152,6 +1300,186 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.ContestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestsIDs(); len(nodes) > 0 && !_u.mutation.ContestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestRegistrationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestRegistrationsIDs(); len(nodes) > 0 && !_u.mutation.ContestRegistrationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestRegistrationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestStandingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestStandingsIDs(); len(nodes) > 0 && !_u.mutation.ContestStandingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestStandingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRatingHistoriesIDs(); len(nodes) > 0 && !_u.mutation.RatingHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingHistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1425,6 +1753,66 @@ func (_u *UserUpdateOne) AddTagStats(v ...*UserTagStats) *UserUpdateOne {
 	return _u.AddTagStatIDs(ids...)
 }
 
+// AddContestIDs adds the "contests" edge to the Contest entity by IDs.
+func (_u *UserUpdateOne) AddContestIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddContestIDs(ids...)
+	return _u
+}
+
+// AddContests adds the "contests" edges to the Contest entity.
+func (_u *UserUpdateOne) AddContests(v ...*Contest) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestIDs(ids...)
+}
+
+// AddContestRegistrationIDs adds the "contest_registrations" edge to the ContestRegistration entity by IDs.
+func (_u *UserUpdateOne) AddContestRegistrationIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddContestRegistrationIDs(ids...)
+	return _u
+}
+
+// AddContestRegistrations adds the "contest_registrations" edges to the ContestRegistration entity.
+func (_u *UserUpdateOne) AddContestRegistrations(v ...*ContestRegistration) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestRegistrationIDs(ids...)
+}
+
+// AddContestStandingIDs adds the "contest_standings" edge to the ContestStanding entity by IDs.
+func (_u *UserUpdateOne) AddContestStandingIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddContestStandingIDs(ids...)
+	return _u
+}
+
+// AddContestStandings adds the "contest_standings" edges to the ContestStanding entity.
+func (_u *UserUpdateOne) AddContestStandings(v ...*ContestStanding) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestStandingIDs(ids...)
+}
+
+// AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
+func (_u *UserUpdateOne) AddRatingHistoryIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddRatingHistoryIDs(ids...)
+	return _u
+}
+
+// AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
+func (_u *UserUpdateOne) AddRatingHistories(v ...*RatingHistory) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRatingHistoryIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -1665,6 +2053,90 @@ func (_u *UserUpdateOne) RemoveTagStats(v ...*UserTagStats) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTagStatIDs(ids...)
+}
+
+// ClearContests clears all "contests" edges to the Contest entity.
+func (_u *UserUpdateOne) ClearContests() *UserUpdateOne {
+	_u.mutation.ClearContests()
+	return _u
+}
+
+// RemoveContestIDs removes the "contests" edge to Contest entities by IDs.
+func (_u *UserUpdateOne) RemoveContestIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveContestIDs(ids...)
+	return _u
+}
+
+// RemoveContests removes "contests" edges to Contest entities.
+func (_u *UserUpdateOne) RemoveContests(v ...*Contest) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestIDs(ids...)
+}
+
+// ClearContestRegistrations clears all "contest_registrations" edges to the ContestRegistration entity.
+func (_u *UserUpdateOne) ClearContestRegistrations() *UserUpdateOne {
+	_u.mutation.ClearContestRegistrations()
+	return _u
+}
+
+// RemoveContestRegistrationIDs removes the "contest_registrations" edge to ContestRegistration entities by IDs.
+func (_u *UserUpdateOne) RemoveContestRegistrationIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveContestRegistrationIDs(ids...)
+	return _u
+}
+
+// RemoveContestRegistrations removes "contest_registrations" edges to ContestRegistration entities.
+func (_u *UserUpdateOne) RemoveContestRegistrations(v ...*ContestRegistration) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestRegistrationIDs(ids...)
+}
+
+// ClearContestStandings clears all "contest_standings" edges to the ContestStanding entity.
+func (_u *UserUpdateOne) ClearContestStandings() *UserUpdateOne {
+	_u.mutation.ClearContestStandings()
+	return _u
+}
+
+// RemoveContestStandingIDs removes the "contest_standings" edge to ContestStanding entities by IDs.
+func (_u *UserUpdateOne) RemoveContestStandingIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveContestStandingIDs(ids...)
+	return _u
+}
+
+// RemoveContestStandings removes "contest_standings" edges to ContestStanding entities.
+func (_u *UserUpdateOne) RemoveContestStandings(v ...*ContestStanding) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestStandingIDs(ids...)
+}
+
+// ClearRatingHistories clears all "rating_histories" edges to the RatingHistory entity.
+func (_u *UserUpdateOne) ClearRatingHistories() *UserUpdateOne {
+	_u.mutation.ClearRatingHistories()
+	return _u
+}
+
+// RemoveRatingHistoryIDs removes the "rating_histories" edge to RatingHistory entities by IDs.
+func (_u *UserUpdateOne) RemoveRatingHistoryIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveRatingHistoryIDs(ids...)
+	return _u
+}
+
+// RemoveRatingHistories removes "rating_histories" edges to RatingHistory entities.
+func (_u *UserUpdateOne) RemoveRatingHistories(v ...*RatingHistory) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRatingHistoryIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -2308,6 +2780,186 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestsIDs(); len(nodes) > 0 && !_u.mutation.ContestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestRegistrationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestRegistrationsIDs(); len(nodes) > 0 && !_u.mutation.ContestRegistrationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestRegistrationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestStandingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestStandingsIDs(); len(nodes) > 0 && !_u.mutation.ContestStandingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestStandingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRatingHistoriesIDs(); len(nodes) > 0 && !_u.mutation.RatingHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingHistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

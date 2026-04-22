@@ -366,7 +366,7 @@ func (s *authenticationService) generateToken(user *entity.User, tokenType utils
 func (s *authenticationService) resolveRole(ctx context.Context, roleName string) (*entity.Role, error) {
 	cacheKey := constant.CacheKeyPrefixRoleName + roleName
 
-	if role, found := cache.LocalGet[*entity.Role](s.cache, cacheKey); found {
+	if role, found := cache.Get[*entity.Role](s.cache, cacheKey); found {
 		return role, nil
 	}
 
@@ -375,6 +375,6 @@ func (s *authenticationService) resolveRole(ctx context.Context, roleName string
 		return nil, err
 	}
 
-	cache.LocalSet(s.cache, cacheKey, role)
+	cache.Set(s.cache, cacheKey, role)
 	return role, nil
 }

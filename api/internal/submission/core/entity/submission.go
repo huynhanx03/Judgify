@@ -7,6 +7,7 @@ type Submission struct {
 	ID           int        `json:"id"`
 	ProblemID    int        `json:"problem_id"`
 	UserID       int        `json:"user_id"`
+	ContestID    *int       `json:"contest_id,omitempty"`
 	Language     string     `json:"language"`
 	SourceCode   string     `json:"source_code"`
 	Status       string     `json:"status"`

@@ -18,6 +18,7 @@ type CultivationHandlerGroup struct {
 	RankHandler           RankHandler
 	UserStatsHandler      UserStatsHandler
 	RarityHandler         RarityHandler
+	RankingHandler        RankingHandler
 }
 
 // RegisterPublic registers public cultivation routes (no auth required).
@@ -48,6 +49,12 @@ func (h *CultivationHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 	rarities := r.Group("/rarities")
 	{
 		rarities.GET("", handler.Wrap(h.RarityHandler.FindAll))
+	}
+
+	rankings := r.Group("/rankings")
+	{
+		rankings.GET("/rating", handler.Wrap(h.RankingHandler.GetTopByRating))
+		rankings.GET("/exp", handler.Wrap(h.RankingHandler.GetTopByExp))
 	}
 }
 

@@ -11,9 +11,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -270,6 +274,66 @@ func (_c *UserCreate) AddTagStats(v ...*UserTagStats) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddTagStatIDs(ids...)
+}
+
+// AddContestIDs adds the "contests" edge to the Contest entity by IDs.
+func (_c *UserCreate) AddContestIDs(ids ...int) *UserCreate {
+	_c.mutation.AddContestIDs(ids...)
+	return _c
+}
+
+// AddContests adds the "contests" edges to the Contest entity.
+func (_c *UserCreate) AddContests(v ...*Contest) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestIDs(ids...)
+}
+
+// AddContestRegistrationIDs adds the "contest_registrations" edge to the ContestRegistration entity by IDs.
+func (_c *UserCreate) AddContestRegistrationIDs(ids ...int) *UserCreate {
+	_c.mutation.AddContestRegistrationIDs(ids...)
+	return _c
+}
+
+// AddContestRegistrations adds the "contest_registrations" edges to the ContestRegistration entity.
+func (_c *UserCreate) AddContestRegistrations(v ...*ContestRegistration) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestRegistrationIDs(ids...)
+}
+
+// AddContestStandingIDs adds the "contest_standings" edge to the ContestStanding entity by IDs.
+func (_c *UserCreate) AddContestStandingIDs(ids ...int) *UserCreate {
+	_c.mutation.AddContestStandingIDs(ids...)
+	return _c
+}
+
+// AddContestStandings adds the "contest_standings" edges to the ContestStanding entity.
+func (_c *UserCreate) AddContestStandings(v ...*ContestStanding) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestStandingIDs(ids...)
+}
+
+// AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
+func (_c *UserCreate) AddRatingHistoryIDs(ids ...int) *UserCreate {
+	_c.mutation.AddRatingHistoryIDs(ids...)
+	return _c
+}
+
+// AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
+func (_c *UserCreate) AddRatingHistories(v ...*RatingHistory) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRatingHistoryIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -581,6 +645,70 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestsTable,
+			Columns: []string{user.ContestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestRegistrationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRegistrationsTable,
+			Columns: []string{user.ContestRegistrationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestStandingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestStandingsTable,
+			Columns: []string{user.ContestStandingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RatingHistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RatingHistoriesTable,
+			Columns: []string{user.RatingHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -65,7 +65,7 @@ func (s *attributeDefinitionService) Find(ctx context.Context, opts *d.QueryOpti
 // Get retrieves an attribute definition by ID.
 func (s *attributeDefinitionService) Get(ctx context.Context, id int) (*dto.AttributeDefinitionResponse, error) {
 	cacheKey := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
-	if d, found := cache.LocalGet[*entity.AttributeDefinition](s.cache, cacheKey); found {
+	if d, found := cache.Get[*entity.AttributeDefinition](s.cache, cacheKey); found {
 		return mapper.ToAttributeDefinitionResponse(d), nil
 	}
 
@@ -74,7 +74,7 @@ func (s *attributeDefinitionService) Get(ctx context.Context, id int) (*dto.Attr
 		return nil, err
 	}
 
-	cache.LocalSet(s.cache, cacheKey, attrDef)
+	cache.Set(s.cache, cacheKey, attrDef)
 	return mapper.ToAttributeDefinitionResponse(attrDef), nil
 }
 
@@ -114,8 +114,8 @@ func (s *attributeDefinitionService) Update(ctx context.Context, id int, req *dt
 	// Invalidate Cache
 	cacheKeyID := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
 	cacheKeyKey := constant.CacheKeyPrefixAttrKey + attrDef.Key
-	cache.LocalSet(s.cache, cacheKeyID, attrDef)
-	cache.LocalDel(s.cache, cacheKeyKey)
+	cache.Set(s.cache, cacheKeyID, attrDef)
+	cache.Del(s.cache, cacheKeyKey)
 
 	logger.FromContext(ctx).Info("attribute definition updated", zap.Int("attribute_definition_id", attrDef.ID))
 	return mapper.ToAttributeDefinitionResponse(attrDef), nil
@@ -137,7 +137,7 @@ func (s *attributeDefinitionService) Delete(ctx context.Context, id int) error {
 	}
 
 	cacheKeyID := constant.CacheKeyPrefixAttrID + strconv.Itoa(id)
-	cache.LocalDel(s.cache, cacheKeyID)
+	cache.Del(s.cache, cacheKeyID)
 
 	logger.FromContext(ctx).Info("attribute definition deleted", zap.Int("attribute_definition_id", id))
 	return nil

@@ -36,6 +36,7 @@ type ProblemQuery struct {
 	withSubmissions *SubmissionQuery
 	withTags        *TagQuery
 	withSolvers     *UserSolvedProblemQuery
+	withFKs         bool
 	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -553,6 +554,7 @@ func (_q *ProblemQuery) prepareQuery(ctx context.Context) error {
 func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Problem, error) {
 	var (
 		nodes       = []*Problem{}
+		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [6]bool{
 			_q.withAuthor != nil,
@@ -563,6 +565,9 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			_q.withSolvers != nil,
 		}
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, problem.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Problem).scanValues(nil, columns)
 	}

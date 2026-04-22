@@ -25,6 +25,121 @@ var (
 		Columns:    AttributeDefinitionsColumns,
 		PrimaryKey: []*schema.Column{AttributeDefinitionsColumns[0]},
 	}
+	// ContestsColumns holds the columns for the "contests" table.
+	ContestsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "title", Type: field.TypeString, Size: 300},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "start_time", Type: field.TypeTime},
+		{Name: "end_time", Type: field.TypeTime},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "upcoming", "running", "ended"}, Default: "draft"},
+		{Name: "max_participants", Type: field.TypeInt, Default: 0},
+		{Name: "author_id", Type: field.TypeInt},
+	}
+	// ContestsTable holds the schema information for the "contests" table.
+	ContestsTable = &schema.Table{
+		Name:       "contests",
+		Columns:    ContestsColumns,
+		PrimaryKey: []*schema.Column{ContestsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contests_users_contests",
+				Columns:    []*schema.Column{ContestsColumns[11]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contest_status",
+				Unique:  false,
+				Columns: []*schema.Column{ContestsColumns[9]},
+			},
+			{
+				Name:    "contest_start_time",
+				Unique:  false,
+				Columns: []*schema.Column{ContestsColumns[7]},
+			},
+		},
+	}
+	// ContestRegistrationsColumns holds the columns for the "contest_registrations" table.
+	ContestRegistrationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// ContestRegistrationsTable holds the schema information for the "contest_registrations" table.
+	ContestRegistrationsTable = &schema.Table{
+		Name:       "contest_registrations",
+		Columns:    ContestRegistrationsColumns,
+		PrimaryKey: []*schema.Column{ContestRegistrationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_registrations_contests_registrations",
+				Columns:    []*schema.Column{ContestRegistrationsColumns[1]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_registrations_users_contest_registrations",
+				Columns:    []*schema.Column{ContestRegistrationsColumns[2]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestregistration_contest_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRegistrationsColumns[1], ContestRegistrationsColumns[2]},
+			},
+			{
+				Name:    "contestregistration_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRegistrationsColumns[2]},
+			},
+		},
+	}
+	// ContestStandingsColumns holds the columns for the "contest_standings" table.
+	ContestStandingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "solved_count", Type: field.TypeInt, Default: 0},
+		{Name: "penalty", Type: field.TypeInt, Default: 0},
+		{Name: "problem_results", Type: field.TypeJSON, Nullable: true},
+		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// ContestStandingsTable holds the schema information for the "contest_standings" table.
+	ContestStandingsTable = &schema.Table{
+		Name:       "contest_standings",
+		Columns:    ContestStandingsColumns,
+		PrimaryKey: []*schema.Column{ContestStandingsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_standings_contests_standings",
+				Columns:    []*schema.Column{ContestStandingsColumns[4]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_standings_users_contest_standings",
+				Columns:    []*schema.Column{ContestStandingsColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "conteststanding_contest_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestStandingsColumns[4], ContestStandingsColumns[5]},
+			},
+		},
+	}
 	// CredentialsColumns holds the columns for the "credentials" table.
 	CredentialsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -192,6 +307,7 @@ var (
 		{Name: "is_published", Type: field.TypeBool, Default: false},
 		{Name: "submission_count", Type: field.TypeInt, Default: 0},
 		{Name: "accepted_count", Type: field.TypeInt, Default: 0},
+		{Name: "contest_problems", Type: field.TypeInt, Nullable: true},
 		{Name: "difficulty_id", Type: field.TypeInt},
 		{Name: "author_id", Type: field.TypeInt},
 	}
@@ -202,14 +318,20 @@ var (
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "problems_difficulties_problems",
+				Symbol:     "problems_contests_problems",
 				Columns:    []*schema.Column{ProblemsColumns[12]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "problems_difficulties_problems",
+				Columns:    []*schema.Column{ProblemsColumns[13]},
 				RefColumns: []*schema.Column{DifficultiesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "problems_users_problems",
-				Columns:    []*schema.Column{ProblemsColumns[13]},
+				Columns:    []*schema.Column{ProblemsColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -249,6 +371,52 @@ var (
 		Name:       "rarities",
 		Columns:    RaritiesColumns,
 		PrimaryKey: []*schema.Column{RaritiesColumns[0]},
+	}
+	// RatingHistoriesColumns holds the columns for the "rating_histories" table.
+	RatingHistoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "old_rating", Type: field.TypeInt, Default: 0},
+		{Name: "new_rating", Type: field.TypeInt, Default: 0},
+		{Name: "rank_position", Type: field.TypeInt, Default: 0},
+		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// RatingHistoriesTable holds the schema information for the "rating_histories" table.
+	RatingHistoriesTable = &schema.Table{
+		Name:       "rating_histories",
+		Columns:    RatingHistoriesColumns,
+		PrimaryKey: []*schema.Column{RatingHistoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "rating_histories_contests_rating_histories",
+				Columns:    []*schema.Column{RatingHistoriesColumns[4]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "rating_histories_users_rating_histories",
+				Columns:    []*schema.Column{RatingHistoriesColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratinghistory_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingHistoriesColumns[5]},
+			},
+			{
+				Name:    "ratinghistory_contest_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingHistoriesColumns[4]},
+			},
+			{
+				Name:    "ratinghistory_user_id_contest_id",
+				Unique:  true,
+				Columns: []*schema.Column{RatingHistoriesColumns[5], RatingHistoriesColumns[4]},
+			},
+		},
 	}
 	// ResourcesColumns holds the columns for the "resources" table.
 	ResourcesColumns = []*schema.Column{
@@ -300,6 +468,7 @@ var (
 		{Name: "time_ms", Type: field.TypeInt, Nullable: true},
 		{Name: "memory_kb", Type: field.TypeInt, Nullable: true},
 		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "contest_id", Type: field.TypeInt, Nullable: true},
 		{Name: "problem_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
 	}
@@ -310,14 +479,20 @@ var (
 		PrimaryKey: []*schema.Column{SubmissionsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submissions_problems_submissions",
+				Symbol:     "submissions_contests_submissions",
 				Columns:    []*schema.Column{SubmissionsColumns[13]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "submissions_problems_submissions",
+				Columns:    []*schema.Column{SubmissionsColumns[14]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "submissions_users_submissions",
-				Columns:    []*schema.Column{SubmissionsColumns[14]},
+				Columns:    []*schema.Column{SubmissionsColumns[15]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -326,15 +501,20 @@ var (
 			{
 				Name:    "submission_user_id_problem_id",
 				Unique:  false,
-				Columns: []*schema.Column{SubmissionsColumns[14], SubmissionsColumns[13]},
+				Columns: []*schema.Column{SubmissionsColumns[15], SubmissionsColumns[14]},
 			},
 			{
 				Name:    "submission_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{SubmissionsColumns[14]},
+				Columns: []*schema.Column{SubmissionsColumns[15]},
 			},
 			{
 				Name:    "submission_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[14]},
+			},
+			{
+				Name:    "submission_contest_id",
 				Unique:  false,
 				Columns: []*schema.Column{SubmissionsColumns[13]},
 			},
@@ -750,6 +930,9 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AttributeDefinitionsTable,
+		ContestsTable,
+		ContestRegistrationsTable,
+		ContestStandingsTable,
 		CredentialsTable,
 		DifficultiesTable,
 		ElementsTable,
@@ -759,6 +942,7 @@ var (
 		ProblemsTable,
 		RanksTable,
 		RaritiesTable,
+		RatingHistoriesTable,
 		ResourcesTable,
 		RolesTable,
 		SubmissionsTable,
@@ -779,14 +963,23 @@ var (
 )
 
 func init() {
+	ContestsTable.ForeignKeys[0].RefTable = UsersTable
+	ContestRegistrationsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestRegistrationsTable.ForeignKeys[1].RefTable = UsersTable
+	ContestStandingsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestStandingsTable.ForeignKeys[1].RefTable = UsersTable
 	CredentialsTable.ForeignKeys[0].RefTable = UsersTable
 	FederatedIdentitiesTable.ForeignKeys[0].RefTable = UsersTable
 	PermissionsTable.ForeignKeys[0].RefTable = ResourcesTable
 	PermissionsTable.ForeignKeys[1].RefTable = RolesTable
-	ProblemsTable.ForeignKeys[0].RefTable = DifficultiesTable
-	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
-	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
-	SubmissionsTable.ForeignKeys[1].RefTable = UsersTable
+	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
+	ProblemsTable.ForeignKeys[1].RefTable = DifficultiesTable
+	ProblemsTable.ForeignKeys[2].RefTable = UsersTable
+	RatingHistoriesTable.ForeignKeys[0].RefTable = ContestsTable
+	RatingHistoriesTable.ForeignKeys[1].RefTable = UsersTable
+	SubmissionsTable.ForeignKeys[0].RefTable = ContestsTable
+	SubmissionsTable.ForeignKeys[1].RefTable = ProblemsTable
+	SubmissionsTable.ForeignKeys[2].RefTable = UsersTable
 	TestCasesTable.ForeignKeys[0].RefTable = ProblemsTable
 	TraitsTable.ForeignKeys[0].RefTable = RaritiesTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable

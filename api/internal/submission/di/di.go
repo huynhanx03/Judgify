@@ -18,14 +18,14 @@ type SubmissionContainer struct {
 }
 
 // NewSubmissionContainer creates a new SubmissionContainer.
-func NewSubmissionContainer(producer *forge.Producer) *SubmissionContainer {
+func NewSubmissionContainer(producer *forge.Producer, contestProducer *forge.Producer) *SubmissionContainer {
 	client := global.EntClient
 
 	// Repository
 	submissionRepo := db.NewSubmissionRepository(client)
 
 	// Service
-	submissionService := service.NewSubmissionService(submissionRepo, producer)
+	submissionService := service.NewSubmissionService(submissionRepo, producer, contestProducer)
 
 	// Handler
 	submissionHandlerGroup := &http.SubmissionHandlerGroup{

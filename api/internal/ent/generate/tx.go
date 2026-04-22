@@ -16,6 +16,12 @@ type Tx struct {
 	config
 	// AttributeDefinition is the client for interacting with the AttributeDefinition builders.
 	AttributeDefinition *AttributeDefinitionClient
+	// Contest is the client for interacting with the Contest builders.
+	Contest *ContestClient
+	// ContestRegistration is the client for interacting with the ContestRegistration builders.
+	ContestRegistration *ContestRegistrationClient
+	// ContestStanding is the client for interacting with the ContestStanding builders.
+	ContestStanding *ContestStandingClient
 	// Credential is the client for interacting with the Credential builders.
 	Credential *CredentialClient
 	// Difficulty is the client for interacting with the Difficulty builders.
@@ -34,6 +40,8 @@ type Tx struct {
 	Rank *RankClient
 	// Rarity is the client for interacting with the Rarity builders.
 	Rarity *RarityClient
+	// RatingHistory is the client for interacting with the RatingHistory builders.
+	RatingHistory *RatingHistoryClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// Role is the client for interacting with the Role builders.
@@ -194,6 +202,9 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AttributeDefinition = NewAttributeDefinitionClient(tx.config)
+	tx.Contest = NewContestClient(tx.config)
+	tx.ContestRegistration = NewContestRegistrationClient(tx.config)
+	tx.ContestStanding = NewContestStandingClient(tx.config)
 	tx.Credential = NewCredentialClient(tx.config)
 	tx.Difficulty = NewDifficultyClient(tx.config)
 	tx.Element = NewElementClient(tx.config)
@@ -203,6 +214,7 @@ func (tx *Tx) init() {
 	tx.Problem = NewProblemClient(tx.config)
 	tx.Rank = NewRankClient(tx.config)
 	tx.Rarity = NewRarityClient(tx.config)
+	tx.RatingHistory = NewRatingHistoryClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Submission = NewSubmissionClient(tx.config)
