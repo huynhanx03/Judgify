@@ -45,9 +45,11 @@ type DifficultyEdges struct {
 	Problems []*Problem `json:"problems,omitempty"`
 	// UserDifficultyStats holds the value of the user_difficulty_stats edge.
 	UserDifficultyStats []*UserDifficultyStats `json:"user_difficulty_stats,omitempty"`
+	// Materials holds the value of the materials edge.
+	Materials []*Material `json:"materials,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -66,6 +68,15 @@ func (e DifficultyEdges) UserDifficultyStatsOrErr() ([]*UserDifficultyStats, err
 		return e.UserDifficultyStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_difficulty_stats"}
+}
+
+// MaterialsOrErr returns the Materials value or an error if the edge
+// was not loaded in eager-loading.
+func (e DifficultyEdges) MaterialsOrErr() ([]*Material, error) {
+	if e.loadedTypes[2] {
+		return e.Materials, nil
+	}
+	return nil, &NotLoadedError{edge: "materials"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -171,6 +182,11 @@ func (_m *Difficulty) QueryProblems() *ProblemQuery {
 // QueryUserDifficultyStats queries the "user_difficulty_stats" edge of the Difficulty entity.
 func (_m *Difficulty) QueryUserDifficultyStats() *UserDifficultyStatsQuery {
 	return NewDifficultyClient(_m.config).QueryUserDifficultyStats(_m)
+}
+
+// QueryMaterials queries the "materials" edge of the Difficulty entity.
+func (_m *Difficulty) QueryMaterials() *MaterialQuery {
+	return NewDifficultyClient(_m.config).QueryMaterials(_m)
 }
 
 // Update returns a builder for updating this Difficulty.

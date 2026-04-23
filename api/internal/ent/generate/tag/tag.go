@@ -31,6 +31,8 @@ const (
 	EdgeElements = "elements"
 	// EdgeUserTagStats holds the string denoting the user_tag_stats edge name in mutations.
 	EdgeUserTagStats = "user_tag_stats"
+	// EdgeMaterials holds the string denoting the materials edge name in mutations.
+	EdgeMaterials = "materials"
 	// Table holds the table name of the tag in the database.
 	Table = "tags"
 	// ProblemsTable is the table that holds the problems relation/edge. The primary key declared below.
@@ -50,6 +52,11 @@ const (
 	UserTagStatsInverseTable = "user_tag_stats"
 	// UserTagStatsColumn is the table column denoting the user_tag_stats relation/edge.
 	UserTagStatsColumn = "tag_id"
+	// MaterialsTable is the table that holds the materials relation/edge. The primary key declared below.
+	MaterialsTable = "material_tags"
+	// MaterialsInverseTable is the table name for the Material entity.
+	// It exists in this package in order to avoid circular dependency with the "material" package.
+	MaterialsInverseTable = "materials"
 )
 
 // Columns holds all SQL columns for tag fields.
@@ -69,6 +76,9 @@ var (
 	// ElementsPrimaryKey and ElementsColumn2 are the table columns denoting the
 	// primary key for the elements relation (M2M).
 	ElementsPrimaryKey = []string{"tag_id", "element_id"}
+	// MaterialsPrimaryKey and MaterialsColumn2 are the table columns denoting the
+	// primary key for the materials relation (M2M).
+	MaterialsPrimaryKey = []string{"material_id", "tag_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -173,6 +183,20 @@ func ByUserTagStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserTagStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMaterialsCount orders the results by materials count.
+func ByMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMaterialsStep(), opts...)
+	}
+}
+
+// ByMaterials orders the results by materials terms.
+func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -192,5 +216,12 @@ func newUserTagStatsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserTagStatsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserTagStatsTable, UserTagStatsColumn),
+	)
+}
+func newMaterialsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MaterialsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, MaterialsTable, MaterialsPrimaryKey...),
 	)
 }

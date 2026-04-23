@@ -38,5 +38,6 @@ func (Tag) Edges() []ent.Edge {
 		edge.From("problems", Problem.Type).Ref("tags"),
 		edge.To("elements", Element.Type),
 		edge.To("user_tag_stats", UserTagStats.Type),
+		edge.From("materials", Material.Type).Ref("tags"),
 	}
 }

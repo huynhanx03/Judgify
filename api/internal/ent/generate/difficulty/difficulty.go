@@ -35,6 +35,8 @@ const (
 	EdgeProblems = "problems"
 	// EdgeUserDifficultyStats holds the string denoting the user_difficulty_stats edge name in mutations.
 	EdgeUserDifficultyStats = "user_difficulty_stats"
+	// EdgeMaterials holds the string denoting the materials edge name in mutations.
+	EdgeMaterials = "materials"
 	// Table holds the table name of the difficulty in the database.
 	Table = "difficulties"
 	// ProblemsTable is the table that holds the problems relation/edge.
@@ -51,6 +53,13 @@ const (
 	UserDifficultyStatsInverseTable = "user_difficulty_stats"
 	// UserDifficultyStatsColumn is the table column denoting the user_difficulty_stats relation/edge.
 	UserDifficultyStatsColumn = "difficulty_id"
+	// MaterialsTable is the table that holds the materials relation/edge.
+	MaterialsTable = "materials"
+	// MaterialsInverseTable is the table name for the Material entity.
+	// It exists in this package in order to avoid circular dependency with the "material" package.
+	MaterialsInverseTable = "materials"
+	// MaterialsColumn is the table column denoting the materials relation/edge.
+	MaterialsColumn = "difficulty_id"
 )
 
 // Columns holds all SQL columns for difficulty fields.
@@ -177,6 +186,20 @@ func ByUserDifficultyStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpti
 		sqlgraph.OrderByNeighborTerms(s, newUserDifficultyStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMaterialsCount orders the results by materials count.
+func ByMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMaterialsStep(), opts...)
+	}
+}
+
+// ByMaterials orders the results by materials terms.
+func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -189,5 +212,12 @@ func newUserDifficultyStatsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserDifficultyStatsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserDifficultyStatsTable, UserDifficultyStatsColumn),
+	)
+}
+func newMaterialsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MaterialsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
 	)
 }

@@ -254,6 +254,84 @@ var (
 		Columns:    LevelsColumns,
 		PrimaryKey: []*schema.Column{LevelsColumns[0]},
 	}
+	// MaterialsColumns holds the columns for the "materials" table.
+	MaterialsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "published"}, Default: "draft"},
+		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"public", "group"}, Default: "public"},
+		{Name: "group_id", Type: field.TypeInt, Nullable: true},
+		{Name: "view_count", Type: field.TypeInt, Default: 0},
+		{Name: "estimated_read_time", Type: field.TypeInt, Default: 0},
+		{Name: "difficulty_id", Type: field.TypeInt},
+		{Name: "category_id", Type: field.TypeInt},
+		{Name: "author_id", Type: field.TypeInt},
+	}
+	// MaterialsTable holds the schema information for the "materials" table.
+	MaterialsTable = &schema.Table{
+		Name:       "materials",
+		Columns:    MaterialsColumns,
+		PrimaryKey: []*schema.Column{MaterialsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "materials_difficulties_materials",
+				Columns:    []*schema.Column{MaterialsColumns[13]},
+				RefColumns: []*schema.Column{DifficultiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "materials_material_categories_materials",
+				Columns:    []*schema.Column{MaterialsColumns[14]},
+				RefColumns: []*schema.Column{MaterialCategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "materials_users_materials",
+				Columns:    []*schema.Column{MaterialsColumns[15]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "material_status",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialsColumns[8]},
+			},
+			{
+				Name:    "material_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialsColumns[14]},
+			},
+			{
+				Name:    "material_difficulty_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialsColumns[13]},
+			},
+		},
+	}
+	// MaterialCategoriesColumns holds the columns for the "material_categories" table.
+	MaterialCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+	}
+	// MaterialCategoriesTable holds the schema information for the "material_categories" table.
+	MaterialCategoriesTable = &schema.Table{
+		Name:       "material_categories",
+		Columns:    MaterialCategoriesColumns,
+		PrimaryKey: []*schema.Column{MaterialCategoriesColumns[0]},
+	}
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -877,6 +955,31 @@ var (
 			},
 		},
 	}
+	// MaterialTagsColumns holds the columns for the "material_tags" table.
+	MaterialTagsColumns = []*schema.Column{
+		{Name: "material_id", Type: field.TypeInt},
+		{Name: "tag_id", Type: field.TypeInt},
+	}
+	// MaterialTagsTable holds the schema information for the "material_tags" table.
+	MaterialTagsTable = &schema.Table{
+		Name:       "material_tags",
+		Columns:    MaterialTagsColumns,
+		PrimaryKey: []*schema.Column{MaterialTagsColumns[0], MaterialTagsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "material_tags_material_id",
+				Columns:    []*schema.Column{MaterialTagsColumns[0]},
+				RefColumns: []*schema.Column{MaterialsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "material_tags_tag_id",
+				Columns:    []*schema.Column{MaterialTagsColumns[1]},
+				RefColumns: []*schema.Column{TagsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// ProblemTagsColumns holds the columns for the "problem_tags" table.
 	ProblemTagsColumns = []*schema.Column{
 		{Name: "problem_id", Type: field.TypeInt},
@@ -938,6 +1041,8 @@ var (
 		ElementsTable,
 		FederatedIdentitiesTable,
 		LevelsTable,
+		MaterialsTable,
+		MaterialCategoriesTable,
 		PermissionsTable,
 		ProblemsTable,
 		RanksTable,
@@ -957,6 +1062,7 @@ var (
 		UserStatsTable,
 		UserTagStatsTable,
 		UserTraitsTable,
+		MaterialTagsTable,
 		ProblemTagsTable,
 		TagElementsTable,
 	}
@@ -970,6 +1076,9 @@ func init() {
 	ContestStandingsTable.ForeignKeys[1].RefTable = UsersTable
 	CredentialsTable.ForeignKeys[0].RefTable = UsersTable
 	FederatedIdentitiesTable.ForeignKeys[0].RefTable = UsersTable
+	MaterialsTable.ForeignKeys[0].RefTable = DifficultiesTable
+	MaterialsTable.ForeignKeys[1].RefTable = MaterialCategoriesTable
+	MaterialsTable.ForeignKeys[2].RefTable = UsersTable
 	PermissionsTable.ForeignKeys[0].RefTable = ResourcesTable
 	PermissionsTable.ForeignKeys[1].RefTable = RolesTable
 	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
@@ -996,6 +1105,8 @@ func init() {
 	UserTagStatsTable.ForeignKeys[1].RefTable = UsersTable
 	UserTraitsTable.ForeignKeys[0].RefTable = TraitsTable
 	UserTraitsTable.ForeignKeys[1].RefTable = UsersTable
+	MaterialTagsTable.ForeignKeys[0].RefTable = MaterialsTable
+	MaterialTagsTable.ForeignKeys[1].RefTable = TagsTable
 	ProblemTagsTable.ForeignKeys[0].RefTable = ProblemsTable
 	ProblemTagsTable.ForeignKeys[1].RefTable = TagsTable
 	TagElementsTable.ForeignKeys[0].RefTable = TagsTable

@@ -16,6 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
@@ -356,6 +357,21 @@ func (_u *UserUpdate) AddRatingHistories(v ...*RatingHistory) *UserUpdate {
 	return _u.AddRatingHistoryIDs(ids...)
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
+func (_u *UserUpdate) AddMaterialIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddMaterialIDs(ids...)
+	return _u
+}
+
+// AddMaterials adds the "materials" edges to the Material entity.
+func (_u *UserUpdate) AddMaterials(v ...*Material) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -680,6 +696,27 @@ func (_u *UserUpdate) RemoveRatingHistories(v ...*RatingHistory) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRatingHistoryIDs(ids...)
+}
+
+// ClearMaterials clears all "materials" edges to the Material entity.
+func (_u *UserUpdate) ClearMaterials() *UserUpdate {
+	_u.mutation.ClearMaterials()
+	return _u
+}
+
+// RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
+func (_u *UserUpdate) RemoveMaterialIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveMaterialIDs(ids...)
+	return _u
+}
+
+// RemoveMaterials removes "materials" edges to Material entities.
+func (_u *UserUpdate) RemoveMaterials(v ...*Material) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1480,6 +1517,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialsIDs(); len(nodes) > 0 && !_u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1813,6 +1895,21 @@ func (_u *UserUpdateOne) AddRatingHistories(v ...*RatingHistory) *UserUpdateOne 
 	return _u.AddRatingHistoryIDs(ids...)
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
+func (_u *UserUpdateOne) AddMaterialIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddMaterialIDs(ids...)
+	return _u
+}
+
+// AddMaterials adds the "materials" edges to the Material entity.
+func (_u *UserUpdateOne) AddMaterials(v ...*Material) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -2137,6 +2234,27 @@ func (_u *UserUpdateOne) RemoveRatingHistories(v ...*RatingHistory) *UserUpdateO
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRatingHistoryIDs(ids...)
+}
+
+// ClearMaterials clears all "materials" edges to the Material entity.
+func (_u *UserUpdateOne) ClearMaterials() *UserUpdateOne {
+	_u.mutation.ClearMaterials()
+	return _u
+}
+
+// RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
+func (_u *UserUpdateOne) RemoveMaterialIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveMaterialIDs(ids...)
+	return _u
+}
+
+// RemoveMaterials removes "materials" edges to Material entities.
+func (_u *UserUpdateOne) RemoveMaterials(v ...*Material) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -2960,6 +3078,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialsIDs(); len(nodes) > 0 && !_u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

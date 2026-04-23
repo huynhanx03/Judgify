@@ -21,6 +21,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
@@ -109,6 +111,8 @@ func checkColumn(t, c string) error {
 			element.Table:             element.ValidColumn,
 			federatedidentity.Table:   federatedidentity.ValidColumn,
 			level.Table:               level.ValidColumn,
+			material.Table:            material.ValidColumn,
+			materialcategory.Table:    materialcategory.ValidColumn,
 			permission.Table:          permission.ValidColumn,
 			problem.Table:             problem.ValidColumn,
 			rank.Table:                rank.ValidColumn,

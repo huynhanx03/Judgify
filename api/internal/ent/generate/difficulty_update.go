@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -190,6 +191,21 @@ func (_u *DifficultyUpdate) AddUserDifficultyStats(v ...*UserDifficultyStats) *D
 	return _u.AddUserDifficultyStatIDs(ids...)
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
+func (_u *DifficultyUpdate) AddMaterialIDs(ids ...int) *DifficultyUpdate {
+	_u.mutation.AddMaterialIDs(ids...)
+	return _u
+}
+
+// AddMaterials adds the "materials" edges to the Material entity.
+func (_u *DifficultyUpdate) AddMaterials(v ...*Material) *DifficultyUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialIDs(ids...)
+}
+
 // Mutation returns the DifficultyMutation object of the builder.
 func (_u *DifficultyUpdate) Mutation() *DifficultyMutation {
 	return _u.mutation
@@ -235,6 +251,27 @@ func (_u *DifficultyUpdate) RemoveUserDifficultyStats(v ...*UserDifficultyStats)
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserDifficultyStatIDs(ids...)
+}
+
+// ClearMaterials clears all "materials" edges to the Material entity.
+func (_u *DifficultyUpdate) ClearMaterials() *DifficultyUpdate {
+	_u.mutation.ClearMaterials()
+	return _u
+}
+
+// RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
+func (_u *DifficultyUpdate) RemoveMaterialIDs(ids ...int) *DifficultyUpdate {
+	_u.mutation.RemoveMaterialIDs(ids...)
+	return _u
+}
+
+// RemoveMaterials removes "materials" edges to Material entities.
+func (_u *DifficultyUpdate) RemoveMaterials(v ...*Material) *DifficultyUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -451,6 +488,51 @@ func (_u *DifficultyUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialsTable,
+			Columns: []string{difficulty.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialsIDs(); len(nodes) > 0 && !_u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialsTable,
+			Columns: []string{difficulty.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialsTable,
+			Columns: []string{difficulty.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -632,6 +714,21 @@ func (_u *DifficultyUpdateOne) AddUserDifficultyStats(v ...*UserDifficultyStats)
 	return _u.AddUserDifficultyStatIDs(ids...)
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
+func (_u *DifficultyUpdateOne) AddMaterialIDs(ids ...int) *DifficultyUpdateOne {
+	_u.mutation.AddMaterialIDs(ids...)
+	return _u
+}
+
+// AddMaterials adds the "materials" edges to the Material entity.
+func (_u *DifficultyUpdateOne) AddMaterials(v ...*Material) *DifficultyUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialIDs(ids...)
+}
+
 // Mutation returns the DifficultyMutation object of the builder.
 func (_u *DifficultyUpdateOne) Mutation() *DifficultyMutation {
 	return _u.mutation
@@ -677,6 +774,27 @@ func (_u *DifficultyUpdateOne) RemoveUserDifficultyStats(v ...*UserDifficultySta
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserDifficultyStatIDs(ids...)
+}
+
+// ClearMaterials clears all "materials" edges to the Material entity.
+func (_u *DifficultyUpdateOne) ClearMaterials() *DifficultyUpdateOne {
+	_u.mutation.ClearMaterials()
+	return _u
+}
+
+// RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
+func (_u *DifficultyUpdateOne) RemoveMaterialIDs(ids ...int) *DifficultyUpdateOne {
+	_u.mutation.RemoveMaterialIDs(ids...)
+	return _u
+}
+
+// RemoveMaterials removes "materials" edges to Material entities.
+func (_u *DifficultyUpdateOne) RemoveMaterials(v ...*Material) *DifficultyUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialIDs(ids...)
 }
 
 // Where appends a list predicates to the DifficultyUpdate builder.
@@ -916,6 +1034,51 @@ func (_u *DifficultyUpdateOne) sqlSave(ctx context.Context) (_node *Difficulty, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialsTable,
+			Columns: []string{difficulty.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialsIDs(); len(nodes) > 0 && !_u.mutation.MaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialsTable,
+			Columns: []string{difficulty.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialsTable,
+			Columns: []string{difficulty.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

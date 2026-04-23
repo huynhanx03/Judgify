@@ -394,6 +394,29 @@ func HasUserTagStatsWith(preds ...predicate.UserTagStats) predicate.Tag {
 	})
 }
 
+// HasMaterials applies the HasEdge predicate on the "materials" edge.
+func HasMaterials() predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, MaterialsTable, MaterialsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMaterialsWith applies the HasEdge predicate on the "materials" edge with a given conditions (other predicates).
+func HasMaterialsWith(preds ...predicate.Material) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		step := newMaterialsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Tag) predicate.Tag {
 	return predicate.Tag(sql.AndPredicates(predicates...))

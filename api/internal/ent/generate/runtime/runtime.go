@@ -13,6 +13,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
@@ -324,6 +326,100 @@ func init() {
 	levelDescDescription := levelFields[2].Descriptor()
 	// level.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	level.DescriptionValidator = levelDescDescription.Validators[0].(func(string) error)
+	materialMixin := schema.Material{}.Mixin()
+	materialMixinHooks1 := materialMixin[1].Hooks()
+	material.Hooks[0] = materialMixinHooks1[0]
+	materialMixinInters1 := materialMixin[1].Interceptors()
+	material.Interceptors[0] = materialMixinInters1[0]
+	materialMixinFields0 := materialMixin[0].Fields()
+	_ = materialMixinFields0
+	materialFields := schema.Material{}.Fields()
+	_ = materialFields
+	// materialDescCreatedAt is the schema descriptor for created_at field.
+	materialDescCreatedAt := materialMixinFields0[0].Descriptor()
+	// material.DefaultCreatedAt holds the default value on creation for the created_at field.
+	material.DefaultCreatedAt = materialDescCreatedAt.Default.(func() time.Time)
+	// materialDescUpdatedAt is the schema descriptor for updated_at field.
+	materialDescUpdatedAt := materialMixinFields0[1].Descriptor()
+	// material.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	material.DefaultUpdatedAt = materialDescUpdatedAt.Default.(func() time.Time)
+	// material.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	material.UpdateDefaultUpdatedAt = materialDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// materialDescTitle is the schema descriptor for title field.
+	materialDescTitle := materialFields[0].Descriptor()
+	// material.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	material.TitleValidator = func() func(string) error {
+		validators := materialDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// materialDescDescription is the schema descriptor for description field.
+	materialDescDescription := materialFields[1].Descriptor()
+	// material.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	material.DescriptionValidator = materialDescDescription.Validators[0].(func(string) error)
+	// materialDescViewCount is the schema descriptor for view_count field.
+	materialDescViewCount := materialFields[9].Descriptor()
+	// material.DefaultViewCount holds the default value on creation for the view_count field.
+	material.DefaultViewCount = materialDescViewCount.Default.(int)
+	// material.ViewCountValidator is a validator for the "view_count" field. It is called by the builders before save.
+	material.ViewCountValidator = materialDescViewCount.Validators[0].(func(int) error)
+	// materialDescEstimatedReadTime is the schema descriptor for estimated_read_time field.
+	materialDescEstimatedReadTime := materialFields[10].Descriptor()
+	// material.DefaultEstimatedReadTime holds the default value on creation for the estimated_read_time field.
+	material.DefaultEstimatedReadTime = materialDescEstimatedReadTime.Default.(int)
+	// material.EstimatedReadTimeValidator is a validator for the "estimated_read_time" field. It is called by the builders before save.
+	material.EstimatedReadTimeValidator = materialDescEstimatedReadTime.Validators[0].(func(int) error)
+	materialcategoryMixin := schema.MaterialCategory{}.Mixin()
+	materialcategoryMixinHooks1 := materialcategoryMixin[1].Hooks()
+	materialcategory.Hooks[0] = materialcategoryMixinHooks1[0]
+	materialcategoryMixinInters1 := materialcategoryMixin[1].Interceptors()
+	materialcategory.Interceptors[0] = materialcategoryMixinInters1[0]
+	materialcategoryMixinFields0 := materialcategoryMixin[0].Fields()
+	_ = materialcategoryMixinFields0
+	materialcategoryFields := schema.MaterialCategory{}.Fields()
+	_ = materialcategoryFields
+	// materialcategoryDescCreatedAt is the schema descriptor for created_at field.
+	materialcategoryDescCreatedAt := materialcategoryMixinFields0[0].Descriptor()
+	// materialcategory.DefaultCreatedAt holds the default value on creation for the created_at field.
+	materialcategory.DefaultCreatedAt = materialcategoryDescCreatedAt.Default.(func() time.Time)
+	// materialcategoryDescUpdatedAt is the schema descriptor for updated_at field.
+	materialcategoryDescUpdatedAt := materialcategoryMixinFields0[1].Descriptor()
+	// materialcategory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	materialcategory.DefaultUpdatedAt = materialcategoryDescUpdatedAt.Default.(func() time.Time)
+	// materialcategory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	materialcategory.UpdateDefaultUpdatedAt = materialcategoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// materialcategoryDescName is the schema descriptor for name field.
+	materialcategoryDescName := materialcategoryFields[0].Descriptor()
+	// materialcategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	materialcategory.NameValidator = func() func(string) error {
+		validators := materialcategoryDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// materialcategoryDescDescription is the schema descriptor for description field.
+	materialcategoryDescDescription := materialcategoryFields[1].Descriptor()
+	// materialcategory.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	materialcategory.DescriptionValidator = materialcategoryDescDescription.Validators[0].(func(string) error)
 	permissionMixin := schema.Permission{}.Mixin()
 	permissionMixinHooks1 := permissionMixin[1].Hooks()
 	permission.Hooks[0] = permissionMixinHooks1[0]

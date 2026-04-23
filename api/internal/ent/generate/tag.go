@@ -41,9 +41,11 @@ type TagEdges struct {
 	Elements []*Element `json:"elements,omitempty"`
 	// UserTagStats holds the value of the user_tag_stats edge.
 	UserTagStats []*UserTagStats `json:"user_tag_stats,omitempty"`
+	// Materials holds the value of the materials edge.
+	Materials []*Material `json:"materials,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -71,6 +73,15 @@ func (e TagEdges) UserTagStatsOrErr() ([]*UserTagStats, error) {
 		return e.UserTagStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_tag_stats"}
+}
+
+// MaterialsOrErr returns the Materials value or an error if the edge
+// was not loaded in eager-loading.
+func (e TagEdges) MaterialsOrErr() ([]*Material, error) {
+	if e.loadedTypes[3] {
+		return e.Materials, nil
+	}
+	return nil, &NotLoadedError{edge: "materials"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -163,6 +174,11 @@ func (_m *Tag) QueryElements() *ElementQuery {
 // QueryUserTagStats queries the "user_tag_stats" edge of the Tag entity.
 func (_m *Tag) QueryUserTagStats() *UserTagStatsQuery {
 	return NewTagClient(_m.config).QueryUserTagStats(_m)
+}
+
+// QueryMaterials queries the "materials" edge of the Tag entity.
+func (_m *Tag) QueryMaterials() *MaterialQuery {
+	return NewTagClient(_m.config).QueryMaterials(_m)
 }
 
 // Update returns a builder for updating this Tag.

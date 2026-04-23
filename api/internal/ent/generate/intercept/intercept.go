@@ -17,6 +17,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
@@ -336,6 +338,60 @@ func (f TraverseLevel) Traverse(ctx context.Context, q generate.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.LevelQuery", q)
+}
+
+// The MaterialFunc type is an adapter to allow the use of ordinary function as a Querier.
+type MaterialFunc func(context.Context, *generate.MaterialQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f MaterialFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.MaterialQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.MaterialQuery", q)
+}
+
+// The TraverseMaterial type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseMaterial func(context.Context, *generate.MaterialQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseMaterial) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseMaterial) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.MaterialQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.MaterialQuery", q)
+}
+
+// The MaterialCategoryFunc type is an adapter to allow the use of ordinary function as a Querier.
+type MaterialCategoryFunc func(context.Context, *generate.MaterialCategoryQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f MaterialCategoryFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.MaterialCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.MaterialCategoryQuery", q)
+}
+
+// The TraverseMaterialCategory type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseMaterialCategory func(context.Context, *generate.MaterialCategoryQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseMaterialCategory) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseMaterialCategory) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.MaterialCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.MaterialCategoryQuery", q)
 }
 
 // The PermissionFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -872,6 +928,10 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.FederatedIdentityQuery, predicate.FederatedIdentity, federatedidentity.OrderOption]{typ: generate.TypeFederatedIdentity, tq: q}, nil
 	case *generate.LevelQuery:
 		return &query[*generate.LevelQuery, predicate.Level, level.OrderOption]{typ: generate.TypeLevel, tq: q}, nil
+	case *generate.MaterialQuery:
+		return &query[*generate.MaterialQuery, predicate.Material, material.OrderOption]{typ: generate.TypeMaterial, tq: q}, nil
+	case *generate.MaterialCategoryQuery:
+		return &query[*generate.MaterialCategoryQuery, predicate.MaterialCategory, materialcategory.OrderOption]{typ: generate.TypeMaterialCategory, tq: q}, nil
 	case *generate.PermissionQuery:
 		return &query[*generate.PermissionQuery, predicate.Permission, permission.OrderOption]{typ: generate.TypePermission, tq: q}, nil
 	case *generate.ProblemQuery:

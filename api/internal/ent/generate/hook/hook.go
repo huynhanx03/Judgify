@@ -117,6 +117,30 @@ func (f LevelFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.LevelMutation", m)
 }
 
+// The MaterialFunc type is an adapter to allow the use of ordinary
+// function as Material mutator.
+type MaterialFunc func(context.Context, *generate.MaterialMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MaterialFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.MaterialMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.MaterialMutation", m)
+}
+
+// The MaterialCategoryFunc type is an adapter to allow the use of ordinary
+// function as MaterialCategory mutator.
+type MaterialCategoryFunc func(context.Context, *generate.MaterialCategoryMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MaterialCategoryFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.MaterialCategoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.MaterialCategoryMutation", m)
+}
+
 // The PermissionFunc type is an adapter to allow the use of ordinary
 // function as Permission mutator.
 type PermissionFunc func(context.Context, *generate.PermissionMutation) (generate.Value, error)

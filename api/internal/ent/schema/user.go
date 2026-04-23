@@ -51,5 +51,6 @@ func (User) Edges() []ent.Edge {
 		edge.To("contest_registrations", ContestRegistration.Type),
 		edge.To("contest_standings", ContestStanding.Type),
 		edge.To("rating_histories", RatingHistory.Type),
+		edge.To("materials", Material.Type),
 	}
 }
