@@ -1,12 +1,15 @@
 # Judgify
 
+[![CI](https://github.com/huynhanx03/Judgify/actions/workflows/ci.yml/badge.svg)](https://github.com/huynhanx03/Judgify/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 An Online Judge powered by a Cultivation (Xianxia) gamification system to improve the learning experience.
 
 Judgify goes beyond a standard code judging platform. By merging competitive programming with an RPG-like progression system, users can cultivate their stats, discover elemental affinities, and breakthrough cultivation realms as they solve algorithmic challenges.
 
 ## Tech Stack
 
-* Frontend: React / Vue
+* Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS v4
 * Backend: Go 1.25+, Gin Framework
 * Database & ORM: PostgreSQL, Ent
 * Caching & Queue: Local Cache
