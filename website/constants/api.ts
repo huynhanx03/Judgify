@@ -37,6 +37,8 @@ export const PROBLEM_API = {
   UPDATE: (id: number) => `/problems/${id}`,
   DELETE: (id: number) => `/problems/${id}`,
   TEST_CASES: (id: number) => `/problems/${id}/test-cases`,
+  TEST_CASE_UPDATE: (id: number) => `/test-cases/${id}`,
+  TEST_CASE_DELETE: (id: number) => `/test-cases/${id}`,
 } as const;
 
 /** Trait endpoints (Cultivation module). */
@@ -154,4 +156,42 @@ export const SUBMISSION_API = {
   BY_PROBLEM: (problemId: number) => `/problems/${problemId}/submissions`,
   /** Get current user's submissions for a problem. */
   MY_BY_PROBLEM: (problemId: number) => `/problems/${problemId}/my-submissions`,
+} as const;
+
+/** Contest endpoints (Contest module). */
+export const CONTEST_API = {
+  FIND: "/contests/find",
+  GET: (id: number) => `/contests/${id}`,
+  CREATE: "/contests",
+  UPDATE: (id: number) => `/contests/${id}`,
+  DELETE: (id: number) => `/contests/${id}`,
+  REGISTER: (id: number) => `/contests/${id}/register`,
+  UNREGISTER: (id: number) => `/contests/${id}/unregister`,
+  STANDINGS: (id: number) => `/contests/${id}/standings`,
+  RATING_CHANGES: (id: number) => `/contests/${id}/rating-changes`,
+} as const;
+
+/** Ranking endpoints (Cultivation module). */
+export const RANKING_API = {
+  TOP_RATING: (limit?: number) => `/rankings/rating${limit ? `?limit=${limit}` : ""}`,
+  TOP_EXP: (limit?: number) => `/rankings/exp${limit ? `?limit=${limit}` : ""}`,
+} as const;
+
+/** Material category endpoints (Material module). */
+export const MATERIAL_CATEGORY_API = {
+  FIND_ALL: "/material-categories",
+  FIND: "/material-categories/find",
+  GET: (id: number) => `/material-categories/${id}`,
+  CREATE: "/material-categories",
+  UPDATE: (id: number) => `/material-categories/${id}`,
+  DELETE: (id: number) => `/material-categories/${id}`,
+} as const;
+
+/** Material article endpoints (Material module). */
+export const MATERIAL_API = {
+  FIND: "/materials/find",
+  GET: (id: number) => `/materials/${id}`,
+  CREATE: "/materials",
+  UPDATE: (id: number) => `/materials/${id}`,
+  DELETE: (id: number) => `/materials/${id}`,
 } as const;

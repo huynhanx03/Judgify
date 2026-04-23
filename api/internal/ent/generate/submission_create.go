@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -188,6 +189,20 @@ func (_c *SubmissionCreate) SetNillableErrorMessage(v *string) *SubmissionCreate
 	return _c
 }
 
+// SetContestID sets the "contest_id" field.
+func (_c *SubmissionCreate) SetContestID(v int) *SubmissionCreate {
+	_c.mutation.SetContestID(v)
+	return _c
+}
+
+// SetNillableContestID sets the "contest_id" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableContestID(v *int) *SubmissionCreate {
+	if v != nil {
+		_c.SetContestID(*v)
+	}
+	return _c
+}
+
 // SetProblem sets the "problem" edge to the Problem entity.
 func (_c *SubmissionCreate) SetProblem(v *Problem) *SubmissionCreate {
 	return _c.SetProblemID(v.ID)
@@ -196,6 +211,11 @@ func (_c *SubmissionCreate) SetProblem(v *Problem) *SubmissionCreate {
 // SetUser sets the "user" edge to the User entity.
 func (_c *SubmissionCreate) SetUser(v *User) *SubmissionCreate {
 	return _c.SetUserID(v.ID)
+}
+
+// SetContest sets the "contest" edge to the Contest entity.
+func (_c *SubmissionCreate) SetContest(v *Contest) *SubmissionCreate {
+	return _c.SetContestID(v.ID)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -421,6 +441,23 @@ func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   submission.ContestTable,
+			Columns: []string{submission.ContestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ContestID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -688,6 +725,24 @@ func (u *SubmissionUpsert) UpdateErrorMessage() *SubmissionUpsert {
 // ClearErrorMessage clears the value of the "error_message" field.
 func (u *SubmissionUpsert) ClearErrorMessage() *SubmissionUpsert {
 	u.SetNull(submission.FieldErrorMessage)
+	return u
+}
+
+// SetContestID sets the "contest_id" field.
+func (u *SubmissionUpsert) SetContestID(v int) *SubmissionUpsert {
+	u.Set(submission.FieldContestID, v)
+	return u
+}
+
+// UpdateContestID sets the "contest_id" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateContestID() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldContestID)
+	return u
+}
+
+// ClearContestID clears the value of the "contest_id" field.
+func (u *SubmissionUpsert) ClearContestID() *SubmissionUpsert {
+	u.SetNull(submission.FieldContestID)
 	return u
 }
 
@@ -985,6 +1040,27 @@ func (u *SubmissionUpsertOne) UpdateErrorMessage() *SubmissionUpsertOne {
 func (u *SubmissionUpsertOne) ClearErrorMessage() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.ClearErrorMessage()
+	})
+}
+
+// SetContestID sets the "contest_id" field.
+func (u *SubmissionUpsertOne) SetContestID(v int) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetContestID(v)
+	})
+}
+
+// UpdateContestID sets the "contest_id" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateContestID() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateContestID()
+	})
+}
+
+// ClearContestID clears the value of the "contest_id" field.
+func (u *SubmissionUpsertOne) ClearContestID() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearContestID()
 	})
 }
 
@@ -1453,6 +1529,27 @@ func (u *SubmissionUpsertBulk) UpdateErrorMessage() *SubmissionUpsertBulk {
 func (u *SubmissionUpsertBulk) ClearErrorMessage() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.ClearErrorMessage()
+	})
+}
+
+// SetContestID sets the "contest_id" field.
+func (u *SubmissionUpsertBulk) SetContestID(v int) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetContestID(v)
+	})
+}
+
+// UpdateContestID sets the "contest_id" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateContestID() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateContestID()
+	})
+}
+
+// ClearContestID clears the value of the "contest_id" field.
+func (u *SubmissionUpsertBulk) ClearContestID() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearContestID()
 	})
 }
 

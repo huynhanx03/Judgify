@@ -13,15 +13,21 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
@@ -97,15 +103,21 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			attributedefinition.Table: attributedefinition.ValidColumn,
+			contest.Table:             contest.ValidColumn,
+			contestregistration.Table: contestregistration.ValidColumn,
+			conteststanding.Table:     conteststanding.ValidColumn,
 			credential.Table:          credential.ValidColumn,
 			difficulty.Table:          difficulty.ValidColumn,
 			element.Table:             element.ValidColumn,
 			federatedidentity.Table:   federatedidentity.ValidColumn,
 			level.Table:               level.ValidColumn,
+			material.Table:            material.ValidColumn,
+			materialcategory.Table:    materialcategory.ValidColumn,
 			permission.Table:          permission.ValidColumn,
 			problem.Table:             problem.ValidColumn,
 			rank.Table:                rank.ValidColumn,
 			rarity.Table:              rarity.ValidColumn,
+			ratinghistory.Table:       ratinghistory.ValidColumn,
 			resource.Table:            resource.ValidColumn,
 			role.Table:                role.ValidColumn,
 			submission.Table:          submission.ValidColumn,

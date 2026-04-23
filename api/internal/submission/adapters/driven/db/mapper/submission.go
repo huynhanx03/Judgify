@@ -21,6 +21,7 @@ func ToSubmissionEntity(m *generate.Submission) *entity.Submission {
 		TotalCount:   m.TotalCount,
 		TimeMs:       m.TimeMs,
 		MemoryKb:     m.MemoryKB,
+		ContestID:    m.ContestID,
 		ErrorMessage: m.ErrorMessage,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,

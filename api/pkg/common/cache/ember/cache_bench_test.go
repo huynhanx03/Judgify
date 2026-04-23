@@ -14,7 +14,7 @@ func BenchmarkGet(b *testing.B) {
 
 	// Pre-populate
 	for i := 0; i < 10000; i++ {
-		c.Set(fmt.Sprintf("key%d", i), "value", 1)
+		c.Set(fmt.Sprintf("key%d", i), "value")
 	}
 
 	b.ResetTimer()
@@ -35,7 +35,7 @@ func BenchmarkSet(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0
 		for pb.Next() {
-			c.Set(fmt.Sprintf("key%d", i%10000), "value", 1)
+			c.Set(fmt.Sprintf("key%d", i%10000), "value")
 			i++
 		}
 	})
@@ -50,7 +50,7 @@ func BenchmarkSetWithTTL(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0
 		for pb.Next() {
-			c.SetWithTTL(fmt.Sprintf("key%d", i%10000), "value", 1, ttl)
+			c.SetWithTTL(fmt.Sprintf("key%d", i%10000), "value", ttl)
 			i++
 		}
 	})
@@ -60,7 +60,7 @@ func BenchmarkGetHit(b *testing.B) {
 	c := New[string, string](WithMaxEntries(100000))
 	defer c.Close()
 
-	c.Set("hotkey", "value", 1)
+	c.Set("hotkey", "value")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -84,7 +84,7 @@ func BenchmarkMixed_50Read50Write(b *testing.B) {
 
 	// Pre-populate half
 	for i := 0; i < 5000; i++ {
-		c.Set(fmt.Sprintf("key%d", i), "value", 1)
+		c.Set(fmt.Sprintf("key%d", i), "value")
 	}
 
 	b.ResetTimer()
@@ -95,7 +95,7 @@ func BenchmarkMixed_50Read50Write(b *testing.B) {
 			if i%2 == 0 {
 				c.Get(key)
 			} else {
-				c.Set(key, "value", 1)
+				c.Set(key, "value")
 			}
 			i++
 		}
@@ -107,7 +107,7 @@ func BenchmarkMixed_90Read10Write(b *testing.B) {
 	defer c.Close()
 
 	for i := 0; i < 10000; i++ {
-		c.Set(fmt.Sprintf("key%d", i), "value", 1)
+		c.Set(fmt.Sprintf("key%d", i), "value")
 	}
 
 	b.ResetTimer()
@@ -116,7 +116,7 @@ func BenchmarkMixed_90Read10Write(b *testing.B) {
 		for pb.Next() {
 			key := fmt.Sprintf("key%d", i%10000)
 			if i%10 == 0 {
-				c.Set(key, "value", 1)
+				c.Set(key, "value")
 			} else {
 				c.Get(key)
 			}
@@ -131,7 +131,7 @@ func BenchmarkEvictionLRU(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		c.Set(fmt.Sprintf("key%d", i), i, 1)
+		c.Set(fmt.Sprintf("key%d", i), i)
 	}
 }
 
@@ -141,7 +141,7 @@ func BenchmarkEvictionLFU(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		c.Set(fmt.Sprintf("key%d", i), i, 1)
+		c.Set(fmt.Sprintf("key%d", i), i)
 	}
 }
 
@@ -151,7 +151,7 @@ func BenchmarkEvictionRandom(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		c.Set(fmt.Sprintf("key%d", i), i, 1)
+		c.Set(fmt.Sprintf("key%d", i), i)
 	}
 }
 
@@ -165,54 +165,6 @@ func BenchmarkIncr(b *testing.B) {
 	}
 }
 
-func BenchmarkHSetHGet(b *testing.B) {
-	c := New[string, string](WithMaxEntries(100000))
-	defer c.Close()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		key := fmt.Sprintf("hash%d", i%100)
-		field := fmt.Sprintf("field%d", i%10)
-		c.HSet(key, field, "value")
-		c.HGet(key, field)
-	}
-}
-
-func BenchmarkLPushLPop(b *testing.B) {
-	c := New[string, int](WithMaxEntries(100000))
-	defer c.Close()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		c.LPush("list", i)
-		c.LPop("list")
-	}
-}
-
-func BenchmarkSAddSIsMember(b *testing.B) {
-	c := New[string, string](WithMaxEntries(100000))
-	defer c.Close()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		member := fmt.Sprintf("m%d", i%1000)
-		c.SAdd("set", member)
-		c.SIsMember("set", member)
-	}
-}
-
-func BenchmarkZAddZRank(b *testing.B) {
-	c := New[string, any](WithMaxEntries(100000))
-	defer c.Close()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		member := fmt.Sprintf("m%d", i%1000)
-		c.ZAdd("zs", float64(i), member)
-		c.ZRank("zs", member)
-	}
-}
-
 func BenchmarkGetOrSet(b *testing.B) {
 	c := New[string, string](WithMaxEntries(100000))
 	defer c.Close()
@@ -222,8 +174,8 @@ func BenchmarkGetOrSet(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			key := fmt.Sprintf("key%d", i%1000)
-			c.GetOrSet(key, func() (string, int64, time.Duration) {
-				return "computed", 1, 0
+			c.GetOrSet(key, func() (string, time.Duration) {
+				return "computed", 0
 			})
 			i++
 		}
@@ -236,7 +188,7 @@ func BenchmarkConcurrentMixed(b *testing.B) {
 
 	// Pre-populate
 	for i := 0; i < 10000; i++ {
-		c.Set(fmt.Sprintf("key%d", i), i, 1)
+		c.Set(fmt.Sprintf("key%d", i), i)
 	}
 
 	var wg sync.WaitGroup
@@ -251,7 +203,7 @@ func BenchmarkConcurrentMixed(b *testing.B) {
 				key := fmt.Sprintf("key%d", rng.Intn(20000))
 				switch rng.Intn(10) {
 				case 0, 1: // 20% write
-					c.Set(key, i, 1)
+					c.Set(key, i)
 				case 2: // 10% delete
 					c.Delete(key)
 				default: // 70% read

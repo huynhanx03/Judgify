@@ -39,3 +39,9 @@ type ElementBrief struct {
 	Code string `json:"code"`
 	Name string `json:"name"`
 }
+
+// UserStatsWithUser holds user stats with eager-loaded username.
+type UserStatsWithUser struct {
+	Stats    *UserStats
+	Username string
+}

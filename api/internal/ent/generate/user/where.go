@@ -626,6 +626,121 @@ func HasTagStatsWith(preds ...predicate.UserTagStats) predicate.User {
 	})
 }
 
+// HasContests applies the HasEdge predicate on the "contests" edge.
+func HasContests() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestsTable, ContestsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
+func HasContestsWith(preds ...predicate.Contest) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newContestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestRegistrations applies the HasEdge predicate on the "contest_registrations" edge.
+func HasContestRegistrations() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestRegistrationsTable, ContestRegistrationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestRegistrationsWith applies the HasEdge predicate on the "contest_registrations" edge with a given conditions (other predicates).
+func HasContestRegistrationsWith(preds ...predicate.ContestRegistration) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newContestRegistrationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestStandings applies the HasEdge predicate on the "contest_standings" edge.
+func HasContestStandings() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestStandingsTable, ContestStandingsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestStandingsWith applies the HasEdge predicate on the "contest_standings" edge with a given conditions (other predicates).
+func HasContestStandingsWith(preds ...predicate.ContestStanding) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newContestStandingsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRatingHistories applies the HasEdge predicate on the "rating_histories" edge.
+func HasRatingHistories() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RatingHistoriesTable, RatingHistoriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRatingHistoriesWith applies the HasEdge predicate on the "rating_histories" edge with a given conditions (other predicates).
+func HasRatingHistoriesWith(preds ...predicate.RatingHistory) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newRatingHistoriesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMaterials applies the HasEdge predicate on the "materials" edge.
+func HasMaterials() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMaterialsWith applies the HasEdge predicate on the "materials" edge with a given conditions (other predicates).
+func HasMaterialsWith(preds ...predicate.Material) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newMaterialsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

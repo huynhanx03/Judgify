@@ -9,16 +9,22 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
@@ -116,6 +122,87 @@ func (f TraverseAttributeDefinition) Traverse(ctx context.Context, q generate.Qu
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.AttributeDefinitionQuery", q)
+}
+
+// The ContestFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ContestFunc func(context.Context, *generate.ContestQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f ContestFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.ContestQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.ContestQuery", q)
+}
+
+// The TraverseContest type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseContest func(context.Context, *generate.ContestQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseContest) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseContest) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.ContestQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.ContestQuery", q)
+}
+
+// The ContestRegistrationFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ContestRegistrationFunc func(context.Context, *generate.ContestRegistrationQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f ContestRegistrationFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.ContestRegistrationQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.ContestRegistrationQuery", q)
+}
+
+// The TraverseContestRegistration type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseContestRegistration func(context.Context, *generate.ContestRegistrationQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseContestRegistration) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseContestRegistration) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.ContestRegistrationQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.ContestRegistrationQuery", q)
+}
+
+// The ContestStandingFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ContestStandingFunc func(context.Context, *generate.ContestStandingQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f ContestStandingFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.ContestStandingQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.ContestStandingQuery", q)
+}
+
+// The TraverseContestStanding type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseContestStanding func(context.Context, *generate.ContestStandingQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseContestStanding) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseContestStanding) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.ContestStandingQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.ContestStandingQuery", q)
 }
 
 // The CredentialFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -253,6 +340,60 @@ func (f TraverseLevel) Traverse(ctx context.Context, q generate.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *generate.LevelQuery", q)
 }
 
+// The MaterialFunc type is an adapter to allow the use of ordinary function as a Querier.
+type MaterialFunc func(context.Context, *generate.MaterialQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f MaterialFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.MaterialQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.MaterialQuery", q)
+}
+
+// The TraverseMaterial type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseMaterial func(context.Context, *generate.MaterialQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseMaterial) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseMaterial) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.MaterialQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.MaterialQuery", q)
+}
+
+// The MaterialCategoryFunc type is an adapter to allow the use of ordinary function as a Querier.
+type MaterialCategoryFunc func(context.Context, *generate.MaterialCategoryQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f MaterialCategoryFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.MaterialCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.MaterialCategoryQuery", q)
+}
+
+// The TraverseMaterialCategory type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseMaterialCategory func(context.Context, *generate.MaterialCategoryQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseMaterialCategory) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseMaterialCategory) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.MaterialCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.MaterialCategoryQuery", q)
+}
+
 // The PermissionFunc type is an adapter to allow the use of ordinary function as a Querier.
 type PermissionFunc func(context.Context, *generate.PermissionQuery) (generate.Value, error)
 
@@ -359,6 +500,33 @@ func (f TraverseRarity) Traverse(ctx context.Context, q generate.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *generate.RarityQuery", q)
+}
+
+// The RatingHistoryFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RatingHistoryFunc func(context.Context, *generate.RatingHistoryQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f RatingHistoryFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.RatingHistoryQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.RatingHistoryQuery", q)
+}
+
+// The TraverseRatingHistory type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRatingHistory func(context.Context, *generate.RatingHistoryQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRatingHistory) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRatingHistory) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.RatingHistoryQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.RatingHistoryQuery", q)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -744,6 +912,12 @@ func NewQuery(q generate.Query) (Query, error) {
 	switch q := q.(type) {
 	case *generate.AttributeDefinitionQuery:
 		return &query[*generate.AttributeDefinitionQuery, predicate.AttributeDefinition, attributedefinition.OrderOption]{typ: generate.TypeAttributeDefinition, tq: q}, nil
+	case *generate.ContestQuery:
+		return &query[*generate.ContestQuery, predicate.Contest, contest.OrderOption]{typ: generate.TypeContest, tq: q}, nil
+	case *generate.ContestRegistrationQuery:
+		return &query[*generate.ContestRegistrationQuery, predicate.ContestRegistration, contestregistration.OrderOption]{typ: generate.TypeContestRegistration, tq: q}, nil
+	case *generate.ContestStandingQuery:
+		return &query[*generate.ContestStandingQuery, predicate.ContestStanding, conteststanding.OrderOption]{typ: generate.TypeContestStanding, tq: q}, nil
 	case *generate.CredentialQuery:
 		return &query[*generate.CredentialQuery, predicate.Credential, credential.OrderOption]{typ: generate.TypeCredential, tq: q}, nil
 	case *generate.DifficultyQuery:
@@ -754,6 +928,10 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.FederatedIdentityQuery, predicate.FederatedIdentity, federatedidentity.OrderOption]{typ: generate.TypeFederatedIdentity, tq: q}, nil
 	case *generate.LevelQuery:
 		return &query[*generate.LevelQuery, predicate.Level, level.OrderOption]{typ: generate.TypeLevel, tq: q}, nil
+	case *generate.MaterialQuery:
+		return &query[*generate.MaterialQuery, predicate.Material, material.OrderOption]{typ: generate.TypeMaterial, tq: q}, nil
+	case *generate.MaterialCategoryQuery:
+		return &query[*generate.MaterialCategoryQuery, predicate.MaterialCategory, materialcategory.OrderOption]{typ: generate.TypeMaterialCategory, tq: q}, nil
 	case *generate.PermissionQuery:
 		return &query[*generate.PermissionQuery, predicate.Permission, permission.OrderOption]{typ: generate.TypePermission, tq: q}, nil
 	case *generate.ProblemQuery:
@@ -762,6 +940,8 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.RankQuery, predicate.Rank, rank.OrderOption]{typ: generate.TypeRank, tq: q}, nil
 	case *generate.RarityQuery:
 		return &query[*generate.RarityQuery, predicate.Rarity, rarity.OrderOption]{typ: generate.TypeRarity, tq: q}, nil
+	case *generate.RatingHistoryQuery:
+		return &query[*generate.RatingHistoryQuery, predicate.RatingHistory, ratinghistory.OrderOption]{typ: generate.TypeRatingHistory, tq: q}, nil
 	case *generate.ResourceQuery:
 		return &query[*generate.ResourceQuery, predicate.Resource, resource.OrderOption]{typ: generate.TypeResource, tq: q}, nil
 	case *generate.RoleQuery:

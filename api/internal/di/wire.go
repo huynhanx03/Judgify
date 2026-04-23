@@ -5,8 +5,11 @@ import (
 
 	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/constant"
+	contestConstant "github.com/huynhanx03/judgify/internal/contest/constant"
+	contestDi "github.com/huynhanx03/judgify/internal/contest/di"
 	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
+	materialDi "github.com/huynhanx03/judgify/internal/material/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
 	submissionDi "github.com/huynhanx03/judgify/internal/submission/di"
 	"github.com/huynhanx03/judgify/pkg/mq/forge"
@@ -26,6 +29,12 @@ func SetupDependencies() *Container {
 		global.LoggerZap.Fatal("failed to create judge producer", zap.Error(err))
 	}
 
+	// Create contest judge producer
+	contestJudgeProducer, err := broker.NewProducer(contestConstant.TopicContestJudge)
+	if err != nil {
+		global.LoggerZap.Fatal("failed to create contest judge producer", zap.Error(err))
+	}
+
 	cultivationContainer := cultivationDi.NewCultivationContainer()
 	problemContainer := problemDi.NewProblemContainer()
 	identityContainer := identityDi.NewIdentityContainer(
@@ -39,13 +48,17 @@ func SetupDependencies() *Container {
 		cultivationContainer.UserTagStatsRepo,
 		problemContainer.DifficultyRepo,
 	)
-	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer)
+	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer, contestJudgeProducer)
+	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo)
+	materialContainer := materialDi.NewMaterialContainer()
 
 	container := &Container{
 		Identity:    identityContainer,
 		Problem:     problemContainer,
 		Cultivation: cultivationContainer,
 		Submission:  submissionContainer,
+		Contest:     contestContainer,
+		Material:    materialContainer,
 		Broker:      broker,
 	}
 

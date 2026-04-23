@@ -47,5 +47,10 @@ func (User) Edges() []ent.Edge {
 		edge.To("solved_problems", UserSolvedProblem.Type),
 		edge.To("difficulty_stats", UserDifficultyStats.Type),
 		edge.To("tag_stats", UserTagStats.Type),
+		edge.To("contests", Contest.Type),
+		edge.To("contest_registrations", ContestRegistration.Type),
+		edge.To("contest_standings", ContestStanding.Type),
+		edge.To("rating_histories", RatingHistory.Type),
+		edge.To("materials", Material.Type),
 	}
 }

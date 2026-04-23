@@ -48,6 +48,8 @@ func NewHTTPServer() *Server {
 		c.Problem.ProblemHandlerGroup,
 		c.Cultivation.CultivationHandlerGroup,
 		c.Submission.SubmissionHandlerGroup,
+		c.Contest.ContestHandlerGroup,
+		c.Material.MaterialHandlerGroup,
 		permChecker,
 	)
 

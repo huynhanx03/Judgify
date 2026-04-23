@@ -47,8 +47,9 @@ type Problem struct {
 	AcceptedCount int `json:"accepted_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
-	Edges        ProblemEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges            ProblemEdges `json:"edges"`
+	contest_problems *int
+	selectValues     sql.SelectValues
 }
 
 // ProblemEdges holds the relations/edges for other nodes in the graph.
@@ -141,6 +142,8 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case problem.FieldCreatedAt, problem.FieldUpdatedAt, problem.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case problem.ForeignKeys[0]: // contest_problems
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -241,6 +244,13 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field accepted_count", values[i])
 			} else if value.Valid {
 				_m.AcceptedCount = int(value.Int64)
+			}
+		case problem.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field contest_problems", value)
+			} else if value.Valid {
+				_m.contest_problems = new(int)
+				*_m.contest_problems = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])

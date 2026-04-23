@@ -9,6 +9,15 @@ import (
 // AttributeDefinition is the predicate function for attributedefinition builders.
 type AttributeDefinition func(*sql.Selector)
 
+// Contest is the predicate function for contest builders.
+type Contest func(*sql.Selector)
+
+// ContestRegistration is the predicate function for contestregistration builders.
+type ContestRegistration func(*sql.Selector)
+
+// ContestStanding is the predicate function for conteststanding builders.
+type ContestStanding func(*sql.Selector)
+
 // Credential is the predicate function for credential builders.
 type Credential func(*sql.Selector)
 
@@ -24,6 +33,12 @@ type FederatedIdentity func(*sql.Selector)
 // Level is the predicate function for level builders.
 type Level func(*sql.Selector)
 
+// Material is the predicate function for material builders.
+type Material func(*sql.Selector)
+
+// MaterialCategory is the predicate function for materialcategory builders.
+type MaterialCategory func(*sql.Selector)
+
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
 
@@ -35,6 +50,9 @@ type Rank func(*sql.Selector)
 
 // Rarity is the predicate function for rarity builders.
 type Rarity func(*sql.Selector)
+
+// RatingHistory is the predicate function for ratinghistory builders.
+type RatingHistory func(*sql.Selector)
 
 // Resource is the predicate function for resource builders.
 type Resource func(*sql.Selector)

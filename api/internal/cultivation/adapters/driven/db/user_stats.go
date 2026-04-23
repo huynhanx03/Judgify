@@ -138,6 +138,40 @@ func (r *UserStatsRepository) IncrementSubmission(ctx context.Context, userID in
 	return nil
 }
 
+// GetTopSortedWithUser returns top N user stats sorted by field with eager-loaded username.
+func (r *UserStatsRepository) GetTopSortedWithUser(ctx context.Context, sortField string, limit int) ([]*entity.UserStatsWithUser, error) {
+	query := r.client.DB(ctx).UserStats.Query().WithUser()
+
+	// Apply ORDER BY descending
+	orderCol := userstats.FieldRating
+	switch sortField {
+	case "total_exp":
+		orderCol = userstats.FieldTotalExp
+	case "rating":
+		orderCol = userstats.FieldRating
+	}
+	query.Order(func(s *sql.Selector) {
+		s.OrderBy(sql.Desc(orderCol))
+	}).Limit(limit)
+
+	records, err := query.All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, userStatsRepoName)
+	}
+
+	results := make([]*entity.UserStatsWithUser, len(records))
+	for i, rec := range records {
+		entry := &entity.UserStatsWithUser{
+			Stats: mapper.ToUserStatsEntity(rec),
+		}
+		if u, err := rec.Edges.UserOrErr(); err == nil {
+			entry.Username = u.Username
+		}
+		results[i] = entry
+	}
+	return results, nil
+}
+
 // AddExp atomically adds EXP to user stats. Row must exist (created at registration).
 func (r *UserStatsRepository) AddExp(ctx context.Context, userID int, exp int64) error {
 	client := r.client.DB(ctx)

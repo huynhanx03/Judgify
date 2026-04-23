@@ -29,6 +29,9 @@ func BuildCreateSubmission(ctx context.Context, e *entity.Submission) *generate.
 	if e.ErrorMessage != nil {
 		b.SetErrorMessage(*e.ErrorMessage)
 	}
+	if e.ContestID != nil {
+		b.SetContestID(*e.ContestID)
+	}
 	return b
 }
 

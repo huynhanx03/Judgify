@@ -62,9 +62,19 @@ type UserEdges struct {
 	DifficultyStats []*UserDifficultyStats `json:"difficulty_stats,omitempty"`
 	// TagStats holds the value of the tag_stats edge.
 	TagStats []*UserTagStats `json:"tag_stats,omitempty"`
+	// Contests holds the value of the contests edge.
+	Contests []*Contest `json:"contests,omitempty"`
+	// ContestRegistrations holds the value of the contest_registrations edge.
+	ContestRegistrations []*ContestRegistration `json:"contest_registrations,omitempty"`
+	// ContestStandings holds the value of the contest_standings edge.
+	ContestStandings []*ContestStanding `json:"contest_standings,omitempty"`
+	// RatingHistories holds the value of the rating_histories edge.
+	RatingHistories []*RatingHistory `json:"rating_histories,omitempty"`
+	// Materials holds the value of the materials edge.
+	Materials []*Material `json:"materials,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [12]bool
+	loadedTypes [17]bool
 }
 
 // RoleOrErr returns the Role value or an error if the edge
@@ -175,6 +185,51 @@ func (e UserEdges) TagStatsOrErr() ([]*UserTagStats, error) {
 		return e.TagStats, nil
 	}
 	return nil, &NotLoadedError{edge: "tag_stats"}
+}
+
+// ContestsOrErr returns the Contests value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestsOrErr() ([]*Contest, error) {
+	if e.loadedTypes[12] {
+		return e.Contests, nil
+	}
+	return nil, &NotLoadedError{edge: "contests"}
+}
+
+// ContestRegistrationsOrErr returns the ContestRegistrations value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestRegistrationsOrErr() ([]*ContestRegistration, error) {
+	if e.loadedTypes[13] {
+		return e.ContestRegistrations, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_registrations"}
+}
+
+// ContestStandingsOrErr returns the ContestStandings value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestStandingsOrErr() ([]*ContestStanding, error) {
+	if e.loadedTypes[14] {
+		return e.ContestStandings, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_standings"}
+}
+
+// RatingHistoriesOrErr returns the RatingHistories value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RatingHistoriesOrErr() ([]*RatingHistory, error) {
+	if e.loadedTypes[15] {
+		return e.RatingHistories, nil
+	}
+	return nil, &NotLoadedError{edge: "rating_histories"}
+}
+
+// MaterialsOrErr returns the Materials value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) MaterialsOrErr() ([]*Material, error) {
+	if e.loadedTypes[16] {
+		return e.Materials, nil
+	}
+	return nil, &NotLoadedError{edge: "materials"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -318,6 +373,31 @@ func (_m *User) QueryDifficultyStats() *UserDifficultyStatsQuery {
 // QueryTagStats queries the "tag_stats" edge of the User entity.
 func (_m *User) QueryTagStats() *UserTagStatsQuery {
 	return NewUserClient(_m.config).QueryTagStats(_m)
+}
+
+// QueryContests queries the "contests" edge of the User entity.
+func (_m *User) QueryContests() *ContestQuery {
+	return NewUserClient(_m.config).QueryContests(_m)
+}
+
+// QueryContestRegistrations queries the "contest_registrations" edge of the User entity.
+func (_m *User) QueryContestRegistrations() *ContestRegistrationQuery {
+	return NewUserClient(_m.config).QueryContestRegistrations(_m)
+}
+
+// QueryContestStandings queries the "contest_standings" edge of the User entity.
+func (_m *User) QueryContestStandings() *ContestStandingQuery {
+	return NewUserClient(_m.config).QueryContestStandings(_m)
+}
+
+// QueryRatingHistories queries the "rating_histories" edge of the User entity.
+func (_m *User) QueryRatingHistories() *RatingHistoryQuery {
+	return NewUserClient(_m.config).QueryRatingHistories(_m)
+}
+
+// QueryMaterials queries the "materials" edge of the User entity.
+func (_m *User) QueryMaterials() *MaterialQuery {
+	return NewUserClient(_m.config).QueryMaterials(_m)
 }
 
 // Update returns a builder for updating this User.
