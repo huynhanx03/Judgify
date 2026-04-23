@@ -89,11 +89,5 @@ make run-website
 ## Future Roadmap
 
 - [ ] Daily Missions: Implement daily coding tasks (e.g., 3 challenges a day) to encourage consistent practice and reward users with cultivation materials.
-- [ ] Contests System: Introduce timed programming competitions, real-time rankings, and customized leaderboards.
-- [ ] Blogs & Discussions: Establish a built-in community platform for users to share editorials, solutions, and algorithmic knowledge.
 - [ ] Local Cache Synchronization: Implement an event-driven syncing mechanism to keep the local cache seamlessly consistent with database updates in real-time.
 - [ ] Frontend Optimization: Revamp the web interface for higher performance, smoother animations, and an optimized UI/UX design.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.

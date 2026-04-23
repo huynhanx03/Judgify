@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  be-check:
+  backend:
     name: Backend
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -65,7 +65,12 @@ jobs:
           echo "## Test Coverage"
           go tool cover -func=coverage.out | tail -1
 
-  fe-check:
+      - name: Security scan (govulncheck)
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
+  frontend:
     name: Frontend
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -97,66 +102,29 @@ jobs:
       - name: Build
         run: npx next build
 
-  go-security:
-    name: Go Security
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.25'
-          cache-dependency-path: api/go.sum
-
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
-
-      - name: Run govulncheck
-        working-directory: api
-        run: govulncheck ./...
-
-  fe-security:
-    name: Frontend Security
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: website/package-lock.json
-
-      - name: Install dependencies
-        working-directory: website
-        run: npm ci
-
-      - name: Run npm audit
-        working-directory: website
+      - name: Security audit
         run: npm audit --audit-level=high
 
   gate:
     name: Gate
     runs-on: ubuntu-latest
-    needs: [be-check, fe-check, go-security, fe-security]
+    needs: [backend, frontend]
     if: always()
 
     steps:
       - name: Check all jobs passed
         run: |
-          results=("${{ needs.be-check.result }}" "${{ needs.fe-check.result }}" "${{ needs.go-security.result }}" "${{ needs.fe-security.result }}")
-          for result in "${results[@]}"; do
+          declare -A results=(
+            [Backend]="${{ needs.backend.result }}"
+            [Frontend]="${{ needs.frontend.result }}"
+          )
+          for name in "${!results[@]}"; do
+            result="${results[$name]}"
             if [[ "$result" != "success" && "$result" != "skipped" ]]; then
-              echo "::error::CI gate failed - $result"
+              echo "::error::$name check failed ($result)"
               exit 1
             fi
           done
-          echo "All CI checks passed!"
+          echo "=== All CI checks passed ==="
+          echo "Backend:  ${{ needs.backend.result }}"
+          echo "Frontend: ${{ needs.frontend.result }}"
