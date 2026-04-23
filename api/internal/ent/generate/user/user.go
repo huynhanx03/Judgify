@@ -59,6 +59,8 @@ const (
 	EdgeContestStandings = "contest_standings"
 	// EdgeRatingHistories holds the string denoting the rating_histories edge name in mutations.
 	EdgeRatingHistories = "rating_histories"
+	// EdgeMaterials holds the string denoting the materials edge name in mutations.
+	EdgeMaterials = "materials"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleTable is the table that holds the role relation/edge.
@@ -173,6 +175,13 @@ const (
 	RatingHistoriesInverseTable = "rating_histories"
 	// RatingHistoriesColumn is the table column denoting the rating_histories relation/edge.
 	RatingHistoriesColumn = "user_id"
+	// MaterialsTable is the table that holds the materials relation/edge.
+	MaterialsTable = "materials"
+	// MaterialsInverseTable is the table name for the Material entity.
+	// It exists in this package in order to avoid circular dependency with the "material" package.
+	MaterialsInverseTable = "materials"
+	// MaterialsColumn is the table column denoting the materials relation/edge.
+	MaterialsColumn = "author_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -468,6 +477,20 @@ func ByRatingHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRatingHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMaterialsCount orders the results by materials count.
+func ByMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMaterialsStep(), opts...)
+	}
+}
+
+// ByMaterials orders the results by materials terms.
+func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRoleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -578,5 +601,12 @@ func newRatingHistoriesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RatingHistoriesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RatingHistoriesTable, RatingHistoriesColumn),
+	)
+}
+func newMaterialsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MaterialsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
 	)
 }

@@ -32,6 +32,10 @@ type Tx struct {
 	FederatedIdentity *FederatedIdentityClient
 	// Level is the client for interacting with the Level builders.
 	Level *LevelClient
+	// Material is the client for interacting with the Material builders.
+	Material *MaterialClient
+	// MaterialCategory is the client for interacting with the MaterialCategory builders.
+	MaterialCategory *MaterialCategoryClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// Problem is the client for interacting with the Problem builders.
@@ -210,6 +214,8 @@ func (tx *Tx) init() {
 	tx.Element = NewElementClient(tx.config)
 	tx.FederatedIdentity = NewFederatedIdentityClient(tx.config)
 	tx.Level = NewLevelClient(tx.config)
+	tx.Material = NewMaterialClient(tx.config)
+	tx.MaterialCategory = NewMaterialCategoryClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)
 	tx.Rank = NewRankClient(tx.config)

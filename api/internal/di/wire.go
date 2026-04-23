@@ -9,6 +9,7 @@ import (
 	contestDi "github.com/huynhanx03/judgify/internal/contest/di"
 	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
+	materialDi "github.com/huynhanx03/judgify/internal/material/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
 	submissionDi "github.com/huynhanx03/judgify/internal/submission/di"
 	"github.com/huynhanx03/judgify/pkg/mq/forge"
@@ -49,6 +50,7 @@ func SetupDependencies() *Container {
 	)
 	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer, contestJudgeProducer)
 	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo)
+	materialContainer := materialDi.NewMaterialContainer()
 
 	container := &Container{
 		Identity:    identityContainer,
@@ -56,6 +58,7 @@ func SetupDependencies() *Container {
 		Cultivation: cultivationContainer,
 		Submission:  submissionContainer,
 		Contest:     contestContainer,
+		Material:    materialContainer,
 		Broker:      broker,
 	}
 

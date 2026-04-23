@@ -16,6 +16,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
@@ -334,6 +335,21 @@ func (_c *UserCreate) AddRatingHistories(v ...*RatingHistory) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddRatingHistoryIDs(ids...)
+}
+
+// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
+func (_c *UserCreate) AddMaterialIDs(ids ...int) *UserCreate {
+	_c.mutation.AddMaterialIDs(ids...)
+	return _c
+}
+
+// AddMaterials adds the "materials" edges to the Material entity.
+func (_c *UserCreate) AddMaterials(v ...*Material) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMaterialIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -709,6 +725,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialsTable,
+			Columns: []string{user.MaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -18,6 +18,8 @@ import {
   RANK_API,
   USER_API,
   CONTEST_API,
+  MATERIAL_CATEGORY_API,
+  MATERIAL_API,
 } from "@/constants/api";
 import type { Paginated, QueryOptions } from "@/types/api";
 import type { Role, Permission, Resource, AdminUser } from "@/types/admin";
@@ -27,6 +29,7 @@ import type { Tag } from "@/types/tag";
 import type { DifficultyResponse } from "@/types/difficulty";
 import type { TestCaseResponse } from "@/types/submission";
 import type { ElementResponse, LevelResponse, RankResponse, RarityResponse, TraitResponse } from "@/types/cultivation";
+import type { MaterialArticle, MaterialCategory } from "@/types/material";
 
 export const adminService = {
   // Roles
@@ -266,5 +269,36 @@ export const adminService = {
   },
   async deleteContest(id: number): Promise<void> {
     await apiClient.delete(CONTEST_API.DELETE(id));
+  },
+
+  // Material Categories
+  async findMaterialCategories(query: QueryOptions): Promise<Paginated<MaterialCategory>> {
+    return apiClient.post(MATERIAL_CATEGORY_API.FIND, query);
+  },
+  async getAllMaterialCategories(): Promise<MaterialCategory[]> {
+    return apiClient.get(MATERIAL_CATEGORY_API.FIND_ALL);
+  },
+  async createMaterialCategory(data: { name: string; description?: string }): Promise<MaterialCategory> {
+    return apiClient.post(MATERIAL_CATEGORY_API.CREATE, data);
+  },
+  async updateMaterialCategory(id: number, data: { name?: string; description?: string }): Promise<MaterialCategory> {
+    return apiClient.put(MATERIAL_CATEGORY_API.UPDATE(id), data);
+  },
+  async deleteMaterialCategory(id: number): Promise<void> {
+    await apiClient.delete(MATERIAL_CATEGORY_API.DELETE(id));
+  },
+
+  // Materials
+  async findMaterials(query: QueryOptions): Promise<Paginated<MaterialArticle>> {
+    return apiClient.post(MATERIAL_API.FIND, query);
+  },
+  async createMaterial(data: Record<string, unknown>): Promise<MaterialArticle> {
+    return apiClient.post(MATERIAL_API.CREATE, data);
+  },
+  async updateMaterial(id: number, data: Record<string, unknown>): Promise<MaterialArticle> {
+    return apiClient.put(MATERIAL_API.UPDATE(id), data);
+  },
+  async deleteMaterial(id: number): Promise<void> {
+    await apiClient.delete(MATERIAL_API.DELETE(id));
   },
 };

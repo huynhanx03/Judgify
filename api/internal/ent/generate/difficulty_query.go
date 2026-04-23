@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -28,6 +29,7 @@ type DifficultyQuery struct {
 	predicates              []predicate.Difficulty
 	withProblems            *ProblemQuery
 	withUserDifficultyStats *UserDifficultyStatsQuery
+	withMaterials           *MaterialQuery
 	modifiers               []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -102,6 +104,28 @@ func (_q *DifficultyQuery) QueryUserDifficultyStats() *UserDifficultyStatsQuery 
 			sqlgraph.From(difficulty.Table, difficulty.FieldID, selector),
 			sqlgraph.To(userdifficultystats.Table, userdifficultystats.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.UserDifficultyStatsTable, difficulty.UserDifficultyStatsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMaterials chains the current query on the "materials" edge.
+func (_q *DifficultyQuery) QueryMaterials() *MaterialQuery {
+	query := (&MaterialClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(difficulty.Table, difficulty.FieldID, selector),
+			sqlgraph.To(material.Table, material.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.MaterialsTable, difficulty.MaterialsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -303,6 +327,7 @@ func (_q *DifficultyQuery) Clone() *DifficultyQuery {
 		predicates:              append([]predicate.Difficulty{}, _q.predicates...),
 		withProblems:            _q.withProblems.Clone(),
 		withUserDifficultyStats: _q.withUserDifficultyStats.Clone(),
+		withMaterials:           _q.withMaterials.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -329,6 +354,17 @@ func (_q *DifficultyQuery) WithUserDifficultyStats(opts ...func(*UserDifficultyS
 		opt(query)
 	}
 	_q.withUserDifficultyStats = query
+	return _q
+}
+
+// WithMaterials tells the query-builder to eager-load the nodes that are connected to
+// the "materials" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DifficultyQuery) WithMaterials(opts ...func(*MaterialQuery)) *DifficultyQuery {
+	query := (&MaterialClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMaterials = query
 	return _q
 }
 
@@ -410,9 +446,10 @@ func (_q *DifficultyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 	var (
 		nodes       = []*Difficulty{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withProblems != nil,
 			_q.withUserDifficultyStats != nil,
+			_q.withMaterials != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -454,6 +491,18 @@ func (_q *DifficultyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 			func(n *Difficulty, e *UserDifficultyStats) {
 				n.Edges.UserDifficultyStats = append(n.Edges.UserDifficultyStats, e)
 				if !e.Edges.loadedTypes[1] {
+					e.Edges.Difficulty = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withMaterials; query != nil {
+		if err := _q.loadMaterials(ctx, query, nodes,
+			func(n *Difficulty) { n.Edges.Materials = []*Material{} },
+			func(n *Difficulty, e *Material) {
+				n.Edges.Materials = append(n.Edges.Materials, e)
+				if !e.Edges.loadedTypes[2] {
 					e.Edges.Difficulty = n
 				}
 			}); err != nil {
@@ -509,6 +558,36 @@ func (_q *DifficultyQuery) loadUserDifficultyStats(ctx context.Context, query *U
 	}
 	query.Where(predicate.UserDifficultyStats(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(difficulty.UserDifficultyStatsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DifficultyID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "difficulty_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *DifficultyQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *Material)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Difficulty)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(material.FieldDifficultyID)
+	}
+	query.Where(predicate.Material(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(difficulty.MaterialsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

@@ -24,6 +24,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
@@ -70,6 +72,10 @@ type Client struct {
 	FederatedIdentity *FederatedIdentityClient
 	// Level is the client for interacting with the Level builders.
 	Level *LevelClient
+	// Material is the client for interacting with the Material builders.
+	Material *MaterialClient
+	// MaterialCategory is the client for interacting with the MaterialCategory builders.
+	MaterialCategory *MaterialCategoryClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
 	// Problem is the client for interacting with the Problem builders.
@@ -128,6 +134,8 @@ func (c *Client) init() {
 	c.Element = NewElementClient(c.config)
 	c.FederatedIdentity = NewFederatedIdentityClient(c.config)
 	c.Level = NewLevelClient(c.config)
+	c.Material = NewMaterialClient(c.config)
+	c.MaterialCategory = NewMaterialCategoryClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.Problem = NewProblemClient(c.config)
 	c.Rank = NewRankClient(c.config)
@@ -248,6 +256,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Element:             NewElementClient(cfg),
 		FederatedIdentity:   NewFederatedIdentityClient(cfg),
 		Level:               NewLevelClient(cfg),
+		Material:            NewMaterialClient(cfg),
+		MaterialCategory:    NewMaterialCategoryClient(cfg),
 		Permission:          NewPermissionClient(cfg),
 		Problem:             NewProblemClient(cfg),
 		Rank:                NewRankClient(cfg),
@@ -295,6 +305,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Element:             NewElementClient(cfg),
 		FederatedIdentity:   NewFederatedIdentityClient(cfg),
 		Level:               NewLevelClient(cfg),
+		Material:            NewMaterialClient(cfg),
+		MaterialCategory:    NewMaterialCategoryClient(cfg),
 		Permission:          NewPermissionClient(cfg),
 		Problem:             NewProblemClient(cfg),
 		Rank:                NewRankClient(cfg),
@@ -345,10 +357,10 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AttributeDefinition, c.Contest, c.ContestRegistration, c.ContestStanding,
 		c.Credential, c.Difficulty, c.Element, c.FederatedIdentity, c.Level,
-		c.Permission, c.Problem, c.Rank, c.Rarity, c.RatingHistory, c.Resource, c.Role,
-		c.Submission, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
-		c.UserDifficultyStats, c.UserElementExp, c.UserSolvedProblem, c.UserStats,
-		c.UserTagStats, c.UserTrait,
+		c.Material, c.MaterialCategory, c.Permission, c.Problem, c.Rank, c.Rarity,
+		c.RatingHistory, c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait,
+		c.User, c.UserAttributeValue, c.UserDifficultyStats, c.UserElementExp,
+		c.UserSolvedProblem, c.UserStats, c.UserTagStats, c.UserTrait,
 	} {
 		n.Use(hooks...)
 	}
@@ -360,10 +372,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AttributeDefinition, c.Contest, c.ContestRegistration, c.ContestStanding,
 		c.Credential, c.Difficulty, c.Element, c.FederatedIdentity, c.Level,
-		c.Permission, c.Problem, c.Rank, c.Rarity, c.RatingHistory, c.Resource, c.Role,
-		c.Submission, c.Tag, c.TestCase, c.Trait, c.User, c.UserAttributeValue,
-		c.UserDifficultyStats, c.UserElementExp, c.UserSolvedProblem, c.UserStats,
-		c.UserTagStats, c.UserTrait,
+		c.Material, c.MaterialCategory, c.Permission, c.Problem, c.Rank, c.Rarity,
+		c.RatingHistory, c.Resource, c.Role, c.Submission, c.Tag, c.TestCase, c.Trait,
+		c.User, c.UserAttributeValue, c.UserDifficultyStats, c.UserElementExp,
+		c.UserSolvedProblem, c.UserStats, c.UserTagStats, c.UserTrait,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -390,6 +402,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.FederatedIdentity.mutate(ctx, m)
 	case *LevelMutation:
 		return c.Level.mutate(ctx, m)
+	case *MaterialMutation:
+		return c.Material.mutate(ctx, m)
+	case *MaterialCategoryMutation:
+		return c.MaterialCategory.mutate(ctx, m)
 	case *PermissionMutation:
 		return c.Permission.mutate(ctx, m)
 	case *ProblemMutation:
@@ -1436,6 +1452,22 @@ func (c *DifficultyClient) QueryUserDifficultyStats(_m *Difficulty) *UserDifficu
 	return query
 }
 
+// QueryMaterials queries the materials edge of a Difficulty.
+func (c *DifficultyClient) QueryMaterials(_m *Difficulty) *MaterialQuery {
+	query := (&MaterialClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(difficulty.Table, difficulty.FieldID, id),
+			sqlgraph.To(material.Table, material.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.MaterialsTable, difficulty.MaterialsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *DifficultyClient) Hooks() []Hook {
 	hooks := c.hooks.Difficulty
@@ -1913,6 +1945,356 @@ func (c *LevelClient) mutate(ctx context.Context, m *LevelMutation) (Value, erro
 		return (&LevelDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("generate: unknown Level mutation op: %q", m.Op())
+	}
+}
+
+// MaterialClient is a client for the Material schema.
+type MaterialClient struct {
+	config
+}
+
+// NewMaterialClient returns a client for the Material from the given config.
+func NewMaterialClient(c config) *MaterialClient {
+	return &MaterialClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `material.Hooks(f(g(h())))`.
+func (c *MaterialClient) Use(hooks ...Hook) {
+	c.hooks.Material = append(c.hooks.Material, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `material.Intercept(f(g(h())))`.
+func (c *MaterialClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Material = append(c.inters.Material, interceptors...)
+}
+
+// Create returns a builder for creating a Material entity.
+func (c *MaterialClient) Create() *MaterialCreate {
+	mutation := newMaterialMutation(c.config, OpCreate)
+	return &MaterialCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Material entities.
+func (c *MaterialClient) CreateBulk(builders ...*MaterialCreate) *MaterialCreateBulk {
+	return &MaterialCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MaterialClient) MapCreateBulk(slice any, setFunc func(*MaterialCreate, int)) *MaterialCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MaterialCreateBulk{err: fmt.Errorf("calling to MaterialClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MaterialCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MaterialCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Material.
+func (c *MaterialClient) Update() *MaterialUpdate {
+	mutation := newMaterialMutation(c.config, OpUpdate)
+	return &MaterialUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MaterialClient) UpdateOne(_m *Material) *MaterialUpdateOne {
+	mutation := newMaterialMutation(c.config, OpUpdateOne, withMaterial(_m))
+	return &MaterialUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MaterialClient) UpdateOneID(id int) *MaterialUpdateOne {
+	mutation := newMaterialMutation(c.config, OpUpdateOne, withMaterialID(id))
+	return &MaterialUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Material.
+func (c *MaterialClient) Delete() *MaterialDelete {
+	mutation := newMaterialMutation(c.config, OpDelete)
+	return &MaterialDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MaterialClient) DeleteOne(_m *Material) *MaterialDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MaterialClient) DeleteOneID(id int) *MaterialDeleteOne {
+	builder := c.Delete().Where(material.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MaterialDeleteOne{builder}
+}
+
+// Query returns a query builder for Material.
+func (c *MaterialClient) Query() *MaterialQuery {
+	return &MaterialQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMaterial},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Material entity by its id.
+func (c *MaterialClient) Get(ctx context.Context, id int) (*Material, error) {
+	return c.Query().Where(material.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MaterialClient) GetX(ctx context.Context, id int) *Material {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCategory queries the category edge of a Material.
+func (c *MaterialClient) QueryCategory(_m *Material) *MaterialCategoryQuery {
+	query := (&MaterialCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, id),
+			sqlgraph.To(materialcategory.Table, materialcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, material.CategoryTable, material.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAuthor queries the author edge of a Material.
+func (c *MaterialClient) QueryAuthor(_m *Material) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, material.AuthorTable, material.AuthorColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDifficulty queries the difficulty edge of a Material.
+func (c *MaterialClient) QueryDifficulty(_m *Material) *DifficultyQuery {
+	query := (&DifficultyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, id),
+			sqlgraph.To(difficulty.Table, difficulty.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, material.DifficultyTable, material.DifficultyColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTags queries the tags edge of a Material.
+func (c *MaterialClient) QueryTags(_m *Material) *TagQuery {
+	query := (&TagClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, id),
+			sqlgraph.To(tag.Table, tag.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, material.TagsTable, material.TagsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MaterialClient) Hooks() []Hook {
+	hooks := c.hooks.Material
+	return append(hooks[:len(hooks):len(hooks)], material.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *MaterialClient) Interceptors() []Interceptor {
+	inters := c.inters.Material
+	return append(inters[:len(inters):len(inters)], material.Interceptors[:]...)
+}
+
+func (c *MaterialClient) mutate(ctx context.Context, m *MaterialMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MaterialCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MaterialUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MaterialUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MaterialDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown Material mutation op: %q", m.Op())
+	}
+}
+
+// MaterialCategoryClient is a client for the MaterialCategory schema.
+type MaterialCategoryClient struct {
+	config
+}
+
+// NewMaterialCategoryClient returns a client for the MaterialCategory from the given config.
+func NewMaterialCategoryClient(c config) *MaterialCategoryClient {
+	return &MaterialCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `materialcategory.Hooks(f(g(h())))`.
+func (c *MaterialCategoryClient) Use(hooks ...Hook) {
+	c.hooks.MaterialCategory = append(c.hooks.MaterialCategory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `materialcategory.Intercept(f(g(h())))`.
+func (c *MaterialCategoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MaterialCategory = append(c.inters.MaterialCategory, interceptors...)
+}
+
+// Create returns a builder for creating a MaterialCategory entity.
+func (c *MaterialCategoryClient) Create() *MaterialCategoryCreate {
+	mutation := newMaterialCategoryMutation(c.config, OpCreate)
+	return &MaterialCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MaterialCategory entities.
+func (c *MaterialCategoryClient) CreateBulk(builders ...*MaterialCategoryCreate) *MaterialCategoryCreateBulk {
+	return &MaterialCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MaterialCategoryClient) MapCreateBulk(slice any, setFunc func(*MaterialCategoryCreate, int)) *MaterialCategoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MaterialCategoryCreateBulk{err: fmt.Errorf("calling to MaterialCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MaterialCategoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MaterialCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MaterialCategory.
+func (c *MaterialCategoryClient) Update() *MaterialCategoryUpdate {
+	mutation := newMaterialCategoryMutation(c.config, OpUpdate)
+	return &MaterialCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MaterialCategoryClient) UpdateOne(_m *MaterialCategory) *MaterialCategoryUpdateOne {
+	mutation := newMaterialCategoryMutation(c.config, OpUpdateOne, withMaterialCategory(_m))
+	return &MaterialCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MaterialCategoryClient) UpdateOneID(id int) *MaterialCategoryUpdateOne {
+	mutation := newMaterialCategoryMutation(c.config, OpUpdateOne, withMaterialCategoryID(id))
+	return &MaterialCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MaterialCategory.
+func (c *MaterialCategoryClient) Delete() *MaterialCategoryDelete {
+	mutation := newMaterialCategoryMutation(c.config, OpDelete)
+	return &MaterialCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MaterialCategoryClient) DeleteOne(_m *MaterialCategory) *MaterialCategoryDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MaterialCategoryClient) DeleteOneID(id int) *MaterialCategoryDeleteOne {
+	builder := c.Delete().Where(materialcategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MaterialCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for MaterialCategory.
+func (c *MaterialCategoryClient) Query() *MaterialCategoryQuery {
+	return &MaterialCategoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMaterialCategory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MaterialCategory entity by its id.
+func (c *MaterialCategoryClient) Get(ctx context.Context, id int) (*MaterialCategory, error) {
+	return c.Query().Where(materialcategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MaterialCategoryClient) GetX(ctx context.Context, id int) *MaterialCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMaterials queries the materials edge of a MaterialCategory.
+func (c *MaterialCategoryClient) QueryMaterials(_m *MaterialCategory) *MaterialQuery {
+	query := (&MaterialClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(materialcategory.Table, materialcategory.FieldID, id),
+			sqlgraph.To(material.Table, material.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, materialcategory.MaterialsTable, materialcategory.MaterialsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MaterialCategoryClient) Hooks() []Hook {
+	hooks := c.hooks.MaterialCategory
+	return append(hooks[:len(hooks):len(hooks)], materialcategory.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *MaterialCategoryClient) Interceptors() []Interceptor {
+	inters := c.inters.MaterialCategory
+	return append(inters[:len(inters):len(inters)], materialcategory.Interceptors[:]...)
+}
+
+func (c *MaterialCategoryClient) mutate(ctx context.Context, m *MaterialCategoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MaterialCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MaterialCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MaterialCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MaterialCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generate: unknown MaterialCategory mutation op: %q", m.Op())
 	}
 }
 
@@ -3422,6 +3804,22 @@ func (c *TagClient) QueryUserTagStats(_m *Tag) *UserTagStatsQuery {
 	return query
 }
 
+// QueryMaterials queries the materials edge of a Tag.
+func (c *TagClient) QueryMaterials(_m *Tag) *MaterialQuery {
+	query := (&MaterialClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, id),
+			sqlgraph.To(material.Table, material.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, tag.MaterialsTable, tag.MaterialsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TagClient) Hooks() []Hook {
 	hooks := c.hooks.Tag
@@ -4124,6 +4522,22 @@ func (c *UserClient) QueryRatingHistories(_m *User) *RatingHistoryQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(ratinghistory.Table, ratinghistory.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.RatingHistoriesTable, user.RatingHistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMaterials queries the materials edge of a User.
+func (c *UserClient) QueryMaterials(_m *User) *MaterialQuery {
+	query := (&MaterialClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(material.Table, material.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MaterialsTable, user.MaterialsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -5309,17 +5723,19 @@ func (c *UserTraitClient) mutate(ctx context.Context, m *UserTraitMutation) (Val
 type (
 	hooks struct {
 		AttributeDefinition, Contest, ContestRegistration, ContestStanding, Credential,
-		Difficulty, Element, FederatedIdentity, Level, Permission, Problem, Rank,
-		Rarity, RatingHistory, Resource, Role, Submission, Tag, TestCase, Trait, User,
-		UserAttributeValue, UserDifficultyStats, UserElementExp, UserSolvedProblem,
-		UserStats, UserTagStats, UserTrait []ent.Hook
+		Difficulty, Element, FederatedIdentity, Level, Material, MaterialCategory,
+		Permission, Problem, Rank, Rarity, RatingHistory, Resource, Role, Submission,
+		Tag, TestCase, Trait, User, UserAttributeValue, UserDifficultyStats,
+		UserElementExp, UserSolvedProblem, UserStats, UserTagStats,
+		UserTrait []ent.Hook
 	}
 	inters struct {
 		AttributeDefinition, Contest, ContestRegistration, ContestStanding, Credential,
-		Difficulty, Element, FederatedIdentity, Level, Permission, Problem, Rank,
-		Rarity, RatingHistory, Resource, Role, Submission, Tag, TestCase, Trait, User,
-		UserAttributeValue, UserDifficultyStats, UserElementExp, UserSolvedProblem,
-		UserStats, UserTagStats, UserTrait []ent.Interceptor
+		Difficulty, Element, FederatedIdentity, Level, Material, MaterialCategory,
+		Permission, Problem, Rank, Rarity, RatingHistory, Resource, Role, Submission,
+		Tag, TestCase, Trait, User, UserAttributeValue, UserDifficultyStats,
+		UserElementExp, UserSolvedProblem, UserStats, UserTagStats,
+		UserTrait []ent.Interceptor
 	}
 )
 

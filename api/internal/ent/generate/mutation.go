@@ -20,6 +20,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
@@ -60,6 +62,8 @@ const (
 	TypeElement             = "Element"
 	TypeFederatedIdentity   = "FederatedIdentity"
 	TypeLevel               = "Level"
+	TypeMaterial            = "Material"
+	TypeMaterialCategory    = "MaterialCategory"
 	TypePermission          = "Permission"
 	TypeProblem             = "Problem"
 	TypeRank                = "Rank"
@@ -4410,6 +4414,9 @@ type DifficultyMutation struct {
 	user_difficulty_stats        map[int]struct{}
 	removeduser_difficulty_stats map[int]struct{}
 	cleareduser_difficulty_stats bool
+	materials                    map[int]struct{}
+	removedmaterials             map[int]struct{}
+	clearedmaterials             bool
 	done                         bool
 	oldValue                     func(context.Context) (*Difficulty, error)
 	predicates                   []predicate.Difficulty
@@ -5009,6 +5016,60 @@ func (m *DifficultyMutation) ResetUserDifficultyStats() {
 	m.removeduser_difficulty_stats = nil
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by ids.
+func (m *DifficultyMutation) AddMaterialIDs(ids ...int) {
+	if m.materials == nil {
+		m.materials = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.materials[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMaterials clears the "materials" edge to the Material entity.
+func (m *DifficultyMutation) ClearMaterials() {
+	m.clearedmaterials = true
+}
+
+// MaterialsCleared reports if the "materials" edge to the Material entity was cleared.
+func (m *DifficultyMutation) MaterialsCleared() bool {
+	return m.clearedmaterials
+}
+
+// RemoveMaterialIDs removes the "materials" edge to the Material entity by IDs.
+func (m *DifficultyMutation) RemoveMaterialIDs(ids ...int) {
+	if m.removedmaterials == nil {
+		m.removedmaterials = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.materials, ids[i])
+		m.removedmaterials[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMaterials returns the removed IDs of the "materials" edge to the Material entity.
+func (m *DifficultyMutation) RemovedMaterialsIDs() (ids []int) {
+	for id := range m.removedmaterials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MaterialsIDs returns the "materials" edge IDs in the mutation.
+func (m *DifficultyMutation) MaterialsIDs() (ids []int) {
+	for id := range m.materials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMaterials resets all changes to the "materials" edge.
+func (m *DifficultyMutation) ResetMaterials() {
+	m.materials = nil
+	m.clearedmaterials = false
+	m.removedmaterials = nil
+}
+
 // Where appends a list predicates to the DifficultyMutation builder.
 func (m *DifficultyMutation) Where(ps ...predicate.Difficulty) {
 	m.predicates = append(m.predicates, ps...)
@@ -5321,12 +5382,15 @@ func (m *DifficultyMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DifficultyMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.problems != nil {
 		edges = append(edges, difficulty.EdgeProblems)
 	}
 	if m.user_difficulty_stats != nil {
 		edges = append(edges, difficulty.EdgeUserDifficultyStats)
+	}
+	if m.materials != nil {
+		edges = append(edges, difficulty.EdgeMaterials)
 	}
 	return edges
 }
@@ -5347,18 +5411,27 @@ func (m *DifficultyMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case difficulty.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.materials))
+		for id := range m.materials {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DifficultyMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedproblems != nil {
 		edges = append(edges, difficulty.EdgeProblems)
 	}
 	if m.removeduser_difficulty_stats != nil {
 		edges = append(edges, difficulty.EdgeUserDifficultyStats)
+	}
+	if m.removedmaterials != nil {
+		edges = append(edges, difficulty.EdgeMaterials)
 	}
 	return edges
 }
@@ -5379,18 +5452,27 @@ func (m *DifficultyMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case difficulty.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.removedmaterials))
+		for id := range m.removedmaterials {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DifficultyMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedproblems {
 		edges = append(edges, difficulty.EdgeProblems)
 	}
 	if m.cleareduser_difficulty_stats {
 		edges = append(edges, difficulty.EdgeUserDifficultyStats)
+	}
+	if m.clearedmaterials {
+		edges = append(edges, difficulty.EdgeMaterials)
 	}
 	return edges
 }
@@ -5403,6 +5485,8 @@ func (m *DifficultyMutation) EdgeCleared(name string) bool {
 		return m.clearedproblems
 	case difficulty.EdgeUserDifficultyStats:
 		return m.cleareduser_difficulty_stats
+	case difficulty.EdgeMaterials:
+		return m.clearedmaterials
 	}
 	return false
 }
@@ -5424,6 +5508,9 @@ func (m *DifficultyMutation) ResetEdge(name string) error {
 		return nil
 	case difficulty.EdgeUserDifficultyStats:
 		m.ResetUserDifficultyStats()
+		return nil
+	case difficulty.EdgeMaterials:
+		m.ResetMaterials()
 		return nil
 	}
 	return fmt.Errorf("unknown Difficulty edge %s", name)
@@ -7912,6 +7999,2340 @@ func (m *LevelMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *LevelMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Level edge %s", name)
+}
+
+// MaterialMutation represents an operation that mutates the Material nodes in the graph.
+type MaterialMutation struct {
+	config
+	op                     Op
+	typ                    string
+	id                     *int
+	created_at             *time.Time
+	updated_at             *time.Time
+	deleted_at             *time.Time
+	deleted_by             *int
+	adddeleted_by          *int
+	title                  *string
+	description            *string
+	content                *string
+	status                 *material.Status
+	visibility             *material.Visibility
+	group_id               *int
+	addgroup_id            *int
+	view_count             *int
+	addview_count          *int
+	estimated_read_time    *int
+	addestimated_read_time *int
+	clearedFields          map[string]struct{}
+	category               *int
+	clearedcategory        bool
+	author                 *int
+	clearedauthor          bool
+	difficulty             *int
+	cleareddifficulty      bool
+	tags                   map[int]struct{}
+	removedtags            map[int]struct{}
+	clearedtags            bool
+	done                   bool
+	oldValue               func(context.Context) (*Material, error)
+	predicates             []predicate.Material
+}
+
+var _ ent.Mutation = (*MaterialMutation)(nil)
+
+// materialOption allows management of the mutation configuration using functional options.
+type materialOption func(*MaterialMutation)
+
+// newMaterialMutation creates new mutation for the Material entity.
+func newMaterialMutation(c config, op Op, opts ...materialOption) *MaterialMutation {
+	m := &MaterialMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeMaterial,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withMaterialID sets the ID field of the mutation.
+func withMaterialID(id int) materialOption {
+	return func(m *MaterialMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Material
+		)
+		m.oldValue = func(ctx context.Context) (*Material, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Material.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withMaterial sets the old Material of the mutation.
+func withMaterial(node *Material) materialOption {
+	return func(m *MaterialMutation) {
+		m.oldValue = func(context.Context) (*Material, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m MaterialMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m MaterialMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("generate: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *MaterialMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *MaterialMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Material.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *MaterialMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *MaterialMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *MaterialMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *MaterialMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *MaterialMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *MaterialMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *MaterialMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *MaterialMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *MaterialMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[material.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *MaterialMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[material.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *MaterialMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, material.FieldDeletedAt)
+}
+
+// SetDeletedBy sets the "deleted_by" field.
+func (m *MaterialMutation) SetDeletedBy(i int) {
+	m.deleted_by = &i
+	m.adddeleted_by = nil
+}
+
+// DeletedBy returns the value of the "deleted_by" field in the mutation.
+func (m *MaterialMutation) DeletedBy() (r int, exists bool) {
+	v := m.deleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedBy returns the old "deleted_by" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldDeletedBy(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedBy: %w", err)
+	}
+	return oldValue.DeletedBy, nil
+}
+
+// AddDeletedBy adds i to the "deleted_by" field.
+func (m *MaterialMutation) AddDeletedBy(i int) {
+	if m.adddeleted_by != nil {
+		*m.adddeleted_by += i
+	} else {
+		m.adddeleted_by = &i
+	}
+}
+
+// AddedDeletedBy returns the value that was added to the "deleted_by" field in this mutation.
+func (m *MaterialMutation) AddedDeletedBy() (r int, exists bool) {
+	v := m.adddeleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeletedBy clears the value of the "deleted_by" field.
+func (m *MaterialMutation) ClearDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	m.clearedFields[material.FieldDeletedBy] = struct{}{}
+}
+
+// DeletedByCleared returns if the "deleted_by" field was cleared in this mutation.
+func (m *MaterialMutation) DeletedByCleared() bool {
+	_, ok := m.clearedFields[material.FieldDeletedBy]
+	return ok
+}
+
+// ResetDeletedBy resets all changes to the "deleted_by" field.
+func (m *MaterialMutation) ResetDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	delete(m.clearedFields, material.FieldDeletedBy)
+}
+
+// SetTitle sets the "title" field.
+func (m *MaterialMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *MaterialMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *MaterialMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *MaterialMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *MaterialMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *MaterialMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[material.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *MaterialMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[material.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *MaterialMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, material.FieldDescription)
+}
+
+// SetContent sets the "content" field.
+func (m *MaterialMutation) SetContent(s string) {
+	m.content = &s
+}
+
+// Content returns the value of the "content" field in the mutation.
+func (m *MaterialMutation) Content() (r string, exists bool) {
+	v := m.content
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContent returns the old "content" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldContent(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContent: %w", err)
+	}
+	return oldValue.Content, nil
+}
+
+// ClearContent clears the value of the "content" field.
+func (m *MaterialMutation) ClearContent() {
+	m.content = nil
+	m.clearedFields[material.FieldContent] = struct{}{}
+}
+
+// ContentCleared returns if the "content" field was cleared in this mutation.
+func (m *MaterialMutation) ContentCleared() bool {
+	_, ok := m.clearedFields[material.FieldContent]
+	return ok
+}
+
+// ResetContent resets all changes to the "content" field.
+func (m *MaterialMutation) ResetContent() {
+	m.content = nil
+	delete(m.clearedFields, material.FieldContent)
+}
+
+// SetDifficultyID sets the "difficulty_id" field.
+func (m *MaterialMutation) SetDifficultyID(i int) {
+	m.difficulty = &i
+}
+
+// DifficultyID returns the value of the "difficulty_id" field in the mutation.
+func (m *MaterialMutation) DifficultyID() (r int, exists bool) {
+	v := m.difficulty
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDifficultyID returns the old "difficulty_id" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldDifficultyID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDifficultyID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDifficultyID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDifficultyID: %w", err)
+	}
+	return oldValue.DifficultyID, nil
+}
+
+// ResetDifficultyID resets all changes to the "difficulty_id" field.
+func (m *MaterialMutation) ResetDifficultyID() {
+	m.difficulty = nil
+}
+
+// SetAuthorID sets the "author_id" field.
+func (m *MaterialMutation) SetAuthorID(i int) {
+	m.author = &i
+}
+
+// AuthorID returns the value of the "author_id" field in the mutation.
+func (m *MaterialMutation) AuthorID() (r int, exists bool) {
+	v := m.author
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAuthorID returns the old "author_id" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldAuthorID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAuthorID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAuthorID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAuthorID: %w", err)
+	}
+	return oldValue.AuthorID, nil
+}
+
+// ResetAuthorID resets all changes to the "author_id" field.
+func (m *MaterialMutation) ResetAuthorID() {
+	m.author = nil
+}
+
+// SetCategoryID sets the "category_id" field.
+func (m *MaterialMutation) SetCategoryID(i int) {
+	m.category = &i
+}
+
+// CategoryID returns the value of the "category_id" field in the mutation.
+func (m *MaterialMutation) CategoryID() (r int, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategoryID returns the old "category_id" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldCategoryID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategoryID: %w", err)
+	}
+	return oldValue.CategoryID, nil
+}
+
+// ResetCategoryID resets all changes to the "category_id" field.
+func (m *MaterialMutation) ResetCategoryID() {
+	m.category = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *MaterialMutation) SetStatus(value material.Status) {
+	m.status = &value
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *MaterialMutation) Status() (r material.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldStatus(ctx context.Context) (v material.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *MaterialMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetVisibility sets the "visibility" field.
+func (m *MaterialMutation) SetVisibility(value material.Visibility) {
+	m.visibility = &value
+}
+
+// Visibility returns the value of the "visibility" field in the mutation.
+func (m *MaterialMutation) Visibility() (r material.Visibility, exists bool) {
+	v := m.visibility
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVisibility returns the old "visibility" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldVisibility(ctx context.Context) (v material.Visibility, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVisibility is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVisibility requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVisibility: %w", err)
+	}
+	return oldValue.Visibility, nil
+}
+
+// ResetVisibility resets all changes to the "visibility" field.
+func (m *MaterialMutation) ResetVisibility() {
+	m.visibility = nil
+}
+
+// SetGroupID sets the "group_id" field.
+func (m *MaterialMutation) SetGroupID(i int) {
+	m.group_id = &i
+	m.addgroup_id = nil
+}
+
+// GroupID returns the value of the "group_id" field in the mutation.
+func (m *MaterialMutation) GroupID() (r int, exists bool) {
+	v := m.group_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupID returns the old "group_id" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldGroupID(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupID: %w", err)
+	}
+	return oldValue.GroupID, nil
+}
+
+// AddGroupID adds i to the "group_id" field.
+func (m *MaterialMutation) AddGroupID(i int) {
+	if m.addgroup_id != nil {
+		*m.addgroup_id += i
+	} else {
+		m.addgroup_id = &i
+	}
+}
+
+// AddedGroupID returns the value that was added to the "group_id" field in this mutation.
+func (m *MaterialMutation) AddedGroupID() (r int, exists bool) {
+	v := m.addgroup_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearGroupID clears the value of the "group_id" field.
+func (m *MaterialMutation) ClearGroupID() {
+	m.group_id = nil
+	m.addgroup_id = nil
+	m.clearedFields[material.FieldGroupID] = struct{}{}
+}
+
+// GroupIDCleared returns if the "group_id" field was cleared in this mutation.
+func (m *MaterialMutation) GroupIDCleared() bool {
+	_, ok := m.clearedFields[material.FieldGroupID]
+	return ok
+}
+
+// ResetGroupID resets all changes to the "group_id" field.
+func (m *MaterialMutation) ResetGroupID() {
+	m.group_id = nil
+	m.addgroup_id = nil
+	delete(m.clearedFields, material.FieldGroupID)
+}
+
+// SetViewCount sets the "view_count" field.
+func (m *MaterialMutation) SetViewCount(i int) {
+	m.view_count = &i
+	m.addview_count = nil
+}
+
+// ViewCount returns the value of the "view_count" field in the mutation.
+func (m *MaterialMutation) ViewCount() (r int, exists bool) {
+	v := m.view_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldViewCount returns the old "view_count" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldViewCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldViewCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldViewCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldViewCount: %w", err)
+	}
+	return oldValue.ViewCount, nil
+}
+
+// AddViewCount adds i to the "view_count" field.
+func (m *MaterialMutation) AddViewCount(i int) {
+	if m.addview_count != nil {
+		*m.addview_count += i
+	} else {
+		m.addview_count = &i
+	}
+}
+
+// AddedViewCount returns the value that was added to the "view_count" field in this mutation.
+func (m *MaterialMutation) AddedViewCount() (r int, exists bool) {
+	v := m.addview_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetViewCount resets all changes to the "view_count" field.
+func (m *MaterialMutation) ResetViewCount() {
+	m.view_count = nil
+	m.addview_count = nil
+}
+
+// SetEstimatedReadTime sets the "estimated_read_time" field.
+func (m *MaterialMutation) SetEstimatedReadTime(i int) {
+	m.estimated_read_time = &i
+	m.addestimated_read_time = nil
+}
+
+// EstimatedReadTime returns the value of the "estimated_read_time" field in the mutation.
+func (m *MaterialMutation) EstimatedReadTime() (r int, exists bool) {
+	v := m.estimated_read_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEstimatedReadTime returns the old "estimated_read_time" field's value of the Material entity.
+// If the Material object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialMutation) OldEstimatedReadTime(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEstimatedReadTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEstimatedReadTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEstimatedReadTime: %w", err)
+	}
+	return oldValue.EstimatedReadTime, nil
+}
+
+// AddEstimatedReadTime adds i to the "estimated_read_time" field.
+func (m *MaterialMutation) AddEstimatedReadTime(i int) {
+	if m.addestimated_read_time != nil {
+		*m.addestimated_read_time += i
+	} else {
+		m.addestimated_read_time = &i
+	}
+}
+
+// AddedEstimatedReadTime returns the value that was added to the "estimated_read_time" field in this mutation.
+func (m *MaterialMutation) AddedEstimatedReadTime() (r int, exists bool) {
+	v := m.addestimated_read_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetEstimatedReadTime resets all changes to the "estimated_read_time" field.
+func (m *MaterialMutation) ResetEstimatedReadTime() {
+	m.estimated_read_time = nil
+	m.addestimated_read_time = nil
+}
+
+// ClearCategory clears the "category" edge to the MaterialCategory entity.
+func (m *MaterialMutation) ClearCategory() {
+	m.clearedcategory = true
+	m.clearedFields[material.FieldCategoryID] = struct{}{}
+}
+
+// CategoryCleared reports if the "category" edge to the MaterialCategory entity was cleared.
+func (m *MaterialMutation) CategoryCleared() bool {
+	return m.clearedcategory
+}
+
+// CategoryIDs returns the "category" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CategoryID instead. It exists only for internal usage by the builders.
+func (m *MaterialMutation) CategoryIDs() (ids []int) {
+	if id := m.category; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCategory resets all changes to the "category" edge.
+func (m *MaterialMutation) ResetCategory() {
+	m.category = nil
+	m.clearedcategory = false
+}
+
+// ClearAuthor clears the "author" edge to the User entity.
+func (m *MaterialMutation) ClearAuthor() {
+	m.clearedauthor = true
+	m.clearedFields[material.FieldAuthorID] = struct{}{}
+}
+
+// AuthorCleared reports if the "author" edge to the User entity was cleared.
+func (m *MaterialMutation) AuthorCleared() bool {
+	return m.clearedauthor
+}
+
+// AuthorIDs returns the "author" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AuthorID instead. It exists only for internal usage by the builders.
+func (m *MaterialMutation) AuthorIDs() (ids []int) {
+	if id := m.author; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAuthor resets all changes to the "author" edge.
+func (m *MaterialMutation) ResetAuthor() {
+	m.author = nil
+	m.clearedauthor = false
+}
+
+// ClearDifficulty clears the "difficulty" edge to the Difficulty entity.
+func (m *MaterialMutation) ClearDifficulty() {
+	m.cleareddifficulty = true
+	m.clearedFields[material.FieldDifficultyID] = struct{}{}
+}
+
+// DifficultyCleared reports if the "difficulty" edge to the Difficulty entity was cleared.
+func (m *MaterialMutation) DifficultyCleared() bool {
+	return m.cleareddifficulty
+}
+
+// DifficultyIDs returns the "difficulty" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DifficultyID instead. It exists only for internal usage by the builders.
+func (m *MaterialMutation) DifficultyIDs() (ids []int) {
+	if id := m.difficulty; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDifficulty resets all changes to the "difficulty" edge.
+func (m *MaterialMutation) ResetDifficulty() {
+	m.difficulty = nil
+	m.cleareddifficulty = false
+}
+
+// AddTagIDs adds the "tags" edge to the Tag entity by ids.
+func (m *MaterialMutation) AddTagIDs(ids ...int) {
+	if m.tags == nil {
+		m.tags = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.tags[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTags clears the "tags" edge to the Tag entity.
+func (m *MaterialMutation) ClearTags() {
+	m.clearedtags = true
+}
+
+// TagsCleared reports if the "tags" edge to the Tag entity was cleared.
+func (m *MaterialMutation) TagsCleared() bool {
+	return m.clearedtags
+}
+
+// RemoveTagIDs removes the "tags" edge to the Tag entity by IDs.
+func (m *MaterialMutation) RemoveTagIDs(ids ...int) {
+	if m.removedtags == nil {
+		m.removedtags = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.tags, ids[i])
+		m.removedtags[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTags returns the removed IDs of the "tags" edge to the Tag entity.
+func (m *MaterialMutation) RemovedTagsIDs() (ids []int) {
+	for id := range m.removedtags {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TagsIDs returns the "tags" edge IDs in the mutation.
+func (m *MaterialMutation) TagsIDs() (ids []int) {
+	for id := range m.tags {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTags resets all changes to the "tags" edge.
+func (m *MaterialMutation) ResetTags() {
+	m.tags = nil
+	m.clearedtags = false
+	m.removedtags = nil
+}
+
+// Where appends a list predicates to the MaterialMutation builder.
+func (m *MaterialMutation) Where(ps ...predicate.Material) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the MaterialMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *MaterialMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Material, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *MaterialMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *MaterialMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Material).
+func (m *MaterialMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *MaterialMutation) Fields() []string {
+	fields := make([]string, 0, 15)
+	if m.created_at != nil {
+		fields = append(fields, material.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, material.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, material.FieldDeletedAt)
+	}
+	if m.deleted_by != nil {
+		fields = append(fields, material.FieldDeletedBy)
+	}
+	if m.title != nil {
+		fields = append(fields, material.FieldTitle)
+	}
+	if m.description != nil {
+		fields = append(fields, material.FieldDescription)
+	}
+	if m.content != nil {
+		fields = append(fields, material.FieldContent)
+	}
+	if m.difficulty != nil {
+		fields = append(fields, material.FieldDifficultyID)
+	}
+	if m.author != nil {
+		fields = append(fields, material.FieldAuthorID)
+	}
+	if m.category != nil {
+		fields = append(fields, material.FieldCategoryID)
+	}
+	if m.status != nil {
+		fields = append(fields, material.FieldStatus)
+	}
+	if m.visibility != nil {
+		fields = append(fields, material.FieldVisibility)
+	}
+	if m.group_id != nil {
+		fields = append(fields, material.FieldGroupID)
+	}
+	if m.view_count != nil {
+		fields = append(fields, material.FieldViewCount)
+	}
+	if m.estimated_read_time != nil {
+		fields = append(fields, material.FieldEstimatedReadTime)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *MaterialMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case material.FieldCreatedAt:
+		return m.CreatedAt()
+	case material.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case material.FieldDeletedAt:
+		return m.DeletedAt()
+	case material.FieldDeletedBy:
+		return m.DeletedBy()
+	case material.FieldTitle:
+		return m.Title()
+	case material.FieldDescription:
+		return m.Description()
+	case material.FieldContent:
+		return m.Content()
+	case material.FieldDifficultyID:
+		return m.DifficultyID()
+	case material.FieldAuthorID:
+		return m.AuthorID()
+	case material.FieldCategoryID:
+		return m.CategoryID()
+	case material.FieldStatus:
+		return m.Status()
+	case material.FieldVisibility:
+		return m.Visibility()
+	case material.FieldGroupID:
+		return m.GroupID()
+	case material.FieldViewCount:
+		return m.ViewCount()
+	case material.FieldEstimatedReadTime:
+		return m.EstimatedReadTime()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *MaterialMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case material.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case material.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case material.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case material.FieldDeletedBy:
+		return m.OldDeletedBy(ctx)
+	case material.FieldTitle:
+		return m.OldTitle(ctx)
+	case material.FieldDescription:
+		return m.OldDescription(ctx)
+	case material.FieldContent:
+		return m.OldContent(ctx)
+	case material.FieldDifficultyID:
+		return m.OldDifficultyID(ctx)
+	case material.FieldAuthorID:
+		return m.OldAuthorID(ctx)
+	case material.FieldCategoryID:
+		return m.OldCategoryID(ctx)
+	case material.FieldStatus:
+		return m.OldStatus(ctx)
+	case material.FieldVisibility:
+		return m.OldVisibility(ctx)
+	case material.FieldGroupID:
+		return m.OldGroupID(ctx)
+	case material.FieldViewCount:
+		return m.OldViewCount(ctx)
+	case material.FieldEstimatedReadTime:
+		return m.OldEstimatedReadTime(ctx)
+	}
+	return nil, fmt.Errorf("unknown Material field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MaterialMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case material.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case material.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case material.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case material.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedBy(v)
+		return nil
+	case material.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case material.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case material.FieldContent:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContent(v)
+		return nil
+	case material.FieldDifficultyID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDifficultyID(v)
+		return nil
+	case material.FieldAuthorID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAuthorID(v)
+		return nil
+	case material.FieldCategoryID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategoryID(v)
+		return nil
+	case material.FieldStatus:
+		v, ok := value.(material.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case material.FieldVisibility:
+		v, ok := value.(material.Visibility)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVisibility(v)
+		return nil
+	case material.FieldGroupID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupID(v)
+		return nil
+	case material.FieldViewCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetViewCount(v)
+		return nil
+	case material.FieldEstimatedReadTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEstimatedReadTime(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Material field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *MaterialMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_by != nil {
+		fields = append(fields, material.FieldDeletedBy)
+	}
+	if m.addgroup_id != nil {
+		fields = append(fields, material.FieldGroupID)
+	}
+	if m.addview_count != nil {
+		fields = append(fields, material.FieldViewCount)
+	}
+	if m.addestimated_read_time != nil {
+		fields = append(fields, material.FieldEstimatedReadTime)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *MaterialMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case material.FieldDeletedBy:
+		return m.AddedDeletedBy()
+	case material.FieldGroupID:
+		return m.AddedGroupID()
+	case material.FieldViewCount:
+		return m.AddedViewCount()
+	case material.FieldEstimatedReadTime:
+		return m.AddedEstimatedReadTime()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MaterialMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case material.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedBy(v)
+		return nil
+	case material.FieldGroupID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupID(v)
+		return nil
+	case material.FieldViewCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddViewCount(v)
+		return nil
+	case material.FieldEstimatedReadTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddEstimatedReadTime(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Material numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *MaterialMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(material.FieldDeletedAt) {
+		fields = append(fields, material.FieldDeletedAt)
+	}
+	if m.FieldCleared(material.FieldDeletedBy) {
+		fields = append(fields, material.FieldDeletedBy)
+	}
+	if m.FieldCleared(material.FieldDescription) {
+		fields = append(fields, material.FieldDescription)
+	}
+	if m.FieldCleared(material.FieldContent) {
+		fields = append(fields, material.FieldContent)
+	}
+	if m.FieldCleared(material.FieldGroupID) {
+		fields = append(fields, material.FieldGroupID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *MaterialMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *MaterialMutation) ClearField(name string) error {
+	switch name {
+	case material.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case material.FieldDeletedBy:
+		m.ClearDeletedBy()
+		return nil
+	case material.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case material.FieldContent:
+		m.ClearContent()
+		return nil
+	case material.FieldGroupID:
+		m.ClearGroupID()
+		return nil
+	}
+	return fmt.Errorf("unknown Material nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *MaterialMutation) ResetField(name string) error {
+	switch name {
+	case material.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case material.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case material.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case material.FieldDeletedBy:
+		m.ResetDeletedBy()
+		return nil
+	case material.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case material.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case material.FieldContent:
+		m.ResetContent()
+		return nil
+	case material.FieldDifficultyID:
+		m.ResetDifficultyID()
+		return nil
+	case material.FieldAuthorID:
+		m.ResetAuthorID()
+		return nil
+	case material.FieldCategoryID:
+		m.ResetCategoryID()
+		return nil
+	case material.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case material.FieldVisibility:
+		m.ResetVisibility()
+		return nil
+	case material.FieldGroupID:
+		m.ResetGroupID()
+		return nil
+	case material.FieldViewCount:
+		m.ResetViewCount()
+		return nil
+	case material.FieldEstimatedReadTime:
+		m.ResetEstimatedReadTime()
+		return nil
+	}
+	return fmt.Errorf("unknown Material field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *MaterialMutation) AddedEdges() []string {
+	edges := make([]string, 0, 4)
+	if m.category != nil {
+		edges = append(edges, material.EdgeCategory)
+	}
+	if m.author != nil {
+		edges = append(edges, material.EdgeAuthor)
+	}
+	if m.difficulty != nil {
+		edges = append(edges, material.EdgeDifficulty)
+	}
+	if m.tags != nil {
+		edges = append(edges, material.EdgeTags)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *MaterialMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case material.EdgeCategory:
+		if id := m.category; id != nil {
+			return []ent.Value{*id}
+		}
+	case material.EdgeAuthor:
+		if id := m.author; id != nil {
+			return []ent.Value{*id}
+		}
+	case material.EdgeDifficulty:
+		if id := m.difficulty; id != nil {
+			return []ent.Value{*id}
+		}
+	case material.EdgeTags:
+		ids := make([]ent.Value, 0, len(m.tags))
+		for id := range m.tags {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *MaterialMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 4)
+	if m.removedtags != nil {
+		edges = append(edges, material.EdgeTags)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *MaterialMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case material.EdgeTags:
+		ids := make([]ent.Value, 0, len(m.removedtags))
+		for id := range m.removedtags {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *MaterialMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 4)
+	if m.clearedcategory {
+		edges = append(edges, material.EdgeCategory)
+	}
+	if m.clearedauthor {
+		edges = append(edges, material.EdgeAuthor)
+	}
+	if m.cleareddifficulty {
+		edges = append(edges, material.EdgeDifficulty)
+	}
+	if m.clearedtags {
+		edges = append(edges, material.EdgeTags)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *MaterialMutation) EdgeCleared(name string) bool {
+	switch name {
+	case material.EdgeCategory:
+		return m.clearedcategory
+	case material.EdgeAuthor:
+		return m.clearedauthor
+	case material.EdgeDifficulty:
+		return m.cleareddifficulty
+	case material.EdgeTags:
+		return m.clearedtags
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *MaterialMutation) ClearEdge(name string) error {
+	switch name {
+	case material.EdgeCategory:
+		m.ClearCategory()
+		return nil
+	case material.EdgeAuthor:
+		m.ClearAuthor()
+		return nil
+	case material.EdgeDifficulty:
+		m.ClearDifficulty()
+		return nil
+	}
+	return fmt.Errorf("unknown Material unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *MaterialMutation) ResetEdge(name string) error {
+	switch name {
+	case material.EdgeCategory:
+		m.ResetCategory()
+		return nil
+	case material.EdgeAuthor:
+		m.ResetAuthor()
+		return nil
+	case material.EdgeDifficulty:
+		m.ResetDifficulty()
+		return nil
+	case material.EdgeTags:
+		m.ResetTags()
+		return nil
+	}
+	return fmt.Errorf("unknown Material edge %s", name)
+}
+
+// MaterialCategoryMutation represents an operation that mutates the MaterialCategory nodes in the graph.
+type MaterialCategoryMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *time.Time
+	deleted_by       *int
+	adddeleted_by    *int
+	name             *string
+	description      *string
+	clearedFields    map[string]struct{}
+	materials        map[int]struct{}
+	removedmaterials map[int]struct{}
+	clearedmaterials bool
+	done             bool
+	oldValue         func(context.Context) (*MaterialCategory, error)
+	predicates       []predicate.MaterialCategory
+}
+
+var _ ent.Mutation = (*MaterialCategoryMutation)(nil)
+
+// materialcategoryOption allows management of the mutation configuration using functional options.
+type materialcategoryOption func(*MaterialCategoryMutation)
+
+// newMaterialCategoryMutation creates new mutation for the MaterialCategory entity.
+func newMaterialCategoryMutation(c config, op Op, opts ...materialcategoryOption) *MaterialCategoryMutation {
+	m := &MaterialCategoryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeMaterialCategory,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withMaterialCategoryID sets the ID field of the mutation.
+func withMaterialCategoryID(id int) materialcategoryOption {
+	return func(m *MaterialCategoryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *MaterialCategory
+		)
+		m.oldValue = func(ctx context.Context) (*MaterialCategory, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().MaterialCategory.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withMaterialCategory sets the old MaterialCategory of the mutation.
+func withMaterialCategory(node *MaterialCategory) materialcategoryOption {
+	return func(m *MaterialCategoryMutation) {
+		m.oldValue = func(context.Context) (*MaterialCategory, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m MaterialCategoryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m MaterialCategoryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("generate: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *MaterialCategoryMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *MaterialCategoryMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().MaterialCategory.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *MaterialCategoryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *MaterialCategoryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the MaterialCategory entity.
+// If the MaterialCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialCategoryMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *MaterialCategoryMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *MaterialCategoryMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *MaterialCategoryMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the MaterialCategory entity.
+// If the MaterialCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialCategoryMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *MaterialCategoryMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *MaterialCategoryMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *MaterialCategoryMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the MaterialCategory entity.
+// If the MaterialCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialCategoryMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *MaterialCategoryMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[materialcategory.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *MaterialCategoryMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[materialcategory.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *MaterialCategoryMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, materialcategory.FieldDeletedAt)
+}
+
+// SetDeletedBy sets the "deleted_by" field.
+func (m *MaterialCategoryMutation) SetDeletedBy(i int) {
+	m.deleted_by = &i
+	m.adddeleted_by = nil
+}
+
+// DeletedBy returns the value of the "deleted_by" field in the mutation.
+func (m *MaterialCategoryMutation) DeletedBy() (r int, exists bool) {
+	v := m.deleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedBy returns the old "deleted_by" field's value of the MaterialCategory entity.
+// If the MaterialCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialCategoryMutation) OldDeletedBy(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedBy: %w", err)
+	}
+	return oldValue.DeletedBy, nil
+}
+
+// AddDeletedBy adds i to the "deleted_by" field.
+func (m *MaterialCategoryMutation) AddDeletedBy(i int) {
+	if m.adddeleted_by != nil {
+		*m.adddeleted_by += i
+	} else {
+		m.adddeleted_by = &i
+	}
+}
+
+// AddedDeletedBy returns the value that was added to the "deleted_by" field in this mutation.
+func (m *MaterialCategoryMutation) AddedDeletedBy() (r int, exists bool) {
+	v := m.adddeleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeletedBy clears the value of the "deleted_by" field.
+func (m *MaterialCategoryMutation) ClearDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	m.clearedFields[materialcategory.FieldDeletedBy] = struct{}{}
+}
+
+// DeletedByCleared returns if the "deleted_by" field was cleared in this mutation.
+func (m *MaterialCategoryMutation) DeletedByCleared() bool {
+	_, ok := m.clearedFields[materialcategory.FieldDeletedBy]
+	return ok
+}
+
+// ResetDeletedBy resets all changes to the "deleted_by" field.
+func (m *MaterialCategoryMutation) ResetDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	delete(m.clearedFields, materialcategory.FieldDeletedBy)
+}
+
+// SetName sets the "name" field.
+func (m *MaterialCategoryMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *MaterialCategoryMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the MaterialCategory entity.
+// If the MaterialCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialCategoryMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *MaterialCategoryMutation) ResetName() {
+	m.name = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *MaterialCategoryMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *MaterialCategoryMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the MaterialCategory entity.
+// If the MaterialCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MaterialCategoryMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *MaterialCategoryMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[materialcategory.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *MaterialCategoryMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[materialcategory.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *MaterialCategoryMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, materialcategory.FieldDescription)
+}
+
+// AddMaterialIDs adds the "materials" edge to the Material entity by ids.
+func (m *MaterialCategoryMutation) AddMaterialIDs(ids ...int) {
+	if m.materials == nil {
+		m.materials = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.materials[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMaterials clears the "materials" edge to the Material entity.
+func (m *MaterialCategoryMutation) ClearMaterials() {
+	m.clearedmaterials = true
+}
+
+// MaterialsCleared reports if the "materials" edge to the Material entity was cleared.
+func (m *MaterialCategoryMutation) MaterialsCleared() bool {
+	return m.clearedmaterials
+}
+
+// RemoveMaterialIDs removes the "materials" edge to the Material entity by IDs.
+func (m *MaterialCategoryMutation) RemoveMaterialIDs(ids ...int) {
+	if m.removedmaterials == nil {
+		m.removedmaterials = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.materials, ids[i])
+		m.removedmaterials[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMaterials returns the removed IDs of the "materials" edge to the Material entity.
+func (m *MaterialCategoryMutation) RemovedMaterialsIDs() (ids []int) {
+	for id := range m.removedmaterials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MaterialsIDs returns the "materials" edge IDs in the mutation.
+func (m *MaterialCategoryMutation) MaterialsIDs() (ids []int) {
+	for id := range m.materials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMaterials resets all changes to the "materials" edge.
+func (m *MaterialCategoryMutation) ResetMaterials() {
+	m.materials = nil
+	m.clearedmaterials = false
+	m.removedmaterials = nil
+}
+
+// Where appends a list predicates to the MaterialCategoryMutation builder.
+func (m *MaterialCategoryMutation) Where(ps ...predicate.MaterialCategory) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the MaterialCategoryMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *MaterialCategoryMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.MaterialCategory, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *MaterialCategoryMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *MaterialCategoryMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (MaterialCategory).
+func (m *MaterialCategoryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *MaterialCategoryMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.created_at != nil {
+		fields = append(fields, materialcategory.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, materialcategory.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, materialcategory.FieldDeletedAt)
+	}
+	if m.deleted_by != nil {
+		fields = append(fields, materialcategory.FieldDeletedBy)
+	}
+	if m.name != nil {
+		fields = append(fields, materialcategory.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, materialcategory.FieldDescription)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *MaterialCategoryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case materialcategory.FieldCreatedAt:
+		return m.CreatedAt()
+	case materialcategory.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case materialcategory.FieldDeletedAt:
+		return m.DeletedAt()
+	case materialcategory.FieldDeletedBy:
+		return m.DeletedBy()
+	case materialcategory.FieldName:
+		return m.Name()
+	case materialcategory.FieldDescription:
+		return m.Description()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *MaterialCategoryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case materialcategory.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case materialcategory.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case materialcategory.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case materialcategory.FieldDeletedBy:
+		return m.OldDeletedBy(ctx)
+	case materialcategory.FieldName:
+		return m.OldName(ctx)
+	case materialcategory.FieldDescription:
+		return m.OldDescription(ctx)
+	}
+	return nil, fmt.Errorf("unknown MaterialCategory field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MaterialCategoryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case materialcategory.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case materialcategory.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case materialcategory.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case materialcategory.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedBy(v)
+		return nil
+	case materialcategory.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case materialcategory.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MaterialCategory field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *MaterialCategoryMutation) AddedFields() []string {
+	var fields []string
+	if m.adddeleted_by != nil {
+		fields = append(fields, materialcategory.FieldDeletedBy)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *MaterialCategoryMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case materialcategory.FieldDeletedBy:
+		return m.AddedDeletedBy()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MaterialCategoryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case materialcategory.FieldDeletedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedBy(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MaterialCategory numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *MaterialCategoryMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(materialcategory.FieldDeletedAt) {
+		fields = append(fields, materialcategory.FieldDeletedAt)
+	}
+	if m.FieldCleared(materialcategory.FieldDeletedBy) {
+		fields = append(fields, materialcategory.FieldDeletedBy)
+	}
+	if m.FieldCleared(materialcategory.FieldDescription) {
+		fields = append(fields, materialcategory.FieldDescription)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *MaterialCategoryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *MaterialCategoryMutation) ClearField(name string) error {
+	switch name {
+	case materialcategory.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case materialcategory.FieldDeletedBy:
+		m.ClearDeletedBy()
+		return nil
+	case materialcategory.FieldDescription:
+		m.ClearDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown MaterialCategory nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *MaterialCategoryMutation) ResetField(name string) error {
+	switch name {
+	case materialcategory.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case materialcategory.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case materialcategory.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case materialcategory.FieldDeletedBy:
+		m.ResetDeletedBy()
+		return nil
+	case materialcategory.FieldName:
+		m.ResetName()
+		return nil
+	case materialcategory.FieldDescription:
+		m.ResetDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown MaterialCategory field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *MaterialCategoryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.materials != nil {
+		edges = append(edges, materialcategory.EdgeMaterials)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *MaterialCategoryMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case materialcategory.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.materials))
+		for id := range m.materials {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *MaterialCategoryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedmaterials != nil {
+		edges = append(edges, materialcategory.EdgeMaterials)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *MaterialCategoryMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case materialcategory.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.removedmaterials))
+		for id := range m.removedmaterials {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *MaterialCategoryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedmaterials {
+		edges = append(edges, materialcategory.EdgeMaterials)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *MaterialCategoryMutation) EdgeCleared(name string) bool {
+	switch name {
+	case materialcategory.EdgeMaterials:
+		return m.clearedmaterials
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *MaterialCategoryMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown MaterialCategory unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *MaterialCategoryMutation) ResetEdge(name string) error {
+	switch name {
+	case materialcategory.EdgeMaterials:
+		m.ResetMaterials()
+		return nil
+	}
+	return fmt.Errorf("unknown MaterialCategory edge %s", name)
 }
 
 // PermissionMutation represents an operation that mutates the Permission nodes in the graph.
@@ -16385,6 +18806,9 @@ type TagMutation struct {
 	user_tag_stats        map[int]struct{}
 	removeduser_tag_stats map[int]struct{}
 	cleareduser_tag_stats bool
+	materials             map[int]struct{}
+	removedmaterials      map[int]struct{}
+	clearedmaterials      bool
 	done                  bool
 	oldValue              func(context.Context) (*Tag, error)
 	predicates            []predicate.Tag
@@ -16877,6 +19301,60 @@ func (m *TagMutation) ResetUserTagStats() {
 	m.removeduser_tag_stats = nil
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by ids.
+func (m *TagMutation) AddMaterialIDs(ids ...int) {
+	if m.materials == nil {
+		m.materials = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.materials[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMaterials clears the "materials" edge to the Material entity.
+func (m *TagMutation) ClearMaterials() {
+	m.clearedmaterials = true
+}
+
+// MaterialsCleared reports if the "materials" edge to the Material entity was cleared.
+func (m *TagMutation) MaterialsCleared() bool {
+	return m.clearedmaterials
+}
+
+// RemoveMaterialIDs removes the "materials" edge to the Material entity by IDs.
+func (m *TagMutation) RemoveMaterialIDs(ids ...int) {
+	if m.removedmaterials == nil {
+		m.removedmaterials = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.materials, ids[i])
+		m.removedmaterials[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMaterials returns the removed IDs of the "materials" edge to the Material entity.
+func (m *TagMutation) RemovedMaterialsIDs() (ids []int) {
+	for id := range m.removedmaterials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MaterialsIDs returns the "materials" edge IDs in the mutation.
+func (m *TagMutation) MaterialsIDs() (ids []int) {
+	for id := range m.materials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMaterials resets all changes to the "materials" edge.
+func (m *TagMutation) ResetMaterials() {
+	m.materials = nil
+	m.clearedmaterials = false
+	m.removedmaterials = nil
+}
+
 // Where appends a list predicates to the TagMutation builder.
 func (m *TagMutation) Where(ps ...predicate.Tag) {
 	m.predicates = append(m.predicates, ps...)
@@ -17108,7 +19586,7 @@ func (m *TagMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TagMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.problems != nil {
 		edges = append(edges, tag.EdgeProblems)
 	}
@@ -17117,6 +19595,9 @@ func (m *TagMutation) AddedEdges() []string {
 	}
 	if m.user_tag_stats != nil {
 		edges = append(edges, tag.EdgeUserTagStats)
+	}
+	if m.materials != nil {
+		edges = append(edges, tag.EdgeMaterials)
 	}
 	return edges
 }
@@ -17143,13 +19624,19 @@ func (m *TagMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case tag.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.materials))
+		for id := range m.materials {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TagMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedproblems != nil {
 		edges = append(edges, tag.EdgeProblems)
 	}
@@ -17158,6 +19645,9 @@ func (m *TagMutation) RemovedEdges() []string {
 	}
 	if m.removeduser_tag_stats != nil {
 		edges = append(edges, tag.EdgeUserTagStats)
+	}
+	if m.removedmaterials != nil {
+		edges = append(edges, tag.EdgeMaterials)
 	}
 	return edges
 }
@@ -17184,13 +19674,19 @@ func (m *TagMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case tag.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.removedmaterials))
+		for id := range m.removedmaterials {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TagMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedproblems {
 		edges = append(edges, tag.EdgeProblems)
 	}
@@ -17199,6 +19695,9 @@ func (m *TagMutation) ClearedEdges() []string {
 	}
 	if m.cleareduser_tag_stats {
 		edges = append(edges, tag.EdgeUserTagStats)
+	}
+	if m.clearedmaterials {
+		edges = append(edges, tag.EdgeMaterials)
 	}
 	return edges
 }
@@ -17213,6 +19712,8 @@ func (m *TagMutation) EdgeCleared(name string) bool {
 		return m.clearedelements
 	case tag.EdgeUserTagStats:
 		return m.cleareduser_tag_stats
+	case tag.EdgeMaterials:
+		return m.clearedmaterials
 	}
 	return false
 }
@@ -17237,6 +19738,9 @@ func (m *TagMutation) ResetEdge(name string) error {
 		return nil
 	case tag.EdgeUserTagStats:
 		m.ResetUserTagStats()
+		return nil
+	case tag.EdgeMaterials:
+		m.ResetMaterials()
 		return nil
 	}
 	return fmt.Errorf("unknown Tag edge %s", name)
@@ -19238,6 +21742,9 @@ type UserMutation struct {
 	rating_histories             map[int]struct{}
 	removedrating_histories      map[int]struct{}
 	clearedrating_histories      bool
+	materials                    map[int]struct{}
+	removedmaterials             map[int]struct{}
+	clearedmaterials             bool
 	done                         bool
 	oldValue                     func(context.Context) (*User, error)
 	predicates                   []predicate.User
@@ -20441,6 +22948,60 @@ func (m *UserMutation) ResetRatingHistories() {
 	m.removedrating_histories = nil
 }
 
+// AddMaterialIDs adds the "materials" edge to the Material entity by ids.
+func (m *UserMutation) AddMaterialIDs(ids ...int) {
+	if m.materials == nil {
+		m.materials = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.materials[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMaterials clears the "materials" edge to the Material entity.
+func (m *UserMutation) ClearMaterials() {
+	m.clearedmaterials = true
+}
+
+// MaterialsCleared reports if the "materials" edge to the Material entity was cleared.
+func (m *UserMutation) MaterialsCleared() bool {
+	return m.clearedmaterials
+}
+
+// RemoveMaterialIDs removes the "materials" edge to the Material entity by IDs.
+func (m *UserMutation) RemoveMaterialIDs(ids ...int) {
+	if m.removedmaterials == nil {
+		m.removedmaterials = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.materials, ids[i])
+		m.removedmaterials[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMaterials returns the removed IDs of the "materials" edge to the Material entity.
+func (m *UserMutation) RemovedMaterialsIDs() (ids []int) {
+	for id := range m.removedmaterials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MaterialsIDs returns the "materials" edge IDs in the mutation.
+func (m *UserMutation) MaterialsIDs() (ids []int) {
+	for id := range m.materials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMaterials resets all changes to the "materials" edge.
+func (m *UserMutation) ResetMaterials() {
+	m.materials = nil
+	m.clearedmaterials = false
+	m.removedmaterials = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -20689,7 +23250,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 16)
+	edges := make([]string, 0, 17)
 	if m.role != nil {
 		edges = append(edges, user.EdgeRole)
 	}
@@ -20737,6 +23298,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.rating_histories != nil {
 		edges = append(edges, user.EdgeRatingHistories)
+	}
+	if m.materials != nil {
+		edges = append(edges, user.EdgeMaterials)
 	}
 	return edges
 }
@@ -20839,13 +23403,19 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.materials))
+		for id := range m.materials {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 16)
+	edges := make([]string, 0, 17)
 	if m.removedcredentials != nil {
 		edges = append(edges, user.EdgeCredentials)
 	}
@@ -20890,6 +23460,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedrating_histories != nil {
 		edges = append(edges, user.EdgeRatingHistories)
+	}
+	if m.removedmaterials != nil {
+		edges = append(edges, user.EdgeMaterials)
 	}
 	return edges
 }
@@ -20988,13 +23561,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeMaterials:
+		ids := make([]ent.Value, 0, len(m.removedmaterials))
+		for id := range m.removedmaterials {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 16)
+	edges := make([]string, 0, 17)
 	if m.clearedrole {
 		edges = append(edges, user.EdgeRole)
 	}
@@ -21043,6 +23622,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedrating_histories {
 		edges = append(edges, user.EdgeRatingHistories)
 	}
+	if m.clearedmaterials {
+		edges = append(edges, user.EdgeMaterials)
+	}
 	return edges
 }
 
@@ -21082,6 +23664,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedcontest_standings
 	case user.EdgeRatingHistories:
 		return m.clearedrating_histories
+	case user.EdgeMaterials:
+		return m.clearedmaterials
 	}
 	return false
 }
@@ -21148,6 +23732,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeRatingHistories:
 		m.ResetRatingHistories()
+		return nil
+	case user.EdgeMaterials:
+		m.ResetMaterials()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

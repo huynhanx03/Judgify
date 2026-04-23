@@ -33,6 +33,12 @@ type FederatedIdentity func(*sql.Selector)
 // Level is the predicate function for level builders.
 type Level func(*sql.Selector)
 
+// Material is the predicate function for material builders.
+type Material func(*sql.Selector)
+
+// MaterialCategory is the predicate function for materialcategory builders.
+type MaterialCategory func(*sql.Selector)
+
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
 

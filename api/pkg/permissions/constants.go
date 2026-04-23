@@ -26,6 +26,8 @@ const (
 	ResourceKeyRank                = "rank"
 	ResourceKeyUserStats           = "user_stats"
 	ResourceKeyContest             = "contest"
+	ResourceKeyMaterialCategory    = "material_category"
+	ResourceKeyMaterial            = "material"
 )
 
 // Permission Scopes (Bitmask)

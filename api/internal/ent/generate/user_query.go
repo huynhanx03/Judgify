@@ -18,6 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
@@ -56,6 +57,7 @@ type UserQuery struct {
 	withContestRegistrations *ContestRegistrationQuery
 	withContestStandings     *ContestStandingQuery
 	withRatingHistories      *RatingHistoryQuery
+	withMaterials            *MaterialQuery
 	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -445,6 +447,28 @@ func (_q *UserQuery) QueryRatingHistories() *RatingHistoryQuery {
 	return query
 }
 
+// QueryMaterials chains the current query on the "materials" edge.
+func (_q *UserQuery) QueryMaterials() *MaterialQuery {
+	query := (&MaterialClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(material.Table, material.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MaterialsTable, user.MaterialsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first User entity from the query.
 // Returns a *NotFoundError when no User was found.
 func (_q *UserQuery) First(ctx context.Context) (*User, error) {
@@ -653,6 +677,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withContestRegistrations: _q.withContestRegistrations.Clone(),
 		withContestStandings:     _q.withContestStandings.Clone(),
 		withRatingHistories:      _q.withRatingHistories.Clone(),
+		withMaterials:            _q.withMaterials.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -836,6 +861,17 @@ func (_q *UserQuery) WithRatingHistories(opts ...func(*RatingHistoryQuery)) *Use
 	return _q
 }
 
+// WithMaterials tells the query-builder to eager-load the nodes that are connected to
+// the "materials" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithMaterials(opts ...func(*MaterialQuery)) *UserQuery {
+	query := (&MaterialClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMaterials = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -914,7 +950,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [16]bool{
+		loadedTypes = [17]bool{
 			_q.withRole != nil,
 			_q.withCredentials != nil,
 			_q.withAttributes != nil,
@@ -931,6 +967,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			_q.withContestRegistrations != nil,
 			_q.withContestStandings != nil,
 			_q.withRatingHistories != nil,
+			_q.withMaterials != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -1135,6 +1172,18 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 				n.Edges.RatingHistories = append(n.Edges.RatingHistories, e)
 				if !e.Edges.loadedTypes[0] {
 					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withMaterials; query != nil {
+		if err := _q.loadMaterials(ctx, query, nodes,
+			func(n *User) { n.Edges.Materials = []*Material{} },
+			func(n *User, e *Material) {
+				n.Edges.Materials = append(n.Edges.Materials, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Author = n
 				}
 			}); err != nil {
 			return nil, err
@@ -1618,6 +1667,36 @@ func (_q *UserQuery) loadRatingHistories(ctx context.Context, query *RatingHisto
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nodes []*User, init func(*User), assign func(*User, *Material)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(material.FieldAuthorID)
+	}
+	query.Where(predicate.Material(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.MaterialsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AuthorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "author_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

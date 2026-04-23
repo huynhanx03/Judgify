@@ -70,9 +70,11 @@ type UserEdges struct {
 	ContestStandings []*ContestStanding `json:"contest_standings,omitempty"`
 	// RatingHistories holds the value of the rating_histories edge.
 	RatingHistories []*RatingHistory `json:"rating_histories,omitempty"`
+	// Materials holds the value of the materials edge.
+	Materials []*Material `json:"materials,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [16]bool
+	loadedTypes [17]bool
 }
 
 // RoleOrErr returns the Role value or an error if the edge
@@ -219,6 +221,15 @@ func (e UserEdges) RatingHistoriesOrErr() ([]*RatingHistory, error) {
 		return e.RatingHistories, nil
 	}
 	return nil, &NotLoadedError{edge: "rating_histories"}
+}
+
+// MaterialsOrErr returns the Materials value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) MaterialsOrErr() ([]*Material, error) {
+	if e.loadedTypes[16] {
+		return e.Materials, nil
+	}
+	return nil, &NotLoadedError{edge: "materials"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -382,6 +393,11 @@ func (_m *User) QueryContestStandings() *ContestStandingQuery {
 // QueryRatingHistories queries the "rating_histories" edge of the User entity.
 func (_m *User) QueryRatingHistories() *RatingHistoryQuery {
 	return NewUserClient(_m.config).QueryRatingHistories(_m)
+}
+
+// QueryMaterials queries the "materials" edge of the User entity.
+func (_m *User) QueryMaterials() *MaterialQuery {
+	return NewUserClient(_m.config).QueryMaterials(_m)
 }
 
 // Update returns a builder for updating this User.

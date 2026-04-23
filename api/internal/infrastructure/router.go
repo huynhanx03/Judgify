@@ -10,6 +10,7 @@ import (
 	contestHttp "github.com/huynhanx03/judgify/internal/contest/adapters/driver/http"
 	cultivationHttp "github.com/huynhanx03/judgify/internal/cultivation/adapters/driver/http"
 	identityHttp "github.com/huynhanx03/judgify/internal/identity/adapters/driver/http"
+	materialHttp "github.com/huynhanx03/judgify/internal/material/adapters/driver/http"
 	problemHttp "github.com/huynhanx03/judgify/internal/problem/adapters/driver/http"
 	submissionHttp "github.com/huynhanx03/judgify/internal/submission/adapters/driver/http"
 	"github.com/huynhanx03/judgify/pkg/algorithm"
@@ -23,6 +24,7 @@ type RouterGroup struct {
 	CultivationHandler *cultivationHttp.CultivationHandlerGroup
 	SubmissionHandler  *submissionHttp.SubmissionHandlerGroup
 	ContestHandler     *contestHttp.ContestHandlerGroup
+	MaterialHandler    *materialHttp.MaterialHandlerGroup
 	PermChecker        *middlewares.PermissionChecker
 }
 
@@ -33,6 +35,7 @@ func NewRouterGroup(
 	cultivationHandler *cultivationHttp.CultivationHandlerGroup,
 	submissionHandler *submissionHttp.SubmissionHandlerGroup,
 	contestHandler *contestHttp.ContestHandlerGroup,
+	materialHandler *materialHttp.MaterialHandlerGroup,
 	permChecker *middlewares.PermissionChecker,
 ) *RouterGroup {
 	return &RouterGroup{
@@ -41,6 +44,7 @@ func NewRouterGroup(
 		CultivationHandler: cultivationHandler,
 		SubmissionHandler:  submissionHandler,
 		ContestHandler:     contestHandler,
+		MaterialHandler:    materialHandler,
 		PermChecker:        permChecker,
 	}
 }
@@ -57,6 +61,7 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 	rg.ProblemHandler.RegisterPublic(publicAuth)
 	rg.CultivationHandler.RegisterPublic(publicAuth)
 	rg.ContestHandler.RegisterPublic(publicAuth)
+	rg.MaterialHandler.RegisterPublic(publicAuth)
 
 	protected := r.Group("/")
 	protected.Use(middlewares.Authentication(global.Config.JWT.PublicKey))
@@ -66,6 +71,7 @@ func (rg *RouterGroup) registerRoutes(r *gin.Engine) {
 		rg.CultivationHandler.RegisterProtected(protected, rg.PermChecker)
 		rg.SubmissionHandler.RegisterProtected(protected)
 		rg.ContestHandler.RegisterProtected(protected, rg.PermChecker)
+		rg.MaterialHandler.RegisterProtected(protected, rg.PermChecker)
 	}
 }
 

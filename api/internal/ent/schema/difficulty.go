@@ -46,5 +46,6 @@ func (Difficulty) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("problems", Problem.Type),
 		edge.To("user_difficulty_stats", UserDifficultyStats.Type),
+		edge.To("materials", Material.Type),
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
+	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -130,6 +131,21 @@ func (_c *TagCreate) AddUserTagStats(v ...*UserTagStats) *TagCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserTagStatIDs(ids...)
+}
+
+// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
+func (_c *TagCreate) AddMaterialIDs(ids ...int) *TagCreate {
+	_c.mutation.AddMaterialIDs(ids...)
+	return _c
+}
+
+// AddMaterials adds the "materials" edges to the Material entity.
+func (_c *TagCreate) AddMaterials(v ...*Material) *TagCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMaterialIDs(ids...)
 }
 
 // Mutation returns the TagMutation object of the builder.
@@ -290,6 +306,22 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   tag.MaterialsTable,
+			Columns: tag.MaterialsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
