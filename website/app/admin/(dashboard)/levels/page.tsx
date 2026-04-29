@@ -13,16 +13,16 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { LevelDialog } from "@/modules/admin/dialogs/level-dialog";
-import { adminService } from "@/services/admin.service";
+import { levelService } from "@/services/level.service";
 import { TEXT } from "@/constants/text";
 import type { LevelResponse } from "@/types/cultivation";
 
 export default function AdminLevelsPage() {
   const service = useMemo(() => ({
-    find: adminService.findLevels.bind(adminService),
-    create: adminService.createLevel.bind(adminService),
-    update: adminService.updateLevel.bind(adminService),
-    delete: adminService.deleteLevel.bind(adminService),
+    find: levelService.find.bind(levelService),
+    create: levelService.create.bind(levelService),
+    update: levelService.update.bind(levelService),
+    delete: levelService.delete.bind(levelService),
   }), []);
 
   const crud = usePaginatedCRUD<LevelResponse>({ service });

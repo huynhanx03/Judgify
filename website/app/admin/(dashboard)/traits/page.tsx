@@ -13,7 +13,8 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { TraitDialog } from "@/modules/admin/dialogs/trait-dialog";
-import { adminService } from "@/services/admin.service";
+import { cultivationService } from "@/services/cultivation.service";
+import { rarityService } from "@/services/rarity.service";
 import { TEXT } from "@/constants/text";
 import type { TraitResponse, RarityResponse } from "@/types/cultivation";
 
@@ -22,14 +23,14 @@ export default function AdminTraitsPage() {
 
   // Load rarities for the filter dropdown
   useEffect(() => {
-    adminService.getAllRarities().then(setRarities).catch(() => {});
+    rarityService.getAll().then(setRarities).catch(() => {});
   }, []);
 
   const service = useMemo(() => ({
-    find: adminService.findTraits.bind(adminService),
-    create: adminService.createTrait.bind(adminService),
-    update: adminService.updateTrait.bind(adminService),
-    delete: adminService.deleteTrait.bind(adminService),
+    find: cultivationService.findTraits.bind(cultivationService),
+    create: cultivationService.createTrait.bind(cultivationService),
+    update: cultivationService.updateTrait.bind(cultivationService),
+    delete: cultivationService.deleteTrait.bind(cultivationService),
   }), []);
 
   const crud = usePaginatedCRUD<TraitResponse>({ service });

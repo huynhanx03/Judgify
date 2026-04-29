@@ -15,7 +15,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-table";
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
-import { adminService } from "@/services/admin.service";
+import { problemService } from "@/services/problem.service";
+import { difficultyService } from "@/services/difficulty.service";
 import { TEXT } from "@/constants/text";
 import type { Problem } from "@/types/problem";
 import type { DifficultyResponse } from "@/types/difficulty";
@@ -26,13 +27,13 @@ export default function AdminProblemsPage() {
 
   // Load difficulties for the filter dropdown
   useEffect(() => {
-    adminService.getAllDifficulties().then(setDifficulties).catch(() => {});
+    difficultyService.getAll().then(setDifficulties).catch(() => {});
   }, []);
 
   // Problems page only uses find + delete — no create/update dialog
   const service = useMemo(() => ({
-    find: adminService.findProblems.bind(adminService),
-    delete: adminService.deleteProblem.bind(adminService),
+    find: problemService.find.bind(problemService),
+    delete: problemService.delete.bind(problemService),
   }), []);
 
   const crud = usePaginatedCRUD<Problem>({ service, searchKey: "title" });

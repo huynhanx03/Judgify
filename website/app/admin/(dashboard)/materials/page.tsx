@@ -13,7 +13,9 @@ import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MaterialDialog } from "@/modules/admin/dialogs/material-dialog";
-import { adminService } from "@/services/admin.service";
+import { materialService } from "@/services/material.service";
+import { tagService } from "@/services/tag.service";
+import { difficultyService } from "@/services/difficulty.service";
 import { TEXT } from "@/constants/text";
 import type { MaterialArticle, MaterialCategory } from "@/types/material";
 import type { DifficultyResponse } from "@/types/difficulty";
@@ -26,16 +28,16 @@ export default function AdminMaterialsPage() {
 
   // Load filter data
   useEffect(() => {
-    adminService.getAllMaterialCategories().then(setCategories).catch(() => {});
-    adminService.getAllDifficulties().then(setDifficulties).catch(() => {});
-    adminService.getAllTags().then(setAllTags).catch(() => {});
+    materialService.getAllCategories().then(setCategories).catch(() => {});
+    difficultyService.getAll().then(setDifficulties).catch(() => {});
+    tagService.getAll().then(setAllTags).catch(() => {});
   }, []);
 
   const service = useMemo(() => ({
-    find: adminService.findMaterials.bind(adminService),
-    create: adminService.createMaterial.bind(adminService),
-    update: adminService.updateMaterial.bind(adminService),
-    delete: adminService.deleteMaterial.bind(adminService),
+    find: materialService.find.bind(materialService),
+    create: materialService.create.bind(materialService),
+    update: materialService.update.bind(materialService),
+    delete: materialService.delete.bind(materialService),
   }), []);
 
   const crud = usePaginatedCRUD<MaterialArticle>({ service });

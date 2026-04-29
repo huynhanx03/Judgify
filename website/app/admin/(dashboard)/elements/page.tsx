@@ -13,16 +13,16 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { ElementDialog } from "@/modules/admin/dialogs/element-dialog";
-import { adminService } from "@/services/admin.service";
+import { elementService } from "@/services/element.service";
 import { TEXT } from "@/constants/text";
 import type { ElementResponse } from "@/types/cultivation";
 
 export default function AdminElementsPage() {
   const service = useMemo(() => ({
-    find: adminService.findElements.bind(adminService),
-    create: adminService.createElement.bind(adminService),
-    update: adminService.updateElement.bind(adminService),
-    delete: adminService.deleteElement.bind(adminService),
+    find: elementService.find.bind(elementService),
+    create: elementService.create.bind(elementService),
+    update: elementService.update.bind(elementService),
+    delete: elementService.delete.bind(elementService),
   }), []);
 
   const crud = usePaginatedCRUD<ElementResponse>({ service });

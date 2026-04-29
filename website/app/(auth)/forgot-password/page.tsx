@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { forgotPassword } from "@/services/auth.service";
+import { authService } from "@/services/auth.service";
 import { TEXT } from "@/constants/text";
 import { Loader2, ArrowLeft, CheckCircle2, KeyRound } from "lucide-react";
 
@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
     setError("");
 
     try {
-      await forgotPassword(username);
+      await authService.forgotPassword(username);
       setSuccess(true);
     } catch {
       setError(TEXT.COMMON.ERROR);

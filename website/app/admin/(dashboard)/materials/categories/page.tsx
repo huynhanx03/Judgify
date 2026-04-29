@@ -13,16 +13,16 @@ import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MaterialCategoryDialog } from "@/modules/admin/dialogs/material-category-dialog";
-import { adminService } from "@/services/admin.service";
+import { materialService } from "@/services/material.service";
 import { TEXT } from "@/constants/text";
 import type { MaterialCategory } from "@/types/material";
 
 export default function AdminMaterialCategoriesPage() {
   const service = useMemo(() => ({
-    find: adminService.findMaterialCategories.bind(adminService),
-    create: adminService.createMaterialCategory.bind(adminService),
-    update: adminService.updateMaterialCategory.bind(adminService),
-    delete: adminService.deleteMaterialCategory.bind(adminService),
+    find: materialService.findCategories.bind(materialService),
+    create: materialService.createCategory.bind(materialService),
+    update: materialService.updateCategory.bind(materialService),
+    delete: materialService.deleteCategory.bind(materialService),
   }), []);
 
   const crud = usePaginatedCRUD<MaterialCategory>({ service });

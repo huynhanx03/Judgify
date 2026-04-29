@@ -13,7 +13,8 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { TagDialog } from "@/modules/admin/dialogs/tag-dialog";
-import { adminService } from "@/services/admin.service";
+import { tagService } from "@/services/tag.service";
+import { elementService } from "@/services/element.service";
 import { TEXT } from "@/constants/text";
 import type { Tag } from "@/types/tag";
 import type { ElementResponse } from "@/types/cultivation";
@@ -23,14 +24,14 @@ export default function AdminTagsPage() {
 
   // Load elements for the filter dropdown
   useEffect(() => {
-    adminService.getAllElements().then(setElements).catch(() => {});
+    elementService.getAll().then(setElements).catch(() => {});
   }, []);
 
   const service = useMemo(() => ({
-    find: adminService.findTags.bind(adminService),
-    create: adminService.createTag.bind(adminService),
-    update: adminService.updateTag.bind(adminService),
-    delete: adminService.deleteTag.bind(adminService),
+    find: tagService.find.bind(tagService),
+    create: tagService.create.bind(tagService),
+    update: tagService.update.bind(tagService),
+    delete: tagService.delete.bind(tagService),
   }), []);
 
   const crud = usePaginatedCRUD<Tag>({ service });

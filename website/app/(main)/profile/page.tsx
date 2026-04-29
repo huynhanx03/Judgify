@@ -7,9 +7,9 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles, Shield, Award, CalendarDays, Cake, Settings, LogOut, Gem, Target, Tag } from "lucide-react"
 import { LoadingSpinner } from "@/components/loading-spinner"
-import { getProfile } from "@/services/user.service"
-import { getAllDifficulties } from "@/services/difficulty.service"
-import { useAuth } from "@/hooks/use-auth"
+import { userService } from "@/services/user.service"
+import { difficultyService } from "@/services/difficulty.service"
+import { useAuth } from "@/contexts/auth-context"
 import { TEXT } from "@/constants/text"
 import type { UserProfile, TraitInfo, DiffStat } from "@/types/user"
 import type { DifficultyResponse } from "@/types/difficulty"
@@ -52,7 +52,7 @@ export default function ProfilePage() {
   const { logout } = useAuth()
 
   useEffect(() => {
-    Promise.all([getProfile(), getAllDifficulties()])
+    Promise.all([userService.getProfile(), difficultyService.getAll()])
       .then(([p, diffs]) => {
         setProfile(p)
         setDifficulties(mergeDifficulties(diffs, p.problem_stats.by_difficulty))

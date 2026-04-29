@@ -11,12 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import {
-  getContestById,
-  registerContest,
-  unregisterContest,
-  getContestRatingChanges,
-} from "@/services/contest.service";
+import { ContestStandingsTable } from "@/modules/contest/contest-standings-table";
+import { ContestRatingTable } from "@/modules/contest/contest-rating-table";
+import { contestService } from "@/services/contest.service";
 import { useContestSSE } from "@/hooks/use-contest-sse";
 import { notify, getErrorMessage } from "@/lib/toast";
 import { TEXT } from "@/constants/text";
@@ -28,7 +25,6 @@ import {
   Trophy,
   Users,
   FileCode2,
-  Swords,
   Info,
   UserX,
   CheckCircle2,
@@ -53,6 +49,23 @@ const STATUS_LABELS: Record<string, string> = {
 
 type Tab = "info" | "standings" | "rating";
 
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getDuration(start: string, end: string): string {
+  const ms = new Date(end).getTime() - new Date(start).getTime();
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return `${h}h${m > 0 ? ` ${m}m` : ""}`;
+}
+
 export default function ContestDetailPage({
   params,
 }: {
@@ -76,7 +89,7 @@ export default function ContestDetailPage({
   useEffect(() => {
     async function loadContest() {
       try {
-        const data = await getContestById(contestId);
+        const data = await contestService.getById(contestId);
         setContest(data);
       } catch {
         // contest stays null
@@ -91,7 +104,7 @@ export default function ContestDetailPage({
   const loadRatingChanges = useCallback(async () => {
     if (activeTab !== "rating" || !contest || contest.status !== "ended") return;
     try {
-      const data = await getContestRatingChanges(contestId);
+      const data = await contestService.getRatingChanges(contestId);
       setRatingChanges(data);
     } catch {
       // rating changes stay empty
@@ -105,9 +118,9 @@ export default function ContestDetailPage({
   async function handleRegister() {
     setIsRegistering(true);
     try {
-      await registerContest(contestId);
+      await contestService.register(contestId);
       notify.success(TEXT.CONTEST.REGISTER_SUCCESS);
-      const data = await getContestById(contestId);
+      const data = await contestService.getById(contestId);
       setContest(data);
     } catch (err) {
       notify.error(getErrorMessage(err, "Đăng ký thất bại"));
@@ -119,32 +132,15 @@ export default function ContestDetailPage({
   async function handleUnregister() {
     setIsRegistering(true);
     try {
-      await unregisterContest(contestId);
+      await contestService.unregister(contestId);
       notify.success(TEXT.CONTEST.UNREGISTER_SUCCESS);
-      const data = await getContestById(contestId);
+      const data = await contestService.getById(contestId);
       setContest(data);
     } catch (err) {
       notify.error(getErrorMessage(err, "Hủy đăng ký thất bại"));
     } finally {
       setIsRegistering(false);
     }
-  }
-
-  function formatTime(iso: string) {
-    return new Date(iso).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  function getDuration(start: string, end: string): string {
-    const ms = new Date(end).getTime() - new Date(start).getTime();
-    const h = Math.floor(ms / 3600000);
-    const m = Math.floor((ms % 3600000) / 60000);
-    return `${h}h${m > 0 ? ` ${m}m` : ""}`;
   }
 
   if (isLoading) return <LoadingSpinner />;
@@ -160,8 +156,8 @@ export default function ContestDetailPage({
     );
   }
 
-  const isActive = contest.status === "running";
   const isUpcoming = contest.status === "upcoming";
+  const isActive = contest.status === "running";
   const isEnded = contest.status === "ended";
 
   return (
@@ -328,95 +324,15 @@ export default function ContestDetailPage({
           )}
 
           {activeTab === "standings" && (
-            standings.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <Swords className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="text-lg font-medium">Chưa có dữ liệu xếp hạng</p>
-                <p className="text-sm mt-1">Bảng xếp hạng sẽ hiển thị khi cuộc thi bắt đầu.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/40">
-                      <th className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
-                      <th className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
-                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-20">{TEXT.CONTEST.SOLVED}</th>
-                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.PENALTY}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((s) => (
-                      <tr key={s.user_id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                        <td className="py-3 px-4">
-                          <span className={`font-bold ${s.rank <= 3 ? "text-amber-500" : ""}`}>
-                            {s.rank <= 3 ? ["🥇", "🥈", "🥉"][s.rank - 1] : s.rank}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="font-medium">{s.username}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className="font-bold text-green-500">{s.solved_count}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className="font-mono text-muted-foreground">{s.penalty}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
+            <ContestStandingsTable
+              standings={standings}
+              isConnected={isConnected}
+              isActive={isActive}
+            />
           )}
 
           {activeTab === "rating" && isEnded && (
-            ratingChanges.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="text-lg font-medium">{TEXT.CONTEST.NO_RATING_CHANGES}</p>
-                <p className="text-sm mt-1">{TEXT.CONTEST.NO_RATING_CHANGES_DESC}</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/40">
-                      <th className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
-                      <th className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
-                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_OLD}</th>
-                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_NEW}</th>
-                      <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_DELTA}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ratingChanges.map((rc) => (
-                      <tr key={rc.user_id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                        <td className="py-3 px-4">
-                          <span className={`font-bold ${rc.rank <= 3 ? "text-amber-500" : ""}`}>
-                            {rc.rank <= 3 ? ["🥇", "🥈", "🥉"][rc.rank - 1] : rc.rank}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="font-medium">{rc.username}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className="font-mono text-muted-foreground">{rc.old_rating}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className="font-mono font-bold">{rc.new_rating}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className={`font-mono font-bold ${rc.delta > 0 ? "text-green-500" : rc.delta < 0 ? "text-red-500" : "text-muted-foreground"}`}>
-                            {rc.delta > 0 ? `+${rc.delta}` : rc.delta}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
+            <ContestRatingTable ratingChanges={ratingChanges} />
           )}
         </div>
       </Card>

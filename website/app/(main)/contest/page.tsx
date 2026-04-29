@@ -11,7 +11,7 @@ import { Trophy, Search } from "lucide-react";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { getContests, registerContest, unregisterContest } from "@/services/contest.service";
+import { contestService } from "@/services/contest.service";
 import { notify, getErrorMessage } from "@/lib/toast";
 import type { Contest, ContestStatus } from "@/types/contest";
 import { ContestHeroSection } from "@/modules/contest/contest-hero-section";
@@ -38,7 +38,7 @@ export default function ContestPage() {
 
   async function fetchContests() {
     try {
-      const res = await getContests({
+      const res = await contestService.find({
         pagination: { page: 1, page_size: 50 },
       });
       setContests(res.records ?? []);
@@ -51,7 +51,7 @@ export default function ContestPage() {
 
   async function handleRegister(id: number) {
     try {
-      await registerContest(id);
+      await contestService.register(id);
       notify.success(TEXT.CONTEST.REGISTER_SUCCESS);
       fetchContests();
     } catch (error) {
@@ -61,7 +61,7 @@ export default function ContestPage() {
 
   async function handleUnregister(id: number) {
     try {
-      await unregisterContest(id);
+      await contestService.unregister(id);
       notify.success(TEXT.CONTEST.UNREGISTER_SUCCESS);
       fetchContests();
     } catch (error) {

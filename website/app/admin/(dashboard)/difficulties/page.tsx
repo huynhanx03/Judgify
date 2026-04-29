@@ -13,16 +13,16 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { DifficultyDialog } from "@/modules/admin/dialogs/difficulty-dialog";
-import { adminService } from "@/services/admin.service";
+import { difficultyService } from "@/services/difficulty.service";
 import { TEXT } from "@/constants/text";
 import type { DifficultyResponse } from "@/types/difficulty";
 
 export default function AdminDifficultiesPage() {
   const service = useMemo(() => ({
-    find: adminService.findDifficulties.bind(adminService),
-    create: adminService.createDifficulty.bind(adminService),
-    update: adminService.updateDifficulty.bind(adminService),
-    delete: adminService.deleteDifficulty.bind(adminService),
+    find: difficultyService.find.bind(difficultyService),
+    create: difficultyService.create.bind(difficultyService),
+    update: difficultyService.update.bind(difficultyService),
+    delete: difficultyService.delete.bind(difficultyService),
   }), []);
 
   const crud = usePaginatedCRUD<DifficultyResponse>({ service });

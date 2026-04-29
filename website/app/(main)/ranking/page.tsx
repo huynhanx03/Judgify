@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { getTopByRating, getTopByExp } from "@/services/ranking.service";
+import { rankingService } from "@/services/ranking.service";
 import type { Cultivator } from "@/types/ranking";
 import { RankingHeroSection } from "@/modules/ranking/ranking-hero-section";
 import { RankingTopList } from "@/modules/ranking/ranking-top-list";
@@ -24,8 +24,8 @@ export default function RankingPage() {
     async function fetchAll() {
       try {
         const [rating, level] = await Promise.all([
-          getTopByRating(10),
-          getTopByExp(10),
+          rankingService.getTopByRating(10),
+          rankingService.getTopByExp(10),
         ]);
         setData({ rating, level });
       } catch (error) {

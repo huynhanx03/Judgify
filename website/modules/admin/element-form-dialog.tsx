@@ -18,7 +18,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { adminService } from "@/services/admin.service";
+import { elementService } from "@/services/element.service";
 import { notify } from "@/lib/toast";
 import type { ElementResponse } from "@/types/cultivation";
 
@@ -66,10 +66,10 @@ export function ElementFormDialog({
         description: form.description.trim() || undefined,
       };
       if (editItem) {
-        await adminService.updateElement(editItem.id, payload);
+        await elementService.update(editItem.id, payload);
         notify.success("Cập nhật thành công");
       } else {
-        await adminService.createElement(payload);
+        await elementService.create(payload);
         notify.success("Tạo thành công");
       }
       onSuccess();

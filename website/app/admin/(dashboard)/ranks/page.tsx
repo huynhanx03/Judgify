@@ -13,16 +13,16 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { RankDialog } from "@/modules/admin/dialogs/rank-dialog";
-import { adminService } from "@/services/admin.service";
+import { rankService } from "@/services/rank.service";
 import { TEXT } from "@/constants/text";
 import type { RankResponse } from "@/types/cultivation";
 
 export default function AdminRanksPage() {
   const service = useMemo(() => ({
-    find: adminService.findRanks.bind(adminService),
-    create: adminService.createRank.bind(adminService),
-    update: adminService.updateRank.bind(adminService),
-    delete: adminService.deleteRank.bind(adminService),
+    find: rankService.find.bind(rankService),
+    create: rankService.create.bind(rankService),
+    update: rankService.update.bind(rankService),
+    delete: rankService.delete.bind(rankService),
   }), []);
 
   const crud = usePaginatedCRUD<RankResponse>({ service });

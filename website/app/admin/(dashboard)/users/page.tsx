@@ -8,18 +8,12 @@ import { useEffect, useState } from "react";
 import { Loader2, Plus, Trash2, UserCog } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog, DialogContent, DialogDescription,
-  DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { adminService } from "@/services/admin.service";
+import { EditRoleDialog } from "@/modules/admin/dialogs/edit-role-dialog";
+import { CreateUserDialog } from "@/modules/admin/dialogs/create-user-dialog";
+import { userService } from "@/services/user.service";
+import { roleService } from "@/services/role.service";
 import { notify, getErrorMessage } from "@/lib/toast";
 import { TEXT } from "@/constants/text";
 import type { AdminUser, Role } from "@/types/admin";
@@ -41,20 +35,14 @@ export default function AdminUsersPage() {
 
   // Edit role state
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
-  const [editRoleId, setEditRoleId] = useState<string>("");
   const [isSavingRole, setIsSavingRole] = useState(false);
 
   // Create user state
   const [createOpen, setCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [form, setForm] = useState({
-    username: "", password: "", role_id: "",
-    first_name: "", last_name: "",
-    gender: "0", birthday: "",
-  });
 
   useEffect(() => {
-    Promise.all([adminService.getUsers(), adminService.getAllRoles()])
+    Promise.all([userService.find(), roleService.getAll()])
       .then(([res, rls]) => {
         setUsers(res.records);
         setRoles(rls);
@@ -67,7 +55,7 @@ export default function AdminUsersPage() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      await adminService.deleteUser(deleteTarget.id);
+      await userService.delete(deleteTarget.id);
       setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
       notify.success(TEXT.ADMIN.USERS_DELETE_SUCCESS);
     } catch (err) {
@@ -78,16 +66,10 @@ export default function AdminUsersPage() {
     }
   }
 
-  function openEditRole(user: AdminUser) {
-    setEditTarget(user);
-    setEditRoleId(String(user.role_id));
-  }
-
-  async function handleSaveRole() {
-    if (!editTarget || !editRoleId) return;
+  async function handleSaveRole(userId: number, roleId: number) {
     setIsSavingRole(true);
     try {
-      const updated = await adminService.updateUserRole(editTarget.id, { role_id: Number(editRoleId) });
+      const updated = await userService.updateRole(userId, { role_id: roleId });
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
       notify.success(TEXT.ADMIN.USERS_EDIT_ROLE_SUCCESS);
       setEditTarget(null);
@@ -98,24 +80,17 @@ export default function AdminUsersPage() {
     }
   }
 
-  async function handleCreate() {
-    if (!form.username || !form.password || !form.role_id || !form.first_name || !form.last_name || !form.birthday) return;
+  async function handleCreate(data: {
+    username: string; password: string; role_id: number;
+    first_name: string; last_name: string; gender: number; birthday: string;
+  }) {
     setIsCreating(true);
     try {
-      await adminService.createUser({
-        username: form.username,
-        password: form.password,
-        role_id: Number(form.role_id),
-        first_name: form.first_name,
-        last_name: form.last_name,
-        gender: Number(form.gender),
-        birthday: form.birthday,
-      });
-      const res = await adminService.getUsers();
+      await userService.create(data);
+      const res = await userService.find();
       setUsers(res.records);
       notify.success(TEXT.ADMIN.USERS_CREATE_SUCCESS);
       setCreateOpen(false);
-      setForm({ username: "", password: "", role_id: "", first_name: "", last_name: "", gender: "0", birthday: "" });
     } catch (err) {
       notify.error(getErrorMessage(err, TEXT.ADMIN.USERS_CREATE_ERROR));
     } finally {
@@ -158,7 +133,7 @@ export default function AdminUsersPage() {
           <Button
             variant="ghost" size="icon"
             className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer"
-            onClick={() => openEditRole(u)}
+            onClick={() => setEditTarget(u)}
           >
             <UserCog className="h-4 w-4" />
           </Button>
@@ -202,7 +177,6 @@ export default function AdminUsersPage() {
         emptyMessage={TEXT.ADMIN.USERS_EMPTY}
       />
 
-      {/* Delete confirm */}
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
@@ -212,96 +186,21 @@ export default function AdminUsersPage() {
         description={TEXT.ADMIN.USERS_DELETE_DESC(deleteTarget?.username ?? "")}
       />
 
-      {/* Edit role dialog */}
-      <Dialog open={!!editTarget} onOpenChange={(open) => !open && setEditTarget(null)}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>{TEXT.ADMIN.USERS_EDIT_ROLE_TITLE}</DialogTitle>
-            <DialogDescription>{TEXT.ADMIN.USERS_EDIT_ROLE_DESC(editTarget?.username ?? "")}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <Label>{TEXT.ADMIN.USERS_FORM_ROLE}</Label>
-            <Select value={editRoleId} onValueChange={setEditRoleId}>
-              <SelectTrigger><SelectValue placeholder={TEXT.ADMIN.USERS_ROLE_PLACEHOLDER} /></SelectTrigger>
-              <SelectContent>
-                {roles.map((r) => (
-                  <SelectItem key={r.id} value={String(r.id)}>{r.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditTarget(null)} disabled={isSavingRole} className="cursor-pointer">{TEXT.COMMON.CANCEL}</Button>
-            <Button onClick={handleSaveRole} disabled={isSavingRole || !editRoleId} className="cursor-pointer">
-              {isSavingRole ? <Loader2 className="h-4 w-4 animate-spin" /> : TEXT.COMMON.SAVE}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditRoleDialog
+        user={editTarget}
+        roles={roles}
+        onSave={handleSaveRole}
+        onClose={() => setEditTarget(null)}
+        isSaving={isSavingRole}
+      />
 
-      {/* Create user dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{TEXT.ADMIN.USERS_CREATE_TITLE}</DialogTitle>
-            <DialogDescription>{TEXT.ADMIN.USERS_CREATE_DESC}</DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-3 py-2">
-            <div className="space-y-1.5 col-span-2">
-              <Label>{TEXT.ADMIN.USERS_FORM_USERNAME}</Label>
-              <Input placeholder={TEXT.ADMIN.USERS_FORM_USERNAME_PLACEHOLDER} value={form.username} onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5 col-span-2">
-              <Label>{TEXT.ADMIN.USERS_FORM_PASSWORD}</Label>
-              <Input type="password" placeholder={TEXT.ADMIN.USERS_FORM_PASSWORD_PLACEHOLDER} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{TEXT.ADMIN.USERS_FORM_LAST_NAME}</Label>
-              <Input placeholder={TEXT.AUTH.LAST_NAME_PLACEHOLDER} value={form.last_name} onChange={(e) => setForm((f) => ({ ...f, last_name: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{TEXT.ADMIN.USERS_FORM_FIRST_NAME}</Label>
-              <Input placeholder={TEXT.AUTH.FIRST_NAME_PLACEHOLDER} value={form.first_name} onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{TEXT.ADMIN.USERS_FORM_BIRTHDAY}</Label>
-              <Input type="date" value={form.birthday} onChange={(e) => setForm((f) => ({ ...f, birthday: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{TEXT.ADMIN.USERS_FORM_GENDER}</Label>
-              <Select value={form.gender} onValueChange={(v) => setForm((f) => ({ ...f, gender: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">{TEXT.ADMIN.USERS_FORM_GENDER_OTHER}</SelectItem>
-                  <SelectItem value="1">{TEXT.ADMIN.USERS_FORM_GENDER_MALE}</SelectItem>
-                  <SelectItem value="2">{TEXT.ADMIN.USERS_FORM_GENDER_FEMALE}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5 col-span-2">
-              <Label>{TEXT.ADMIN.USERS_FORM_ROLE}</Label>
-              <Select value={form.role_id} onValueChange={(v) => setForm((f) => ({ ...f, role_id: v }))}>
-                <SelectTrigger><SelectValue placeholder={TEXT.ADMIN.USERS_FORM_ROLE_PLACEHOLDER} /></SelectTrigger>
-                <SelectContent>
-                  {roles.map((r) => (
-                    <SelectItem key={r.id} value={String(r.id)}>{r.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={isCreating} className="cursor-pointer">{TEXT.COMMON.CANCEL}</Button>
-            <Button
-              onClick={handleCreate}
-              disabled={isCreating || !form.username || !form.password || !form.role_id || !form.first_name || !form.last_name || !form.birthday}
-              className="cursor-pointer"
-            >
-              {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : TEXT.COMMON.CREATE}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CreateUserDialog
+        open={createOpen}
+        roles={roles}
+        onSave={handleCreate}
+        onClose={() => setCreateOpen(false)}
+        isSaving={isCreating}
+      />
     </div>
   );
 }

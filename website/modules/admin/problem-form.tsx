@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { adminService } from "@/services/admin.service";
+import { problemService } from "@/services/problem.service";
+import { difficultyService } from "@/services/difficulty.service";
+import { tagService } from "@/services/tag.service";
 import { notify, getErrorMessage } from "@/lib/toast";
 import type { Problem } from "@/types/problem";
 import type { Tag } from "@/types/tag";
@@ -73,8 +75,8 @@ export function ProblemForm({ problem }: ProblemFormProps) {
 
   useEffect(() => {
     Promise.all([
-      adminService.getAllDifficulties(),
-      adminService.getAllTags(),
+      difficultyService.getAll(),
+      tagService.getAll(),
     ]).then(([diffs, tagList]) => {
       setDifficulties(diffs);
       setTags(tagList);
@@ -88,7 +90,7 @@ export function ProblemForm({ problem }: ProblemFormProps) {
   useEffect(() => {
     if (!problem) return;
     setTcLoading(true);
-    adminService.getTestCases(problem.id)
+    problemService.getTestCases(problem.id)
       .then((data) => {
         setTestCases(data.map((tc) => ({
           id: tc.id,
@@ -129,7 +131,7 @@ export function ProblemForm({ problem }: ProblemFormProps) {
     const tc = testCases[index];
     if (tc.id) {
       try {
-        await adminService.deleteTestCase(tc.id);
+        await problemService.deleteTestCase(tc.id);
       } catch (err) {
         notify.error(getErrorMessage(err, "Xóa test case thất bại"));
         return;
@@ -149,7 +151,7 @@ export function ProblemForm({ problem }: ProblemFormProps) {
     setTcSaving(index);
     try {
       if (tc.id) {
-        const updated = await adminService.updateTestCase(tc.id, {
+        const updated = await problemService.updateTestCase(tc.id, {
           input: tc.input,
           expected_output: tc.expected_output,
           is_hidden: tc.is_hidden,
@@ -162,7 +164,7 @@ export function ProblemForm({ problem }: ProblemFormProps) {
         });
         notify.success("Test case đã cập nhật");
       } else {
-        const created = await adminService.createTestCase(problem.id, {
+        const created = await problemService.createTestCase(problem.id, {
           input: tc.input,
           expected_output: tc.expected_output,
           is_hidden: tc.is_hidden,
@@ -187,14 +189,14 @@ export function ProblemForm({ problem }: ProblemFormProps) {
     setSaving(true);
     try {
       if (isEditing && problem) {
-        await adminService.updateProblem(problem.id, {
+        await problemService.update(problem.id, {
           title, description, difficulty_id: difficultyId,
           time_limit_ms: timeLimitMs, memory_limit_kb: memoryLimitKb,
           tag_ids: tagIds, is_published: isPublished,
         });
         notify.success("Cập nhật thành công");
       } else {
-        const created = await adminService.createProblem({
+        const created = await problemService.create({
           title, description, difficulty_id: difficultyId,
           time_limit_ms: timeLimitMs, memory_limit_kb: memoryLimitKb,
           tag_ids: tagIds,

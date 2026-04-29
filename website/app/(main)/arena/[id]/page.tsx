@@ -9,18 +9,12 @@
 
 import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { getProblemById } from "@/services/problem.service";
-import {
-  createSubmission,
-  getMySubmissions,
-  getTestCases,
-} from "@/services/submission.service";
-import { MarkdownRenderer } from "@/modules/shared/markdown-renderer";
+import { problemService } from "@/services/problem.service";
+import { submissionService } from "@/services/submission.service";
 import { FileSubmission } from "@/modules/problem/file-submission";
 import { SubmissionHistory } from "@/modules/problem/submission-history";
-import { TestCaseBlock } from "@/modules/problem/test-case-block";
+import { ProblemDescriptionPanel } from "@/modules/arena/problem-description-panel";
 import { TEXT } from "@/constants/text";
 import { notify } from "@/lib/toast";
 import type { Problem } from "@/types/problem";
@@ -34,18 +28,9 @@ import type {
 import { LoadingSpinner } from "@/components/loading-spinner";
 import {
   ArrowLeft,
-  Clock,
-  HardDrive,
   FileText,
   History,
 } from "lucide-react";
-
-/** Style config per difficulty level (1=easy, 2=medium, 3=hard). */
-const DIFFICULTY_CONFIG: Record<number, { className: string }> = {
-  1: { className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
-  2: { className: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
-  3: { className: "bg-rose-500/10 text-rose-500 border-rose-500/20" },
-};
 
 /** Terminal statuses — no further polling needed. */
 const TERMINAL_STATUSES: SubmissionStatus[] = [
@@ -89,8 +74,8 @@ export default function ProblemDetailPage({
     async function loadProblem() {
       try {
         const [problemData, testCasesData] = await Promise.all([
-          getProblemById(problemId),
-          getTestCases(problemId),
+          problemService.getById(problemId),
+          problemService.getTestCases(problemId),
         ]);
         setProblem(problemData);
         // Only show non-hidden test cases as examples
@@ -112,7 +97,7 @@ export default function ProblemDetailPage({
   const loadSubmissions = useCallback(async () => {
     setIsLoadingSubmissions(true);
     try {
-      const data = await getMySubmissions(problemId);
+      const data = await submissionService.getMyByProblem(problemId);
       setSubmissions(data);
     } catch {
       setSubmissions([]);
@@ -135,7 +120,7 @@ export default function ProblemDetailPage({
 
     const interval = setInterval(async () => {
       try {
-        const data = await getMySubmissions(problemId);
+        const data = await submissionService.getMyByProblem(problemId);
         setSubmissions(data);
       } catch {
         // Silently retry
@@ -151,7 +136,7 @@ export default function ProblemDetailPage({
     setSubmitError(null);
 
     try {
-      const newSubmission = await createSubmission({
+      const newSubmission = await submissionService.submit({
         problem_id: problemId,
         language,
         source_code: code,
@@ -186,8 +171,6 @@ export default function ProblemDetailPage({
       </div>
     );
   }
-
-  const diff = DIFFICULTY_CONFIG[problem.difficulty?.level ?? 1];
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
@@ -253,62 +236,7 @@ export default function ProblemDetailPage({
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto p-6">
           {activeTab === "description" && (
-            <div className="space-y-6">
-              {/* Title + meta */}
-              <div className="space-y-3">
-                <h1 className="text-2xl font-bold">{problem.title}</h1>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <Badge
-                    variant="outline"
-                    className={`text-sm font-bold px-3 py-1 ${diff?.className ?? ""}`}
-                  >
-                    {problem.difficulty?.name ?? "N/A"}
-                  </Badge>
-
-                  {problem.tags && problem.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {problem.tags.map((tag) => (
-                        <Badge
-                          key={tag.id}
-                          variant="secondary"
-                          className="text-xs px-2.5 py-1 h-auto font-medium bg-violet-500/10 text-violet-600 dark:text-violet-400 border-0 rounded-full"
-                        >
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="ml-auto flex items-center gap-3">
-                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      {problem.time_limit_ms} ms
-                    </span>
-                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <HardDrive className="h-4 w-4" />
-                      {(problem.memory_limit_kb / 1024).toFixed(0)} MB
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="h-px bg-border/40" />
-
-              {/* Problem description from API */}
-              <MarkdownRenderer content={problem.description} />
-
-              {/* Test cases from API */}
-              {testCases.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-lg font-bold text-foreground">
-                    {TEXT.PROBLEM.EXAMPLES}
-                  </h3>
-                  {testCases.map((tc, i) => (
-                    <TestCaseBlock key={i} testCase={tc} index={i} />
-                  ))}
-                </div>
-              )}
-            </div>
+            <ProblemDescriptionPanel problem={problem} testCases={testCases} />
           )}
 
           {activeTab === "history" && (

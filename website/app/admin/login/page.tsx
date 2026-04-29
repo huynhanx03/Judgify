@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/services/auth.service";
+import { authService } from "@/services/auth.service";
 import { Loader2, Shield } from "lucide-react";
 
 export default function AdminLoginPage() {
@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      await login({ username, password });
+      await authService.login({ username, password });
       router.push("/admin");
     } catch {
       setError("Tên đăng nhập hoặc mật khẩu không đúng");

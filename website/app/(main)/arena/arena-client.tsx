@@ -15,9 +15,9 @@ import { TEXT } from "@/constants/text";
 import type { Problem } from "@/types/problem";
 import type { Tag } from "@/types/tag";
 import type { DifficultyResponse } from "@/types/difficulty";
-import { getProblems } from "@/services/problem.service";
-import { getAllTags } from "@/services/tag.service";
-import { getAllDifficulties } from "@/services/difficulty.service";
+import { problemService } from "@/services/problem.service";
+import { tagService } from "@/services/tag.service";
+import { difficultyService } from "@/services/difficulty.service";
 import { Button } from "@/components/ui/button";
 
 const PAGE_SIZE = 20;
@@ -46,8 +46,8 @@ export function ArenaClient() {
 
   // Load reference data once
   useEffect(() => {
-    getAllTags().then(setTags).catch(() => {});
-    getAllDifficulties().then(setDifficulties).catch(() => {});
+    tagService.getAll().then(setTags).catch(() => {});
+    difficultyService.getAll().then(setDifficulties).catch(() => {});
   }, []);
 
   // Map difficulty slug → id using loaded difficulties
@@ -73,7 +73,7 @@ export function ArenaClient() {
       if (sortField === "acceptance") sort.push({ key: "accepted_count", order: sortDirection === "asc" ? 1 : -1 });
       else if (sortField === "solved") sort.push({ key: "submission_count", order: sortDirection === "asc" ? 1 : -1 });
 
-      const res = await getProblems({
+      const res = await problemService.find({
         pagination: { page: currentPage, page_size: PAGE_SIZE },
         filters: filterList.length > 0 ? filterList : undefined,
         sort: sort.length > 0 ? sort : undefined,

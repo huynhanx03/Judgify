@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { resetPassword } from "@/services/auth.service";
+import { authService } from "@/services/auth.service";
 import { TEXT } from "@/constants/text";
 import { Loader2, CheckCircle2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
@@ -46,7 +46,7 @@ function ResetPasswordForm() {
 
     setIsLoading(true);
     try {
-      await resetPassword(token, newPassword);
+      await authService.resetPassword(token, newPassword);
       setSuccess(true);
       setTimeout(() => router.push("/login"), 2000);
     } catch {

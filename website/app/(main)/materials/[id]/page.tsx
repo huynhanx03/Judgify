@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Clock, Eye } from "lucide-react";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { getMaterialById } from "@/services/material.service";
+import { materialService } from "@/services/material.service";
 import type { MaterialArticle } from "@/types/material";
 import { DIFFICULTY_SLUG } from "@/types/difficulty";
 import { MarkdownRenderer } from "@/modules/shared/markdown-renderer";
@@ -34,7 +34,7 @@ export default function MaterialDetailPage() {
       setIsLoading(false);
       return;
     }
-    getMaterialById(id)
+    materialService.getById(id)
       .then(setArticle)
       .catch(console.error)
       .finally(() => setIsLoading(false));

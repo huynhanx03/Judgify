@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { register } from "@/services/auth.service";
-import { findAllTraits, gachaRoll } from "@/services/cultivation.service";
+import { authService } from "@/services/auth.service";
+import { cultivationService } from "@/services/cultivation.service";
 import { ApiError } from "@/lib/api-client";
 import { notify } from "@/lib/toast";
 import { TEXT } from "@/constants/text";
@@ -44,7 +44,7 @@ export default function RegisterFlow() {
     if (allTraits.length > 0) return;
     setTraitsLoading(true);
     try {
-      const data = await findAllTraits();
+      const data = await cultivationService.getAllTraits();
       setAllTraits(data);
     } catch {
       notify.error(TEXT.AUTH.TRAIT_FETCH_ERROR);
@@ -60,7 +60,7 @@ export default function RegisterFlow() {
     setSelectedTalents([]);
 
     try {
-      const result = await gachaRoll();
+      const result = await cultivationService.gachaRoll();
       // Only 1 root bone — auto-select
       setRolledRootBone(result.root_bones[0] ?? null);
       setRolledTalents(result.talents);
@@ -108,7 +108,7 @@ export default function RegisterFlow() {
 
     setIsLoading(true);
     try {
-      await register({
+      await authService.register({
         username: form.username,
         password: form.password,
         first_name: form.first_name,

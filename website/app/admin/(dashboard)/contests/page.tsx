@@ -14,7 +14,7 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { ContestDialog } from "@/modules/admin/dialogs/contest-dialog";
-import { adminService } from "@/services/admin.service";
+import { contestService } from "@/services/contest.service";
 import { TEXT } from "@/constants/text";
 import type { Contest } from "@/types/contest";
 
@@ -41,10 +41,10 @@ function formatDate(iso: string) {
 
 export default function AdminContestsPage() {
   const service = useMemo(() => ({
-    find: adminService.findContests.bind(adminService),
-    create: adminService.createContest.bind(adminService),
-    update: adminService.updateContest.bind(adminService),
-    delete: adminService.deleteContest.bind(adminService),
+    find: contestService.find.bind(contestService),
+    create: contestService.create.bind(contestService),
+    update: contestService.update.bind(contestService),
+    delete: contestService.delete.bind(contestService),
   }), []);
 
   const crud = usePaginatedCRUD<Contest>({ service });

@@ -8,7 +8,10 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileCode2, Tags, Shield, Loader2 } from "lucide-react";
-import { adminService } from "@/services/admin.service";
+import { problemService } from "@/services/problem.service";
+import { tagService } from "@/services/tag.service";
+import { roleService } from "@/services/role.service";
+import { userService } from "@/services/user.service";
 
 interface DashboardStats {
   totalProblems: number;
@@ -31,10 +34,10 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const countQuery = { pagination: { page: 1, page_size: 1 } };
     Promise.all([
-      adminService.findProblems(countQuery),
-      adminService.findTags(countQuery),
-      adminService.getAllRoles(),
-      adminService.getUsers(countQuery),
+      problemService.find(countQuery),
+      tagService.find(countQuery),
+      roleService.getAll(),
+      userService.find(countQuery),
     ])
       .then(([problems, tags, roles, users]) => {
         setStats({

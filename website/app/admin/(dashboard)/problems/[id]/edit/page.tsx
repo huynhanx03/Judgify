@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { ProblemForm } from "@/modules/admin/problem-form";
-import { adminService } from "@/services/admin.service";
+import { problemService } from "@/services/problem.service";
 import { notify } from "@/lib/toast";
 import type { Problem } from "@/types/problem";
 
@@ -25,7 +25,7 @@ export default function AdminEditProblemPage() {
       router.replace("/admin/problems");
       return;
     }
-    adminService.getProblem(id)
+    problemService.getById(id)
       .then(setProblem)
       .catch(() => {
         notify.error("Không tìm thấy bài tập");

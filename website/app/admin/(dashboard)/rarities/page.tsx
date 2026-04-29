@@ -13,16 +13,16 @@ import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-tab
 import { DataTableShell } from "@/modules/admin/data-table-shell";
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 import { RarityDialog } from "@/modules/admin/dialogs/rarity-dialog";
-import { adminService } from "@/services/admin.service";
+import { rarityService } from "@/services/rarity.service";
 import { TEXT } from "@/constants/text";
 import type { RarityResponse } from "@/types/cultivation";
 
 export default function AdminRaritiesPage() {
   const service = useMemo(() => ({
-    find: adminService.findRarities.bind(adminService),
-    create: adminService.createRarity.bind(adminService),
-    update: adminService.updateRarity.bind(adminService),
-    delete: adminService.deleteRarity.bind(adminService),
+    find: rarityService.find.bind(rarityService),
+    create: rarityService.create.bind(rarityService),
+    update: rarityService.update.bind(rarityService),
+    delete: rarityService.delete.bind(rarityService),
   }), []);
 
   const crud = usePaginatedCRUD<RarityResponse>({ service });

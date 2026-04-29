@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { getMaterialCategories, findMaterials } from "@/services/material.service";
+import { materialService } from "@/services/material.service";
 import type { MaterialArticle, MaterialCategory } from "@/types/material";
 import type { QueryOptions, SearchFilter } from "@/types/api";
 import { MaterialsHeroSection } from "@/modules/materials/materials-hero-section";
@@ -30,7 +30,7 @@ export default function MaterialsPage() {
 
   // Fetch categories once
   useEffect(() => {
-    getMaterialCategories()
+    materialService.getAllCategories()
       .then(setCategories)
       .catch((err) => console.error("Failed to fetch categories:", err));
   }, []);
@@ -55,7 +55,7 @@ export default function MaterialsPage() {
       }
 
       const opts: QueryOptions = { filters };
-      const result = await findMaterials(opts);
+      const result = await materialService.find(opts);
       setArticles(result.records ?? []);
       setTotalItems(result.pagination?.total_items ?? 0);
     } catch (err) {
