@@ -177,9 +177,9 @@ cn("base-class", condition && "conditional-class", "another-class")
 import { decodeJwt, isTokenExpired } from "@/lib/jwt";
 ```
 
-### `hooks/use-auth.ts` / `contexts/auth-context.tsx`
+### `contexts/auth-context.tsx`
 ```ts
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 
 const { user, isAuthenticated, isLoading, login, logout } = useAuth();
 ```
@@ -209,19 +209,37 @@ const { user, isAuthenticated, isLoading, login, logout } = useAuth();
 
 ## 6. Services (`services/`)
 
+> **Quy tắc: 1 domain = 1 file.** Mỗi service là 1 object export với short method names.
+> Domain nằm trong tên service, không lặp trong method. Vd: `userService.find()`, không `userService.findUsers()`.
+
+```ts
+// Pattern chuẩn — mọi service đều theo dạng này
+export const xxxService = {
+  async find(query?: QueryOptions): Promise<Paginated<Xxx>> { ... },
+  async getById(id: number): Promise<Xxx> { ... },
+  async create(data: ...): Promise<Xxx> { ... },
+  async update(id: number, data: ...): Promise<Xxx> { ... },
+  async delete(id: number): Promise<void> { ... },
+};
+```
+
 | Service | File | Covers |
 |---|---|---|
 | Auth | `auth.service.ts` | login, register, logout, forgot/reset password |
-| User | `user.service.ts` | getProfile, updateProfile, admin user list |
-| Problem | `problem.service.ts` | getProblems, getProblemById, create/update/delete |
-| Submission | `submission.service.ts` | createSubmission, getSubmission, getMySubmissions, getTestCases |
-| Tag | `tag.service.ts` | getAllTags (no-pagination), paginated getTag, CRUD |
-| Difficulty | `difficulty.service.ts` | getAllDifficulties (no-pagination), paginated, CRUD |
-| Cultivation | `cultivation.service.ts` | getAllTraits, gachaRoll, findAllTraits, user traits |
-| Admin | `admin.service.ts` | Aggregates tất cả admin API (roles, permissions, resources, problems, tags, difficulties, elements, traits, levels, rarities, ranks, users) |
-| Ranking | `ranking.service.ts` | ⚠️ **Mock data** — chờ API thật |
-| Contest | `contest.service.ts` | ⚠️ **Mock data** — chờ API thật |
-| Material | `material.service.ts` | ⚠️ **Mock data** — chờ API thật |
+| User | `user.service.ts` | getProfile, updateProfile, admin find/create/updateRole/delete |
+| Role | `role.service.ts` | roles CRUD + permissions CRUD + resources CRUD |
+| Problem | `problem.service.ts` | public list/detail + admin CRUD + test cases CRUD |
+| Submission | `submission.service.ts` | submit, getMyByProblem, getById |
+| Tag | `tag.service.ts` | getAll + admin CRUD |
+| Difficulty | `difficulty.service.ts` | getAll + admin CRUD |
+| Contest | `contest.service.ts` | public list/detail/register + admin CRUD |
+| Material | `material.service.ts` | public list/detail + admin CRUD + categories CRUD |
+| Cultivation | `cultivation.service.ts` | traits, gacha, user traits |
+| Element | `element.service.ts` | getAll + admin CRUD |
+| Level | `level.service.ts` | getAll + admin CRUD |
+| Rarity | `rarity.service.ts` | getAll + admin CRUD |
+| Rank | `rank.service.ts` | getAll + admin CRUD |
+| Ranking | `ranking.service.ts` | topByRating, topByExp |
 
 ---
 
@@ -235,10 +253,10 @@ Mọi trang admin CRUD đều theo đúng 3 lớp sau. **Không phá pattern nà
 import { usePaginatedCRUD } from "@/modules/admin/hooks/use-paginated-crud";
 
 const service = useMemo(() => ({
-  find:   adminService.findXxx.bind(adminService),  // bắt buộc
-  create: adminService.createXxx.bind(adminService), // nếu có dialog
-  update: adminService.updateXxx.bind(adminService), // nếu có dialog
-  delete: adminService.deleteXxx.bind(adminService),
+  find:   xxxService.find.bind(xxxService),    // bắt buộc
+  create: xxxService.create.bind(xxxService),   // nếu có dialog
+  update: xxxService.update.bind(xxxService),   // nếu có dialog
+  delete: xxxService.delete.bind(xxxService),
 }), []);
 
 const crud = usePaginatedCRUD<MyEntity>({ service, searchKey: "name" });
@@ -305,6 +323,16 @@ const columns: AdminColumn<MyEntity>[] = [
 | `components/arena-filter-bar.tsx` | UI filter bar (search + Sheet + active badges). Nhận `filters` từ hook + `tags` + `difficulties`. |
 | `components/difficulty-badge.tsx` | Badge hiển thị độ khó. Nhận `difficulty?: DifficultyResponse`. |
 | `components/problem-table.tsx` | Bảng problem list với link, difficulty, tags, tỉ lệ AC. |
+| `problem-description-panel.tsx` | Panel hiện title, badges, markdown, test cases trong trang problem detail. |
+
+### Contest (`modules/contest/`)
+
+| File | Vai trò |
+|---|---|
+| `contest-hero-section.tsx` | Hero section trang contest list. |
+| `contest-card.tsx` | Card hiển thị 1 contest. |
+| `contest-standings-table.tsx` | Bảng xếp hạng ICPC realtime (SSE). Nhận `standings[]` + `isConnected`. |
+| `contest-rating-table.tsx` | Bảng rating changes (old/new/delta). Nhận `ratingChanges[]`. |
 
 ### Auth (`modules/auth/`)
 
@@ -364,9 +392,13 @@ const columns: AdminColumn<MyEntity>[] = [
 - [ ] String mới → thêm vào `constants/text.ts` trước
 - [ ] Màu difficulty → dùng `getDifficultyStyle`, không hardcode
 - [ ] Loading state → dùng `<LoadingSpinner />`, không copy `Loader2`
-- [ ] API call mới → thêm vào đúng service file, gọi qua `apiClient`
+- [ ] API call mới → thêm vào đúng service file (1 domain = 1 file), gọi qua `apiClient`
 - [ ] Toast → dùng `notify`, không dùng sonner trực tiếp
 - [ ] Admin entity mới → theo đúng pattern `usePaginatedCRUD + DataTableShell + AdminDataTable + Dialog`
 - [ ] Dialog có dropdown → dùng native `<select>` nếu nằm trong Shadcn `Dialog`
 - [ ] Class ghép → dùng `cn()`
 - [ ] Fetch reference data (rarities, elements, ...) → fetch 1 lần ở parent, truyền xuống dialog qua props
+- [ ] Service mới → 1 domain = 1 file, object export pattern, short method names (`find`, `getById`, `create`, `update`, `delete`)
+- [ ] API constant mới → thêm vào đúng file trong `constants/api/`, không tạo file mới nếu domain đã có
+- [ ] Dialog tách riêng → để trong `modules/admin/dialogs/`, nhận `open`/`onSave`/`onClose`/`isSaving` props
+- [ ] Page quá 200 dòng → tách dialog/panel ra file riêng trong `modules/`
