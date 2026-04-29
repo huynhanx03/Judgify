@@ -1,12 +1,7 @@
-/**
- * Ranking service — calls backend ranking endpoints.
- */
-
 import { apiClient } from "@/lib/api-client";
 import { RANKING_API } from "@/constants/api";
 import type { Cultivator } from "@/types/ranking";
 
-/** Raw ranking entry from backend. */
 interface RankingEntry {
   rank: number;
   user_id: number;
@@ -40,14 +35,17 @@ function mapLevelEntry(e: RankingEntry): Cultivator {
   };
 }
 
-/** Fetches top 10 users by rating. */
-export async function getTopByRating(limit = 10): Promise<Cultivator[]> {
-  const entries = await apiClient.get<RankingEntry[]>(RANKING_API.TOP_RATING(limit));
-  return entries.map(mapRatingEntry);
-}
-
-/** Fetches top 10 users by exp/level. */
-export async function getTopByExp(limit = 10): Promise<Cultivator[]> {
-  const entries = await apiClient.get<RankingEntry[]>(RANKING_API.TOP_EXP(limit));
-  return entries.map(mapLevelEntry);
-}
+export const rankingService = {
+  async getTopByRating(limit = 10): Promise<Cultivator[]> {
+    const entries = await apiClient.get<RankingEntry[]>(
+      RANKING_API.TOP_RATING(limit)
+    );
+    return entries.map(mapRatingEntry);
+  },
+  async getTopByExp(limit = 10): Promise<Cultivator[]> {
+    const entries = await apiClient.get<RankingEntry[]>(
+      RANKING_API.TOP_EXP(limit)
+    );
+    return entries.map(mapLevelEntry);
+  },
+};
