@@ -85,3 +85,28 @@ export interface UpdateProfileRequest {
   gender: number
   birthday: string
 }
+
+/** Create a minimal UserProfile for instant display after login (before full profile loads). */
+export function createDefaultProfile(username: string): UserProfile {
+  return {
+    username,
+    first_name: "",
+    last_name: "",
+    gender: 0,
+    joined_at: "",
+    cultivation: {
+      total_exp: 0,
+      rating: 0,
+      level: { name: "—", tier_index: 0, progress: 0, exp_to_next: 0 },
+      rank: { name: "—", tier_index: 0, progress: 0, rating_to_next: 0 },
+      talents: [],
+      elements: [],
+    },
+    problem_stats: {
+      total_submissions: 0,
+      accepted_count: 0,
+      by_difficulty: [],
+      by_tag: [],
+    },
+  };
+}

@@ -19,10 +19,11 @@ import {
 import { useRouter } from "next/navigation";
 import { clearTokens, ApiError } from "@/lib/api-client";
 import { decodeJwt, isTokenExpired } from "@/lib/jwt";
-import { login as loginService } from "@/services/auth.service";
-import { getProfile } from "@/services/user.service";
+import { authService } from "@/services/auth.service";
+import { userService } from "@/services/user.service";
 import type { LoginRequest } from "@/types/auth";
 import type { UserProfile } from "@/types/user";
+import { createDefaultProfile } from "@/types/user";
 
 const TOKEN_KEY = "judgify_access_token";
 const PROFILE_CACHE_KEY = "judgify_user_profile";
@@ -87,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    getProfile()
+    userService.getProfile()
       .then((fresh) => setUser(fresh))
       .catch((err) => {
         if (err instanceof ApiError && err.code === 401) {
@@ -101,38 +102,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (req: LoginRequest) => {
-      const res = await loginService(req);
+      const res = await authService.login(req);
       setIsAuthenticated(true);
 
       // Decode JWT for instant username display
       const payload = decodeJwt(res.access_token);
       if (payload) {
-        const cachedProfile: UserProfile = {
-          username: payload.username,
-          first_name: "",
-          last_name: "",
-          gender: 0,
-          joined_at: "",
-          cultivation: {
-            total_exp: 0,
-            rating: 0,
-            level: { name: "—", tier_index: 0, progress: 0, exp_to_next: 0 },
-            rank: { name: "—", tier_index: 0, progress: 0, rating_to_next: 0 },
-            talents: [],
-            elements: [],
-          },
-          problem_stats: {
-            total_submissions: 0,
-            accepted_count: 0,
-            by_difficulty: [],
-            by_tag: [],
-          },
-        };
-        setUser(cachedProfile);
+        setUser(createDefaultProfile(payload.username));
       }
 
       // Fetch full profile in background
-      getProfile()
+      userService.getProfile()
         .then((full) => setUser(full))
         .catch(() => {});
 

@@ -13,11 +13,11 @@ function Select({
 }: {
   value?: string
   onValueChange?: (value: string) => void
-} & Omit<SelectPrimitive.Root.Props, "value" | "onValueChange">) {
+} & Omit<SelectPrimitive.Root.Props<string>, "value" | "onValueChange">) {
   return (
     <SelectPrimitive.Root
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={onValueChange as SelectPrimitive.Root.Props<string>["onValueChange"]}
       {...props}
     />
   )
