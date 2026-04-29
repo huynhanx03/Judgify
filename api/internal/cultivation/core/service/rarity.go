@@ -17,12 +17,13 @@ import (
 )
 
 type rarityService struct {
-	rarityRepo ports.RarityRepository
+	rarityRepo   ports.RarityRepository
+	gachaService ports.GachaService
 }
 
 // NewRarityService creates a new RarityService instance.
-func NewRarityService(rarityRepo ports.RarityRepository) ports.RarityService {
-	return &rarityService{rarityRepo: rarityRepo}
+func NewRarityService(rarityRepo ports.RarityRepository, gachaService ports.GachaService) ports.RarityService {
+	return &rarityService{rarityRepo: rarityRepo, gachaService: gachaService}
 }
 
 func (s *rarityService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.RarityResponse], error) {
@@ -57,6 +58,7 @@ func (s *rarityService) Create(ctx context.Context, req *dto.CreateRarityRequest
 	if err := s.rarityRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	s.invalidateGachaPool(ctx)
 	logger.FromContext(ctx).Info("rarity created", zap.Int("rarity_id", e.ID))
 	return mapper.ToRarityResponse(e), nil
 }
@@ -82,6 +84,7 @@ func (s *rarityService) Update(ctx context.Context, id int, req *dto.UpdateRarit
 	if err := s.rarityRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	s.invalidateGachaPool(ctx)
 	logger.FromContext(ctx).Info("rarity updated", zap.Int("rarity_id", e.ID))
 	return mapper.ToRarityResponse(e), nil
 }
@@ -97,6 +100,7 @@ func (s *rarityService) Delete(ctx context.Context, id int) error {
 	if err := s.rarityRepo.Delete(ctx, id); err != nil {
 		return err
 	}
+	s.invalidateGachaPool(ctx)
 	logger.FromContext(ctx).Info("rarity deleted", zap.Int("rarity_id", id))
 	return nil
 }
@@ -112,4 +116,13 @@ func (s *rarityService) FindAll(ctx context.Context) ([]*dto.RarityResponse, err
 		responses[i] = mapper.ToRarityResponse(e)
 	}
 	return responses, nil
+}
+
+func (s *rarityService) invalidateGachaPool(ctx context.Context) {
+	if s.gachaService == nil {
+		return
+	}
+	if err := s.gachaService.InvalidatePool(ctx); err != nil {
+		logger.FromContext(ctx).Warn("failed to invalidate gacha pool after rarity change", zap.Error(err))
+	}
 }

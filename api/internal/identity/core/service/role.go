@@ -7,11 +7,11 @@ import (
 
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/common/tx"
 	d "github.com/huynhanx03/judgify/pkg/dto"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/identity/constant"
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/entity"
@@ -23,11 +23,12 @@ import (
 type roleService struct {
 	roleRepo     ports.RoleRepository
 	cacheService ports.CacheService
+	txMgr        tx.Manager
 }
 
 // NewRoleService creates a new RoleService instance.
-func NewRoleService(roleRepo ports.RoleRepository, cacheService ports.CacheService) ports.RoleService {
-	return &roleService{roleRepo: roleRepo, cacheService: cacheService}
+func NewRoleService(roleRepo ports.RoleRepository, cacheService ports.CacheService, txMgr tx.Manager) ports.RoleService {
+	return &roleService{roleRepo: roleRepo, cacheService: cacheService, txMgr: txMgr}
 }
 
 // FindAll retrieves all roles without pagination.
@@ -83,7 +84,7 @@ func (s *roleService) Get(ctx context.Context, id int) (*dto.RoleResponse, error
 func (s *roleService) Create(ctx context.Context, req *dto.CreateRoleRequest) (*dto.RoleResponse, error) {
 	role := mapper.ToRoleEntityFromCreate(req)
 
-	err := global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err := s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		if err := s.roleRepo.Create(ctx, role); err != nil {
 			return err
 		}
@@ -110,7 +111,7 @@ func (s *roleService) Create(ctx context.Context, req *dto.CreateRoleRequest) (*
 // Update updates an existing role.
 func (s *roleService) Update(ctx context.Context, id int, req *dto.UpdateRoleRequest) (*dto.RoleResponse, error) {
 	var role *entity.Role
-	err := global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err := s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		var err error
 		role, err = s.roleRepo.Get(ctx, id)
 		if err != nil {
@@ -163,7 +164,7 @@ func (s *roleService) Update(ctx context.Context, id int, req *dto.UpdateRoleReq
 
 // Delete removes a role by ID.
 func (s *roleService) Delete(ctx context.Context, id int) error {
-	err := global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err := s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		exists, err := s.roleRepo.Exists(ctx, id)
 		if err != nil {
 			return err

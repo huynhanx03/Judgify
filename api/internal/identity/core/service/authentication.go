@@ -7,6 +7,7 @@ import (
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/cache"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/common/tx"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"github.com/huynhanx03/judgify/pkg/security"
 	"go.uber.org/zap"
@@ -48,6 +49,7 @@ type authenticationService struct {
 	oauthProviders      map[string]oauth.Provider
 	cache               cache.LocalCache[string, any]
 	cacheService        ports.CacheService
+	txMgr               tx.Manager
 }
 
 // NewAuthenticationService creates a new AuthenticationService instance.
@@ -69,6 +71,7 @@ func NewAuthenticationService(
 	oauthProviders map[string]oauth.Provider,
 	cache cache.LocalCache[string, any],
 	cacheService ports.CacheService,
+	txMgr tx.Manager,
 ) ports.AuthenticationService {
 	return &authenticationService{
 		userRepo:           userRepo,
@@ -88,6 +91,7 @@ func NewAuthenticationService(
 		oauthProviders:     oauthProviders,
 		cache:              cache,
 		cacheService:       cacheService,
+		txMgr:              txMgr,
 	}
 }
 
@@ -99,7 +103,7 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 		return nil, err
 	}
 
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		user, err := s.registerInternal(ctx, &dto.CreateUserRequest{
 			Username:  req.Username,
 			Password:  req.Password,
@@ -247,7 +251,7 @@ func (s *authenticationService) ChangePassword(ctx context.Context, userID int, 
 		return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 	}
 
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		cred.CredentialData[credentialKeyHash] = newHash
 		return s.credentialRepo.Update(ctx, cred)
 	})
@@ -272,7 +276,7 @@ func (s *authenticationService) CreateUser(ctx context.Context, req *dto.CreateU
 	}
 
 	var user *entity.User
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		user = &entity.User{
 			Username: req.Username,
 			RoleID:   req.RoleID,

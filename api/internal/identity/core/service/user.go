@@ -8,11 +8,11 @@ import (
 	"github.com/huynhanx03/judgify/pkg/common/apperr"
 	"github.com/huynhanx03/judgify/pkg/common/cache"
 	"github.com/huynhanx03/judgify/pkg/common/http/response"
+	"github.com/huynhanx03/judgify/pkg/common/tx"
 	d "github.com/huynhanx03/judgify/pkg/dto"
 	"github.com/huynhanx03/judgify/pkg/logger"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/judgify/global"
 	"github.com/huynhanx03/judgify/internal/identity/constant"
 	"github.com/huynhanx03/judgify/internal/identity/core/dto"
 	"github.com/huynhanx03/judgify/internal/identity/core/entity"
@@ -22,12 +22,13 @@ import (
 
 
 type userService struct {
-	userRepo      ports.UserRepository
+	userRepo       ports.UserRepository
 	credentialRepo ports.CredentialRepository
-	roleRepo      ports.RoleRepository
-	attrDefRepo   ports.AttributeDefinitionRepository
-	attrValueRepo ports.UserAttributeValueRepository
-	cache         cache.LocalCache[string, any]
+	roleRepo       ports.RoleRepository
+	attrDefRepo    ports.AttributeDefinitionRepository
+	attrValueRepo  ports.UserAttributeValueRepository
+	cache          cache.LocalCache[string, any]
+	txMgr          tx.Manager
 }
 
 // NewUserService creates a new UserService instance.
@@ -38,14 +39,16 @@ func NewUserService(
 	attrDefRepo ports.AttributeDefinitionRepository,
 	attrValueRepo ports.UserAttributeValueRepository,
 	cache cache.LocalCache[string, any],
+	txMgr tx.Manager,
 ) ports.UserService {
 	return &userService{
-		userRepo:      userRepo,
+		userRepo:       userRepo,
 		credentialRepo: credentialRepo,
-		roleRepo:      roleRepo,
-		attrDefRepo:   attrDefRepo,
-		attrValueRepo: attrValueRepo,
-		cache:         cache,
+		roleRepo:       roleRepo,
+		attrDefRepo:    attrDefRepo,
+		attrValueRepo:  attrValueRepo,
+		cache:          cache,
+		txMgr:          txMgr,
 	}
 }
 
@@ -135,7 +138,7 @@ func (s *userService) UpdateProfile(ctx context.Context, userID int, req *dto.Up
 		constant.AttributeKeyBirthday:  req.Birthday,
 	}
 
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		existingAttrs, err := s.attrValueRepo.GetByUserID(ctx, userID)
 		if err != nil {
 			return err
