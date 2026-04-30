@@ -3,18 +3,20 @@ package db
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"entgo.io/ent/dialect/sql"
 
 	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
 	d "github.com/huynhanx03/judgify/pkg/dto"
 
-	dbEnt "github.com/huynhanx03/judgify/internal/ent"
-	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/builder"
 	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/mapper"
 	"github.com/huynhanx03/judgify/internal/cultivation/core/entity"
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
+	dbEnt "github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/ent/generate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
 
 const userStatsRepoName = "User Stats"
@@ -87,6 +89,28 @@ func (r *UserStatsRepository) GetByUserID(ctx context.Context, userID int) (*ent
 	return mapper.ToUserStatsEntity(rec), nil
 }
 
+func (r *UserStatsRepository) GetByUserIDs(ctx context.Context, userIDs []int) (map[int]*entity.UserStats, error) {
+	statsByUserID := make(map[int]*entity.UserStats, len(userIDs))
+	if len(userIDs) == 0 {
+		return statsByUserID, nil
+	}
+
+	records, err := r.client.DB(ctx).UserStats.Query().
+		Where(userstats.UserIDIn(userIDs...)).
+		All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, userStatsRepoName)
+	}
+
+	for _, rec := range records {
+		stats := mapper.ToUserStatsEntity(rec)
+		if stats != nil {
+			statsByUserID[stats.UserID] = stats
+		}
+	}
+	return statsByUserID, nil
+}
+
 func (r *UserStatsRepository) Create(ctx context.Context, e *entity.UserStats) error {
 	rec, err := builder.BuildCreateUserStats(ctx, e).Save(ctx)
 	if err != nil {
@@ -94,6 +118,38 @@ func (r *UserStatsRepository) Create(ctx context.Context, e *entity.UserStats) e
 	}
 	if created := mapper.ToUserStatsEntity(rec); created != nil {
 		*e = *created
+	}
+	return nil
+}
+
+// UpdateRatings updates many user ratings in a single bulk upsert statement.
+func (r *UserStatsRepository) UpdateRatings(ctx context.Context, ratingsByUserID map[int]int) error {
+	if len(ratingsByUserID) == 0 {
+		return nil
+	}
+
+	userIDs := make([]int, 0, len(ratingsByUserID))
+	for userID := range ratingsByUserID {
+		userIDs = append(userIDs, userID)
+	}
+	sort.Ints(userIDs)
+
+	builders := make([]*generate.UserStatsCreate, 0, len(userIDs))
+	for _, userID := range userIDs {
+		builders = append(
+			builders,
+			r.client.DB(ctx).UserStats.Create().
+				SetUserID(userID).
+				SetRating(ratingsByUserID[userID]),
+		)
+	}
+
+	err := r.client.DB(ctx).UserStats.CreateBulk(builders...).
+		OnConflictColumns(userstats.FieldUserID).
+		UpdateRating().
+		Exec(ctx)
+	if err != nil {
+		return commonEnt.MapEntError(err, userStatsRepoName)
 	}
 	return nil
 }

@@ -55,7 +55,7 @@ func SetupDependencies() *Container {
 		txMgr,
 	)
 	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer, contestJudgeProducer)
-	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo)
+	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo, txMgr)
 	materialContainer := materialDi.NewMaterialContainer()
 
 	container := &Container{

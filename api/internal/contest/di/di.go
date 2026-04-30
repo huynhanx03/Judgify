@@ -2,31 +2,32 @@ package di
 
 import (
 	"github.com/huynhanx03/judgify/global"
-	contestHttp "github.com/huynhanx03/judgify/internal/contest/adapters/driver/http"
 	"github.com/huynhanx03/judgify/internal/contest/adapters/driven/db"
+	contestHttp "github.com/huynhanx03/judgify/internal/contest/adapters/driver/http"
 	"github.com/huynhanx03/judgify/internal/contest/core/service"
 	"github.com/huynhanx03/judgify/internal/contest/ports"
 	"github.com/huynhanx03/judgify/internal/contest/store"
 	cultivationPorts "github.com/huynhanx03/judgify/internal/cultivation/ports"
+	"github.com/huynhanx03/judgify/pkg/common/tx"
 )
 
 // ContestContainer holds all dependencies for the contest domain.
 type ContestContainer struct {
-	ContestHandlerGroup  *contestHttp.ContestHandlerGroup
-	ContestRepo          ports.ContestRepository
-	RegistrationRepo     ports.RegistrationRepository
-	StandingRepo         ports.StandingRepository
-	RatingHistoryRepo    ports.RatingHistoryRepository
-	ContestService       ports.ContestService
-	RegistrationService  ports.RegistrationService
-	StandingService      ports.StandingService
-	RatingService        ports.RatingService
-	Orchestrator         *service.ContestOrchestrator
-	Hub                  *store.LeaderboardHub
+	ContestHandlerGroup *contestHttp.ContestHandlerGroup
+	ContestRepo         ports.ContestRepository
+	RegistrationRepo    ports.RegistrationRepository
+	StandingRepo        ports.StandingRepository
+	RatingHistoryRepo   ports.RatingHistoryRepository
+	ContestService      ports.ContestService
+	RegistrationService ports.RegistrationService
+	StandingService     ports.StandingService
+	RatingService       ports.RatingService
+	Orchestrator        *service.ContestOrchestrator
+	Hub                 *store.LeaderboardHub
 }
 
 // NewContestContainer creates a new ContestContainer.
-func NewContestContainer(userStatsRepo cultivationPorts.UserStatsRepository) *ContestContainer {
+func NewContestContainer(userStatsRepo cultivationPorts.UserStatsRepository, txMgr tx.Manager) *ContestContainer {
 	client := global.EntClient
 
 	// SSE Hub
@@ -42,7 +43,7 @@ func NewContestContainer(userStatsRepo cultivationPorts.UserStatsRepository) *Co
 	contestService := service.NewContestService(contestRepo, regRepo)
 	regService := service.NewRegistrationService(regRepo, contestRepo)
 	standingService := service.NewStandingService(standingRepo, hub)
-	ratingSvc := service.NewRatingService(standingRepo, ratingHistoryRepo, userStatsRepo)
+	ratingSvc := service.NewRatingService(standingRepo, ratingHistoryRepo, userStatsRepo, txMgr)
 
 	// Orchestrator
 	orchestrator := service.NewContestOrchestrator(contestRepo, ratingSvc)
@@ -56,16 +57,16 @@ func NewContestContainer(userStatsRepo cultivationPorts.UserStatsRepository) *Co
 	}
 
 	return &ContestContainer{
-		ContestHandlerGroup:  handlerGroup,
-		ContestRepo:          contestRepo,
-		RegistrationRepo:     regRepo,
-		StandingRepo:         standingRepo,
-		RatingHistoryRepo:    ratingHistoryRepo,
-		ContestService:       contestService,
-		RegistrationService:  regService,
-		StandingService:      standingService,
-		RatingService:        ratingSvc,
-		Orchestrator:         orchestrator,
-		Hub:                  hub,
+		ContestHandlerGroup: handlerGroup,
+		ContestRepo:         contestRepo,
+		RegistrationRepo:    regRepo,
+		StandingRepo:        standingRepo,
+		RatingHistoryRepo:   ratingHistoryRepo,
+		ContestService:      contestService,
+		RegistrationService: regService,
+		StandingService:     standingService,
+		RatingService:       ratingSvc,
+		Orchestrator:        orchestrator,
+		Hub:                 hub,
 	}
 }

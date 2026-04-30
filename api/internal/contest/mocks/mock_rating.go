@@ -57,6 +57,21 @@ func (mr *MockRatingHistoryRepositoryMockRecorder) CountByUser(ctx, userID any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByUser", reflect.TypeOf((*MockRatingHistoryRepository)(nil).CountByUser), ctx, userID)
 }
 
+// CountByUsers mocks base method.
+func (m *MockRatingHistoryRepository) CountByUsers(ctx context.Context, userIDs []int) (map[int]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountByUsers", ctx, userIDs)
+	ret0, _ := ret[0].(map[int]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountByUsers indicates an expected call of CountByUsers.
+func (mr *MockRatingHistoryRepositoryMockRecorder) CountByUsers(ctx, userIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByUsers", reflect.TypeOf((*MockRatingHistoryRepository)(nil).CountByUsers), ctx, userIDs)
+}
+
 // CreateBulk mocks base method.
 func (m *MockRatingHistoryRepository) CreateBulk(ctx context.Context, records []*entity.RatingHistory) error {
 	m.ctrl.T.Helper()

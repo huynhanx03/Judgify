@@ -145,6 +145,21 @@ func (mr *MockUserStatsRepositoryMockRecorder) GetByUserID(ctx, userID any) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserID", reflect.TypeOf((*MockUserStatsRepository)(nil).GetByUserID), ctx, userID)
 }
 
+// GetByUserIDs mocks base method.
+func (m *MockUserStatsRepository) GetByUserIDs(ctx context.Context, userIDs []int) (map[int]*entity.UserStats, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUserIDs", ctx, userIDs)
+	ret0, _ := ret[0].(map[int]*entity.UserStats)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUserIDs indicates an expected call of GetByUserIDs.
+func (mr *MockUserStatsRepositoryMockRecorder) GetByUserIDs(ctx, userIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserIDs", reflect.TypeOf((*MockUserStatsRepository)(nil).GetByUserIDs), ctx, userIDs)
+}
+
 // GetTopSortedWithUser mocks base method.
 func (m *MockUserStatsRepository) GetTopSortedWithUser(ctx context.Context, sortField string, limit int) ([]*entity.UserStatsWithUser, error) {
 	m.ctrl.T.Helper()
@@ -186,6 +201,20 @@ func (m *MockUserStatsRepository) Update(ctx context.Context, e *entity.UserStat
 func (mr *MockUserStatsRepositoryMockRecorder) Update(ctx, e any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserStatsRepository)(nil).Update), ctx, e)
+}
+
+// UpdateRatings mocks base method.
+func (m *MockUserStatsRepository) UpdateRatings(ctx context.Context, ratingsByUserID map[int]int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRatings", ctx, ratingsByUserID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRatings indicates an expected call of UpdateRatings.
+func (mr *MockUserStatsRepositoryMockRecorder) UpdateRatings(ctx, ratingsByUserID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRatings", reflect.TypeOf((*MockUserStatsRepository)(nil).UpdateRatings), ctx, ratingsByUserID)
 }
 
 // MockUserDifficultyStatsRepository is a mock of UserDifficultyStatsRepository interface.

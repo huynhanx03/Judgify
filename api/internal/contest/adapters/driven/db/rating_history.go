@@ -5,13 +5,13 @@ import (
 
 	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
 
-	dbEnt "github.com/huynhanx03/judgify/internal/ent"
-	"github.com/huynhanx03/judgify/internal/ent/generate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/contest/adapters/driven/db/builder"
 	"github.com/huynhanx03/judgify/internal/contest/adapters/driven/db/mapper"
 	"github.com/huynhanx03/judgify/internal/contest/core/entity"
 	"github.com/huynhanx03/judgify/internal/contest/ports"
+	dbEnt "github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/ent/generate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 )
 
 const ratingHistoryRepoName = "RatingHistory"
@@ -56,6 +56,7 @@ func (r *RatingHistoryRepository) CreateBulk(ctx context.Context, records []*ent
 func (r *RatingHistoryRepository) FindByContest(ctx context.Context, contestID int) ([]*entity.RatingHistory, error) {
 	records, err := r.client.DB(ctx).RatingHistory.Query().
 		Where(ratinghistory.ContestIDEQ(contestID)).
+		WithUser().
 		All(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, ratingHistoryRepoName)
@@ -77,4 +78,33 @@ func (r *RatingHistoryRepository) CountByUser(ctx context.Context, userID int) (
 		return 0, commonEnt.MapEntError(err, ratingHistoryRepoName)
 	}
 	return count, nil
+}
+
+// CountByUsers returns rating history counts keyed by user_id.
+func (r *RatingHistoryRepository) CountByUsers(ctx context.Context, userIDs []int) (map[int]int, error) {
+	counts := make(map[int]int, len(userIDs))
+	if len(userIDs) == 0 {
+		return counts, nil
+	}
+	for _, userID := range userIDs {
+		counts[userID] = 0
+	}
+
+	var rows []struct {
+		UserID int `json:"user_id"`
+		Count  int `json:"count"`
+	}
+	err := r.client.DB(ctx).RatingHistory.Query().
+		Where(ratinghistory.UserIDIn(userIDs...)).
+		GroupBy(ratinghistory.FieldUserID).
+		Aggregate(generate.As(generate.Count(), "count")).
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, ratingHistoryRepoName)
+	}
+
+	for _, row := range rows {
+		counts[row.UserID] = row.Count
+	}
+	return counts, nil
 }
