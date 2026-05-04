@@ -1,4 +1,4 @@
-# Contributing to Judgify
+# Contributing
 
 Thanks for your interest in contributing! This guide will help you get started.
 

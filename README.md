@@ -1,10 +1,12 @@
 # Judgify
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Docker Sandbox](https://img.shields.io/badge/Sandbox-Docker-2496ED?logo=docker&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/huynhanx03/Judgify/api)](https://goreportcard.com/report/github.com/huynhanx03/Judgify/api)
+[![GitHub Stars](https://img.shields.io/github/stars/huynhanx03/Judgify?style=social)](https://github.com/huynhanx03/Judgify/stargazers)
 
 Judgify is an open-source online judge and competitive programming platform for algorithm practice, code submissions, automated judging, contests, and learning materials. It combines classic programming problem solving with a Cultivation (Xianxia) gamification system, where learners can grow stats, discover elemental affinities, collect traits, climb rankings, and break through cultivation realms as they solve coding challenges.
 
@@ -32,9 +34,9 @@ Judgify uses a modular monolith architecture. Core domains stay inside one deplo
 
 ```mermaid
 flowchart TD
-    Client[User Client] --> Backend
+    Frontend[Client] --> Backend
     
-    subgraph Backend [Judgify Monolithic Server]
+    subgraph Backend [Server]
         Identity[Identity Module]
         Problem[Problem Module]
         Submit[Submission Module]
@@ -45,8 +47,8 @@ flowchart TD
     
     Backend --> DB[(PostgreSQL)]
     Backend -.-> Cache[(Local Cache)]
-    Backend -.-> Queue{{Task Queue}}
-    Queue -.-> JudgeWorker[Isolated Judge Workers]
+    Backend -.-> Queue{{Local Queue}}
+    Queue -.-> Worker[Workers]
 ```
 
 ## Quick Start
