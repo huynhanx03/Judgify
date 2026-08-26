@@ -12,10 +12,12 @@ import {
   Info,
   type LucideIcon,
 } from "lucide-react";
-import { TEXT } from "./text";
+import { APP_ROUTES } from "./routes";
+import { text, type TextKey } from "@/i18n/text";
 
 /** Single navigation menu item. */
 export interface NavItem {
+  labelKey: TextKey;
   label: string;
   href: string;
   icon: LucideIcon;
@@ -24,28 +26,33 @@ export interface NavItem {
 /** Main navigation items displayed in the sidebar. */
 export const MAIN_NAV_ITEMS: NavItem[] = [
   {
-    label: TEXT.NAV.ARENA,
-    href: "/arena",
+    labelKey: "NAV.ARENA",
+    label: text("NAV.ARENA"),
+    href: APP_ROUTES.ARENA,
     icon: Swords,
   },
   {
-    label: TEXT.NAV.MATERIALS,
-    href: "/materials",
+    labelKey: "NAV.MATERIALS",
+    label: text("NAV.MATERIALS"),
+    href: APP_ROUTES.MATERIALS,
     icon: BookOpen,
   },
   {
-    label: TEXT.NAV.CONTEST,
-    href: "/contest",
+    labelKey: "NAV.CONTEST",
+    label: text("NAV.CONTEST"),
+    href: APP_ROUTES.CONTEST,
     icon: Trophy,
   },
   {
-    label: TEXT.NAV.RANKING,
-    href: "/ranking",
+    labelKey: "NAV.RANKING",
+    label: text("NAV.RANKING"),
+    href: APP_ROUTES.RANKING,
     icon: Crown,
   },
   {
-    label: TEXT.NAV.ABOUT,
-    href: "/about",
+    labelKey: "NAV.ABOUT",
+    label: text("NAV.ABOUT"),
+    href: APP_ROUTES.ABOUT,
     icon: Info,
   },
 ];
@@ -53,8 +60,9 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
 /** Secondary navigation items (bottom of sidebar). */
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   {
-    label: TEXT.NAV.PROFILE,
-    href: "/profile",
+    labelKey: "NAV.PROFILE",
+    label: text("NAV.PROFILE"),
+    href: APP_ROUTES.PROFILE,
     icon: User,
   },
 ];

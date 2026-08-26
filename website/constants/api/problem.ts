@@ -1,31 +1,37 @@
+import type { EntityID } from "@/types/api";
+
 /** Problem endpoints (Problem module). */
 export const PROBLEM_API = {
   FIND: "/problems/find",
-  GET: (id: number) => `/problems/${id}`,
+  GET: (id: EntityID) => `/problems/${encodeURIComponent(id)}`,
+  SAMPLES: (id: EntityID) => `/problems/${encodeURIComponent(id)}/samples`,
+  ADMIN_FIND: "/admin/problems/find",
+  ADMIN_GET: (id: EntityID) => `/admin/problems/${encodeURIComponent(id)}`,
+  ADMIN_AUTHORING: (id: EntityID) =>
+    `/admin/problems/${encodeURIComponent(id)}/authoring`,
+  ADMIN_AUTHORING_CATALOG: "/admin/problems/authoring/catalog",
   CREATE: "/problems",
-  UPDATE: (id: number) => `/problems/${id}`,
-  DELETE: (id: number) => `/problems/${id}`,
-  TEST_CASES: (id: number) => `/problems/${id}/test-cases`,
-  TEST_CASE_UPDATE: (id: number) => `/test-cases/${id}`,
-  TEST_CASE_DELETE: (id: number) => `/test-cases/${id}`,
+  DRAFT: (id: EntityID) => `/problems/${encodeURIComponent(id)}/drafts`,
+  PUBLISH: (id: EntityID) => `/problems/${encodeURIComponent(id)}/publish`,
+  ARCHIVE: (id: EntityID) => `/problems/${encodeURIComponent(id)}/archive`,
 } as const;
 
 /** Tag endpoints (Problem module). */
 export const TAG_API = {
   FIND_ALL: "/tags",
   FIND: "/tags/find",
-  GET: (id: number) => `/tags/${id}`,
+  GET: (id: EntityID) => `/tags/${encodeURIComponent(id)}`,
   CREATE: "/tags",
-  UPDATE: (id: number) => `/tags/${id}`,
-  DELETE: (id: number) => `/tags/${id}`,
+  UPDATE: (id: EntityID) => `/tags/${encodeURIComponent(id)}`,
+  DELETE: (id: EntityID) => `/tags/${encodeURIComponent(id)}`,
 } as const;
 
 /** Difficulty endpoints (Problem module). */
 export const DIFFICULTY_API = {
   FIND_ALL: "/difficulties",
   FIND: "/difficulties/find",
-  GET: (id: number) => `/difficulties/${id}`,
+  GET: (id: EntityID) => `/difficulties/${encodeURIComponent(id)}`,
   CREATE: "/difficulties",
-  UPDATE: (id: number) => `/difficulties/${id}`,
-  DELETE: (id: number) => `/difficulties/${id}`,
+  UPDATE: (id: EntityID) => `/difficulties/${encodeURIComponent(id)}`,
+  DELETE: (id: EntityID) => `/difficulties/${encodeURIComponent(id)}`,
 } as const;

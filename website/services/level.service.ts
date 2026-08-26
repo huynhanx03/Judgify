@@ -1,22 +1,68 @@
-import { apiClient } from "@/lib/api-client";
-import { LEVEL_API } from "@/constants/api";
+import { LEVEL_API } from "@/constants/api/cultivation";
+import { api } from "@/lib/api/client";
+import { entityIDSchema } from "@/lib/api/contracts";
+import { voidSchema } from "@/lib/api/schema";
+import {
+  levelListSchema,
+  levelPageSchema,
+  levelSchema,
+} from "@/lib/cultivation/catalog-schema";
 import type { Paginated, QueryOptions } from "@/types/api";
 import type { LevelResponse } from "@/types/cultivation";
 
+type CreateLevelInput = {
+  name: string;
+  min_exp: number;
+  description?: string;
+};
+
+type UpdateLevelInput = Partial<CreateLevelInput>;
+
 export const levelService = {
-  async find(query: QueryOptions): Promise<Paginated<LevelResponse>> {
-    return apiClient.post<Paginated<LevelResponse>>(LEVEL_API.FIND, query);
+  find(
+    query: QueryOptions,
+    signal?: AbortSignal,
+  ): Promise<Paginated<LevelResponse>> {
+    return api<Paginated<LevelResponse>, QueryOptions>(LEVEL_API.FIND, {
+      method: "POST",
+      body: query,
+      signal,
+      schema: levelPageSchema,
+    });
   },
-  async getAll(): Promise<LevelResponse[]> {
-    return apiClient.get<LevelResponse[]>(LEVEL_API.FIND_ALL);
+
+  getAll(signal?: AbortSignal): Promise<LevelResponse[]> {
+    return api<LevelResponse[], never>(LEVEL_API.FIND_ALL, {
+      method: "GET",
+      auth: "none",
+      signal,
+      schema: levelListSchema,
+    });
   },
-  async create(data: { name: string; min_exp: number; description?: string }): Promise<LevelResponse> {
-    return apiClient.post<LevelResponse>(LEVEL_API.CREATE, data);
+
+  create(data: CreateLevelInput): Promise<LevelResponse> {
+    return api<LevelResponse, CreateLevelInput>(LEVEL_API.CREATE, {
+      method: "POST",
+      body: data,
+      schema: levelSchema,
+    });
   },
-  async update(id: number, data: { name?: string; min_exp?: number; description?: string }): Promise<LevelResponse> {
-    return apiClient.put<LevelResponse>(LEVEL_API.UPDATE(id), data);
+
+  update(id: string, data: UpdateLevelInput): Promise<LevelResponse> {
+    return api<LevelResponse, UpdateLevelInput>(
+      LEVEL_API.UPDATE(entityIDSchema.parse(id)),
+      {
+        method: "PUT",
+        body: data,
+        schema: levelSchema,
+      },
+    );
   },
-  async delete(id: number): Promise<void> {
-    await apiClient.delete(LEVEL_API.DELETE(id));
+
+  async delete(id: string): Promise<void> {
+    await api<void, never>(
+      LEVEL_API.DELETE(entityIDSchema.parse(id)),
+      { method: "DELETE", schema: voidSchema },
+    );
   },
 };

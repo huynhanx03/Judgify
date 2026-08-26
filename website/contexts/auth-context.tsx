@@ -1,147 +1,195 @@
 "use client";
 
 /**
- * Global authentication context.
- * Uses JWT decode for instant auth state (no API call on refresh).
- * Caches user profile in localStorage for instant display.
- * Background revalidation via getProfile() keeps data fresh.
+ * Product authentication and authorization facade.
+ *
+ * Session authority lives exclusively in `session-context.tsx`; this facade
+ * adds navigation and capability helpers without creating another credential
+ * store, refresh loop, capability source, or WebSocket.
  */
 
 import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
   useCallback,
   useMemo,
-  type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import { clearTokens, ApiError } from "@/lib/api-client";
-import { decodeJwt, isTokenExpired } from "@/lib/jwt";
+import {
+  AUTH_BOOTSTRAP_STATUS,
+  CAPABILITY_STATUS,
+} from "@/constants/authorization";
+import { APP_ROUTES } from "@/constants/routes";
+import { useSession } from "@/contexts/session-context";
+import { ApiError } from "@/lib/api/error";
+import {
+  createCapabilityIndexFromKeys,
+  EMPTY_CAPABILITY_INDEX,
+  hasAnyCapability as indexHasAnyCapability,
+  hasAnyRequirement,
+  hasCapability,
+  type CapabilityIndex,
+} from "@/lib/auth/capabilities";
 import { authService } from "@/services/auth.service";
-import { userService } from "@/services/user.service";
-import type { LoginRequest } from "@/types/auth";
-import type { UserProfile } from "@/types/user";
-import { createDefaultProfile } from "@/types/user";
-
-const TOKEN_KEY = "judgify_access_token";
-const PROFILE_CACHE_KEY = "judgify_user_profile";
-
-/** Read cached profile from localStorage. */
-function getCachedProfile(): UserProfile | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(PROFILE_CACHE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-/** Save profile to localStorage cache. */
-function setCachedProfile(profile: UserProfile | null): void {
-  if (profile) {
-    localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profile));
-  } else {
-    localStorage.removeItem(PROFILE_CACHE_KEY);
-  }
-}
+import { safeAppDestination } from "@/lib/auth/safe-navigation";
+import type {
+  BootstrapStatus,
+  CapabilityRequirement,
+  CapabilityStatus,
+  LoginRequest,
+  OAuthFinalizeLoginRequest,
+  RegisterRequest,
+} from "@/types/auth";
+import type { SessionPrincipal } from "@/types/session";
 
 interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: UserProfile | null;
-  login: (req: LoginRequest) => Promise<void>;
-  logout: () => void;
-  setUser: (user: UserProfile | null) => void;
+  bootstrapStatus: BootstrapStatus;
+  capabilityStatus: CapabilityStatus;
+  capabilityIndex: CapabilityIndex;
+  authorizationRevision: number | null;
+  hasAnyCapability: boolean;
+  user: SessionPrincipal | null;
+  can: (resource: string, action: string) => boolean;
+  canAny: (requirements: readonly CapabilityRequirement[]) => boolean;
+  refreshCapabilities: () => Promise<boolean>;
+  retryBootstrap: () => void;
+  login: (request: LoginRequest, destination?: string) => Promise<void>;
+  completeOAuth: (
+    request?: OAuthFinalizeLoginRequest,
+    destination?: string,
+  ) => Promise<void>;
+  register: (request: RegisterRequest, destination?: string) => Promise<void>;
+  logout: (destination?: string) => Promise<void>;
+  setUser: (user: SessionPrincipal | null) => void;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export function isAuthenticationInvalid(error: unknown): error is ApiError {
+  return error instanceof ApiError && error.status === 401;
+}
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function useAuth(): AuthContextValue {
   const router = useRouter();
-
-  // Instant auth check via JWT decode — no API call, no loading flash
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const token = localStorage.getItem(TOKEN_KEY);
-    return !!token && !isTokenExpired(token);
-  });
-
-  // Load cached profile instantly from localStorage
-  const [user, setUserState] = useState<UserProfile | null>(() => {
-    if (typeof window === "undefined") return null;
-    return getCachedProfile();
-  });
-
-  // No loading state needed — auth is determined synchronously from JWT
-  const [isLoading] = useState(false);
-
-  // Wrapper that syncs profile to both state and localStorage cache
-  const setUser = useCallback((profile: UserProfile | null) => {
-    setUserState(profile);
-    setCachedProfile(profile);
-  }, []);
-
-  // Background revalidation: fetch fresh profile without blocking UI
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    userService.getProfile()
-      .then((fresh) => setUser(fresh))
-      .catch((err) => {
-        if (err instanceof ApiError && err.code === 401) {
-          clearTokens();
-          setCachedProfile(null);
-          setIsAuthenticated(false);
-          setUserState(null);
-        }
-      });
-  }, [isAuthenticated, setUser]);
+  const session = useSession();
+  const authenticated =
+    session.state.status === "authenticated" ? session.state.session : null;
+  const capabilityIndex = useMemo(
+    () =>
+      authenticated
+        ? createCapabilityIndexFromKeys(
+            authenticated.capabilities,
+            authenticated.authorization_revision,
+          )
+        : EMPTY_CAPABILITY_INDEX,
+    [authenticated],
+  );
 
   const login = useCallback(
-    async (req: LoginRequest) => {
-      const res = await authService.login(req);
-      setIsAuthenticated(true);
-
-      // Decode JWT for instant username display
-      const payload = decodeJwt(res.access_token);
-      if (payload) {
-        setUser(createDefaultProfile(payload.username));
-      }
-
-      // Fetch full profile in background
-      userService.getProfile()
-        .then((full) => setUser(full))
-        .catch(() => {});
-
-      router.push("/arena");
+    async (
+      request: LoginRequest,
+      destination: string = APP_ROUTES.ARENA,
+    ) => {
+      await session.establish("password-login", (idempotencyKey) =>
+        authService.login(request, idempotencyKey),
+      );
+      router.push(safeAppDestination(destination, APP_ROUTES.ARENA));
     },
-    [router, setUser]
+    [router, session],
   );
 
-  const logout = useCallback(() => {
-    clearTokens();
-    setCachedProfile(null);
-    setIsAuthenticated(false);
-    setUserState(null);
-    router.push("/arena");
-  }, [router]);
-
-  const value = useMemo<AuthContextValue>(
-    () => ({ isAuthenticated, isLoading, user, login, logout, setUser }),
-    [isAuthenticated, isLoading, user, login, logout, setUser]
+  const register = useCallback(
+    async (
+      request: RegisterRequest,
+      destination: string = APP_ROUTES.ARENA,
+    ) => {
+      await session.establish("password-registration", (idempotencyKey) =>
+        authService.register(request, idempotencyKey),
+      );
+      router.push(safeAppDestination(destination, APP_ROUTES.ARENA));
+    },
+    [router, session],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+  const completeOAuth = useCallback(
+    async (
+      request: OAuthFinalizeLoginRequest = {},
+      destination: string = APP_ROUTES.ARENA,
+    ) => {
+      await session.establish("oauth-finalize-login", (idempotencyKey) =>
+        authService.finalizeOAuthLogin(request, idempotencyKey),
+      );
+      router.push(safeAppDestination(destination, APP_ROUTES.ARENA));
+    },
+    [router, session],
+  );
 
-/** Hook to consume auth context. Must be used within AuthProvider. */
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return ctx;
+  const logout = useCallback(
+    async (destination: string = APP_ROUTES.ARENA) => {
+      await session.logout();
+      router.push(safeAppDestination(destination, APP_ROUTES.ARENA));
+    },
+    [router, session],
+  );
+
+  const retryBootstrap = useCallback(() => {
+    void session.revalidate().catch(() => undefined);
+  }, [session]);
+
+  const refreshCapabilities = useCallback(async (): Promise<boolean> => {
+    return (await session.revalidate()) !== null;
+  }, [session]);
+
+  const setUser = useCallback(
+    (user: SessionPrincipal | null) => {
+      if (user) session.updatePrincipal(user);
+    },
+    [session],
+  );
+
+  const can = useCallback(
+    (resource: string, action: string) =>
+      hasCapability(capabilityIndex, resource, action),
+    [capabilityIndex],
+  );
+
+  const canAny = useCallback(
+    (requirements: readonly CapabilityRequirement[]) =>
+      hasAnyRequirement(capabilityIndex, requirements),
+    [capabilityIndex],
+  );
+
+  const status = session.state.status;
+  const capabilityStatus: CapabilityStatus =
+    status === "loading"
+      ? CAPABILITY_STATUS.LOADING
+      : status === "error"
+        ? CAPABILITY_STATUS.ERROR
+        : status === "authenticated"
+          ? CAPABILITY_STATUS.READY
+          : CAPABILITY_STATUS.IDLE;
+  const bootstrapStatus: BootstrapStatus =
+    status === "loading"
+      ? AUTH_BOOTSTRAP_STATUS.LOADING
+      : status === "error"
+        ? AUTH_BOOTSTRAP_STATUS.ERROR
+        : AUTH_BOOTSTRAP_STATUS.READY;
+
+  return {
+    isAuthenticated: status === "authenticated",
+    isLoading: status === "loading",
+    bootstrapStatus,
+    capabilityStatus,
+    capabilityIndex,
+    authorizationRevision: capabilityIndex.revision,
+    hasAnyCapability: indexHasAnyCapability(capabilityIndex),
+    user: authenticated?.user ?? null,
+    can,
+    canAny,
+    refreshCapabilities,
+    retryBootstrap,
+    login,
+    completeOAuth,
+    register,
+    logout,
+    setUser,
+  };
 }

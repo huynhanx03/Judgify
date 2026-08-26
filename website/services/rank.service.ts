@@ -1,22 +1,68 @@
-import { apiClient } from "@/lib/api-client";
-import { RANK_API } from "@/constants/api";
+import { RANK_API } from "@/constants/api/cultivation";
+import { api } from "@/lib/api/client";
+import { entityIDSchema } from "@/lib/api/contracts";
+import { voidSchema } from "@/lib/api/schema";
+import {
+  rankListSchema,
+  rankPageSchema,
+  rankSchema,
+} from "@/lib/cultivation/catalog-schema";
 import type { Paginated, QueryOptions } from "@/types/api";
 import type { RankResponse } from "@/types/cultivation";
 
+type CreateRankInput = {
+  name: string;
+  min_rating: number;
+  description?: string;
+};
+
+type UpdateRankInput = Partial<CreateRankInput>;
+
 export const rankService = {
-  async find(query: QueryOptions): Promise<Paginated<RankResponse>> {
-    return apiClient.post<Paginated<RankResponse>>(RANK_API.FIND, query);
+  find(
+    query: QueryOptions,
+    signal?: AbortSignal,
+  ): Promise<Paginated<RankResponse>> {
+    return api<Paginated<RankResponse>, QueryOptions>(RANK_API.FIND, {
+      method: "POST",
+      body: query,
+      signal,
+      schema: rankPageSchema,
+    });
   },
-  async getAll(): Promise<RankResponse[]> {
-    return apiClient.get<RankResponse[]>(RANK_API.FIND_ALL);
+
+  getAll(signal?: AbortSignal): Promise<RankResponse[]> {
+    return api<RankResponse[], never>(RANK_API.FIND_ALL, {
+      method: "GET",
+      auth: "none",
+      signal,
+      schema: rankListSchema,
+    });
   },
-  async create(data: { name: string; min_rating: number; description?: string }): Promise<RankResponse> {
-    return apiClient.post<RankResponse>(RANK_API.CREATE, data);
+
+  create(data: CreateRankInput): Promise<RankResponse> {
+    return api<RankResponse, CreateRankInput>(RANK_API.CREATE, {
+      method: "POST",
+      body: data,
+      schema: rankSchema,
+    });
   },
-  async update(id: number, data: { name?: string; min_rating?: number; description?: string }): Promise<RankResponse> {
-    return apiClient.put<RankResponse>(RANK_API.UPDATE(id), data);
+
+  update(id: string, data: UpdateRankInput): Promise<RankResponse> {
+    return api<RankResponse, UpdateRankInput>(
+      RANK_API.UPDATE(entityIDSchema.parse(id)),
+      {
+        method: "PUT",
+        body: data,
+        schema: rankSchema,
+      },
+    );
   },
-  async delete(id: number): Promise<void> {
-    await apiClient.delete(RANK_API.DELETE(id));
+
+  async delete(id: string): Promise<void> {
+    await api<void, never>(
+      RANK_API.DELETE(entityIDSchema.parse(id)),
+      { method: "DELETE", schema: voidSchema },
+    );
   },
 };

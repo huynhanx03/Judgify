@@ -6,15 +6,8 @@
 
 import { TrendingUp } from "lucide-react";
 import { TEXT } from "@/constants/text";
-
-interface RatingChange {
-  user_id: number;
-  username: string;
-  rank: number;
-  old_rating: number;
-  new_rating: number;
-  delta: number;
-}
+import type { RatingChange } from "@/types/contest";
+import { RankIndicator } from "@/components/rank-indicator";
 
 interface ContestRatingTableProps {
   ratingChanges: RatingChange[];
@@ -34,22 +27,21 @@ export function ContestRatingTable({ ratingChanges }: ContestRatingTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
+        <caption className="sr-only">{TEXT.CONTEST.RATING_CHANGES}</caption>
         <thead>
           <tr className="border-b border-border/40">
-            <th className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
-            <th className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
-            <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_OLD}</th>
-            <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_NEW}</th>
-            <th className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_DELTA}</th>
+            <th scope="col" className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
+            <th scope="col" className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
+            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_OLD}</th>
+            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_NEW}</th>
+            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_DELTA}</th>
           </tr>
         </thead>
         <tbody>
           {ratingChanges.map((rc) => (
             <tr key={rc.user_id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
               <td className="py-3 px-4">
-                <span className={`font-bold ${rc.rank <= 3 ? "text-amber-500" : ""}`}>
-                  {rc.rank <= 3 ? ["🥇", "🥈", "🥉"][rc.rank - 1] : rc.rank}
-                </span>
+                <RankIndicator rank={rc.rank} />
               </td>
               <td className="py-3 px-4">
                 <span className="font-medium">{rc.username}</span>
@@ -61,7 +53,7 @@ export function ContestRatingTable({ ratingChanges }: ContestRatingTableProps) {
                 <span className="font-mono font-bold">{rc.new_rating}</span>
               </td>
               <td className="py-3 px-4 text-center">
-                <span className={`font-mono font-bold ${rc.delta > 0 ? "text-green-500" : rc.delta < 0 ? "text-red-500" : "text-muted-foreground"}`}>
+                <span className={`font-mono font-bold ${rc.delta > 0 ? "text-success" : rc.delta < 0 ? "text-danger" : "text-muted-foreground"}`}>
                   {rc.delta > 0 ? `+${rc.delta}` : rc.delta}
                 </span>
               </td>

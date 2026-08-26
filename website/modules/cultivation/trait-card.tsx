@@ -1,21 +1,61 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { LazyMotion, m, useReducedMotion } from "framer-motion";
+
+const loadDomAnimation = () =>
+  import("framer-motion").then((mod) => mod.domAnimation);
+import { Bone, Sparkles } from "lucide-react";
+import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { RARITY_DISPLAY, ELEMENT_DISPLAY } from "@/types/cultivation";
-import type { TraitResponse } from "@/types/cultivation";
+import {
+  getElementPresentation,
+  getRarityStyle,
+} from "@/constants/cultivation-presentation";
+import { TEXT } from "@/constants/text";
+import { cn } from "@/lib/utils";
+import type {
+  TraitEffectRevisionResponse,
+  TraitPresentation,
+  TraitRarityInfo,
+} from "@/types/cultivation";
+
+export type TraitCardData = Omit<TraitPresentation, "id" | "rarity"> & {
+  id?: string;
+  rarity?: Omit<TraitRarityInfo, "id"> & { id?: string };
+  effect_revision?: TraitEffectRevisionResponse;
+};
 
 interface TraitCardProps {
-  trait: TraitResponse;
+  trait: TraitCardData;
   selected?: boolean;
   onClick?: () => void;
-  /** "compact" for codex list, "full" for roll result display. */
   variant?: "compact" | "full";
   animationDelay?: number;
 }
 
-/** Reusable trait card — used in register flow, codex modal, and profile. */
+function interactiveContainer(
+  interactive: boolean,
+  className: string,
+  content: ReactNode,
+  onClick?: () => void,
+  selected?: boolean,
+) {
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        className={className}
+        onClick={onClick}
+        aria-pressed={selected}
+      >
+        {content}
+      </button>
+    );
+  }
+  return <div className={className}>{content}</div>;
+}
+
 export function TraitCard({
   trait,
   selected = false,
@@ -23,137 +63,220 @@ export function TraitCard({
   variant = "full",
   animationDelay = 0,
 }: TraitCardProps) {
-  const rarity = (trait.rarity ? RARITY_DISPLAY[trait.rarity.code] : undefined) ?? RARITY_DISPLAY["common"];
-  const meta = trait.metadata;
+  const reduceMotion = useReducedMotion();
+  const rarity = getRarityStyle(trait.rarity?.code);
+  const rarityName =
+    trait.rarity?.name ?? TEXT.CULTIVATION.DEFAULT_RARITY;
   const isRootBone = trait.type === "root_bone";
+  const TraitIcon = isRootBone ? Bone : Sparkles;
+  const effect = trait.effect_revision?.effect;
+  const multiplierDelta =
+    effect?.kind === "exp_multiplier"
+      ? effect.multiplier_delta_bps
+      : undefined;
+  const bonus = effect?.kind === "exp_bonus" ? effect.flat_bonus : undefined;
+  const elements = effect?.element_codes ?? [];
+  const hasEffects = effect !== undefined;
+  const interactive = onClick !== undefined;
 
-  const mul = meta?.exp_multiplier as number | undefined;
-  const bonus = meta?.exp_bonus as number | undefined;
-  const elems = meta?.target_elements as string[] | undefined;
+  const title = (
+    <div className="flex flex-wrap items-center gap-2">
+      <span
+        className={cn(
+          "font-semibold text-foreground",
+          variant === "full" && "text-base font-bold",
+          selected && rarity.color,
+        )}
+      >
+        {trait.name}
+      </span>
+      <Badge
+        variant="outline"
+        className={cn(
+          "h-5 px-1.5 text-[10px]",
+          rarity.color,
+          rarity.borderColor,
+        )}
+      >
+        {rarityName}
+      </Badge>
+    </div>
+  );
 
-  const hasEffects = (mul && mul !== 1.0) || (bonus && bonus !== 0) || (elems && elems.length > 0);
+  const effectChips = hasEffects ? (
+    <div className="flex flex-wrap items-center gap-2">
+      {multiplierDelta !== undefined ? (
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs",
+            multiplierDelta >= 0
+              ? "border-success/20 bg-success/10 text-success"
+              : "border-destructive/20 bg-destructive/10 text-destructive",
+          )}
+        >
+          <span className="font-mono font-bold">
+            {multiplierDelta >= 0 ? "+" : ""}
+            {multiplierDelta / 100}%
+          </span>
+          {variant === "full" ? (
+            <span className="text-[10px] opacity-75">
+              {TEXT.CULTIVATION.TRAINING_SPEED}
+            </span>
+          ) : null}
+        </span>
+      ) : null}
+      {bonus !== undefined ? (
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs",
+            bonus >= 0
+              ? "border-info/20 bg-info/10 text-info"
+              : "border-destructive/20 bg-destructive/10 text-destructive",
+          )}
+        >
+          <span className="font-mono font-bold">
+            {bonus > 0 ? `+${bonus}` : bonus}
+          </span>
+          <span className="text-[10px] opacity-75">
+            {variant === "full"
+              ? TEXT.CULTIVATION.BASE_EXP
+              : TEXT.CULTIVATION.EXP}
+          </span>
+        </span>
+      ) : null}
+      {elements.map((code) => {
+        const element = getElementPresentation(code);
+        const ElementIcon = element.Icon;
+        return (
+          <span
+            key={code}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs",
+              element.bgColor,
+              element.color,
+              element.borderColor,
+            )}
+          >
+            <ElementIcon className="size-3" aria-hidden="true" />
+            {element.name}
+          </span>
+        );
+      })}
+    </div>
+  ) : null;
 
   if (variant === "compact") {
-    return (
-      <div
-        className={`group flex items-start gap-3 p-3 rounded-xl bg-muted/10 border border-white/5 transition-colors ${onClick ? "cursor-pointer hover:bg-muted/20" : ""}`}
-        onClick={onClick}
-      >
-        <div className={`w-9 h-9 rounded-lg ${rarity.bgColor} flex items-center justify-center shrink-0`}>
-          <span className="text-base">{isRootBone ? "🦴" : "✨"}</span>
-        </div>
-        <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-foreground">{trait.name}</span>
-            <Badge variant="outline" className={`text-[10px] h-4 ${rarity.color} ${rarity.borderColor}`}>
-              {rarity.name}
-            </Badge>
-          </div>
-          {trait.description && (
-            <p className="text-xs text-muted-foreground leading-relaxed">{trait.description}</p>
+    const content = (
+      <>
+        <div
+          className={cn(
+            "flex size-9 shrink-0 items-center justify-center rounded-lg",
+            rarity.bgColor,
+            rarity.color,
           )}
-          {hasEffects && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              {mul && mul !== 1.0 && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${mul > 1 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
-                  EXP ×{mul}
-                </span>
-              )}
-              {bonus !== undefined && bonus !== 0 && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${bonus > 0 ? "bg-sky-500/10 text-sky-400 border border-sky-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
-                  {bonus > 0 ? `+${bonus}` : bonus} EXP
-                </span>
-              )}
-              {elems?.map((e) => {
-                const el = ELEMENT_DISPLAY[e];
-                return (
-                  <span key={e} className={`text-[10px] px-1.5 py-0.5 rounded-md ${el?.bgColor ?? "bg-white/5"} ${el?.color ?? "text-muted-foreground"} border ${el?.borderColor ?? "border-white/10"}`}>
-                    {el?.icon} {el?.name ?? e}
-                  </span>
-                );
-              })}
-            </div>
-          )}
+        >
+          <TraitIcon className="size-4" aria-hidden="true" />
         </div>
-      </div>
+        <div className="min-w-0 flex-1 space-y-1 text-left">
+          {title}
+          {trait.description ? (
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {trait.description}
+            </p>
+          ) : null}
+          {effectChips ? (
+            <div className="pt-1">{effectChips}</div>
+          ) : null}
+        </div>
+      </>
+    );
+    return interactiveContainer(
+      interactive,
+      cn(
+        "group flex w-full items-start gap-3 rounded-xl border border-border bg-muted/15 p-3 text-left transition-colors",
+        selected && "border-primary/60 bg-primary/5 ring-1 ring-primary/20",
+        interactive &&
+          "cursor-pointer hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+      ),
+      content,
+      onClick,
+      selected,
     );
   }
 
-  // Full variant — for roll results
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: animationDelay, type: "spring", stiffness: 200 }}
-      onClick={onClick}
-      className={`group relative p-4 rounded-xl border-2 transition-all duration-300 ${onClick ? "cursor-pointer" : ""} ${
-        selected
-          ? `bg-gradient-to-r from-muted/60 to-muted/30 ${rarity.borderColor} shadow-[0_0_20px_rgba(245,158,11,0.12)]`
-          : "border-white/5 bg-muted/10 hover:bg-muted/20 hover:border-white/10"
-      }`}
-    >
-      {/* Selected indicator glow */}
-      {selected && (
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-500/5 to-purple-500/5 pointer-events-none" />
-      )}
-
-      <div className="relative flex items-start gap-4">
-        {/* Icon */}
-        <div className={`w-12 h-12 rounded-xl ${rarity.bgColor} flex items-center justify-center shrink-0 ring-1 ring-white/10`}>
-          <span className="text-xl">{isRootBone ? "🦴" : "✨"}</span>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className={`font-bold text-base ${selected ? rarity.color : "text-foreground"}`}>
-              {trait.name}
-            </h4>
-            <Badge variant="outline" className={`text-[10px] h-4 ${rarity.color} ${rarity.borderColor}`}>
-              {rarity.name}
-            </Badge>
-          </div>
-
-          {trait.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed">{trait.description}</p>
-          )}
-
-          {/* Effects */}
-          {hasEffects && (
-            <>
-              <Separator className="my-2 bg-white/5" />
-              <div className="flex flex-wrap items-center gap-2">
-                {mul && mul !== 1.0 && (
-                  <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg ${mul > 1 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
-                    <span className="font-mono font-bold">×{mul}</span>
-                    <span className="text-[10px] opacity-70">Tu Luyện Tốc</span>
-                  </div>
-                )}
-                {bonus !== undefined && bonus !== 0 && (
-                  <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg ${bonus > 0 ? "bg-sky-500/10 text-sky-400 border border-sky-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
-                    <span className="font-mono font-bold">{bonus > 0 ? `+${bonus}` : bonus}</span>
-                    <span className="text-[10px] opacity-70">EXP Cơ Bản</span>
-                  </div>
-                )}
-                {elems?.map((e) => {
-                  const el = ELEMENT_DISPLAY[e];
-                  return (
-                    <div key={e} className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg ${el?.bgColor ?? "bg-white/5"} ${el?.color ?? "text-muted-foreground"} border ${el?.borderColor ?? "border-white/10"}`}>
-                      <span>{el?.icon}</span>
-                      <span>{el?.name ?? e}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Selection dot */}
-        {selected && (
-          <div className="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)] shrink-0 mt-1" />
+  const content = (
+    <div className="relative flex items-start gap-4">
+      <div
+        className={cn(
+          "flex size-12 shrink-0 items-center justify-center rounded-xl ring-1 ring-border",
+          rarity.bgColor,
+          rarity.color,
         )}
+      >
+        <TraitIcon className="size-5" aria-hidden="true" />
       </div>
-    </motion.div>
+      <div className="min-w-0 flex-1 space-y-1.5 text-left">
+        {title}
+        {trait.description ? (
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {trait.description}
+          </p>
+        ) : null}
+        {effectChips ? (
+          <>
+            <Separator className="my-2 bg-border" />
+            {effectChips}
+          </>
+        ) : null}
+      </div>
+      {selected ? (
+        <div
+          className="mt-1 size-4 shrink-0 rounded-full bg-primary shadow-brand-soft"
+          aria-hidden="true"
+        />
+      ) : null}
+    </div>
+  );
+  const className = cn(
+    "group relative w-full rounded-xl border-2 p-4 text-left transition-[border-color,background-color,box-shadow] duration-200",
+    selected
+      ? cn(
+          "bg-gradient-to-r from-muted/60 to-muted/30 shadow-brand-subtle",
+          rarity.borderColor,
+        )
+      : "border-border bg-muted/15 hover:border-border/80 hover:bg-muted/30",
+    interactive &&
+      "cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+  );
+  const motionProps = {
+    initial: reduceMotion ? false : { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    transition: reduceMotion
+      ? { duration: 0 }
+      : {
+          delay: animationDelay,
+          type: "spring" as const,
+          stiffness: 200,
+        },
+  };
+
+  return interactive ? (
+    <LazyMotion features={loadDomAnimation}>
+      <m.button
+        type="button"
+        className={className}
+        onClick={onClick}
+        aria-pressed={selected}
+        {...motionProps}
+      >
+        {content}
+      </m.button>
+    </LazyMotion>
+  ) : (
+    <LazyMotion features={loadDomAnimation}>
+      <m.div className={className} {...motionProps}>
+        {content}
+      </m.div>
+    </LazyMotion>
   );
 }

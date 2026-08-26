@@ -5,6 +5,7 @@
 
 import { cn } from "@/lib/utils";
 import { getDifficultyStyle } from "@/constants/styles";
+import { TEXT } from "@/constants/text";
 import type { DifficultyResponse } from "@/types/difficulty";
 
 interface DifficultyBadgeProps {
@@ -19,7 +20,13 @@ export function DifficultyBadge({
   className,
   showFormat = "dot-text",
 }: DifficultyBadgeProps) {
-  if (!difficulty) return <span className="text-muted-foreground text-sm">N/A</span>;
+  if (!difficulty) {
+    return (
+      <span className="text-muted-foreground text-sm">
+        {TEXT.PROBLEM.DIFFICULTY_UNAVAILABLE}
+      </span>
+    );
+  }
 
   const style = getDifficultyStyle(difficulty.level);
 

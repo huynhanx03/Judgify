@@ -1,22 +1,68 @@
-import { apiClient } from "@/lib/api-client";
-import { ELEMENT_API } from "@/constants/api";
+import { ELEMENT_API } from "@/constants/api/cultivation";
+import { api } from "@/lib/api/client";
+import { entityIDSchema } from "@/lib/api/contracts";
+import { voidSchema } from "@/lib/api/schema";
+import {
+  elementListSchema,
+  elementPageSchema,
+  elementSchema,
+} from "@/lib/cultivation/catalog-schema";
 import type { Paginated, QueryOptions } from "@/types/api";
 import type { ElementResponse } from "@/types/cultivation";
 
+type CreateElementInput = {
+  name: string;
+  code: string;
+  description?: string;
+};
+
+type UpdateElementInput = Partial<CreateElementInput>;
+
 export const elementService = {
-  async find(query: QueryOptions): Promise<Paginated<ElementResponse>> {
-    return apiClient.post<Paginated<ElementResponse>>(ELEMENT_API.FIND, query);
+  find(
+    query: QueryOptions,
+    signal?: AbortSignal,
+  ): Promise<Paginated<ElementResponse>> {
+    return api<Paginated<ElementResponse>, QueryOptions>(ELEMENT_API.FIND, {
+      method: "POST",
+      body: query,
+      signal,
+      schema: elementPageSchema,
+    });
   },
-  async getAll(): Promise<ElementResponse[]> {
-    return apiClient.get<ElementResponse[]>(ELEMENT_API.FIND_ALL);
+
+  getAll(signal?: AbortSignal): Promise<ElementResponse[]> {
+    return api<ElementResponse[], never>(ELEMENT_API.FIND_ALL, {
+      method: "GET",
+      auth: "none",
+      signal,
+      schema: elementListSchema,
+    });
   },
-  async create(data: { name: string; code: string; description?: string }): Promise<ElementResponse> {
-    return apiClient.post<ElementResponse>(ELEMENT_API.CREATE, data);
+
+  create(data: CreateElementInput): Promise<ElementResponse> {
+    return api<ElementResponse, CreateElementInput>(ELEMENT_API.CREATE, {
+      method: "POST",
+      body: data,
+      schema: elementSchema,
+    });
   },
-  async update(id: number, data: { name?: string; code?: string; description?: string }): Promise<ElementResponse> {
-    return apiClient.put<ElementResponse>(ELEMENT_API.UPDATE(id), data);
+
+  update(id: string, data: UpdateElementInput): Promise<ElementResponse> {
+    return api<ElementResponse, UpdateElementInput>(
+      ELEMENT_API.UPDATE(entityIDSchema.parse(id)),
+      {
+        method: "PUT",
+        body: data,
+        schema: elementSchema,
+      },
+    );
   },
-  async delete(id: number): Promise<void> {
-    await apiClient.delete(ELEMENT_API.DELETE(id));
+
+  async delete(id: string): Promise<void> {
+    await api<void, never>(
+      ELEMENT_API.DELETE(entityIDSchema.parse(id)),
+      { method: "DELETE", schema: voidSchema },
+    );
   },
 };

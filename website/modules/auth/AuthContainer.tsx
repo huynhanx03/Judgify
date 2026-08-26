@@ -9,7 +9,7 @@ import LoginForm from "./LoginForm";
  */
 export default function AuthContainer() {
   return (
-    <Card className="glass-card shadow-2xl border-white/10 dark:border-white/5 bg-background/60 dark:bg-zinc-950/60 backdrop-blur-xl overflow-hidden relative w-full">
+    <Card className="relative w-full overflow-hidden border-border/70 bg-background/85 shadow-2xl backdrop-blur-xl">
       {/* Decorative corners */}
       <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-primary/30 rounded-tl-xl pointer-events-none" />
       <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-primary/30 rounded-tr-xl pointer-events-none" />

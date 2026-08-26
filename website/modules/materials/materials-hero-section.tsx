@@ -18,8 +18,7 @@ export function MaterialsHeroSection() {
           </h1>
         </div>
         <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
-          Kho tài liệu học thuật từ cơ bản đến nâng cao, bao gồm cấu trúc dữ liệu,
-          giải thuật, ngôn ngữ lập trình và thiết kế hệ thống.
+          {TEXT.MATERIALS.HERO_DESCRIPTION}
         </p>
       </div>
     </div>

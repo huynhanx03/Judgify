@@ -3,43 +3,75 @@
  */
 
 import { cn } from "@/lib/utils";
-
-const DIFFICULTIES = [
-  { id: null, label: "Tất Cả" },
-  { id: 1, label: "Nhập Môn" },
-  { id: 2, label: "Cơ Bản" },
-  { id: 3, label: "Nâng Cao" },
-] as const;
-
-const PILL_STYLES: Record<string, string> = {
-  "Tất Cả": "data-[active=true]:bg-foreground data-[active=true]:text-background",
-  "Nhập Môn": "data-[active=true]:bg-emerald-500/15 data-[active=true]:text-emerald-600 dark:data-[active=true]:text-emerald-400",
-  "Cơ Bản": "data-[active=true]:bg-sky-500/15 data-[active=true]:text-sky-600 dark:data-[active=true]:text-sky-400",
-  "Nâng Cao": "data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400",
-};
+import { TEXT } from "@/constants/text";
+import { getDifficultyStyle } from "@/constants/styles";
+import { Loader2 } from "lucide-react";
+import type { DifficultyResponse } from "@/types/difficulty";
+import type { EntityID } from "@/types/api";
 
 interface MaterialsDifficultyFilterProps {
-  active: number | null;
-  onChange: (difficultyId: number | null) => void;
+  difficulties: DifficultyResponse[];
+  active: EntityID | null;
+  onChange: (difficultyId: EntityID | null) => void;
+  loading?: boolean;
 }
 
-export function MaterialsDifficultyFilter({ active, onChange }: MaterialsDifficultyFilterProps) {
+export function MaterialsDifficultyFilter({
+  difficulties,
+  active,
+  onChange,
+  loading = false,
+}: MaterialsDifficultyFilterProps) {
   return (
-    <div className="flex items-center gap-1.5 flex-wrap">
-      {DIFFICULTIES.map((d) => {
-        const isActive = active === d.id;
+    <div
+      className="flex flex-wrap items-center gap-1.5"
+      aria-busy={loading}
+      aria-label={TEXT.MATERIALS.DIFFICULTY_FILTER_LABEL}
+      role="group"
+    >
+      <button
+        type="button"
+        aria-pressed={active === null}
+        onClick={() => onChange(null)}
+        className={cn(
+          "min-h-11 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          active === null
+            ? "bg-foreground text-background"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        )}
+      >
+        {TEXT.MATERIALS.ALL}
+      </button>
+
+      {loading && difficulties.length === 0 ? (
+        <p
+          className="inline-flex min-h-11 items-center gap-2 px-2 text-xs text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2
+            className="size-4 animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+          {TEXT.MATERIALS.DIFFICULTIES_LOADING}
+        </p>
+      ) : null}
+
+      {difficulties.map((difficulty) => {
+        const isActive = active === difficulty.id;
+        const style = getDifficultyStyle(difficulty.level);
         return (
           <button
-            key={d.label}
-            data-active={isActive}
-            onClick={() => onChange(d.id)}
+            key={difficulty.id}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => onChange(difficulty.id)}
             className={cn(
-              "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
-              "text-muted-foreground hover:text-foreground hover:bg-muted",
-              PILL_STYLES[d.label]
+              "min-h-11 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              isActive ? style.active : style.hover,
             )}
           >
-            {d.label}
+            {difficulty.name}
           </button>
         );
       })}

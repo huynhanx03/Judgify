@@ -1,6 +1,6 @@
 "use client"
 
-import { ELEMENT_DISPLAY } from "@/types/cultivation"
+import { getElementPresentation } from "@/constants/cultivation-presentation"
 import { TEXT } from "@/constants/text"
 import type { TagStat } from "@/types/user"
 
@@ -23,18 +23,16 @@ export function TagsPanel({ tags }: TagsPanelProps) {
     <div className="flex flex-wrap gap-2">
       {sorted.map((tag) => {
         const primaryElem = tag.elements[0]
-        const display = primaryElem ? ELEMENT_DISPLAY[primaryElem.code] : null
+        const display = getElementPresentation(primaryElem?.code ?? "")
+        const ElementIcon = display.Icon
 
         return (
           <span
             key={tag.name}
             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border
-              ${display
-                ? `${display.bgColor} ${display.borderColor} ${display.color}`
-                : "bg-muted/40 border-border/30 text-muted-foreground"
-              }`}
+              ${display.bgColor} ${display.borderColor} ${display.color}`}
           >
-            {display?.icon ?? "🏷️"}
+            <ElementIcon className="size-3" aria-hidden="true" />
             {tag.name}
             <span className="opacity-60">×{tag.solved_count}</span>
           </span>

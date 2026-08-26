@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { PaginationControls } from "@/components/pagination-controls";
 import type { PaginationMeta } from "@/types/api";
+import { TEXT } from "@/constants/text";
+import { ADMIN_TEXT } from "@/constants/admin-text";
 
 export interface AdminColumn<T> {
   key: string;
@@ -36,19 +38,21 @@ export function AdminDataTable<T>({
   columns,
   data,
   keyExtractor,
-  emptyMessage = "Không có dữ liệu",
+  emptyMessage = TEXT.COMMON.NO_DATA,
   pagination,
   onPageChange,
 }: AdminDataTableProps<T>) {
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30 hover:bg-muted/30">
               {columns.map((col) => (
                 <TableHead key={col.key} className={col.className}>
-                  {col.label}
+                  {col.label || (
+                    <span className="sr-only">{ADMIN_TEXT.ACTIONS}</span>
+                  )}
                 </TableHead>
               ))}
             </TableRow>
@@ -62,7 +66,7 @@ export function AdminDataTable<T>({
               </TableRow>
             ) : (
               data.map((item) => (
-                <TableRow key={keyExtractor(item)} className="hover:bg-muted/20">
+                <TableRow key={keyExtractor(item)} className="transition-colors hover:bg-muted/20">
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
                       {col.render(item)}
