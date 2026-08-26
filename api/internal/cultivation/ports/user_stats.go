@@ -14,6 +14,8 @@ type UserStatsRepository interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.UserStats], error)
 	Get(ctx context.Context, id int) (*entity.UserStats, error)
 	GetByUserID(ctx context.Context, userID int) (*entity.UserStats, error)
+	GetByUserIDs(ctx context.Context, userIDs []int) (map[int]*entity.UserStats, error)
+	UpdateRatings(ctx context.Context, ratingsByUserID map[int]int) error
 	Create(ctx context.Context, e *entity.UserStats) error
 	Update(ctx context.Context, e *entity.UserStats) error
 	Delete(ctx context.Context, id int) error

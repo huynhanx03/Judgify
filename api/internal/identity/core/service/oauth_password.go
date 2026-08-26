@@ -123,7 +123,7 @@ func (s *authenticationService) OAuthRegister(ctx context.Context, req *dto.OAut
 
 	var user *entity.User
 
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		var err error
 		user, err = s.registerInternal(ctx, &dto.CreateUserRequest{
 			Username:  req.Username,
@@ -196,7 +196,7 @@ func (s *authenticationService) LinkOAuth(ctx context.Context, userID int, req *
 		return nil, apperr.New(response.CodeConflict, constant.MsgGoogleAlreadyUsed, nil)
 	}
 
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		credData := make(map[string]any)
 		for k, v := range userInfo.Metadata {
 			credData[k] = v
@@ -294,7 +294,7 @@ func (s *authenticationService) ResetPassword(ctx context.Context, req *dto.Rese
 		return nil, apperr.MapError(err, response.CodeInternalError, apperr.MsgGenFailed)
 	}
 
-	err = global.EntClient.DoInTx(ctx, func(ctx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
 		cred, err := s.credentialRepo.GetByUserID(ctx, claims.UserID, credentialTypePassword)
 		if err != nil {
 			return err

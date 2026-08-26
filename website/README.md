@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Judgify web application
 
-## Getting Started
+This directory contains the public and administrative Judgify product built on
+the Next.js App Router. Production output is standalone and is served behind
+the same ingress as the API. Browser authentication uses protected cookies;
+tokens are never persisted in Web Storage.
 
-First, run the development server:
+## Local development
 
-```bash
+Use the repository-pinned Node version and install exactly the lockfile:
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The defaults use same-origin `/api` HTTP routes and derive the WebSocket origin
+from the current page. Copy `.env.example` to `.env.local` only when the Go API
+does not use the default loopback origin:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+JUDGIFY_DEV_API_ORIGIN=http://127.0.0.1:8000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`next dev` proxies browser `/api/*` and `/ws` traffic to that loopback-only
+origin. Keep `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_REALTIME_WS_URL` unset in
+normal development so cookies, CSRF, Origin validation, and WebSocket upgrades
+exercise the same-origin production contract. Never put credentials or private
+service addresses in `NEXT_PUBLIC_*`; Next.js embeds them in browser assets.
 
-## Learn More
+## Source boundaries
 
-To learn more about Next.js, take a look at the following resources:
+- `app/` owns routing, layouts, loading/error boundaries, and metadata.
+- `modules/` owns product workflows and page-level composition.
+- `components/ui/` and `design-system/` own reusable accessible primitives and
+  tokens.
+- `services/` is the only feature-facing HTTP boundary; it uses `lib/api/` for
+  strict transport and response parsing.
+- `lib/realtime/` owns the resumable WebSocket client and typed event parsing.
+- `constants/api/` owns route builders; `constants/text.ts` owns product copy so
+  another language can be added without rewriting components.
+- `types/` and the domain schema modules validate IDs, cursors, timestamps,
+  enums, and server payloads at the browser boundary.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Do not add page-local fetch wrappers, fake fallback records, token storage,
+network polling, literal API paths, or user-facing strings inside components.
+See [`../docs/FRONTEND_GUIDE.md`](../docs/FRONTEND_GUIDE.md) for the complete
+architecture and UI conventions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Verification
 
-## Deploy on Vercel
+During focused development, use the narrow command for the area being changed.
+Before release, the repository entry point is authoritative:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sh
+npm run verify
+npm run build
+npm run check:bundle
+npm run test:e2e
+cd .. && make verify-frontend
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`verify` covers architecture rules, API/role contracts, realtime contracts,
+lint, and TypeScript. The repository release workflow additionally performs a
+clean install, production build, dependency audit, browser journeys, and
+standalone artifact checks.
+
+The route, viewport, theme, authenticated-fixture, and retained-evidence
+contract is documented in
+[`docs/architecture/browser-acceptance.md`](docs/architecture/browser-acceptance.md).
+Playwright packages are lockfile-pinned; install the matching Chromium binary
+on the verification host only when browser acceptance is ready to run.
+
+## Production
+
+Build and run the standalone image through the root Makefile and production
+Compose topology; do not deploy this directory directly to an unrelated
+hosting preset:
+
+```sh
+cd ..
+make docker-build-website VERSION=<immutable-release>
+make verify-packaging
+```
+
+Ingress owns TLS and routes `/api` plus the WebSocket upgrade to the Go API.
+The website container is non-root, read-only, and has no database, queue, or
+Docker access.

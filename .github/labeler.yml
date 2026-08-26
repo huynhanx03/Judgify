@@ -1,0 +1,23 @@
+api:
+  - changed-files:
+      - any-glob-to-any-file: "api/**"
+
+website:
+  - changed-files:
+      - any-glob-to-any-file: "website/**"
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "*.md"
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docker/**"
+          - "docker-compose.yml"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"

@@ -41,14 +41,14 @@ func NewCultivationContainer() *CultivationContainer {
 
 	// Services
 	elementService := service.NewElementService(elementRepo)
-	traitService := service.NewTraitService(traitRepo)
 	gachaService := service.NewGachaService(traitRepo)
+	traitService := service.NewTraitService(traitRepo, gachaService)
 	userTraitService := service.NewUserTraitService(userTraitRepo)
 	userElementExpService := service.NewUserElementExpService(userElementExpRepo)
 	levelService := service.NewLevelService(levelRepo)
 	rankService := service.NewRankService(rankRepo)
 	userStatsService := service.NewUserStatsService(userStatsRepo)
-	rarityService := service.NewRarityService(rarityRepo)
+	rarityService := service.NewRarityService(rarityRepo, gachaService)
 	rankingService := service.NewRankingService(userStatsRepo, rankRepo, levelRepo, global.Ember)
 
 	// Handlers

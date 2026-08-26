@@ -5,38 +5,13 @@
  * Used in problem detail page to show example test cases.
  */
 
-import { useState } from "react";
 import { TEXT } from "@/constants/text";
+import { CopyButton } from "@/modules/problem/copy-button";
 import type { TestCase } from "@/types/submission";
-import { Copy, Check } from "lucide-react";
 
 interface TestCaseBlockProps {
   testCase: TestCase;
   index: number;
-}
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer p-1 rounded hover:bg-muted/50"
-      title={copied ? TEXT.PROBLEM.COPIED : TEXT.PROBLEM.COPY}
-    >
-      {copied ? (
-        <Check className="h-4 w-4 text-emerald-500" />
-      ) : (
-        <Copy className="h-4 w-4" />
-      )}
-    </button>
-  );
 }
 
 export function TestCaseBlock({ testCase, index }: TestCaseBlockProps) {
@@ -54,9 +29,14 @@ export function TestCaseBlock({ testCase, index }: TestCaseBlockProps) {
             <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
               {TEXT.PROBLEM.INPUT}
             </span>
-            <CopyButton text={testCase.input} />
+            <CopyButton
+              value={testCase.input}
+              idleLabel={TEXT.PROBLEM.COPY_INPUT}
+              successLabel={TEXT.PROBLEM.COPIED}
+              errorLabel={TEXT.PROBLEM.COPY_FAILED}
+            />
           </div>
-          <pre className="p-3 rounded-lg bg-zinc-950 text-zinc-200 text-sm font-mono whitespace-pre overflow-x-auto leading-relaxed">
+          <pre className="overflow-x-auto rounded-lg bg-code-background p-3 font-mono text-sm leading-relaxed whitespace-pre text-media-foreground">
             {testCase.input}
           </pre>
         </div>
@@ -67,9 +47,14 @@ export function TestCaseBlock({ testCase, index }: TestCaseBlockProps) {
             <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
               {TEXT.PROBLEM.OUTPUT}
             </span>
-            <CopyButton text={testCase.output} />
+            <CopyButton
+              value={testCase.output}
+              idleLabel={TEXT.PROBLEM.COPY_OUTPUT}
+              successLabel={TEXT.PROBLEM.COPIED}
+              errorLabel={TEXT.PROBLEM.COPY_FAILED}
+            />
           </div>
-          <pre className="p-3 rounded-lg bg-zinc-950 text-zinc-200 text-sm font-mono whitespace-pre overflow-x-auto leading-relaxed">
+          <pre className="overflow-x-auto rounded-lg bg-code-background p-3 font-mono text-sm leading-relaxed whitespace-pre text-media-foreground">
             {testCase.output}
           </pre>
         </div>

@@ -1,36 +1,101 @@
 "use client";
 
-/**
- * Theme toggle button.
- * Simple, elegant icon toggle without dropdown for quick access.
- */
-
-import { Moon, Sun } from "lucide-react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-import { TEXT } from "@/constants/text";
+import dynamic from "next/dynamic";
+import { Monitor, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DEFAULT_THEME_PREFERENCE,
+  THEME_PREFERENCES,
+  type ThemePreference,
+} from "@/design/tokens";
+import { text } from "@/i18n/text";
 
+const ThemeTogglePanel = dynamic(
+  () =>
+    import("@/components/theme-toggle-panel").then((m) => m.ThemeTogglePanel),
+  { ssr: false },
+);
+
+function preloadThemeTogglePanel() {
+  void import("@/components/theme-toggle-panel");
+}
+
+const subscribeToHydration = () => () => undefined;
+
+const THEME_ICONS = {
+  light: Sun,
+  dark: Moon,
+  system: Monitor,
+} as const satisfies Record<ThemePreference, typeof Sun>;
+
+function isThemePreference(value: string): value is ThemePreference {
+  return THEME_PREFERENCES.some((preference) => preference === value);
+}
+
+/** Hydration-safe, explicit light/dark/system preference selector. */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
 
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true);
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+
+  const handleClick = useCallback(() => {
+    preloadThemeTogglePanel();
+    setPanelOpen(true);
+  }, []);
+
+  const handlePreload = useCallback(() => {
+    preloadThemeTogglePanel();
+  }, []);
+
+  const handleValueChange = useCallback(
+    (value: string) => {
+      if (isThemePreference(value)) setTheme(value);
+    },
+    [setTheme],
+  );
+
+  const handlePanelOpenChange = useCallback((open: boolean) => {
+    if (!open) setPanelOpen(false);
   }, []);
 
   if (!mounted) {
-    return <div className="h-9 w-9" />; // Placeholder
+    return <div className="size-11" aria-hidden="true" />;
+  }
+
+  const preference =
+    (theme as ThemePreference | undefined) ?? DEFAULT_THEME_PREFERENCE;
+  const ActiveIcon = THEME_ICONS[preference] ?? Monitor;
+
+  if (panelOpen) {
+    return (
+      <ThemeTogglePanel
+        theme={theme}
+        onValueChange={handleValueChange}
+        defaultOpen
+        onOpenChange={handlePanelOpenChange}
+      />
+    );
   }
 
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
-      aria-label={TEXT.THEME.TOGGLE}
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      aria-label={text("THEME.SELECT")}
+      title={text("THEME.SELECT")}
+      onClick={handleClick}
+      onPointerEnter={handlePreload}
+      onFocus={handlePreload}
     >
-      <Sun className="h-5 w-5 rotate-0 scale-100 transition-transform duration-300 dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-transform duration-300 dark:rotate-0 dark:scale-100" />
-    </button>
+      <ActiveIcon className="size-5" aria-hidden="true" />
+    </Button>
   );
 }

@@ -4,6 +4,7 @@ package entity
 type RatingHistory struct {
 	ID           int
 	UserID       int
+	Username     string
 	ContestID    int
 	OldRating    int
 	NewRating    int

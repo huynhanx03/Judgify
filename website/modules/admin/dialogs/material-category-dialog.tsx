@@ -5,7 +5,7 @@
  * Form fields: name (required), description (optional).
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TEXT } from "@/constants/text";
+import { ADMIN_TEXT } from "@/constants/admin-text";
 import type { MaterialCategory } from "@/types/material";
 
 interface MaterialCategoryDialogProps {
@@ -27,18 +28,8 @@ interface MaterialCategoryDialogProps {
 }
 
 export function MaterialCategoryDialog({ open, editing, onSave, onClose, isSaving }: MaterialCategoryDialogProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    if (editing) {
-      setName(editing.name);
-      setDescription(editing.description ?? "");
-    } else {
-      setName("");
-      setDescription("");
-    }
-  }, [editing, open]);
+  const [name, setName] = useState(editing?.name ?? "");
+  const [description, setDescription] = useState(editing?.description ?? "");
 
   function handleSubmit() {
     if (!name.trim()) return;
@@ -53,26 +44,28 @@ export function MaterialCategoryDialog({ open, editing, onSave, onClose, isSavin
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editing ? TEXT.ADMIN.MATERIAL_CATEGORIES.DIALOG_EDIT_TITLE : TEXT.ADMIN.MATERIAL_CATEGORIES.DIALOG_CREATE_TITLE}
+            {editing ? ADMIN_TEXT.MATERIAL_CATEGORIES.DIALOG_EDIT_TITLE : ADMIN_TEXT.MATERIAL_CATEGORIES.DIALOG_CREATE_TITLE}
           </DialogTitle>
           <DialogDescription>
-            {editing ? TEXT.ADMIN.MATERIAL_CATEGORIES.DIALOG_EDIT_DESC : TEXT.ADMIN.MATERIAL_CATEGORIES.DIALOG_CREATE_DESC}
+            {editing ? ADMIN_TEXT.MATERIAL_CATEGORIES.DIALOG_EDIT_DESC : ADMIN_TEXT.MATERIAL_CATEGORIES.DIALOG_CREATE_DESC}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.MATERIAL_CATEGORIES.FORM_NAME}</Label>
+            <Label htmlFor="material-category-name">{ADMIN_TEXT.MATERIAL_CATEGORIES.FORM_NAME}</Label>
             <Input
-              placeholder={TEXT.ADMIN.MATERIAL_CATEGORIES.FORM_NAME_PLACEHOLDER}
+              id="material-category-name"
+              placeholder={ADMIN_TEXT.MATERIAL_CATEGORIES.FORM_NAME_PLACEHOLDER}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.MATERIAL_CATEGORIES.FORM_DESCRIPTION}</Label>
+            <Label htmlFor="material-category-description">{ADMIN_TEXT.MATERIAL_CATEGORIES.FORM_DESCRIPTION}</Label>
             <Textarea
-              placeholder={TEXT.ADMIN.MATERIAL_CATEGORIES.FORM_DESCRIPTION_PLACEHOLDER}
+              id="material-category-description"
+              placeholder={ADMIN_TEXT.MATERIAL_CATEGORIES.FORM_DESCRIPTION_PLACEHOLDER}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -89,7 +82,7 @@ export function MaterialCategoryDialog({ open, editing, onSave, onClose, isSavin
             disabled={!name.trim() || isSaving}
             onClick={handleSubmit}
           >
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
             {editing ? TEXT.COMMON.SAVE : TEXT.COMMON.CREATE}
           </Button>
         </DialogFooter>

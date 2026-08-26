@@ -8,6 +8,7 @@ import (
 	contestConstant "github.com/huynhanx03/judgify/internal/contest/constant"
 	contestDi "github.com/huynhanx03/judgify/internal/contest/di"
 	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
+	internalEnt "github.com/huynhanx03/judgify/internal/ent"
 	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
 	materialDi "github.com/huynhanx03/judgify/internal/material/di"
 	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
@@ -37,6 +38,10 @@ func SetupDependencies() *Container {
 
 	cultivationContainer := cultivationDi.NewCultivationContainer()
 	problemContainer := problemDi.NewProblemContainer()
+
+	// Create transaction manager backed by EntClient
+	txMgr := internalEnt.NewTxManager(global.EntClient)
+
 	identityContainer := identityDi.NewIdentityContainer(
 		cultivationContainer.UserTraitRepo,
 		cultivationContainer.UserStatsRepo,
@@ -47,9 +52,10 @@ func SetupDependencies() *Container {
 		cultivationContainer.UserDifficultyStatsRepo,
 		cultivationContainer.UserTagStatsRepo,
 		problemContainer.DifficultyRepo,
+		txMgr,
 	)
 	submissionContainer := submissionDi.NewSubmissionContainer(judgeProducer, contestJudgeProducer)
-	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo)
+	contestContainer := contestDi.NewContestContainer(cultivationContainer.UserStatsRepo, txMgr)
 	materialContainer := materialDi.NewMaterialContainer()
 
 	container := &Container{

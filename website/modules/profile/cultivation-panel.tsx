@@ -1,10 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
 import { Sparkles, Star } from "lucide-react"
 import type { CultivationInfo, ElementExp } from "@/types/user"
-import { ELEMENT_DISPLAY, getTierColors } from "@/types/cultivation"
+import {
+  getElementPresentation,
+  getTierColors,
+} from "@/constants/cultivation-presentation"
 import { TEXT } from "@/constants/text"
+import { formatNumber } from "@/lib/format"
 
 interface CultivationPanelProps {
   cultivation: CultivationInfo
@@ -62,19 +66,26 @@ function TierRow({
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
         </div>
         <span className={`text-sm font-bold ${statColorClass}`}>
-          {typeof statValue === "number" ? statValue.toLocaleString() : statValue}
+          {typeof statValue === "number" ? formatNumber(statValue) : statValue}
         </span>
       </div>
 
       {/* Middle: badge | progress bar | next name */}
       <div className="flex items-center gap-2">
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ${badgeClass}`}>
-          {current || "—"}
+          {current || TEXT.COMMON.NOT_AVAILABLE}
         </span>
-        <div className="flex-1 h-2.5 rounded-full bg-muted/50 overflow-hidden">
+        <div
+          className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted/50"
+          role="progressbar"
+          aria-label={label}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(pct)}
+        >
           <div
-            className={`h-full rounded-full transition-all duration-1000 bg-gradient-to-r ${barClass}`}
-            style={{ width: `${pct}%` }}
+            className={`h-full origin-left rounded-full bg-gradient-to-r transition-transform duration-300 motion-reduce:transition-none ${barClass}`}
+            style={{ transform: `scaleX(${pct / 100})` }}
           />
         </div>
         {next ? (
@@ -82,7 +93,7 @@ function TierRow({
             {next}
           </span>
         ) : (
-          <span className="text-[10px] text-amber-400/80 font-semibold shrink-0">
+          <span className="shrink-0 text-[10px] font-semibold text-cultivation/80">
             {TEXT.PROFILE.CULTIVATION_MAX_RANK}
           </span>
         )}
@@ -96,6 +107,8 @@ function TierRow({
 // ── Element radar chart ────────────────────────────────────────────────────
 function ElementRadar({ elements }: { elements: ElementExp[] }) {
   const [hovered, setHovered] = useState<number | null>(null)
+  const titleID = useId()
+  const descriptionID = useId()
   const normalized = normalizeElements(elements)
   const count = normalized.length
 
@@ -104,15 +117,23 @@ function ElementRadar({ elements }: { elements: ElementExp[] }) {
     .join(" ")
 
   return (
-    <svg viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`} className="w-full max-w-[200px] h-auto mx-auto">
+    <figure className="w-full">
+    <svg
+      viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
+      className="mx-auto h-auto w-full max-w-[200px]"
+      role="img"
+      aria-labelledby={`${titleID} ${descriptionID}`}
+    >
+      <title id={titleID}>{TEXT.PROFILE.CULTIVATION_ELEMENTS_TITLE}</title>
+      <desc id={descriptionID}>{TEXT.PROFILE.CULTIVATION_ELEMENTS_DESCRIPTION}</desc>
       <defs>
         <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgb(245,158,11)" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="rgb(245,158,11)" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="radarFill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="rgb(245,158,11)" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="rgb(99,102,241)" stopOpacity="0.25" />
+          <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="var(--secondary)" stopOpacity="0.25" />
         </linearGradient>
         <filter id="dotGlow">
           <feGaussianBlur stdDeviation="2" result="blur" />
@@ -135,11 +156,11 @@ function ElementRadar({ elements }: { elements: ElementExp[] }) {
         return <line key={i} x1={CENTER} y1={CENTER} x2={vx} y2={vy} stroke="currentColor" strokeWidth="0.5" opacity="0.08" />
       })}
 
-      <polygon points={dataPoints} fill="url(#radarFill)" stroke="rgb(245,158,11)" strokeWidth="1.5" strokeLinejoin="round" opacity="0.9" />
+      <polygon points={dataPoints} fill="url(#radarFill)" stroke="var(--primary)" strokeWidth="1.5" strokeLinejoin="round" opacity="0.9" />
 
       {normalized.map((el, i) => {
-        const display = ELEMENT_DISPLAY[el.code]
-        const hex = display?.hex ?? "#d97706"
+        const display = getElementPresentation(el.code)
+        const chartColor = display.chartColor
         const [dx, dy] = vertex(i, count, (el.value / 100) * RADIUS)
         const [lx, ly] = vertex(i, count, RADIUS + 22)
         const isHovered = hovered === i
@@ -147,26 +168,43 @@ function ElementRadar({ elements }: { elements: ElementExp[] }) {
         return (
           <g key={el.code} onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)} className="cursor-pointer">
             <circle cx={dx} cy={dy} r="14" fill="transparent" />
-            {isHovered && <circle cx={dx} cy={dy} r="10" fill={hex} opacity="0.15" filter="url(#dotGlow)" />}
-            <circle cx={dx} cy={dy} r={isHovered ? 5.5 : 3.5} fill={hex} stroke="rgb(9,9,11)" strokeWidth="1.5"
+            {isHovered && <circle cx={dx} cy={dy} r="10" fill={chartColor} opacity="0.15" filter="url(#dotGlow)" />}
+            <circle cx={dx} cy={dy} r={isHovered ? 5.5 : 3.5} fill={chartColor} stroke="var(--background)" strokeWidth="1.5"
               filter={isHovered ? "url(#dotGlow)" : undefined} />
             <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central"
-              fill={isHovered ? hex : "currentColor"} fontSize="12"
+              fill={isHovered ? chartColor : "currentColor"} fontSize="12"
               fontWeight={isHovered ? "800" : "500"} opacity={isHovered ? 1 : 0.45}>
-              {display?.icon ?? el.code}
+              {display.shortLabel}
             </text>
             {isHovered && (
               <g>
                 <rect x={dx - 42} y={dy - 18} width="84" height="36" rx="7"
-                  fill="rgb(24,24,27)" stroke={hex} strokeWidth="1" opacity="0.97" />
-                <text x={dx} y={dy - 5} textAnchor="middle" fill={hex} fontSize="9.5" fontWeight="bold">{el.name}</text>
-                <text x={dx} y={dy + 9} textAnchor="middle" fill="#71717a" fontSize="8.5">{Number(el.exp).toLocaleString()} EXP</text>
+                  fill="var(--popover)" stroke={chartColor} strokeWidth="1" opacity="0.97" />
+                <text x={dx} y={dy - 5} textAnchor="middle" fill={chartColor} fontSize="9.5" fontWeight="bold">{el.name}</text>
+                <text x={dx} y={dy + 9} textAnchor="middle" fill="var(--muted-foreground)" fontSize="8.5">{formatNumber(Number(el.exp))} {TEXT.CULTIVATION.EXP}</text>
               </g>
             )}
           </g>
         )
       })}
     </svg>
+      <figcaption className="mt-2 grid grid-cols-2 gap-1.5 text-xs">
+        {normalized.map((element) => {
+          const display = getElementPresentation(element.code)
+          return (
+            <span
+              key={element.code}
+              className="flex min-w-0 items-center justify-between gap-2 rounded-md bg-muted/40 px-2 py-1 text-muted-foreground"
+            >
+              <span className="truncate">{display.shortLabel}</span>
+              <span className="shrink-0 tabular-nums text-foreground">
+                {formatNumber(element.exp)} {TEXT.CULTIVATION.EXP}
+              </span>
+            </span>
+          )
+        })}
+      </figcaption>
+    </figure>
   )
 }
 
@@ -187,9 +225,9 @@ export function CultivationPanel({ cultivation }: CultivationPanelProps) {
         {/* Cảnh Giới — icon & stat fixed amber */}
         <TierRow
           label={TEXT.PROFILE.CULTIVATION_REALM}
-          icon={<Sparkles className="h-4 w-4 text-amber-400" />}
+          icon={<Sparkles className="h-4 w-4 text-cultivation" aria-hidden="true" />}
           statValue={rating}
-          statColorClass="text-amber-400"
+          statColorClass="text-cultivation"
           current={rank.name}
           next={rank.next_name}
           nextBadgeClass={nextRankColors?.badge}
@@ -197,7 +235,7 @@ export function CultivationPanel({ cultivation }: CultivationPanelProps) {
           badgeClass={rankColors.badge}
           barClass={rankColors.bar}
           hint={rank.rating_to_next > 0 ? (
-            <>Cần thêm <span className="font-bold text-foreground">{rank.rating_to_next}</span> {TEXT.PROFILE.CULTIVATION_RATING_TO_NEXT}</>
+            <>{TEXT.CULTIVATION.NEED_MORE} <span className="font-bold text-foreground">{rank.rating_to_next}</span> {TEXT.PROFILE.CULTIVATION_RATING_TO_NEXT}</>
           ) : undefined}
         />
 
@@ -206,7 +244,7 @@ export function CultivationPanel({ cultivation }: CultivationPanelProps) {
         {/* Cấp Bậc — icon & stat fixed primary */}
         <TierRow
           label={TEXT.PROFILE.CULTIVATION_RANK}
-          icon={<Star className="h-4 w-4 text-primary" />}
+          icon={<Star className="h-4 w-4 text-primary" aria-hidden="true" />}
           statValue={total_exp}
           statColorClass="text-primary"
           current={level.name}
@@ -216,7 +254,7 @@ export function CultivationPanel({ cultivation }: CultivationPanelProps) {
           badgeClass={levelColors.badge}
           barClass={levelColors.bar}
           hint={level.exp_to_next > 0 ? (
-            <>Cần thêm <span className="font-bold text-foreground">{level.exp_to_next.toLocaleString()}</span> {TEXT.PROFILE.CULTIVATION_EXP_TO_BREAK}</>
+            <>{TEXT.CULTIVATION.NEED_MORE} <span className="font-bold text-foreground">{formatNumber(level.exp_to_next)}</span> {TEXT.PROFILE.CULTIVATION_EXP_TO_BREAK}</>
           ) : undefined}
         />
       </div>

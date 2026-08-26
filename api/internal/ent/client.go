@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/huynhanx03/judgify/pkg/common/tx"
 	"github.com/huynhanx03/judgify/pkg/database/ent"
 	"github.com/huynhanx03/judgify/pkg/settings"
 
@@ -119,4 +120,18 @@ func (c *EntClient) DoInTx(ctx context.Context, fn func(ctx context.Context) err
 	}
 
 	return nil
+}
+
+// entTxManager adapts EntClient to the tx.Manager interface.
+type entTxManager struct {
+	client *EntClient
+}
+
+// NewTxManager creates a tx.Manager backed by the given EntClient.
+func NewTxManager(client *EntClient) tx.Manager {
+	return &entTxManager{client: client}
+}
+
+func (m *entTxManager) DoInTx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return m.client.DoInTx(ctx, fn)
 }

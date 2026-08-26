@@ -16,14 +16,14 @@ import (
 	"github.com/huynhanx03/judgify/internal/cultivation/ports"
 )
 
-
 type traitService struct {
-	traitRepo ports.TraitRepository
+	traitRepo    ports.TraitRepository
+	gachaService ports.GachaService
 }
 
 // NewTraitService creates a new TraitService instance.
-func NewTraitService(traitRepo ports.TraitRepository) ports.TraitService {
-	return &traitService{traitRepo: traitRepo}
+func NewTraitService(traitRepo ports.TraitRepository, gachaService ports.GachaService) ports.TraitService {
+	return &traitService{traitRepo: traitRepo, gachaService: gachaService}
 }
 
 func (s *traitService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.TraitResponse], error) {
@@ -71,6 +71,7 @@ func (s *traitService) Create(ctx context.Context, req *dto.CreateTraitRequest) 
 	if err := s.traitRepo.Create(ctx, e); err != nil {
 		return nil, err
 	}
+	s.invalidateGachaPool(ctx)
 	logger.FromContext(ctx).Info("trait created", zap.Int("trait_id", e.ID))
 	// Re-fetch to get full rarity data from eager loading.
 	full, err := s.traitRepo.Get(ctx, e.ID)
@@ -105,6 +106,7 @@ func (s *traitService) Update(ctx context.Context, id int, req *dto.UpdateTraitR
 	if err := s.traitRepo.Update(ctx, e); err != nil {
 		return nil, err
 	}
+	s.invalidateGachaPool(ctx)
 	logger.FromContext(ctx).Info("trait updated", zap.Int("trait_id", e.ID))
 	// Re-fetch to get full rarity data from eager loading.
 	full, err := s.traitRepo.Get(ctx, e.ID)
@@ -125,6 +127,16 @@ func (s *traitService) Delete(ctx context.Context, id int) error {
 	if err := s.traitRepo.Delete(ctx, id); err != nil {
 		return err
 	}
+	s.invalidateGachaPool(ctx)
 	logger.FromContext(ctx).Info("trait deleted", zap.Int("trait_id", id))
 	return nil
+}
+
+func (s *traitService) invalidateGachaPool(ctx context.Context) {
+	if s.gachaService == nil {
+		return
+	}
+	if err := s.gachaService.InvalidatePool(ctx); err != nil {
+		logger.FromContext(ctx).Warn("failed to invalidate gacha pool after trait change", zap.Error(err))
+	}
 }

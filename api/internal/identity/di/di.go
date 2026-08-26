@@ -8,6 +8,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/core/service"
 	"github.com/huynhanx03/judgify/internal/identity/ports"
 	problemPorts "github.com/huynhanx03/judgify/internal/problem/ports"
+	"github.com/huynhanx03/judgify/pkg/common/tx"
 	"github.com/huynhanx03/judgify/pkg/oauth"
 )
 
@@ -40,6 +41,7 @@ func NewIdentityContainer(
 	userDiffStatsRepo cultivationPorts.UserDifficultyStatsRepository,
 	userTagStatsRepo cultivationPorts.UserTagStatsRepository,
 	difficultyRepo problemPorts.DifficultyRepository,
+	txMgr tx.Manager,
 ) *IdentityContainer {
 	client := global.EntClient
 	localCache := global.Ember
@@ -77,8 +79,9 @@ func NewIdentityContainer(
 		oauthProviders,
 		localCache,
 		cacheService,
+		txMgr,
 	)
-	roleService := service.NewRoleService(roleRepo, cacheService)
+	roleService := service.NewRoleService(roleRepo, cacheService, txMgr)
 	permService := service.NewPermissionService(permRepo, cacheService)
 	resourceService := service.NewResourceService(resourceRepo, cacheService)
 	attrDefService := service.NewAttributeDefinitionService(attrDefRepo, localCache)
@@ -89,6 +92,7 @@ func NewIdentityContainer(
 		attrDefRepo,
 		attrValueRepo,
 		localCache,
+		txMgr,
 	)
 
 	// Handlers

@@ -7,11 +7,26 @@
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import type { ComponentProps } from "react";
+import {
+  DEFAULT_THEME_PREFERENCE,
+  THEME_STORAGE_KEY,
+} from "@/design/tokens";
 
-/** Wraps the app with next-themes ThemeProvider for dark/light mode support. */
+/** Wraps the app with one hydration-safe light/dark/system policy. */
 export function ThemeProvider({
   children,
   ...props
 }: ComponentProps<typeof NextThemesProvider>) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  return (
+    <NextThemesProvider
+      {...props}
+      attribute="class"
+      defaultTheme={DEFAULT_THEME_PREFERENCE}
+      enableSystem
+      disableTransitionOnChange
+      storageKey={THEME_STORAGE_KEY}
+    >
+      {children}
+    </NextThemesProvider>
+  );
 }

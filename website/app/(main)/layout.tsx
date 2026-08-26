@@ -1,6 +1,5 @@
 /**
- * Main app layout with sidebar and header.
- * All authenticated pages under (main) route group use this layout.
+ * Main product layout for public and authenticated workbench routes.
  */
 
 import { AppShell } from "@/modules/layout/app-shell";

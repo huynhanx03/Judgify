@@ -1,96 +1,67 @@
 # Judgify
 
-An Online Judge powered by a Cultivation (Xianxia) gamification system to improve the learning experience.
+![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker Sandbox](https://img.shields.io/badge/Sandbox-Docker-2496ED?logo=docker&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/huynhanx03/Judgify/api)](https://goreportcard.com/report/github.com/huynhanx03/Judgify/api)
+[![GitHub Stars](https://img.shields.io/github/stars/huynhanx03/Judgify?style=social)](https://github.com/huynhanx03/Judgify/stargazers)
 
-Judgify goes beyond a standard code judging platform. By merging competitive programming with an RPG-like progression system, users can cultivate their stats, discover elemental affinities, and breakthrough cultivation realms as they solve algorithmic challenges.
+Judgify is an open-source online judge and competitive programming platform for algorithm practice, code submissions, automated judging, contests, and learning materials. It combines classic programming problem solving with a Cultivation (Xianxia) gamification system, where learners can grow stats, discover elemental affinities, collect traits, climb rankings, and break through cultivation realms as they solve coding challenges.
+
+## Features
+
+- Practice algorithmic problems with an online judge workflow
+- Submit code and receive automated judging results
+- Join programming contests with standings and rating updates
+- Learn through materials, problem sets, and guided practice
+- Track user profiles, rankings, and submission history
+- Progress through a Cultivation system with stats, ranks, elements, rarities, traits, and gacha
+- Manage users, roles, permissions, problems, contests, and game content from the admin dashboard
 
 ## Tech Stack
 
-* Frontend: React / Vue
+* Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS v4
 * Backend: Go 1.25+, Gin Framework
 * Database & ORM: PostgreSQL, Ent
-* Caching & Queue: Local Cache
+* Caching & Queue: Local
 * Infrastructure: Docker, Make
 
 ## System Architecture
 
-Judgify is constructed as a high-performance Monolithic application, designed to effortlessly handle features like rate-limiting and robust data caching internally without the overhead of microservices.
+Judgify uses a modular monolith architecture. Core domains stay inside one deployable backend while remaining separated by responsibility, making the project easier to develop, test, and run locally.
 
 ```mermaid
 flowchart TD
-    Client[User Client] --> Backend
+    Frontend[Client] --> Backend
     
-    subgraph Backend [Judgify Monolithic Server]
+    subgraph Backend [Server]
         Identity[Identity Module]
         Problem[Problem Module]
         Submit[Submission Module]
+        Contest[Contest Module]
+        Material[Material Module]
         Cultivate[Cultivation Module]
     end
     
     Backend --> DB[(PostgreSQL)]
     Backend -.-> Cache[(Local Cache)]
-    Backend -.-> Queue{{Task Queue}}
-    Queue -.-> JudgeWorker[Isolated Judge Workers]
+    Backend -.-> Queue{{Local Queue}}
+    Queue -.-> Worker[Workers]
 ```
 
-## Setup Guide
-
-We use Make commands to streamline the setup and installation process.
-
-
-### 1. Start Infrastructure
-
-Bring up the database and cache containers:
+## Quick Start
 
 ```bash
 make docker-up
-```
-
-### 2. Prepare the Database
-
-Apply schema migrations and seed the initial data:
-
-```bash
 make migrate-apply
 make seed
-```
-
-### 3. Run the Backend (API)
-
-The backend API server typically runs on port 8080:
-
-```bash
 make run-api
-```
-
-### 4. Run the Web Interface
-
-Boot up the local development frontend server:
-
-```bash
 make run-website
 ```
 
-## Useful Commands
-
-| Command | Description |
-|---|---|
-| `make run-api` | Starts the Go API backend. |
-| `make run-website` | Starts the local frontend development server. |
-| `make docker-up` / `docker-down` | Manage backend infrastructure containers. |
-| `make generate` | Regenerates Ent schemas and API bindings. |
-| `make migrate-diff name=...` | Generates a new migration script based on schema changes. |
-| `make migrate-apply` | Applies pending migrations to the local database. |
-| `make seed` | Injects predefined seed data for testing. |
-
 ## Future Roadmap
 
-- [ ] Daily Missions: Implement daily coding tasks (e.g., 3 challenges a day) to encourage consistent practice and reward users with cultivation materials.
-- [ ] Contests System: Introduce timed programming competitions, real-time rankings, and customized leaderboards.
-- [ ] Blogs & Discussions: Establish a built-in community platform for users to share editorials, solutions, and algorithmic knowledge.
-- [ ] Local Cache Synchronization: Implement an event-driven syncing mechanism to keep the local cache seamlessly consistent with database updates in real-time.
-- [ ] Frontend Optimization: Revamp the web interface for higher performance, smoother animations, and an optimized UI/UX design.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- [ ] Event-driven local cache synchronization
+- [ ] Frontend performance and UI/UX improvements
