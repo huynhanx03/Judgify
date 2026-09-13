@@ -41,6 +41,26 @@ OpenTelemetry owns W3C `traceparent`, `trace_id`, and `span_id`. The trace begin
 
 The gateway logs the request ID, trace ID when available, route template or route name, method, status, duration, upstream, response flags, and bytes. API and worker structured logs retain CID, trace ID, active span ID when useful, event/outcome, and relevant nonsecret domain IDs. These high-cardinality IDs remain JSON fields or structured metadata, not Loki stream labels. Credentials, cookies, request bodies, source code, hidden tests, raw query strings, and complete WebSocket messages are excluded from ordinary logs and spans.
 
+### Structured log contract
+
+All product logs use one JSON object per line on stdout. The common fields are `timestamp` (UTC with timezone), `level`, `service`, `environment`, `version`, `component`, `event` (stable machine-readable name), and `message` (short human-readable text). Request- or job-related records add `cid`; this is the existing Go logger field. Envoy writes the value of its `X-Request-ID` under `cid`, so a single Loki query finds gateway, API, Check, and worker records. `trace_id` is present when a valid trace context exists; `span_id` is present only when that record belongs to an active span. Neither is fabricated for process startup or periodic background events. The existing `correlation_id` database columns and response header remain unchanged; logs do not emit a second `request_id` or `correlation_id` field containing the same value.
+
+The source-specific fields are intentionally small:
+
+| Source and event | Required extra fields | Conditional fields |
+| --- | --- | --- |
+| Envoy `http.completed` | `method`, `route`, `status`, `duration_ms`, `upstream_cluster`, `response_flags`, `response_code_details`, `bytes_in`, `bytes_out` | `trace_id` |
+| Go Check `authz.denied` or `authz.error` | `decision`, `reason_code`, `route`, `method`, `duration_ms`, `policy_revision` | verified `user_id`, `resource`, `action`, `trace_id`, `span_id` |
+| API business transition, e.g. `submission.accepted` | `user_id` after authentication, `submission_id`, `problem_id`, `cid` | `contest_id`, `operation_id`, `error_code`, `trace_id`, `span_id` when relevant |
+| Worker `judge.started`, `judge.completed`, or `judge.failed` | `job_id`, `submission_id`, `attempt_id`, `cid` | `verdict`, `phase`, `duration_ms`, `queue_wait_ms`, `retryable`, `error_code`, `trace_id`, `span_id` |
+| WebSocket connect/disconnect or denied subscription | `connection_id`, `event`, `cid` | verified `user_id`, `close_code`, `duration_ms`, `topic_kind`, `reason_code` |
+
+Envoy emits one completion record per dynamic HTTP request, including gateway denials and upstream failures. Health probes, metrics endpoints, and static asset success traffic are filtered from normal access logs; static failures remain visible. A restricted security event may include `client_ip` for 401, 403, 429, and gateway blocks; its retention is seven days. The Go API does not repeat a successful per-request completion log already supplied by Envoy. Replace the existing `RequestLogger` completion behavior that logs every request with `ip` and `query`, while preserving its CID/context injection. The API emits one structured log for meaningful business transitions and one root-cause error log for unexpected failures; slow API requests and direct/internal request failures may emit an API completion record. Check Allow decisions are counted in metrics and traced, but not individually logged at INFO. Deny/error decisions are logged with bounded `reason_code` values. WebSocket heartbeats and individual payload messages are not logged.
+
+`INFO` describes completed business transitions, `WARN` describes rejected or retryable conditions needing attention, and `ERROR` describes failed dependencies or unexpected processing. A routine invalid login or lack of permission is not labeled as a server error. Metrics record full counts even where noisy log events are rate-limited. The production logger's generic sampling must not silently discard error, security, or audit-relevant events. Stack traces are attached only to unexpected errors; expected validation and authorization outcomes use stable error codes. Request and response bodies, raw URLs or query strings, bearer tokens, cookies, session IDs, source code, test data, compiler output, and arbitrary user input are excluded. Verified `user_id` is the only ambient identity field; other domain IDs appear only on events that need them.
+
+Loki index labels are initially `service` and `environment`; `level`, `version`, `component`, route, CID, trace/span IDs, user ID, submission ID, and job ID remain JSON or structured metadata. This avoids a stream per user or request. Operators can filter one CID across services and follow `trace_id` to Tempo, but a sampled-out trace may have logs without a retained Tempo trace.
+
 ## Authorization boundary
 
 Envoy's HTTP `ext_authz` filter calls a private gRPC `Check` endpoint in the existing Go API process. The Check handler reuses the current access-token/session verifier and Casbin authorization service; it does not duplicate policy rules in Envoy. It receives only allowlisted method, normalized path, authority, credential header or cookie, request ID, and trace context. It does not buffer or inspect request bodies.
