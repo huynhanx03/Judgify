@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
@@ -19,7 +20,7 @@ import (
 type Material struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -27,29 +28,51 @@ type Material struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Content holds the value of the "content" field.
-	Content string `json:"content,omitempty"`
+	Content string `json:"-"`
 	// DifficultyID holds the value of the "difficulty_id" field.
-	DifficultyID int `json:"difficulty_id,omitempty"`
-	// AuthorID holds the value of the "author_id" field.
-	AuthorID int `json:"author_id,omitempty"`
+	DifficultyID uuid.UUID `json:"difficulty_id,omitempty"`
 	// CategoryID holds the value of the "category_id" field.
-	CategoryID int `json:"category_id,omitempty"`
+	CategoryID uuid.UUID `json:"category_id,omitempty"`
+	// GroupID holds the value of the "group_id" field.
+	GroupID *int `json:"group_id,omitempty"`
+	// EstimatedReadTime holds the value of the "estimated_read_time" field.
+	EstimatedReadTime int `json:"estimated_read_time,omitempty"`
+	// CurrentSlugID holds the value of the "current_slug_id" field.
+	CurrentSlugID *uuid.UUID `json:"current_slug_id,omitempty"`
+	// CurrentSlugState holds the value of the "current_slug_state" field.
+	CurrentSlugState material.CurrentSlugState `json:"current_slug_state,omitempty"`
+	// AuthorID holds the value of the "author_id" field.
+	AuthorID uuid.UUID `json:"author_id,omitempty"`
 	// Status holds the value of the "status" field.
 	Status material.Status `json:"status,omitempty"`
 	// Visibility holds the value of the "visibility" field.
 	Visibility material.Visibility `json:"visibility,omitempty"`
-	// Null = public, set = group-scoped (deferred until groups exist)
-	GroupID *int `json:"group_id,omitempty"`
+	// CurrentDraftRevisionID holds the value of the "current_draft_revision_id" field.
+	CurrentDraftRevisionID *uuid.UUID `json:"current_draft_revision_id,omitempty"`
+	// PublishedRevisionID holds the value of the "published_revision_id" field.
+	PublishedRevisionID *uuid.UUID `json:"published_revision_id,omitempty"`
+	// PublishedRenderSourceID holds the value of the "published_render_source_id" field.
+	PublishedRenderSourceID *uuid.UUID `json:"published_render_source_id,omitempty"`
+	// PublishedRenderArtifactID holds the value of the "published_render_artifact_id" field.
+	PublishedRenderArtifactID *uuid.UUID `json:"published_render_artifact_id,omitempty"`
+	// PublishedRenderSourceKind holds the value of the "published_render_source_kind" field.
+	PublishedRenderSourceKind *material.PublishedRenderSourceKind `json:"published_render_source_kind,omitempty"`
+	// PublishedSourceChecksum holds the value of the "published_source_checksum" field.
+	PublishedSourceChecksum *[]byte `json:"published_source_checksum,omitempty"`
+	// PublishedAt holds the value of the "published_at" field.
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+	// ArchivedAt holds the value of the "archived_at" field.
+	ArchivedAt *time.Time `json:"archived_at,omitempty"`
 	// ViewCount holds the value of the "view_count" field.
-	ViewCount int `json:"view_count,omitempty"`
-	// Minutes, auto-calculated from content length
-	EstimatedReadTime int `json:"estimated_read_time,omitempty"`
+	ViewCount int64 `json:"view_count,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MaterialQuery when eager-loading is set.
 	Edges        MaterialEdges `json:"edges"`
@@ -58,28 +81,23 @@ type Material struct {
 
 // MaterialEdges holds the relations/edges for other nodes in the graph.
 type MaterialEdges struct {
-	// Category holds the value of the category edge.
-	Category *MaterialCategory `json:"category,omitempty"`
 	// Author holds the value of the author edge.
 	Author *User `json:"author,omitempty"`
+	// Category holds the value of the category edge.
+	Category *MaterialCategory `json:"category,omitempty"`
 	// Difficulty holds the value of the difficulty edge.
 	Difficulty *Difficulty `json:"difficulty,omitempty"`
 	// Tags holds the value of the tags edge.
 	Tags []*Tag `json:"tags,omitempty"`
+	// Revisions holds the value of the revisions edge.
+	Revisions []*MaterialRevision `json:"revisions,omitempty"`
+	// Slugs holds the value of the slugs edge.
+	Slugs []*MaterialSlug `json:"slugs,omitempty"`
+	// DailyViews holds the value of the daily_views edge.
+	DailyViews []*MaterialViewDaily `json:"daily_views,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
-}
-
-// CategoryOrErr returns the Category value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e MaterialEdges) CategoryOrErr() (*MaterialCategory, error) {
-	if e.Category != nil {
-		return e.Category, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: materialcategory.Label}
-	}
-	return nil, &NotLoadedError{edge: "category"}
+	loadedTypes [7]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -87,10 +105,21 @@ func (e MaterialEdges) CategoryOrErr() (*MaterialCategory, error) {
 func (e MaterialEdges) AuthorOrErr() (*User, error) {
 	if e.Author != nil {
 		return e.Author, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "author"}
+}
+
+// CategoryOrErr returns the Category value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MaterialEdges) CategoryOrErr() (*MaterialCategory, error) {
+	if e.Category != nil {
+		return e.Category, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: materialcategory.Label}
+	}
+	return nil, &NotLoadedError{edge: "category"}
 }
 
 // DifficultyOrErr returns the Difficulty value or an error if the edge
@@ -113,17 +142,50 @@ func (e MaterialEdges) TagsOrErr() ([]*Tag, error) {
 	return nil, &NotLoadedError{edge: "tags"}
 }
 
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e MaterialEdges) RevisionsOrErr() ([]*MaterialRevision, error) {
+	if e.loadedTypes[4] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
+}
+
+// SlugsOrErr returns the Slugs value or an error if the edge
+// was not loaded in eager-loading.
+func (e MaterialEdges) SlugsOrErr() ([]*MaterialSlug, error) {
+	if e.loadedTypes[5] {
+		return e.Slugs, nil
+	}
+	return nil, &NotLoadedError{edge: "slugs"}
+}
+
+// DailyViewsOrErr returns the DailyViews value or an error if the edge
+// was not loaded in eager-loading.
+func (e MaterialEdges) DailyViewsOrErr() ([]*MaterialViewDaily, error) {
+	if e.loadedTypes[6] {
+		return e.DailyViews, nil
+	}
+	return nil, &NotLoadedError{edge: "daily_views"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Material) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case material.FieldID, material.FieldDeletedBy, material.FieldDifficultyID, material.FieldAuthorID, material.FieldCategoryID, material.FieldGroupID, material.FieldViewCount, material.FieldEstimatedReadTime:
+		case material.FieldCurrentSlugID, material.FieldCurrentDraftRevisionID, material.FieldPublishedRevisionID, material.FieldPublishedRenderSourceID, material.FieldPublishedRenderArtifactID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case material.FieldPublishedSourceChecksum:
+			values[i] = new([]byte)
+		case material.FieldGroupID, material.FieldEstimatedReadTime, material.FieldViewCount, material.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case material.FieldTitle, material.FieldDescription, material.FieldContent, material.FieldStatus, material.FieldVisibility:
+		case material.FieldDeletedBy, material.FieldTitle, material.FieldDescription, material.FieldContent, material.FieldCurrentSlugState, material.FieldStatus, material.FieldVisibility, material.FieldPublishedRenderSourceKind:
 			values[i] = new(sql.NullString)
-		case material.FieldCreatedAt, material.FieldUpdatedAt, material.FieldDeletedAt:
+		case material.FieldCreatedAt, material.FieldUpdatedAt, material.FieldDeletedAt, material.FieldPublishedAt, material.FieldArchivedAt:
 			values[i] = new(sql.NullTime)
+		case material.FieldID, material.FieldDifficultyID, material.FieldCategoryID, material.FieldAuthorID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -140,11 +202,11 @@ func (_m *Material) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case material.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case material.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -165,11 +227,11 @@ func (_m *Material) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case material.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case material.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -190,22 +252,48 @@ func (_m *Material) assignValues(columns []string, values []any) error {
 				_m.Content = value.String
 			}
 		case material.FieldDifficultyID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field difficulty_id", values[i])
-			} else if value.Valid {
-				_m.DifficultyID = int(value.Int64)
-			}
-		case material.FieldAuthorID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field author_id", values[i])
-			} else if value.Valid {
-				_m.AuthorID = int(value.Int64)
+			} else if value != nil {
+				_m.DifficultyID = *value
 			}
 		case material.FieldCategoryID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field category_id", values[i])
+			} else if value != nil {
+				_m.CategoryID = *value
+			}
+		case material.FieldGroupID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_id", values[i])
 			} else if value.Valid {
-				_m.CategoryID = int(value.Int64)
+				_m.GroupID = new(int)
+				*_m.GroupID = int(value.Int64)
+			}
+		case material.FieldEstimatedReadTime:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field estimated_read_time", values[i])
+			} else if value.Valid {
+				_m.EstimatedReadTime = int(value.Int64)
+			}
+		case material.FieldCurrentSlugID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field current_slug_id", values[i])
+			} else if value.Valid {
+				_m.CurrentSlugID = new(uuid.UUID)
+				*_m.CurrentSlugID = *value.S.(*uuid.UUID)
+			}
+		case material.FieldCurrentSlugState:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field current_slug_state", values[i])
+			} else if value.Valid {
+				_m.CurrentSlugState = material.CurrentSlugState(value.String)
+			}
+		case material.FieldAuthorID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field author_id", values[i])
+			} else if value != nil {
+				_m.AuthorID = *value
 			}
 		case material.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -219,24 +307,72 @@ func (_m *Material) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Visibility = material.Visibility(value.String)
 			}
-		case material.FieldGroupID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field group_id", values[i])
+		case material.FieldCurrentDraftRevisionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field current_draft_revision_id", values[i])
 			} else if value.Valid {
-				_m.GroupID = new(int)
-				*_m.GroupID = int(value.Int64)
+				_m.CurrentDraftRevisionID = new(uuid.UUID)
+				*_m.CurrentDraftRevisionID = *value.S.(*uuid.UUID)
+			}
+		case material.FieldPublishedRevisionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field published_revision_id", values[i])
+			} else if value.Valid {
+				_m.PublishedRevisionID = new(uuid.UUID)
+				*_m.PublishedRevisionID = *value.S.(*uuid.UUID)
+			}
+		case material.FieldPublishedRenderSourceID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_source_id", values[i])
+			} else if value.Valid {
+				_m.PublishedRenderSourceID = new(uuid.UUID)
+				*_m.PublishedRenderSourceID = *value.S.(*uuid.UUID)
+			}
+		case material.FieldPublishedRenderArtifactID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_artifact_id", values[i])
+			} else if value.Valid {
+				_m.PublishedRenderArtifactID = new(uuid.UUID)
+				*_m.PublishedRenderArtifactID = *value.S.(*uuid.UUID)
+			}
+		case material.FieldPublishedRenderSourceKind:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_source_kind", values[i])
+			} else if value.Valid {
+				_m.PublishedRenderSourceKind = new(material.PublishedRenderSourceKind)
+				*_m.PublishedRenderSourceKind = material.PublishedRenderSourceKind(value.String)
+			}
+		case material.FieldPublishedSourceChecksum:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field published_source_checksum", values[i])
+			} else if value != nil {
+				_m.PublishedSourceChecksum = value
+			}
+		case material.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field published_at", values[i])
+			} else if value.Valid {
+				_m.PublishedAt = new(time.Time)
+				*_m.PublishedAt = value.Time
+			}
+		case material.FieldArchivedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field archived_at", values[i])
+			} else if value.Valid {
+				_m.ArchivedAt = new(time.Time)
+				*_m.ArchivedAt = value.Time
 			}
 		case material.FieldViewCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field view_count", values[i])
 			} else if value.Valid {
-				_m.ViewCount = int(value.Int64)
+				_m.ViewCount = value.Int64
 			}
-		case material.FieldEstimatedReadTime:
+		case material.FieldVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field estimated_read_time", values[i])
+				return fmt.Errorf("unexpected type %T for field version", values[i])
 			} else if value.Valid {
-				_m.EstimatedReadTime = int(value.Int64)
+				_m.Version = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -251,14 +387,14 @@ func (_m *Material) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryCategory queries the "category" edge of the Material entity.
-func (_m *Material) QueryCategory() *MaterialCategoryQuery {
-	return NewMaterialClient(_m.config).QueryCategory(_m)
-}
-
 // QueryAuthor queries the "author" edge of the Material entity.
 func (_m *Material) QueryAuthor() *UserQuery {
 	return NewMaterialClient(_m.config).QueryAuthor(_m)
+}
+
+// QueryCategory queries the "category" edge of the Material entity.
+func (_m *Material) QueryCategory() *MaterialCategoryQuery {
+	return NewMaterialClient(_m.config).QueryCategory(_m)
 }
 
 // QueryDifficulty queries the "difficulty" edge of the Material entity.
@@ -269,6 +405,21 @@ func (_m *Material) QueryDifficulty() *DifficultyQuery {
 // QueryTags queries the "tags" edge of the Material entity.
 func (_m *Material) QueryTags() *TagQuery {
 	return NewMaterialClient(_m.config).QueryTags(_m)
+}
+
+// QueryRevisions queries the "revisions" edge of the Material entity.
+func (_m *Material) QueryRevisions() *MaterialRevisionQuery {
+	return NewMaterialClient(_m.config).QueryRevisions(_m)
+}
+
+// QuerySlugs queries the "slugs" edge of the Material entity.
+func (_m *Material) QuerySlugs() *MaterialSlugQuery {
+	return NewMaterialClient(_m.config).QuerySlugs(_m)
+}
+
+// QueryDailyViews queries the "daily_views" edge of the Material entity.
+func (_m *Material) QueryDailyViews() *MaterialViewDailyQuery {
+	return NewMaterialClient(_m.config).QueryDailyViews(_m)
 }
 
 // Update returns a builder for updating this Material.
@@ -307,7 +458,7 @@ func (_m *Material) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("title=")
@@ -316,17 +467,32 @@ func (_m *Material) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
-	builder.WriteString("content=")
-	builder.WriteString(_m.Content)
+	builder.WriteString("content=<sensitive>")
 	builder.WriteString(", ")
 	builder.WriteString("difficulty_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DifficultyID))
 	builder.WriteString(", ")
-	builder.WriteString("author_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AuthorID))
-	builder.WriteString(", ")
 	builder.WriteString("category_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CategoryID))
+	builder.WriteString(", ")
+	if v := _m.GroupID; v != nil {
+		builder.WriteString("group_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("estimated_read_time=")
+	builder.WriteString(fmt.Sprintf("%v", _m.EstimatedReadTime))
+	builder.WriteString(", ")
+	if v := _m.CurrentSlugID; v != nil {
+		builder.WriteString("current_slug_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("current_slug_state=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CurrentSlugState))
+	builder.WriteString(", ")
+	builder.WriteString("author_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AuthorID))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
@@ -334,26 +500,53 @@ func (_m *Material) String() string {
 	builder.WriteString("visibility=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Visibility))
 	builder.WriteString(", ")
-	if v := _m.GroupID; v != nil {
-		builder.WriteString("group_id=")
+	if v := _m.CurrentDraftRevisionID; v != nil {
+		builder.WriteString("current_draft_revision_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRevisionID; v != nil {
+		builder.WriteString("published_revision_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderSourceID; v != nil {
+		builder.WriteString("published_render_source_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderArtifactID; v != nil {
+		builder.WriteString("published_render_artifact_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderSourceKind; v != nil {
+		builder.WriteString("published_render_source_kind=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedSourceChecksum; v != nil {
+		builder.WriteString("published_source_checksum=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedAt; v != nil {
+		builder.WriteString("published_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.ArchivedAt; v != nil {
+		builder.WriteString("archived_at=")
+		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("view_count=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ViewCount))
 	builder.WriteString(", ")
-	builder.WriteString("estimated_read_time=")
-	builder.WriteString(fmt.Sprintf("%v", _m.EstimatedReadTime))
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Material) GetID() int {
-	return _m.ID
-}
-
-func (_m *Material) SetID(id int) {
-	_m.ID = id
 }
 
 // Materials is a parsable slice of Material.

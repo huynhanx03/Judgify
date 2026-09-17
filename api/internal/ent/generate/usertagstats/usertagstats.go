@@ -5,6 +5,7 @@ package usertagstats
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -63,6 +64,8 @@ var (
 	DefaultSolvedCount int
 	// SolvedCountValidator is a validator for the "solved_count" field. It is called by the builders before save.
 	SolvedCountValidator func(int) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the UserTagStats queries.

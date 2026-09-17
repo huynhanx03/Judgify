@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -66,13 +68,13 @@ func (_c *FederatedIdentityCreate) SetNillableDeletedAt(v *time.Time) *Federated
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *FederatedIdentityCreate) SetDeletedBy(v int) *FederatedIdentityCreate {
+func (_c *FederatedIdentityCreate) SetDeletedBy(v string) *FederatedIdentityCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *FederatedIdentityCreate) SetNillableDeletedBy(v *int) *FederatedIdentityCreate {
+func (_c *FederatedIdentityCreate) SetNillableDeletedBy(v *string) *FederatedIdentityCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -80,7 +82,7 @@ func (_c *FederatedIdentityCreate) SetNillableDeletedBy(v *int) *FederatedIdenti
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *FederatedIdentityCreate) SetUserID(v int) *FederatedIdentityCreate {
+func (_c *FederatedIdentityCreate) SetUserID(v uuid.UUID) *FederatedIdentityCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
@@ -91,9 +93,65 @@ func (_c *FederatedIdentityCreate) SetProvider(v string) *FederatedIdentityCreat
 	return _c
 }
 
-// SetExternalID sets the "external_id" field.
-func (_c *FederatedIdentityCreate) SetExternalID(v string) *FederatedIdentityCreate {
-	_c.mutation.SetExternalID(v)
+// SetProviderSubject sets the "provider_subject" field.
+func (_c *FederatedIdentityCreate) SetProviderSubject(v string) *FederatedIdentityCreate {
+	_c.mutation.SetProviderSubject(v)
+	return _c
+}
+
+// SetDisplayName sets the "display_name" field.
+func (_c *FederatedIdentityCreate) SetDisplayName(v string) *FederatedIdentityCreate {
+	_c.mutation.SetDisplayName(v)
+	return _c
+}
+
+// SetNillableDisplayName sets the "display_name" field if the given value is not nil.
+func (_c *FederatedIdentityCreate) SetNillableDisplayName(v *string) *FederatedIdentityCreate {
+	if v != nil {
+		_c.SetDisplayName(*v)
+	}
+	return _c
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (_c *FederatedIdentityCreate) SetAvatarURL(v string) *FederatedIdentityCreate {
+	_c.mutation.SetAvatarURL(v)
+	return _c
+}
+
+// SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
+func (_c *FederatedIdentityCreate) SetNillableAvatarURL(v *string) *FederatedIdentityCreate {
+	if v != nil {
+		_c.SetAvatarURL(*v)
+	}
+	return _c
+}
+
+// SetLastAuthenticatedAt sets the "last_authenticated_at" field.
+func (_c *FederatedIdentityCreate) SetLastAuthenticatedAt(v time.Time) *FederatedIdentityCreate {
+	_c.mutation.SetLastAuthenticatedAt(v)
+	return _c
+}
+
+// SetNillableLastAuthenticatedAt sets the "last_authenticated_at" field if the given value is not nil.
+func (_c *FederatedIdentityCreate) SetNillableLastAuthenticatedAt(v *time.Time) *FederatedIdentityCreate {
+	if v != nil {
+		_c.SetLastAuthenticatedAt(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *FederatedIdentityCreate) SetID(v uuid.UUID) *FederatedIdentityCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *FederatedIdentityCreate) SetNillableID(v *uuid.UUID) *FederatedIdentityCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
 	return _c
 }
 
@@ -153,6 +211,13 @@ func (_c *FederatedIdentityCreate) defaults() error {
 		v := federatedidentity.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if federatedidentity.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized federatedidentity.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := federatedidentity.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -175,12 +240,22 @@ func (_c *FederatedIdentityCreate) check() error {
 			return &ValidationError{Name: "provider", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.provider": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.ExternalID(); !ok {
-		return &ValidationError{Name: "external_id", err: errors.New(`generate: missing required field "FederatedIdentity.external_id"`)}
+	if _, ok := _c.mutation.ProviderSubject(); !ok {
+		return &ValidationError{Name: "provider_subject", err: errors.New(`generate: missing required field "FederatedIdentity.provider_subject"`)}
 	}
-	if v, ok := _c.mutation.ExternalID(); ok {
-		if err := federatedidentity.ExternalIDValidator(v); err != nil {
-			return &ValidationError{Name: "external_id", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.external_id": %w`, err)}
+	if v, ok := _c.mutation.ProviderSubject(); ok {
+		if err := federatedidentity.ProviderSubjectValidator(v); err != nil {
+			return &ValidationError{Name: "provider_subject", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.provider_subject": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.DisplayName(); ok {
+		if err := federatedidentity.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.display_name": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.AvatarURL(); ok {
+		if err := federatedidentity.AvatarURLValidator(v); err != nil {
+			return &ValidationError{Name: "avatar_url", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.avatar_url": %w`, err)}
 		}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
@@ -200,8 +275,13 @@ func (_c *FederatedIdentityCreate) sqlSave(ctx context.Context) (*FederatedIdent
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -210,9 +290,13 @@ func (_c *FederatedIdentityCreate) sqlSave(ctx context.Context) (*FederatedIdent
 func (_c *FederatedIdentityCreate) createSpec() (*FederatedIdentity, *sqlgraph.CreateSpec) {
 	var (
 		_node = &FederatedIdentity{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(federatedidentity.Table, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(federatedidentity.Table, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(federatedidentity.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -226,16 +310,28 @@ func (_c *FederatedIdentityCreate) createSpec() (*FederatedIdentity, *sqlgraph.C
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(federatedidentity.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(federatedidentity.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Provider(); ok {
 		_spec.SetField(federatedidentity.FieldProvider, field.TypeString, value)
 		_node.Provider = value
 	}
-	if value, ok := _c.mutation.ExternalID(); ok {
-		_spec.SetField(federatedidentity.FieldExternalID, field.TypeString, value)
-		_node.ExternalID = value
+	if value, ok := _c.mutation.ProviderSubject(); ok {
+		_spec.SetField(federatedidentity.FieldProviderSubject, field.TypeString, value)
+		_node.ProviderSubject = value
+	}
+	if value, ok := _c.mutation.DisplayName(); ok {
+		_spec.SetField(federatedidentity.FieldDisplayName, field.TypeString, value)
+		_node.DisplayName = &value
+	}
+	if value, ok := _c.mutation.AvatarURL(); ok {
+		_spec.SetField(federatedidentity.FieldAvatarURL, field.TypeString, value)
+		_node.AvatarURL = &value
+	}
+	if value, ok := _c.mutation.LastAuthenticatedAt(); ok {
+		_spec.SetField(federatedidentity.FieldLastAuthenticatedAt, field.TypeTime, value)
+		_node.LastAuthenticatedAt = &value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -245,7 +341,7 @@ func (_c *FederatedIdentityCreate) createSpec() (*FederatedIdentity, *sqlgraph.C
 			Columns: []string{federatedidentity.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -337,7 +433,7 @@ func (u *FederatedIdentityUpsert) ClearDeletedAt() *FederatedIdentityUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *FederatedIdentityUpsert) SetDeletedBy(v int) *FederatedIdentityUpsert {
+func (u *FederatedIdentityUpsert) SetDeletedBy(v string) *FederatedIdentityUpsert {
 	u.Set(federatedidentity.FieldDeletedBy, v)
 	return u
 }
@@ -348,12 +444,6 @@ func (u *FederatedIdentityUpsert) UpdateDeletedBy() *FederatedIdentityUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *FederatedIdentityUpsert) AddDeletedBy(v int) *FederatedIdentityUpsert {
-	u.Add(federatedidentity.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *FederatedIdentityUpsert) ClearDeletedBy() *FederatedIdentityUpsert {
 	u.SetNull(federatedidentity.FieldDeletedBy)
@@ -361,7 +451,7 @@ func (u *FederatedIdentityUpsert) ClearDeletedBy() *FederatedIdentityUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *FederatedIdentityUpsert) SetUserID(v int) *FederatedIdentityUpsert {
+func (u *FederatedIdentityUpsert) SetUserID(v uuid.UUID) *FederatedIdentityUpsert {
 	u.Set(federatedidentity.FieldUserID, v)
 	return u
 }
@@ -384,29 +474,89 @@ func (u *FederatedIdentityUpsert) UpdateProvider() *FederatedIdentityUpsert {
 	return u
 }
 
-// SetExternalID sets the "external_id" field.
-func (u *FederatedIdentityUpsert) SetExternalID(v string) *FederatedIdentityUpsert {
-	u.Set(federatedidentity.FieldExternalID, v)
+// SetProviderSubject sets the "provider_subject" field.
+func (u *FederatedIdentityUpsert) SetProviderSubject(v string) *FederatedIdentityUpsert {
+	u.Set(federatedidentity.FieldProviderSubject, v)
 	return u
 }
 
-// UpdateExternalID sets the "external_id" field to the value that was provided on create.
-func (u *FederatedIdentityUpsert) UpdateExternalID() *FederatedIdentityUpsert {
-	u.SetExcluded(federatedidentity.FieldExternalID)
+// UpdateProviderSubject sets the "provider_subject" field to the value that was provided on create.
+func (u *FederatedIdentityUpsert) UpdateProviderSubject() *FederatedIdentityUpsert {
+	u.SetExcluded(federatedidentity.FieldProviderSubject)
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetDisplayName sets the "display_name" field.
+func (u *FederatedIdentityUpsert) SetDisplayName(v string) *FederatedIdentityUpsert {
+	u.Set(federatedidentity.FieldDisplayName, v)
+	return u
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *FederatedIdentityUpsert) UpdateDisplayName() *FederatedIdentityUpsert {
+	u.SetExcluded(federatedidentity.FieldDisplayName)
+	return u
+}
+
+// ClearDisplayName clears the value of the "display_name" field.
+func (u *FederatedIdentityUpsert) ClearDisplayName() *FederatedIdentityUpsert {
+	u.SetNull(federatedidentity.FieldDisplayName)
+	return u
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (u *FederatedIdentityUpsert) SetAvatarURL(v string) *FederatedIdentityUpsert {
+	u.Set(federatedidentity.FieldAvatarURL, v)
+	return u
+}
+
+// UpdateAvatarURL sets the "avatar_url" field to the value that was provided on create.
+func (u *FederatedIdentityUpsert) UpdateAvatarURL() *FederatedIdentityUpsert {
+	u.SetExcluded(federatedidentity.FieldAvatarURL)
+	return u
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (u *FederatedIdentityUpsert) ClearAvatarURL() *FederatedIdentityUpsert {
+	u.SetNull(federatedidentity.FieldAvatarURL)
+	return u
+}
+
+// SetLastAuthenticatedAt sets the "last_authenticated_at" field.
+func (u *FederatedIdentityUpsert) SetLastAuthenticatedAt(v time.Time) *FederatedIdentityUpsert {
+	u.Set(federatedidentity.FieldLastAuthenticatedAt, v)
+	return u
+}
+
+// UpdateLastAuthenticatedAt sets the "last_authenticated_at" field to the value that was provided on create.
+func (u *FederatedIdentityUpsert) UpdateLastAuthenticatedAt() *FederatedIdentityUpsert {
+	u.SetExcluded(federatedidentity.FieldLastAuthenticatedAt)
+	return u
+}
+
+// ClearLastAuthenticatedAt clears the value of the "last_authenticated_at" field.
+func (u *FederatedIdentityUpsert) ClearLastAuthenticatedAt() *FederatedIdentityUpsert {
+	u.SetNull(federatedidentity.FieldLastAuthenticatedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.FederatedIdentity.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(federatedidentity.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *FederatedIdentityUpsertOne) UpdateNewValues() *FederatedIdentityUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(federatedidentity.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(federatedidentity.FieldCreatedAt)
 		}
@@ -477,16 +627,9 @@ func (u *FederatedIdentityUpsertOne) ClearDeletedAt() *FederatedIdentityUpsertOn
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *FederatedIdentityUpsertOne) SetDeletedBy(v int) *FederatedIdentityUpsertOne {
+func (u *FederatedIdentityUpsertOne) SetDeletedBy(v string) *FederatedIdentityUpsertOne {
 	return u.Update(func(s *FederatedIdentityUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *FederatedIdentityUpsertOne) AddDeletedBy(v int) *FederatedIdentityUpsertOne {
-	return u.Update(func(s *FederatedIdentityUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -505,7 +648,7 @@ func (u *FederatedIdentityUpsertOne) ClearDeletedBy() *FederatedIdentityUpsertOn
 }
 
 // SetUserID sets the "user_id" field.
-func (u *FederatedIdentityUpsertOne) SetUserID(v int) *FederatedIdentityUpsertOne {
+func (u *FederatedIdentityUpsertOne) SetUserID(v uuid.UUID) *FederatedIdentityUpsertOne {
 	return u.Update(func(s *FederatedIdentityUpsert) {
 		s.SetUserID(v)
 	})
@@ -532,17 +675,80 @@ func (u *FederatedIdentityUpsertOne) UpdateProvider() *FederatedIdentityUpsertOn
 	})
 }
 
-// SetExternalID sets the "external_id" field.
-func (u *FederatedIdentityUpsertOne) SetExternalID(v string) *FederatedIdentityUpsertOne {
+// SetProviderSubject sets the "provider_subject" field.
+func (u *FederatedIdentityUpsertOne) SetProviderSubject(v string) *FederatedIdentityUpsertOne {
 	return u.Update(func(s *FederatedIdentityUpsert) {
-		s.SetExternalID(v)
+		s.SetProviderSubject(v)
 	})
 }
 
-// UpdateExternalID sets the "external_id" field to the value that was provided on create.
-func (u *FederatedIdentityUpsertOne) UpdateExternalID() *FederatedIdentityUpsertOne {
+// UpdateProviderSubject sets the "provider_subject" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertOne) UpdateProviderSubject() *FederatedIdentityUpsertOne {
 	return u.Update(func(s *FederatedIdentityUpsert) {
-		s.UpdateExternalID()
+		s.UpdateProviderSubject()
+	})
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *FederatedIdentityUpsertOne) SetDisplayName(v string) *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.SetDisplayName(v)
+	})
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertOne) UpdateDisplayName() *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.UpdateDisplayName()
+	})
+}
+
+// ClearDisplayName clears the value of the "display_name" field.
+func (u *FederatedIdentityUpsertOne) ClearDisplayName() *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.ClearDisplayName()
+	})
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (u *FederatedIdentityUpsertOne) SetAvatarURL(v string) *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.SetAvatarURL(v)
+	})
+}
+
+// UpdateAvatarURL sets the "avatar_url" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertOne) UpdateAvatarURL() *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.UpdateAvatarURL()
+	})
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (u *FederatedIdentityUpsertOne) ClearAvatarURL() *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.ClearAvatarURL()
+	})
+}
+
+// SetLastAuthenticatedAt sets the "last_authenticated_at" field.
+func (u *FederatedIdentityUpsertOne) SetLastAuthenticatedAt(v time.Time) *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.SetLastAuthenticatedAt(v)
+	})
+}
+
+// UpdateLastAuthenticatedAt sets the "last_authenticated_at" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertOne) UpdateLastAuthenticatedAt() *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.UpdateLastAuthenticatedAt()
+	})
+}
+
+// ClearLastAuthenticatedAt clears the value of the "last_authenticated_at" field.
+func (u *FederatedIdentityUpsertOne) ClearLastAuthenticatedAt() *FederatedIdentityUpsertOne {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.ClearLastAuthenticatedAt()
 	})
 }
 
@@ -562,7 +768,12 @@ func (u *FederatedIdentityUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *FederatedIdentityUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *FederatedIdentityUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: FederatedIdentityUpsertOne.ID is not supported by MySQL driver. Use FederatedIdentityUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -571,17 +782,12 @@ func (u *FederatedIdentityUpsertOne) ID(ctx context.Context) (id int, err error)
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *FederatedIdentityUpsertOne) IDX(ctx context.Context) int {
+func (u *FederatedIdentityUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *FederatedIdentityCreate) SetID(id int) *FederatedIdentityCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // FederatedIdentityCreateBulk is the builder for creating many FederatedIdentity entities in bulk.
@@ -631,10 +837,6 @@ func (_c *FederatedIdentityCreateBulk) Save(ctx context.Context) ([]*FederatedId
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -721,12 +923,18 @@ type FederatedIdentityUpsertBulk struct {
 //	client.FederatedIdentity.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(federatedidentity.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *FederatedIdentityUpsertBulk) UpdateNewValues() *FederatedIdentityUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(federatedidentity.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(federatedidentity.FieldCreatedAt)
 			}
@@ -798,16 +1006,9 @@ func (u *FederatedIdentityUpsertBulk) ClearDeletedAt() *FederatedIdentityUpsertB
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *FederatedIdentityUpsertBulk) SetDeletedBy(v int) *FederatedIdentityUpsertBulk {
+func (u *FederatedIdentityUpsertBulk) SetDeletedBy(v string) *FederatedIdentityUpsertBulk {
 	return u.Update(func(s *FederatedIdentityUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *FederatedIdentityUpsertBulk) AddDeletedBy(v int) *FederatedIdentityUpsertBulk {
-	return u.Update(func(s *FederatedIdentityUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -826,7 +1027,7 @@ func (u *FederatedIdentityUpsertBulk) ClearDeletedBy() *FederatedIdentityUpsertB
 }
 
 // SetUserID sets the "user_id" field.
-func (u *FederatedIdentityUpsertBulk) SetUserID(v int) *FederatedIdentityUpsertBulk {
+func (u *FederatedIdentityUpsertBulk) SetUserID(v uuid.UUID) *FederatedIdentityUpsertBulk {
 	return u.Update(func(s *FederatedIdentityUpsert) {
 		s.SetUserID(v)
 	})
@@ -853,17 +1054,80 @@ func (u *FederatedIdentityUpsertBulk) UpdateProvider() *FederatedIdentityUpsertB
 	})
 }
 
-// SetExternalID sets the "external_id" field.
-func (u *FederatedIdentityUpsertBulk) SetExternalID(v string) *FederatedIdentityUpsertBulk {
+// SetProviderSubject sets the "provider_subject" field.
+func (u *FederatedIdentityUpsertBulk) SetProviderSubject(v string) *FederatedIdentityUpsertBulk {
 	return u.Update(func(s *FederatedIdentityUpsert) {
-		s.SetExternalID(v)
+		s.SetProviderSubject(v)
 	})
 }
 
-// UpdateExternalID sets the "external_id" field to the value that was provided on create.
-func (u *FederatedIdentityUpsertBulk) UpdateExternalID() *FederatedIdentityUpsertBulk {
+// UpdateProviderSubject sets the "provider_subject" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertBulk) UpdateProviderSubject() *FederatedIdentityUpsertBulk {
 	return u.Update(func(s *FederatedIdentityUpsert) {
-		s.UpdateExternalID()
+		s.UpdateProviderSubject()
+	})
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *FederatedIdentityUpsertBulk) SetDisplayName(v string) *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.SetDisplayName(v)
+	})
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertBulk) UpdateDisplayName() *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.UpdateDisplayName()
+	})
+}
+
+// ClearDisplayName clears the value of the "display_name" field.
+func (u *FederatedIdentityUpsertBulk) ClearDisplayName() *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.ClearDisplayName()
+	})
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (u *FederatedIdentityUpsertBulk) SetAvatarURL(v string) *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.SetAvatarURL(v)
+	})
+}
+
+// UpdateAvatarURL sets the "avatar_url" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertBulk) UpdateAvatarURL() *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.UpdateAvatarURL()
+	})
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (u *FederatedIdentityUpsertBulk) ClearAvatarURL() *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.ClearAvatarURL()
+	})
+}
+
+// SetLastAuthenticatedAt sets the "last_authenticated_at" field.
+func (u *FederatedIdentityUpsertBulk) SetLastAuthenticatedAt(v time.Time) *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.SetLastAuthenticatedAt(v)
+	})
+}
+
+// UpdateLastAuthenticatedAt sets the "last_authenticated_at" field to the value that was provided on create.
+func (u *FederatedIdentityUpsertBulk) UpdateLastAuthenticatedAt() *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.UpdateLastAuthenticatedAt()
+	})
+}
+
+// ClearLastAuthenticatedAt clears the value of the "last_authenticated_at" field.
+func (u *FederatedIdentityUpsertBulk) ClearLastAuthenticatedAt() *FederatedIdentityUpsertBulk {
+	return u.Update(func(s *FederatedIdentityUpsert) {
+		s.ClearLastAuthenticatedAt()
 	})
 }
 

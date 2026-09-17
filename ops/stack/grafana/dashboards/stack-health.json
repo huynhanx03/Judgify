@@ -1,0 +1,22 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [{"expr": "up", "refId": "A"}],
+      "title": "Standalone stack scrape health",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["judgify", "ops", "standalone"],
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "Judgify Ops / Stack Health",
+  "uid": "judgify-ops-stack-health",
+  "version": 1
+}
+

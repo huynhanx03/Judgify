@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -25,16 +26,10 @@ const (
 	FieldDeletedBy = "deleted_by"
 	// FieldProblemID holds the string denoting the problem_id field in the database.
 	FieldProblemID = "problem_id"
-	// FieldInput holds the string denoting the input field in the database.
-	FieldInput = "input"
-	// FieldExpectedOutput holds the string denoting the expected_output field in the database.
-	FieldExpectedOutput = "expected_output"
-	// FieldIsHidden holds the string denoting the is_hidden field in the database.
-	FieldIsHidden = "is_hidden"
-	// FieldOrderIndex holds the string denoting the order_index field in the database.
-	FieldOrderIndex = "order_index"
 	// EdgeProblem holds the string denoting the problem edge name in mutations.
 	EdgeProblem = "problem"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
 	// Table holds the table name of the testcase in the database.
 	Table = "test_cases"
 	// ProblemTable is the table that holds the problem relation/edge.
@@ -44,6 +39,13 @@ const (
 	ProblemInverseTable = "problems"
 	// ProblemColumn is the table column denoting the problem relation/edge.
 	ProblemColumn = "problem_id"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "testcase_revisions"
+	// RevisionsInverseTable is the table name for the TestcaseRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "testcaserevision" package.
+	RevisionsInverseTable = "testcase_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "test_case_id"
 )
 
 // Columns holds all SQL columns for testcase fields.
@@ -54,10 +56,6 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldDeletedBy,
 	FieldProblemID,
-	FieldInput,
-	FieldExpectedOutput,
-	FieldIsHidden,
-	FieldOrderIndex,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -84,12 +82,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// InputValidator is a validator for the "input" field. It is called by the builders before save.
-	InputValidator func(string) error
-	// ExpectedOutputValidator is a validator for the "expected_output" field. It is called by the builders before save.
-	ExpectedOutputValidator func(string) error
-	// DefaultIsHidden holds the default value on creation for the "is_hidden" field.
-	DefaultIsHidden bool
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the TestCase queries.
@@ -125,30 +119,24 @@ func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
 }
 
-// ByInput orders the results by the input field.
-func ByInput(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldInput, opts...).ToFunc()
-}
-
-// ByExpectedOutput orders the results by the expected_output field.
-func ByExpectedOutput(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExpectedOutput, opts...).ToFunc()
-}
-
-// ByIsHidden orders the results by the is_hidden field.
-func ByIsHidden(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsHidden, opts...).ToFunc()
-}
-
-// ByOrderIndex orders the results by the order_index field.
-func ByOrderIndex(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrderIndex, opts...).ToFunc()
-}
-
 // ByProblemField orders the results by problem field.
 func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newProblemStep() *sqlgraph.Step {
@@ -156,5 +144,12 @@ func newProblemStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTable, ProblemColumn),
+	)
+}
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
 	)
 }

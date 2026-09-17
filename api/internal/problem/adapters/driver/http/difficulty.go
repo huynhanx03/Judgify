@@ -3,21 +3,20 @@ package http
 import (
 	"context"
 
-	"github.com/huynhanx03/judgify/pkg/common/http/handler"
-	d "github.com/huynhanx03/judgify/pkg/dto"
+	"github.com/huynhanx03/go-common/pkg/common/http/handler"
+	d "github.com/huynhanx03/go-common/pkg/dto"
 
-	"github.com/huynhanx03/judgify/internal/problem/core/dto"
-	"github.com/huynhanx03/judgify/internal/problem/ports"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 // DifficultyHandler defines the difficulty HTTP handler interface.
 type DifficultyHandler interface {
-	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.DifficultyResponse], error)
-	FindAll(ctx context.Context, req *dto.FindAllDifficultiesRequest) ([]*dto.DifficultyResponse, error)
-	Get(ctx context.Context, req *dto.GetDifficultyRequest) (*dto.DifficultyResponse, error)
-	Create(ctx context.Context, req *dto.CreateDifficultyRequest) (*dto.DifficultyResponse, error)
-	Update(ctx context.Context, req *dto.UpdateDifficultyRequest) (*dto.DifficultyResponse, error)
-	Delete(ctx context.Context, req *dto.DeleteDifficultyRequest) (*dto.DifficultyResponse, error)
+	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*DifficultyResponse], error)
+	FindAll(ctx context.Context) ([]*DifficultyResponse, error)
+	Get(ctx context.Context, req *difficultyIDRequest) (*DifficultyResponse, error)
+	Create(ctx context.Context, req *CreateDifficultyRequest) (*DifficultyResponse, error)
+	Update(ctx context.Context, req *UpdateDifficultyRequest) (*DifficultyResponse, error)
+	Delete(ctx context.Context, req *difficultyIDRequest) (*DifficultyResponse, error)
 }
 
 type difficultyHandler struct {
@@ -30,26 +29,60 @@ func NewDifficultyHandler(difficultyService ports.DifficultyService) DifficultyH
 	return &difficultyHandler{difficultyService: difficultyService}
 }
 
-func (h *difficultyHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.DifficultyResponse], error) {
-	return h.difficultyService.Find(ctx, req)
+func (h *difficultyHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*DifficultyResponse], error) {
+	results, err := h.difficultyService.Find(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*DifficultyResponse, 0)
+	if results.Records != nil {
+		for _, result := range *results.Records {
+			responses = append(responses, toDifficultyResponse(result))
+		}
+	}
+	return &d.Paginated[*DifficultyResponse]{Records: &responses, Pagination: results.Pagination}, nil
 }
 
-func (h *difficultyHandler) FindAll(ctx context.Context, _ *dto.FindAllDifficultiesRequest) ([]*dto.DifficultyResponse, error) {
-	return h.difficultyService.FindAll(ctx)
+func (h *difficultyHandler) FindAll(ctx context.Context) ([]*DifficultyResponse, error) {
+	results, err := h.difficultyService.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*DifficultyResponse, len(results))
+	for i, result := range results {
+		responses[i] = toDifficultyResponse(result)
+	}
+	return responses, nil
 }
 
-func (h *difficultyHandler) Get(ctx context.Context, req *dto.GetDifficultyRequest) (*dto.DifficultyResponse, error) {
-	return h.difficultyService.Get(ctx, req.ID)
+func (h *difficultyHandler) Get(ctx context.Context, req *difficultyIDRequest) (*DifficultyResponse, error) {
+	id, err := toDifficultyID(req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := h.difficultyService.Get(ctx, id)
+	return toDifficultyResponse(result), err
 }
 
-func (h *difficultyHandler) Create(ctx context.Context, req *dto.CreateDifficultyRequest) (*dto.DifficultyResponse, error) {
-	return h.difficultyService.Create(ctx, req)
+func (h *difficultyHandler) Create(ctx context.Context, req *CreateDifficultyRequest) (*DifficultyResponse, error) {
+	command := toCreateDifficultyCommand(req)
+	result, err := h.difficultyService.Create(ctx, &command)
+	return toDifficultyResponse(result), err
 }
 
-func (h *difficultyHandler) Update(ctx context.Context, req *dto.UpdateDifficultyRequest) (*dto.DifficultyResponse, error) {
-	return h.difficultyService.Update(ctx, req.ID, req)
+func (h *difficultyHandler) Update(ctx context.Context, req *UpdateDifficultyRequest) (*DifficultyResponse, error) {
+	id, command, err := toUpdateDifficultyCommand(req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := h.difficultyService.Update(ctx, id, &command)
+	return toDifficultyResponse(result), err
 }
 
-func (h *difficultyHandler) Delete(ctx context.Context, req *dto.DeleteDifficultyRequest) (*dto.DifficultyResponse, error) {
-	return nil, h.difficultyService.Delete(ctx, req.ID)
+func (h *difficultyHandler) Delete(ctx context.Context, req *difficultyIDRequest) (*DifficultyResponse, error) {
+	id, err := toDifficultyID(req)
+	if err != nil {
+		return nil, err
+	}
+	return nil, h.difficultyService.Delete(ctx, id)
 }

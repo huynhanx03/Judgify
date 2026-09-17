@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Problem {
+func ID(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Problem {
+func IDEQ(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Problem {
+func IDNEQ(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Problem {
+func IDIn(ids ...uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Problem {
+func IDNotIn(ids ...uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Problem {
+func IDGT(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Problem {
+func IDGTE(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Problem {
+func IDLT(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Problem {
+func IDLTE(id uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,8 +72,78 @@ func DeletedAt(v time.Time) predicate.Problem {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Problem {
+func DeletedBy(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldDeletedBy, v))
+}
+
+// Slug applies equality check predicate on the "slug" field. It's identical to SlugEQ.
+func Slug(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldSlug, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldVersion, v))
+}
+
+// TagMappingID applies equality check predicate on the "tag_mapping_id" field. It's identical to TagMappingIDEQ.
+func TagMappingID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldTagMappingID, v))
+}
+
+// ElementMappingID applies equality check predicate on the "element_mapping_id" field. It's identical to ElementMappingIDEQ.
+func ElementMappingID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldElementMappingID, v))
+}
+
+// DraftRevisionID applies equality check predicate on the "draft_revision_id" field. It's identical to DraftRevisionIDEQ.
+func DraftRevisionID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRevisionID, v))
+}
+
+// DraftRenderSourceID applies equality check predicate on the "draft_render_source_id" field. It's identical to DraftRenderSourceIDEQ.
+func DraftRenderSourceID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceChecksum applies equality check predicate on the "draft_render_source_checksum" field. It's identical to DraftRenderSourceChecksumEQ.
+func DraftRenderSourceChecksum(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderArtifactID applies equality check predicate on the "draft_render_artifact_id" field. It's identical to DraftRenderArtifactIDEQ.
+func DraftRenderArtifactID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderArtifactID, v))
+}
+
+// PublishedRevisionID applies equality check predicate on the "published_revision_id" field. It's identical to PublishedRevisionIDEQ.
+func PublishedRevisionID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRevisionID, v))
+}
+
+// PublishedRenderSourceID applies equality check predicate on the "published_render_source_id" field. It's identical to PublishedRenderSourceIDEQ.
+func PublishedRenderSourceID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceChecksum applies equality check predicate on the "published_render_source_checksum" field. It's identical to PublishedRenderSourceChecksumEQ.
+func PublishedRenderSourceChecksum(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderArtifactID applies equality check predicate on the "published_render_artifact_id" field. It's identical to PublishedRenderArtifactIDEQ.
+func PublishedRenderArtifactID(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedAt applies equality check predicate on the "published_at" field. It's identical to PublishedAtEQ.
+func PublishedAt(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedAt, v))
+}
+
+// ArchivedAt applies equality check predicate on the "archived_at" field. It's identical to ArchivedAtEQ.
+func ArchivedAt(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldArchivedAt, v))
 }
 
 // Title applies equality check predicate on the "title" field. It's identical to TitleEQ.
@@ -86,7 +157,7 @@ func Description(v string) predicate.Problem {
 }
 
 // DifficultyID applies equality check predicate on the "difficulty_id" field. It's identical to DifficultyIDEQ.
-func DifficultyID(v int) predicate.Problem {
+func DifficultyID(v uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldDifficultyID, v))
 }
 
@@ -101,7 +172,7 @@ func MemoryLimitKB(v int) predicate.Problem {
 }
 
 // AuthorID applies equality check predicate on the "author_id" field. It's identical to AuthorIDEQ.
-func AuthorID(v int) predicate.Problem {
+func AuthorID(v uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldAuthorID, v))
 }
 
@@ -251,43 +322,58 @@ func DeletedAtNotNil() predicate.Problem {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Problem {
+func DeletedByEQ(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Problem {
+func DeletedByNEQ(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Problem {
+func DeletedByIn(vs ...string) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Problem {
+func DeletedByNotIn(vs ...string) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Problem {
+func DeletedByGT(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Problem {
+func DeletedByGTE(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Problem {
+func DeletedByLT(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Problem {
+func DeletedByLTE(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -298,6 +384,781 @@ func DeletedByIsNil() predicate.Problem {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Problem {
 	return predicate.Problem(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
+// SlugEQ applies the EQ predicate on the "slug" field.
+func SlugEQ(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldSlug, v))
+}
+
+// SlugNEQ applies the NEQ predicate on the "slug" field.
+func SlugNEQ(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldSlug, v))
+}
+
+// SlugIn applies the In predicate on the "slug" field.
+func SlugIn(vs ...string) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldSlug, vs...))
+}
+
+// SlugNotIn applies the NotIn predicate on the "slug" field.
+func SlugNotIn(vs ...string) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldSlug, vs...))
+}
+
+// SlugGT applies the GT predicate on the "slug" field.
+func SlugGT(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldSlug, v))
+}
+
+// SlugGTE applies the GTE predicate on the "slug" field.
+func SlugGTE(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldSlug, v))
+}
+
+// SlugLT applies the LT predicate on the "slug" field.
+func SlugLT(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldSlug, v))
+}
+
+// SlugLTE applies the LTE predicate on the "slug" field.
+func SlugLTE(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldSlug, v))
+}
+
+// SlugContains applies the Contains predicate on the "slug" field.
+func SlugContains(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContains(FieldSlug, v))
+}
+
+// SlugHasPrefix applies the HasPrefix predicate on the "slug" field.
+func SlugHasPrefix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasPrefix(FieldSlug, v))
+}
+
+// SlugHasSuffix applies the HasSuffix predicate on the "slug" field.
+func SlugHasSuffix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasSuffix(FieldSlug, v))
+}
+
+// SlugEqualFold applies the EqualFold predicate on the "slug" field.
+func SlugEqualFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEqualFold(FieldSlug, v))
+}
+
+// SlugContainsFold applies the ContainsFold predicate on the "slug" field.
+func SlugContainsFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContainsFold(FieldSlug, v))
+}
+
+// LifecycleEQ applies the EQ predicate on the "lifecycle" field.
+func LifecycleEQ(v Lifecycle) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldLifecycle, v))
+}
+
+// LifecycleNEQ applies the NEQ predicate on the "lifecycle" field.
+func LifecycleNEQ(v Lifecycle) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldLifecycle, v))
+}
+
+// LifecycleIn applies the In predicate on the "lifecycle" field.
+func LifecycleIn(vs ...Lifecycle) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldLifecycle, vs...))
+}
+
+// LifecycleNotIn applies the NotIn predicate on the "lifecycle" field.
+func LifecycleNotIn(vs ...Lifecycle) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldLifecycle, vs...))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldVersion, v))
+}
+
+// TagMappingIDEQ applies the EQ predicate on the "tag_mapping_id" field.
+func TagMappingIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldTagMappingID, v))
+}
+
+// TagMappingIDNEQ applies the NEQ predicate on the "tag_mapping_id" field.
+func TagMappingIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldTagMappingID, v))
+}
+
+// TagMappingIDIn applies the In predicate on the "tag_mapping_id" field.
+func TagMappingIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldTagMappingID, vs...))
+}
+
+// TagMappingIDNotIn applies the NotIn predicate on the "tag_mapping_id" field.
+func TagMappingIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldTagMappingID, vs...))
+}
+
+// TagMappingIDGT applies the GT predicate on the "tag_mapping_id" field.
+func TagMappingIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldTagMappingID, v))
+}
+
+// TagMappingIDGTE applies the GTE predicate on the "tag_mapping_id" field.
+func TagMappingIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldTagMappingID, v))
+}
+
+// TagMappingIDLT applies the LT predicate on the "tag_mapping_id" field.
+func TagMappingIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldTagMappingID, v))
+}
+
+// TagMappingIDLTE applies the LTE predicate on the "tag_mapping_id" field.
+func TagMappingIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldTagMappingID, v))
+}
+
+// ElementMappingIDEQ applies the EQ predicate on the "element_mapping_id" field.
+func ElementMappingIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldElementMappingID, v))
+}
+
+// ElementMappingIDNEQ applies the NEQ predicate on the "element_mapping_id" field.
+func ElementMappingIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldElementMappingID, v))
+}
+
+// ElementMappingIDIn applies the In predicate on the "element_mapping_id" field.
+func ElementMappingIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldElementMappingID, vs...))
+}
+
+// ElementMappingIDNotIn applies the NotIn predicate on the "element_mapping_id" field.
+func ElementMappingIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldElementMappingID, vs...))
+}
+
+// ElementMappingIDGT applies the GT predicate on the "element_mapping_id" field.
+func ElementMappingIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldElementMappingID, v))
+}
+
+// ElementMappingIDGTE applies the GTE predicate on the "element_mapping_id" field.
+func ElementMappingIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldElementMappingID, v))
+}
+
+// ElementMappingIDLT applies the LT predicate on the "element_mapping_id" field.
+func ElementMappingIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldElementMappingID, v))
+}
+
+// ElementMappingIDLTE applies the LTE predicate on the "element_mapping_id" field.
+func ElementMappingIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldElementMappingID, v))
+}
+
+// DraftRevisionIDEQ applies the EQ predicate on the "draft_revision_id" field.
+func DraftRevisionIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRevisionID, v))
+}
+
+// DraftRevisionIDNEQ applies the NEQ predicate on the "draft_revision_id" field.
+func DraftRevisionIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDraftRevisionID, v))
+}
+
+// DraftRevisionIDIn applies the In predicate on the "draft_revision_id" field.
+func DraftRevisionIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDraftRevisionID, vs...))
+}
+
+// DraftRevisionIDNotIn applies the NotIn predicate on the "draft_revision_id" field.
+func DraftRevisionIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDraftRevisionID, vs...))
+}
+
+// DraftRevisionIDGT applies the GT predicate on the "draft_revision_id" field.
+func DraftRevisionIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldDraftRevisionID, v))
+}
+
+// DraftRevisionIDGTE applies the GTE predicate on the "draft_revision_id" field.
+func DraftRevisionIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldDraftRevisionID, v))
+}
+
+// DraftRevisionIDLT applies the LT predicate on the "draft_revision_id" field.
+func DraftRevisionIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldDraftRevisionID, v))
+}
+
+// DraftRevisionIDLTE applies the LTE predicate on the "draft_revision_id" field.
+func DraftRevisionIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldDraftRevisionID, v))
+}
+
+// DraftRevisionIDIsNil applies the IsNil predicate on the "draft_revision_id" field.
+func DraftRevisionIDIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldDraftRevisionID))
+}
+
+// DraftRevisionIDNotNil applies the NotNil predicate on the "draft_revision_id" field.
+func DraftRevisionIDNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldDraftRevisionID))
+}
+
+// DraftRenderSourceIDEQ applies the EQ predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceIDNEQ applies the NEQ predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceIDIn applies the In predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDraftRenderSourceID, vs...))
+}
+
+// DraftRenderSourceIDNotIn applies the NotIn predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDraftRenderSourceID, vs...))
+}
+
+// DraftRenderSourceIDGT applies the GT predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceIDGTE applies the GTE predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceIDLT applies the LT predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceIDLTE applies the LTE predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldDraftRenderSourceID, v))
+}
+
+// DraftRenderSourceIDIsNil applies the IsNil predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldDraftRenderSourceID))
+}
+
+// DraftRenderSourceIDNotNil applies the NotNil predicate on the "draft_render_source_id" field.
+func DraftRenderSourceIDNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldDraftRenderSourceID))
+}
+
+// DraftRenderSourceKindEQ applies the EQ predicate on the "draft_render_source_kind" field.
+func DraftRenderSourceKindEQ(v DraftRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderSourceKind, v))
+}
+
+// DraftRenderSourceKindNEQ applies the NEQ predicate on the "draft_render_source_kind" field.
+func DraftRenderSourceKindNEQ(v DraftRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDraftRenderSourceKind, v))
+}
+
+// DraftRenderSourceKindIn applies the In predicate on the "draft_render_source_kind" field.
+func DraftRenderSourceKindIn(vs ...DraftRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDraftRenderSourceKind, vs...))
+}
+
+// DraftRenderSourceKindNotIn applies the NotIn predicate on the "draft_render_source_kind" field.
+func DraftRenderSourceKindNotIn(vs ...DraftRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDraftRenderSourceKind, vs...))
+}
+
+// DraftRenderSourceKindIsNil applies the IsNil predicate on the "draft_render_source_kind" field.
+func DraftRenderSourceKindIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldDraftRenderSourceKind))
+}
+
+// DraftRenderSourceKindNotNil applies the NotNil predicate on the "draft_render_source_kind" field.
+func DraftRenderSourceKindNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldDraftRenderSourceKind))
+}
+
+// DraftRenderSourceChecksumEQ applies the EQ predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumEQ(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderSourceChecksumNEQ applies the NEQ predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumNEQ(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderSourceChecksumIn applies the In predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumIn(vs ...[]byte) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDraftRenderSourceChecksum, vs...))
+}
+
+// DraftRenderSourceChecksumNotIn applies the NotIn predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumNotIn(vs ...[]byte) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDraftRenderSourceChecksum, vs...))
+}
+
+// DraftRenderSourceChecksumGT applies the GT predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumGT(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderSourceChecksumGTE applies the GTE predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumGTE(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderSourceChecksumLT applies the LT predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumLT(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderSourceChecksumLTE applies the LTE predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumLTE(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldDraftRenderSourceChecksum, v))
+}
+
+// DraftRenderSourceChecksumIsNil applies the IsNil predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldDraftRenderSourceChecksum))
+}
+
+// DraftRenderSourceChecksumNotNil applies the NotNil predicate on the "draft_render_source_checksum" field.
+func DraftRenderSourceChecksumNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldDraftRenderSourceChecksum))
+}
+
+// DraftRenderArtifactIDEQ applies the EQ predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDraftRenderArtifactID, v))
+}
+
+// DraftRenderArtifactIDNEQ applies the NEQ predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDraftRenderArtifactID, v))
+}
+
+// DraftRenderArtifactIDIn applies the In predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDraftRenderArtifactID, vs...))
+}
+
+// DraftRenderArtifactIDNotIn applies the NotIn predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDraftRenderArtifactID, vs...))
+}
+
+// DraftRenderArtifactIDGT applies the GT predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldDraftRenderArtifactID, v))
+}
+
+// DraftRenderArtifactIDGTE applies the GTE predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldDraftRenderArtifactID, v))
+}
+
+// DraftRenderArtifactIDLT applies the LT predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldDraftRenderArtifactID, v))
+}
+
+// DraftRenderArtifactIDLTE applies the LTE predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldDraftRenderArtifactID, v))
+}
+
+// DraftRenderArtifactIDIsNil applies the IsNil predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldDraftRenderArtifactID))
+}
+
+// DraftRenderArtifactIDNotNil applies the NotNil predicate on the "draft_render_artifact_id" field.
+func DraftRenderArtifactIDNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldDraftRenderArtifactID))
+}
+
+// PublishedRevisionIDEQ applies the EQ predicate on the "published_revision_id" field.
+func PublishedRevisionIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDNEQ applies the NEQ predicate on the "published_revision_id" field.
+func PublishedRevisionIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDIn applies the In predicate on the "published_revision_id" field.
+func PublishedRevisionIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldPublishedRevisionID, vs...))
+}
+
+// PublishedRevisionIDNotIn applies the NotIn predicate on the "published_revision_id" field.
+func PublishedRevisionIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldPublishedRevisionID, vs...))
+}
+
+// PublishedRevisionIDGT applies the GT predicate on the "published_revision_id" field.
+func PublishedRevisionIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDGTE applies the GTE predicate on the "published_revision_id" field.
+func PublishedRevisionIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDLT applies the LT predicate on the "published_revision_id" field.
+func PublishedRevisionIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDLTE applies the LTE predicate on the "published_revision_id" field.
+func PublishedRevisionIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDIsNil applies the IsNil predicate on the "published_revision_id" field.
+func PublishedRevisionIDIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldPublishedRevisionID))
+}
+
+// PublishedRevisionIDNotNil applies the NotNil predicate on the "published_revision_id" field.
+func PublishedRevisionIDNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldPublishedRevisionID))
+}
+
+// PublishedRenderSourceIDEQ applies the EQ predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDNEQ applies the NEQ predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDIn applies the In predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldPublishedRenderSourceID, vs...))
+}
+
+// PublishedRenderSourceIDNotIn applies the NotIn predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldPublishedRenderSourceID, vs...))
+}
+
+// PublishedRenderSourceIDGT applies the GT predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDGTE applies the GTE predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDLT applies the LT predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDLTE applies the LTE predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDIsNil applies the IsNil predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldPublishedRenderSourceID))
+}
+
+// PublishedRenderSourceIDNotNil applies the NotNil predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldPublishedRenderSourceID))
+}
+
+// PublishedRenderSourceKindEQ applies the EQ predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindEQ(v PublishedRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderSourceKind, v))
+}
+
+// PublishedRenderSourceKindNEQ applies the NEQ predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindNEQ(v PublishedRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldPublishedRenderSourceKind, v))
+}
+
+// PublishedRenderSourceKindIn applies the In predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindIn(vs ...PublishedRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldPublishedRenderSourceKind, vs...))
+}
+
+// PublishedRenderSourceKindNotIn applies the NotIn predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindNotIn(vs ...PublishedRenderSourceKind) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldPublishedRenderSourceKind, vs...))
+}
+
+// PublishedRenderSourceKindIsNil applies the IsNil predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldPublishedRenderSourceKind))
+}
+
+// PublishedRenderSourceKindNotNil applies the NotNil predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldPublishedRenderSourceKind))
+}
+
+// PublishedRenderSourceChecksumEQ applies the EQ predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumEQ(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderSourceChecksumNEQ applies the NEQ predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumNEQ(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderSourceChecksumIn applies the In predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumIn(vs ...[]byte) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldPublishedRenderSourceChecksum, vs...))
+}
+
+// PublishedRenderSourceChecksumNotIn applies the NotIn predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumNotIn(vs ...[]byte) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldPublishedRenderSourceChecksum, vs...))
+}
+
+// PublishedRenderSourceChecksumGT applies the GT predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumGT(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderSourceChecksumGTE applies the GTE predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumGTE(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderSourceChecksumLT applies the LT predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumLT(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderSourceChecksumLTE applies the LTE predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumLTE(v []byte) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldPublishedRenderSourceChecksum, v))
+}
+
+// PublishedRenderSourceChecksumIsNil applies the IsNil predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldPublishedRenderSourceChecksum))
+}
+
+// PublishedRenderSourceChecksumNotNil applies the NotNil predicate on the "published_render_source_checksum" field.
+func PublishedRenderSourceChecksumNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldPublishedRenderSourceChecksum))
+}
+
+// PublishedRenderArtifactIDEQ applies the EQ predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDNEQ applies the NEQ predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDNEQ(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDIn applies the In predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldPublishedRenderArtifactID, vs...))
+}
+
+// PublishedRenderArtifactIDNotIn applies the NotIn predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDNotIn(vs ...uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldPublishedRenderArtifactID, vs...))
+}
+
+// PublishedRenderArtifactIDGT applies the GT predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDGT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDGTE applies the GTE predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDGTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDLT applies the LT predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDLT(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDLTE applies the LTE predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDLTE(v uuid.UUID) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDIsNil applies the IsNil predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldPublishedRenderArtifactID))
+}
+
+// PublishedRenderArtifactIDNotNil applies the NotNil predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldPublishedRenderArtifactID))
+}
+
+// PublishedAtEQ applies the EQ predicate on the "published_at" field.
+func PublishedAtEQ(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldPublishedAt, v))
+}
+
+// PublishedAtNEQ applies the NEQ predicate on the "published_at" field.
+func PublishedAtNEQ(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldPublishedAt, v))
+}
+
+// PublishedAtIn applies the In predicate on the "published_at" field.
+func PublishedAtIn(vs ...time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldPublishedAt, vs...))
+}
+
+// PublishedAtNotIn applies the NotIn predicate on the "published_at" field.
+func PublishedAtNotIn(vs ...time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldPublishedAt, vs...))
+}
+
+// PublishedAtGT applies the GT predicate on the "published_at" field.
+func PublishedAtGT(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldPublishedAt, v))
+}
+
+// PublishedAtGTE applies the GTE predicate on the "published_at" field.
+func PublishedAtGTE(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldPublishedAt, v))
+}
+
+// PublishedAtLT applies the LT predicate on the "published_at" field.
+func PublishedAtLT(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldPublishedAt, v))
+}
+
+// PublishedAtLTE applies the LTE predicate on the "published_at" field.
+func PublishedAtLTE(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldPublishedAt, v))
+}
+
+// PublishedAtIsNil applies the IsNil predicate on the "published_at" field.
+func PublishedAtIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldPublishedAt))
+}
+
+// PublishedAtNotNil applies the NotNil predicate on the "published_at" field.
+func PublishedAtNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldPublishedAt))
+}
+
+// ArchivedAtEQ applies the EQ predicate on the "archived_at" field.
+func ArchivedAtEQ(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldArchivedAt, v))
+}
+
+// ArchivedAtNEQ applies the NEQ predicate on the "archived_at" field.
+func ArchivedAtNEQ(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldArchivedAt, v))
+}
+
+// ArchivedAtIn applies the In predicate on the "archived_at" field.
+func ArchivedAtIn(vs ...time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldArchivedAt, vs...))
+}
+
+// ArchivedAtNotIn applies the NotIn predicate on the "archived_at" field.
+func ArchivedAtNotIn(vs ...time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldArchivedAt, vs...))
+}
+
+// ArchivedAtGT applies the GT predicate on the "archived_at" field.
+func ArchivedAtGT(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldArchivedAt, v))
+}
+
+// ArchivedAtGTE applies the GTE predicate on the "archived_at" field.
+func ArchivedAtGTE(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldArchivedAt, v))
+}
+
+// ArchivedAtLT applies the LT predicate on the "archived_at" field.
+func ArchivedAtLT(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldArchivedAt, v))
+}
+
+// ArchivedAtLTE applies the LTE predicate on the "archived_at" field.
+func ArchivedAtLTE(v time.Time) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldArchivedAt, v))
+}
+
+// ArchivedAtIsNil applies the IsNil predicate on the "archived_at" field.
+func ArchivedAtIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldArchivedAt))
+}
+
+// ArchivedAtNotNil applies the NotNil predicate on the "archived_at" field.
+func ArchivedAtNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldArchivedAt))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -431,22 +1292,22 @@ func DescriptionContainsFold(v string) predicate.Problem {
 }
 
 // DifficultyIDEQ applies the EQ predicate on the "difficulty_id" field.
-func DifficultyIDEQ(v int) predicate.Problem {
+func DifficultyIDEQ(v uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldDifficultyID, v))
 }
 
 // DifficultyIDNEQ applies the NEQ predicate on the "difficulty_id" field.
-func DifficultyIDNEQ(v int) predicate.Problem {
+func DifficultyIDNEQ(v uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldDifficultyID, v))
 }
 
 // DifficultyIDIn applies the In predicate on the "difficulty_id" field.
-func DifficultyIDIn(vs ...int) predicate.Problem {
+func DifficultyIDIn(vs ...uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldDifficultyID, vs...))
 }
 
 // DifficultyIDNotIn applies the NotIn predicate on the "difficulty_id" field.
-func DifficultyIDNotIn(vs ...int) predicate.Problem {
+func DifficultyIDNotIn(vs ...uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldDifficultyID, vs...))
 }
 
@@ -531,22 +1392,22 @@ func MemoryLimitKBLTE(v int) predicate.Problem {
 }
 
 // AuthorIDEQ applies the EQ predicate on the "author_id" field.
-func AuthorIDEQ(v int) predicate.Problem {
+func AuthorIDEQ(v uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldAuthorID, v))
 }
 
 // AuthorIDNEQ applies the NEQ predicate on the "author_id" field.
-func AuthorIDNEQ(v int) predicate.Problem {
+func AuthorIDNEQ(v uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldAuthorID, v))
 }
 
 // AuthorIDIn applies the In predicate on the "author_id" field.
-func AuthorIDIn(vs ...int) predicate.Problem {
+func AuthorIDIn(vs ...uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldAuthorID, vs...))
 }
 
 // AuthorIDNotIn applies the NotIn predicate on the "author_id" field.
-func AuthorIDNotIn(vs ...int) predicate.Problem {
+func AuthorIDNotIn(vs ...uuid.UUID) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldAuthorID, vs...))
 }
 
@@ -709,6 +1570,98 @@ func HasTestCasesWith(preds ...predicate.TestCase) predicate.Problem {
 	})
 }
 
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.ProblemRevision) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTestsetRevisions applies the HasEdge predicate on the "testset_revisions" edge.
+func HasTestsetRevisions() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TestsetRevisionsTable, TestsetRevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTestsetRevisionsWith applies the HasEdge predicate on the "testset_revisions" edge with a given conditions (other predicates).
+func HasTestsetRevisionsWith(preds ...predicate.TestsetRevision) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newTestsetRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestDraftMemberships applies the HasEdge predicate on the "contest_draft_memberships" edge.
+func HasContestDraftMemberships() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestDraftMembershipsTable, ContestDraftMembershipsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestDraftMembershipsWith applies the HasEdge predicate on the "contest_draft_memberships" edge with a given conditions (other predicates).
+func HasContestDraftMembershipsWith(preds ...predicate.ContestDraftProblem) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newContestDraftMembershipsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestProblemSnapshots applies the HasEdge predicate on the "contest_problem_snapshots" edge.
+func HasContestProblemSnapshots() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemSnapshotsTable, ContestProblemSnapshotsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestProblemSnapshotsWith applies the HasEdge predicate on the "contest_problem_snapshots" edge with a given conditions (other predicates).
+func HasContestProblemSnapshotsWith(preds ...predicate.ContestProblem) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newContestProblemSnapshotsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasSubmissions applies the HasEdge predicate on the "submissions" edge.
 func HasSubmissions() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -724,6 +1677,52 @@ func HasSubmissions() predicate.Problem {
 func HasSubmissionsWith(preds ...predicate.Submission) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := newSubmissionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestScoringAttempts applies the HasEdge predicate on the "contest_scoring_attempts" edge.
+func HasContestScoringAttempts() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestScoringAttemptsTable, ContestScoringAttemptsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestScoringAttemptsWith applies the HasEdge predicate on the "contest_scoring_attempts" edge with a given conditions (other predicates).
+func HasContestScoringAttemptsWith(preds ...predicate.ContestScoringAttempt) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newContestScoringAttemptsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestProblemResults applies the HasEdge predicate on the "contest_problem_results" edge.
+func HasContestProblemResults() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemResultsTable, ContestProblemResultsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestProblemResultsWith applies the HasEdge predicate on the "contest_problem_results" edge with a given conditions (other predicates).
+func HasContestProblemResultsWith(preds ...predicate.ContestProblemResult) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newContestProblemResultsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

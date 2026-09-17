@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
@@ -132,8 +133,8 @@ func (_q *ContestStandingQuery) FirstX(ctx context.Context) *ContestStanding {
 
 // FirstID returns the first ContestStanding ID from the query.
 // Returns a *NotFoundError when no ContestStanding ID was found.
-func (_q *ContestStandingQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ContestStandingQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -145,7 +146,7 @@ func (_q *ContestStandingQuery) FirstID(ctx context.Context) (id int, err error)
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ContestStandingQuery) FirstIDX(ctx context.Context) int {
+func (_q *ContestStandingQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -183,8 +184,8 @@ func (_q *ContestStandingQuery) OnlyX(ctx context.Context) *ContestStanding {
 // OnlyID is like Only, but returns the only ContestStanding ID in the query.
 // Returns a *NotSingularError when more than one ContestStanding ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ContestStandingQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ContestStandingQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -200,7 +201,7 @@ func (_q *ContestStandingQuery) OnlyID(ctx context.Context) (id int, err error) 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ContestStandingQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ContestStandingQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -228,7 +229,7 @@ func (_q *ContestStandingQuery) AllX(ctx context.Context) []*ContestStanding {
 }
 
 // IDs executes the query and returns a list of ContestStanding IDs.
-func (_q *ContestStandingQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *ContestStandingQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -240,7 +241,7 @@ func (_q *ContestStandingQuery) IDs(ctx context.Context) (ids []int, err error) 
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ContestStandingQuery) IDsX(ctx context.Context) []int {
+func (_q *ContestStandingQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -337,7 +338,7 @@ func (_q *ContestStandingQuery) WithUser(opts ...func(*UserQuery)) *ContestStand
 // Example:
 //
 //	var v []struct {
-//		ContestID int `json:"contest_id,omitempty"`
+//		ContestID uuid.UUID `json:"contest_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -360,7 +361,7 @@ func (_q *ContestStandingQuery) GroupBy(field string, fields ...string) *Contest
 // Example:
 //
 //	var v []struct {
-//		ContestID int `json:"contest_id,omitempty"`
+//		ContestID uuid.UUID `json:"contest_id,omitempty"`
 //	}
 //
 //	client.ContestStanding.Query().
@@ -451,8 +452,8 @@ func (_q *ContestStandingQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 }
 
 func (_q *ContestStandingQuery) loadContest(ctx context.Context, query *ContestQuery, nodes []*ContestStanding, init func(*ContestStanding), assign func(*ContestStanding, *Contest)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ContestStanding)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ContestStanding)
 	for i := range nodes {
 		fk := nodes[i].ContestID
 		if _, ok := nodeids[fk]; !ok {
@@ -480,8 +481,8 @@ func (_q *ContestStandingQuery) loadContest(ctx context.Context, query *ContestQ
 	return nil
 }
 func (_q *ContestStandingQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*ContestStanding, init func(*ContestStanding), assign func(*ContestStanding, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ContestStanding)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ContestStanding)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -522,7 +523,7 @@ func (_q *ContestStandingQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *ContestStandingQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(conteststanding.Table, conteststanding.Columns, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(conteststanding.Table, conteststanding.Columns, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

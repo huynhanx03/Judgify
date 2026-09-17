@@ -9,14 +9,16 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 )
 
 // AttributeDefinition is the model entity for the AttributeDefinition schema.
 type AttributeDefinition struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,13 +26,21 @@ type AttributeDefinition struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Key holds the value of the "key" field.
 	Key string `json:"key,omitempty"`
-	// DataType holds the value of the "data_type" field.
-	DataType string `json:"data_type,omitempty"`
-	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	// Kind holds the value of the "kind" field.
+	Kind attributedefinition.Kind `json:"kind,omitempty"`
+	// RequiredOnOnboarding holds the value of the "required_on_onboarding" field.
+	RequiredOnOnboarding bool `json:"required_on_onboarding,omitempty"`
+	// Status holds the value of the "status" field.
+	Status attributedefinition.Status `json:"status,omitempty"`
+	// DraftRevisionID holds the value of the "draft_revision_id" field.
+	DraftRevisionID *uuid.UUID `json:"draft_revision_id,omitempty"`
+	// ActiveRevisionID holds the value of the "active_revision_id" field.
+	ActiveRevisionID *uuid.UUID `json:"active_revision_id,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AttributeDefinitionQuery when eager-loading is set.
 	Edges        AttributeDefinitionEdges `json:"edges"`
@@ -41,9 +51,15 @@ type AttributeDefinition struct {
 type AttributeDefinitionEdges struct {
 	// Values holds the value of the values edge.
 	Values []*UserAttributeValue `json:"values,omitempty"`
+	// Revisions holds the value of the revisions edge.
+	Revisions []*AttributeDefinitionRevision `json:"revisions,omitempty"`
+	// DraftRevision holds the value of the draft_revision edge.
+	DraftRevision *AttributeDefinitionRevision `json:"draft_revision,omitempty"`
+	// ActiveRevision holds the value of the active_revision edge.
+	ActiveRevision *AttributeDefinitionRevision `json:"active_revision,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [4]bool
 }
 
 // ValuesOrErr returns the Values value or an error if the edge
@@ -55,17 +71,54 @@ func (e AttributeDefinitionEdges) ValuesOrErr() ([]*UserAttributeValue, error) {
 	return nil, &NotLoadedError{edge: "values"}
 }
 
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e AttributeDefinitionEdges) RevisionsOrErr() ([]*AttributeDefinitionRevision, error) {
+	if e.loadedTypes[1] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
+}
+
+// DraftRevisionOrErr returns the DraftRevision value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AttributeDefinitionEdges) DraftRevisionOrErr() (*AttributeDefinitionRevision, error) {
+	if e.DraftRevision != nil {
+		return e.DraftRevision, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: attributedefinitionrevision.Label}
+	}
+	return nil, &NotLoadedError{edge: "draft_revision"}
+}
+
+// ActiveRevisionOrErr returns the ActiveRevision value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AttributeDefinitionEdges) ActiveRevisionOrErr() (*AttributeDefinitionRevision, error) {
+	if e.ActiveRevision != nil {
+		return e.ActiveRevision, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: attributedefinitionrevision.Label}
+	}
+	return nil, &NotLoadedError{edge: "active_revision"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*AttributeDefinition) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case attributedefinition.FieldID, attributedefinition.FieldDeletedBy:
+		case attributedefinition.FieldDraftRevisionID, attributedefinition.FieldActiveRevisionID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case attributedefinition.FieldRequiredOnOnboarding:
+			values[i] = new(sql.NullBool)
+		case attributedefinition.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case attributedefinition.FieldKey, attributedefinition.FieldDataType, attributedefinition.FieldDescription:
+		case attributedefinition.FieldDeletedBy, attributedefinition.FieldKey, attributedefinition.FieldKind, attributedefinition.FieldStatus:
 			values[i] = new(sql.NullString)
 		case attributedefinition.FieldCreatedAt, attributedefinition.FieldUpdatedAt, attributedefinition.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case attributedefinition.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -82,11 +135,11 @@ func (_m *AttributeDefinition) assignValues(columns []string, values []any) erro
 	for i := range columns {
 		switch columns[i] {
 		case attributedefinition.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case attributedefinition.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -107,11 +160,11 @@ func (_m *AttributeDefinition) assignValues(columns []string, values []any) erro
 				*_m.DeletedAt = value.Time
 			}
 		case attributedefinition.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case attributedefinition.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -119,17 +172,43 @@ func (_m *AttributeDefinition) assignValues(columns []string, values []any) erro
 			} else if value.Valid {
 				_m.Key = value.String
 			}
-		case attributedefinition.FieldDataType:
+		case attributedefinition.FieldKind:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field data_type", values[i])
+				return fmt.Errorf("unexpected type %T for field kind", values[i])
 			} else if value.Valid {
-				_m.DataType = value.String
+				_m.Kind = attributedefinition.Kind(value.String)
 			}
-		case attributedefinition.FieldDescription:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field description", values[i])
+		case attributedefinition.FieldRequiredOnOnboarding:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field required_on_onboarding", values[i])
 			} else if value.Valid {
-				_m.Description = value.String
+				_m.RequiredOnOnboarding = value.Bool
+			}
+		case attributedefinition.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				_m.Status = attributedefinition.Status(value.String)
+			}
+		case attributedefinition.FieldDraftRevisionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field draft_revision_id", values[i])
+			} else if value.Valid {
+				_m.DraftRevisionID = new(uuid.UUID)
+				*_m.DraftRevisionID = *value.S.(*uuid.UUID)
+			}
+		case attributedefinition.FieldActiveRevisionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field active_revision_id", values[i])
+			} else if value.Valid {
+				_m.ActiveRevisionID = new(uuid.UUID)
+				*_m.ActiveRevisionID = *value.S.(*uuid.UUID)
+			}
+		case attributedefinition.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -147,6 +226,21 @@ func (_m *AttributeDefinition) Value(name string) (ent.Value, error) {
 // QueryValues queries the "values" edge of the AttributeDefinition entity.
 func (_m *AttributeDefinition) QueryValues() *UserAttributeValueQuery {
 	return NewAttributeDefinitionClient(_m.config).QueryValues(_m)
+}
+
+// QueryRevisions queries the "revisions" edge of the AttributeDefinition entity.
+func (_m *AttributeDefinition) QueryRevisions() *AttributeDefinitionRevisionQuery {
+	return NewAttributeDefinitionClient(_m.config).QueryRevisions(_m)
+}
+
+// QueryDraftRevision queries the "draft_revision" edge of the AttributeDefinition entity.
+func (_m *AttributeDefinition) QueryDraftRevision() *AttributeDefinitionRevisionQuery {
+	return NewAttributeDefinitionClient(_m.config).QueryDraftRevision(_m)
+}
+
+// QueryActiveRevision queries the "active_revision" edge of the AttributeDefinition entity.
+func (_m *AttributeDefinition) QueryActiveRevision() *AttributeDefinitionRevisionQuery {
+	return NewAttributeDefinitionClient(_m.config).QueryActiveRevision(_m)
 }
 
 // Update returns a builder for updating this AttributeDefinition.
@@ -185,27 +279,35 @@ func (_m *AttributeDefinition) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("key=")
 	builder.WriteString(_m.Key)
 	builder.WriteString(", ")
-	builder.WriteString("data_type=")
-	builder.WriteString(_m.DataType)
+	builder.WriteString("kind=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Kind))
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(_m.Description)
+	builder.WriteString("required_on_onboarding=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RequiredOnOnboarding))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	if v := _m.DraftRevisionID; v != nil {
+		builder.WriteString("draft_revision_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ActiveRevisionID; v != nil {
+		builder.WriteString("active_revision_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *AttributeDefinition) GetID() int {
-	return _m.ID
-}
-
-func (_m *AttributeDefinition) SetID(id int) {
-	_m.ID = id
 }
 
 // AttributeDefinitions is a parsable slice of AttributeDefinition.

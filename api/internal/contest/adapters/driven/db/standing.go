@@ -3,14 +3,16 @@ package db
 import (
 	"context"
 
-	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
+	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 
+	commonEnt "github.com/huynhanx03/go-common/pkg/database/ent"
+
+	entity "github.com/huynhanx03/judgify/internal/contest/domain"
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
-	"github.com/huynhanx03/judgify/internal/contest/adapters/driven/db/builder"
-	"github.com/huynhanx03/judgify/internal/contest/adapters/driven/db/mapper"
-	"github.com/huynhanx03/judgify/internal/contest/core/entity"
-	"github.com/huynhanx03/judgify/internal/contest/ports"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 const standingRepoName = "ContestStanding"
@@ -20,12 +22,12 @@ type StandingRepository struct {
 	client *dbEnt.EntClient
 }
 
-// NewStandingRepository creates a new StandingRepository.
+// NewStandingRepository constructs a StandingRepository.
 func NewStandingRepository(client *dbEnt.EntClient) ports.StandingRepository {
 	return &StandingRepository{client: client}
 }
 
-func (r *StandingRepository) Get(ctx context.Context, contestID, userID int) (*entity.ContestStanding, error) {
+func (r *StandingRepository) Get(ctx context.Context, contestID, userID uuid.UUID) (*entity.ContestStanding, error) {
 	record, err := r.client.DB(ctx).ContestStanding.Query().
 		Where(
 			conteststanding.ContestIDEQ(contestID),
@@ -35,7 +37,7 @@ func (r *StandingRepository) Get(ctx context.Context, contestID, userID int) (*e
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, standingRepoName)
 	}
-	return mapper.ToStandingEntity(record), nil
+	return ToStandingEntity(record), nil
 }
 
 func (r *StandingRepository) Upsert(ctx context.Context, e *entity.ContestStanding) error {
@@ -49,32 +51,36 @@ func (r *StandingRepository) Upsert(ctx context.Context, e *entity.ContestStandi
 	if err == nil && existing != nil {
 		// Update existing record.
 		e.ID = existing.ID
-		update := builder.BuildUpdateStanding(ctx, e)
+		update := BuildUpdateStanding(r.client.DB(ctx), e)
 		record, err := update.Save(ctx)
 		if err != nil {
 			return commonEnt.MapEntError(err, standingRepoName)
 		}
-		if updated := mapper.ToStandingEntity(record); updated != nil {
+		if updated := ToStandingEntity(record); updated != nil {
 			*e = *updated
 		}
 		return nil
 	}
+	if !generate.IsNotFound(err) {
+		return commonEnt.MapEntError(err, standingRepoName)
+	}
 
 	// Not found — create new record.
-	create := builder.BuildCreateStanding(ctx, e)
+	create := BuildCreateStanding(r.client.DB(ctx), e)
 	record, err := create.Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, standingRepoName)
 	}
-	if created := mapper.ToStandingEntity(record); created != nil {
+	if created := ToStandingEntity(record); created != nil {
 		*e = *created
 	}
 	return nil
 }
 
-func (r *StandingRepository) FindByContest(ctx context.Context, contestID int) ([]*entity.ContestStanding, error) {
+func (r *StandingRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestStanding, error) {
 	records, err := r.client.DB(ctx).ContestStanding.Query().
 		Where(conteststanding.ContestIDEQ(contestID)).
+		WithUser().
 		All(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, standingRepoName)
@@ -82,7 +88,40 @@ func (r *StandingRepository) FindByContest(ctx context.Context, contestID int) (
 
 	entities := make([]*entity.ContestStanding, len(records))
 	for i, record := range records {
-		entities[i] = mapper.ToStandingEntity(record)
+		entities[i] = ToStandingEntity(record)
+	}
+	return entities, nil
+}
+
+// FindByContestLimit is deliberately separate from the domain repository
+// contract: public callers can detect it and keep a browser response bounded,
+// while internal settlement still obtains the complete final table.
+func (r *StandingRepository) FindByContestLimit(
+	ctx context.Context,
+	contestID uuid.UUID,
+	limit int,
+) ([]*entity.ContestStanding, error) {
+	if limit <= 0 {
+		return []*entity.ContestStanding{}, nil
+	}
+	records, err := r.client.DB(ctx).ContestStanding.Query().
+		Where(conteststanding.ContestIDEQ(contestID)).
+		WithUser().
+		Order(
+			conteststanding.BySolvedCount(sql.OrderDesc()),
+			conteststanding.ByPenalty(sql.OrderAsc()),
+			conteststanding.ByLastAcceptedElapsedMs(sql.OrderAsc()),
+			conteststanding.ByUserID(sql.OrderAsc()),
+		).
+		Limit(limit).
+		All(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, standingRepoName)
+	}
+
+	entities := make([]*entity.ContestStanding, len(records))
+	for i, record := range records {
+		entities[i] = ToStandingEntity(record)
 	}
 	return entities, nil
 }

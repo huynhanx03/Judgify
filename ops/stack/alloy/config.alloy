@@ -1,0 +1,59 @@
+logging {
+  level  = "info"
+  format = "json"
+}
+
+prometheus.exporter.self "alloy" {}
+
+loki.source.syslog "judgify" {
+  listener {
+    address  = "0.0.0.0:1514"
+    protocol = "tcp"
+    labels = {
+      environment = "production",
+    }
+  }
+  relabel_rules = loki.relabel.judgify.rules
+  forward_to    = [loki.write.default.receiver]
+}
+
+loki.relabel "judgify" {
+  forward_to = [loki.write.default.receiver]
+
+  rule {
+    action        = "keep"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "judgify-(envoy|api|website|worker)"
+  }
+  rule {
+    action        = "replace"
+    source_labels = ["__syslog_message_app_name"]
+    target_label  = "service"
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// Applications export OTLP only to this host-local collector. Alloy owns the
+// retry queue and forwards traces across the private ops network to Tempo.
+otelcol.receiver.otlp "judgify" {
+  grpc {}
+  http {}
+
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}

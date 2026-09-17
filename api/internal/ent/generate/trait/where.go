@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Trait {
+func ID(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Trait {
+func IDEQ(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Trait {
+func IDNEQ(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Trait {
+func IDIn(ids ...uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Trait {
+func IDNotIn(ids ...uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Trait {
+func IDGT(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Trait {
+func IDGTE(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Trait {
+func IDLT(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Trait {
+func IDLTE(id uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,8 +72,13 @@ func DeletedAt(v time.Time) predicate.Trait {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Trait {
+func DeletedBy(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldDeletedBy, v))
+}
+
+// Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
+func Code(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldCode, v))
 }
 
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
@@ -81,13 +87,28 @@ func Name(v string) predicate.Trait {
 }
 
 // RarityID applies equality check predicate on the "rarity_id" field. It's identical to RarityIDEQ.
-func RarityID(v int) predicate.Trait {
+func RarityID(v uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldRarityID, v))
 }
 
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldDescription, v))
+}
+
+// DisplayOrder applies equality check predicate on the "display_order" field. It's identical to DisplayOrderEQ.
+func DisplayOrder(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldDisplayOrder, v))
+}
+
+// Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
+func Active(v bool) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldActive, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldVersion, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -221,43 +242,58 @@ func DeletedAtNotNil() predicate.Trait {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Trait {
+func DeletedByEQ(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Trait {
+func DeletedByNEQ(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Trait {
+func DeletedByIn(vs ...string) predicate.Trait {
 	return predicate.Trait(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Trait {
+func DeletedByNotIn(vs ...string) predicate.Trait {
 	return predicate.Trait(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Trait {
+func DeletedByGT(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Trait {
+func DeletedByGTE(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Trait {
+func DeletedByLT(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Trait {
+func DeletedByLTE(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -268,6 +304,81 @@ func DeletedByIsNil() predicate.Trait {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Trait {
 	return predicate.Trait(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
+// CodeEQ applies the EQ predicate on the "code" field.
+func CodeEQ(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldCode, v))
+}
+
+// CodeNEQ applies the NEQ predicate on the "code" field.
+func CodeNEQ(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldNEQ(FieldCode, v))
+}
+
+// CodeIn applies the In predicate on the "code" field.
+func CodeIn(vs ...string) predicate.Trait {
+	return predicate.Trait(sql.FieldIn(FieldCode, vs...))
+}
+
+// CodeNotIn applies the NotIn predicate on the "code" field.
+func CodeNotIn(vs ...string) predicate.Trait {
+	return predicate.Trait(sql.FieldNotIn(FieldCode, vs...))
+}
+
+// CodeGT applies the GT predicate on the "code" field.
+func CodeGT(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldGT(FieldCode, v))
+}
+
+// CodeGTE applies the GTE predicate on the "code" field.
+func CodeGTE(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldGTE(FieldCode, v))
+}
+
+// CodeLT applies the LT predicate on the "code" field.
+func CodeLT(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldLT(FieldCode, v))
+}
+
+// CodeLTE applies the LTE predicate on the "code" field.
+func CodeLTE(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldLTE(FieldCode, v))
+}
+
+// CodeContains applies the Contains predicate on the "code" field.
+func CodeContains(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldContains(FieldCode, v))
+}
+
+// CodeHasPrefix applies the HasPrefix predicate on the "code" field.
+func CodeHasPrefix(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldHasPrefix(FieldCode, v))
+}
+
+// CodeHasSuffix applies the HasSuffix predicate on the "code" field.
+func CodeHasSuffix(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldHasSuffix(FieldCode, v))
+}
+
+// CodeEqualFold applies the EqualFold predicate on the "code" field.
+func CodeEqualFold(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldEqualFold(FieldCode, v))
+}
+
+// CodeContainsFold applies the ContainsFold predicate on the "code" field.
+func CodeContainsFold(v string) predicate.Trait {
+	return predicate.Trait(sql.FieldContainsFold(FieldCode, v))
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
@@ -356,22 +467,22 @@ func NameContainsFold(v string) predicate.Trait {
 }
 
 // RarityIDEQ applies the EQ predicate on the "rarity_id" field.
-func RarityIDEQ(v int) predicate.Trait {
+func RarityIDEQ(v uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldEQ(FieldRarityID, v))
 }
 
 // RarityIDNEQ applies the NEQ predicate on the "rarity_id" field.
-func RarityIDNEQ(v int) predicate.Trait {
+func RarityIDNEQ(v uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldNEQ(FieldRarityID, v))
 }
 
 // RarityIDIn applies the In predicate on the "rarity_id" field.
-func RarityIDIn(vs ...int) predicate.Trait {
+func RarityIDIn(vs ...uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldIn(FieldRarityID, vs...))
 }
 
 // RarityIDNotIn applies the NotIn predicate on the "rarity_id" field.
-func RarityIDNotIn(vs ...int) predicate.Trait {
+func RarityIDNotIn(vs ...uuid.UUID) predicate.Trait {
 	return predicate.Trait(sql.FieldNotIn(FieldRarityID, vs...))
 }
 
@@ -450,14 +561,94 @@ func DescriptionContainsFold(v string) predicate.Trait {
 	return predicate.Trait(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// MetadataIsNil applies the IsNil predicate on the "metadata" field.
-func MetadataIsNil() predicate.Trait {
-	return predicate.Trait(sql.FieldIsNull(FieldMetadata))
+// DisplayOrderEQ applies the EQ predicate on the "display_order" field.
+func DisplayOrderEQ(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldDisplayOrder, v))
 }
 
-// MetadataNotNil applies the NotNil predicate on the "metadata" field.
-func MetadataNotNil() predicate.Trait {
-	return predicate.Trait(sql.FieldNotNull(FieldMetadata))
+// DisplayOrderNEQ applies the NEQ predicate on the "display_order" field.
+func DisplayOrderNEQ(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldNEQ(FieldDisplayOrder, v))
+}
+
+// DisplayOrderIn applies the In predicate on the "display_order" field.
+func DisplayOrderIn(vs ...int) predicate.Trait {
+	return predicate.Trait(sql.FieldIn(FieldDisplayOrder, vs...))
+}
+
+// DisplayOrderNotIn applies the NotIn predicate on the "display_order" field.
+func DisplayOrderNotIn(vs ...int) predicate.Trait {
+	return predicate.Trait(sql.FieldNotIn(FieldDisplayOrder, vs...))
+}
+
+// DisplayOrderGT applies the GT predicate on the "display_order" field.
+func DisplayOrderGT(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldGT(FieldDisplayOrder, v))
+}
+
+// DisplayOrderGTE applies the GTE predicate on the "display_order" field.
+func DisplayOrderGTE(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldGTE(FieldDisplayOrder, v))
+}
+
+// DisplayOrderLT applies the LT predicate on the "display_order" field.
+func DisplayOrderLT(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldLT(FieldDisplayOrder, v))
+}
+
+// DisplayOrderLTE applies the LTE predicate on the "display_order" field.
+func DisplayOrderLTE(v int) predicate.Trait {
+	return predicate.Trait(sql.FieldLTE(FieldDisplayOrder, v))
+}
+
+// ActiveEQ applies the EQ predicate on the "active" field.
+func ActiveEQ(v bool) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldActive, v))
+}
+
+// ActiveNEQ applies the NEQ predicate on the "active" field.
+func ActiveNEQ(v bool) predicate.Trait {
+	return predicate.Trait(sql.FieldNEQ(FieldActive, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Trait {
+	return predicate.Trait(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Trait {
+	return predicate.Trait(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Trait {
+	return predicate.Trait(sql.FieldLTE(FieldVersion, v))
 }
 
 // HasRarity applies the HasEdge predicate on the "rarity" edge.
@@ -498,6 +689,75 @@ func HasUserTraits() predicate.Trait {
 func HasUserTraitsWith(preds ...predicate.UserTrait) predicate.Trait {
 	return predicate.Trait(func(s *sql.Selector) {
 		step := newUserTraitsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasOnboardingOfferTalents applies the HasEdge predicate on the "onboarding_offer_talents" edge.
+func HasOnboardingOfferTalents() predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, OnboardingOfferTalentsTable, OnboardingOfferTalentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOnboardingOfferTalentsWith applies the HasEdge predicate on the "onboarding_offer_talents" edge with a given conditions (other predicates).
+func HasOnboardingOfferTalentsWith(preds ...predicate.OnboardingTraitOfferTalent) predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := newOnboardingOfferTalentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasEffectRevisions applies the HasEdge predicate on the "effect_revisions" edge.
+func HasEffectRevisions() predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, EffectRevisionsTable, EffectRevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEffectRevisionsWith applies the HasEdge predicate on the "effect_revisions" edge with a given conditions (other predicates).
+func HasEffectRevisionsWith(preds ...predicate.TraitEffectRevision) predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := newEffectRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRewardProfileTraits applies the HasEdge predicate on the "reward_profile_traits" edge.
+func HasRewardProfileTraits() predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RewardProfileTraitsTable, RewardProfileTraitsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRewardProfileTraitsWith applies the HasEdge predicate on the "reward_profile_traits" edge with a given conditions (other predicates).
+func HasRewardProfileTraitsWith(preds ...predicate.UserRewardProfileTrait) predicate.Trait {
+	return predicate.Trait(func(s *sql.Selector) {
+		step := newRewardProfileTraitsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

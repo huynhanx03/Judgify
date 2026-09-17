@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["prometheus:9090"]
+  - job_name: judgify-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:19092"]
+        labels:
+          service: judgify-api
+          environment: production
+  - job_name: judgify-worker
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:19093"]
+        labels:
+          service: judgify-worker
+          environment: production

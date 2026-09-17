@@ -3,8 +3,12 @@
 package contestregistration
 
 import (
+	"fmt"
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -12,14 +16,36 @@ const (
 	Label = "contest_registration"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldContestID holds the string denoting the contest_id field in the database.
 	FieldContestID = "contest_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldSource holds the string denoting the source field in the database.
+	FieldSource = "source"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldOfficialSubmissionCount holds the string denoting the official_submission_count field in the database.
+	FieldOfficialSubmissionCount = "official_submission_count"
+	// FieldRegisteredAt holds the string denoting the registered_at field in the database.
+	FieldRegisteredAt = "registered_at"
+	// FieldWithdrawnAt holds the string denoting the withdrawn_at field in the database.
+	FieldWithdrawnAt = "withdrawn_at"
+	// FieldBannedAt holds the string denoting the banned_at field in the database.
+	FieldBannedAt = "banned_at"
+	// FieldReason holds the string denoting the reason field in the database.
+	FieldReason = "reason"
 	// EdgeContest holds the string denoting the contest edge name in mutations.
 	EdgeContest = "contest"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeTransitions holds the string denoting the transitions edge name in mutations.
+	EdgeTransitions = "transitions"
 	// Table holds the table name of the contestregistration in the database.
 	Table = "contest_registrations"
 	// ContestTable is the table that holds the contest relation/edge.
@@ -36,13 +62,30 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// TransitionsTable is the table that holds the transitions relation/edge.
+	TransitionsTable = "contest_registration_transitions"
+	// TransitionsInverseTable is the table name for the ContestRegistrationTransition entity.
+	// It exists in this package in order to avoid circular dependency with the "contestregistrationtransition" package.
+	TransitionsInverseTable = "contest_registration_transitions"
+	// TransitionsColumn is the table column denoting the transitions relation/edge.
+	TransitionsColumn = "registration_id"
 )
 
 // Columns holds all SQL columns for contestregistration fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 	FieldContestID,
 	FieldUserID,
+	FieldStatus,
+	FieldSource,
+	FieldVersion,
+	FieldOfficialSubmissionCount,
+	FieldRegisteredAt,
+	FieldWithdrawnAt,
+	FieldBannedAt,
+	FieldReason,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -55,12 +98,94 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultOfficialSubmissionCount holds the default value on creation for the "official_submission_count" field.
+	DefaultOfficialSubmissionCount int64
+	// OfficialSubmissionCountValidator is a validator for the "official_submission_count" field. It is called by the builders before save.
+	OfficialSubmissionCountValidator func(int64) error
+	// ReasonValidator is a validator for the "reason" field. It is called by the builders before save.
+	ReasonValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusRegistered is the default value of the Status enum.
+const DefaultStatus = StatusRegistered
+
+// Status values.
+const (
+	StatusRegistered Status = "registered"
+	StatusWithdrawn  Status = "withdrawn"
+	StatusBanned     Status = "banned"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusRegistered, StatusWithdrawn, StatusBanned:
+		return nil
+	default:
+		return fmt.Errorf("contestregistration: invalid enum value for status field: %q", s)
+	}
+}
+
+// Source defines the type for the "source" enum field.
+type Source string
+
+// Source values.
+const (
+	SourceExplicit     Source = "explicit"
+	SourceImplicitOpen Source = "implicit_open"
+	SourceAdmin        Source = "admin"
+)
+
+func (s Source) String() string {
+	return string(s)
+}
+
+// SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
+func SourceValidator(s Source) error {
+	switch s {
+	case SourceExplicit, SourceImplicitOpen, SourceAdmin:
+		return nil
+	default:
+		return fmt.Errorf("contestregistration: invalid enum value for source field: %q", s)
+	}
+}
+
 // OrderOption defines the ordering options for the ContestRegistration queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
 // ByContestID orders the results by the contest_id field.
@@ -71,6 +196,46 @@ func ByContestID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// BySource orders the results by the source field.
+func BySource(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSource, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByOfficialSubmissionCount orders the results by the official_submission_count field.
+func ByOfficialSubmissionCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOfficialSubmissionCount, opts...).ToFunc()
+}
+
+// ByRegisteredAt orders the results by the registered_at field.
+func ByRegisteredAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegisteredAt, opts...).ToFunc()
+}
+
+// ByWithdrawnAt orders the results by the withdrawn_at field.
+func ByWithdrawnAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWithdrawnAt, opts...).ToFunc()
+}
+
+// ByBannedAt orders the results by the banned_at field.
+func ByBannedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBannedAt, opts...).ToFunc()
+}
+
+// ByReason orders the results by the reason field.
+func ByReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReason, opts...).ToFunc()
 }
 
 // ByContestField orders the results by contest field.
@@ -86,6 +251,20 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByTransitionsCount orders the results by transitions count.
+func ByTransitionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTransitionsStep(), opts...)
+	}
+}
+
+// ByTransitions orders the results by transitions terms.
+func ByTransitions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTransitionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newContestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -98,5 +277,12 @@ func newUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newTransitionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TransitionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TransitionsTable, TransitionsColumn),
 	)
 }

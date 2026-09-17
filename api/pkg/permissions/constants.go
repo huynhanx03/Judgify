@@ -2,11 +2,11 @@ package permissions
 
 // Resource Keys
 const (
+	ResourceKeyAudit               = "audit"
 	ResourceKeyGeneration          = "generation"
+	ResourceKeyAuthorization       = "authorization"
 	ResourceKeyUser                = "user"
 	ResourceKeyRole                = "role"
-	ResourceKeyPermission          = "permission"
-	ResourceKeyResource            = "resource"
 	ResourceKeyAttributeDefinition = "attribute_definition"
 	ResourceKeyBilling             = "billing"
 	ResourceKeyPayment             = "payment"
@@ -14,26 +14,43 @@ const (
 	ResourceKeyPlan                = "plans"
 	ResourceKeySubscription        = "subscriptions"
 	ResourceKeyProblem             = "problem"
-	ResourceKeyTestCase            = "test_case"
+	ResourceKeyJudge               = "judge"
+	ResourceKeySubmission          = "submission"
 	ResourceKeyTag                 = "tag"
 	ResourceKeyDifficulty          = "difficulty"
 	ResourceKeyElement             = "element"
 	ResourceKeyRarity              = "rarity"
 	ResourceKeyTrait               = "trait"
 	ResourceKeyUserTrait           = "user_trait"
-	ResourceKeyUserElementExp      = "user_element_exp"
 	ResourceKeyLevel               = "level"
 	ResourceKeyRank                = "rank"
-	ResourceKeyUserStats           = "user_stats"
 	ResourceKeyContest             = "contest"
+	ResourceKeyCultivationLedger   = "cultivation_ledger"
+	ResourceKeyCultivationReward   = "cultivation_reward_rule"
 	ResourceKeyMaterialCategory    = "material_category"
 	ResourceKeyMaterial            = "material"
+	ResourceKeyNotification        = "notification"
+	ResourceKeyOperation           = "operation"
+	ResourceKeyObservability       = "observability"
 )
 
-// Permission Scopes (Bitmask)
+// Permission actions used by Casbin policies.
 const (
-	PermissionScopeCreate = 1 // 0001
-	PermissionScopeRead   = 2 // 0010
-	PermissionScopeUpdate = 4 // 0100
-	PermissionScopeDelete = 8 // 1000
+	PermissionScopeCreate             = "create"
+	PermissionScopeInspect            = "inspect"
+	PermissionScopeRead               = "read"
+	PermissionScopeUpdate             = "update"
+	PermissionScopeDelete             = "delete"
+	PermissionScopeManage             = "manage"
+	PermissionScopePublish            = "publish"
+	PermissionScopeArchive            = "archive"
+	PermissionScopeRollback           = "rollback"
+	PermissionScopeExecute            = "execute"
+	PermissionScopeAdjust             = "adjust"
+	PermissionScopeReverse            = "reverse"
+	PermissionScopeRebuild            = "rebuild"
+	PermissionScopeBroadcastAllActive = "broadcast_all_active"
+	PermissionScopeBroadcastRole      = "broadcast_role"
+	PermissionScopeCompose            = "compose"
+	PermissionScopeReadDelivery       = "read_delivery"
 )

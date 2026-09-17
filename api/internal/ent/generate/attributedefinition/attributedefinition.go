@@ -3,11 +3,13 @@
 package attributedefinition
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -25,12 +27,26 @@ const (
 	FieldDeletedBy = "deleted_by"
 	// FieldKey holds the string denoting the key field in the database.
 	FieldKey = "key"
-	// FieldDataType holds the string denoting the data_type field in the database.
-	FieldDataType = "data_type"
-	// FieldDescription holds the string denoting the description field in the database.
-	FieldDescription = "description"
+	// FieldKind holds the string denoting the kind field in the database.
+	FieldKind = "kind"
+	// FieldRequiredOnOnboarding holds the string denoting the required_on_onboarding field in the database.
+	FieldRequiredOnOnboarding = "required_on_onboarding"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldDraftRevisionID holds the string denoting the draft_revision_id field in the database.
+	FieldDraftRevisionID = "draft_revision_id"
+	// FieldActiveRevisionID holds the string denoting the active_revision_id field in the database.
+	FieldActiveRevisionID = "active_revision_id"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
 	// EdgeValues holds the string denoting the values edge name in mutations.
 	EdgeValues = "values"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
+	// EdgeDraftRevision holds the string denoting the draft_revision edge name in mutations.
+	EdgeDraftRevision = "draft_revision"
+	// EdgeActiveRevision holds the string denoting the active_revision edge name in mutations.
+	EdgeActiveRevision = "active_revision"
 	// Table holds the table name of the attributedefinition in the database.
 	Table = "attribute_definitions"
 	// ValuesTable is the table that holds the values relation/edge.
@@ -40,6 +56,27 @@ const (
 	ValuesInverseTable = "user_attribute_values"
 	// ValuesColumn is the table column denoting the values relation/edge.
 	ValuesColumn = "attribute_id"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "attribute_definition_revisions"
+	// RevisionsInverseTable is the table name for the AttributeDefinitionRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "attributedefinitionrevision" package.
+	RevisionsInverseTable = "attribute_definition_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "definition_id"
+	// DraftRevisionTable is the table that holds the draft_revision relation/edge.
+	DraftRevisionTable = "attribute_definitions"
+	// DraftRevisionInverseTable is the table name for the AttributeDefinitionRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "attributedefinitionrevision" package.
+	DraftRevisionInverseTable = "attribute_definition_revisions"
+	// DraftRevisionColumn is the table column denoting the draft_revision relation/edge.
+	DraftRevisionColumn = "draft_revision_id"
+	// ActiveRevisionTable is the table that holds the active_revision relation/edge.
+	ActiveRevisionTable = "attribute_definitions"
+	// ActiveRevisionInverseTable is the table name for the AttributeDefinitionRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "attributedefinitionrevision" package.
+	ActiveRevisionInverseTable = "attribute_definition_revisions"
+	// ActiveRevisionColumn is the table column denoting the active_revision relation/edge.
+	ActiveRevisionColumn = "active_revision_id"
 )
 
 // Columns holds all SQL columns for attributedefinition fields.
@@ -50,8 +87,12 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldDeletedBy,
 	FieldKey,
-	FieldDataType,
-	FieldDescription,
+	FieldKind,
+	FieldRequiredOnOnboarding,
+	FieldStatus,
+	FieldDraftRevisionID,
+	FieldActiveRevisionID,
+	FieldVersion,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -80,9 +121,67 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// KeyValidator is a validator for the "key" field. It is called by the builders before save.
 	KeyValidator func(string) error
-	// DefaultDataType holds the default value on creation for the "data_type" field.
-	DefaultDataType string
+	// DefaultRequiredOnOnboarding holds the default value on creation for the "required_on_onboarding" field.
+	DefaultRequiredOnOnboarding bool
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
+
+// Kind defines the type for the "kind" enum field.
+type Kind string
+
+// KindCustom is the default value of the Kind enum.
+const DefaultKind = KindCustom
+
+// Kind values.
+const (
+	KindSystem Kind = "system"
+	KindCustom Kind = "custom"
+)
+
+func (k Kind) String() string {
+	return string(k)
+}
+
+// KindValidator is a validator for the "kind" field enum values. It is called by the builders before save.
+func KindValidator(k Kind) error {
+	switch k {
+	case KindSystem, KindCustom:
+		return nil
+	default:
+		return fmt.Errorf("attributedefinition: invalid enum value for kind field: %q", k)
+	}
+}
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusActive is the default value of the Status enum.
+const DefaultStatus = StatusActive
+
+// Status values.
+const (
+	StatusActive   Status = "active"
+	StatusArchived Status = "archived"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusActive, StatusArchived:
+		return nil
+	default:
+		return fmt.Errorf("attributedefinition: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the AttributeDefinition queries.
 type OrderOption func(*sql.Selector)
@@ -117,14 +216,34 @@ func ByKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldKey, opts...).ToFunc()
 }
 
-// ByDataType orders the results by the data_type field.
-func ByDataType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDataType, opts...).ToFunc()
+// ByKind orders the results by the kind field.
+func ByKind(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKind, opts...).ToFunc()
 }
 
-// ByDescription orders the results by the description field.
-func ByDescription(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+// ByRequiredOnOnboarding orders the results by the required_on_onboarding field.
+func ByRequiredOnOnboarding(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRequiredOnOnboarding, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByDraftRevisionID orders the results by the draft_revision_id field.
+func ByDraftRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDraftRevisionID, opts...).ToFunc()
+}
+
+// ByActiveRevisionID orders the results by the active_revision_id field.
+func ByActiveRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActiveRevisionID, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
 }
 
 // ByValuesCount orders the results by values count.
@@ -140,10 +259,59 @@ func ByValues(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newValuesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByDraftRevisionField orders the results by draft_revision field.
+func ByDraftRevisionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDraftRevisionStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByActiveRevisionField orders the results by active_revision field.
+func ByActiveRevisionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newActiveRevisionStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newValuesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ValuesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ValuesTable, ValuesColumn),
+	)
+}
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
+}
+func newDraftRevisionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DraftRevisionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, DraftRevisionTable, DraftRevisionColumn),
+	)
+}
+func newActiveRevisionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ActiveRevisionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, ActiveRevisionTable, ActiveRevisionColumn),
 	)
 }

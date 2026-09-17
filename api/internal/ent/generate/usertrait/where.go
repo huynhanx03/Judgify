@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.UserTrait {
+func ID(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.UserTrait {
+func IDEQ(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.UserTrait {
+func IDNEQ(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.UserTrait {
+func IDIn(ids ...uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.UserTrait {
+func IDNotIn(ids ...uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.UserTrait {
+func IDGT(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.UserTrait {
+func IDGTE(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.UserTrait {
+func IDLT(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.UserTrait {
+func IDLTE(id uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,17 +72,17 @@ func DeletedAt(v time.Time) predicate.UserTrait {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.UserTrait {
+func DeletedBy(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.UserTrait {
+func UserID(v uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldUserID, v))
 }
 
 // TraitID applies equality check predicate on the "trait_id" field. It's identical to TraitIDEQ.
-func TraitID(v int) predicate.UserTrait {
+func TraitID(v uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldTraitID, v))
 }
 
@@ -216,43 +217,58 @@ func DeletedAtNotNil() predicate.UserTrait {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.UserTrait {
+func DeletedByEQ(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.UserTrait {
+func DeletedByNEQ(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.UserTrait {
+func DeletedByIn(vs ...string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.UserTrait {
+func DeletedByNotIn(vs ...string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.UserTrait {
+func DeletedByGT(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.UserTrait {
+func DeletedByGTE(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.UserTrait {
+func DeletedByLT(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.UserTrait {
+func DeletedByLTE(v string) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.UserTrait {
+	return predicate.UserTrait(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.UserTrait {
+	return predicate.UserTrait(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.UserTrait {
+	return predicate.UserTrait(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -265,43 +281,53 @@ func DeletedByNotNil() predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.UserTrait {
+	return predicate.UserTrait(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.UserTrait {
+	return predicate.UserTrait(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.UserTrait {
+func UserIDEQ(v uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.UserTrait {
+func UserIDNEQ(v uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.UserTrait {
+func UserIDIn(vs ...uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.UserTrait {
+func UserIDNotIn(vs ...uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // TraitIDEQ applies the EQ predicate on the "trait_id" field.
-func TraitIDEQ(v int) predicate.UserTrait {
+func TraitIDEQ(v uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldEQ(FieldTraitID, v))
 }
 
 // TraitIDNEQ applies the NEQ predicate on the "trait_id" field.
-func TraitIDNEQ(v int) predicate.UserTrait {
+func TraitIDNEQ(v uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNEQ(FieldTraitID, v))
 }
 
 // TraitIDIn applies the In predicate on the "trait_id" field.
-func TraitIDIn(vs ...int) predicate.UserTrait {
+func TraitIDIn(vs ...uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldIn(FieldTraitID, vs...))
 }
 
 // TraitIDNotIn applies the NotIn predicate on the "trait_id" field.
-func TraitIDNotIn(vs ...int) predicate.UserTrait {
+func TraitIDNotIn(vs ...uuid.UUID) predicate.UserTrait {
 	return predicate.UserTrait(sql.FieldNotIn(FieldTraitID, vs...))
 }
 

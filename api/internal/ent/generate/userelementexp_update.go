@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -58,23 +59,16 @@ func (_u *UserElementExpUpdate) ClearDeletedAt() *UserElementExpUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserElementExpUpdate) SetDeletedBy(v int) *UserElementExpUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserElementExpUpdate) SetDeletedBy(v string) *UserElementExpUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserElementExpUpdate) SetNillableDeletedBy(v *int) *UserElementExpUpdate {
+func (_u *UserElementExpUpdate) SetNillableDeletedBy(v *string) *UserElementExpUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserElementExpUpdate) AddDeletedBy(v int) *UserElementExpUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -85,13 +79,13 @@ func (_u *UserElementExpUpdate) ClearDeletedBy() *UserElementExpUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserElementExpUpdate) SetUserID(v int) *UserElementExpUpdate {
+func (_u *UserElementExpUpdate) SetUserID(v uuid.UUID) *UserElementExpUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserElementExpUpdate) SetNillableUserID(v *int) *UserElementExpUpdate {
+func (_u *UserElementExpUpdate) SetNillableUserID(v *uuid.UUID) *UserElementExpUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -99,13 +93,13 @@ func (_u *UserElementExpUpdate) SetNillableUserID(v *int) *UserElementExpUpdate 
 }
 
 // SetElementID sets the "element_id" field.
-func (_u *UserElementExpUpdate) SetElementID(v int) *UserElementExpUpdate {
+func (_u *UserElementExpUpdate) SetElementID(v uuid.UUID) *UserElementExpUpdate {
 	_u.mutation.SetElementID(v)
 	return _u
 }
 
 // SetNillableElementID sets the "element_id" field if the given value is not nil.
-func (_u *UserElementExpUpdate) SetNillableElementID(v *int) *UserElementExpUpdate {
+func (_u *UserElementExpUpdate) SetNillableElementID(v *uuid.UUID) *UserElementExpUpdate {
 	if v != nil {
 		_u.SetElementID(*v)
 	}
@@ -228,7 +222,7 @@ func (_u *UserElementExpUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userelementexp.Table, userelementexp.Columns, sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(userelementexp.Table, userelementexp.Columns, sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -246,13 +240,10 @@ func (_u *UserElementExpUpdate) sqlSave(ctx context.Context) (_node int, err err
 		_spec.ClearField(userelementexp.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(userelementexp.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(userelementexp.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(userelementexp.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Exp(); ok {
 		_spec.SetField(userelementexp.FieldExp, field.TypeInt64, value)
@@ -268,7 +259,7 @@ func (_u *UserElementExpUpdate) sqlSave(ctx context.Context) (_node int, err err
 			Columns: []string{userelementexp.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -281,7 +272,7 @@ func (_u *UserElementExpUpdate) sqlSave(ctx context.Context) (_node int, err err
 			Columns: []string{userelementexp.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -297,7 +288,7 @@ func (_u *UserElementExpUpdate) sqlSave(ctx context.Context) (_node int, err err
 			Columns: []string{userelementexp.ElementColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -310,7 +301,7 @@ func (_u *UserElementExpUpdate) sqlSave(ctx context.Context) (_node int, err err
 			Columns: []string{userelementexp.ElementColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -367,23 +358,16 @@ func (_u *UserElementExpUpdateOne) ClearDeletedAt() *UserElementExpUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserElementExpUpdateOne) SetDeletedBy(v int) *UserElementExpUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserElementExpUpdateOne) SetDeletedBy(v string) *UserElementExpUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserElementExpUpdateOne) SetNillableDeletedBy(v *int) *UserElementExpUpdateOne {
+func (_u *UserElementExpUpdateOne) SetNillableDeletedBy(v *string) *UserElementExpUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserElementExpUpdateOne) AddDeletedBy(v int) *UserElementExpUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -394,13 +378,13 @@ func (_u *UserElementExpUpdateOne) ClearDeletedBy() *UserElementExpUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserElementExpUpdateOne) SetUserID(v int) *UserElementExpUpdateOne {
+func (_u *UserElementExpUpdateOne) SetUserID(v uuid.UUID) *UserElementExpUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserElementExpUpdateOne) SetNillableUserID(v *int) *UserElementExpUpdateOne {
+func (_u *UserElementExpUpdateOne) SetNillableUserID(v *uuid.UUID) *UserElementExpUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -408,13 +392,13 @@ func (_u *UserElementExpUpdateOne) SetNillableUserID(v *int) *UserElementExpUpda
 }
 
 // SetElementID sets the "element_id" field.
-func (_u *UserElementExpUpdateOne) SetElementID(v int) *UserElementExpUpdateOne {
+func (_u *UserElementExpUpdateOne) SetElementID(v uuid.UUID) *UserElementExpUpdateOne {
 	_u.mutation.SetElementID(v)
 	return _u
 }
 
 // SetNillableElementID sets the "element_id" field if the given value is not nil.
-func (_u *UserElementExpUpdateOne) SetNillableElementID(v *int) *UserElementExpUpdateOne {
+func (_u *UserElementExpUpdateOne) SetNillableElementID(v *uuid.UUID) *UserElementExpUpdateOne {
 	if v != nil {
 		_u.SetElementID(*v)
 	}
@@ -550,7 +534,7 @@ func (_u *UserElementExpUpdateOne) sqlSave(ctx context.Context) (_node *UserElem
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userelementexp.Table, userelementexp.Columns, sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(userelementexp.Table, userelementexp.Columns, sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "UserElementExp.id" for update`)}
@@ -585,13 +569,10 @@ func (_u *UserElementExpUpdateOne) sqlSave(ctx context.Context) (_node *UserElem
 		_spec.ClearField(userelementexp.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(userelementexp.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(userelementexp.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(userelementexp.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Exp(); ok {
 		_spec.SetField(userelementexp.FieldExp, field.TypeInt64, value)
@@ -607,7 +588,7 @@ func (_u *UserElementExpUpdateOne) sqlSave(ctx context.Context) (_node *UserElem
 			Columns: []string{userelementexp.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -620,7 +601,7 @@ func (_u *UserElementExpUpdateOne) sqlSave(ctx context.Context) (_node *UserElem
 			Columns: []string{userelementexp.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -636,7 +617,7 @@ func (_u *UserElementExpUpdateOne) sqlSave(ctx context.Context) (_node *UserElem
 			Columns: []string{userelementexp.ElementColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -649,7 +630,7 @@ func (_u *UserElementExpUpdateOne) sqlSave(ctx context.Context) (_node *UserElem
 			Columns: []string{userelementexp.ElementColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

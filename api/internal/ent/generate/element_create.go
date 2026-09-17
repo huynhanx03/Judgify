@@ -8,11 +8,15 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
+	"github.com/huynhanx03/judgify/internal/ent/generate/elementrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevisionelement"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
 )
 
@@ -67,13 +71,13 @@ func (_c *ElementCreate) SetNillableDeletedAt(v *time.Time) *ElementCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *ElementCreate) SetDeletedBy(v int) *ElementCreate {
+func (_c *ElementCreate) SetDeletedBy(v string) *ElementCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *ElementCreate) SetNillableDeletedBy(v *int) *ElementCreate {
+func (_c *ElementCreate) SetNillableDeletedBy(v *string) *ElementCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -106,15 +110,73 @@ func (_c *ElementCreate) SetNillableDescription(v *string) *ElementCreate {
 	return _c
 }
 
+// SetVersion sets the "version" field.
+func (_c *ElementCreate) SetVersion(v int64) *ElementCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *ElementCreate) SetNillableVersion(v *int64) *ElementCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *ElementCreate) SetID(v uuid.UUID) *ElementCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *ElementCreate) SetNillableID(v *uuid.UUID) *ElementCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddRevisionIDs adds the "revisions" edge to the ElementRevision entity by IDs.
+func (_c *ElementCreate) AddRevisionIDs(ids ...uuid.UUID) *ElementCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the ElementRevision entity.
+func (_c *ElementCreate) AddRevisions(v ...*ElementRevision) *ElementCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
+}
+
+// AddTagRevisionElementIDs adds the "tag_revision_elements" edge to the TagRevisionElement entity by IDs.
+func (_c *ElementCreate) AddTagRevisionElementIDs(ids ...uuid.UUID) *ElementCreate {
+	_c.mutation.AddTagRevisionElementIDs(ids...)
+	return _c
+}
+
+// AddTagRevisionElements adds the "tag_revision_elements" edges to the TagRevisionElement entity.
+func (_c *ElementCreate) AddTagRevisionElements(v ...*TagRevisionElement) *ElementCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTagRevisionElementIDs(ids...)
+}
+
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_c *ElementCreate) AddTagIDs(ids ...int) *ElementCreate {
+func (_c *ElementCreate) AddTagIDs(ids ...uuid.UUID) *ElementCreate {
 	_c.mutation.AddTagIDs(ids...)
 	return _c
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_c *ElementCreate) AddTags(v ...*Tag) *ElementCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -122,14 +184,14 @@ func (_c *ElementCreate) AddTags(v ...*Tag) *ElementCreate {
 }
 
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
-func (_c *ElementCreate) AddUserElementExpIDs(ids ...int) *ElementCreate {
+func (_c *ElementCreate) AddUserElementExpIDs(ids ...uuid.UUID) *ElementCreate {
 	_c.mutation.AddUserElementExpIDs(ids...)
 	return _c
 }
 
 // AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
 func (_c *ElementCreate) AddUserElementExps(v ...*UserElementExp) *ElementCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -187,6 +249,17 @@ func (_c *ElementCreate) defaults() error {
 		v := element.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := element.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if element.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized element.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := element.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -219,6 +292,14 @@ func (_c *ElementCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Element.description": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Element.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := element.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Element.version": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -233,8 +314,13 @@ func (_c *ElementCreate) sqlSave(ctx context.Context) (*Element, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -243,9 +329,13 @@ func (_c *ElementCreate) sqlSave(ctx context.Context) (*Element, error) {
 func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Element{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(element.Table, sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(element.Table, sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(element.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -259,7 +349,7 @@ func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(element.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(element.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
@@ -274,6 +364,42 @@ func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 		_spec.SetField(element.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(element.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   element.RevisionsTable,
+			Columns: []string{element.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(elementrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TagRevisionElementsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   element.TagRevisionElementsTable,
+			Columns: []string{element.TagRevisionElementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevisionelement.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := _c.mutation.TagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -282,7 +408,7 @@ func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 			Columns: element.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -298,7 +424,7 @@ func (_c *ElementCreate) createSpec() (*Element, *sqlgraph.CreateSpec) {
 			Columns: []string{element.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -389,7 +515,7 @@ func (u *ElementUpsert) ClearDeletedAt() *ElementUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ElementUpsert) SetDeletedBy(v int) *ElementUpsert {
+func (u *ElementUpsert) SetDeletedBy(v string) *ElementUpsert {
 	u.Set(element.FieldDeletedBy, v)
 	return u
 }
@@ -397,12 +523,6 @@ func (u *ElementUpsert) SetDeletedBy(v int) *ElementUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *ElementUpsert) UpdateDeletedBy() *ElementUpsert {
 	u.SetExcluded(element.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ElementUpsert) AddDeletedBy(v int) *ElementUpsert {
-	u.Add(element.FieldDeletedBy, v)
 	return u
 }
 
@@ -454,17 +574,41 @@ func (u *ElementUpsert) ClearDescription() *ElementUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetVersion sets the "version" field.
+func (u *ElementUpsert) SetVersion(v int64) *ElementUpsert {
+	u.Set(element.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ElementUpsert) UpdateVersion() *ElementUpsert {
+	u.SetExcluded(element.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ElementUpsert) AddVersion(v int64) *ElementUpsert {
+	u.Add(element.FieldVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Element.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(element.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ElementUpsertOne) UpdateNewValues() *ElementUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(element.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(element.FieldCreatedAt)
 		}
@@ -535,16 +679,9 @@ func (u *ElementUpsertOne) ClearDeletedAt() *ElementUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ElementUpsertOne) SetDeletedBy(v int) *ElementUpsertOne {
+func (u *ElementUpsertOne) SetDeletedBy(v string) *ElementUpsertOne {
 	return u.Update(func(s *ElementUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ElementUpsertOne) AddDeletedBy(v int) *ElementUpsertOne {
-	return u.Update(func(s *ElementUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -611,6 +748,27 @@ func (u *ElementUpsertOne) ClearDescription() *ElementUpsertOne {
 	})
 }
 
+// SetVersion sets the "version" field.
+func (u *ElementUpsertOne) SetVersion(v int64) *ElementUpsertOne {
+	return u.Update(func(s *ElementUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ElementUpsertOne) AddVersion(v int64) *ElementUpsertOne {
+	return u.Update(func(s *ElementUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ElementUpsertOne) UpdateVersion() *ElementUpsertOne {
+	return u.Update(func(s *ElementUpsert) {
+		s.UpdateVersion()
+	})
+}
+
 // Exec executes the query.
 func (u *ElementUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -627,7 +785,12 @@ func (u *ElementUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ElementUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ElementUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: ElementUpsertOne.ID is not supported by MySQL driver. Use ElementUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -636,17 +799,12 @@ func (u *ElementUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ElementUpsertOne) IDX(ctx context.Context) int {
+func (u *ElementUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *ElementCreate) SetID(id int) *ElementCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // ElementCreateBulk is the builder for creating many Element entities in bulk.
@@ -696,10 +854,6 @@ func (_c *ElementCreateBulk) Save(ctx context.Context) ([]*Element, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -786,12 +940,18 @@ type ElementUpsertBulk struct {
 //	client.Element.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(element.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ElementUpsertBulk) UpdateNewValues() *ElementUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(element.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(element.FieldCreatedAt)
 			}
@@ -863,16 +1023,9 @@ func (u *ElementUpsertBulk) ClearDeletedAt() *ElementUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ElementUpsertBulk) SetDeletedBy(v int) *ElementUpsertBulk {
+func (u *ElementUpsertBulk) SetDeletedBy(v string) *ElementUpsertBulk {
 	return u.Update(func(s *ElementUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ElementUpsertBulk) AddDeletedBy(v int) *ElementUpsertBulk {
-	return u.Update(func(s *ElementUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -936,6 +1089,27 @@ func (u *ElementUpsertBulk) UpdateDescription() *ElementUpsertBulk {
 func (u *ElementUpsertBulk) ClearDescription() *ElementUpsertBulk {
 	return u.Update(func(s *ElementUpsert) {
 		s.ClearDescription()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ElementUpsertBulk) SetVersion(v int64) *ElementUpsertBulk {
+	return u.Update(func(s *ElementUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ElementUpsertBulk) AddVersion(v int64) *ElementUpsertBulk {
+	return u.Update(func(s *ElementUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ElementUpsertBulk) UpdateVersion() *ElementUpsertBulk {
+	return u.Update(func(s *ElementUpsert) {
+		s.UpdateVersion()
 	})
 }
 

@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
 )
 
 // MaterialCategoryCreate is the builder for creating a MaterialCategory entity.
@@ -66,13 +69,13 @@ func (_c *MaterialCategoryCreate) SetNillableDeletedAt(v *time.Time) *MaterialCa
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *MaterialCategoryCreate) SetDeletedBy(v int) *MaterialCategoryCreate {
+func (_c *MaterialCategoryCreate) SetDeletedBy(v string) *MaterialCategoryCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *MaterialCategoryCreate) SetNillableDeletedBy(v *int) *MaterialCategoryCreate {
+func (_c *MaterialCategoryCreate) SetNillableDeletedBy(v *string) *MaterialCategoryCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -99,19 +102,48 @@ func (_c *MaterialCategoryCreate) SetNillableDescription(v *string) *MaterialCat
 	return _c
 }
 
-// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_c *MaterialCategoryCreate) AddMaterialIDs(ids ...int) *MaterialCategoryCreate {
-	_c.mutation.AddMaterialIDs(ids...)
+// SetID sets the "id" field.
+func (_c *MaterialCategoryCreate) SetID(v uuid.UUID) *MaterialCategoryCreate {
+	_c.mutation.SetID(v)
 	return _c
 }
 
-// AddMaterials adds the "materials" edges to the Material entity.
-func (_c *MaterialCategoryCreate) AddMaterials(v ...*Material) *MaterialCategoryCreate {
-	ids := make([]int, len(v))
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *MaterialCategoryCreate) SetNillableID(v *uuid.UUID) *MaterialCategoryCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddRevisionIDs adds the "revisions" edge to the MaterialRevision entity by IDs.
+func (_c *MaterialCategoryCreate) AddRevisionIDs(ids ...uuid.UUID) *MaterialCategoryCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the MaterialRevision entity.
+func (_c *MaterialCategoryCreate) AddRevisions(v ...*MaterialRevision) *MaterialCategoryCreate {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _c.AddMaterialIDs(ids...)
+	return _c.AddRevisionIDs(ids...)
+}
+
+// AddLegacyMaterialIDs adds the "legacy_materials" edge to the Material entity by IDs.
+func (_c *MaterialCategoryCreate) AddLegacyMaterialIDs(ids ...uuid.UUID) *MaterialCategoryCreate {
+	_c.mutation.AddLegacyMaterialIDs(ids...)
+	return _c
+}
+
+// AddLegacyMaterials adds the "legacy_materials" edges to the Material entity.
+func (_c *MaterialCategoryCreate) AddLegacyMaterials(v ...*Material) *MaterialCategoryCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddLegacyMaterialIDs(ids...)
 }
 
 // Mutation returns the MaterialCategoryMutation object of the builder.
@@ -165,6 +197,13 @@ func (_c *MaterialCategoryCreate) defaults() error {
 		v := materialcategory.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if materialcategory.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized materialcategory.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := materialcategory.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -203,8 +242,13 @@ func (_c *MaterialCategoryCreate) sqlSave(ctx context.Context) (*MaterialCategor
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -213,9 +257,13 @@ func (_c *MaterialCategoryCreate) sqlSave(ctx context.Context) (*MaterialCategor
 func (_c *MaterialCategoryCreate) createSpec() (*MaterialCategory, *sqlgraph.CreateSpec) {
 	var (
 		_node = &MaterialCategory{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(materialcategory.Table, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(materialcategory.Table, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(materialcategory.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -229,7 +277,7 @@ func (_c *MaterialCategoryCreate) createSpec() (*MaterialCategory, *sqlgraph.Cre
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
@@ -240,15 +288,31 @@ func (_c *MaterialCategoryCreate) createSpec() (*MaterialCategory, *sqlgraph.Cre
 		_spec.SetField(materialcategory.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if nodes := _c.mutation.MaterialsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.LegacyMaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -339,7 +403,7 @@ func (u *MaterialCategoryUpsert) ClearDeletedAt() *MaterialCategoryUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *MaterialCategoryUpsert) SetDeletedBy(v int) *MaterialCategoryUpsert {
+func (u *MaterialCategoryUpsert) SetDeletedBy(v string) *MaterialCategoryUpsert {
 	u.Set(materialcategory.FieldDeletedBy, v)
 	return u
 }
@@ -347,12 +411,6 @@ func (u *MaterialCategoryUpsert) SetDeletedBy(v int) *MaterialCategoryUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *MaterialCategoryUpsert) UpdateDeletedBy() *MaterialCategoryUpsert {
 	u.SetExcluded(materialcategory.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *MaterialCategoryUpsert) AddDeletedBy(v int) *MaterialCategoryUpsert {
-	u.Add(materialcategory.FieldDeletedBy, v)
 	return u
 }
 
@@ -392,17 +450,23 @@ func (u *MaterialCategoryUpsert) ClearDescription() *MaterialCategoryUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.MaterialCategory.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(materialcategory.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MaterialCategoryUpsertOne) UpdateNewValues() *MaterialCategoryUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(materialcategory.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(materialcategory.FieldCreatedAt)
 		}
@@ -473,16 +537,9 @@ func (u *MaterialCategoryUpsertOne) ClearDeletedAt() *MaterialCategoryUpsertOne 
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *MaterialCategoryUpsertOne) SetDeletedBy(v int) *MaterialCategoryUpsertOne {
+func (u *MaterialCategoryUpsertOne) SetDeletedBy(v string) *MaterialCategoryUpsertOne {
 	return u.Update(func(s *MaterialCategoryUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *MaterialCategoryUpsertOne) AddDeletedBy(v int) *MaterialCategoryUpsertOne {
-	return u.Update(func(s *MaterialCategoryUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -551,7 +608,12 @@ func (u *MaterialCategoryUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *MaterialCategoryUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *MaterialCategoryUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: MaterialCategoryUpsertOne.ID is not supported by MySQL driver. Use MaterialCategoryUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -560,17 +622,12 @@ func (u *MaterialCategoryUpsertOne) ID(ctx context.Context) (id int, err error) 
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *MaterialCategoryUpsertOne) IDX(ctx context.Context) int {
+func (u *MaterialCategoryUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *MaterialCategoryCreate) SetID(id int) *MaterialCategoryCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // MaterialCategoryCreateBulk is the builder for creating many MaterialCategory entities in bulk.
@@ -620,10 +677,6 @@ func (_c *MaterialCategoryCreateBulk) Save(ctx context.Context) ([]*MaterialCate
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -710,12 +763,18 @@ type MaterialCategoryUpsertBulk struct {
 //	client.MaterialCategory.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(materialcategory.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MaterialCategoryUpsertBulk) UpdateNewValues() *MaterialCategoryUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(materialcategory.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(materialcategory.FieldCreatedAt)
 			}
@@ -787,16 +846,9 @@ func (u *MaterialCategoryUpsertBulk) ClearDeletedAt() *MaterialCategoryUpsertBul
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *MaterialCategoryUpsertBulk) SetDeletedBy(v int) *MaterialCategoryUpsertBulk {
+func (u *MaterialCategoryUpsertBulk) SetDeletedBy(v string) *MaterialCategoryUpsertBulk {
 	return u.Update(func(s *MaterialCategoryUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *MaterialCategoryUpsertBulk) AddDeletedBy(v int) *MaterialCategoryUpsertBulk {
-	return u.Update(func(s *MaterialCategoryUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 

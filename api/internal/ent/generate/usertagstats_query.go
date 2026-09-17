@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -132,8 +133,8 @@ func (_q *UserTagStatsQuery) FirstX(ctx context.Context) *UserTagStats {
 
 // FirstID returns the first UserTagStats ID from the query.
 // Returns a *NotFoundError when no UserTagStats ID was found.
-func (_q *UserTagStatsQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserTagStatsQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -145,7 +146,7 @@ func (_q *UserTagStatsQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserTagStatsQuery) FirstIDX(ctx context.Context) int {
+func (_q *UserTagStatsQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -183,8 +184,8 @@ func (_q *UserTagStatsQuery) OnlyX(ctx context.Context) *UserTagStats {
 // OnlyID is like Only, but returns the only UserTagStats ID in the query.
 // Returns a *NotSingularError when more than one UserTagStats ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserTagStatsQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserTagStatsQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -200,7 +201,7 @@ func (_q *UserTagStatsQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserTagStatsQuery) OnlyIDX(ctx context.Context) int {
+func (_q *UserTagStatsQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -228,7 +229,7 @@ func (_q *UserTagStatsQuery) AllX(ctx context.Context) []*UserTagStats {
 }
 
 // IDs executes the query and returns a list of UserTagStats IDs.
-func (_q *UserTagStatsQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *UserTagStatsQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -240,7 +241,7 @@ func (_q *UserTagStatsQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserTagStatsQuery) IDsX(ctx context.Context) []int {
+func (_q *UserTagStatsQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -337,7 +338,7 @@ func (_q *UserTagStatsQuery) WithTag(opts ...func(*TagQuery)) *UserTagStatsQuery
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		UserID uuid.UUID `json:"user_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -360,7 +361,7 @@ func (_q *UserTagStatsQuery) GroupBy(field string, fields ...string) *UserTagSta
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		UserID uuid.UUID `json:"user_id,omitempty"`
 //	}
 //
 //	client.UserTagStats.Query().
@@ -451,8 +452,8 @@ func (_q *UserTagStatsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 }
 
 func (_q *UserTagStatsQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserTagStats, init func(*UserTagStats), assign func(*UserTagStats, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserTagStats)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserTagStats)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -480,8 +481,8 @@ func (_q *UserTagStatsQuery) loadUser(ctx context.Context, query *UserQuery, nod
 	return nil
 }
 func (_q *UserTagStatsQuery) loadTag(ctx context.Context, query *TagQuery, nodes []*UserTagStats, init func(*UserTagStats), assign func(*UserTagStats, *Tag)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserTagStats)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserTagStats)
 	for i := range nodes {
 		fk := nodes[i].TagID
 		if _, ok := nodeids[fk]; !ok {
@@ -522,7 +523,7 @@ func (_q *UserTagStatsQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *UserTagStatsQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(usertagstats.Table, usertagstats.Columns, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(usertagstats.Table, usertagstats.Columns, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

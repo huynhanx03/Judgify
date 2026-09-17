@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -27,8 +28,14 @@ const (
 	FieldUserID = "user_id"
 	// FieldProvider holds the string denoting the provider field in the database.
 	FieldProvider = "provider"
-	// FieldExternalID holds the string denoting the external_id field in the database.
-	FieldExternalID = "external_id"
+	// FieldProviderSubject holds the string denoting the provider_subject field in the database.
+	FieldProviderSubject = "provider_subject"
+	// FieldDisplayName holds the string denoting the display_name field in the database.
+	FieldDisplayName = "display_name"
+	// FieldAvatarURL holds the string denoting the avatar_url field in the database.
+	FieldAvatarURL = "avatar_url"
+	// FieldLastAuthenticatedAt holds the string denoting the last_authenticated_at field in the database.
+	FieldLastAuthenticatedAt = "last_authenticated_at"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the federatedidentity in the database.
@@ -51,7 +58,10 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldUserID,
 	FieldProvider,
-	FieldExternalID,
+	FieldProviderSubject,
+	FieldDisplayName,
+	FieldAvatarURL,
+	FieldLastAuthenticatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -80,8 +90,14 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// ProviderValidator is a validator for the "provider" field. It is called by the builders before save.
 	ProviderValidator func(string) error
-	// ExternalIDValidator is a validator for the "external_id" field. It is called by the builders before save.
-	ExternalIDValidator func(string) error
+	// ProviderSubjectValidator is a validator for the "provider_subject" field. It is called by the builders before save.
+	ProviderSubjectValidator func(string) error
+	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	DisplayNameValidator func(string) error
+	// AvatarURLValidator is a validator for the "avatar_url" field. It is called by the builders before save.
+	AvatarURLValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the FederatedIdentity queries.
@@ -122,9 +138,24 @@ func ByProvider(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProvider, opts...).ToFunc()
 }
 
-// ByExternalID orders the results by the external_id field.
-func ByExternalID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExternalID, opts...).ToFunc()
+// ByProviderSubject orders the results by the provider_subject field.
+func ByProviderSubject(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProviderSubject, opts...).ToFunc()
+}
+
+// ByDisplayName orders the results by the display_name field.
+func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByAvatarURL orders the results by the avatar_url field.
+func ByAvatarURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatarURL, opts...).ToFunc()
+}
+
+// ByLastAuthenticatedAt orders the results by the last_authenticated_at field.
+func ByLastAuthenticatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastAuthenticatedAt, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

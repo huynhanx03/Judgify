@@ -5,9 +5,11 @@ package generate
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -17,11 +19,31 @@ import (
 type ContestRegistration struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
-	ContestID int `json:"contest_id,omitempty"`
+	ContestID uuid.UUID `json:"contest_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
+	// Status holds the value of the "status" field.
+	Status contestregistration.Status `json:"status,omitempty"`
+	// Source holds the value of the "source" field.
+	Source contestregistration.Source `json:"source,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
+	// OfficialSubmissionCount holds the value of the "official_submission_count" field.
+	OfficialSubmissionCount int64 `json:"official_submission_count,omitempty"`
+	// RegisteredAt holds the value of the "registered_at" field.
+	RegisteredAt *time.Time `json:"registered_at,omitempty"`
+	// WithdrawnAt holds the value of the "withdrawn_at" field.
+	WithdrawnAt *time.Time `json:"withdrawn_at,omitempty"`
+	// BannedAt holds the value of the "banned_at" field.
+	BannedAt *time.Time `json:"banned_at,omitempty"`
+	// Reason holds the value of the "reason" field.
+	Reason *string `json:"-"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ContestRegistrationQuery when eager-loading is set.
 	Edges        ContestRegistrationEdges `json:"edges"`
@@ -34,9 +56,11 @@ type ContestRegistrationEdges struct {
 	Contest *Contest `json:"contest,omitempty"`
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// Transitions holds the value of the transitions edge.
+	Transitions []*ContestRegistrationTransition `json:"transitions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ContestOrErr returns the Contest value or an error if the edge
@@ -61,13 +85,28 @@ func (e ContestRegistrationEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
+// TransitionsOrErr returns the Transitions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestRegistrationEdges) TransitionsOrErr() ([]*ContestRegistrationTransition, error) {
+	if e.loadedTypes[2] {
+		return e.Transitions, nil
+	}
+	return nil, &NotLoadedError{edge: "transitions"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*ContestRegistration) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case contestregistration.FieldID, contestregistration.FieldContestID, contestregistration.FieldUserID:
+		case contestregistration.FieldVersion, contestregistration.FieldOfficialSubmissionCount:
 			values[i] = new(sql.NullInt64)
+		case contestregistration.FieldStatus, contestregistration.FieldSource, contestregistration.FieldReason:
+			values[i] = new(sql.NullString)
+		case contestregistration.FieldCreatedAt, contestregistration.FieldUpdatedAt, contestregistration.FieldRegisteredAt, contestregistration.FieldWithdrawnAt, contestregistration.FieldBannedAt:
+			values[i] = new(sql.NullTime)
+		case contestregistration.FieldID, contestregistration.FieldContestID, contestregistration.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -84,22 +123,86 @@ func (_m *ContestRegistration) assignValues(columns []string, values []any) erro
 	for i := range columns {
 		switch columns[i] {
 		case contestregistration.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
-		case contestregistration.FieldContestID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
+		case contestregistration.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				_m.ContestID = int(value.Int64)
+				_m.CreatedAt = value.Time
+			}
+		case contestregistration.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case contestregistration.FieldContestID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
+			} else if value != nil {
+				_m.ContestID = *value
 			}
 		case contestregistration.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+			} else if value != nil {
+				_m.UserID = *value
+			}
+		case contestregistration.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+				_m.Status = contestregistration.Status(value.String)
+			}
+		case contestregistration.FieldSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field source", values[i])
+			} else if value.Valid {
+				_m.Source = contestregistration.Source(value.String)
+			}
+		case contestregistration.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
+		case contestregistration.FieldOfficialSubmissionCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field official_submission_count", values[i])
+			} else if value.Valid {
+				_m.OfficialSubmissionCount = value.Int64
+			}
+		case contestregistration.FieldRegisteredAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field registered_at", values[i])
+			} else if value.Valid {
+				_m.RegisteredAt = new(time.Time)
+				*_m.RegisteredAt = value.Time
+			}
+		case contestregistration.FieldWithdrawnAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field withdrawn_at", values[i])
+			} else if value.Valid {
+				_m.WithdrawnAt = new(time.Time)
+				*_m.WithdrawnAt = value.Time
+			}
+		case contestregistration.FieldBannedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field banned_at", values[i])
+			} else if value.Valid {
+				_m.BannedAt = new(time.Time)
+				*_m.BannedAt = value.Time
+			}
+		case contestregistration.FieldReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field reason", values[i])
+			} else if value.Valid {
+				_m.Reason = new(string)
+				*_m.Reason = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -122,6 +225,11 @@ func (_m *ContestRegistration) QueryContest() *ContestQuery {
 // QueryUser queries the "user" edge of the ContestRegistration entity.
 func (_m *ContestRegistration) QueryUser() *UserQuery {
 	return NewContestRegistrationClient(_m.config).QueryUser(_m)
+}
+
+// QueryTransitions queries the "transitions" edge of the ContestRegistration entity.
+func (_m *ContestRegistration) QueryTransitions() *ContestRegistrationTransitionQuery {
+	return NewContestRegistrationClient(_m.config).QueryTransitions(_m)
 }
 
 // Update returns a builder for updating this ContestRegistration.
@@ -147,21 +255,48 @@ func (_m *ContestRegistration) String() string {
 	var builder strings.Builder
 	builder.WriteString("ContestRegistration(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ContestID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("source=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Source))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
+	builder.WriteString("official_submission_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OfficialSubmissionCount))
+	builder.WriteString(", ")
+	if v := _m.RegisteredAt; v != nil {
+		builder.WriteString("registered_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.WithdrawnAt; v != nil {
+		builder.WriteString("withdrawn_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.BannedAt; v != nil {
+		builder.WriteString("banned_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("reason=<sensitive>")
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *ContestRegistration) GetID() int {
-	return _m.ID
-}
-
-func (_m *ContestRegistration) SetID(id int) {
-	_m.ID = id
 }
 
 // ContestRegistrations is a parsable slice of ContestRegistration.

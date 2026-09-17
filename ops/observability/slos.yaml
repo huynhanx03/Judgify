@@ -1,0 +1,98 @@
+schema_version: 1
+objectives:
+  - id: api_availability
+    description: Successful non-user-error API responses.
+    metric: judgify_http_requests_total
+    query: 'sum(rate(judgify_http_requests_total{role="api",status_class!~"5xx"}[5m])) / clamp_min(sum(rate(judgify_http_requests_total{role="api"}[5m])), 1)'
+    target: 0.995
+    window: 30d
+    budget: 0.005
+    runbook: ops/runbooks/api-availability.md
+
+  - id: api_latency_p95
+    description: API requests complete within the interactive latency budget.
+    metric: judgify_http_request_duration_seconds
+    query: 'histogram_quantile(0.95, sum by (le) (rate(judgify_http_request_duration_seconds_bucket{role="api"}[5m])))'
+    target: 0.95
+    threshold_seconds: 0.5
+    window: 30d
+    budget: 0.05
+    runbook: ops/runbooks/api-availability.md
+
+  - id: submission_acknowledgement
+    description: Submission commands are durably acknowledged before the request deadline.
+    metric: judgify_http_request_duration_seconds
+    query: 'histogram_quantile(0.99, sum by (le) (rate(judgify_http_request_duration_seconds_bucket{role="api",route="/submissions"}[5m])))'
+    target: 0.99
+    threshold_seconds: 1
+    window: 30d
+    budget: 0.01
+    runbook: ops/runbooks/judge-queue.md
+
+  - id: judge_queue_start
+    description: Claimable judge work starts before the validated queue-age ceiling.
+    metric: judgify_judge_oldest_ready_job_seconds
+    query: 'judgify_judge_oldest_ready_job_seconds'
+    target: 0.99
+    threshold_seconds: 120
+    window: 30d
+    budget: 0.01
+    runbook: ops/runbooks/judge-queue.md
+
+  - id: judge_finalization
+    description: Terminal judge attempts converge to one durable finalization.
+    metric: judgify_judge_finalizations_total
+    query: 'sum(rate(judgify_judge_finalizations_total{outcome="success"}[10m])) / clamp_min(sum(rate(judgify_judge_finalizations_total[10m])), 1)'
+    target: 0.999
+    window: 30d
+    budget: 0.001
+    runbook: ops/runbooks/judge-queue.md
+
+  - id: outbox_convergence
+    description: Durable integration events converge within the replay budget.
+    metric: judgify_outbox_oldest_pending_seconds
+    query: 'max(judgify_outbox_oldest_pending_seconds)'
+    target: 0.995
+    threshold_seconds: 60
+    window: 30d
+    budget: 0.005
+    runbook: ops/runbooks/outbox-lag.md
+
+  - id: realtime_delivery
+    description: WebSocket delivery avoids policy-critical closes.
+    metric: judgify_websocket_closes_total
+    query: '1 - (sum(rate(judgify_websocket_closes_total{class=~"slow_client|protocol|internal"}[10m])) / clamp_min(sum(rate(judgify_websocket_messages_total{direction="outbound"}[10m])), 1))'
+    target: 0.995
+    window: 30d
+    budget: 0.005
+    runbook: ops/runbooks/realtime-lag.md
+
+  - id: security_email_delivery
+    description: Security mail leaves the durable queue within the recovery flow budget.
+    metric: judgify_security_email_oldest_pending_seconds
+    query: 'max(judgify_security_email_oldest_pending_seconds)'
+    target: 0.99
+    threshold_seconds: 120
+    window: 30d
+    budget: 0.01
+    runbook: ops/runbooks/security-email.md
+
+  - id: authorization_convergence
+    description: Applied authorization policy matches the desired revision.
+    metric: judgify_authorization_revision
+    query: 'max(judgify_authorization_revision{kind="desired"}) - max(judgify_authorization_revision{kind="applied"})'
+    target: 0.9999
+    threshold_seconds: 0
+    window: 30d
+    budget: 0.0001
+    runbook: ops/runbooks/authorization-stale.md
+
+  - id: backup_freshness
+    description: A signed encrypted backup is durably published off-host within the RPO.
+    metric: judgify_backup_last_success_timestamp_seconds
+    query: 'time() - judgify_backup_last_success_timestamp_seconds'
+    target: 0.999
+    threshold_seconds: 300
+    window: 30d
+    budget: 0.001
+    runbook: ops/runbooks/database-restore.md

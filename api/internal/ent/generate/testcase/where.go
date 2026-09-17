@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.TestCase {
+func ID(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.TestCase {
+func IDEQ(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.TestCase {
+func IDNEQ(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.TestCase {
+func IDIn(ids ...uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.TestCase {
+func IDNotIn(ids ...uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.TestCase {
+func IDGT(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.TestCase {
+func IDGTE(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.TestCase {
+func IDLT(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.TestCase {
+func IDLTE(id uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,33 +72,13 @@ func DeletedAt(v time.Time) predicate.TestCase {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.TestCase {
+func DeletedBy(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // ProblemID applies equality check predicate on the "problem_id" field. It's identical to ProblemIDEQ.
-func ProblemID(v int) predicate.TestCase {
+func ProblemID(v uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldProblemID, v))
-}
-
-// Input applies equality check predicate on the "input" field. It's identical to InputEQ.
-func Input(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldInput, v))
-}
-
-// ExpectedOutput applies equality check predicate on the "expected_output" field. It's identical to ExpectedOutputEQ.
-func ExpectedOutput(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldExpectedOutput, v))
-}
-
-// IsHidden applies equality check predicate on the "is_hidden" field. It's identical to IsHiddenEQ.
-func IsHidden(v bool) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldIsHidden, v))
-}
-
-// OrderIndex applies equality check predicate on the "order_index" field. It's identical to OrderIndexEQ.
-func OrderIndex(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldOrderIndex, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -231,43 +212,58 @@ func DeletedAtNotNil() predicate.TestCase {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.TestCase {
+func DeletedByEQ(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.TestCase {
+func DeletedByNEQ(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.TestCase {
+func DeletedByIn(vs ...string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.TestCase {
+func DeletedByNotIn(vs ...string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.TestCase {
+func DeletedByGT(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.TestCase {
+func DeletedByGTE(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.TestCase {
+func DeletedByLT(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.TestCase {
+func DeletedByLTE(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.TestCase {
+	return predicate.TestCase(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.TestCase {
+	return predicate.TestCase(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.TestCase {
+	return predicate.TestCase(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -280,204 +276,34 @@ func DeletedByNotNil() predicate.TestCase {
 	return predicate.TestCase(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.TestCase {
+	return predicate.TestCase(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.TestCase {
+	return predicate.TestCase(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // ProblemIDEQ applies the EQ predicate on the "problem_id" field.
-func ProblemIDEQ(v int) predicate.TestCase {
+func ProblemIDEQ(v uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldProblemID, v))
 }
 
 // ProblemIDNEQ applies the NEQ predicate on the "problem_id" field.
-func ProblemIDNEQ(v int) predicate.TestCase {
+func ProblemIDNEQ(v uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldNEQ(FieldProblemID, v))
 }
 
 // ProblemIDIn applies the In predicate on the "problem_id" field.
-func ProblemIDIn(vs ...int) predicate.TestCase {
+func ProblemIDIn(vs ...uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldIn(FieldProblemID, vs...))
 }
 
 // ProblemIDNotIn applies the NotIn predicate on the "problem_id" field.
-func ProblemIDNotIn(vs ...int) predicate.TestCase {
+func ProblemIDNotIn(vs ...uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldNotIn(FieldProblemID, vs...))
-}
-
-// InputEQ applies the EQ predicate on the "input" field.
-func InputEQ(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldInput, v))
-}
-
-// InputNEQ applies the NEQ predicate on the "input" field.
-func InputNEQ(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNEQ(FieldInput, v))
-}
-
-// InputIn applies the In predicate on the "input" field.
-func InputIn(vs ...string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldIn(FieldInput, vs...))
-}
-
-// InputNotIn applies the NotIn predicate on the "input" field.
-func InputNotIn(vs ...string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNotIn(FieldInput, vs...))
-}
-
-// InputGT applies the GT predicate on the "input" field.
-func InputGT(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldGT(FieldInput, v))
-}
-
-// InputGTE applies the GTE predicate on the "input" field.
-func InputGTE(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldGTE(FieldInput, v))
-}
-
-// InputLT applies the LT predicate on the "input" field.
-func InputLT(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldLT(FieldInput, v))
-}
-
-// InputLTE applies the LTE predicate on the "input" field.
-func InputLTE(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldLTE(FieldInput, v))
-}
-
-// InputContains applies the Contains predicate on the "input" field.
-func InputContains(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldContains(FieldInput, v))
-}
-
-// InputHasPrefix applies the HasPrefix predicate on the "input" field.
-func InputHasPrefix(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldHasPrefix(FieldInput, v))
-}
-
-// InputHasSuffix applies the HasSuffix predicate on the "input" field.
-func InputHasSuffix(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldHasSuffix(FieldInput, v))
-}
-
-// InputEqualFold applies the EqualFold predicate on the "input" field.
-func InputEqualFold(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEqualFold(FieldInput, v))
-}
-
-// InputContainsFold applies the ContainsFold predicate on the "input" field.
-func InputContainsFold(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldContainsFold(FieldInput, v))
-}
-
-// ExpectedOutputEQ applies the EQ predicate on the "expected_output" field.
-func ExpectedOutputEQ(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputNEQ applies the NEQ predicate on the "expected_output" field.
-func ExpectedOutputNEQ(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNEQ(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputIn applies the In predicate on the "expected_output" field.
-func ExpectedOutputIn(vs ...string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldIn(FieldExpectedOutput, vs...))
-}
-
-// ExpectedOutputNotIn applies the NotIn predicate on the "expected_output" field.
-func ExpectedOutputNotIn(vs ...string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNotIn(FieldExpectedOutput, vs...))
-}
-
-// ExpectedOutputGT applies the GT predicate on the "expected_output" field.
-func ExpectedOutputGT(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldGT(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputGTE applies the GTE predicate on the "expected_output" field.
-func ExpectedOutputGTE(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldGTE(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputLT applies the LT predicate on the "expected_output" field.
-func ExpectedOutputLT(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldLT(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputLTE applies the LTE predicate on the "expected_output" field.
-func ExpectedOutputLTE(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldLTE(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputContains applies the Contains predicate on the "expected_output" field.
-func ExpectedOutputContains(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldContains(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputHasPrefix applies the HasPrefix predicate on the "expected_output" field.
-func ExpectedOutputHasPrefix(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldHasPrefix(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputHasSuffix applies the HasSuffix predicate on the "expected_output" field.
-func ExpectedOutputHasSuffix(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldHasSuffix(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputEqualFold applies the EqualFold predicate on the "expected_output" field.
-func ExpectedOutputEqualFold(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEqualFold(FieldExpectedOutput, v))
-}
-
-// ExpectedOutputContainsFold applies the ContainsFold predicate on the "expected_output" field.
-func ExpectedOutputContainsFold(v string) predicate.TestCase {
-	return predicate.TestCase(sql.FieldContainsFold(FieldExpectedOutput, v))
-}
-
-// IsHiddenEQ applies the EQ predicate on the "is_hidden" field.
-func IsHiddenEQ(v bool) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldIsHidden, v))
-}
-
-// IsHiddenNEQ applies the NEQ predicate on the "is_hidden" field.
-func IsHiddenNEQ(v bool) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNEQ(FieldIsHidden, v))
-}
-
-// OrderIndexEQ applies the EQ predicate on the "order_index" field.
-func OrderIndexEQ(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldEQ(FieldOrderIndex, v))
-}
-
-// OrderIndexNEQ applies the NEQ predicate on the "order_index" field.
-func OrderIndexNEQ(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNEQ(FieldOrderIndex, v))
-}
-
-// OrderIndexIn applies the In predicate on the "order_index" field.
-func OrderIndexIn(vs ...int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldIn(FieldOrderIndex, vs...))
-}
-
-// OrderIndexNotIn applies the NotIn predicate on the "order_index" field.
-func OrderIndexNotIn(vs ...int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldNotIn(FieldOrderIndex, vs...))
-}
-
-// OrderIndexGT applies the GT predicate on the "order_index" field.
-func OrderIndexGT(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldGT(FieldOrderIndex, v))
-}
-
-// OrderIndexGTE applies the GTE predicate on the "order_index" field.
-func OrderIndexGTE(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldGTE(FieldOrderIndex, v))
-}
-
-// OrderIndexLT applies the LT predicate on the "order_index" field.
-func OrderIndexLT(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldLT(FieldOrderIndex, v))
-}
-
-// OrderIndexLTE applies the LTE predicate on the "order_index" field.
-func OrderIndexLTE(v int) predicate.TestCase {
-	return predicate.TestCase(sql.FieldLTE(FieldOrderIndex, v))
 }
 
 // HasProblem applies the HasEdge predicate on the "problem" edge.
@@ -495,6 +321,29 @@ func HasProblem() predicate.TestCase {
 func HasProblemWith(preds ...predicate.Problem) predicate.TestCase {
 	return predicate.TestCase(func(s *sql.Selector) {
 		step := newProblemStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.TestCase {
+	return predicate.TestCase(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.TestcaseRevision) predicate.TestCase {
+	return predicate.TestCase(func(s *sql.Selector) {
+		step := newRevisionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

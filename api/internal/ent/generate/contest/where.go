@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Contest {
+func ID(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Contest {
+func IDEQ(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Contest {
+func IDNEQ(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Contest {
+func IDIn(ids ...uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Contest {
+func IDNotIn(ids ...uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Contest {
+func IDGT(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Contest {
+func IDGTE(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Contest {
+func IDLT(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Contest {
+func IDLTE(id uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Contest {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Contest {
+func DeletedBy(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -95,14 +96,84 @@ func EndTime(v time.Time) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldEndTime, v))
 }
 
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldVersion, v))
+}
+
 // AuthorID applies equality check predicate on the "author_id" field. It's identical to AuthorIDEQ.
-func AuthorID(v int) predicate.Contest {
+func AuthorID(v uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldAuthorID, v))
+}
+
+// RegistrationOpensAt applies equality check predicate on the "registration_opens_at" field. It's identical to RegistrationOpensAtEQ.
+func RegistrationOpensAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationClosesAt applies equality check predicate on the "registration_closes_at" field. It's identical to RegistrationClosesAtEQ.
+func RegistrationClosesAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRegistrationClosesAt, v))
 }
 
 // MaxParticipants applies equality check predicate on the "max_participants" field. It's identical to MaxParticipantsEQ.
 func MaxParticipants(v int) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldMaxParticipants, v))
+}
+
+// NextSubmissionSequence applies equality check predicate on the "next_submission_sequence" field. It's identical to NextSubmissionSequenceEQ.
+func NextSubmissionSequence(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldNextSubmissionSequence, v))
+}
+
+// ScoringPolicyVersion applies equality check predicate on the "scoring_policy_version" field. It's identical to ScoringPolicyVersionEQ.
+func ScoringPolicyVersion(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldScoringPolicyVersion, v))
+}
+
+// StandingsProjectionVersion applies equality check predicate on the "standings_projection_version" field. It's identical to StandingsProjectionVersionEQ.
+func StandingsProjectionVersion(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStandingsProjectionVersion, v))
+}
+
+// FreezeStandingsAt applies equality check predicate on the "freeze_standings_at" field. It's identical to FreezeStandingsAtEQ.
+func FreezeStandingsAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldFreezeStandingsAt, v))
+}
+
+// Rated applies equality check predicate on the "rated" field. It's identical to RatedEQ.
+func Rated(v bool) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRated, v))
+}
+
+// RatingAlgorithmVersion applies equality check predicate on the "rating_algorithm_version" field. It's identical to RatingAlgorithmVersionEQ.
+func RatingAlgorithmVersion(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRatingAlgorithmVersion, v))
+}
+
+// PublishedAt applies equality check predicate on the "published_at" field. It's identical to PublishedAtEQ.
+func PublishedAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldPublishedAt, v))
+}
+
+// StartedAt applies equality check predicate on the "started_at" field. It's identical to StartedAtEQ.
+func StartedAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStartedAt, v))
+}
+
+// EndedAt applies equality check predicate on the "ended_at" field. It's identical to EndedAtEQ.
+func EndedAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldEndedAt, v))
+}
+
+// CancelledAt applies equality check predicate on the "cancelled_at" field. It's identical to CancelledAtEQ.
+func CancelledAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldCancelledAt, v))
+}
+
+// RatingCompletedAt applies equality check predicate on the "rating_completed_at" field. It's identical to RatingCompletedAtEQ.
+func RatingCompletedAt(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRatingCompletedAt, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -236,43 +307,58 @@ func DeletedAtNotNil() predicate.Contest {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Contest {
+func DeletedByEQ(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Contest {
+func DeletedByNEQ(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Contest {
+func DeletedByIn(vs ...string) predicate.Contest {
 	return predicate.Contest(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Contest {
+func DeletedByNotIn(vs ...string) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Contest {
+func DeletedByGT(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Contest {
+func DeletedByGTE(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Contest {
+func DeletedByLT(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Contest {
+func DeletedByLTE(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -283,6 +369,16 @@ func DeletedByIsNil() predicate.Contest {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Contest {
 	return predicate.Contest(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -525,24 +621,184 @@ func StatusNotIn(vs ...Status) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldStatus, vs...))
 }
 
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldVersion, v))
+}
+
 // AuthorIDEQ applies the EQ predicate on the "author_id" field.
-func AuthorIDEQ(v int) predicate.Contest {
+func AuthorIDEQ(v uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldAuthorID, v))
 }
 
 // AuthorIDNEQ applies the NEQ predicate on the "author_id" field.
-func AuthorIDNEQ(v int) predicate.Contest {
+func AuthorIDNEQ(v uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldNEQ(FieldAuthorID, v))
 }
 
 // AuthorIDIn applies the In predicate on the "author_id" field.
-func AuthorIDIn(vs ...int) predicate.Contest {
+func AuthorIDIn(vs ...uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldIn(FieldAuthorID, vs...))
 }
 
 // AuthorIDNotIn applies the NotIn predicate on the "author_id" field.
-func AuthorIDNotIn(vs ...int) predicate.Contest {
+func AuthorIDNotIn(vs ...uuid.UUID) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldAuthorID, vs...))
+}
+
+// RegistrationModeEQ applies the EQ predicate on the "registration_mode" field.
+func RegistrationModeEQ(v RegistrationMode) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRegistrationMode, v))
+}
+
+// RegistrationModeNEQ applies the NEQ predicate on the "registration_mode" field.
+func RegistrationModeNEQ(v RegistrationMode) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldRegistrationMode, v))
+}
+
+// RegistrationModeIn applies the In predicate on the "registration_mode" field.
+func RegistrationModeIn(vs ...RegistrationMode) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldRegistrationMode, vs...))
+}
+
+// RegistrationModeNotIn applies the NotIn predicate on the "registration_mode" field.
+func RegistrationModeNotIn(vs ...RegistrationMode) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldRegistrationMode, vs...))
+}
+
+// RegistrationOpensAtEQ applies the EQ predicate on the "registration_opens_at" field.
+func RegistrationOpensAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationOpensAtNEQ applies the NEQ predicate on the "registration_opens_at" field.
+func RegistrationOpensAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationOpensAtIn applies the In predicate on the "registration_opens_at" field.
+func RegistrationOpensAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldRegistrationOpensAt, vs...))
+}
+
+// RegistrationOpensAtNotIn applies the NotIn predicate on the "registration_opens_at" field.
+func RegistrationOpensAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldRegistrationOpensAt, vs...))
+}
+
+// RegistrationOpensAtGT applies the GT predicate on the "registration_opens_at" field.
+func RegistrationOpensAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationOpensAtGTE applies the GTE predicate on the "registration_opens_at" field.
+func RegistrationOpensAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationOpensAtLT applies the LT predicate on the "registration_opens_at" field.
+func RegistrationOpensAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationOpensAtLTE applies the LTE predicate on the "registration_opens_at" field.
+func RegistrationOpensAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldRegistrationOpensAt, v))
+}
+
+// RegistrationOpensAtIsNil applies the IsNil predicate on the "registration_opens_at" field.
+func RegistrationOpensAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldRegistrationOpensAt))
+}
+
+// RegistrationOpensAtNotNil applies the NotNil predicate on the "registration_opens_at" field.
+func RegistrationOpensAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldRegistrationOpensAt))
+}
+
+// RegistrationClosesAtEQ applies the EQ predicate on the "registration_closes_at" field.
+func RegistrationClosesAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRegistrationClosesAt, v))
+}
+
+// RegistrationClosesAtNEQ applies the NEQ predicate on the "registration_closes_at" field.
+func RegistrationClosesAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldRegistrationClosesAt, v))
+}
+
+// RegistrationClosesAtIn applies the In predicate on the "registration_closes_at" field.
+func RegistrationClosesAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldRegistrationClosesAt, vs...))
+}
+
+// RegistrationClosesAtNotIn applies the NotIn predicate on the "registration_closes_at" field.
+func RegistrationClosesAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldRegistrationClosesAt, vs...))
+}
+
+// RegistrationClosesAtGT applies the GT predicate on the "registration_closes_at" field.
+func RegistrationClosesAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldRegistrationClosesAt, v))
+}
+
+// RegistrationClosesAtGTE applies the GTE predicate on the "registration_closes_at" field.
+func RegistrationClosesAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldRegistrationClosesAt, v))
+}
+
+// RegistrationClosesAtLT applies the LT predicate on the "registration_closes_at" field.
+func RegistrationClosesAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldRegistrationClosesAt, v))
+}
+
+// RegistrationClosesAtLTE applies the LTE predicate on the "registration_closes_at" field.
+func RegistrationClosesAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldRegistrationClosesAt, v))
+}
+
+// RegistrationClosesAtIsNil applies the IsNil predicate on the "registration_closes_at" field.
+func RegistrationClosesAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldRegistrationClosesAt))
+}
+
+// RegistrationClosesAtNotNil applies the NotNil predicate on the "registration_closes_at" field.
+func RegistrationClosesAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldRegistrationClosesAt))
 }
 
 // MaxParticipantsEQ applies the EQ predicate on the "max_participants" field.
@@ -585,6 +841,531 @@ func MaxParticipantsLTE(v int) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldMaxParticipants, v))
 }
 
+// MaxParticipantsIsNil applies the IsNil predicate on the "max_participants" field.
+func MaxParticipantsIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldMaxParticipants))
+}
+
+// MaxParticipantsNotNil applies the NotNil predicate on the "max_participants" field.
+func MaxParticipantsNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldMaxParticipants))
+}
+
+// NextSubmissionSequenceEQ applies the EQ predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldNextSubmissionSequence, v))
+}
+
+// NextSubmissionSequenceNEQ applies the NEQ predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceNEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldNextSubmissionSequence, v))
+}
+
+// NextSubmissionSequenceIn applies the In predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldNextSubmissionSequence, vs...))
+}
+
+// NextSubmissionSequenceNotIn applies the NotIn predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceNotIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldNextSubmissionSequence, vs...))
+}
+
+// NextSubmissionSequenceGT applies the GT predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceGT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldNextSubmissionSequence, v))
+}
+
+// NextSubmissionSequenceGTE applies the GTE predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceGTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldNextSubmissionSequence, v))
+}
+
+// NextSubmissionSequenceLT applies the LT predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceLT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldNextSubmissionSequence, v))
+}
+
+// NextSubmissionSequenceLTE applies the LTE predicate on the "next_submission_sequence" field.
+func NextSubmissionSequenceLTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldNextSubmissionSequence, v))
+}
+
+// ScoringPolicyEQ applies the EQ predicate on the "scoring_policy" field.
+func ScoringPolicyEQ(v ScoringPolicy) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldScoringPolicy, v))
+}
+
+// ScoringPolicyNEQ applies the NEQ predicate on the "scoring_policy" field.
+func ScoringPolicyNEQ(v ScoringPolicy) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldScoringPolicy, v))
+}
+
+// ScoringPolicyIn applies the In predicate on the "scoring_policy" field.
+func ScoringPolicyIn(vs ...ScoringPolicy) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldScoringPolicy, vs...))
+}
+
+// ScoringPolicyNotIn applies the NotIn predicate on the "scoring_policy" field.
+func ScoringPolicyNotIn(vs ...ScoringPolicy) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldScoringPolicy, vs...))
+}
+
+// ScoringPolicyVersionEQ applies the EQ predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldScoringPolicyVersion, v))
+}
+
+// ScoringPolicyVersionNEQ applies the NEQ predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionNEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldScoringPolicyVersion, v))
+}
+
+// ScoringPolicyVersionIn applies the In predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldScoringPolicyVersion, vs...))
+}
+
+// ScoringPolicyVersionNotIn applies the NotIn predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionNotIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldScoringPolicyVersion, vs...))
+}
+
+// ScoringPolicyVersionGT applies the GT predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionGT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldScoringPolicyVersion, v))
+}
+
+// ScoringPolicyVersionGTE applies the GTE predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionGTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldScoringPolicyVersion, v))
+}
+
+// ScoringPolicyVersionLT applies the LT predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionLT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldScoringPolicyVersion, v))
+}
+
+// ScoringPolicyVersionLTE applies the LTE predicate on the "scoring_policy_version" field.
+func ScoringPolicyVersionLTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldScoringPolicyVersion, v))
+}
+
+// StandingsProjectionVersionEQ applies the EQ predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStandingsProjectionVersion, v))
+}
+
+// StandingsProjectionVersionNEQ applies the NEQ predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionNEQ(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldStandingsProjectionVersion, v))
+}
+
+// StandingsProjectionVersionIn applies the In predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldStandingsProjectionVersion, vs...))
+}
+
+// StandingsProjectionVersionNotIn applies the NotIn predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionNotIn(vs ...int64) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldStandingsProjectionVersion, vs...))
+}
+
+// StandingsProjectionVersionGT applies the GT predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionGT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldStandingsProjectionVersion, v))
+}
+
+// StandingsProjectionVersionGTE applies the GTE predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionGTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldStandingsProjectionVersion, v))
+}
+
+// StandingsProjectionVersionLT applies the LT predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionLT(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldStandingsProjectionVersion, v))
+}
+
+// StandingsProjectionVersionLTE applies the LTE predicate on the "standings_projection_version" field.
+func StandingsProjectionVersionLTE(v int64) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldStandingsProjectionVersion, v))
+}
+
+// FreezeStandingsAtEQ applies the EQ predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldFreezeStandingsAt, v))
+}
+
+// FreezeStandingsAtNEQ applies the NEQ predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldFreezeStandingsAt, v))
+}
+
+// FreezeStandingsAtIn applies the In predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldFreezeStandingsAt, vs...))
+}
+
+// FreezeStandingsAtNotIn applies the NotIn predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldFreezeStandingsAt, vs...))
+}
+
+// FreezeStandingsAtGT applies the GT predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldFreezeStandingsAt, v))
+}
+
+// FreezeStandingsAtGTE applies the GTE predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldFreezeStandingsAt, v))
+}
+
+// FreezeStandingsAtLT applies the LT predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldFreezeStandingsAt, v))
+}
+
+// FreezeStandingsAtLTE applies the LTE predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldFreezeStandingsAt, v))
+}
+
+// FreezeStandingsAtIsNil applies the IsNil predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldFreezeStandingsAt))
+}
+
+// FreezeStandingsAtNotNil applies the NotNil predicate on the "freeze_standings_at" field.
+func FreezeStandingsAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldFreezeStandingsAt))
+}
+
+// RatedEQ applies the EQ predicate on the "rated" field.
+func RatedEQ(v bool) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRated, v))
+}
+
+// RatedNEQ applies the NEQ predicate on the "rated" field.
+func RatedNEQ(v bool) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldRated, v))
+}
+
+// RatingAlgorithmVersionEQ applies the EQ predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionEQ(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionNEQ applies the NEQ predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionNEQ(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionIn applies the In predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionIn(vs ...string) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldRatingAlgorithmVersion, vs...))
+}
+
+// RatingAlgorithmVersionNotIn applies the NotIn predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionNotIn(vs ...string) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldRatingAlgorithmVersion, vs...))
+}
+
+// RatingAlgorithmVersionGT applies the GT predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionGT(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionGTE applies the GTE predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionGTE(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionLT applies the LT predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionLT(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionLTE applies the LTE predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionLTE(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionContains applies the Contains predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionContains(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldContains(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionHasPrefix applies the HasPrefix predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionHasPrefix(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldHasPrefix(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionHasSuffix applies the HasSuffix predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionHasSuffix(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldHasSuffix(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionEqualFold applies the EqualFold predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionEqualFold(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldEqualFold(FieldRatingAlgorithmVersion, v))
+}
+
+// RatingAlgorithmVersionContainsFold applies the ContainsFold predicate on the "rating_algorithm_version" field.
+func RatingAlgorithmVersionContainsFold(v string) predicate.Contest {
+	return predicate.Contest(sql.FieldContainsFold(FieldRatingAlgorithmVersion, v))
+}
+
+// PublishedAtEQ applies the EQ predicate on the "published_at" field.
+func PublishedAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldPublishedAt, v))
+}
+
+// PublishedAtNEQ applies the NEQ predicate on the "published_at" field.
+func PublishedAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldPublishedAt, v))
+}
+
+// PublishedAtIn applies the In predicate on the "published_at" field.
+func PublishedAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldPublishedAt, vs...))
+}
+
+// PublishedAtNotIn applies the NotIn predicate on the "published_at" field.
+func PublishedAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldPublishedAt, vs...))
+}
+
+// PublishedAtGT applies the GT predicate on the "published_at" field.
+func PublishedAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldPublishedAt, v))
+}
+
+// PublishedAtGTE applies the GTE predicate on the "published_at" field.
+func PublishedAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldPublishedAt, v))
+}
+
+// PublishedAtLT applies the LT predicate on the "published_at" field.
+func PublishedAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldPublishedAt, v))
+}
+
+// PublishedAtLTE applies the LTE predicate on the "published_at" field.
+func PublishedAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldPublishedAt, v))
+}
+
+// PublishedAtIsNil applies the IsNil predicate on the "published_at" field.
+func PublishedAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldPublishedAt))
+}
+
+// PublishedAtNotNil applies the NotNil predicate on the "published_at" field.
+func PublishedAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldPublishedAt))
+}
+
+// StartedAtEQ applies the EQ predicate on the "started_at" field.
+func StartedAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStartedAt, v))
+}
+
+// StartedAtNEQ applies the NEQ predicate on the "started_at" field.
+func StartedAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldStartedAt, v))
+}
+
+// StartedAtIn applies the In predicate on the "started_at" field.
+func StartedAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldStartedAt, vs...))
+}
+
+// StartedAtNotIn applies the NotIn predicate on the "started_at" field.
+func StartedAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldStartedAt, vs...))
+}
+
+// StartedAtGT applies the GT predicate on the "started_at" field.
+func StartedAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldStartedAt, v))
+}
+
+// StartedAtGTE applies the GTE predicate on the "started_at" field.
+func StartedAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldStartedAt, v))
+}
+
+// StartedAtLT applies the LT predicate on the "started_at" field.
+func StartedAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldStartedAt, v))
+}
+
+// StartedAtLTE applies the LTE predicate on the "started_at" field.
+func StartedAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldStartedAt, v))
+}
+
+// StartedAtIsNil applies the IsNil predicate on the "started_at" field.
+func StartedAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldStartedAt))
+}
+
+// StartedAtNotNil applies the NotNil predicate on the "started_at" field.
+func StartedAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldStartedAt))
+}
+
+// EndedAtEQ applies the EQ predicate on the "ended_at" field.
+func EndedAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldEndedAt, v))
+}
+
+// EndedAtNEQ applies the NEQ predicate on the "ended_at" field.
+func EndedAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldEndedAt, v))
+}
+
+// EndedAtIn applies the In predicate on the "ended_at" field.
+func EndedAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldEndedAt, vs...))
+}
+
+// EndedAtNotIn applies the NotIn predicate on the "ended_at" field.
+func EndedAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldEndedAt, vs...))
+}
+
+// EndedAtGT applies the GT predicate on the "ended_at" field.
+func EndedAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldEndedAt, v))
+}
+
+// EndedAtGTE applies the GTE predicate on the "ended_at" field.
+func EndedAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldEndedAt, v))
+}
+
+// EndedAtLT applies the LT predicate on the "ended_at" field.
+func EndedAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldEndedAt, v))
+}
+
+// EndedAtLTE applies the LTE predicate on the "ended_at" field.
+func EndedAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldEndedAt, v))
+}
+
+// EndedAtIsNil applies the IsNil predicate on the "ended_at" field.
+func EndedAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldEndedAt))
+}
+
+// EndedAtNotNil applies the NotNil predicate on the "ended_at" field.
+func EndedAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldEndedAt))
+}
+
+// CancelledAtEQ applies the EQ predicate on the "cancelled_at" field.
+func CancelledAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldCancelledAt, v))
+}
+
+// CancelledAtNEQ applies the NEQ predicate on the "cancelled_at" field.
+func CancelledAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldCancelledAt, v))
+}
+
+// CancelledAtIn applies the In predicate on the "cancelled_at" field.
+func CancelledAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldCancelledAt, vs...))
+}
+
+// CancelledAtNotIn applies the NotIn predicate on the "cancelled_at" field.
+func CancelledAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldCancelledAt, vs...))
+}
+
+// CancelledAtGT applies the GT predicate on the "cancelled_at" field.
+func CancelledAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldCancelledAt, v))
+}
+
+// CancelledAtGTE applies the GTE predicate on the "cancelled_at" field.
+func CancelledAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldCancelledAt, v))
+}
+
+// CancelledAtLT applies the LT predicate on the "cancelled_at" field.
+func CancelledAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldCancelledAt, v))
+}
+
+// CancelledAtLTE applies the LTE predicate on the "cancelled_at" field.
+func CancelledAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldCancelledAt, v))
+}
+
+// CancelledAtIsNil applies the IsNil predicate on the "cancelled_at" field.
+func CancelledAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldCancelledAt))
+}
+
+// CancelledAtNotNil applies the NotNil predicate on the "cancelled_at" field.
+func CancelledAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldCancelledAt))
+}
+
+// RatingCompletedAtEQ applies the EQ predicate on the "rating_completed_at" field.
+func RatingCompletedAtEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldRatingCompletedAt, v))
+}
+
+// RatingCompletedAtNEQ applies the NEQ predicate on the "rating_completed_at" field.
+func RatingCompletedAtNEQ(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldRatingCompletedAt, v))
+}
+
+// RatingCompletedAtIn applies the In predicate on the "rating_completed_at" field.
+func RatingCompletedAtIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldRatingCompletedAt, vs...))
+}
+
+// RatingCompletedAtNotIn applies the NotIn predicate on the "rating_completed_at" field.
+func RatingCompletedAtNotIn(vs ...time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldRatingCompletedAt, vs...))
+}
+
+// RatingCompletedAtGT applies the GT predicate on the "rating_completed_at" field.
+func RatingCompletedAtGT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldRatingCompletedAt, v))
+}
+
+// RatingCompletedAtGTE applies the GTE predicate on the "rating_completed_at" field.
+func RatingCompletedAtGTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldRatingCompletedAt, v))
+}
+
+// RatingCompletedAtLT applies the LT predicate on the "rating_completed_at" field.
+func RatingCompletedAtLT(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldRatingCompletedAt, v))
+}
+
+// RatingCompletedAtLTE applies the LTE predicate on the "rating_completed_at" field.
+func RatingCompletedAtLTE(v time.Time) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldRatingCompletedAt, v))
+}
+
+// RatingCompletedAtIsNil applies the IsNil predicate on the "rating_completed_at" field.
+func RatingCompletedAtIsNil() predicate.Contest {
+	return predicate.Contest(sql.FieldIsNull(FieldRatingCompletedAt))
+}
+
+// RatingCompletedAtNotNil applies the NotNil predicate on the "rating_completed_at" field.
+func RatingCompletedAtNotNil() predicate.Contest {
+	return predicate.Contest(sql.FieldNotNull(FieldRatingCompletedAt))
+}
+
 // HasAuthor applies the HasEdge predicate on the "author" edge.
 func HasAuthor() predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
@@ -608,21 +1389,67 @@ func HasAuthorWith(preds ...predicate.User) predicate.Contest {
 	})
 }
 
-// HasProblems applies the HasEdge predicate on the "problems" edge.
-func HasProblems() predicate.Contest {
+// HasDraftProblems applies the HasEdge predicate on the "draft_problems" edge.
+func HasDraftProblems() predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, DraftProblemsTable, DraftProblemsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProblemsWith applies the HasEdge predicate on the "problems" edge with a given conditions (other predicates).
-func HasProblemsWith(preds ...predicate.Problem) predicate.Contest {
+// HasDraftProblemsWith applies the HasEdge predicate on the "draft_problems" edge with a given conditions (other predicates).
+func HasDraftProblemsWith(preds ...predicate.ContestDraftProblem) predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
-		step := newProblemsStep()
+		step := newDraftProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestProblems applies the HasEdge predicate on the "contest_problems" edge.
+func HasContestProblems() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemsTable, ContestProblemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestProblemsWith applies the HasEdge predicate on the "contest_problems" edge with a given conditions (other predicates).
+func HasContestProblemsWith(preds ...predicate.ContestProblem) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newContestProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTransitions applies the HasEdge predicate on the "transitions" edge.
+func HasTransitions() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TransitionsTable, TransitionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTransitionsWith applies the HasEdge predicate on the "transitions" edge with a given conditions (other predicates).
+func HasTransitionsWith(preds ...predicate.ContestTransition) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newTransitionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -715,6 +1542,167 @@ func HasRatingHistories() predicate.Contest {
 func HasRatingHistoriesWith(preds ...predicate.RatingHistory) predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := newRatingHistoriesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRatingSequenceSlots applies the HasEdge predicate on the "rating_sequence_slots" edge.
+func HasRatingSequenceSlots() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RatingSequenceSlotsTable, RatingSequenceSlotsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRatingSequenceSlotsWith applies the HasEdge predicate on the "rating_sequence_slots" edge with a given conditions (other predicates).
+func HasRatingSequenceSlotsWith(preds ...predicate.RatingSequenceSlot) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newRatingSequenceSlotsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRatingRuns applies the HasEdge predicate on the "rating_runs" edge.
+func HasRatingRuns() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RatingRunsTable, RatingRunsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRatingRunsWith applies the HasEdge predicate on the "rating_runs" edge with a given conditions (other predicates).
+func HasRatingRunsWith(preds ...predicate.ContestRatingRun) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newRatingRunsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAnnouncements applies the HasEdge predicate on the "announcements" edge.
+func HasAnnouncements() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AnnouncementsTable, AnnouncementsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAnnouncementsWith applies the HasEdge predicate on the "announcements" edge with a given conditions (other predicates).
+func HasAnnouncementsWith(preds ...predicate.ContestAnnouncement) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newAnnouncementsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasClarifications applies the HasEdge predicate on the "clarifications" edge.
+func HasClarifications() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ClarificationsTable, ClarificationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasClarificationsWith applies the HasEdge predicate on the "clarifications" edge with a given conditions (other predicates).
+func HasClarificationsWith(preds ...predicate.ContestClarification) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newClarificationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContentCommands applies the HasEdge predicate on the "content_commands" edge.
+func HasContentCommands() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ContentCommandsTable, ContentCommandsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContentCommandsWith applies the HasEdge predicate on the "content_commands" edge with a given conditions (other predicates).
+func HasContentCommandsWith(preds ...predicate.ContestContentCommand) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newContentCommandsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasScoringAttempts applies the HasEdge predicate on the "scoring_attempts" edge.
+func HasScoringAttempts() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ScoringAttemptsTable, ScoringAttemptsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasScoringAttemptsWith applies the HasEdge predicate on the "scoring_attempts" edge with a given conditions (other predicates).
+func HasScoringAttemptsWith(preds ...predicate.ContestScoringAttempt) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newScoringAttemptsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProblemResults applies the HasEdge predicate on the "problem_results" edge.
+func HasProblemResults() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ProblemResultsTable, ProblemResultsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProblemResultsWith applies the HasEdge predicate on the "problem_results" edge with a given conditions (other predicates).
+func HasProblemResultsWith(preds ...predicate.ContestProblemResult) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newProblemResultsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

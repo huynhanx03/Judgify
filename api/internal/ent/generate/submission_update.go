@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
-	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
 
 // SubmissionUpdate is the builder for updating Submission entities.
@@ -59,23 +59,16 @@ func (_u *SubmissionUpdate) ClearDeletedAt() *SubmissionUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *SubmissionUpdate) SetDeletedBy(v int) *SubmissionUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *SubmissionUpdate) SetDeletedBy(v string) *SubmissionUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *SubmissionUpdate) SetNillableDeletedBy(v *int) *SubmissionUpdate {
+func (_u *SubmissionUpdate) SetNillableDeletedBy(v *string) *SubmissionUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *SubmissionUpdate) AddDeletedBy(v int) *SubmissionUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -85,59 +78,200 @@ func (_u *SubmissionUpdate) ClearDeletedBy() *SubmissionUpdate {
 	return _u
 }
 
-// SetProblemID sets the "problem_id" field.
-func (_u *SubmissionUpdate) SetProblemID(v int) *SubmissionUpdate {
-	_u.mutation.SetProblemID(v)
+// SetVersion sets the "version" field.
+func (_u *SubmissionUpdate) SetVersion(v int64) *SubmissionUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
 	return _u
 }
 
-// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (_u *SubmissionUpdate) SetNillableProblemID(v *int) *SubmissionUpdate {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableVersion(v *int64) *SubmissionUpdate {
 	if v != nil {
-		_u.SetProblemID(*v)
+		_u.SetVersion(*v)
 	}
 	return _u
 }
 
-// SetUserID sets the "user_id" field.
-func (_u *SubmissionUpdate) SetUserID(v int) *SubmissionUpdate {
-	_u.mutation.SetUserID(v)
+// AddVersion adds value to the "version" field.
+func (_u *SubmissionUpdate) AddVersion(v int64) *SubmissionUpdate {
+	_u.mutation.AddVersion(v)
 	return _u
 }
 
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *SubmissionUpdate) SetNillableUserID(v *int) *SubmissionUpdate {
+// SetLatestGeneration sets the "latest_generation" field.
+func (_u *SubmissionUpdate) SetLatestGeneration(v int64) *SubmissionUpdate {
+	_u.mutation.ResetLatestGeneration()
+	_u.mutation.SetLatestGeneration(v)
+	return _u
+}
+
+// SetNillableLatestGeneration sets the "latest_generation" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableLatestGeneration(v *int64) *SubmissionUpdate {
 	if v != nil {
-		_u.SetUserID(*v)
+		_u.SetLatestGeneration(*v)
 	}
 	return _u
 }
 
-// SetLanguage sets the "language" field.
-func (_u *SubmissionUpdate) SetLanguage(v submission.Language) *SubmissionUpdate {
-	_u.mutation.SetLanguage(v)
+// AddLatestGeneration adds value to the "latest_generation" field.
+func (_u *SubmissionUpdate) AddLatestGeneration(v int64) *SubmissionUpdate {
+	_u.mutation.AddLatestGeneration(v)
 	return _u
 }
 
-// SetNillableLanguage sets the "language" field if the given value is not nil.
-func (_u *SubmissionUpdate) SetNillableLanguage(v *submission.Language) *SubmissionUpdate {
+// SetLatestGenerationPhase sets the "latest_generation_phase" field.
+func (_u *SubmissionUpdate) SetLatestGenerationPhase(v submission.LatestGenerationPhase) *SubmissionUpdate {
+	_u.mutation.SetLatestGenerationPhase(v)
+	return _u
+}
+
+// SetNillableLatestGenerationPhase sets the "latest_generation_phase" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableLatestGenerationPhase(v *submission.LatestGenerationPhase) *SubmissionUpdate {
 	if v != nil {
-		_u.SetLanguage(*v)
+		_u.SetLatestGenerationPhase(*v)
 	}
 	return _u
 }
 
-// SetSourceCode sets the "source_code" field.
-func (_u *SubmissionUpdate) SetSourceCode(v string) *SubmissionUpdate {
-	_u.mutation.SetSourceCode(v)
+// SetLatestGenerationOutcome sets the "latest_generation_outcome" field.
+func (_u *SubmissionUpdate) SetLatestGenerationOutcome(v submission.LatestGenerationOutcome) *SubmissionUpdate {
+	_u.mutation.SetLatestGenerationOutcome(v)
 	return _u
 }
 
-// SetNillableSourceCode sets the "source_code" field if the given value is not nil.
-func (_u *SubmissionUpdate) SetNillableSourceCode(v *string) *SubmissionUpdate {
+// SetNillableLatestGenerationOutcome sets the "latest_generation_outcome" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableLatestGenerationOutcome(v *submission.LatestGenerationOutcome) *SubmissionUpdate {
 	if v != nil {
-		_u.SetSourceCode(*v)
+		_u.SetLatestGenerationOutcome(*v)
 	}
+	return _u
+}
+
+// ClearLatestGenerationOutcome clears the value of the "latest_generation_outcome" field.
+func (_u *SubmissionUpdate) ClearLatestGenerationOutcome() *SubmissionUpdate {
+	_u.mutation.ClearLatestGenerationOutcome()
+	return _u
+}
+
+// SetActiveJudgementID sets the "active_judgement_id" field.
+func (_u *SubmissionUpdate) SetActiveJudgementID(v uuid.UUID) *SubmissionUpdate {
+	_u.mutation.SetActiveJudgementID(v)
+	return _u
+}
+
+// SetNillableActiveJudgementID sets the "active_judgement_id" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableActiveJudgementID(v *uuid.UUID) *SubmissionUpdate {
+	if v != nil {
+		_u.SetActiveJudgementID(*v)
+	}
+	return _u
+}
+
+// ClearActiveJudgementID clears the value of the "active_judgement_id" field.
+func (_u *SubmissionUpdate) ClearActiveJudgementID() *SubmissionUpdate {
+	_u.mutation.ClearActiveJudgementID()
+	return _u
+}
+
+// SetActiveJudgementGeneration sets the "active_judgement_generation" field.
+func (_u *SubmissionUpdate) SetActiveJudgementGeneration(v int64) *SubmissionUpdate {
+	_u.mutation.ResetActiveJudgementGeneration()
+	_u.mutation.SetActiveJudgementGeneration(v)
+	return _u
+}
+
+// SetNillableActiveJudgementGeneration sets the "active_judgement_generation" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableActiveJudgementGeneration(v *int64) *SubmissionUpdate {
+	if v != nil {
+		_u.SetActiveJudgementGeneration(*v)
+	}
+	return _u
+}
+
+// AddActiveJudgementGeneration adds value to the "active_judgement_generation" field.
+func (_u *SubmissionUpdate) AddActiveJudgementGeneration(v int64) *SubmissionUpdate {
+	_u.mutation.AddActiveJudgementGeneration(v)
+	return _u
+}
+
+// ClearActiveJudgementGeneration clears the value of the "active_judgement_generation" field.
+func (_u *SubmissionUpdate) ClearActiveJudgementGeneration() *SubmissionUpdate {
+	_u.mutation.ClearActiveJudgementGeneration()
+	return _u
+}
+
+// SetActiveVerdict sets the "active_verdict" field.
+func (_u *SubmissionUpdate) SetActiveVerdict(v submission.ActiveVerdict) *SubmissionUpdate {
+	_u.mutation.SetActiveVerdict(v)
+	return _u
+}
+
+// SetNillableActiveVerdict sets the "active_verdict" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableActiveVerdict(v *submission.ActiveVerdict) *SubmissionUpdate {
+	if v != nil {
+		_u.SetActiveVerdict(*v)
+	}
+	return _u
+}
+
+// ClearActiveVerdict clears the value of the "active_verdict" field.
+func (_u *SubmissionUpdate) ClearActiveVerdict() *SubmissionUpdate {
+	_u.mutation.ClearActiveVerdict()
+	return _u
+}
+
+// SetLatestGenerationQueuedAt sets the "latest_generation_queued_at" field.
+func (_u *SubmissionUpdate) SetLatestGenerationQueuedAt(v time.Time) *SubmissionUpdate {
+	_u.mutation.SetLatestGenerationQueuedAt(v)
+	return _u
+}
+
+// SetNillableLatestGenerationQueuedAt sets the "latest_generation_queued_at" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableLatestGenerationQueuedAt(v *time.Time) *SubmissionUpdate {
+	if v != nil {
+		_u.SetLatestGenerationQueuedAt(*v)
+	}
+	return _u
+}
+
+// SetLatestGenerationStartedAt sets the "latest_generation_started_at" field.
+func (_u *SubmissionUpdate) SetLatestGenerationStartedAt(v time.Time) *SubmissionUpdate {
+	_u.mutation.SetLatestGenerationStartedAt(v)
+	return _u
+}
+
+// SetNillableLatestGenerationStartedAt sets the "latest_generation_started_at" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableLatestGenerationStartedAt(v *time.Time) *SubmissionUpdate {
+	if v != nil {
+		_u.SetLatestGenerationStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearLatestGenerationStartedAt clears the value of the "latest_generation_started_at" field.
+func (_u *SubmissionUpdate) ClearLatestGenerationStartedAt() *SubmissionUpdate {
+	_u.mutation.ClearLatestGenerationStartedAt()
+	return _u
+}
+
+// SetLatestGenerationCompletedAt sets the "latest_generation_completed_at" field.
+func (_u *SubmissionUpdate) SetLatestGenerationCompletedAt(v time.Time) *SubmissionUpdate {
+	_u.mutation.SetLatestGenerationCompletedAt(v)
+	return _u
+}
+
+// SetNillableLatestGenerationCompletedAt sets the "latest_generation_completed_at" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableLatestGenerationCompletedAt(v *time.Time) *SubmissionUpdate {
+	if v != nil {
+		_u.SetLatestGenerationCompletedAt(*v)
+	}
+	return _u
+}
+
+// ClearLatestGenerationCompletedAt clears the value of the "latest_generation_completed_at" field.
+func (_u *SubmissionUpdate) ClearLatestGenerationCompletedAt() *SubmissionUpdate {
+	_u.mutation.ClearLatestGenerationCompletedAt()
 	return _u
 }
 
@@ -152,6 +286,47 @@ func (_u *SubmissionUpdate) SetNillableStatus(v *submission.Status) *SubmissionU
 	if v != nil {
 		_u.SetStatus(*v)
 	}
+	return _u
+}
+
+// SetJudgedAt sets the "judged_at" field.
+func (_u *SubmissionUpdate) SetJudgedAt(v time.Time) *SubmissionUpdate {
+	_u.mutation.SetJudgedAt(v)
+	return _u
+}
+
+// SetNillableJudgedAt sets the "judged_at" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableJudgedAt(v *time.Time) *SubmissionUpdate {
+	if v != nil {
+		_u.SetJudgedAt(*v)
+	}
+	return _u
+}
+
+// ClearJudgedAt clears the value of the "judged_at" field.
+func (_u *SubmissionUpdate) ClearJudgedAt() *SubmissionUpdate {
+	_u.mutation.ClearJudgedAt()
+	return _u
+}
+
+// SetVerdictVersion sets the "verdict_version" field.
+func (_u *SubmissionUpdate) SetVerdictVersion(v int64) *SubmissionUpdate {
+	_u.mutation.ResetVerdictVersion()
+	_u.mutation.SetVerdictVersion(v)
+	return _u
+}
+
+// SetNillableVerdictVersion sets the "verdict_version" field if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableVerdictVersion(v *int64) *SubmissionUpdate {
+	if v != nil {
+		_u.SetVerdictVersion(*v)
+	}
+	return _u
+}
+
+// AddVerdictVersion adds value to the "verdict_version" field.
+func (_u *SubmissionUpdate) AddVerdictVersion(v int64) *SubmissionUpdate {
+	_u.mutation.AddVerdictVersion(v)
 	return _u
 }
 
@@ -271,39 +446,38 @@ func (_u *SubmissionUpdate) ClearErrorMessage() *SubmissionUpdate {
 	return _u
 }
 
-// SetContestID sets the "contest_id" field.
-func (_u *SubmissionUpdate) SetContestID(v int) *SubmissionUpdate {
-	_u.mutation.SetContestID(v)
+// SetContestScoringAttemptID sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity by ID.
+func (_u *SubmissionUpdate) SetContestScoringAttemptID(id uuid.UUID) *SubmissionUpdate {
+	_u.mutation.SetContestScoringAttemptID(id)
 	return _u
 }
 
-// SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *SubmissionUpdate) SetNillableContestID(v *int) *SubmissionUpdate {
-	if v != nil {
-		_u.SetContestID(*v)
+// SetNillableContestScoringAttemptID sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity by ID if the given value is not nil.
+func (_u *SubmissionUpdate) SetNillableContestScoringAttemptID(id *uuid.UUID) *SubmissionUpdate {
+	if id != nil {
+		_u = _u.SetContestScoringAttemptID(*id)
 	}
 	return _u
 }
 
-// ClearContestID clears the value of the "contest_id" field.
-func (_u *SubmissionUpdate) ClearContestID() *SubmissionUpdate {
-	_u.mutation.ClearContestID()
+// SetContestScoringAttempt sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity.
+func (_u *SubmissionUpdate) SetContestScoringAttempt(v *ContestScoringAttempt) *SubmissionUpdate {
+	return _u.SetContestScoringAttemptID(v.ID)
+}
+
+// AddLastContestProblemResultIDs adds the "last_contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *SubmissionUpdate) AddLastContestProblemResultIDs(ids ...uuid.UUID) *SubmissionUpdate {
+	_u.mutation.AddLastContestProblemResultIDs(ids...)
 	return _u
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (_u *SubmissionUpdate) SetProblem(v *Problem) *SubmissionUpdate {
-	return _u.SetProblemID(v.ID)
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (_u *SubmissionUpdate) SetUser(v *User) *SubmissionUpdate {
-	return _u.SetUserID(v.ID)
-}
-
-// SetContest sets the "contest" edge to the Contest entity.
-func (_u *SubmissionUpdate) SetContest(v *Contest) *SubmissionUpdate {
-	return _u.SetContestID(v.ID)
+// AddLastContestProblemResults adds the "last_contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *SubmissionUpdate) AddLastContestProblemResults(v ...*ContestProblemResult) *SubmissionUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddLastContestProblemResultIDs(ids...)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -311,22 +485,31 @@ func (_u *SubmissionUpdate) Mutation() *SubmissionMutation {
 	return _u.mutation
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (_u *SubmissionUpdate) ClearProblem() *SubmissionUpdate {
-	_u.mutation.ClearProblem()
+// ClearContestScoringAttempt clears the "contest_scoring_attempt" edge to the ContestScoringAttempt entity.
+func (_u *SubmissionUpdate) ClearContestScoringAttempt() *SubmissionUpdate {
+	_u.mutation.ClearContestScoringAttempt()
 	return _u
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (_u *SubmissionUpdate) ClearUser() *SubmissionUpdate {
-	_u.mutation.ClearUser()
+// ClearLastContestProblemResults clears all "last_contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *SubmissionUpdate) ClearLastContestProblemResults() *SubmissionUpdate {
+	_u.mutation.ClearLastContestProblemResults()
 	return _u
 }
 
-// ClearContest clears the "contest" edge to the Contest entity.
-func (_u *SubmissionUpdate) ClearContest() *SubmissionUpdate {
-	_u.mutation.ClearContest()
+// RemoveLastContestProblemResultIDs removes the "last_contest_problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *SubmissionUpdate) RemoveLastContestProblemResultIDs(ids ...uuid.UUID) *SubmissionUpdate {
+	_u.mutation.RemoveLastContestProblemResultIDs(ids...)
 	return _u
+}
+
+// RemoveLastContestProblemResults removes "last_contest_problem_results" edges to ContestProblemResult entities.
+func (_u *SubmissionUpdate) RemoveLastContestProblemResults(v ...*ContestProblemResult) *SubmissionUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveLastContestProblemResultIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -373,19 +556,44 @@ func (_u *SubmissionUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *SubmissionUpdate) check() error {
-	if v, ok := _u.mutation.Language(); ok {
-		if err := submission.LanguageValidator(v); err != nil {
-			return &ValidationError{Name: "language", err: fmt.Errorf(`generate: validator failed for field "Submission.language": %w`, err)}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := submission.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Submission.version": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.SourceCode(); ok {
-		if err := submission.SourceCodeValidator(v); err != nil {
-			return &ValidationError{Name: "source_code", err: fmt.Errorf(`generate: validator failed for field "Submission.source_code": %w`, err)}
+	if v, ok := _u.mutation.LatestGeneration(); ok {
+		if err := submission.LatestGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LatestGenerationPhase(); ok {
+		if err := submission.LatestGenerationPhaseValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation_phase", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation_phase": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LatestGenerationOutcome(); ok {
+		if err := submission.LatestGenerationOutcomeValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation_outcome", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation_outcome": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ActiveJudgementGeneration(); ok {
+		if err := submission.ActiveJudgementGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "active_judgement_generation", err: fmt.Errorf(`generate: validator failed for field "Submission.active_judgement_generation": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ActiveVerdict(); ok {
+		if err := submission.ActiveVerdictValidator(v); err != nil {
+			return &ValidationError{Name: "active_verdict", err: fmt.Errorf(`generate: validator failed for field "Submission.active_verdict": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := submission.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Submission.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.VerdictVersion(); ok {
+		if err := submission.VerdictVersionValidator(v); err != nil {
+			return &ValidationError{Name: "verdict_version", err: fmt.Errorf(`generate: validator failed for field "Submission.verdict_version": %w`, err)}
 		}
 	}
 	if _u.mutation.ProblemCleared() && len(_u.mutation.ProblemIDs()) > 0 {
@@ -407,7 +615,7 @@ func (_u *SubmissionUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -425,22 +633,94 @@ func (_u *SubmissionUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		_spec.ClearField(submission.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(submission.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(submission.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(submission.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(submission.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(submission.FieldDeletedBy, field.TypeString)
 	}
-	if value, ok := _u.mutation.Language(); ok {
-		_spec.SetField(submission.FieldLanguage, field.TypeEnum, value)
+	if _u.mutation.ContestProblemIDCleared() {
+		_spec.ClearField(submission.FieldContestProblemID, field.TypeUUID)
 	}
-	if value, ok := _u.mutation.SourceCode(); ok {
-		_spec.SetField(submission.FieldSourceCode, field.TypeString, value)
+	if _u.mutation.ContestScoringPolicyVersionCleared() {
+		_spec.ClearField(submission.FieldContestScoringPolicyVersion, field.TypeInt64)
+	}
+	if _u.mutation.ContestElapsedMsCleared() {
+		_spec.ClearField(submission.FieldContestElapsedMs, field.TypeInt64)
+	}
+	if _u.mutation.ContestSubmissionSequenceCleared() {
+		_spec.ClearField(submission.FieldContestSubmissionSequence, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(submission.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(submission.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LatestGeneration(); ok {
+		_spec.SetField(submission.FieldLatestGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedLatestGeneration(); ok {
+		_spec.AddField(submission.FieldLatestGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LatestGenerationPhase(); ok {
+		_spec.SetField(submission.FieldLatestGenerationPhase, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.LatestGenerationOutcome(); ok {
+		_spec.SetField(submission.FieldLatestGenerationOutcome, field.TypeEnum, value)
+	}
+	if _u.mutation.LatestGenerationOutcomeCleared() {
+		_spec.ClearField(submission.FieldLatestGenerationOutcome, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.ActiveJudgementID(); ok {
+		_spec.SetField(submission.FieldActiveJudgementID, field.TypeUUID, value)
+	}
+	if _u.mutation.ActiveJudgementIDCleared() {
+		_spec.ClearField(submission.FieldActiveJudgementID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.ActiveJudgementGeneration(); ok {
+		_spec.SetField(submission.FieldActiveJudgementGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedActiveJudgementGeneration(); ok {
+		_spec.AddField(submission.FieldActiveJudgementGeneration, field.TypeInt64, value)
+	}
+	if _u.mutation.ActiveJudgementGenerationCleared() {
+		_spec.ClearField(submission.FieldActiveJudgementGeneration, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.ActiveVerdict(); ok {
+		_spec.SetField(submission.FieldActiveVerdict, field.TypeEnum, value)
+	}
+	if _u.mutation.ActiveVerdictCleared() {
+		_spec.ClearField(submission.FieldActiveVerdict, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.LatestGenerationQueuedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationQueuedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.LatestGenerationStartedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LatestGenerationStartedAtCleared() {
+		_spec.ClearField(submission.FieldLatestGenerationStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.LatestGenerationCompletedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationCompletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LatestGenerationCompletedAtCleared() {
+		_spec.ClearField(submission.FieldLatestGenerationCompletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(submission.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.JudgedAt(); ok {
+		_spec.SetField(submission.FieldJudgedAt, field.TypeTime, value)
+	}
+	if _u.mutation.JudgedAtCleared() {
+		_spec.ClearField(submission.FieldJudgedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.VerdictVersion(); ok {
+		_spec.SetField(submission.FieldVerdictVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVerdictVersion(); ok {
+		_spec.AddField(submission.FieldVerdictVersion, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.PassedCount(); ok {
 		_spec.SetField(submission.FieldPassedCount, field.TypeInt, value)
@@ -478,28 +758,28 @@ func (_u *SubmissionUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if _u.mutation.ErrorMessageCleared() {
 		_spec.ClearField(submission.FieldErrorMessage, field.TypeString)
 	}
-	if _u.mutation.ProblemCleared() {
+	if _u.mutation.ContestScoringAttemptCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ProblemTable,
-			Columns: []string{submission.ProblemColumn},
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   submission.ContestScoringAttemptTable,
+			Columns: []string{submission.ContestScoringAttemptColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ContestScoringAttemptIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ProblemTable,
-			Columns: []string{submission.ProblemColumn},
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   submission.ContestScoringAttemptTable,
+			Columns: []string{submission.ContestScoringAttemptColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -507,57 +787,44 @@ func (_u *SubmissionUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.UserCleared() {
+	if _u.mutation.LastContestProblemResultsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.UserTable,
-			Columns: []string{submission.UserColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedLastContestProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.LastContestProblemResultsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.UserTable,
-			Columns: []string{submission.UserColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.ContestCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ContestTable,
-			Columns: []string{submission.ContestColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
-			},
-		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LastContestProblemResultsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ContestTable,
-			Columns: []string{submission.ContestColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -614,23 +881,16 @@ func (_u *SubmissionUpdateOne) ClearDeletedAt() *SubmissionUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *SubmissionUpdateOne) SetDeletedBy(v int) *SubmissionUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *SubmissionUpdateOne) SetDeletedBy(v string) *SubmissionUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *SubmissionUpdateOne) SetNillableDeletedBy(v *int) *SubmissionUpdateOne {
+func (_u *SubmissionUpdateOne) SetNillableDeletedBy(v *string) *SubmissionUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *SubmissionUpdateOne) AddDeletedBy(v int) *SubmissionUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -640,59 +900,200 @@ func (_u *SubmissionUpdateOne) ClearDeletedBy() *SubmissionUpdateOne {
 	return _u
 }
 
-// SetProblemID sets the "problem_id" field.
-func (_u *SubmissionUpdateOne) SetProblemID(v int) *SubmissionUpdateOne {
-	_u.mutation.SetProblemID(v)
+// SetVersion sets the "version" field.
+func (_u *SubmissionUpdateOne) SetVersion(v int64) *SubmissionUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
 	return _u
 }
 
-// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (_u *SubmissionUpdateOne) SetNillableProblemID(v *int) *SubmissionUpdateOne {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableVersion(v *int64) *SubmissionUpdateOne {
 	if v != nil {
-		_u.SetProblemID(*v)
+		_u.SetVersion(*v)
 	}
 	return _u
 }
 
-// SetUserID sets the "user_id" field.
-func (_u *SubmissionUpdateOne) SetUserID(v int) *SubmissionUpdateOne {
-	_u.mutation.SetUserID(v)
+// AddVersion adds value to the "version" field.
+func (_u *SubmissionUpdateOne) AddVersion(v int64) *SubmissionUpdateOne {
+	_u.mutation.AddVersion(v)
 	return _u
 }
 
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *SubmissionUpdateOne) SetNillableUserID(v *int) *SubmissionUpdateOne {
+// SetLatestGeneration sets the "latest_generation" field.
+func (_u *SubmissionUpdateOne) SetLatestGeneration(v int64) *SubmissionUpdateOne {
+	_u.mutation.ResetLatestGeneration()
+	_u.mutation.SetLatestGeneration(v)
+	return _u
+}
+
+// SetNillableLatestGeneration sets the "latest_generation" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableLatestGeneration(v *int64) *SubmissionUpdateOne {
 	if v != nil {
-		_u.SetUserID(*v)
+		_u.SetLatestGeneration(*v)
 	}
 	return _u
 }
 
-// SetLanguage sets the "language" field.
-func (_u *SubmissionUpdateOne) SetLanguage(v submission.Language) *SubmissionUpdateOne {
-	_u.mutation.SetLanguage(v)
+// AddLatestGeneration adds value to the "latest_generation" field.
+func (_u *SubmissionUpdateOne) AddLatestGeneration(v int64) *SubmissionUpdateOne {
+	_u.mutation.AddLatestGeneration(v)
 	return _u
 }
 
-// SetNillableLanguage sets the "language" field if the given value is not nil.
-func (_u *SubmissionUpdateOne) SetNillableLanguage(v *submission.Language) *SubmissionUpdateOne {
+// SetLatestGenerationPhase sets the "latest_generation_phase" field.
+func (_u *SubmissionUpdateOne) SetLatestGenerationPhase(v submission.LatestGenerationPhase) *SubmissionUpdateOne {
+	_u.mutation.SetLatestGenerationPhase(v)
+	return _u
+}
+
+// SetNillableLatestGenerationPhase sets the "latest_generation_phase" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableLatestGenerationPhase(v *submission.LatestGenerationPhase) *SubmissionUpdateOne {
 	if v != nil {
-		_u.SetLanguage(*v)
+		_u.SetLatestGenerationPhase(*v)
 	}
 	return _u
 }
 
-// SetSourceCode sets the "source_code" field.
-func (_u *SubmissionUpdateOne) SetSourceCode(v string) *SubmissionUpdateOne {
-	_u.mutation.SetSourceCode(v)
+// SetLatestGenerationOutcome sets the "latest_generation_outcome" field.
+func (_u *SubmissionUpdateOne) SetLatestGenerationOutcome(v submission.LatestGenerationOutcome) *SubmissionUpdateOne {
+	_u.mutation.SetLatestGenerationOutcome(v)
 	return _u
 }
 
-// SetNillableSourceCode sets the "source_code" field if the given value is not nil.
-func (_u *SubmissionUpdateOne) SetNillableSourceCode(v *string) *SubmissionUpdateOne {
+// SetNillableLatestGenerationOutcome sets the "latest_generation_outcome" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableLatestGenerationOutcome(v *submission.LatestGenerationOutcome) *SubmissionUpdateOne {
 	if v != nil {
-		_u.SetSourceCode(*v)
+		_u.SetLatestGenerationOutcome(*v)
 	}
+	return _u
+}
+
+// ClearLatestGenerationOutcome clears the value of the "latest_generation_outcome" field.
+func (_u *SubmissionUpdateOne) ClearLatestGenerationOutcome() *SubmissionUpdateOne {
+	_u.mutation.ClearLatestGenerationOutcome()
+	return _u
+}
+
+// SetActiveJudgementID sets the "active_judgement_id" field.
+func (_u *SubmissionUpdateOne) SetActiveJudgementID(v uuid.UUID) *SubmissionUpdateOne {
+	_u.mutation.SetActiveJudgementID(v)
+	return _u
+}
+
+// SetNillableActiveJudgementID sets the "active_judgement_id" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableActiveJudgementID(v *uuid.UUID) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetActiveJudgementID(*v)
+	}
+	return _u
+}
+
+// ClearActiveJudgementID clears the value of the "active_judgement_id" field.
+func (_u *SubmissionUpdateOne) ClearActiveJudgementID() *SubmissionUpdateOne {
+	_u.mutation.ClearActiveJudgementID()
+	return _u
+}
+
+// SetActiveJudgementGeneration sets the "active_judgement_generation" field.
+func (_u *SubmissionUpdateOne) SetActiveJudgementGeneration(v int64) *SubmissionUpdateOne {
+	_u.mutation.ResetActiveJudgementGeneration()
+	_u.mutation.SetActiveJudgementGeneration(v)
+	return _u
+}
+
+// SetNillableActiveJudgementGeneration sets the "active_judgement_generation" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableActiveJudgementGeneration(v *int64) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetActiveJudgementGeneration(*v)
+	}
+	return _u
+}
+
+// AddActiveJudgementGeneration adds value to the "active_judgement_generation" field.
+func (_u *SubmissionUpdateOne) AddActiveJudgementGeneration(v int64) *SubmissionUpdateOne {
+	_u.mutation.AddActiveJudgementGeneration(v)
+	return _u
+}
+
+// ClearActiveJudgementGeneration clears the value of the "active_judgement_generation" field.
+func (_u *SubmissionUpdateOne) ClearActiveJudgementGeneration() *SubmissionUpdateOne {
+	_u.mutation.ClearActiveJudgementGeneration()
+	return _u
+}
+
+// SetActiveVerdict sets the "active_verdict" field.
+func (_u *SubmissionUpdateOne) SetActiveVerdict(v submission.ActiveVerdict) *SubmissionUpdateOne {
+	_u.mutation.SetActiveVerdict(v)
+	return _u
+}
+
+// SetNillableActiveVerdict sets the "active_verdict" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableActiveVerdict(v *submission.ActiveVerdict) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetActiveVerdict(*v)
+	}
+	return _u
+}
+
+// ClearActiveVerdict clears the value of the "active_verdict" field.
+func (_u *SubmissionUpdateOne) ClearActiveVerdict() *SubmissionUpdateOne {
+	_u.mutation.ClearActiveVerdict()
+	return _u
+}
+
+// SetLatestGenerationQueuedAt sets the "latest_generation_queued_at" field.
+func (_u *SubmissionUpdateOne) SetLatestGenerationQueuedAt(v time.Time) *SubmissionUpdateOne {
+	_u.mutation.SetLatestGenerationQueuedAt(v)
+	return _u
+}
+
+// SetNillableLatestGenerationQueuedAt sets the "latest_generation_queued_at" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableLatestGenerationQueuedAt(v *time.Time) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetLatestGenerationQueuedAt(*v)
+	}
+	return _u
+}
+
+// SetLatestGenerationStartedAt sets the "latest_generation_started_at" field.
+func (_u *SubmissionUpdateOne) SetLatestGenerationStartedAt(v time.Time) *SubmissionUpdateOne {
+	_u.mutation.SetLatestGenerationStartedAt(v)
+	return _u
+}
+
+// SetNillableLatestGenerationStartedAt sets the "latest_generation_started_at" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableLatestGenerationStartedAt(v *time.Time) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetLatestGenerationStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearLatestGenerationStartedAt clears the value of the "latest_generation_started_at" field.
+func (_u *SubmissionUpdateOne) ClearLatestGenerationStartedAt() *SubmissionUpdateOne {
+	_u.mutation.ClearLatestGenerationStartedAt()
+	return _u
+}
+
+// SetLatestGenerationCompletedAt sets the "latest_generation_completed_at" field.
+func (_u *SubmissionUpdateOne) SetLatestGenerationCompletedAt(v time.Time) *SubmissionUpdateOne {
+	_u.mutation.SetLatestGenerationCompletedAt(v)
+	return _u
+}
+
+// SetNillableLatestGenerationCompletedAt sets the "latest_generation_completed_at" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableLatestGenerationCompletedAt(v *time.Time) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetLatestGenerationCompletedAt(*v)
+	}
+	return _u
+}
+
+// ClearLatestGenerationCompletedAt clears the value of the "latest_generation_completed_at" field.
+func (_u *SubmissionUpdateOne) ClearLatestGenerationCompletedAt() *SubmissionUpdateOne {
+	_u.mutation.ClearLatestGenerationCompletedAt()
 	return _u
 }
 
@@ -707,6 +1108,47 @@ func (_u *SubmissionUpdateOne) SetNillableStatus(v *submission.Status) *Submissi
 	if v != nil {
 		_u.SetStatus(*v)
 	}
+	return _u
+}
+
+// SetJudgedAt sets the "judged_at" field.
+func (_u *SubmissionUpdateOne) SetJudgedAt(v time.Time) *SubmissionUpdateOne {
+	_u.mutation.SetJudgedAt(v)
+	return _u
+}
+
+// SetNillableJudgedAt sets the "judged_at" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableJudgedAt(v *time.Time) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetJudgedAt(*v)
+	}
+	return _u
+}
+
+// ClearJudgedAt clears the value of the "judged_at" field.
+func (_u *SubmissionUpdateOne) ClearJudgedAt() *SubmissionUpdateOne {
+	_u.mutation.ClearJudgedAt()
+	return _u
+}
+
+// SetVerdictVersion sets the "verdict_version" field.
+func (_u *SubmissionUpdateOne) SetVerdictVersion(v int64) *SubmissionUpdateOne {
+	_u.mutation.ResetVerdictVersion()
+	_u.mutation.SetVerdictVersion(v)
+	return _u
+}
+
+// SetNillableVerdictVersion sets the "verdict_version" field if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableVerdictVersion(v *int64) *SubmissionUpdateOne {
+	if v != nil {
+		_u.SetVerdictVersion(*v)
+	}
+	return _u
+}
+
+// AddVerdictVersion adds value to the "verdict_version" field.
+func (_u *SubmissionUpdateOne) AddVerdictVersion(v int64) *SubmissionUpdateOne {
+	_u.mutation.AddVerdictVersion(v)
 	return _u
 }
 
@@ -826,39 +1268,38 @@ func (_u *SubmissionUpdateOne) ClearErrorMessage() *SubmissionUpdateOne {
 	return _u
 }
 
-// SetContestID sets the "contest_id" field.
-func (_u *SubmissionUpdateOne) SetContestID(v int) *SubmissionUpdateOne {
-	_u.mutation.SetContestID(v)
+// SetContestScoringAttemptID sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity by ID.
+func (_u *SubmissionUpdateOne) SetContestScoringAttemptID(id uuid.UUID) *SubmissionUpdateOne {
+	_u.mutation.SetContestScoringAttemptID(id)
 	return _u
 }
 
-// SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *SubmissionUpdateOne) SetNillableContestID(v *int) *SubmissionUpdateOne {
-	if v != nil {
-		_u.SetContestID(*v)
+// SetNillableContestScoringAttemptID sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity by ID if the given value is not nil.
+func (_u *SubmissionUpdateOne) SetNillableContestScoringAttemptID(id *uuid.UUID) *SubmissionUpdateOne {
+	if id != nil {
+		_u = _u.SetContestScoringAttemptID(*id)
 	}
 	return _u
 }
 
-// ClearContestID clears the value of the "contest_id" field.
-func (_u *SubmissionUpdateOne) ClearContestID() *SubmissionUpdateOne {
-	_u.mutation.ClearContestID()
+// SetContestScoringAttempt sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity.
+func (_u *SubmissionUpdateOne) SetContestScoringAttempt(v *ContestScoringAttempt) *SubmissionUpdateOne {
+	return _u.SetContestScoringAttemptID(v.ID)
+}
+
+// AddLastContestProblemResultIDs adds the "last_contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *SubmissionUpdateOne) AddLastContestProblemResultIDs(ids ...uuid.UUID) *SubmissionUpdateOne {
+	_u.mutation.AddLastContestProblemResultIDs(ids...)
 	return _u
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (_u *SubmissionUpdateOne) SetProblem(v *Problem) *SubmissionUpdateOne {
-	return _u.SetProblemID(v.ID)
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (_u *SubmissionUpdateOne) SetUser(v *User) *SubmissionUpdateOne {
-	return _u.SetUserID(v.ID)
-}
-
-// SetContest sets the "contest" edge to the Contest entity.
-func (_u *SubmissionUpdateOne) SetContest(v *Contest) *SubmissionUpdateOne {
-	return _u.SetContestID(v.ID)
+// AddLastContestProblemResults adds the "last_contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *SubmissionUpdateOne) AddLastContestProblemResults(v ...*ContestProblemResult) *SubmissionUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddLastContestProblemResultIDs(ids...)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -866,22 +1307,31 @@ func (_u *SubmissionUpdateOne) Mutation() *SubmissionMutation {
 	return _u.mutation
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (_u *SubmissionUpdateOne) ClearProblem() *SubmissionUpdateOne {
-	_u.mutation.ClearProblem()
+// ClearContestScoringAttempt clears the "contest_scoring_attempt" edge to the ContestScoringAttempt entity.
+func (_u *SubmissionUpdateOne) ClearContestScoringAttempt() *SubmissionUpdateOne {
+	_u.mutation.ClearContestScoringAttempt()
 	return _u
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (_u *SubmissionUpdateOne) ClearUser() *SubmissionUpdateOne {
-	_u.mutation.ClearUser()
+// ClearLastContestProblemResults clears all "last_contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *SubmissionUpdateOne) ClearLastContestProblemResults() *SubmissionUpdateOne {
+	_u.mutation.ClearLastContestProblemResults()
 	return _u
 }
 
-// ClearContest clears the "contest" edge to the Contest entity.
-func (_u *SubmissionUpdateOne) ClearContest() *SubmissionUpdateOne {
-	_u.mutation.ClearContest()
+// RemoveLastContestProblemResultIDs removes the "last_contest_problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *SubmissionUpdateOne) RemoveLastContestProblemResultIDs(ids ...uuid.UUID) *SubmissionUpdateOne {
+	_u.mutation.RemoveLastContestProblemResultIDs(ids...)
 	return _u
+}
+
+// RemoveLastContestProblemResults removes "last_contest_problem_results" edges to ContestProblemResult entities.
+func (_u *SubmissionUpdateOne) RemoveLastContestProblemResults(v ...*ContestProblemResult) *SubmissionUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveLastContestProblemResultIDs(ids...)
 }
 
 // Where appends a list predicates to the SubmissionUpdate builder.
@@ -941,19 +1391,44 @@ func (_u *SubmissionUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *SubmissionUpdateOne) check() error {
-	if v, ok := _u.mutation.Language(); ok {
-		if err := submission.LanguageValidator(v); err != nil {
-			return &ValidationError{Name: "language", err: fmt.Errorf(`generate: validator failed for field "Submission.language": %w`, err)}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := submission.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Submission.version": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.SourceCode(); ok {
-		if err := submission.SourceCodeValidator(v); err != nil {
-			return &ValidationError{Name: "source_code", err: fmt.Errorf(`generate: validator failed for field "Submission.source_code": %w`, err)}
+	if v, ok := _u.mutation.LatestGeneration(); ok {
+		if err := submission.LatestGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LatestGenerationPhase(); ok {
+		if err := submission.LatestGenerationPhaseValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation_phase", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation_phase": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LatestGenerationOutcome(); ok {
+		if err := submission.LatestGenerationOutcomeValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation_outcome", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation_outcome": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ActiveJudgementGeneration(); ok {
+		if err := submission.ActiveJudgementGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "active_judgement_generation", err: fmt.Errorf(`generate: validator failed for field "Submission.active_judgement_generation": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ActiveVerdict(); ok {
+		if err := submission.ActiveVerdictValidator(v); err != nil {
+			return &ValidationError{Name: "active_verdict", err: fmt.Errorf(`generate: validator failed for field "Submission.active_verdict": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := submission.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Submission.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.VerdictVersion(); ok {
+		if err := submission.VerdictVersionValidator(v); err != nil {
+			return &ValidationError{Name: "verdict_version", err: fmt.Errorf(`generate: validator failed for field "Submission.verdict_version": %w`, err)}
 		}
 	}
 	if _u.mutation.ProblemCleared() && len(_u.mutation.ProblemIDs()) > 0 {
@@ -975,7 +1450,7 @@ func (_u *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission, 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Submission.id" for update`)}
@@ -1010,22 +1485,94 @@ func (_u *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission, 
 		_spec.ClearField(submission.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(submission.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(submission.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(submission.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(submission.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(submission.FieldDeletedBy, field.TypeString)
 	}
-	if value, ok := _u.mutation.Language(); ok {
-		_spec.SetField(submission.FieldLanguage, field.TypeEnum, value)
+	if _u.mutation.ContestProblemIDCleared() {
+		_spec.ClearField(submission.FieldContestProblemID, field.TypeUUID)
 	}
-	if value, ok := _u.mutation.SourceCode(); ok {
-		_spec.SetField(submission.FieldSourceCode, field.TypeString, value)
+	if _u.mutation.ContestScoringPolicyVersionCleared() {
+		_spec.ClearField(submission.FieldContestScoringPolicyVersion, field.TypeInt64)
+	}
+	if _u.mutation.ContestElapsedMsCleared() {
+		_spec.ClearField(submission.FieldContestElapsedMs, field.TypeInt64)
+	}
+	if _u.mutation.ContestSubmissionSequenceCleared() {
+		_spec.ClearField(submission.FieldContestSubmissionSequence, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(submission.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(submission.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LatestGeneration(); ok {
+		_spec.SetField(submission.FieldLatestGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedLatestGeneration(); ok {
+		_spec.AddField(submission.FieldLatestGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LatestGenerationPhase(); ok {
+		_spec.SetField(submission.FieldLatestGenerationPhase, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.LatestGenerationOutcome(); ok {
+		_spec.SetField(submission.FieldLatestGenerationOutcome, field.TypeEnum, value)
+	}
+	if _u.mutation.LatestGenerationOutcomeCleared() {
+		_spec.ClearField(submission.FieldLatestGenerationOutcome, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.ActiveJudgementID(); ok {
+		_spec.SetField(submission.FieldActiveJudgementID, field.TypeUUID, value)
+	}
+	if _u.mutation.ActiveJudgementIDCleared() {
+		_spec.ClearField(submission.FieldActiveJudgementID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.ActiveJudgementGeneration(); ok {
+		_spec.SetField(submission.FieldActiveJudgementGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedActiveJudgementGeneration(); ok {
+		_spec.AddField(submission.FieldActiveJudgementGeneration, field.TypeInt64, value)
+	}
+	if _u.mutation.ActiveJudgementGenerationCleared() {
+		_spec.ClearField(submission.FieldActiveJudgementGeneration, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.ActiveVerdict(); ok {
+		_spec.SetField(submission.FieldActiveVerdict, field.TypeEnum, value)
+	}
+	if _u.mutation.ActiveVerdictCleared() {
+		_spec.ClearField(submission.FieldActiveVerdict, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.LatestGenerationQueuedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationQueuedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.LatestGenerationStartedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LatestGenerationStartedAtCleared() {
+		_spec.ClearField(submission.FieldLatestGenerationStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.LatestGenerationCompletedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationCompletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LatestGenerationCompletedAtCleared() {
+		_spec.ClearField(submission.FieldLatestGenerationCompletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(submission.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.JudgedAt(); ok {
+		_spec.SetField(submission.FieldJudgedAt, field.TypeTime, value)
+	}
+	if _u.mutation.JudgedAtCleared() {
+		_spec.ClearField(submission.FieldJudgedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.VerdictVersion(); ok {
+		_spec.SetField(submission.FieldVerdictVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVerdictVersion(); ok {
+		_spec.AddField(submission.FieldVerdictVersion, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.PassedCount(); ok {
 		_spec.SetField(submission.FieldPassedCount, field.TypeInt, value)
@@ -1063,28 +1610,28 @@ func (_u *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission, 
 	if _u.mutation.ErrorMessageCleared() {
 		_spec.ClearField(submission.FieldErrorMessage, field.TypeString)
 	}
-	if _u.mutation.ProblemCleared() {
+	if _u.mutation.ContestScoringAttemptCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ProblemTable,
-			Columns: []string{submission.ProblemColumn},
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   submission.ContestScoringAttemptTable,
+			Columns: []string{submission.ContestScoringAttemptColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ContestScoringAttemptIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ProblemTable,
-			Columns: []string{submission.ProblemColumn},
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   submission.ContestScoringAttemptTable,
+			Columns: []string{submission.ContestScoringAttemptColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1092,57 +1639,44 @@ func (_u *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission, 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.UserCleared() {
+	if _u.mutation.LastContestProblemResultsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.UserTable,
-			Columns: []string{submission.UserColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedLastContestProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.LastContestProblemResultsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.UserTable,
-			Columns: []string{submission.UserColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.ContestCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ContestTable,
-			Columns: []string{submission.ContestColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
-			},
-		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LastContestProblemResultsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submission.ContestTable,
-			Columns: []string{submission.ContestColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

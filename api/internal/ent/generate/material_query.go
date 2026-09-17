@@ -13,9 +13,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialslug"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialviewdaily"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -28,10 +32,13 @@ type MaterialQuery struct {
 	order          []material.OrderOption
 	inters         []Interceptor
 	predicates     []predicate.Material
-	withCategory   *MaterialCategoryQuery
 	withAuthor     *UserQuery
+	withCategory   *MaterialCategoryQuery
 	withDifficulty *DifficultyQuery
 	withTags       *TagQuery
+	withRevisions  *MaterialRevisionQuery
+	withSlugs      *MaterialSlugQuery
+	withDailyViews *MaterialViewDailyQuery
 	modifiers      []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -69,28 +76,6 @@ func (_q *MaterialQuery) Order(o ...material.OrderOption) *MaterialQuery {
 	return _q
 }
 
-// QueryCategory chains the current query on the "category" edge.
-func (_q *MaterialQuery) QueryCategory() *MaterialCategoryQuery {
-	query := (&MaterialCategoryClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(material.Table, material.FieldID, selector),
-			sqlgraph.To(materialcategory.Table, materialcategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, material.CategoryTable, material.CategoryColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryAuthor chains the current query on the "author" edge.
 func (_q *MaterialQuery) QueryAuthor() *UserQuery {
 	query := (&UserClient{config: _q.config}).Query()
@@ -106,6 +91,28 @@ func (_q *MaterialQuery) QueryAuthor() *UserQuery {
 			sqlgraph.From(material.Table, material.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, material.AuthorTable, material.AuthorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCategory chains the current query on the "category" edge.
+func (_q *MaterialQuery) QueryCategory() *MaterialCategoryQuery {
+	query := (&MaterialCategoryClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, selector),
+			sqlgraph.To(materialcategory.Table, materialcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, material.CategoryTable, material.CategoryColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -157,6 +164,72 @@ func (_q *MaterialQuery) QueryTags() *TagQuery {
 	return query
 }
 
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *MaterialQuery) QueryRevisions() *MaterialRevisionQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, selector),
+			sqlgraph.To(materialrevision.Table, materialrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, material.RevisionsTable, material.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySlugs chains the current query on the "slugs" edge.
+func (_q *MaterialQuery) QuerySlugs() *MaterialSlugQuery {
+	query := (&MaterialSlugClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, selector),
+			sqlgraph.To(materialslug.Table, materialslug.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, material.SlugsTable, material.SlugsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDailyViews chains the current query on the "daily_views" edge.
+func (_q *MaterialQuery) QueryDailyViews() *MaterialViewDailyQuery {
+	query := (&MaterialViewDailyClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(material.Table, material.FieldID, selector),
+			sqlgraph.To(materialviewdaily.Table, materialviewdaily.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, material.DailyViewsTable, material.DailyViewsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Material entity from the query.
 // Returns a *NotFoundError when no Material was found.
 func (_q *MaterialQuery) First(ctx context.Context) (*Material, error) {
@@ -181,8 +254,8 @@ func (_q *MaterialQuery) FirstX(ctx context.Context) *Material {
 
 // FirstID returns the first Material ID from the query.
 // Returns a *NotFoundError when no Material ID was found.
-func (_q *MaterialQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *MaterialQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -194,7 +267,7 @@ func (_q *MaterialQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *MaterialQuery) FirstIDX(ctx context.Context) int {
+func (_q *MaterialQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -232,8 +305,8 @@ func (_q *MaterialQuery) OnlyX(ctx context.Context) *Material {
 // OnlyID is like Only, but returns the only Material ID in the query.
 // Returns a *NotSingularError when more than one Material ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *MaterialQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *MaterialQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -249,7 +322,7 @@ func (_q *MaterialQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *MaterialQuery) OnlyIDX(ctx context.Context) int {
+func (_q *MaterialQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -277,7 +350,7 @@ func (_q *MaterialQuery) AllX(ctx context.Context) []*Material {
 }
 
 // IDs executes the query and returns a list of Material IDs.
-func (_q *MaterialQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *MaterialQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -289,7 +362,7 @@ func (_q *MaterialQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *MaterialQuery) IDsX(ctx context.Context) []int {
+func (_q *MaterialQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -349,26 +422,18 @@ func (_q *MaterialQuery) Clone() *MaterialQuery {
 		order:          append([]material.OrderOption{}, _q.order...),
 		inters:         append([]Interceptor{}, _q.inters...),
 		predicates:     append([]predicate.Material{}, _q.predicates...),
-		withCategory:   _q.withCategory.Clone(),
 		withAuthor:     _q.withAuthor.Clone(),
+		withCategory:   _q.withCategory.Clone(),
 		withDifficulty: _q.withDifficulty.Clone(),
 		withTags:       _q.withTags.Clone(),
+		withRevisions:  _q.withRevisions.Clone(),
+		withSlugs:      _q.withSlugs.Clone(),
+		withDailyViews: _q.withDailyViews.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
-}
-
-// WithCategory tells the query-builder to eager-load the nodes that are connected to
-// the "category" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *MaterialQuery) WithCategory(opts ...func(*MaterialCategoryQuery)) *MaterialQuery {
-	query := (&MaterialCategoryClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withCategory = query
-	return _q
 }
 
 // WithAuthor tells the query-builder to eager-load the nodes that are connected to
@@ -379,6 +444,17 @@ func (_q *MaterialQuery) WithAuthor(opts ...func(*UserQuery)) *MaterialQuery {
 		opt(query)
 	}
 	_q.withAuthor = query
+	return _q
+}
+
+// WithCategory tells the query-builder to eager-load the nodes that are connected to
+// the "category" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *MaterialQuery) WithCategory(opts ...func(*MaterialCategoryQuery)) *MaterialQuery {
+	query := (&MaterialCategoryClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withCategory = query
 	return _q
 }
 
@@ -401,6 +477,39 @@ func (_q *MaterialQuery) WithTags(opts ...func(*TagQuery)) *MaterialQuery {
 		opt(query)
 	}
 	_q.withTags = query
+	return _q
+}
+
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *MaterialQuery) WithRevisions(opts ...func(*MaterialRevisionQuery)) *MaterialQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
+}
+
+// WithSlugs tells the query-builder to eager-load the nodes that are connected to
+// the "slugs" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *MaterialQuery) WithSlugs(opts ...func(*MaterialSlugQuery)) *MaterialQuery {
+	query := (&MaterialSlugClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSlugs = query
+	return _q
+}
+
+// WithDailyViews tells the query-builder to eager-load the nodes that are connected to
+// the "daily_views" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *MaterialQuery) WithDailyViews(opts ...func(*MaterialViewDailyQuery)) *MaterialQuery {
+	query := (&MaterialViewDailyClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDailyViews = query
 	return _q
 }
 
@@ -482,11 +591,14 @@ func (_q *MaterialQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mat
 	var (
 		nodes       = []*Material{}
 		_spec       = _q.querySpec()
-		loadedTypes = [4]bool{
-			_q.withCategory != nil,
+		loadedTypes = [7]bool{
 			_q.withAuthor != nil,
+			_q.withCategory != nil,
 			_q.withDifficulty != nil,
 			_q.withTags != nil,
+			_q.withRevisions != nil,
+			_q.withSlugs != nil,
+			_q.withDailyViews != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -510,15 +622,15 @@ func (_q *MaterialQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mat
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withCategory; query != nil {
-		if err := _q.loadCategory(ctx, query, nodes, nil,
-			func(n *Material, e *MaterialCategory) { n.Edges.Category = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := _q.withAuthor; query != nil {
 		if err := _q.loadAuthor(ctx, query, nodes, nil,
 			func(n *Material, e *User) { n.Edges.Author = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withCategory; query != nil {
+		if err := _q.loadCategory(ctx, query, nodes, nil,
+			func(n *Material, e *MaterialCategory) { n.Edges.Category = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -535,41 +647,48 @@ func (_q *MaterialQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mat
 			return nil, err
 		}
 	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *Material) { n.Edges.Revisions = []*MaterialRevision{} },
+			func(n *Material, e *MaterialRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Material = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSlugs; query != nil {
+		if err := _q.loadSlugs(ctx, query, nodes,
+			func(n *Material) { n.Edges.Slugs = []*MaterialSlug{} },
+			func(n *Material, e *MaterialSlug) {
+				n.Edges.Slugs = append(n.Edges.Slugs, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Material = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDailyViews; query != nil {
+		if err := _q.loadDailyViews(ctx, query, nodes,
+			func(n *Material) { n.Edges.DailyViews = []*MaterialViewDaily{} },
+			func(n *Material, e *MaterialViewDaily) {
+				n.Edges.DailyViews = append(n.Edges.DailyViews, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Material = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (_q *MaterialQuery) loadCategory(ctx context.Context, query *MaterialCategoryQuery, nodes []*Material, init func(*Material), assign func(*Material, *MaterialCategory)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Material)
-	for i := range nodes {
-		fk := nodes[i].CategoryID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(materialcategory.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "category_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (_q *MaterialQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes []*Material, init func(*Material), assign func(*Material, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Material)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Material)
 	for i := range nodes {
 		fk := nodes[i].AuthorID
 		if _, ok := nodeids[fk]; !ok {
@@ -596,9 +715,38 @@ func (_q *MaterialQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes
 	}
 	return nil
 }
+func (_q *MaterialQuery) loadCategory(ctx context.Context, query *MaterialCategoryQuery, nodes []*Material, init func(*Material), assign func(*Material, *MaterialCategory)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Material)
+	for i := range nodes {
+		fk := nodes[i].CategoryID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(materialcategory.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "category_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (_q *MaterialQuery) loadDifficulty(ctx context.Context, query *DifficultyQuery, nodes []*Material, init func(*Material), assign func(*Material, *Difficulty)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Material)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Material)
 	for i := range nodes {
 		fk := nodes[i].DifficultyID
 		if _, ok := nodeids[fk]; !ok {
@@ -627,8 +775,8 @@ func (_q *MaterialQuery) loadDifficulty(ctx context.Context, query *DifficultyQu
 }
 func (_q *MaterialQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*Material, init func(*Material), assign func(*Material, *Tag)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Material)
-	nids := make(map[int]map[*Material]struct{})
+	byID := make(map[uuid.UUID]*Material)
+	nids := make(map[uuid.UUID]map[*Material]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -657,11 +805,11 @@ func (_q *MaterialQuery) loadTags(ctx context.Context, query *TagQuery, nodes []
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Material]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -686,6 +834,96 @@ func (_q *MaterialQuery) loadTags(ctx context.Context, query *TagQuery, nodes []
 	}
 	return nil
 }
+func (_q *MaterialQuery) loadRevisions(ctx context.Context, query *MaterialRevisionQuery, nodes []*Material, init func(*Material), assign func(*Material, *MaterialRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Material)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialrevision.FieldMaterialID)
+	}
+	query.Where(predicate.MaterialRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(material.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MaterialID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "material_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *MaterialQuery) loadSlugs(ctx context.Context, query *MaterialSlugQuery, nodes []*Material, init func(*Material), assign func(*Material, *MaterialSlug)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Material)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialslug.FieldMaterialID)
+	}
+	query.Where(predicate.MaterialSlug(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(material.SlugsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MaterialID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "material_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *MaterialQuery) loadDailyViews(ctx context.Context, query *MaterialViewDailyQuery, nodes []*Material, init func(*Material), assign func(*Material, *MaterialViewDaily)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Material)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialviewdaily.FieldMaterialID)
+	}
+	query.Where(predicate.MaterialViewDaily(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(material.DailyViewsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MaterialID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "material_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *MaterialQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -700,7 +938,7 @@ func (_q *MaterialQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *MaterialQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(material.Table, material.Columns, sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(material.Table, material.Columns, sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -715,11 +953,11 @@ func (_q *MaterialQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if _q.withCategory != nil {
-			_spec.Node.AddColumnOnce(material.FieldCategoryID)
-		}
 		if _q.withAuthor != nil {
 			_spec.Node.AddColumnOnce(material.FieldAuthorID)
+		}
+		if _q.withCategory != nil {
+			_spec.Node.AddColumnOnce(material.FieldCategoryID)
 		}
 		if _q.withDifficulty != nil {
 			_spec.Node.AddColumnOnce(material.FieldDifficultyID)

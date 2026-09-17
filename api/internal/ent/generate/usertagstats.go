@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -17,11 +18,11 @@ import (
 type UserTagStats struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// TagID holds the value of the "tag_id" field.
-	TagID int `json:"tag_id,omitempty"`
+	TagID uuid.UUID `json:"tag_id,omitempty"`
 	// SolvedCount holds the value of the "solved_count" field.
 	SolvedCount int `json:"solved_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -68,8 +69,10 @@ func (*UserTagStats) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case usertagstats.FieldID, usertagstats.FieldUserID, usertagstats.FieldTagID, usertagstats.FieldSolvedCount:
+		case usertagstats.FieldSolvedCount:
 			values[i] = new(sql.NullInt64)
+		case usertagstats.FieldID, usertagstats.FieldUserID, usertagstats.FieldTagID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -86,22 +89,22 @@ func (_m *UserTagStats) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case usertagstats.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case usertagstats.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case usertagstats.FieldTagID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tag_id", values[i])
-			} else if value.Valid {
-				_m.TagID = int(value.Int64)
+			} else if value != nil {
+				_m.TagID = *value
 			}
 		case usertagstats.FieldSolvedCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -165,14 +168,6 @@ func (_m *UserTagStats) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.SolvedCount))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *UserTagStats) GetID() int {
-	return _m.ID
-}
-
-func (_m *UserTagStats) SetID(id int) {
-	_m.ID = id
 }
 
 // UserTagStatsSlice is a parsable slice of UserTagStats.

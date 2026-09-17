@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -32,37 +33,58 @@ const (
 	FieldContent = "content"
 	// FieldDifficultyID holds the string denoting the difficulty_id field in the database.
 	FieldDifficultyID = "difficulty_id"
-	// FieldAuthorID holds the string denoting the author_id field in the database.
-	FieldAuthorID = "author_id"
 	// FieldCategoryID holds the string denoting the category_id field in the database.
 	FieldCategoryID = "category_id"
+	// FieldGroupID holds the string denoting the group_id field in the database.
+	FieldGroupID = "group_id"
+	// FieldEstimatedReadTime holds the string denoting the estimated_read_time field in the database.
+	FieldEstimatedReadTime = "estimated_read_time"
+	// FieldCurrentSlugID holds the string denoting the current_slug_id field in the database.
+	FieldCurrentSlugID = "current_slug_id"
+	// FieldCurrentSlugState holds the string denoting the current_slug_state field in the database.
+	FieldCurrentSlugState = "current_slug_state"
+	// FieldAuthorID holds the string denoting the author_id field in the database.
+	FieldAuthorID = "author_id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldVisibility holds the string denoting the visibility field in the database.
 	FieldVisibility = "visibility"
-	// FieldGroupID holds the string denoting the group_id field in the database.
-	FieldGroupID = "group_id"
+	// FieldCurrentDraftRevisionID holds the string denoting the current_draft_revision_id field in the database.
+	FieldCurrentDraftRevisionID = "current_draft_revision_id"
+	// FieldPublishedRevisionID holds the string denoting the published_revision_id field in the database.
+	FieldPublishedRevisionID = "published_revision_id"
+	// FieldPublishedRenderSourceID holds the string denoting the published_render_source_id field in the database.
+	FieldPublishedRenderSourceID = "published_render_source_id"
+	// FieldPublishedRenderArtifactID holds the string denoting the published_render_artifact_id field in the database.
+	FieldPublishedRenderArtifactID = "published_render_artifact_id"
+	// FieldPublishedRenderSourceKind holds the string denoting the published_render_source_kind field in the database.
+	FieldPublishedRenderSourceKind = "published_render_source_kind"
+	// FieldPublishedSourceChecksum holds the string denoting the published_source_checksum field in the database.
+	FieldPublishedSourceChecksum = "published_source_checksum"
+	// FieldPublishedAt holds the string denoting the published_at field in the database.
+	FieldPublishedAt = "published_at"
+	// FieldArchivedAt holds the string denoting the archived_at field in the database.
+	FieldArchivedAt = "archived_at"
 	// FieldViewCount holds the string denoting the view_count field in the database.
 	FieldViewCount = "view_count"
-	// FieldEstimatedReadTime holds the string denoting the estimated_read_time field in the database.
-	FieldEstimatedReadTime = "estimated_read_time"
-	// EdgeCategory holds the string denoting the category edge name in mutations.
-	EdgeCategory = "category"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
+	// EdgeCategory holds the string denoting the category edge name in mutations.
+	EdgeCategory = "category"
 	// EdgeDifficulty holds the string denoting the difficulty edge name in mutations.
 	EdgeDifficulty = "difficulty"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
 	EdgeTags = "tags"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
+	// EdgeSlugs holds the string denoting the slugs edge name in mutations.
+	EdgeSlugs = "slugs"
+	// EdgeDailyViews holds the string denoting the daily_views edge name in mutations.
+	EdgeDailyViews = "daily_views"
 	// Table holds the table name of the material in the database.
 	Table = "materials"
-	// CategoryTable is the table that holds the category relation/edge.
-	CategoryTable = "materials"
-	// CategoryInverseTable is the table name for the MaterialCategory entity.
-	// It exists in this package in order to avoid circular dependency with the "materialcategory" package.
-	CategoryInverseTable = "material_categories"
-	// CategoryColumn is the table column denoting the category relation/edge.
-	CategoryColumn = "category_id"
 	// AuthorTable is the table that holds the author relation/edge.
 	AuthorTable = "materials"
 	// AuthorInverseTable is the table name for the User entity.
@@ -70,6 +92,13 @@ const (
 	AuthorInverseTable = "users"
 	// AuthorColumn is the table column denoting the author relation/edge.
 	AuthorColumn = "author_id"
+	// CategoryTable is the table that holds the category relation/edge.
+	CategoryTable = "materials"
+	// CategoryInverseTable is the table name for the MaterialCategory entity.
+	// It exists in this package in order to avoid circular dependency with the "materialcategory" package.
+	CategoryInverseTable = "material_categories"
+	// CategoryColumn is the table column denoting the category relation/edge.
+	CategoryColumn = "category_id"
 	// DifficultyTable is the table that holds the difficulty relation/edge.
 	DifficultyTable = "materials"
 	// DifficultyInverseTable is the table name for the Difficulty entity.
@@ -82,6 +111,27 @@ const (
 	// TagsInverseTable is the table name for the Tag entity.
 	// It exists in this package in order to avoid circular dependency with the "tag" package.
 	TagsInverseTable = "tags"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "material_revisions"
+	// RevisionsInverseTable is the table name for the MaterialRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "materialrevision" package.
+	RevisionsInverseTable = "material_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "material_id"
+	// SlugsTable is the table that holds the slugs relation/edge.
+	SlugsTable = "material_slugs"
+	// SlugsInverseTable is the table name for the MaterialSlug entity.
+	// It exists in this package in order to avoid circular dependency with the "materialslug" package.
+	SlugsInverseTable = "material_slugs"
+	// SlugsColumn is the table column denoting the slugs relation/edge.
+	SlugsColumn = "material_id"
+	// DailyViewsTable is the table that holds the daily_views relation/edge.
+	DailyViewsTable = "material_view_dailies"
+	// DailyViewsInverseTable is the table name for the MaterialViewDaily entity.
+	// It exists in this package in order to avoid circular dependency with the "materialviewdaily" package.
+	DailyViewsInverseTable = "material_view_dailies"
+	// DailyViewsColumn is the table column denoting the daily_views relation/edge.
+	DailyViewsColumn = "material_id"
 )
 
 // Columns holds all SQL columns for material fields.
@@ -95,13 +145,24 @@ var Columns = []string{
 	FieldDescription,
 	FieldContent,
 	FieldDifficultyID,
-	FieldAuthorID,
 	FieldCategoryID,
+	FieldGroupID,
+	FieldEstimatedReadTime,
+	FieldCurrentSlugID,
+	FieldCurrentSlugState,
+	FieldAuthorID,
 	FieldStatus,
 	FieldVisibility,
-	FieldGroupID,
+	FieldCurrentDraftRevisionID,
+	FieldPublishedRevisionID,
+	FieldPublishedRenderSourceID,
+	FieldPublishedRenderArtifactID,
+	FieldPublishedRenderSourceKind,
+	FieldPublishedSourceChecksum,
+	FieldPublishedAt,
+	FieldArchivedAt,
 	FieldViewCount,
-	FieldEstimatedReadTime,
+	FieldVersion,
 }
 
 var (
@@ -138,15 +199,46 @@ var (
 	TitleValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
-	// DefaultViewCount holds the default value on creation for the "view_count" field.
-	DefaultViewCount int
-	// ViewCountValidator is a validator for the "view_count" field. It is called by the builders before save.
-	ViewCountValidator func(int) error
 	// DefaultEstimatedReadTime holds the default value on creation for the "estimated_read_time" field.
 	DefaultEstimatedReadTime int
 	// EstimatedReadTimeValidator is a validator for the "estimated_read_time" field. It is called by the builders before save.
 	EstimatedReadTimeValidator func(int) error
+	// DefaultViewCount holds the default value on creation for the "view_count" field.
+	DefaultViewCount int64
+	// ViewCountValidator is a validator for the "view_count" field. It is called by the builders before save.
+	ViewCountValidator func(int64) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
+
+// CurrentSlugState defines the type for the "current_slug_state" enum field.
+type CurrentSlugState string
+
+// CurrentSlugStateCurrent is the default value of the CurrentSlugState enum.
+const DefaultCurrentSlugState = CurrentSlugStateCurrent
+
+// CurrentSlugState values.
+const (
+	CurrentSlugStateCurrent CurrentSlugState = "current"
+)
+
+func (css CurrentSlugState) String() string {
+	return string(css)
+}
+
+// CurrentSlugStateValidator is a validator for the "current_slug_state" field enum values. It is called by the builders before save.
+func CurrentSlugStateValidator(css CurrentSlugState) error {
+	switch css {
+	case CurrentSlugStateCurrent:
+		return nil
+	default:
+		return fmt.Errorf("material: invalid enum value for current_slug_state field: %q", css)
+	}
+}
 
 // Status defines the type for the "status" enum field.
 type Status string
@@ -157,7 +249,9 @@ const DefaultStatus = StatusDraft
 // Status values.
 const (
 	StatusDraft     Status = "draft"
+	StatusInReview  Status = "in_review"
 	StatusPublished Status = "published"
+	StatusArchived  Status = "archived"
 )
 
 func (s Status) String() string {
@@ -167,7 +261,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusDraft, StatusPublished:
+	case StatusDraft, StatusInReview, StatusPublished, StatusArchived:
 		return nil
 	default:
 		return fmt.Errorf("material: invalid enum value for status field: %q", s)
@@ -182,8 +276,8 @@ const DefaultVisibility = VisibilityPublic
 
 // Visibility values.
 const (
-	VisibilityPublic Visibility = "public"
-	VisibilityGroup  Visibility = "group"
+	VisibilityPublic        Visibility = "public"
+	VisibilityAuthenticated Visibility = "authenticated"
 )
 
 func (v Visibility) String() string {
@@ -193,10 +287,32 @@ func (v Visibility) String() string {
 // VisibilityValidator is a validator for the "visibility" field enum values. It is called by the builders before save.
 func VisibilityValidator(v Visibility) error {
 	switch v {
-	case VisibilityPublic, VisibilityGroup:
+	case VisibilityPublic, VisibilityAuthenticated:
 		return nil
 	default:
 		return fmt.Errorf("material: invalid enum value for visibility field: %q", v)
+	}
+}
+
+// PublishedRenderSourceKind defines the type for the "published_render_source_kind" enum field.
+type PublishedRenderSourceKind string
+
+// PublishedRenderSourceKind values.
+const (
+	PublishedRenderSourceKindMaterialBody PublishedRenderSourceKind = "material_body"
+)
+
+func (prsk PublishedRenderSourceKind) String() string {
+	return string(prsk)
+}
+
+// PublishedRenderSourceKindValidator is a validator for the "published_render_source_kind" field enum values. It is called by the builders before save.
+func PublishedRenderSourceKindValidator(prsk PublishedRenderSourceKind) error {
+	switch prsk {
+	case PublishedRenderSourceKindMaterialBody:
+		return nil
+	default:
+		return fmt.Errorf("material: invalid enum value for published_render_source_kind field: %q", prsk)
 	}
 }
 
@@ -248,14 +364,34 @@ func ByDifficultyID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDifficultyID, opts...).ToFunc()
 }
 
-// ByAuthorID orders the results by the author_id field.
-func ByAuthorID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAuthorID, opts...).ToFunc()
-}
-
 // ByCategoryID orders the results by the category_id field.
 func ByCategoryID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCategoryID, opts...).ToFunc()
+}
+
+// ByGroupID orders the results by the group_id field.
+func ByGroupID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupID, opts...).ToFunc()
+}
+
+// ByEstimatedReadTime orders the results by the estimated_read_time field.
+func ByEstimatedReadTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEstimatedReadTime, opts...).ToFunc()
+}
+
+// ByCurrentSlugID orders the results by the current_slug_id field.
+func ByCurrentSlugID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCurrentSlugID, opts...).ToFunc()
+}
+
+// ByCurrentSlugState orders the results by the current_slug_state field.
+func ByCurrentSlugState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCurrentSlugState, opts...).ToFunc()
+}
+
+// ByAuthorID orders the results by the author_id field.
+func ByAuthorID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAuthorID, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.
@@ -268,9 +404,39 @@ func ByVisibility(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVisibility, opts...).ToFunc()
 }
 
-// ByGroupID orders the results by the group_id field.
-func ByGroupID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldGroupID, opts...).ToFunc()
+// ByCurrentDraftRevisionID orders the results by the current_draft_revision_id field.
+func ByCurrentDraftRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCurrentDraftRevisionID, opts...).ToFunc()
+}
+
+// ByPublishedRevisionID orders the results by the published_revision_id field.
+func ByPublishedRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRevisionID, opts...).ToFunc()
+}
+
+// ByPublishedRenderSourceID orders the results by the published_render_source_id field.
+func ByPublishedRenderSourceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRenderSourceID, opts...).ToFunc()
+}
+
+// ByPublishedRenderArtifactID orders the results by the published_render_artifact_id field.
+func ByPublishedRenderArtifactID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRenderArtifactID, opts...).ToFunc()
+}
+
+// ByPublishedRenderSourceKind orders the results by the published_render_source_kind field.
+func ByPublishedRenderSourceKind(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRenderSourceKind, opts...).ToFunc()
+}
+
+// ByPublishedAt orders the results by the published_at field.
+func ByPublishedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedAt, opts...).ToFunc()
+}
+
+// ByArchivedAt orders the results by the archived_at field.
+func ByArchivedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldArchivedAt, opts...).ToFunc()
 }
 
 // ByViewCount orders the results by the view_count field.
@@ -278,22 +444,22 @@ func ByViewCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldViewCount, opts...).ToFunc()
 }
 
-// ByEstimatedReadTime orders the results by the estimated_read_time field.
-func ByEstimatedReadTime(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEstimatedReadTime, opts...).ToFunc()
-}
-
-// ByCategoryField orders the results by category field.
-func ByCategoryField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCategoryStep(), sql.OrderByField(field, opts...))
-	}
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
 }
 
 // ByAuthorField orders the results by author field.
 func ByAuthorField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newAuthorStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByCategoryField orders the results by category field.
+func ByCategoryField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCategoryStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -317,18 +483,60 @@ func ByTags(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTagsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newCategoryStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CategoryInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CategoryTable, CategoryColumn),
-	)
+
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySlugsCount orders the results by slugs count.
+func BySlugsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSlugsStep(), opts...)
+	}
+}
+
+// BySlugs orders the results by slugs terms.
+func BySlugs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSlugsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByDailyViewsCount orders the results by daily_views count.
+func ByDailyViewsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDailyViewsStep(), opts...)
+	}
+}
+
+// ByDailyViews orders the results by daily_views terms.
+func ByDailyViews(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDailyViewsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newAuthorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AuthorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AuthorTable, AuthorColumn),
+	)
+}
+func newCategoryStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CategoryInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CategoryTable, CategoryColumn),
 	)
 }
 func newDifficultyStep() *sqlgraph.Step {
@@ -343,5 +551,26 @@ func newTagsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TagsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, TagsTable, TagsPrimaryKey...),
+	)
+}
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
+}
+func newSlugsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SlugsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SlugsTable, SlugsColumn),
+	)
+}
+func newDailyViewsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DailyViewsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DailyViewsTable, DailyViewsColumn),
 	)
 }

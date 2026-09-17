@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -18,7 +19,7 @@ import (
 type Credential struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -26,13 +27,19 @@ type Credential struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
 	// CredentialData holds the value of the "credential_data" field.
 	CredentialData map[string]interface{} `json:"credential_data,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
+	// Active holds the value of the "active" field.
+	Active bool `json:"active,omitempty"`
+	// LastUsedAt holds the value of the "last_used_at" field.
+	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CredentialQuery when eager-loading is set.
 	Edges        CredentialEdges `json:"edges"`
@@ -66,12 +73,16 @@ func (*Credential) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case credential.FieldCredentialData:
 			values[i] = new([]byte)
-		case credential.FieldID, credential.FieldDeletedBy, credential.FieldUserID:
+		case credential.FieldActive:
+			values[i] = new(sql.NullBool)
+		case credential.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case credential.FieldType:
+		case credential.FieldDeletedBy, credential.FieldType:
 			values[i] = new(sql.NullString)
-		case credential.FieldCreatedAt, credential.FieldUpdatedAt, credential.FieldDeletedAt:
+		case credential.FieldCreatedAt, credential.FieldUpdatedAt, credential.FieldDeletedAt, credential.FieldLastUsedAt:
 			values[i] = new(sql.NullTime)
+		case credential.FieldID, credential.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -88,11 +99,11 @@ func (_m *Credential) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case credential.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case credential.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -113,17 +124,17 @@ func (_m *Credential) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case credential.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case credential.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case credential.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -138,6 +149,25 @@ func (_m *Credential) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &_m.CredentialData); err != nil {
 					return fmt.Errorf("unmarshal field credential_data: %w", err)
 				}
+			}
+		case credential.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
+		case credential.FieldActive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field active", values[i])
+			} else if value.Valid {
+				_m.Active = value.Bool
+			}
+		case credential.FieldLastUsedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_used_at", values[i])
+			} else if value.Valid {
+				_m.LastUsedAt = new(time.Time)
+				*_m.LastUsedAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -193,7 +223,7 @@ func (_m *Credential) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
@@ -204,16 +234,19 @@ func (_m *Credential) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("credential_data=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CredentialData))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
+	builder.WriteString("active=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Active))
+	builder.WriteString(", ")
+	if v := _m.LastUsedAt; v != nil {
+		builder.WriteString("last_used_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Credential) GetID() int {
-	return _m.ID
-}
-
-func (_m *Credential) SetID(id int) {
-	_m.ID = id
 }
 
 // Credentials is a parsable slice of Credential.

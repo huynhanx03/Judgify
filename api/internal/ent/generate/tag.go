@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 )
 
@@ -16,7 +17,7 @@ import (
 type Tag struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,9 +25,11 @@ type Tag struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TagQuery when eager-loading is set.
 	Edges        TagEdges `json:"edges"`
@@ -35,23 +38,36 @@ type Tag struct {
 
 // TagEdges holds the relations/edges for other nodes in the graph.
 type TagEdges struct {
+	// Revisions holds the value of the revisions edge.
+	Revisions []*TagRevision `json:"revisions,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
 	// Elements holds the value of the elements edge.
 	Elements []*Element `json:"elements,omitempty"`
 	// UserTagStats holds the value of the user_tag_stats edge.
 	UserTagStats []*UserTagStats `json:"user_tag_stats,omitempty"`
+	// MaterialRevisionTags holds the value of the material_revision_tags edge.
+	MaterialRevisionTags []*MaterialRevisionTag `json:"material_revision_tags,omitempty"`
 	// Materials holds the value of the materials edge.
 	Materials []*Material `json:"materials,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [6]bool
+}
+
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e TagEdges) RevisionsOrErr() ([]*TagRevision, error) {
+	if e.loadedTypes[0] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading.
 func (e TagEdges) ProblemsOrErr() ([]*Problem, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
@@ -60,7 +76,7 @@ func (e TagEdges) ProblemsOrErr() ([]*Problem, error) {
 // ElementsOrErr returns the Elements value or an error if the edge
 // was not loaded in eager-loading.
 func (e TagEdges) ElementsOrErr() ([]*Element, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.Elements, nil
 	}
 	return nil, &NotLoadedError{edge: "elements"}
@@ -69,16 +85,25 @@ func (e TagEdges) ElementsOrErr() ([]*Element, error) {
 // UserTagStatsOrErr returns the UserTagStats value or an error if the edge
 // was not loaded in eager-loading.
 func (e TagEdges) UserTagStatsOrErr() ([]*UserTagStats, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.UserTagStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_tag_stats"}
 }
 
+// MaterialRevisionTagsOrErr returns the MaterialRevisionTags value or an error if the edge
+// was not loaded in eager-loading.
+func (e TagEdges) MaterialRevisionTagsOrErr() ([]*MaterialRevisionTag, error) {
+	if e.loadedTypes[4] {
+		return e.MaterialRevisionTags, nil
+	}
+	return nil, &NotLoadedError{edge: "material_revision_tags"}
+}
+
 // MaterialsOrErr returns the Materials value or an error if the edge
 // was not loaded in eager-loading.
 func (e TagEdges) MaterialsOrErr() ([]*Material, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		return e.Materials, nil
 	}
 	return nil, &NotLoadedError{edge: "materials"}
@@ -89,12 +114,14 @@ func (*Tag) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case tag.FieldID, tag.FieldDeletedBy:
+		case tag.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case tag.FieldName:
+		case tag.FieldDeletedBy, tag.FieldName:
 			values[i] = new(sql.NullString)
 		case tag.FieldCreatedAt, tag.FieldUpdatedAt, tag.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case tag.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -111,11 +138,11 @@ func (_m *Tag) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case tag.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case tag.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -136,17 +163,23 @@ func (_m *Tag) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case tag.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case tag.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
+			}
+		case tag.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -159,6 +192,11 @@ func (_m *Tag) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Tag) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryRevisions queries the "revisions" edge of the Tag entity.
+func (_m *Tag) QueryRevisions() *TagRevisionQuery {
+	return NewTagClient(_m.config).QueryRevisions(_m)
 }
 
 // QueryProblems queries the "problems" edge of the Tag entity.
@@ -174,6 +212,11 @@ func (_m *Tag) QueryElements() *ElementQuery {
 // QueryUserTagStats queries the "user_tag_stats" edge of the Tag entity.
 func (_m *Tag) QueryUserTagStats() *UserTagStatsQuery {
 	return NewTagClient(_m.config).QueryUserTagStats(_m)
+}
+
+// QueryMaterialRevisionTags queries the "material_revision_tags" edge of the Tag entity.
+func (_m *Tag) QueryMaterialRevisionTags() *MaterialRevisionTagQuery {
+	return NewTagClient(_m.config).QueryMaterialRevisionTags(_m)
 }
 
 // QueryMaterials queries the "materials" edge of the Tag entity.
@@ -217,21 +260,16 @@ func (_m *Tag) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Tag) GetID() int {
-	return _m.ID
-}
-
-func (_m *Tag) SetID(id int) {
-	_m.ID = id
 }
 
 // Tags is a parsable slice of Tag.

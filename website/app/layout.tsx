@@ -1,36 +1,32 @@
-import type { Metadata } from "next";
-import { Inter, Russo_One, Playfair_Display } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProviders } from "@/components/app-providers";
 import { AppToaster } from "@/components/app-toaster";
-import { TEXT } from "@/constants/text";
-
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin", "vietnamese"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  subsets: ["latin", "vietnamese"],
-});
-
-const russoOne = Russo_One({
-  weight: "400",
-  variable: "--font-heading",
-  subsets: ["latin"],
-});
+import { text } from "@/i18n/text";
+import { APP_LANGUAGE } from "@/i18n/locale";
+import { BROWSER_THEME_COLORS } from "@/design/tokens";
 
 export const metadata: Metadata = {
   title: {
-    default: TEXT.APP_FULL_TITLE,
-    template: `%s | ${TEXT.APP_NAME}`,
+    default: text("APP_FULL_TITLE"),
+    template: `%s | ${text("APP_NAME")}`,
   },
-  description: TEXT.APP_DESCRIPTION,
+  description: text("APP_DESCRIPTION"),
+  applicationName: text("APP_NAME"),
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BROWSER_THEME_COLORS.light },
+    { media: "(prefers-color-scheme: dark)", color: BROWSER_THEME_COLORS.dark },
+  ],
 };
 
 export default function RootLayout({
@@ -39,17 +35,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.variable} ${russoOne.variable} ${playfair.variable} font-sans antialiased text-[15px] sm:text-base`} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          forcedTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
+    <html lang={APP_LANGUAGE} suppressHydrationWarning>
+      <body
+        className="min-h-dvh bg-background font-sans text-[15px] antialiased sm:text-base"
+        suppressHydrationWarning
+      >
+        <ThemeProvider>
           <AppProviders>
-            <TooltipProvider>{children}</TooltipProvider>
+            {children}
             <AppToaster />
           </AppProviders>
         </ThemeProvider>

@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 )
 
@@ -16,7 +17,7 @@ import (
 type Element struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,13 +25,15 @@ type Element struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Unique code: fire, water, wood, metal, earth
 	Code string `json:"code,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ElementQuery when eager-loading is set.
 	Edges        ElementEdges `json:"edges"`
@@ -39,19 +42,41 @@ type Element struct {
 
 // ElementEdges holds the relations/edges for other nodes in the graph.
 type ElementEdges struct {
+	// Revisions holds the value of the revisions edge.
+	Revisions []*ElementRevision `json:"revisions,omitempty"`
+	// TagRevisionElements holds the value of the tag_revision_elements edge.
+	TagRevisionElements []*TagRevisionElement `json:"tag_revision_elements,omitempty"`
 	// Tags holds the value of the tags edge.
 	Tags []*Tag `json:"tags,omitempty"`
 	// UserElementExps holds the value of the user_element_exps edge.
 	UserElementExps []*UserElementExp `json:"user_element_exps,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
+}
+
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ElementEdges) RevisionsOrErr() ([]*ElementRevision, error) {
+	if e.loadedTypes[0] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
+}
+
+// TagRevisionElementsOrErr returns the TagRevisionElements value or an error if the edge
+// was not loaded in eager-loading.
+func (e ElementEdges) TagRevisionElementsOrErr() ([]*TagRevisionElement, error) {
+	if e.loadedTypes[1] {
+		return e.TagRevisionElements, nil
+	}
+	return nil, &NotLoadedError{edge: "tag_revision_elements"}
 }
 
 // TagsOrErr returns the Tags value or an error if the edge
 // was not loaded in eager-loading.
 func (e ElementEdges) TagsOrErr() ([]*Tag, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[2] {
 		return e.Tags, nil
 	}
 	return nil, &NotLoadedError{edge: "tags"}
@@ -60,7 +85,7 @@ func (e ElementEdges) TagsOrErr() ([]*Tag, error) {
 // UserElementExpsOrErr returns the UserElementExps value or an error if the edge
 // was not loaded in eager-loading.
 func (e ElementEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[3] {
 		return e.UserElementExps, nil
 	}
 	return nil, &NotLoadedError{edge: "user_element_exps"}
@@ -71,12 +96,14 @@ func (*Element) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case element.FieldID, element.FieldDeletedBy:
+		case element.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case element.FieldName, element.FieldCode, element.FieldDescription:
+		case element.FieldDeletedBy, element.FieldName, element.FieldCode, element.FieldDescription:
 			values[i] = new(sql.NullString)
 		case element.FieldCreatedAt, element.FieldUpdatedAt, element.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case element.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -93,11 +120,11 @@ func (_m *Element) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case element.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case element.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -118,11 +145,11 @@ func (_m *Element) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case element.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case element.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -142,6 +169,12 @@ func (_m *Element) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = value.String
 			}
+		case element.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -153,6 +186,16 @@ func (_m *Element) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Element) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryRevisions queries the "revisions" edge of the Element entity.
+func (_m *Element) QueryRevisions() *ElementRevisionQuery {
+	return NewElementClient(_m.config).QueryRevisions(_m)
+}
+
+// QueryTagRevisionElements queries the "tag_revision_elements" edge of the Element entity.
+func (_m *Element) QueryTagRevisionElements() *TagRevisionElementQuery {
+	return NewElementClient(_m.config).QueryTagRevisionElements(_m)
 }
 
 // QueryTags queries the "tags" edge of the Element entity.
@@ -201,7 +244,7 @@ func (_m *Element) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
@@ -212,16 +255,11 @@ func (_m *Element) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Element) GetID() int {
-	return _m.ID
-}
-
-func (_m *Element) SetID(id int) {
-	_m.ID = id
 }
 
 // Elements is a parsable slice of Element.

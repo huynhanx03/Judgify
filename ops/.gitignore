@@ -1,0 +1,7 @@
+# Generated load-test output is retained by CI/object storage, never Git.
+performance/results/*
+!performance/results/.gitkeep
+
+# Local service state for the standalone ops stack.
+stack/data/
+

@@ -1,0 +1,67 @@
+services:
+  prometheus:
+    image: prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-7d}
+      - --web.enable-lifecycle
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-19090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../provisioning/prometheus-rules:/etc/prometheus/rules:ro
+      - ./data/prometheus:/prometheus
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  alertmanager:
+    image: quay.io/prometheus/alertmanager@sha256:27c475db5fb156cab31d5c18a4251ac7ed567746a2483ff264516437a39b15ba
+    command: --config.file=/etc/alertmanager/alertmanager.yml
+    volumes:
+      - ../provisioning/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+
+  loki:
+    image: grafana/loki@sha256:3165cecce301ce5b9b6e3530284b080934a05cd5cafac3d3d82edcb887b45ecd
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml:ro
+      - ./data/loki:/loki
+
+  tempo:
+    image: grafana/tempo@sha256:0ef775495967cd5d7a6b2e146b6ea695d624803c8db8349fb8ce4164f719f9b7
+    command: ["-config.file=/etc/tempo/config.yml"]
+    volumes:
+      - ./tempo/config.yml:/etc/tempo/config.yml:ro
+      - ./data/tempo:/var/tempo
+
+  alloy:
+    image: grafana/alloy@sha256:bcf27f18c4402869af112fb39e35e1db3804a404686f4caa20bdf77814219223
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    ports:
+      - "127.0.0.1:${ALLOY_PORT:-12345}:12345"
+      - "127.0.0.1:${ALLOY_SYSLOG_PORT:-1514}:1514"
+      - "127.0.0.1:${ALLOY_OTLP_GRPC_PORT:-4317}:4317"
+      - "127.0.0.1:${ALLOY_OTLP_HTTP_PORT:-4318}:4318"
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+
+  grafana:
+    image: grafana/grafana@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+      - alertmanager
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set a nondefault Grafana admin password}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3300}:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ../provisioning/grafana-dashboards:/var/lib/grafana/judgify-dashboards:ro
+      - ./data/grafana:/var/lib/grafana

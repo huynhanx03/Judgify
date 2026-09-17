@@ -5,7 +5,6 @@
  */
 
 import { toast as sonnerToast } from "sonner";
-import { ApiError } from "@/lib/api-client";
 
 export const notify = {
   success: (message: string) => sonnerToast.success(message),
@@ -14,8 +13,10 @@ export const notify = {
   info: (message: string) => sonnerToast.info(message),
 };
 
-/** Extract a user-friendly message from an error, falling back to the given default. */
-export function getErrorMessage(err: unknown, fallback: string): string {
-  if (err instanceof ApiError && err.message) return err.message;
+/**
+ * Return catalog-owned presentation copy. The error remains available to the
+ * caller for diagnostics, but backend messages never cross the UI text boundary.
+ */
+export function getErrorMessage(_error: unknown, fallback: string): string {
   return fallback;
 }

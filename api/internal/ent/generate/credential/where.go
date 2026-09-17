@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Credential {
+func ID(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Credential {
+func IDEQ(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Credential {
+func IDNEQ(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Credential {
+func IDIn(ids ...uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Credential {
+func IDNotIn(ids ...uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Credential {
+func IDGT(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Credential {
+func IDGTE(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Credential {
+func IDLT(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Credential {
+func IDLTE(id uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,18 +72,33 @@ func DeletedAt(v time.Time) predicate.Credential {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Credential {
+func DeletedBy(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.Credential {
+func UserID(v uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldUserID, v))
 }
 
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
 func Type(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldType, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldEQ(FieldVersion, v))
+}
+
+// Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
+func Active(v bool) predicate.Credential {
+	return predicate.Credential(sql.FieldEQ(FieldActive, v))
+}
+
+// LastUsedAt applies equality check predicate on the "last_used_at" field. It's identical to LastUsedAtEQ.
+func LastUsedAt(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldEQ(FieldLastUsedAt, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -216,43 +232,58 @@ func DeletedAtNotNil() predicate.Credential {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Credential {
+func DeletedByEQ(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Credential {
+func DeletedByNEQ(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Credential {
+func DeletedByIn(vs ...string) predicate.Credential {
 	return predicate.Credential(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Credential {
+func DeletedByNotIn(vs ...string) predicate.Credential {
 	return predicate.Credential(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Credential {
+func DeletedByGT(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Credential {
+func DeletedByGTE(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Credential {
+func DeletedByLT(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Credential {
+func DeletedByLTE(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Credential {
+	return predicate.Credential(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Credential {
+	return predicate.Credential(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Credential {
+	return predicate.Credential(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -265,23 +296,33 @@ func DeletedByNotNil() predicate.Credential {
 	return predicate.Credential(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Credential {
+	return predicate.Credential(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Credential {
+	return predicate.Credential(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.Credential {
+func UserIDEQ(v uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.Credential {
+func UserIDNEQ(v uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.Credential {
+func UserIDIn(vs ...uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.Credential {
+func UserIDNotIn(vs ...uuid.UUID) predicate.Credential {
 	return predicate.Credential(sql.FieldNotIn(FieldUserID, vs...))
 }
 
@@ -348,6 +389,106 @@ func TypeEqualFold(v string) predicate.Credential {
 // TypeContainsFold applies the ContainsFold predicate on the "type" field.
 func TypeContainsFold(v string) predicate.Credential {
 	return predicate.Credential(sql.FieldContainsFold(FieldType, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Credential {
+	return predicate.Credential(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Credential {
+	return predicate.Credential(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Credential {
+	return predicate.Credential(sql.FieldLTE(FieldVersion, v))
+}
+
+// ActiveEQ applies the EQ predicate on the "active" field.
+func ActiveEQ(v bool) predicate.Credential {
+	return predicate.Credential(sql.FieldEQ(FieldActive, v))
+}
+
+// ActiveNEQ applies the NEQ predicate on the "active" field.
+func ActiveNEQ(v bool) predicate.Credential {
+	return predicate.Credential(sql.FieldNEQ(FieldActive, v))
+}
+
+// LastUsedAtEQ applies the EQ predicate on the "last_used_at" field.
+func LastUsedAtEQ(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldEQ(FieldLastUsedAt, v))
+}
+
+// LastUsedAtNEQ applies the NEQ predicate on the "last_used_at" field.
+func LastUsedAtNEQ(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldNEQ(FieldLastUsedAt, v))
+}
+
+// LastUsedAtIn applies the In predicate on the "last_used_at" field.
+func LastUsedAtIn(vs ...time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldIn(FieldLastUsedAt, vs...))
+}
+
+// LastUsedAtNotIn applies the NotIn predicate on the "last_used_at" field.
+func LastUsedAtNotIn(vs ...time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldNotIn(FieldLastUsedAt, vs...))
+}
+
+// LastUsedAtGT applies the GT predicate on the "last_used_at" field.
+func LastUsedAtGT(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldGT(FieldLastUsedAt, v))
+}
+
+// LastUsedAtGTE applies the GTE predicate on the "last_used_at" field.
+func LastUsedAtGTE(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldGTE(FieldLastUsedAt, v))
+}
+
+// LastUsedAtLT applies the LT predicate on the "last_used_at" field.
+func LastUsedAtLT(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldLT(FieldLastUsedAt, v))
+}
+
+// LastUsedAtLTE applies the LTE predicate on the "last_used_at" field.
+func LastUsedAtLTE(v time.Time) predicate.Credential {
+	return predicate.Credential(sql.FieldLTE(FieldLastUsedAt, v))
+}
+
+// LastUsedAtIsNil applies the IsNil predicate on the "last_used_at" field.
+func LastUsedAtIsNil() predicate.Credential {
+	return predicate.Credential(sql.FieldIsNull(FieldLastUsedAt))
+}
+
+// LastUsedAtNotNil applies the NotNil predicate on the "last_used_at" field.
+func LastUsedAtNotNil() predicate.Credential {
+	return predicate.Credential(sql.FieldNotNull(FieldLastUsedAt))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

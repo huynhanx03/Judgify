@@ -3,104 +3,572 @@
 package contestregistration
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.ContestRegistration {
+func ID(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.ContestRegistration {
+func IDEQ(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.ContestRegistration {
+func IDNEQ(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.ContestRegistration {
+func IDIn(ids ...uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.ContestRegistration {
+func IDNotIn(ids ...uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.ContestRegistration {
+func IDGT(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.ContestRegistration {
+func IDGTE(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.ContestRegistration {
+func IDLT(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.ContestRegistration {
+func IDLTE(id uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldLTE(FieldID, id))
 }
 
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
 // ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
-func ContestID(v int) predicate.ContestRegistration {
+func ContestID(v uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldEQ(FieldContestID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.ContestRegistration {
+func UserID(v uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldEQ(FieldUserID, v))
 }
 
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldVersion, v))
+}
+
+// OfficialSubmissionCount applies equality check predicate on the "official_submission_count" field. It's identical to OfficialSubmissionCountEQ.
+func OfficialSubmissionCount(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldOfficialSubmissionCount, v))
+}
+
+// RegisteredAt applies equality check predicate on the "registered_at" field. It's identical to RegisteredAtEQ.
+func RegisteredAt(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldRegisteredAt, v))
+}
+
+// WithdrawnAt applies equality check predicate on the "withdrawn_at" field. It's identical to WithdrawnAtEQ.
+func WithdrawnAt(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldWithdrawnAt, v))
+}
+
+// BannedAt applies equality check predicate on the "banned_at" field. It's identical to BannedAtEQ.
+func BannedAt(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldBannedAt, v))
+}
+
+// Reason applies equality check predicate on the "reason" field. It's identical to ReasonEQ.
+func Reason(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldReason, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
 // ContestIDEQ applies the EQ predicate on the "contest_id" field.
-func ContestIDEQ(v int) predicate.ContestRegistration {
+func ContestIDEQ(v uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldEQ(FieldContestID, v))
 }
 
 // ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
-func ContestIDNEQ(v int) predicate.ContestRegistration {
+func ContestIDNEQ(v uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldNEQ(FieldContestID, v))
 }
 
 // ContestIDIn applies the In predicate on the "contest_id" field.
-func ContestIDIn(vs ...int) predicate.ContestRegistration {
+func ContestIDIn(vs ...uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldIn(FieldContestID, vs...))
 }
 
 // ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
-func ContestIDNotIn(vs ...int) predicate.ContestRegistration {
+func ContestIDNotIn(vs ...uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldNotIn(FieldContestID, vs...))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.ContestRegistration {
+func UserIDEQ(v uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.ContestRegistration {
+func UserIDNEQ(v uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.ContestRegistration {
+func UserIDIn(vs ...uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.ContestRegistration {
+func UserIDNotIn(vs ...uuid.UUID) predicate.ContestRegistration {
 	return predicate.ContestRegistration(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// SourceEQ applies the EQ predicate on the "source" field.
+func SourceEQ(v Source) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldSource, v))
+}
+
+// SourceNEQ applies the NEQ predicate on the "source" field.
+func SourceNEQ(v Source) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldSource, v))
+}
+
+// SourceIn applies the In predicate on the "source" field.
+func SourceIn(vs ...Source) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldSource, vs...))
+}
+
+// SourceNotIn applies the NotIn predicate on the "source" field.
+func SourceNotIn(vs ...Source) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldSource, vs...))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldVersion, v))
+}
+
+// OfficialSubmissionCountEQ applies the EQ predicate on the "official_submission_count" field.
+func OfficialSubmissionCountEQ(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldOfficialSubmissionCount, v))
+}
+
+// OfficialSubmissionCountNEQ applies the NEQ predicate on the "official_submission_count" field.
+func OfficialSubmissionCountNEQ(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldOfficialSubmissionCount, v))
+}
+
+// OfficialSubmissionCountIn applies the In predicate on the "official_submission_count" field.
+func OfficialSubmissionCountIn(vs ...int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldOfficialSubmissionCount, vs...))
+}
+
+// OfficialSubmissionCountNotIn applies the NotIn predicate on the "official_submission_count" field.
+func OfficialSubmissionCountNotIn(vs ...int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldOfficialSubmissionCount, vs...))
+}
+
+// OfficialSubmissionCountGT applies the GT predicate on the "official_submission_count" field.
+func OfficialSubmissionCountGT(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldOfficialSubmissionCount, v))
+}
+
+// OfficialSubmissionCountGTE applies the GTE predicate on the "official_submission_count" field.
+func OfficialSubmissionCountGTE(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldOfficialSubmissionCount, v))
+}
+
+// OfficialSubmissionCountLT applies the LT predicate on the "official_submission_count" field.
+func OfficialSubmissionCountLT(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldOfficialSubmissionCount, v))
+}
+
+// OfficialSubmissionCountLTE applies the LTE predicate on the "official_submission_count" field.
+func OfficialSubmissionCountLTE(v int64) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldOfficialSubmissionCount, v))
+}
+
+// RegisteredAtEQ applies the EQ predicate on the "registered_at" field.
+func RegisteredAtEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldRegisteredAt, v))
+}
+
+// RegisteredAtNEQ applies the NEQ predicate on the "registered_at" field.
+func RegisteredAtNEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldRegisteredAt, v))
+}
+
+// RegisteredAtIn applies the In predicate on the "registered_at" field.
+func RegisteredAtIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldRegisteredAt, vs...))
+}
+
+// RegisteredAtNotIn applies the NotIn predicate on the "registered_at" field.
+func RegisteredAtNotIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldRegisteredAt, vs...))
+}
+
+// RegisteredAtGT applies the GT predicate on the "registered_at" field.
+func RegisteredAtGT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldRegisteredAt, v))
+}
+
+// RegisteredAtGTE applies the GTE predicate on the "registered_at" field.
+func RegisteredAtGTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldRegisteredAt, v))
+}
+
+// RegisteredAtLT applies the LT predicate on the "registered_at" field.
+func RegisteredAtLT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldRegisteredAt, v))
+}
+
+// RegisteredAtLTE applies the LTE predicate on the "registered_at" field.
+func RegisteredAtLTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldRegisteredAt, v))
+}
+
+// RegisteredAtIsNil applies the IsNil predicate on the "registered_at" field.
+func RegisteredAtIsNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIsNull(FieldRegisteredAt))
+}
+
+// RegisteredAtNotNil applies the NotNil predicate on the "registered_at" field.
+func RegisteredAtNotNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotNull(FieldRegisteredAt))
+}
+
+// WithdrawnAtEQ applies the EQ predicate on the "withdrawn_at" field.
+func WithdrawnAtEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldWithdrawnAt, v))
+}
+
+// WithdrawnAtNEQ applies the NEQ predicate on the "withdrawn_at" field.
+func WithdrawnAtNEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldWithdrawnAt, v))
+}
+
+// WithdrawnAtIn applies the In predicate on the "withdrawn_at" field.
+func WithdrawnAtIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldWithdrawnAt, vs...))
+}
+
+// WithdrawnAtNotIn applies the NotIn predicate on the "withdrawn_at" field.
+func WithdrawnAtNotIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldWithdrawnAt, vs...))
+}
+
+// WithdrawnAtGT applies the GT predicate on the "withdrawn_at" field.
+func WithdrawnAtGT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldWithdrawnAt, v))
+}
+
+// WithdrawnAtGTE applies the GTE predicate on the "withdrawn_at" field.
+func WithdrawnAtGTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldWithdrawnAt, v))
+}
+
+// WithdrawnAtLT applies the LT predicate on the "withdrawn_at" field.
+func WithdrawnAtLT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldWithdrawnAt, v))
+}
+
+// WithdrawnAtLTE applies the LTE predicate on the "withdrawn_at" field.
+func WithdrawnAtLTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldWithdrawnAt, v))
+}
+
+// WithdrawnAtIsNil applies the IsNil predicate on the "withdrawn_at" field.
+func WithdrawnAtIsNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIsNull(FieldWithdrawnAt))
+}
+
+// WithdrawnAtNotNil applies the NotNil predicate on the "withdrawn_at" field.
+func WithdrawnAtNotNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotNull(FieldWithdrawnAt))
+}
+
+// BannedAtEQ applies the EQ predicate on the "banned_at" field.
+func BannedAtEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldBannedAt, v))
+}
+
+// BannedAtNEQ applies the NEQ predicate on the "banned_at" field.
+func BannedAtNEQ(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldBannedAt, v))
+}
+
+// BannedAtIn applies the In predicate on the "banned_at" field.
+func BannedAtIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldBannedAt, vs...))
+}
+
+// BannedAtNotIn applies the NotIn predicate on the "banned_at" field.
+func BannedAtNotIn(vs ...time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldBannedAt, vs...))
+}
+
+// BannedAtGT applies the GT predicate on the "banned_at" field.
+func BannedAtGT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldBannedAt, v))
+}
+
+// BannedAtGTE applies the GTE predicate on the "banned_at" field.
+func BannedAtGTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldBannedAt, v))
+}
+
+// BannedAtLT applies the LT predicate on the "banned_at" field.
+func BannedAtLT(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldBannedAt, v))
+}
+
+// BannedAtLTE applies the LTE predicate on the "banned_at" field.
+func BannedAtLTE(v time.Time) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldBannedAt, v))
+}
+
+// BannedAtIsNil applies the IsNil predicate on the "banned_at" field.
+func BannedAtIsNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIsNull(FieldBannedAt))
+}
+
+// BannedAtNotNil applies the NotNil predicate on the "banned_at" field.
+func BannedAtNotNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotNull(FieldBannedAt))
+}
+
+// ReasonEQ applies the EQ predicate on the "reason" field.
+func ReasonEQ(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEQ(FieldReason, v))
+}
+
+// ReasonNEQ applies the NEQ predicate on the "reason" field.
+func ReasonNEQ(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNEQ(FieldReason, v))
+}
+
+// ReasonIn applies the In predicate on the "reason" field.
+func ReasonIn(vs ...string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIn(FieldReason, vs...))
+}
+
+// ReasonNotIn applies the NotIn predicate on the "reason" field.
+func ReasonNotIn(vs ...string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotIn(FieldReason, vs...))
+}
+
+// ReasonGT applies the GT predicate on the "reason" field.
+func ReasonGT(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGT(FieldReason, v))
+}
+
+// ReasonGTE applies the GTE predicate on the "reason" field.
+func ReasonGTE(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldGTE(FieldReason, v))
+}
+
+// ReasonLT applies the LT predicate on the "reason" field.
+func ReasonLT(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLT(FieldReason, v))
+}
+
+// ReasonLTE applies the LTE predicate on the "reason" field.
+func ReasonLTE(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldLTE(FieldReason, v))
+}
+
+// ReasonContains applies the Contains predicate on the "reason" field.
+func ReasonContains(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldContains(FieldReason, v))
+}
+
+// ReasonHasPrefix applies the HasPrefix predicate on the "reason" field.
+func ReasonHasPrefix(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldHasPrefix(FieldReason, v))
+}
+
+// ReasonHasSuffix applies the HasSuffix predicate on the "reason" field.
+func ReasonHasSuffix(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldHasSuffix(FieldReason, v))
+}
+
+// ReasonIsNil applies the IsNil predicate on the "reason" field.
+func ReasonIsNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldIsNull(FieldReason))
+}
+
+// ReasonNotNil applies the NotNil predicate on the "reason" field.
+func ReasonNotNil() predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldNotNull(FieldReason))
+}
+
+// ReasonEqualFold applies the EqualFold predicate on the "reason" field.
+func ReasonEqualFold(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldEqualFold(FieldReason, v))
+}
+
+// ReasonContainsFold applies the ContainsFold predicate on the "reason" field.
+func ReasonContainsFold(v string) predicate.ContestRegistration {
+	return predicate.ContestRegistration(sql.FieldContainsFold(FieldReason, v))
 }
 
 // HasContest applies the HasEdge predicate on the "contest" edge.
@@ -141,6 +609,29 @@ func HasUser() predicate.ContestRegistration {
 func HasUserWith(preds ...predicate.User) predicate.ContestRegistration {
 	return predicate.ContestRegistration(func(s *sql.Selector) {
 		step := newUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTransitions applies the HasEdge predicate on the "transitions" edge.
+func HasTransitions() predicate.ContestRegistration {
+	return predicate.ContestRegistration(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TransitionsTable, TransitionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTransitionsWith applies the HasEdge predicate on the "transitions" edge with a given conditions (other predicates).
+func HasTransitionsWith(preds ...predicate.ContestRegistrationTransition) predicate.ContestRegistration {
+	return predicate.ContestRegistration(func(s *sql.Selector) {
+		step := newTransitionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

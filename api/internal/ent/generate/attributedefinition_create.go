@@ -8,10 +8,13 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 )
 
@@ -66,13 +69,13 @@ func (_c *AttributeDefinitionCreate) SetNillableDeletedAt(v *time.Time) *Attribu
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *AttributeDefinitionCreate) SetDeletedBy(v int) *AttributeDefinitionCreate {
+func (_c *AttributeDefinitionCreate) SetDeletedBy(v string) *AttributeDefinitionCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *AttributeDefinitionCreate) SetNillableDeletedBy(v *int) *AttributeDefinitionCreate {
+func (_c *AttributeDefinitionCreate) SetNillableDeletedBy(v *string) *AttributeDefinitionCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -85,47 +88,142 @@ func (_c *AttributeDefinitionCreate) SetKey(v string) *AttributeDefinitionCreate
 	return _c
 }
 
-// SetDataType sets the "data_type" field.
-func (_c *AttributeDefinitionCreate) SetDataType(v string) *AttributeDefinitionCreate {
-	_c.mutation.SetDataType(v)
+// SetKind sets the "kind" field.
+func (_c *AttributeDefinitionCreate) SetKind(v attributedefinition.Kind) *AttributeDefinitionCreate {
+	_c.mutation.SetKind(v)
 	return _c
 }
 
-// SetNillableDataType sets the "data_type" field if the given value is not nil.
-func (_c *AttributeDefinitionCreate) SetNillableDataType(v *string) *AttributeDefinitionCreate {
+// SetNillableKind sets the "kind" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableKind(v *attributedefinition.Kind) *AttributeDefinitionCreate {
 	if v != nil {
-		_c.SetDataType(*v)
+		_c.SetKind(*v)
 	}
 	return _c
 }
 
-// SetDescription sets the "description" field.
-func (_c *AttributeDefinitionCreate) SetDescription(v string) *AttributeDefinitionCreate {
-	_c.mutation.SetDescription(v)
+// SetRequiredOnOnboarding sets the "required_on_onboarding" field.
+func (_c *AttributeDefinitionCreate) SetRequiredOnOnboarding(v bool) *AttributeDefinitionCreate {
+	_c.mutation.SetRequiredOnOnboarding(v)
 	return _c
 }
 
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (_c *AttributeDefinitionCreate) SetNillableDescription(v *string) *AttributeDefinitionCreate {
+// SetNillableRequiredOnOnboarding sets the "required_on_onboarding" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableRequiredOnOnboarding(v *bool) *AttributeDefinitionCreate {
 	if v != nil {
-		_c.SetDescription(*v)
+		_c.SetRequiredOnOnboarding(*v)
+	}
+	return _c
+}
+
+// SetStatus sets the "status" field.
+func (_c *AttributeDefinitionCreate) SetStatus(v attributedefinition.Status) *AttributeDefinitionCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableStatus(v *attributedefinition.Status) *AttributeDefinitionCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (_c *AttributeDefinitionCreate) SetDraftRevisionID(v uuid.UUID) *AttributeDefinitionCreate {
+	_c.mutation.SetDraftRevisionID(v)
+	return _c
+}
+
+// SetNillableDraftRevisionID sets the "draft_revision_id" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableDraftRevisionID(v *uuid.UUID) *AttributeDefinitionCreate {
+	if v != nil {
+		_c.SetDraftRevisionID(*v)
+	}
+	return _c
+}
+
+// SetActiveRevisionID sets the "active_revision_id" field.
+func (_c *AttributeDefinitionCreate) SetActiveRevisionID(v uuid.UUID) *AttributeDefinitionCreate {
+	_c.mutation.SetActiveRevisionID(v)
+	return _c
+}
+
+// SetNillableActiveRevisionID sets the "active_revision_id" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableActiveRevisionID(v *uuid.UUID) *AttributeDefinitionCreate {
+	if v != nil {
+		_c.SetActiveRevisionID(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *AttributeDefinitionCreate) SetVersion(v int64) *AttributeDefinitionCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableVersion(v *int64) *AttributeDefinitionCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *AttributeDefinitionCreate) SetID(v uuid.UUID) *AttributeDefinitionCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *AttributeDefinitionCreate) SetNillableID(v *uuid.UUID) *AttributeDefinitionCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
 
 // AddValueIDs adds the "values" edge to the UserAttributeValue entity by IDs.
-func (_c *AttributeDefinitionCreate) AddValueIDs(ids ...int) *AttributeDefinitionCreate {
+func (_c *AttributeDefinitionCreate) AddValueIDs(ids ...uuid.UUID) *AttributeDefinitionCreate {
 	_c.mutation.AddValueIDs(ids...)
 	return _c
 }
 
 // AddValues adds the "values" edges to the UserAttributeValue entity.
 func (_c *AttributeDefinitionCreate) AddValues(v ...*UserAttributeValue) *AttributeDefinitionCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddValueIDs(ids...)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the AttributeDefinitionRevision entity by IDs.
+func (_c *AttributeDefinitionCreate) AddRevisionIDs(ids ...uuid.UUID) *AttributeDefinitionCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the AttributeDefinitionRevision entity.
+func (_c *AttributeDefinitionCreate) AddRevisions(v ...*AttributeDefinitionRevision) *AttributeDefinitionCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
+}
+
+// SetDraftRevision sets the "draft_revision" edge to the AttributeDefinitionRevision entity.
+func (_c *AttributeDefinitionCreate) SetDraftRevision(v *AttributeDefinitionRevision) *AttributeDefinitionCreate {
+	return _c.SetDraftRevisionID(v.ID)
+}
+
+// SetActiveRevision sets the "active_revision" edge to the AttributeDefinitionRevision entity.
+func (_c *AttributeDefinitionCreate) SetActiveRevision(v *AttributeDefinitionRevision) *AttributeDefinitionCreate {
+	return _c.SetActiveRevisionID(v.ID)
 }
 
 // Mutation returns the AttributeDefinitionMutation object of the builder.
@@ -179,9 +277,28 @@ func (_c *AttributeDefinitionCreate) defaults() error {
 		v := attributedefinition.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.DataType(); !ok {
-		v := attributedefinition.DefaultDataType
-		_c.mutation.SetDataType(v)
+	if _, ok := _c.mutation.Kind(); !ok {
+		v := attributedefinition.DefaultKind
+		_c.mutation.SetKind(v)
+	}
+	if _, ok := _c.mutation.RequiredOnOnboarding(); !ok {
+		v := attributedefinition.DefaultRequiredOnOnboarding
+		_c.mutation.SetRequiredOnOnboarding(v)
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := attributedefinition.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := attributedefinition.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if attributedefinition.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized attributedefinition.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := attributedefinition.DefaultID()
+		_c.mutation.SetID(v)
 	}
 	return nil
 }
@@ -202,8 +319,32 @@ func (_c *AttributeDefinitionCreate) check() error {
 			return &ValidationError{Name: "key", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.key": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.DataType(); !ok {
-		return &ValidationError{Name: "data_type", err: errors.New(`generate: missing required field "AttributeDefinition.data_type"`)}
+	if _, ok := _c.mutation.Kind(); !ok {
+		return &ValidationError{Name: "kind", err: errors.New(`generate: missing required field "AttributeDefinition.kind"`)}
+	}
+	if v, ok := _c.mutation.Kind(); ok {
+		if err := attributedefinition.KindValidator(v); err != nil {
+			return &ValidationError{Name: "kind", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.kind": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.RequiredOnOnboarding(); !ok {
+		return &ValidationError{Name: "required_on_onboarding", err: errors.New(`generate: missing required field "AttributeDefinition.required_on_onboarding"`)}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "AttributeDefinition.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := attributedefinition.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "AttributeDefinition.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := attributedefinition.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.version": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -219,8 +360,13 @@ func (_c *AttributeDefinitionCreate) sqlSave(ctx context.Context) (*AttributeDef
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -229,9 +375,13 @@ func (_c *AttributeDefinitionCreate) sqlSave(ctx context.Context) (*AttributeDef
 func (_c *AttributeDefinitionCreate) createSpec() (*AttributeDefinition, *sqlgraph.CreateSpec) {
 	var (
 		_node = &AttributeDefinition{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(attributedefinition.Table, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(attributedefinition.Table, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(attributedefinition.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -245,20 +395,28 @@ func (_c *AttributeDefinitionCreate) createSpec() (*AttributeDefinition, *sqlgra
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Key(); ok {
 		_spec.SetField(attributedefinition.FieldKey, field.TypeString, value)
 		_node.Key = value
 	}
-	if value, ok := _c.mutation.DataType(); ok {
-		_spec.SetField(attributedefinition.FieldDataType, field.TypeString, value)
-		_node.DataType = value
+	if value, ok := _c.mutation.Kind(); ok {
+		_spec.SetField(attributedefinition.FieldKind, field.TypeEnum, value)
+		_node.Kind = value
 	}
-	if value, ok := _c.mutation.Description(); ok {
-		_spec.SetField(attributedefinition.FieldDescription, field.TypeString, value)
-		_node.Description = value
+	if value, ok := _c.mutation.RequiredOnOnboarding(); ok {
+		_spec.SetField(attributedefinition.FieldRequiredOnOnboarding, field.TypeBool, value)
+		_node.RequiredOnOnboarding = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(attributedefinition.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(attributedefinition.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
 	}
 	if nodes := _c.mutation.ValuesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -268,12 +426,62 @@ func (_c *AttributeDefinitionCreate) createSpec() (*AttributeDefinition, *sqlgra
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DraftRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.DraftRevisionTable,
+			Columns: []string{attributedefinition.DraftRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DraftRevisionID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ActiveRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.ActiveRevisionTable,
+			Columns: []string{attributedefinition.ActiveRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ActiveRevisionID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -359,7 +567,7 @@ func (u *AttributeDefinitionUpsert) ClearDeletedAt() *AttributeDefinitionUpsert 
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *AttributeDefinitionUpsert) SetDeletedBy(v int) *AttributeDefinitionUpsert {
+func (u *AttributeDefinitionUpsert) SetDeletedBy(v string) *AttributeDefinitionUpsert {
 	u.Set(attributedefinition.FieldDeletedBy, v)
 	return u
 }
@@ -370,73 +578,115 @@ func (u *AttributeDefinitionUpsert) UpdateDeletedBy() *AttributeDefinitionUpsert
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *AttributeDefinitionUpsert) AddDeletedBy(v int) *AttributeDefinitionUpsert {
-	u.Add(attributedefinition.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *AttributeDefinitionUpsert) ClearDeletedBy() *AttributeDefinitionUpsert {
 	u.SetNull(attributedefinition.FieldDeletedBy)
 	return u
 }
 
-// SetKey sets the "key" field.
-func (u *AttributeDefinitionUpsert) SetKey(v string) *AttributeDefinitionUpsert {
-	u.Set(attributedefinition.FieldKey, v)
+// SetRequiredOnOnboarding sets the "required_on_onboarding" field.
+func (u *AttributeDefinitionUpsert) SetRequiredOnOnboarding(v bool) *AttributeDefinitionUpsert {
+	u.Set(attributedefinition.FieldRequiredOnOnboarding, v)
 	return u
 }
 
-// UpdateKey sets the "key" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsert) UpdateKey() *AttributeDefinitionUpsert {
-	u.SetExcluded(attributedefinition.FieldKey)
+// UpdateRequiredOnOnboarding sets the "required_on_onboarding" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsert) UpdateRequiredOnOnboarding() *AttributeDefinitionUpsert {
+	u.SetExcluded(attributedefinition.FieldRequiredOnOnboarding)
 	return u
 }
 
-// SetDataType sets the "data_type" field.
-func (u *AttributeDefinitionUpsert) SetDataType(v string) *AttributeDefinitionUpsert {
-	u.Set(attributedefinition.FieldDataType, v)
+// SetStatus sets the "status" field.
+func (u *AttributeDefinitionUpsert) SetStatus(v attributedefinition.Status) *AttributeDefinitionUpsert {
+	u.Set(attributedefinition.FieldStatus, v)
 	return u
 }
 
-// UpdateDataType sets the "data_type" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsert) UpdateDataType() *AttributeDefinitionUpsert {
-	u.SetExcluded(attributedefinition.FieldDataType)
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsert) UpdateStatus() *AttributeDefinitionUpsert {
+	u.SetExcluded(attributedefinition.FieldStatus)
 	return u
 }
 
-// SetDescription sets the "description" field.
-func (u *AttributeDefinitionUpsert) SetDescription(v string) *AttributeDefinitionUpsert {
-	u.Set(attributedefinition.FieldDescription, v)
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (u *AttributeDefinitionUpsert) SetDraftRevisionID(v uuid.UUID) *AttributeDefinitionUpsert {
+	u.Set(attributedefinition.FieldDraftRevisionID, v)
 	return u
 }
 
-// UpdateDescription sets the "description" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsert) UpdateDescription() *AttributeDefinitionUpsert {
-	u.SetExcluded(attributedefinition.FieldDescription)
+// UpdateDraftRevisionID sets the "draft_revision_id" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsert) UpdateDraftRevisionID() *AttributeDefinitionUpsert {
+	u.SetExcluded(attributedefinition.FieldDraftRevisionID)
 	return u
 }
 
-// ClearDescription clears the value of the "description" field.
-func (u *AttributeDefinitionUpsert) ClearDescription() *AttributeDefinitionUpsert {
-	u.SetNull(attributedefinition.FieldDescription)
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (u *AttributeDefinitionUpsert) ClearDraftRevisionID() *AttributeDefinitionUpsert {
+	u.SetNull(attributedefinition.FieldDraftRevisionID)
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetActiveRevisionID sets the "active_revision_id" field.
+func (u *AttributeDefinitionUpsert) SetActiveRevisionID(v uuid.UUID) *AttributeDefinitionUpsert {
+	u.Set(attributedefinition.FieldActiveRevisionID, v)
+	return u
+}
+
+// UpdateActiveRevisionID sets the "active_revision_id" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsert) UpdateActiveRevisionID() *AttributeDefinitionUpsert {
+	u.SetExcluded(attributedefinition.FieldActiveRevisionID)
+	return u
+}
+
+// ClearActiveRevisionID clears the value of the "active_revision_id" field.
+func (u *AttributeDefinitionUpsert) ClearActiveRevisionID() *AttributeDefinitionUpsert {
+	u.SetNull(attributedefinition.FieldActiveRevisionID)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *AttributeDefinitionUpsert) SetVersion(v int64) *AttributeDefinitionUpsert {
+	u.Set(attributedefinition.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsert) UpdateVersion() *AttributeDefinitionUpsert {
+	u.SetExcluded(attributedefinition.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *AttributeDefinitionUpsert) AddVersion(v int64) *AttributeDefinitionUpsert {
+	u.Add(attributedefinition.FieldVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.AttributeDefinition.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(attributedefinition.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *AttributeDefinitionUpsertOne) UpdateNewValues() *AttributeDefinitionUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(attributedefinition.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(attributedefinition.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.Key(); exists {
+			s.SetIgnore(attributedefinition.FieldKey)
+		}
+		if _, exists := u.create.mutation.Kind(); exists {
+			s.SetIgnore(attributedefinition.FieldKind)
 		}
 	}))
 	return u
@@ -505,16 +755,9 @@ func (u *AttributeDefinitionUpsertOne) ClearDeletedAt() *AttributeDefinitionUpse
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *AttributeDefinitionUpsertOne) SetDeletedBy(v int) *AttributeDefinitionUpsertOne {
+func (u *AttributeDefinitionUpsertOne) SetDeletedBy(v string) *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *AttributeDefinitionUpsertOne) AddDeletedBy(v int) *AttributeDefinitionUpsertOne {
-	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -532,52 +775,94 @@ func (u *AttributeDefinitionUpsertOne) ClearDeletedBy() *AttributeDefinitionUpse
 	})
 }
 
-// SetKey sets the "key" field.
-func (u *AttributeDefinitionUpsertOne) SetKey(v string) *AttributeDefinitionUpsertOne {
+// SetRequiredOnOnboarding sets the "required_on_onboarding" field.
+func (u *AttributeDefinitionUpsertOne) SetRequiredOnOnboarding(v bool) *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.SetKey(v)
+		s.SetRequiredOnOnboarding(v)
 	})
 }
 
-// UpdateKey sets the "key" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsertOne) UpdateKey() *AttributeDefinitionUpsertOne {
+// UpdateRequiredOnOnboarding sets the "required_on_onboarding" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertOne) UpdateRequiredOnOnboarding() *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.UpdateKey()
+		s.UpdateRequiredOnOnboarding()
 	})
 }
 
-// SetDataType sets the "data_type" field.
-func (u *AttributeDefinitionUpsertOne) SetDataType(v string) *AttributeDefinitionUpsertOne {
+// SetStatus sets the "status" field.
+func (u *AttributeDefinitionUpsertOne) SetStatus(v attributedefinition.Status) *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.SetDataType(v)
+		s.SetStatus(v)
 	})
 }
 
-// UpdateDataType sets the "data_type" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsertOne) UpdateDataType() *AttributeDefinitionUpsertOne {
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertOne) UpdateStatus() *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.UpdateDataType()
+		s.UpdateStatus()
 	})
 }
 
-// SetDescription sets the "description" field.
-func (u *AttributeDefinitionUpsertOne) SetDescription(v string) *AttributeDefinitionUpsertOne {
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (u *AttributeDefinitionUpsertOne) SetDraftRevisionID(v uuid.UUID) *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.SetDescription(v)
+		s.SetDraftRevisionID(v)
 	})
 }
 
-// UpdateDescription sets the "description" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsertOne) UpdateDescription() *AttributeDefinitionUpsertOne {
+// UpdateDraftRevisionID sets the "draft_revision_id" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertOne) UpdateDraftRevisionID() *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.UpdateDescription()
+		s.UpdateDraftRevisionID()
 	})
 }
 
-// ClearDescription clears the value of the "description" field.
-func (u *AttributeDefinitionUpsertOne) ClearDescription() *AttributeDefinitionUpsertOne {
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (u *AttributeDefinitionUpsertOne) ClearDraftRevisionID() *AttributeDefinitionUpsertOne {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.ClearDescription()
+		s.ClearDraftRevisionID()
+	})
+}
+
+// SetActiveRevisionID sets the "active_revision_id" field.
+func (u *AttributeDefinitionUpsertOne) SetActiveRevisionID(v uuid.UUID) *AttributeDefinitionUpsertOne {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.SetActiveRevisionID(v)
+	})
+}
+
+// UpdateActiveRevisionID sets the "active_revision_id" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertOne) UpdateActiveRevisionID() *AttributeDefinitionUpsertOne {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.UpdateActiveRevisionID()
+	})
+}
+
+// ClearActiveRevisionID clears the value of the "active_revision_id" field.
+func (u *AttributeDefinitionUpsertOne) ClearActiveRevisionID() *AttributeDefinitionUpsertOne {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.ClearActiveRevisionID()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *AttributeDefinitionUpsertOne) SetVersion(v int64) *AttributeDefinitionUpsertOne {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *AttributeDefinitionUpsertOne) AddVersion(v int64) *AttributeDefinitionUpsertOne {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertOne) UpdateVersion() *AttributeDefinitionUpsertOne {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.UpdateVersion()
 	})
 }
 
@@ -597,7 +882,12 @@ func (u *AttributeDefinitionUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AttributeDefinitionUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *AttributeDefinitionUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: AttributeDefinitionUpsertOne.ID is not supported by MySQL driver. Use AttributeDefinitionUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -606,17 +896,12 @@ func (u *AttributeDefinitionUpsertOne) ID(ctx context.Context) (id int, err erro
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AttributeDefinitionUpsertOne) IDX(ctx context.Context) int {
+func (u *AttributeDefinitionUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *AttributeDefinitionCreate) SetID(id int) *AttributeDefinitionCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // AttributeDefinitionCreateBulk is the builder for creating many AttributeDefinition entities in bulk.
@@ -666,10 +951,6 @@ func (_c *AttributeDefinitionCreateBulk) Save(ctx context.Context) ([]*Attribute
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -756,14 +1037,26 @@ type AttributeDefinitionUpsertBulk struct {
 //	client.AttributeDefinition.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(attributedefinition.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *AttributeDefinitionUpsertBulk) UpdateNewValues() *AttributeDefinitionUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(attributedefinition.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(attributedefinition.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.Key(); exists {
+				s.SetIgnore(attributedefinition.FieldKey)
+			}
+			if _, exists := b.mutation.Kind(); exists {
+				s.SetIgnore(attributedefinition.FieldKind)
 			}
 		}
 	}))
@@ -833,16 +1126,9 @@ func (u *AttributeDefinitionUpsertBulk) ClearDeletedAt() *AttributeDefinitionUps
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *AttributeDefinitionUpsertBulk) SetDeletedBy(v int) *AttributeDefinitionUpsertBulk {
+func (u *AttributeDefinitionUpsertBulk) SetDeletedBy(v string) *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *AttributeDefinitionUpsertBulk) AddDeletedBy(v int) *AttributeDefinitionUpsertBulk {
-	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -860,52 +1146,94 @@ func (u *AttributeDefinitionUpsertBulk) ClearDeletedBy() *AttributeDefinitionUps
 	})
 }
 
-// SetKey sets the "key" field.
-func (u *AttributeDefinitionUpsertBulk) SetKey(v string) *AttributeDefinitionUpsertBulk {
+// SetRequiredOnOnboarding sets the "required_on_onboarding" field.
+func (u *AttributeDefinitionUpsertBulk) SetRequiredOnOnboarding(v bool) *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.SetKey(v)
+		s.SetRequiredOnOnboarding(v)
 	})
 }
 
-// UpdateKey sets the "key" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsertBulk) UpdateKey() *AttributeDefinitionUpsertBulk {
+// UpdateRequiredOnOnboarding sets the "required_on_onboarding" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertBulk) UpdateRequiredOnOnboarding() *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.UpdateKey()
+		s.UpdateRequiredOnOnboarding()
 	})
 }
 
-// SetDataType sets the "data_type" field.
-func (u *AttributeDefinitionUpsertBulk) SetDataType(v string) *AttributeDefinitionUpsertBulk {
+// SetStatus sets the "status" field.
+func (u *AttributeDefinitionUpsertBulk) SetStatus(v attributedefinition.Status) *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.SetDataType(v)
+		s.SetStatus(v)
 	})
 }
 
-// UpdateDataType sets the "data_type" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsertBulk) UpdateDataType() *AttributeDefinitionUpsertBulk {
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertBulk) UpdateStatus() *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.UpdateDataType()
+		s.UpdateStatus()
 	})
 }
 
-// SetDescription sets the "description" field.
-func (u *AttributeDefinitionUpsertBulk) SetDescription(v string) *AttributeDefinitionUpsertBulk {
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (u *AttributeDefinitionUpsertBulk) SetDraftRevisionID(v uuid.UUID) *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.SetDescription(v)
+		s.SetDraftRevisionID(v)
 	})
 }
 
-// UpdateDescription sets the "description" field to the value that was provided on create.
-func (u *AttributeDefinitionUpsertBulk) UpdateDescription() *AttributeDefinitionUpsertBulk {
+// UpdateDraftRevisionID sets the "draft_revision_id" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertBulk) UpdateDraftRevisionID() *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.UpdateDescription()
+		s.UpdateDraftRevisionID()
 	})
 }
 
-// ClearDescription clears the value of the "description" field.
-func (u *AttributeDefinitionUpsertBulk) ClearDescription() *AttributeDefinitionUpsertBulk {
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (u *AttributeDefinitionUpsertBulk) ClearDraftRevisionID() *AttributeDefinitionUpsertBulk {
 	return u.Update(func(s *AttributeDefinitionUpsert) {
-		s.ClearDescription()
+		s.ClearDraftRevisionID()
+	})
+}
+
+// SetActiveRevisionID sets the "active_revision_id" field.
+func (u *AttributeDefinitionUpsertBulk) SetActiveRevisionID(v uuid.UUID) *AttributeDefinitionUpsertBulk {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.SetActiveRevisionID(v)
+	})
+}
+
+// UpdateActiveRevisionID sets the "active_revision_id" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertBulk) UpdateActiveRevisionID() *AttributeDefinitionUpsertBulk {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.UpdateActiveRevisionID()
+	})
+}
+
+// ClearActiveRevisionID clears the value of the "active_revision_id" field.
+func (u *AttributeDefinitionUpsertBulk) ClearActiveRevisionID() *AttributeDefinitionUpsertBulk {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.ClearActiveRevisionID()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *AttributeDefinitionUpsertBulk) SetVersion(v int64) *AttributeDefinitionUpsertBulk {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *AttributeDefinitionUpsertBulk) AddVersion(v int64) *AttributeDefinitionUpsertBulk {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *AttributeDefinitionUpsertBulk) UpdateVersion() *AttributeDefinitionUpsertBulk {
+	return u.Update(func(s *AttributeDefinitionUpsert) {
+		s.UpdateVersion()
 	})
 }
 

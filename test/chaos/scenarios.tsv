@@ -1,0 +1,25 @@
+# schema_version=1
+# id|fault_kind|fault_action|fault_target|recovery_action
+submission_before_commit|process|kill|api|restart
+submission_after_commit|process|kill|api|restart
+job_after_claim|process|kill|judge-worker|restart
+job_during_compile|process|kill|judge-worker|restart
+job_during_testcase|process|kill|judge-worker|restart
+job_before_terminal_finalize|process|kill|judge-worker|restart
+job_after_finalize_before_outbox_dispatch|process|kill|judge-worker|restart
+notification_consumer_transaction|process|kill|judge-worker|restart
+campaign_recipient_transaction|process|kill|judge-worker|restart
+campaign_batch_before_checkpoint_response|process|kill|judge-worker|restart
+cultivation_consumer_transaction|process|kill|judge-worker|restart
+contest_scoring_job|process|kill|judge-worker|restart
+contest_unfreeze_job|process|kill|judge-worker|restart
+contest_rejudge_job|process|kill|judge-worker|restart
+contest_rating_job|process|kill|judge-worker|restart
+authorization_commit_before_runtime_swap|process|kill|api|restart
+api_drain_forced_deadline|process|kill|api|restart
+worker_drain_forced_deadline|process|kill|judge-worker|restart
+postgres_temporary_unavailable|postgres|pause|-|resume
+postgres_restart|postgres|restart|-|none
+sandbox_daemon_temporary_unavailable|docker|pause|-|resume
+sandbox_daemon_restart|docker|restart|-|none
+bounded_volume_pressure|disk|fill|-|clear

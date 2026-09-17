@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.MaterialCategory {
+func ID(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.MaterialCategory {
+func IDEQ(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.MaterialCategory {
+func IDNEQ(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.MaterialCategory {
+func IDIn(ids ...uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.MaterialCategory {
+func IDNotIn(ids ...uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.MaterialCategory {
+func IDGT(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.MaterialCategory {
+func IDGTE(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.MaterialCategory {
+func IDLT(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.MaterialCategory {
+func IDLTE(id uuid.UUID) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.MaterialCategory {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.MaterialCategory {
+func DeletedBy(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -216,43 +217,58 @@ func DeletedAtNotNil() predicate.MaterialCategory {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.MaterialCategory {
+func DeletedByEQ(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.MaterialCategory {
+func DeletedByNEQ(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.MaterialCategory {
+func DeletedByIn(vs ...string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.MaterialCategory {
+func DeletedByNotIn(vs ...string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.MaterialCategory {
+func DeletedByGT(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.MaterialCategory {
+func DeletedByGTE(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.MaterialCategory {
+func DeletedByLT(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.MaterialCategory {
+func DeletedByLTE(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.MaterialCategory {
+	return predicate.MaterialCategory(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.MaterialCategory {
+	return predicate.MaterialCategory(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.MaterialCategory {
+	return predicate.MaterialCategory(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -263,6 +279,16 @@ func DeletedByIsNil() predicate.MaterialCategory {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.MaterialCategory {
+	return predicate.MaterialCategory(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.MaterialCategory {
+	return predicate.MaterialCategory(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -405,21 +431,44 @@ func DescriptionContainsFold(v string) predicate.MaterialCategory {
 	return predicate.MaterialCategory(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// HasMaterials applies the HasEdge predicate on the "materials" edge.
-func HasMaterials() predicate.MaterialCategory {
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.MaterialCategory {
 	return predicate.MaterialCategory(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasMaterialsWith applies the HasEdge predicate on the "materials" edge with a given conditions (other predicates).
-func HasMaterialsWith(preds ...predicate.Material) predicate.MaterialCategory {
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.MaterialRevision) predicate.MaterialCategory {
 	return predicate.MaterialCategory(func(s *sql.Selector) {
-		step := newMaterialsStep()
+		step := newRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasLegacyMaterials applies the HasEdge predicate on the "legacy_materials" edge.
+func HasLegacyMaterials() predicate.MaterialCategory {
+	return predicate.MaterialCategory(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, LegacyMaterialsTable, LegacyMaterialsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasLegacyMaterialsWith applies the HasEdge predicate on the "legacy_materials" edge with a given conditions (other predicates).
+func HasLegacyMaterialsWith(preds ...predicate.Material) predicate.MaterialCategory {
+	return predicate.MaterialCategory(func(s *sql.Selector) {
+		step := newLegacyMaterialsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

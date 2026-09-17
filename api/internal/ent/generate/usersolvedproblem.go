@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
@@ -18,11 +19,11 @@ import (
 type UserSolvedProblem struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
-	ProblemID int `json:"problem_id,omitempty"`
+	ProblemID uuid.UUID `json:"problem_id,omitempty"`
 	// SolvedAt holds the value of the "solved_at" field.
 	SolvedAt time.Time `json:"solved_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -69,10 +70,10 @@ func (*UserSolvedProblem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case usersolvedproblem.FieldID, usersolvedproblem.FieldUserID, usersolvedproblem.FieldProblemID:
-			values[i] = new(sql.NullInt64)
 		case usersolvedproblem.FieldSolvedAt:
 			values[i] = new(sql.NullTime)
+		case usersolvedproblem.FieldID, usersolvedproblem.FieldUserID, usersolvedproblem.FieldProblemID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -89,22 +90,22 @@ func (_m *UserSolvedProblem) assignValues(columns []string, values []any) error 
 	for i := range columns {
 		switch columns[i] {
 		case usersolvedproblem.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case usersolvedproblem.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case usersolvedproblem.FieldProblemID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
-			} else if value.Valid {
-				_m.ProblemID = int(value.Int64)
+			} else if value != nil {
+				_m.ProblemID = *value
 			}
 		case usersolvedproblem.FieldSolvedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -168,14 +169,6 @@ func (_m *UserSolvedProblem) String() string {
 	builder.WriteString(_m.SolvedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *UserSolvedProblem) GetID() int {
-	return _m.ID
-}
-
-func (_m *UserSolvedProblem) SetID(id int) {
-	_m.ID = id
 }
 
 // UserSolvedProblems is a parsable slice of UserSolvedProblem.

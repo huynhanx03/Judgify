@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 )
@@ -17,7 +18,7 @@ import (
 type TestCase struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,17 +26,9 @@ type TestCase struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
-	ProblemID int `json:"problem_id,omitempty"`
-	// Input holds the value of the "input" field.
-	Input string `json:"input,omitempty"`
-	// ExpectedOutput holds the value of the "expected_output" field.
-	ExpectedOutput string `json:"expected_output,omitempty"`
-	// IsHidden holds the value of the "is_hidden" field.
-	IsHidden bool `json:"is_hidden,omitempty"`
-	// OrderIndex holds the value of the "order_index" field.
-	OrderIndex int `json:"order_index,omitempty"`
+	ProblemID uuid.UUID `json:"problem_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestCaseQuery when eager-loading is set.
 	Edges        TestCaseEdges `json:"edges"`
@@ -46,9 +39,11 @@ type TestCase struct {
 type TestCaseEdges struct {
 	// Problem holds the value of the problem edge.
 	Problem *Problem `json:"problem,omitempty"`
+	// Revisions holds the value of the revisions edge.
+	Revisions []*TestcaseRevision `json:"revisions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ProblemOrErr returns the Problem value or an error if the edge
@@ -62,19 +57,26 @@ func (e TestCaseEdges) ProblemOrErr() (*Problem, error) {
 	return nil, &NotLoadedError{edge: "problem"}
 }
 
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e TestCaseEdges) RevisionsOrErr() ([]*TestcaseRevision, error) {
+	if e.loadedTypes[1] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*TestCase) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testcase.FieldIsHidden:
-			values[i] = new(sql.NullBool)
-		case testcase.FieldID, testcase.FieldDeletedBy, testcase.FieldProblemID, testcase.FieldOrderIndex:
-			values[i] = new(sql.NullInt64)
-		case testcase.FieldInput, testcase.FieldExpectedOutput:
+		case testcase.FieldDeletedBy:
 			values[i] = new(sql.NullString)
 		case testcase.FieldCreatedAt, testcase.FieldUpdatedAt, testcase.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case testcase.FieldID, testcase.FieldProblemID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -91,11 +93,11 @@ func (_m *TestCase) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case testcase.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case testcase.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -116,41 +118,17 @@ func (_m *TestCase) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case testcase.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case testcase.FieldProblemID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
-			} else if value.Valid {
-				_m.ProblemID = int(value.Int64)
-			}
-		case testcase.FieldInput:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field input", values[i])
-			} else if value.Valid {
-				_m.Input = value.String
-			}
-		case testcase.FieldExpectedOutput:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field expected_output", values[i])
-			} else if value.Valid {
-				_m.ExpectedOutput = value.String
-			}
-		case testcase.FieldIsHidden:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_hidden", values[i])
-			} else if value.Valid {
-				_m.IsHidden = value.Bool
-			}
-		case testcase.FieldOrderIndex:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field order_index", values[i])
-			} else if value.Valid {
-				_m.OrderIndex = int(value.Int64)
+			} else if value != nil {
+				_m.ProblemID = *value
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -168,6 +146,11 @@ func (_m *TestCase) Value(name string) (ent.Value, error) {
 // QueryProblem queries the "problem" edge of the TestCase entity.
 func (_m *TestCase) QueryProblem() *ProblemQuery {
 	return NewTestCaseClient(_m.config).QueryProblem(_m)
+}
+
+// QueryRevisions queries the "revisions" edge of the TestCase entity.
+func (_m *TestCase) QueryRevisions() *TestcaseRevisionQuery {
+	return NewTestCaseClient(_m.config).QueryRevisions(_m)
 }
 
 // Update returns a builder for updating this TestCase.
@@ -206,33 +189,13 @@ func (_m *TestCase) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("problem_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ProblemID))
-	builder.WriteString(", ")
-	builder.WriteString("input=")
-	builder.WriteString(_m.Input)
-	builder.WriteString(", ")
-	builder.WriteString("expected_output=")
-	builder.WriteString(_m.ExpectedOutput)
-	builder.WriteString(", ")
-	builder.WriteString("is_hidden=")
-	builder.WriteString(fmt.Sprintf("%v", _m.IsHidden))
-	builder.WriteString(", ")
-	builder.WriteString("order_index=")
-	builder.WriteString(fmt.Sprintf("%v", _m.OrderIndex))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *TestCase) GetID() int {
-	return _m.ID
-}
-
-func (_m *TestCase) SetID(id int) {
-	_m.ID = id
 }
 
 // TestCases is a parsable slice of TestCase.

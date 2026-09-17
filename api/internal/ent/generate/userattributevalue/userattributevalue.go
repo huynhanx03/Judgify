@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -27,12 +28,26 @@ const (
 	FieldUserID = "user_id"
 	// FieldAttributeID holds the string denoting the attribute_id field in the database.
 	FieldAttributeID = "attribute_id"
+	// FieldDefinitionRevisionID holds the string denoting the definition_revision_id field in the database.
+	FieldDefinitionRevisionID = "definition_revision_id"
+	// FieldSourceRevisionID holds the string denoting the source_revision_id field in the database.
+	FieldSourceRevisionID = "source_revision_id"
+	// FieldCanonicalValue holds the string denoting the canonical_value field in the database.
+	FieldCanonicalValue = "canonical_value"
+	// FieldSourceValueVersion holds the string denoting the source_value_version field in the database.
+	FieldSourceValueVersion = "source_value_version"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
 	// FieldValue holds the string denoting the value field in the database.
 	FieldValue = "value"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeDefinition holds the string denoting the definition edge name in mutations.
 	EdgeDefinition = "definition"
+	// EdgeDefinitionRevision holds the string denoting the definition_revision edge name in mutations.
+	EdgeDefinitionRevision = "definition_revision"
+	// EdgeSourceRevision holds the string denoting the source_revision edge name in mutations.
+	EdgeSourceRevision = "source_revision"
 	// Table holds the table name of the userattributevalue in the database.
 	Table = "user_attribute_values"
 	// UserTable is the table that holds the user relation/edge.
@@ -49,6 +64,20 @@ const (
 	DefinitionInverseTable = "attribute_definitions"
 	// DefinitionColumn is the table column denoting the definition relation/edge.
 	DefinitionColumn = "attribute_id"
+	// DefinitionRevisionTable is the table that holds the definition_revision relation/edge.
+	DefinitionRevisionTable = "user_attribute_values"
+	// DefinitionRevisionInverseTable is the table name for the AttributeDefinitionRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "attributedefinitionrevision" package.
+	DefinitionRevisionInverseTable = "attribute_definition_revisions"
+	// DefinitionRevisionColumn is the table column denoting the definition_revision relation/edge.
+	DefinitionRevisionColumn = "definition_revision_id"
+	// SourceRevisionTable is the table that holds the source_revision relation/edge.
+	SourceRevisionTable = "user_attribute_values"
+	// SourceRevisionInverseTable is the table name for the AttributeDefinitionRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "attributedefinitionrevision" package.
+	SourceRevisionInverseTable = "attribute_definition_revisions"
+	// SourceRevisionColumn is the table column denoting the source_revision relation/edge.
+	SourceRevisionColumn = "source_revision_id"
 )
 
 // Columns holds all SQL columns for userattributevalue fields.
@@ -60,6 +89,11 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldUserID,
 	FieldAttributeID,
+	FieldDefinitionRevisionID,
+	FieldSourceRevisionID,
+	FieldCanonicalValue,
+	FieldSourceValueVersion,
+	FieldVersion,
 	FieldValue,
 }
 
@@ -87,8 +121,16 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// ValueValidator is a validator for the "value" field. It is called by the builders before save.
-	ValueValidator func(string) error
+	// DefaultSourceValueVersion holds the default value on creation for the "source_value_version" field.
+	DefaultSourceValueVersion int64
+	// SourceValueVersionValidator is a validator for the "source_value_version" field. It is called by the builders before save.
+	SourceValueVersionValidator func(int64) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the UserAttributeValue queries.
@@ -129,6 +171,26 @@ func ByAttributeID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAttributeID, opts...).ToFunc()
 }
 
+// ByDefinitionRevisionID orders the results by the definition_revision_id field.
+func ByDefinitionRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDefinitionRevisionID, opts...).ToFunc()
+}
+
+// BySourceRevisionID orders the results by the source_revision_id field.
+func BySourceRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSourceRevisionID, opts...).ToFunc()
+}
+
+// BySourceValueVersion orders the results by the source_value_version field.
+func BySourceValueVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSourceValueVersion, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
 // ByValue orders the results by the value field.
 func ByValue(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldValue, opts...).ToFunc()
@@ -147,6 +209,20 @@ func ByDefinitionField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDefinitionStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByDefinitionRevisionField orders the results by definition_revision field.
+func ByDefinitionRevisionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDefinitionRevisionStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// BySourceRevisionField orders the results by source_revision field.
+func BySourceRevisionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSourceRevisionStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -159,5 +235,19 @@ func newDefinitionStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DefinitionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, DefinitionTable, DefinitionColumn),
+	)
+}
+func newDefinitionRevisionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DefinitionRevisionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DefinitionRevisionTable, DefinitionRevisionColumn),
+	)
+}
+func newSourceRevisionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SourceRevisionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, SourceRevisionTable, SourceRevisionColumn),
 	)
 }

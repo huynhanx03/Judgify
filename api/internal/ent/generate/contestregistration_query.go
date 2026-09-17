@@ -4,6 +4,7 @@ package generate
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,8 +13,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistrationtransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -21,13 +24,14 @@ import (
 // ContestRegistrationQuery is the builder for querying ContestRegistration entities.
 type ContestRegistrationQuery struct {
 	config
-	ctx         *QueryContext
-	order       []contestregistration.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.ContestRegistration
-	withContest *ContestQuery
-	withUser    *UserQuery
-	modifiers   []func(*sql.Selector)
+	ctx             *QueryContext
+	order           []contestregistration.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.ContestRegistration
+	withContest     *ContestQuery
+	withUser        *UserQuery
+	withTransitions *ContestRegistrationTransitionQuery
+	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -108,6 +112,28 @@ func (_q *ContestRegistrationQuery) QueryUser() *UserQuery {
 	return query
 }
 
+// QueryTransitions chains the current query on the "transitions" edge.
+func (_q *ContestRegistrationQuery) QueryTransitions() *ContestRegistrationTransitionQuery {
+	query := (&ContestRegistrationTransitionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contestregistration.Table, contestregistration.FieldID, selector),
+			sqlgraph.To(contestregistrationtransition.Table, contestregistrationtransition.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contestregistration.TransitionsTable, contestregistration.TransitionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first ContestRegistration entity from the query.
 // Returns a *NotFoundError when no ContestRegistration was found.
 func (_q *ContestRegistrationQuery) First(ctx context.Context) (*ContestRegistration, error) {
@@ -132,8 +158,8 @@ func (_q *ContestRegistrationQuery) FirstX(ctx context.Context) *ContestRegistra
 
 // FirstID returns the first ContestRegistration ID from the query.
 // Returns a *NotFoundError when no ContestRegistration ID was found.
-func (_q *ContestRegistrationQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ContestRegistrationQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -145,7 +171,7 @@ func (_q *ContestRegistrationQuery) FirstID(ctx context.Context) (id int, err er
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ContestRegistrationQuery) FirstIDX(ctx context.Context) int {
+func (_q *ContestRegistrationQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -183,8 +209,8 @@ func (_q *ContestRegistrationQuery) OnlyX(ctx context.Context) *ContestRegistrat
 // OnlyID is like Only, but returns the only ContestRegistration ID in the query.
 // Returns a *NotSingularError when more than one ContestRegistration ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ContestRegistrationQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ContestRegistrationQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -200,7 +226,7 @@ func (_q *ContestRegistrationQuery) OnlyID(ctx context.Context) (id int, err err
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ContestRegistrationQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ContestRegistrationQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -228,7 +254,7 @@ func (_q *ContestRegistrationQuery) AllX(ctx context.Context) []*ContestRegistra
 }
 
 // IDs executes the query and returns a list of ContestRegistration IDs.
-func (_q *ContestRegistrationQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *ContestRegistrationQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -240,7 +266,7 @@ func (_q *ContestRegistrationQuery) IDs(ctx context.Context) (ids []int, err err
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ContestRegistrationQuery) IDsX(ctx context.Context) []int {
+func (_q *ContestRegistrationQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -295,13 +321,14 @@ func (_q *ContestRegistrationQuery) Clone() *ContestRegistrationQuery {
 		return nil
 	}
 	return &ContestRegistrationQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]contestregistration.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.ContestRegistration{}, _q.predicates...),
-		withContest: _q.withContest.Clone(),
-		withUser:    _q.withUser.Clone(),
+		config:          _q.config,
+		ctx:             _q.ctx.Clone(),
+		order:           append([]contestregistration.OrderOption{}, _q.order...),
+		inters:          append([]Interceptor{}, _q.inters...),
+		predicates:      append([]predicate.ContestRegistration{}, _q.predicates...),
+		withContest:     _q.withContest.Clone(),
+		withUser:        _q.withUser.Clone(),
+		withTransitions: _q.withTransitions.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -331,18 +358,29 @@ func (_q *ContestRegistrationQuery) WithUser(opts ...func(*UserQuery)) *ContestR
 	return _q
 }
 
+// WithTransitions tells the query-builder to eager-load the nodes that are connected to
+// the "transitions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestRegistrationQuery) WithTransitions(opts ...func(*ContestRegistrationTransitionQuery)) *ContestRegistrationQuery {
+	query := (&ContestRegistrationTransitionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTransitions = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		ContestID int `json:"contest_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContestRegistration.Query().
-//		GroupBy(contestregistration.FieldContestID).
+//		GroupBy(contestregistration.FieldCreatedAt).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ContestRegistrationQuery) GroupBy(field string, fields ...string) *ContestRegistrationGroupBy {
@@ -360,11 +398,11 @@ func (_q *ContestRegistrationQuery) GroupBy(field string, fields ...string) *Con
 // Example:
 //
 //	var v []struct {
-//		ContestID int `json:"contest_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.ContestRegistration.Query().
-//		Select(contestregistration.FieldContestID).
+//		Select(contestregistration.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *ContestRegistrationQuery) Select(fields ...string) *ContestRegistrationSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -409,9 +447,10 @@ func (_q *ContestRegistrationQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	var (
 		nodes       = []*ContestRegistration{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withContest != nil,
 			_q.withUser != nil,
+			_q.withTransitions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -447,12 +486,24 @@ func (_q *ContestRegistrationQuery) sqlAll(ctx context.Context, hooks ...queryHo
 			return nil, err
 		}
 	}
+	if query := _q.withTransitions; query != nil {
+		if err := _q.loadTransitions(ctx, query, nodes,
+			func(n *ContestRegistration) { n.Edges.Transitions = []*ContestRegistrationTransition{} },
+			func(n *ContestRegistration, e *ContestRegistrationTransition) {
+				n.Edges.Transitions = append(n.Edges.Transitions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Registration = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *ContestRegistrationQuery) loadContest(ctx context.Context, query *ContestQuery, nodes []*ContestRegistration, init func(*ContestRegistration), assign func(*ContestRegistration, *Contest)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ContestRegistration)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ContestRegistration)
 	for i := range nodes {
 		fk := nodes[i].ContestID
 		if _, ok := nodeids[fk]; !ok {
@@ -480,8 +531,8 @@ func (_q *ContestRegistrationQuery) loadContest(ctx context.Context, query *Cont
 	return nil
 }
 func (_q *ContestRegistrationQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*ContestRegistration, init func(*ContestRegistration), assign func(*ContestRegistration, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ContestRegistration)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*ContestRegistration)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -508,6 +559,36 @@ func (_q *ContestRegistrationQuery) loadUser(ctx context.Context, query *UserQue
 	}
 	return nil
 }
+func (_q *ContestRegistrationQuery) loadTransitions(ctx context.Context, query *ContestRegistrationTransitionQuery, nodes []*ContestRegistration, init func(*ContestRegistration), assign func(*ContestRegistration, *ContestRegistrationTransition)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*ContestRegistration)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestregistrationtransition.FieldRegistrationID)
+	}
+	query.Where(predicate.ContestRegistrationTransition(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contestregistration.TransitionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RegistrationID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "registration_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *ContestRegistrationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -522,7 +603,7 @@ func (_q *ContestRegistrationQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *ContestRegistrationQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(contestregistration.Table, contestregistration.Columns, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(contestregistration.Table, contestregistration.Columns, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

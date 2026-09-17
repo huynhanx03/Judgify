@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -18,17 +19,35 @@ import (
 type ContestStanding struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
-	ContestID int `json:"contest_id,omitempty"`
+	ContestID uuid.UUID `json:"contest_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// SolvedCount holds the value of the "solved_count" field.
 	SolvedCount int `json:"solved_count,omitempty"`
 	// Total penalty in seconds
 	Penalty int `json:"penalty,omitempty"`
 	// Per-problem results
 	ProblemResults map[string]interface{} `json:"problem_results,omitempty"`
+	// LastAcceptedElapsedMs holds the value of the "last_accepted_elapsed_ms" field.
+	LastAcceptedElapsedMs *int64 `json:"last_accepted_elapsed_ms,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
+	// FrozenSolvedCount holds the value of the "frozen_solved_count" field.
+	FrozenSolvedCount int `json:"frozen_solved_count,omitempty"`
+	// FrozenPenalty holds the value of the "frozen_penalty" field.
+	FrozenPenalty int `json:"frozen_penalty,omitempty"`
+	// Freeze-safe per-problem projection; never contains post-freeze verdicts
+	FrozenProblemResults map[string]interface{} `json:"frozen_problem_results,omitempty"`
+	// Post-freeze intake counts by problem; contains no verdict information
+	FrozenPendingProblemAttempts map[string]int `json:"frozen_pending_problem_attempts,omitempty"`
+	// FrozenPendingAttempts holds the value of the "frozen_pending_attempts" field.
+	FrozenPendingAttempts int `json:"frozen_pending_attempts,omitempty"`
+	// FrozenLastAcceptedElapsedMs holds the value of the "frozen_last_accepted_elapsed_ms" field.
+	FrozenLastAcceptedElapsedMs *int64 `json:"frozen_last_accepted_elapsed_ms,omitempty"`
+	// FrozenVersion holds the value of the "frozen_version" field.
+	FrozenVersion int64 `json:"frozen_version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ContestStandingQuery when eager-loading is set.
 	Edges        ContestStandingEdges `json:"edges"`
@@ -73,10 +92,12 @@ func (*ContestStanding) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case conteststanding.FieldProblemResults:
+		case conteststanding.FieldProblemResults, conteststanding.FieldFrozenProblemResults, conteststanding.FieldFrozenPendingProblemAttempts:
 			values[i] = new([]byte)
-		case conteststanding.FieldID, conteststanding.FieldContestID, conteststanding.FieldUserID, conteststanding.FieldSolvedCount, conteststanding.FieldPenalty:
+		case conteststanding.FieldSolvedCount, conteststanding.FieldPenalty, conteststanding.FieldLastAcceptedElapsedMs, conteststanding.FieldVersion, conteststanding.FieldFrozenSolvedCount, conteststanding.FieldFrozenPenalty, conteststanding.FieldFrozenPendingAttempts, conteststanding.FieldFrozenLastAcceptedElapsedMs, conteststanding.FieldFrozenVersion:
 			values[i] = new(sql.NullInt64)
+		case conteststanding.FieldID, conteststanding.FieldContestID, conteststanding.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -93,22 +114,22 @@ func (_m *ContestStanding) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case conteststanding.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case conteststanding.FieldContestID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
-			} else if value.Valid {
-				_m.ContestID = int(value.Int64)
+			} else if value != nil {
+				_m.ContestID = *value
 			}
 		case conteststanding.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case conteststanding.FieldSolvedCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -129,6 +150,66 @@ func (_m *ContestStanding) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &_m.ProblemResults); err != nil {
 					return fmt.Errorf("unmarshal field problem_results: %w", err)
 				}
+			}
+		case conteststanding.FieldLastAcceptedElapsedMs:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field last_accepted_elapsed_ms", values[i])
+			} else if value.Valid {
+				_m.LastAcceptedElapsedMs = new(int64)
+				*_m.LastAcceptedElapsedMs = value.Int64
+			}
+		case conteststanding.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
+		case conteststanding.FieldFrozenSolvedCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_solved_count", values[i])
+			} else if value.Valid {
+				_m.FrozenSolvedCount = int(value.Int64)
+			}
+		case conteststanding.FieldFrozenPenalty:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_penalty", values[i])
+			} else if value.Valid {
+				_m.FrozenPenalty = int(value.Int64)
+			}
+		case conteststanding.FieldFrozenProblemResults:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_problem_results", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.FrozenProblemResults); err != nil {
+					return fmt.Errorf("unmarshal field frozen_problem_results: %w", err)
+				}
+			}
+		case conteststanding.FieldFrozenPendingProblemAttempts:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_pending_problem_attempts", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.FrozenPendingProblemAttempts); err != nil {
+					return fmt.Errorf("unmarshal field frozen_pending_problem_attempts: %w", err)
+				}
+			}
+		case conteststanding.FieldFrozenPendingAttempts:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_pending_attempts", values[i])
+			} else if value.Valid {
+				_m.FrozenPendingAttempts = int(value.Int64)
+			}
+		case conteststanding.FieldFrozenLastAcceptedElapsedMs:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_last_accepted_elapsed_ms", values[i])
+			} else if value.Valid {
+				_m.FrozenLastAcceptedElapsedMs = new(int64)
+				*_m.FrozenLastAcceptedElapsedMs = value.Int64
+			}
+		case conteststanding.FieldFrozenVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field frozen_version", values[i])
+			} else if value.Valid {
+				_m.FrozenVersion = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -190,16 +271,39 @@ func (_m *ContestStanding) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("problem_results=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ProblemResults))
+	builder.WriteString(", ")
+	if v := _m.LastAcceptedElapsedMs; v != nil {
+		builder.WriteString("last_accepted_elapsed_ms=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
+	builder.WriteString("frozen_solved_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FrozenSolvedCount))
+	builder.WriteString(", ")
+	builder.WriteString("frozen_penalty=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FrozenPenalty))
+	builder.WriteString(", ")
+	builder.WriteString("frozen_problem_results=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FrozenProblemResults))
+	builder.WriteString(", ")
+	builder.WriteString("frozen_pending_problem_attempts=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FrozenPendingProblemAttempts))
+	builder.WriteString(", ")
+	builder.WriteString("frozen_pending_attempts=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FrozenPendingAttempts))
+	builder.WriteString(", ")
+	if v := _m.FrozenLastAcceptedElapsedMs; v != nil {
+		builder.WriteString("frozen_last_accepted_elapsed_ms=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("frozen_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FrozenVersion))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *ContestStanding) GetID() int {
-	return _m.ID
-}
-
-func (_m *ContestStanding) SetID(id int) {
-	_m.ID = id
 }
 
 // ContestStandings is a parsable slice of ContestStanding.

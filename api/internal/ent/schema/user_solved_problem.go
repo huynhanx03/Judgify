@@ -3,10 +3,13 @@ package schema
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
 )
 
 // UserSolvedProblem tracks which user solved which problem (denormalized for fast lookup).
@@ -15,10 +18,17 @@ type UserSolvedProblem struct {
 }
 
 // Fields of the UserSolvedProblem.
+// Mixin of the UserSolvedProblem.
+func (UserSolvedProblem) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		e.UUIDMixin{},
+	}
+}
+
 func (UserSolvedProblem) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("user_id"),
-		field.Int("problem_id"),
+		field.UUID("user_id", uuid.UUID{}),
+		field.UUID("problem_id", uuid.UUID{}),
 		field.Time("solved_at").
 			Default(time.Now),
 	}

@@ -8,14 +8,25 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestannouncement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
-	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contesttransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingsequenceslot"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -71,13 +82,13 @@ func (_c *ContestCreate) SetNillableDeletedAt(v *time.Time) *ContestCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *ContestCreate) SetDeletedBy(v int) *ContestCreate {
+func (_c *ContestCreate) SetDeletedBy(v string) *ContestCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *ContestCreate) SetNillableDeletedBy(v *int) *ContestCreate {
+func (_c *ContestCreate) SetNillableDeletedBy(v *string) *ContestCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -130,9 +141,65 @@ func (_c *ContestCreate) SetNillableStatus(v *contest.Status) *ContestCreate {
 	return _c
 }
 
+// SetVersion sets the "version" field.
+func (_c *ContestCreate) SetVersion(v int64) *ContestCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableVersion(v *int64) *ContestCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
 // SetAuthorID sets the "author_id" field.
-func (_c *ContestCreate) SetAuthorID(v int) *ContestCreate {
+func (_c *ContestCreate) SetAuthorID(v uuid.UUID) *ContestCreate {
 	_c.mutation.SetAuthorID(v)
+	return _c
+}
+
+// SetRegistrationMode sets the "registration_mode" field.
+func (_c *ContestCreate) SetRegistrationMode(v contest.RegistrationMode) *ContestCreate {
+	_c.mutation.SetRegistrationMode(v)
+	return _c
+}
+
+// SetNillableRegistrationMode sets the "registration_mode" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableRegistrationMode(v *contest.RegistrationMode) *ContestCreate {
+	if v != nil {
+		_c.SetRegistrationMode(*v)
+	}
+	return _c
+}
+
+// SetRegistrationOpensAt sets the "registration_opens_at" field.
+func (_c *ContestCreate) SetRegistrationOpensAt(v time.Time) *ContestCreate {
+	_c.mutation.SetRegistrationOpensAt(v)
+	return _c
+}
+
+// SetNillableRegistrationOpensAt sets the "registration_opens_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableRegistrationOpensAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetRegistrationOpensAt(*v)
+	}
+	return _c
+}
+
+// SetRegistrationClosesAt sets the "registration_closes_at" field.
+func (_c *ContestCreate) SetRegistrationClosesAt(v time.Time) *ContestCreate {
+	_c.mutation.SetRegistrationClosesAt(v)
+	return _c
+}
+
+// SetNillableRegistrationClosesAt sets the "registration_closes_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableRegistrationClosesAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetRegistrationClosesAt(*v)
+	}
 	return _c
 }
 
@@ -150,35 +217,247 @@ func (_c *ContestCreate) SetNillableMaxParticipants(v *int) *ContestCreate {
 	return _c
 }
 
+// SetNextSubmissionSequence sets the "next_submission_sequence" field.
+func (_c *ContestCreate) SetNextSubmissionSequence(v int64) *ContestCreate {
+	_c.mutation.SetNextSubmissionSequence(v)
+	return _c
+}
+
+// SetNillableNextSubmissionSequence sets the "next_submission_sequence" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableNextSubmissionSequence(v *int64) *ContestCreate {
+	if v != nil {
+		_c.SetNextSubmissionSequence(*v)
+	}
+	return _c
+}
+
+// SetScoringPolicy sets the "scoring_policy" field.
+func (_c *ContestCreate) SetScoringPolicy(v contest.ScoringPolicy) *ContestCreate {
+	_c.mutation.SetScoringPolicy(v)
+	return _c
+}
+
+// SetNillableScoringPolicy sets the "scoring_policy" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableScoringPolicy(v *contest.ScoringPolicy) *ContestCreate {
+	if v != nil {
+		_c.SetScoringPolicy(*v)
+	}
+	return _c
+}
+
+// SetScoringPolicyVersion sets the "scoring_policy_version" field.
+func (_c *ContestCreate) SetScoringPolicyVersion(v int64) *ContestCreate {
+	_c.mutation.SetScoringPolicyVersion(v)
+	return _c
+}
+
+// SetNillableScoringPolicyVersion sets the "scoring_policy_version" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableScoringPolicyVersion(v *int64) *ContestCreate {
+	if v != nil {
+		_c.SetScoringPolicyVersion(*v)
+	}
+	return _c
+}
+
+// SetStandingsProjectionVersion sets the "standings_projection_version" field.
+func (_c *ContestCreate) SetStandingsProjectionVersion(v int64) *ContestCreate {
+	_c.mutation.SetStandingsProjectionVersion(v)
+	return _c
+}
+
+// SetNillableStandingsProjectionVersion sets the "standings_projection_version" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableStandingsProjectionVersion(v *int64) *ContestCreate {
+	if v != nil {
+		_c.SetStandingsProjectionVersion(*v)
+	}
+	return _c
+}
+
+// SetFreezeStandingsAt sets the "freeze_standings_at" field.
+func (_c *ContestCreate) SetFreezeStandingsAt(v time.Time) *ContestCreate {
+	_c.mutation.SetFreezeStandingsAt(v)
+	return _c
+}
+
+// SetNillableFreezeStandingsAt sets the "freeze_standings_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableFreezeStandingsAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetFreezeStandingsAt(*v)
+	}
+	return _c
+}
+
+// SetRated sets the "rated" field.
+func (_c *ContestCreate) SetRated(v bool) *ContestCreate {
+	_c.mutation.SetRated(v)
+	return _c
+}
+
+// SetNillableRated sets the "rated" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableRated(v *bool) *ContestCreate {
+	if v != nil {
+		_c.SetRated(*v)
+	}
+	return _c
+}
+
+// SetRatingAlgorithmVersion sets the "rating_algorithm_version" field.
+func (_c *ContestCreate) SetRatingAlgorithmVersion(v string) *ContestCreate {
+	_c.mutation.SetRatingAlgorithmVersion(v)
+	return _c
+}
+
+// SetNillableRatingAlgorithmVersion sets the "rating_algorithm_version" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableRatingAlgorithmVersion(v *string) *ContestCreate {
+	if v != nil {
+		_c.SetRatingAlgorithmVersion(*v)
+	}
+	return _c
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_c *ContestCreate) SetPublishedAt(v time.Time) *ContestCreate {
+	_c.mutation.SetPublishedAt(v)
+	return _c
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillablePublishedAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetPublishedAt(*v)
+	}
+	return _c
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_c *ContestCreate) SetStartedAt(v time.Time) *ContestCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableStartedAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
+	}
+	return _c
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (_c *ContestCreate) SetEndedAt(v time.Time) *ContestCreate {
+	_c.mutation.SetEndedAt(v)
+	return _c
+}
+
+// SetNillableEndedAt sets the "ended_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableEndedAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetEndedAt(*v)
+	}
+	return _c
+}
+
+// SetCancelledAt sets the "cancelled_at" field.
+func (_c *ContestCreate) SetCancelledAt(v time.Time) *ContestCreate {
+	_c.mutation.SetCancelledAt(v)
+	return _c
+}
+
+// SetNillableCancelledAt sets the "cancelled_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableCancelledAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetCancelledAt(*v)
+	}
+	return _c
+}
+
+// SetRatingCompletedAt sets the "rating_completed_at" field.
+func (_c *ContestCreate) SetRatingCompletedAt(v time.Time) *ContestCreate {
+	_c.mutation.SetRatingCompletedAt(v)
+	return _c
+}
+
+// SetNillableRatingCompletedAt sets the "rating_completed_at" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableRatingCompletedAt(v *time.Time) *ContestCreate {
+	if v != nil {
+		_c.SetRatingCompletedAt(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *ContestCreate) SetID(v uuid.UUID) *ContestCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *ContestCreate) SetNillableID(v *uuid.UUID) *ContestCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_c *ContestCreate) SetAuthor(v *User) *ContestCreate {
 	return _c.SetAuthorID(v.ID)
 }
 
-// AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_c *ContestCreate) AddProblemIDs(ids ...int) *ContestCreate {
-	_c.mutation.AddProblemIDs(ids...)
+// AddDraftProblemIDs adds the "draft_problems" edge to the ContestDraftProblem entity by IDs.
+func (_c *ContestCreate) AddDraftProblemIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddDraftProblemIDs(ids...)
 	return _c
 }
 
-// AddProblems adds the "problems" edges to the Problem entity.
-func (_c *ContestCreate) AddProblems(v ...*Problem) *ContestCreate {
-	ids := make([]int, len(v))
+// AddDraftProblems adds the "draft_problems" edges to the ContestDraftProblem entity.
+func (_c *ContestCreate) AddDraftProblems(v ...*ContestDraftProblem) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _c.AddProblemIDs(ids...)
+	return _c.AddDraftProblemIDs(ids...)
+}
+
+// AddContestProblemIDs adds the "contest_problems" edge to the ContestProblem entity by IDs.
+func (_c *ContestCreate) AddContestProblemIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddContestProblemIDs(ids...)
+	return _c
+}
+
+// AddContestProblems adds the "contest_problems" edges to the ContestProblem entity.
+func (_c *ContestCreate) AddContestProblems(v ...*ContestProblem) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestProblemIDs(ids...)
+}
+
+// AddTransitionIDs adds the "transitions" edge to the ContestTransition entity by IDs.
+func (_c *ContestCreate) AddTransitionIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddTransitionIDs(ids...)
+	return _c
+}
+
+// AddTransitions adds the "transitions" edges to the ContestTransition entity.
+func (_c *ContestCreate) AddTransitions(v ...*ContestTransition) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTransitionIDs(ids...)
 }
 
 // AddRegistrationIDs adds the "registrations" edge to the ContestRegistration entity by IDs.
-func (_c *ContestCreate) AddRegistrationIDs(ids ...int) *ContestCreate {
+func (_c *ContestCreate) AddRegistrationIDs(ids ...uuid.UUID) *ContestCreate {
 	_c.mutation.AddRegistrationIDs(ids...)
 	return _c
 }
 
 // AddRegistrations adds the "registrations" edges to the ContestRegistration entity.
 func (_c *ContestCreate) AddRegistrations(v ...*ContestRegistration) *ContestCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -186,14 +465,14 @@ func (_c *ContestCreate) AddRegistrations(v ...*ContestRegistration) *ContestCre
 }
 
 // AddStandingIDs adds the "standings" edge to the ContestStanding entity by IDs.
-func (_c *ContestCreate) AddStandingIDs(ids ...int) *ContestCreate {
+func (_c *ContestCreate) AddStandingIDs(ids ...uuid.UUID) *ContestCreate {
 	_c.mutation.AddStandingIDs(ids...)
 	return _c
 }
 
 // AddStandings adds the "standings" edges to the ContestStanding entity.
 func (_c *ContestCreate) AddStandings(v ...*ContestStanding) *ContestCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -201,14 +480,14 @@ func (_c *ContestCreate) AddStandings(v ...*ContestStanding) *ContestCreate {
 }
 
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_c *ContestCreate) AddSubmissionIDs(ids ...int) *ContestCreate {
+func (_c *ContestCreate) AddSubmissionIDs(ids ...uuid.UUID) *ContestCreate {
 	_c.mutation.AddSubmissionIDs(ids...)
 	return _c
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_c *ContestCreate) AddSubmissions(v ...*Submission) *ContestCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -216,18 +495,123 @@ func (_c *ContestCreate) AddSubmissions(v ...*Submission) *ContestCreate {
 }
 
 // AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
-func (_c *ContestCreate) AddRatingHistoryIDs(ids ...int) *ContestCreate {
+func (_c *ContestCreate) AddRatingHistoryIDs(ids ...uuid.UUID) *ContestCreate {
 	_c.mutation.AddRatingHistoryIDs(ids...)
 	return _c
 }
 
 // AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
 func (_c *ContestCreate) AddRatingHistories(v ...*RatingHistory) *ContestCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddRatingHistoryIDs(ids...)
+}
+
+// AddRatingSequenceSlotIDs adds the "rating_sequence_slots" edge to the RatingSequenceSlot entity by IDs.
+func (_c *ContestCreate) AddRatingSequenceSlotIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddRatingSequenceSlotIDs(ids...)
+	return _c
+}
+
+// AddRatingSequenceSlots adds the "rating_sequence_slots" edges to the RatingSequenceSlot entity.
+func (_c *ContestCreate) AddRatingSequenceSlots(v ...*RatingSequenceSlot) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRatingSequenceSlotIDs(ids...)
+}
+
+// AddRatingRunIDs adds the "rating_runs" edge to the ContestRatingRun entity by IDs.
+func (_c *ContestCreate) AddRatingRunIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddRatingRunIDs(ids...)
+	return _c
+}
+
+// AddRatingRuns adds the "rating_runs" edges to the ContestRatingRun entity.
+func (_c *ContestCreate) AddRatingRuns(v ...*ContestRatingRun) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRatingRunIDs(ids...)
+}
+
+// AddAnnouncementIDs adds the "announcements" edge to the ContestAnnouncement entity by IDs.
+func (_c *ContestCreate) AddAnnouncementIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddAnnouncementIDs(ids...)
+	return _c
+}
+
+// AddAnnouncements adds the "announcements" edges to the ContestAnnouncement entity.
+func (_c *ContestCreate) AddAnnouncements(v ...*ContestAnnouncement) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAnnouncementIDs(ids...)
+}
+
+// AddClarificationIDs adds the "clarifications" edge to the ContestClarification entity by IDs.
+func (_c *ContestCreate) AddClarificationIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddClarificationIDs(ids...)
+	return _c
+}
+
+// AddClarifications adds the "clarifications" edges to the ContestClarification entity.
+func (_c *ContestCreate) AddClarifications(v ...*ContestClarification) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddClarificationIDs(ids...)
+}
+
+// AddContentCommandIDs adds the "content_commands" edge to the ContestContentCommand entity by IDs.
+func (_c *ContestCreate) AddContentCommandIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddContentCommandIDs(ids...)
+	return _c
+}
+
+// AddContentCommands adds the "content_commands" edges to the ContestContentCommand entity.
+func (_c *ContestCreate) AddContentCommands(v ...*ContestContentCommand) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContentCommandIDs(ids...)
+}
+
+// AddScoringAttemptIDs adds the "scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_c *ContestCreate) AddScoringAttemptIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddScoringAttemptIDs(ids...)
+	return _c
+}
+
+// AddScoringAttempts adds the "scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_c *ContestCreate) AddScoringAttempts(v ...*ContestScoringAttempt) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddScoringAttemptIDs(ids...)
+}
+
+// AddProblemResultIDs adds the "problem_results" edge to the ContestProblemResult entity by IDs.
+func (_c *ContestCreate) AddProblemResultIDs(ids ...uuid.UUID) *ContestCreate {
+	_c.mutation.AddProblemResultIDs(ids...)
+	return _c
+}
+
+// AddProblemResults adds the "problem_results" edges to the ContestProblemResult entity.
+func (_c *ContestCreate) AddProblemResults(v ...*ContestProblemResult) *ContestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddProblemResultIDs(ids...)
 }
 
 // Mutation returns the ContestMutation object of the builder.
@@ -285,9 +669,44 @@ func (_c *ContestCreate) defaults() error {
 		v := contest.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
-	if _, ok := _c.mutation.MaxParticipants(); !ok {
-		v := contest.DefaultMaxParticipants
-		_c.mutation.SetMaxParticipants(v)
+	if _, ok := _c.mutation.Version(); !ok {
+		v := contest.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.RegistrationMode(); !ok {
+		v := contest.DefaultRegistrationMode
+		_c.mutation.SetRegistrationMode(v)
+	}
+	if _, ok := _c.mutation.NextSubmissionSequence(); !ok {
+		v := contest.DefaultNextSubmissionSequence
+		_c.mutation.SetNextSubmissionSequence(v)
+	}
+	if _, ok := _c.mutation.ScoringPolicy(); !ok {
+		v := contest.DefaultScoringPolicy
+		_c.mutation.SetScoringPolicy(v)
+	}
+	if _, ok := _c.mutation.ScoringPolicyVersion(); !ok {
+		v := contest.DefaultScoringPolicyVersion
+		_c.mutation.SetScoringPolicyVersion(v)
+	}
+	if _, ok := _c.mutation.StandingsProjectionVersion(); !ok {
+		v := contest.DefaultStandingsProjectionVersion
+		_c.mutation.SetStandingsProjectionVersion(v)
+	}
+	if _, ok := _c.mutation.Rated(); !ok {
+		v := contest.DefaultRated
+		_c.mutation.SetRated(v)
+	}
+	if _, ok := _c.mutation.RatingAlgorithmVersion(); !ok {
+		v := contest.DefaultRatingAlgorithmVersion
+		_c.mutation.SetRatingAlgorithmVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if contest.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized contest.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := contest.DefaultID()
+		_c.mutation.SetID(v)
 	}
 	return nil
 }
@@ -322,11 +741,72 @@ func (_c *ContestCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Contest.status": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Contest.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := contest.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Contest.version": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.AuthorID(); !ok {
 		return &ValidationError{Name: "author_id", err: errors.New(`generate: missing required field "Contest.author_id"`)}
 	}
-	if _, ok := _c.mutation.MaxParticipants(); !ok {
-		return &ValidationError{Name: "max_participants", err: errors.New(`generate: missing required field "Contest.max_participants"`)}
+	if _, ok := _c.mutation.RegistrationMode(); !ok {
+		return &ValidationError{Name: "registration_mode", err: errors.New(`generate: missing required field "Contest.registration_mode"`)}
+	}
+	if v, ok := _c.mutation.RegistrationMode(); ok {
+		if err := contest.RegistrationModeValidator(v); err != nil {
+			return &ValidationError{Name: "registration_mode", err: fmt.Errorf(`generate: validator failed for field "Contest.registration_mode": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.MaxParticipants(); ok {
+		if err := contest.MaxParticipantsValidator(v); err != nil {
+			return &ValidationError{Name: "max_participants", err: fmt.Errorf(`generate: validator failed for field "Contest.max_participants": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.NextSubmissionSequence(); !ok {
+		return &ValidationError{Name: "next_submission_sequence", err: errors.New(`generate: missing required field "Contest.next_submission_sequence"`)}
+	}
+	if v, ok := _c.mutation.NextSubmissionSequence(); ok {
+		if err := contest.NextSubmissionSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "next_submission_sequence", err: fmt.Errorf(`generate: validator failed for field "Contest.next_submission_sequence": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ScoringPolicy(); !ok {
+		return &ValidationError{Name: "scoring_policy", err: errors.New(`generate: missing required field "Contest.scoring_policy"`)}
+	}
+	if v, ok := _c.mutation.ScoringPolicy(); ok {
+		if err := contest.ScoringPolicyValidator(v); err != nil {
+			return &ValidationError{Name: "scoring_policy", err: fmt.Errorf(`generate: validator failed for field "Contest.scoring_policy": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ScoringPolicyVersion(); !ok {
+		return &ValidationError{Name: "scoring_policy_version", err: errors.New(`generate: missing required field "Contest.scoring_policy_version"`)}
+	}
+	if v, ok := _c.mutation.ScoringPolicyVersion(); ok {
+		if err := contest.ScoringPolicyVersionValidator(v); err != nil {
+			return &ValidationError{Name: "scoring_policy_version", err: fmt.Errorf(`generate: validator failed for field "Contest.scoring_policy_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.StandingsProjectionVersion(); !ok {
+		return &ValidationError{Name: "standings_projection_version", err: errors.New(`generate: missing required field "Contest.standings_projection_version"`)}
+	}
+	if v, ok := _c.mutation.StandingsProjectionVersion(); ok {
+		if err := contest.StandingsProjectionVersionValidator(v); err != nil {
+			return &ValidationError{Name: "standings_projection_version", err: fmt.Errorf(`generate: validator failed for field "Contest.standings_projection_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Rated(); !ok {
+		return &ValidationError{Name: "rated", err: errors.New(`generate: missing required field "Contest.rated"`)}
+	}
+	if _, ok := _c.mutation.RatingAlgorithmVersion(); !ok {
+		return &ValidationError{Name: "rating_algorithm_version", err: errors.New(`generate: missing required field "Contest.rating_algorithm_version"`)}
+	}
+	if v, ok := _c.mutation.RatingAlgorithmVersion(); ok {
+		if err := contest.RatingAlgorithmVersionValidator(v); err != nil {
+			return &ValidationError{Name: "rating_algorithm_version", err: fmt.Errorf(`generate: validator failed for field "Contest.rating_algorithm_version": %w`, err)}
+		}
 	}
 	if len(_c.mutation.AuthorIDs()) == 0 {
 		return &ValidationError{Name: "author", err: errors.New(`generate: missing required edge "Contest.author"`)}
@@ -345,8 +825,13 @@ func (_c *ContestCreate) sqlSave(ctx context.Context) (*Contest, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -355,9 +840,13 @@ func (_c *ContestCreate) sqlSave(ctx context.Context) (*Contest, error) {
 func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Contest{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(contest.Table, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(contest.Table, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(contest.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -371,7 +860,7 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(contest.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(contest.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Title(); ok {
@@ -394,9 +883,73 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_spec.SetField(contest.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(contest.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.RegistrationMode(); ok {
+		_spec.SetField(contest.FieldRegistrationMode, field.TypeEnum, value)
+		_node.RegistrationMode = value
+	}
+	if value, ok := _c.mutation.RegistrationOpensAt(); ok {
+		_spec.SetField(contest.FieldRegistrationOpensAt, field.TypeTime, value)
+		_node.RegistrationOpensAt = &value
+	}
+	if value, ok := _c.mutation.RegistrationClosesAt(); ok {
+		_spec.SetField(contest.FieldRegistrationClosesAt, field.TypeTime, value)
+		_node.RegistrationClosesAt = &value
+	}
 	if value, ok := _c.mutation.MaxParticipants(); ok {
 		_spec.SetField(contest.FieldMaxParticipants, field.TypeInt, value)
-		_node.MaxParticipants = value
+		_node.MaxParticipants = &value
+	}
+	if value, ok := _c.mutation.NextSubmissionSequence(); ok {
+		_spec.SetField(contest.FieldNextSubmissionSequence, field.TypeInt64, value)
+		_node.NextSubmissionSequence = value
+	}
+	if value, ok := _c.mutation.ScoringPolicy(); ok {
+		_spec.SetField(contest.FieldScoringPolicy, field.TypeEnum, value)
+		_node.ScoringPolicy = value
+	}
+	if value, ok := _c.mutation.ScoringPolicyVersion(); ok {
+		_spec.SetField(contest.FieldScoringPolicyVersion, field.TypeInt64, value)
+		_node.ScoringPolicyVersion = value
+	}
+	if value, ok := _c.mutation.StandingsProjectionVersion(); ok {
+		_spec.SetField(contest.FieldStandingsProjectionVersion, field.TypeInt64, value)
+		_node.StandingsProjectionVersion = value
+	}
+	if value, ok := _c.mutation.FreezeStandingsAt(); ok {
+		_spec.SetField(contest.FieldFreezeStandingsAt, field.TypeTime, value)
+		_node.FreezeStandingsAt = &value
+	}
+	if value, ok := _c.mutation.Rated(); ok {
+		_spec.SetField(contest.FieldRated, field.TypeBool, value)
+		_node.Rated = value
+	}
+	if value, ok := _c.mutation.RatingAlgorithmVersion(); ok {
+		_spec.SetField(contest.FieldRatingAlgorithmVersion, field.TypeString, value)
+		_node.RatingAlgorithmVersion = value
+	}
+	if value, ok := _c.mutation.PublishedAt(); ok {
+		_spec.SetField(contest.FieldPublishedAt, field.TypeTime, value)
+		_node.PublishedAt = &value
+	}
+	if value, ok := _c.mutation.StartedAt(); ok {
+		_spec.SetField(contest.FieldStartedAt, field.TypeTime, value)
+		_node.StartedAt = &value
+	}
+	if value, ok := _c.mutation.EndedAt(); ok {
+		_spec.SetField(contest.FieldEndedAt, field.TypeTime, value)
+		_node.EndedAt = &value
+	}
+	if value, ok := _c.mutation.CancelledAt(); ok {
+		_spec.SetField(contest.FieldCancelledAt, field.TypeTime, value)
+		_node.CancelledAt = &value
+	}
+	if value, ok := _c.mutation.RatingCompletedAt(); ok {
+		_spec.SetField(contest.FieldRatingCompletedAt, field.TypeTime, value)
+		_node.RatingCompletedAt = &value
 	}
 	if nodes := _c.mutation.AuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -406,7 +959,7 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: []string{contest.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -415,15 +968,47 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_node.AuthorID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := _c.mutation.ProblemsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DraftProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TransitionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -439,7 +1024,7 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -455,7 +1040,7 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -471,7 +1056,7 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -487,7 +1072,119 @@ func (_c *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RatingSequenceSlotsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RatingRunsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AnnouncementsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ClarificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContentCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -578,7 +1275,7 @@ func (u *ContestUpsert) ClearDeletedAt() *ContestUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ContestUpsert) SetDeletedBy(v int) *ContestUpsert {
+func (u *ContestUpsert) SetDeletedBy(v string) *ContestUpsert {
 	u.Set(contest.FieldDeletedBy, v)
 	return u
 }
@@ -586,12 +1283,6 @@ func (u *ContestUpsert) SetDeletedBy(v int) *ContestUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *ContestUpsert) UpdateDeletedBy() *ContestUpsert {
 	u.SetExcluded(contest.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ContestUpsert) AddDeletedBy(v int) *ContestUpsert {
-	u.Add(contest.FieldDeletedBy, v)
 	return u
 }
 
@@ -667,8 +1358,26 @@ func (u *ContestUpsert) UpdateStatus() *ContestUpsert {
 	return u
 }
 
+// SetVersion sets the "version" field.
+func (u *ContestUpsert) SetVersion(v int64) *ContestUpsert {
+	u.Set(contest.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateVersion() *ContestUpsert {
+	u.SetExcluded(contest.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestUpsert) AddVersion(v int64) *ContestUpsert {
+	u.Add(contest.FieldVersion, v)
+	return u
+}
+
 // SetAuthorID sets the "author_id" field.
-func (u *ContestUpsert) SetAuthorID(v int) *ContestUpsert {
+func (u *ContestUpsert) SetAuthorID(v uuid.UUID) *ContestUpsert {
 	u.Set(contest.FieldAuthorID, v)
 	return u
 }
@@ -676,6 +1385,54 @@ func (u *ContestUpsert) SetAuthorID(v int) *ContestUpsert {
 // UpdateAuthorID sets the "author_id" field to the value that was provided on create.
 func (u *ContestUpsert) UpdateAuthorID() *ContestUpsert {
 	u.SetExcluded(contest.FieldAuthorID)
+	return u
+}
+
+// SetRegistrationMode sets the "registration_mode" field.
+func (u *ContestUpsert) SetRegistrationMode(v contest.RegistrationMode) *ContestUpsert {
+	u.Set(contest.FieldRegistrationMode, v)
+	return u
+}
+
+// UpdateRegistrationMode sets the "registration_mode" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateRegistrationMode() *ContestUpsert {
+	u.SetExcluded(contest.FieldRegistrationMode)
+	return u
+}
+
+// SetRegistrationOpensAt sets the "registration_opens_at" field.
+func (u *ContestUpsert) SetRegistrationOpensAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldRegistrationOpensAt, v)
+	return u
+}
+
+// UpdateRegistrationOpensAt sets the "registration_opens_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateRegistrationOpensAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldRegistrationOpensAt)
+	return u
+}
+
+// ClearRegistrationOpensAt clears the value of the "registration_opens_at" field.
+func (u *ContestUpsert) ClearRegistrationOpensAt() *ContestUpsert {
+	u.SetNull(contest.FieldRegistrationOpensAt)
+	return u
+}
+
+// SetRegistrationClosesAt sets the "registration_closes_at" field.
+func (u *ContestUpsert) SetRegistrationClosesAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldRegistrationClosesAt, v)
+	return u
+}
+
+// UpdateRegistrationClosesAt sets the "registration_closes_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateRegistrationClosesAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldRegistrationClosesAt)
+	return u
+}
+
+// ClearRegistrationClosesAt clears the value of the "registration_closes_at" field.
+func (u *ContestUpsert) ClearRegistrationClosesAt() *ContestUpsert {
+	u.SetNull(contest.FieldRegistrationClosesAt)
 	return u
 }
 
@@ -697,17 +1454,227 @@ func (u *ContestUpsert) AddMaxParticipants(v int) *ContestUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// ClearMaxParticipants clears the value of the "max_participants" field.
+func (u *ContestUpsert) ClearMaxParticipants() *ContestUpsert {
+	u.SetNull(contest.FieldMaxParticipants)
+	return u
+}
+
+// SetNextSubmissionSequence sets the "next_submission_sequence" field.
+func (u *ContestUpsert) SetNextSubmissionSequence(v int64) *ContestUpsert {
+	u.Set(contest.FieldNextSubmissionSequence, v)
+	return u
+}
+
+// UpdateNextSubmissionSequence sets the "next_submission_sequence" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateNextSubmissionSequence() *ContestUpsert {
+	u.SetExcluded(contest.FieldNextSubmissionSequence)
+	return u
+}
+
+// AddNextSubmissionSequence adds v to the "next_submission_sequence" field.
+func (u *ContestUpsert) AddNextSubmissionSequence(v int64) *ContestUpsert {
+	u.Add(contest.FieldNextSubmissionSequence, v)
+	return u
+}
+
+// SetScoringPolicy sets the "scoring_policy" field.
+func (u *ContestUpsert) SetScoringPolicy(v contest.ScoringPolicy) *ContestUpsert {
+	u.Set(contest.FieldScoringPolicy, v)
+	return u
+}
+
+// UpdateScoringPolicy sets the "scoring_policy" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateScoringPolicy() *ContestUpsert {
+	u.SetExcluded(contest.FieldScoringPolicy)
+	return u
+}
+
+// SetScoringPolicyVersion sets the "scoring_policy_version" field.
+func (u *ContestUpsert) SetScoringPolicyVersion(v int64) *ContestUpsert {
+	u.Set(contest.FieldScoringPolicyVersion, v)
+	return u
+}
+
+// UpdateScoringPolicyVersion sets the "scoring_policy_version" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateScoringPolicyVersion() *ContestUpsert {
+	u.SetExcluded(contest.FieldScoringPolicyVersion)
+	return u
+}
+
+// AddScoringPolicyVersion adds v to the "scoring_policy_version" field.
+func (u *ContestUpsert) AddScoringPolicyVersion(v int64) *ContestUpsert {
+	u.Add(contest.FieldScoringPolicyVersion, v)
+	return u
+}
+
+// SetStandingsProjectionVersion sets the "standings_projection_version" field.
+func (u *ContestUpsert) SetStandingsProjectionVersion(v int64) *ContestUpsert {
+	u.Set(contest.FieldStandingsProjectionVersion, v)
+	return u
+}
+
+// UpdateStandingsProjectionVersion sets the "standings_projection_version" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateStandingsProjectionVersion() *ContestUpsert {
+	u.SetExcluded(contest.FieldStandingsProjectionVersion)
+	return u
+}
+
+// AddStandingsProjectionVersion adds v to the "standings_projection_version" field.
+func (u *ContestUpsert) AddStandingsProjectionVersion(v int64) *ContestUpsert {
+	u.Add(contest.FieldStandingsProjectionVersion, v)
+	return u
+}
+
+// SetFreezeStandingsAt sets the "freeze_standings_at" field.
+func (u *ContestUpsert) SetFreezeStandingsAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldFreezeStandingsAt, v)
+	return u
+}
+
+// UpdateFreezeStandingsAt sets the "freeze_standings_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateFreezeStandingsAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldFreezeStandingsAt)
+	return u
+}
+
+// ClearFreezeStandingsAt clears the value of the "freeze_standings_at" field.
+func (u *ContestUpsert) ClearFreezeStandingsAt() *ContestUpsert {
+	u.SetNull(contest.FieldFreezeStandingsAt)
+	return u
+}
+
+// SetRated sets the "rated" field.
+func (u *ContestUpsert) SetRated(v bool) *ContestUpsert {
+	u.Set(contest.FieldRated, v)
+	return u
+}
+
+// UpdateRated sets the "rated" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateRated() *ContestUpsert {
+	u.SetExcluded(contest.FieldRated)
+	return u
+}
+
+// SetRatingAlgorithmVersion sets the "rating_algorithm_version" field.
+func (u *ContestUpsert) SetRatingAlgorithmVersion(v string) *ContestUpsert {
+	u.Set(contest.FieldRatingAlgorithmVersion, v)
+	return u
+}
+
+// UpdateRatingAlgorithmVersion sets the "rating_algorithm_version" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateRatingAlgorithmVersion() *ContestUpsert {
+	u.SetExcluded(contest.FieldRatingAlgorithmVersion)
+	return u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *ContestUpsert) SetPublishedAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldPublishedAt, v)
+	return u
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdatePublishedAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldPublishedAt)
+	return u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *ContestUpsert) ClearPublishedAt() *ContestUpsert {
+	u.SetNull(contest.FieldPublishedAt)
+	return u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *ContestUpsert) SetStartedAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldStartedAt, v)
+	return u
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateStartedAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldStartedAt)
+	return u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *ContestUpsert) ClearStartedAt() *ContestUpsert {
+	u.SetNull(contest.FieldStartedAt)
+	return u
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (u *ContestUpsert) SetEndedAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldEndedAt, v)
+	return u
+}
+
+// UpdateEndedAt sets the "ended_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateEndedAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldEndedAt)
+	return u
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (u *ContestUpsert) ClearEndedAt() *ContestUpsert {
+	u.SetNull(contest.FieldEndedAt)
+	return u
+}
+
+// SetCancelledAt sets the "cancelled_at" field.
+func (u *ContestUpsert) SetCancelledAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldCancelledAt, v)
+	return u
+}
+
+// UpdateCancelledAt sets the "cancelled_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateCancelledAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldCancelledAt)
+	return u
+}
+
+// ClearCancelledAt clears the value of the "cancelled_at" field.
+func (u *ContestUpsert) ClearCancelledAt() *ContestUpsert {
+	u.SetNull(contest.FieldCancelledAt)
+	return u
+}
+
+// SetRatingCompletedAt sets the "rating_completed_at" field.
+func (u *ContestUpsert) SetRatingCompletedAt(v time.Time) *ContestUpsert {
+	u.Set(contest.FieldRatingCompletedAt, v)
+	return u
+}
+
+// UpdateRatingCompletedAt sets the "rating_completed_at" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateRatingCompletedAt() *ContestUpsert {
+	u.SetExcluded(contest.FieldRatingCompletedAt)
+	return u
+}
+
+// ClearRatingCompletedAt clears the value of the "rating_completed_at" field.
+func (u *ContestUpsert) ClearRatingCompletedAt() *ContestUpsert {
+	u.SetNull(contest.FieldRatingCompletedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Contest.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(contest.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ContestUpsertOne) UpdateNewValues() *ContestUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(contest.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contest.FieldCreatedAt)
 		}
@@ -778,16 +1745,9 @@ func (u *ContestUpsertOne) ClearDeletedAt() *ContestUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ContestUpsertOne) SetDeletedBy(v int) *ContestUpsertOne {
+func (u *ContestUpsertOne) SetDeletedBy(v string) *ContestUpsertOne {
 	return u.Update(func(s *ContestUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ContestUpsertOne) AddDeletedBy(v int) *ContestUpsertOne {
-	return u.Update(func(s *ContestUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -882,8 +1842,29 @@ func (u *ContestUpsertOne) UpdateStatus() *ContestUpsertOne {
 	})
 }
 
+// SetVersion sets the "version" field.
+func (u *ContestUpsertOne) SetVersion(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestUpsertOne) AddVersion(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateVersion() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateVersion()
+	})
+}
+
 // SetAuthorID sets the "author_id" field.
-func (u *ContestUpsertOne) SetAuthorID(v int) *ContestUpsertOne {
+func (u *ContestUpsertOne) SetAuthorID(v uuid.UUID) *ContestUpsertOne {
 	return u.Update(func(s *ContestUpsert) {
 		s.SetAuthorID(v)
 	})
@@ -893,6 +1874,62 @@ func (u *ContestUpsertOne) SetAuthorID(v int) *ContestUpsertOne {
 func (u *ContestUpsertOne) UpdateAuthorID() *ContestUpsertOne {
 	return u.Update(func(s *ContestUpsert) {
 		s.UpdateAuthorID()
+	})
+}
+
+// SetRegistrationMode sets the "registration_mode" field.
+func (u *ContestUpsertOne) SetRegistrationMode(v contest.RegistrationMode) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRegistrationMode(v)
+	})
+}
+
+// UpdateRegistrationMode sets the "registration_mode" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateRegistrationMode() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRegistrationMode()
+	})
+}
+
+// SetRegistrationOpensAt sets the "registration_opens_at" field.
+func (u *ContestUpsertOne) SetRegistrationOpensAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRegistrationOpensAt(v)
+	})
+}
+
+// UpdateRegistrationOpensAt sets the "registration_opens_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateRegistrationOpensAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRegistrationOpensAt()
+	})
+}
+
+// ClearRegistrationOpensAt clears the value of the "registration_opens_at" field.
+func (u *ContestUpsertOne) ClearRegistrationOpensAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearRegistrationOpensAt()
+	})
+}
+
+// SetRegistrationClosesAt sets the "registration_closes_at" field.
+func (u *ContestUpsertOne) SetRegistrationClosesAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRegistrationClosesAt(v)
+	})
+}
+
+// UpdateRegistrationClosesAt sets the "registration_closes_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateRegistrationClosesAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRegistrationClosesAt()
+	})
+}
+
+// ClearRegistrationClosesAt clears the value of the "registration_closes_at" field.
+func (u *ContestUpsertOne) ClearRegistrationClosesAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearRegistrationClosesAt()
 	})
 }
 
@@ -917,6 +1954,244 @@ func (u *ContestUpsertOne) UpdateMaxParticipants() *ContestUpsertOne {
 	})
 }
 
+// ClearMaxParticipants clears the value of the "max_participants" field.
+func (u *ContestUpsertOne) ClearMaxParticipants() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearMaxParticipants()
+	})
+}
+
+// SetNextSubmissionSequence sets the "next_submission_sequence" field.
+func (u *ContestUpsertOne) SetNextSubmissionSequence(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetNextSubmissionSequence(v)
+	})
+}
+
+// AddNextSubmissionSequence adds v to the "next_submission_sequence" field.
+func (u *ContestUpsertOne) AddNextSubmissionSequence(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddNextSubmissionSequence(v)
+	})
+}
+
+// UpdateNextSubmissionSequence sets the "next_submission_sequence" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateNextSubmissionSequence() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateNextSubmissionSequence()
+	})
+}
+
+// SetScoringPolicy sets the "scoring_policy" field.
+func (u *ContestUpsertOne) SetScoringPolicy(v contest.ScoringPolicy) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetScoringPolicy(v)
+	})
+}
+
+// UpdateScoringPolicy sets the "scoring_policy" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateScoringPolicy() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateScoringPolicy()
+	})
+}
+
+// SetScoringPolicyVersion sets the "scoring_policy_version" field.
+func (u *ContestUpsertOne) SetScoringPolicyVersion(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetScoringPolicyVersion(v)
+	})
+}
+
+// AddScoringPolicyVersion adds v to the "scoring_policy_version" field.
+func (u *ContestUpsertOne) AddScoringPolicyVersion(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddScoringPolicyVersion(v)
+	})
+}
+
+// UpdateScoringPolicyVersion sets the "scoring_policy_version" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateScoringPolicyVersion() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateScoringPolicyVersion()
+	})
+}
+
+// SetStandingsProjectionVersion sets the "standings_projection_version" field.
+func (u *ContestUpsertOne) SetStandingsProjectionVersion(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetStandingsProjectionVersion(v)
+	})
+}
+
+// AddStandingsProjectionVersion adds v to the "standings_projection_version" field.
+func (u *ContestUpsertOne) AddStandingsProjectionVersion(v int64) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddStandingsProjectionVersion(v)
+	})
+}
+
+// UpdateStandingsProjectionVersion sets the "standings_projection_version" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateStandingsProjectionVersion() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateStandingsProjectionVersion()
+	})
+}
+
+// SetFreezeStandingsAt sets the "freeze_standings_at" field.
+func (u *ContestUpsertOne) SetFreezeStandingsAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetFreezeStandingsAt(v)
+	})
+}
+
+// UpdateFreezeStandingsAt sets the "freeze_standings_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateFreezeStandingsAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateFreezeStandingsAt()
+	})
+}
+
+// ClearFreezeStandingsAt clears the value of the "freeze_standings_at" field.
+func (u *ContestUpsertOne) ClearFreezeStandingsAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearFreezeStandingsAt()
+	})
+}
+
+// SetRated sets the "rated" field.
+func (u *ContestUpsertOne) SetRated(v bool) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRated(v)
+	})
+}
+
+// UpdateRated sets the "rated" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateRated() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRated()
+	})
+}
+
+// SetRatingAlgorithmVersion sets the "rating_algorithm_version" field.
+func (u *ContestUpsertOne) SetRatingAlgorithmVersion(v string) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRatingAlgorithmVersion(v)
+	})
+}
+
+// UpdateRatingAlgorithmVersion sets the "rating_algorithm_version" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateRatingAlgorithmVersion() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRatingAlgorithmVersion()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *ContestUpsertOne) SetPublishedAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdatePublishedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *ContestUpsertOne) ClearPublishedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearPublishedAt()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *ContestUpsertOne) SetStartedAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateStartedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *ContestUpsertOne) ClearStartedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearStartedAt()
+	})
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (u *ContestUpsertOne) SetEndedAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetEndedAt(v)
+	})
+}
+
+// UpdateEndedAt sets the "ended_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateEndedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateEndedAt()
+	})
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (u *ContestUpsertOne) ClearEndedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearEndedAt()
+	})
+}
+
+// SetCancelledAt sets the "cancelled_at" field.
+func (u *ContestUpsertOne) SetCancelledAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetCancelledAt(v)
+	})
+}
+
+// UpdateCancelledAt sets the "cancelled_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateCancelledAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateCancelledAt()
+	})
+}
+
+// ClearCancelledAt clears the value of the "cancelled_at" field.
+func (u *ContestUpsertOne) ClearCancelledAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearCancelledAt()
+	})
+}
+
+// SetRatingCompletedAt sets the "rating_completed_at" field.
+func (u *ContestUpsertOne) SetRatingCompletedAt(v time.Time) *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRatingCompletedAt(v)
+	})
+}
+
+// UpdateRatingCompletedAt sets the "rating_completed_at" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateRatingCompletedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRatingCompletedAt()
+	})
+}
+
+// ClearRatingCompletedAt clears the value of the "rating_completed_at" field.
+func (u *ContestUpsertOne) ClearRatingCompletedAt() *ContestUpsertOne {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearRatingCompletedAt()
+	})
+}
+
 // Exec executes the query.
 func (u *ContestUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -933,7 +2208,12 @@ func (u *ContestUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ContestUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ContestUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: ContestUpsertOne.ID is not supported by MySQL driver. Use ContestUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -942,17 +2222,12 @@ func (u *ContestUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ContestUpsertOne) IDX(ctx context.Context) int {
+func (u *ContestUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *ContestCreate) SetID(id int) *ContestCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // ContestCreateBulk is the builder for creating many Contest entities in bulk.
@@ -1002,10 +2277,6 @@ func (_c *ContestCreateBulk) Save(ctx context.Context) ([]*Contest, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1092,12 +2363,18 @@ type ContestUpsertBulk struct {
 //	client.Contest.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(contest.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ContestUpsertBulk) UpdateNewValues() *ContestUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(contest.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contest.FieldCreatedAt)
 			}
@@ -1169,16 +2446,9 @@ func (u *ContestUpsertBulk) ClearDeletedAt() *ContestUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ContestUpsertBulk) SetDeletedBy(v int) *ContestUpsertBulk {
+func (u *ContestUpsertBulk) SetDeletedBy(v string) *ContestUpsertBulk {
 	return u.Update(func(s *ContestUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ContestUpsertBulk) AddDeletedBy(v int) *ContestUpsertBulk {
-	return u.Update(func(s *ContestUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1273,8 +2543,29 @@ func (u *ContestUpsertBulk) UpdateStatus() *ContestUpsertBulk {
 	})
 }
 
+// SetVersion sets the "version" field.
+func (u *ContestUpsertBulk) SetVersion(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestUpsertBulk) AddVersion(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateVersion() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateVersion()
+	})
+}
+
 // SetAuthorID sets the "author_id" field.
-func (u *ContestUpsertBulk) SetAuthorID(v int) *ContestUpsertBulk {
+func (u *ContestUpsertBulk) SetAuthorID(v uuid.UUID) *ContestUpsertBulk {
 	return u.Update(func(s *ContestUpsert) {
 		s.SetAuthorID(v)
 	})
@@ -1284,6 +2575,62 @@ func (u *ContestUpsertBulk) SetAuthorID(v int) *ContestUpsertBulk {
 func (u *ContestUpsertBulk) UpdateAuthorID() *ContestUpsertBulk {
 	return u.Update(func(s *ContestUpsert) {
 		s.UpdateAuthorID()
+	})
+}
+
+// SetRegistrationMode sets the "registration_mode" field.
+func (u *ContestUpsertBulk) SetRegistrationMode(v contest.RegistrationMode) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRegistrationMode(v)
+	})
+}
+
+// UpdateRegistrationMode sets the "registration_mode" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateRegistrationMode() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRegistrationMode()
+	})
+}
+
+// SetRegistrationOpensAt sets the "registration_opens_at" field.
+func (u *ContestUpsertBulk) SetRegistrationOpensAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRegistrationOpensAt(v)
+	})
+}
+
+// UpdateRegistrationOpensAt sets the "registration_opens_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateRegistrationOpensAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRegistrationOpensAt()
+	})
+}
+
+// ClearRegistrationOpensAt clears the value of the "registration_opens_at" field.
+func (u *ContestUpsertBulk) ClearRegistrationOpensAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearRegistrationOpensAt()
+	})
+}
+
+// SetRegistrationClosesAt sets the "registration_closes_at" field.
+func (u *ContestUpsertBulk) SetRegistrationClosesAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRegistrationClosesAt(v)
+	})
+}
+
+// UpdateRegistrationClosesAt sets the "registration_closes_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateRegistrationClosesAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRegistrationClosesAt()
+	})
+}
+
+// ClearRegistrationClosesAt clears the value of the "registration_closes_at" field.
+func (u *ContestUpsertBulk) ClearRegistrationClosesAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearRegistrationClosesAt()
 	})
 }
 
@@ -1305,6 +2652,244 @@ func (u *ContestUpsertBulk) AddMaxParticipants(v int) *ContestUpsertBulk {
 func (u *ContestUpsertBulk) UpdateMaxParticipants() *ContestUpsertBulk {
 	return u.Update(func(s *ContestUpsert) {
 		s.UpdateMaxParticipants()
+	})
+}
+
+// ClearMaxParticipants clears the value of the "max_participants" field.
+func (u *ContestUpsertBulk) ClearMaxParticipants() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearMaxParticipants()
+	})
+}
+
+// SetNextSubmissionSequence sets the "next_submission_sequence" field.
+func (u *ContestUpsertBulk) SetNextSubmissionSequence(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetNextSubmissionSequence(v)
+	})
+}
+
+// AddNextSubmissionSequence adds v to the "next_submission_sequence" field.
+func (u *ContestUpsertBulk) AddNextSubmissionSequence(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddNextSubmissionSequence(v)
+	})
+}
+
+// UpdateNextSubmissionSequence sets the "next_submission_sequence" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateNextSubmissionSequence() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateNextSubmissionSequence()
+	})
+}
+
+// SetScoringPolicy sets the "scoring_policy" field.
+func (u *ContestUpsertBulk) SetScoringPolicy(v contest.ScoringPolicy) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetScoringPolicy(v)
+	})
+}
+
+// UpdateScoringPolicy sets the "scoring_policy" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateScoringPolicy() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateScoringPolicy()
+	})
+}
+
+// SetScoringPolicyVersion sets the "scoring_policy_version" field.
+func (u *ContestUpsertBulk) SetScoringPolicyVersion(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetScoringPolicyVersion(v)
+	})
+}
+
+// AddScoringPolicyVersion adds v to the "scoring_policy_version" field.
+func (u *ContestUpsertBulk) AddScoringPolicyVersion(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddScoringPolicyVersion(v)
+	})
+}
+
+// UpdateScoringPolicyVersion sets the "scoring_policy_version" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateScoringPolicyVersion() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateScoringPolicyVersion()
+	})
+}
+
+// SetStandingsProjectionVersion sets the "standings_projection_version" field.
+func (u *ContestUpsertBulk) SetStandingsProjectionVersion(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetStandingsProjectionVersion(v)
+	})
+}
+
+// AddStandingsProjectionVersion adds v to the "standings_projection_version" field.
+func (u *ContestUpsertBulk) AddStandingsProjectionVersion(v int64) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.AddStandingsProjectionVersion(v)
+	})
+}
+
+// UpdateStandingsProjectionVersion sets the "standings_projection_version" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateStandingsProjectionVersion() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateStandingsProjectionVersion()
+	})
+}
+
+// SetFreezeStandingsAt sets the "freeze_standings_at" field.
+func (u *ContestUpsertBulk) SetFreezeStandingsAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetFreezeStandingsAt(v)
+	})
+}
+
+// UpdateFreezeStandingsAt sets the "freeze_standings_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateFreezeStandingsAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateFreezeStandingsAt()
+	})
+}
+
+// ClearFreezeStandingsAt clears the value of the "freeze_standings_at" field.
+func (u *ContestUpsertBulk) ClearFreezeStandingsAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearFreezeStandingsAt()
+	})
+}
+
+// SetRated sets the "rated" field.
+func (u *ContestUpsertBulk) SetRated(v bool) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRated(v)
+	})
+}
+
+// UpdateRated sets the "rated" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateRated() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRated()
+	})
+}
+
+// SetRatingAlgorithmVersion sets the "rating_algorithm_version" field.
+func (u *ContestUpsertBulk) SetRatingAlgorithmVersion(v string) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRatingAlgorithmVersion(v)
+	})
+}
+
+// UpdateRatingAlgorithmVersion sets the "rating_algorithm_version" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateRatingAlgorithmVersion() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRatingAlgorithmVersion()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *ContestUpsertBulk) SetPublishedAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdatePublishedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *ContestUpsertBulk) ClearPublishedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearPublishedAt()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *ContestUpsertBulk) SetStartedAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateStartedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *ContestUpsertBulk) ClearStartedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearStartedAt()
+	})
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (u *ContestUpsertBulk) SetEndedAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetEndedAt(v)
+	})
+}
+
+// UpdateEndedAt sets the "ended_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateEndedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateEndedAt()
+	})
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (u *ContestUpsertBulk) ClearEndedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearEndedAt()
+	})
+}
+
+// SetCancelledAt sets the "cancelled_at" field.
+func (u *ContestUpsertBulk) SetCancelledAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetCancelledAt(v)
+	})
+}
+
+// UpdateCancelledAt sets the "cancelled_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateCancelledAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateCancelledAt()
+	})
+}
+
+// ClearCancelledAt clears the value of the "cancelled_at" field.
+func (u *ContestUpsertBulk) ClearCancelledAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearCancelledAt()
+	})
+}
+
+// SetRatingCompletedAt sets the "rating_completed_at" field.
+func (u *ContestUpsertBulk) SetRatingCompletedAt(v time.Time) *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.SetRatingCompletedAt(v)
+	})
+}
+
+// UpdateRatingCompletedAt sets the "rating_completed_at" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateRatingCompletedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.UpdateRatingCompletedAt()
+	})
+}
+
+// ClearRatingCompletedAt clears the value of the "rating_completed_at" field.
+func (u *ContestUpsertBulk) ClearRatingCompletedAt() *ContestUpsertBulk {
+	return u.Update(func(s *ContestUpsert) {
+		s.ClearRatingCompletedAt()
 	})
 }
 

@@ -3,21 +3,20 @@ package http
 import (
 	"context"
 
-	d "github.com/huynhanx03/judgify/pkg/dto"
-	"github.com/huynhanx03/judgify/pkg/common/http/handler"
+	"github.com/huynhanx03/go-common/pkg/common/http/handler"
+	d "github.com/huynhanx03/go-common/pkg/dto"
 
-	"github.com/huynhanx03/judgify/internal/material/core/dto"
-	"github.com/huynhanx03/judgify/internal/material/ports"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 // MaterialCategoryHandler defines the material category HTTP handler interface.
 type MaterialCategoryHandler interface {
-	FindAll(ctx context.Context, req *dto.FindAllMaterialCategoriesRequest) ([]*dto.MaterialCategoryResponse, error)
-	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.MaterialCategoryResponse], error)
-	Get(ctx context.Context, req *dto.GetMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error)
-	Create(ctx context.Context, req *dto.CreateMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error)
-	Update(ctx context.Context, req *dto.UpdateMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error)
-	Delete(ctx context.Context, req *dto.DeleteMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error)
+	FindAll(ctx context.Context) ([]*MaterialCategoryResponse, error)
+	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialCategoryResponse], error)
+	Get(ctx context.Context, req *materialCategoryIDRequest) (*MaterialCategoryResponse, error)
+	Create(ctx context.Context, req *CreateMaterialCategoryRequest) (*MaterialCategoryResponse, error)
+	Update(ctx context.Context, req *UpdateMaterialCategoryRequest) (*MaterialCategoryResponse, error)
+	Delete(ctx context.Context, req *materialCategoryIDRequest) (*MaterialCategoryResponse, error)
 }
 
 type materialCategoryHandler struct {
@@ -29,28 +28,63 @@ func NewMaterialCategoryHandler(categoryService ports.MaterialCategoryService) M
 	return &materialCategoryHandler{categoryService: categoryService}
 }
 
-func (h *materialCategoryHandler) FindAll(ctx context.Context, _ *dto.FindAllMaterialCategoriesRequest) ([]*dto.MaterialCategoryResponse, error) {
-	return h.categoryService.FindAll(ctx)
+func (h *materialCategoryHandler) FindAll(ctx context.Context) ([]*MaterialCategoryResponse, error) {
+	results, err := h.categoryService.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*MaterialCategoryResponse, len(results))
+	for index, result := range results {
+		responses[index] = toMaterialCategoryResponse(result)
+	}
+	return responses, nil
 }
 
-func (h *materialCategoryHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*dto.MaterialCategoryResponse], error) {
-	return h.categoryService.Find(ctx, req)
+func (h *materialCategoryHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialCategoryResponse], error) {
+	results, err := h.categoryService.Find(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	responses := make([]*MaterialCategoryResponse, 0)
+	if results.Records != nil {
+		responses = make([]*MaterialCategoryResponse, len(*results.Records))
+		for index, result := range *results.Records {
+			responses[index] = toMaterialCategoryResponse(result)
+		}
+	}
+	return &d.Paginated[*MaterialCategoryResponse]{Records: &responses, Pagination: results.Pagination}, nil
 }
 
-func (h *materialCategoryHandler) Get(ctx context.Context, req *dto.GetMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error) {
-	return h.categoryService.Get(ctx, req.ID)
+func (h *materialCategoryHandler) Get(ctx context.Context, req *materialCategoryIDRequest) (*MaterialCategoryResponse, error) {
+	id, err := toMaterialCategoryID(req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := h.categoryService.Get(ctx, id)
+	return toMaterialCategoryResponse(result), err
 }
 
-func (h *materialCategoryHandler) Create(ctx context.Context, req *dto.CreateMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error) {
-	return h.categoryService.Create(ctx, req)
+func (h *materialCategoryHandler) Create(ctx context.Context, req *CreateMaterialCategoryRequest) (*MaterialCategoryResponse, error) {
+	command := toCreateMaterialCategoryCommand(req)
+	result, err := h.categoryService.Create(ctx, &command)
+	return toMaterialCategoryResponse(result), err
 }
 
-func (h *materialCategoryHandler) Update(ctx context.Context, req *dto.UpdateMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error) {
-	return h.categoryService.Update(ctx, req.ID, req)
+func (h *materialCategoryHandler) Update(ctx context.Context, req *UpdateMaterialCategoryRequest) (*MaterialCategoryResponse, error) {
+	id, command, err := toUpdateMaterialCategoryCommand(req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := h.categoryService.Update(ctx, id, &command)
+	return toMaterialCategoryResponse(result), err
 }
 
-func (h *materialCategoryHandler) Delete(ctx context.Context, req *dto.DeleteMaterialCategoryRequest) (*dto.MaterialCategoryResponse, error) {
-	if err := h.categoryService.Delete(ctx, req.ID); err != nil {
+func (h *materialCategoryHandler) Delete(ctx context.Context, req *materialCategoryIDRequest) (*MaterialCategoryResponse, error) {
+	id, err := toMaterialCategoryID(req)
+	if err != nil {
+		return nil, err
+	}
+	if err := h.categoryService.Delete(ctx, id); err != nil {
 		return nil, err
 	}
 	return nil, nil

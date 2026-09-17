@@ -5,61 +5,62 @@ package conteststanding
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.ContestStanding {
+func ID(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.ContestStanding {
+func IDEQ(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.ContestStanding {
+func IDNEQ(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.ContestStanding {
+func IDIn(ids ...uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.ContestStanding {
+func IDNotIn(ids ...uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.ContestStanding {
+func IDGT(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.ContestStanding {
+func IDGTE(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.ContestStanding {
+func IDLT(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.ContestStanding {
+func IDLTE(id uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldLTE(FieldID, id))
 }
 
 // ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
-func ContestID(v int) predicate.ContestStanding {
+func ContestID(v uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldContestID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.ContestStanding {
+func UserID(v uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldUserID, v))
 }
 
@@ -73,43 +74,78 @@ func Penalty(v int) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldPenalty, v))
 }
 
+// LastAcceptedElapsedMs applies equality check predicate on the "last_accepted_elapsed_ms" field. It's identical to LastAcceptedElapsedMsEQ.
+func LastAcceptedElapsedMs(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldLastAcceptedElapsedMs, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldVersion, v))
+}
+
+// FrozenSolvedCount applies equality check predicate on the "frozen_solved_count" field. It's identical to FrozenSolvedCountEQ.
+func FrozenSolvedCount(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenSolvedCount, v))
+}
+
+// FrozenPenalty applies equality check predicate on the "frozen_penalty" field. It's identical to FrozenPenaltyEQ.
+func FrozenPenalty(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenPenalty, v))
+}
+
+// FrozenPendingAttempts applies equality check predicate on the "frozen_pending_attempts" field. It's identical to FrozenPendingAttemptsEQ.
+func FrozenPendingAttempts(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenLastAcceptedElapsedMs applies equality check predicate on the "frozen_last_accepted_elapsed_ms" field. It's identical to FrozenLastAcceptedElapsedMsEQ.
+func FrozenLastAcceptedElapsedMs(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenVersion applies equality check predicate on the "frozen_version" field. It's identical to FrozenVersionEQ.
+func FrozenVersion(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenVersion, v))
+}
+
 // ContestIDEQ applies the EQ predicate on the "contest_id" field.
-func ContestIDEQ(v int) predicate.ContestStanding {
+func ContestIDEQ(v uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldContestID, v))
 }
 
 // ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
-func ContestIDNEQ(v int) predicate.ContestStanding {
+func ContestIDNEQ(v uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNEQ(FieldContestID, v))
 }
 
 // ContestIDIn applies the In predicate on the "contest_id" field.
-func ContestIDIn(vs ...int) predicate.ContestStanding {
+func ContestIDIn(vs ...uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldIn(FieldContestID, vs...))
 }
 
 // ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
-func ContestIDNotIn(vs ...int) predicate.ContestStanding {
+func ContestIDNotIn(vs ...uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNotIn(FieldContestID, vs...))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.ContestStanding {
+func UserIDEQ(v uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.ContestStanding {
+func UserIDNEQ(v uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.ContestStanding {
+func UserIDIn(vs ...uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.ContestStanding {
+func UserIDNotIn(vs ...uuid.UUID) predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNotIn(FieldUserID, vs...))
 }
 
@@ -201,6 +237,326 @@ func ProblemResultsIsNil() predicate.ContestStanding {
 // ProblemResultsNotNil applies the NotNil predicate on the "problem_results" field.
 func ProblemResultsNotNil() predicate.ContestStanding {
 	return predicate.ContestStanding(sql.FieldNotNull(FieldProblemResults))
+}
+
+// LastAcceptedElapsedMsEQ applies the EQ predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldLastAcceptedElapsedMs, v))
+}
+
+// LastAcceptedElapsedMsNEQ applies the NEQ predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsNEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldLastAcceptedElapsedMs, v))
+}
+
+// LastAcceptedElapsedMsIn applies the In predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldLastAcceptedElapsedMs, vs...))
+}
+
+// LastAcceptedElapsedMsNotIn applies the NotIn predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsNotIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldLastAcceptedElapsedMs, vs...))
+}
+
+// LastAcceptedElapsedMsGT applies the GT predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsGT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldLastAcceptedElapsedMs, v))
+}
+
+// LastAcceptedElapsedMsGTE applies the GTE predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsGTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldLastAcceptedElapsedMs, v))
+}
+
+// LastAcceptedElapsedMsLT applies the LT predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsLT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldLastAcceptedElapsedMs, v))
+}
+
+// LastAcceptedElapsedMsLTE applies the LTE predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsLTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldLastAcceptedElapsedMs, v))
+}
+
+// LastAcceptedElapsedMsIsNil applies the IsNil predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsIsNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIsNull(FieldLastAcceptedElapsedMs))
+}
+
+// LastAcceptedElapsedMsNotNil applies the NotNil predicate on the "last_accepted_elapsed_ms" field.
+func LastAcceptedElapsedMsNotNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotNull(FieldLastAcceptedElapsedMs))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldVersion, v))
+}
+
+// FrozenSolvedCountEQ applies the EQ predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountEQ(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenSolvedCount, v))
+}
+
+// FrozenSolvedCountNEQ applies the NEQ predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountNEQ(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldFrozenSolvedCount, v))
+}
+
+// FrozenSolvedCountIn applies the In predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountIn(vs ...int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldFrozenSolvedCount, vs...))
+}
+
+// FrozenSolvedCountNotIn applies the NotIn predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountNotIn(vs ...int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldFrozenSolvedCount, vs...))
+}
+
+// FrozenSolvedCountGT applies the GT predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountGT(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldFrozenSolvedCount, v))
+}
+
+// FrozenSolvedCountGTE applies the GTE predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountGTE(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldFrozenSolvedCount, v))
+}
+
+// FrozenSolvedCountLT applies the LT predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountLT(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldFrozenSolvedCount, v))
+}
+
+// FrozenSolvedCountLTE applies the LTE predicate on the "frozen_solved_count" field.
+func FrozenSolvedCountLTE(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldFrozenSolvedCount, v))
+}
+
+// FrozenPenaltyEQ applies the EQ predicate on the "frozen_penalty" field.
+func FrozenPenaltyEQ(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenPenalty, v))
+}
+
+// FrozenPenaltyNEQ applies the NEQ predicate on the "frozen_penalty" field.
+func FrozenPenaltyNEQ(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldFrozenPenalty, v))
+}
+
+// FrozenPenaltyIn applies the In predicate on the "frozen_penalty" field.
+func FrozenPenaltyIn(vs ...int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldFrozenPenalty, vs...))
+}
+
+// FrozenPenaltyNotIn applies the NotIn predicate on the "frozen_penalty" field.
+func FrozenPenaltyNotIn(vs ...int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldFrozenPenalty, vs...))
+}
+
+// FrozenPenaltyGT applies the GT predicate on the "frozen_penalty" field.
+func FrozenPenaltyGT(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldFrozenPenalty, v))
+}
+
+// FrozenPenaltyGTE applies the GTE predicate on the "frozen_penalty" field.
+func FrozenPenaltyGTE(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldFrozenPenalty, v))
+}
+
+// FrozenPenaltyLT applies the LT predicate on the "frozen_penalty" field.
+func FrozenPenaltyLT(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldFrozenPenalty, v))
+}
+
+// FrozenPenaltyLTE applies the LTE predicate on the "frozen_penalty" field.
+func FrozenPenaltyLTE(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldFrozenPenalty, v))
+}
+
+// FrozenProblemResultsIsNil applies the IsNil predicate on the "frozen_problem_results" field.
+func FrozenProblemResultsIsNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIsNull(FieldFrozenProblemResults))
+}
+
+// FrozenProblemResultsNotNil applies the NotNil predicate on the "frozen_problem_results" field.
+func FrozenProblemResultsNotNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotNull(FieldFrozenProblemResults))
+}
+
+// FrozenPendingProblemAttemptsIsNil applies the IsNil predicate on the "frozen_pending_problem_attempts" field.
+func FrozenPendingProblemAttemptsIsNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIsNull(FieldFrozenPendingProblemAttempts))
+}
+
+// FrozenPendingProblemAttemptsNotNil applies the NotNil predicate on the "frozen_pending_problem_attempts" field.
+func FrozenPendingProblemAttemptsNotNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotNull(FieldFrozenPendingProblemAttempts))
+}
+
+// FrozenPendingAttemptsEQ applies the EQ predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsEQ(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenPendingAttemptsNEQ applies the NEQ predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsNEQ(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenPendingAttemptsIn applies the In predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsIn(vs ...int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldFrozenPendingAttempts, vs...))
+}
+
+// FrozenPendingAttemptsNotIn applies the NotIn predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsNotIn(vs ...int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldFrozenPendingAttempts, vs...))
+}
+
+// FrozenPendingAttemptsGT applies the GT predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsGT(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenPendingAttemptsGTE applies the GTE predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsGTE(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenPendingAttemptsLT applies the LT predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsLT(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenPendingAttemptsLTE applies the LTE predicate on the "frozen_pending_attempts" field.
+func FrozenPendingAttemptsLTE(v int) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldFrozenPendingAttempts, v))
+}
+
+// FrozenLastAcceptedElapsedMsEQ applies the EQ predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenLastAcceptedElapsedMsNEQ applies the NEQ predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsNEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenLastAcceptedElapsedMsIn applies the In predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldFrozenLastAcceptedElapsedMs, vs...))
+}
+
+// FrozenLastAcceptedElapsedMsNotIn applies the NotIn predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsNotIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldFrozenLastAcceptedElapsedMs, vs...))
+}
+
+// FrozenLastAcceptedElapsedMsGT applies the GT predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsGT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenLastAcceptedElapsedMsGTE applies the GTE predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsGTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenLastAcceptedElapsedMsLT applies the LT predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsLT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenLastAcceptedElapsedMsLTE applies the LTE predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsLTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldFrozenLastAcceptedElapsedMs, v))
+}
+
+// FrozenLastAcceptedElapsedMsIsNil applies the IsNil predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsIsNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIsNull(FieldFrozenLastAcceptedElapsedMs))
+}
+
+// FrozenLastAcceptedElapsedMsNotNil applies the NotNil predicate on the "frozen_last_accepted_elapsed_ms" field.
+func FrozenLastAcceptedElapsedMsNotNil() predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotNull(FieldFrozenLastAcceptedElapsedMs))
+}
+
+// FrozenVersionEQ applies the EQ predicate on the "frozen_version" field.
+func FrozenVersionEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldEQ(FieldFrozenVersion, v))
+}
+
+// FrozenVersionNEQ applies the NEQ predicate on the "frozen_version" field.
+func FrozenVersionNEQ(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNEQ(FieldFrozenVersion, v))
+}
+
+// FrozenVersionIn applies the In predicate on the "frozen_version" field.
+func FrozenVersionIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldIn(FieldFrozenVersion, vs...))
+}
+
+// FrozenVersionNotIn applies the NotIn predicate on the "frozen_version" field.
+func FrozenVersionNotIn(vs ...int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldNotIn(FieldFrozenVersion, vs...))
+}
+
+// FrozenVersionGT applies the GT predicate on the "frozen_version" field.
+func FrozenVersionGT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGT(FieldFrozenVersion, v))
+}
+
+// FrozenVersionGTE applies the GTE predicate on the "frozen_version" field.
+func FrozenVersionGTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldGTE(FieldFrozenVersion, v))
+}
+
+// FrozenVersionLT applies the LT predicate on the "frozen_version" field.
+func FrozenVersionLT(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLT(FieldFrozenVersion, v))
+}
+
+// FrozenVersionLTE applies the LTE predicate on the "frozen_version" field.
+func FrozenVersionLTE(v int64) predicate.ContestStanding {
+	return predicate.ContestStanding(sql.FieldLTE(FieldFrozenVersion, v))
 }
 
 // HasContest applies the HasEdge predicate on the "contest" edge.

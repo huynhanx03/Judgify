@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -17,7 +18,7 @@ import (
 type Contest struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,7 +26,7 @@ type Contest struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
@@ -36,10 +37,42 @@ type Contest struct {
 	EndTime time.Time `json:"end_time,omitempty"`
 	// Status holds the value of the "status" field.
 	Status contest.Status `json:"status,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// AuthorID holds the value of the "author_id" field.
-	AuthorID int `json:"author_id,omitempty"`
-	// 0 = unlimited
-	MaxParticipants int `json:"max_participants,omitempty"`
+	AuthorID uuid.UUID `json:"author_id,omitempty"`
+	// RegistrationMode holds the value of the "registration_mode" field.
+	RegistrationMode contest.RegistrationMode `json:"registration_mode,omitempty"`
+	// RegistrationOpensAt holds the value of the "registration_opens_at" field.
+	RegistrationOpensAt *time.Time `json:"registration_opens_at,omitempty"`
+	// RegistrationClosesAt holds the value of the "registration_closes_at" field.
+	RegistrationClosesAt *time.Time `json:"registration_closes_at,omitempty"`
+	// NULL = unlimited
+	MaxParticipants *int `json:"max_participants,omitempty"`
+	// NextSubmissionSequence holds the value of the "next_submission_sequence" field.
+	NextSubmissionSequence int64 `json:"next_submission_sequence,omitempty"`
+	// ScoringPolicy holds the value of the "scoring_policy" field.
+	ScoringPolicy contest.ScoringPolicy `json:"scoring_policy,omitempty"`
+	// ScoringPolicyVersion holds the value of the "scoring_policy_version" field.
+	ScoringPolicyVersion int64 `json:"scoring_policy_version,omitempty"`
+	// StandingsProjectionVersion holds the value of the "standings_projection_version" field.
+	StandingsProjectionVersion int64 `json:"standings_projection_version,omitempty"`
+	// FreezeStandingsAt holds the value of the "freeze_standings_at" field.
+	FreezeStandingsAt *time.Time `json:"freeze_standings_at,omitempty"`
+	// Rated holds the value of the "rated" field.
+	Rated bool `json:"rated,omitempty"`
+	// RatingAlgorithmVersion holds the value of the "rating_algorithm_version" field.
+	RatingAlgorithmVersion string `json:"rating_algorithm_version,omitempty"`
+	// PublishedAt holds the value of the "published_at" field.
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+	// StartedAt holds the value of the "started_at" field.
+	StartedAt *time.Time `json:"started_at,omitempty"`
+	// EndedAt holds the value of the "ended_at" field.
+	EndedAt *time.Time `json:"ended_at,omitempty"`
+	// CancelledAt holds the value of the "cancelled_at" field.
+	CancelledAt *time.Time `json:"cancelled_at,omitempty"`
+	// RatingCompletedAt holds the value of the "rating_completed_at" field.
+	RatingCompletedAt *time.Time `json:"rating_completed_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ContestQuery when eager-loading is set.
 	Edges        ContestEdges `json:"edges"`
@@ -50,8 +83,12 @@ type Contest struct {
 type ContestEdges struct {
 	// Author holds the value of the author edge.
 	Author *User `json:"author,omitempty"`
-	// Problems holds the value of the problems edge.
-	Problems []*Problem `json:"problems,omitempty"`
+	// DraftProblems holds the value of the draft_problems edge.
+	DraftProblems []*ContestDraftProblem `json:"draft_problems,omitempty"`
+	// ContestProblems holds the value of the contest_problems edge.
+	ContestProblems []*ContestProblem `json:"contest_problems,omitempty"`
+	// Transitions holds the value of the transitions edge.
+	Transitions []*ContestTransition `json:"transitions,omitempty"`
 	// Registrations holds the value of the registrations edge.
 	Registrations []*ContestRegistration `json:"registrations,omitempty"`
 	// Standings holds the value of the standings edge.
@@ -60,9 +97,23 @@ type ContestEdges struct {
 	Submissions []*Submission `json:"submissions,omitempty"`
 	// RatingHistories holds the value of the rating_histories edge.
 	RatingHistories []*RatingHistory `json:"rating_histories,omitempty"`
+	// RatingSequenceSlots holds the value of the rating_sequence_slots edge.
+	RatingSequenceSlots []*RatingSequenceSlot `json:"rating_sequence_slots,omitempty"`
+	// RatingRuns holds the value of the rating_runs edge.
+	RatingRuns []*ContestRatingRun `json:"rating_runs,omitempty"`
+	// Announcements holds the value of the announcements edge.
+	Announcements []*ContestAnnouncement `json:"announcements,omitempty"`
+	// Clarifications holds the value of the clarifications edge.
+	Clarifications []*ContestClarification `json:"clarifications,omitempty"`
+	// ContentCommands holds the value of the content_commands edge.
+	ContentCommands []*ContestContentCommand `json:"content_commands,omitempty"`
+	// ScoringAttempts holds the value of the scoring_attempts edge.
+	ScoringAttempts []*ContestScoringAttempt `json:"scoring_attempts,omitempty"`
+	// ProblemResults holds the value of the problem_results edge.
+	ProblemResults []*ContestProblemResult `json:"problem_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [15]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -76,19 +127,37 @@ func (e ContestEdges) AuthorOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "author"}
 }
 
-// ProblemsOrErr returns the Problems value or an error if the edge
+// DraftProblemsOrErr returns the DraftProblems value or an error if the edge
 // was not loaded in eager-loading.
-func (e ContestEdges) ProblemsOrErr() ([]*Problem, error) {
+func (e ContestEdges) DraftProblemsOrErr() ([]*ContestDraftProblem, error) {
 	if e.loadedTypes[1] {
-		return e.Problems, nil
+		return e.DraftProblems, nil
 	}
-	return nil, &NotLoadedError{edge: "problems"}
+	return nil, &NotLoadedError{edge: "draft_problems"}
+}
+
+// ContestProblemsOrErr returns the ContestProblems value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ContestProblemsOrErr() ([]*ContestProblem, error) {
+	if e.loadedTypes[2] {
+		return e.ContestProblems, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_problems"}
+}
+
+// TransitionsOrErr returns the Transitions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) TransitionsOrErr() ([]*ContestTransition, error) {
+	if e.loadedTypes[3] {
+		return e.Transitions, nil
+	}
+	return nil, &NotLoadedError{edge: "transitions"}
 }
 
 // RegistrationsOrErr returns the Registrations value or an error if the edge
 // was not loaded in eager-loading.
 func (e ContestEdges) RegistrationsOrErr() ([]*ContestRegistration, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[4] {
 		return e.Registrations, nil
 	}
 	return nil, &NotLoadedError{edge: "registrations"}
@@ -97,7 +166,7 @@ func (e ContestEdges) RegistrationsOrErr() ([]*ContestRegistration, error) {
 // StandingsOrErr returns the Standings value or an error if the edge
 // was not loaded in eager-loading.
 func (e ContestEdges) StandingsOrErr() ([]*ContestStanding, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		return e.Standings, nil
 	}
 	return nil, &NotLoadedError{edge: "standings"}
@@ -106,7 +175,7 @@ func (e ContestEdges) StandingsOrErr() ([]*ContestStanding, error) {
 // SubmissionsOrErr returns the Submissions value or an error if the edge
 // was not loaded in eager-loading.
 func (e ContestEdges) SubmissionsOrErr() ([]*Submission, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[6] {
 		return e.Submissions, nil
 	}
 	return nil, &NotLoadedError{edge: "submissions"}
@@ -115,10 +184,73 @@ func (e ContestEdges) SubmissionsOrErr() ([]*Submission, error) {
 // RatingHistoriesOrErr returns the RatingHistories value or an error if the edge
 // was not loaded in eager-loading.
 func (e ContestEdges) RatingHistoriesOrErr() ([]*RatingHistory, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[7] {
 		return e.RatingHistories, nil
 	}
 	return nil, &NotLoadedError{edge: "rating_histories"}
+}
+
+// RatingSequenceSlotsOrErr returns the RatingSequenceSlots value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) RatingSequenceSlotsOrErr() ([]*RatingSequenceSlot, error) {
+	if e.loadedTypes[8] {
+		return e.RatingSequenceSlots, nil
+	}
+	return nil, &NotLoadedError{edge: "rating_sequence_slots"}
+}
+
+// RatingRunsOrErr returns the RatingRuns value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) RatingRunsOrErr() ([]*ContestRatingRun, error) {
+	if e.loadedTypes[9] {
+		return e.RatingRuns, nil
+	}
+	return nil, &NotLoadedError{edge: "rating_runs"}
+}
+
+// AnnouncementsOrErr returns the Announcements value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) AnnouncementsOrErr() ([]*ContestAnnouncement, error) {
+	if e.loadedTypes[10] {
+		return e.Announcements, nil
+	}
+	return nil, &NotLoadedError{edge: "announcements"}
+}
+
+// ClarificationsOrErr returns the Clarifications value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ClarificationsOrErr() ([]*ContestClarification, error) {
+	if e.loadedTypes[11] {
+		return e.Clarifications, nil
+	}
+	return nil, &NotLoadedError{edge: "clarifications"}
+}
+
+// ContentCommandsOrErr returns the ContentCommands value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ContentCommandsOrErr() ([]*ContestContentCommand, error) {
+	if e.loadedTypes[12] {
+		return e.ContentCommands, nil
+	}
+	return nil, &NotLoadedError{edge: "content_commands"}
+}
+
+// ScoringAttemptsOrErr returns the ScoringAttempts value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ScoringAttemptsOrErr() ([]*ContestScoringAttempt, error) {
+	if e.loadedTypes[13] {
+		return e.ScoringAttempts, nil
+	}
+	return nil, &NotLoadedError{edge: "scoring_attempts"}
+}
+
+// ProblemResultsOrErr returns the ProblemResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ProblemResultsOrErr() ([]*ContestProblemResult, error) {
+	if e.loadedTypes[14] {
+		return e.ProblemResults, nil
+	}
+	return nil, &NotLoadedError{edge: "problem_results"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -126,12 +258,16 @@ func (*Contest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case contest.FieldID, contest.FieldDeletedBy, contest.FieldAuthorID, contest.FieldMaxParticipants:
+		case contest.FieldRated:
+			values[i] = new(sql.NullBool)
+		case contest.FieldVersion, contest.FieldMaxParticipants, contest.FieldNextSubmissionSequence, contest.FieldScoringPolicyVersion, contest.FieldStandingsProjectionVersion:
 			values[i] = new(sql.NullInt64)
-		case contest.FieldTitle, contest.FieldDescription, contest.FieldStatus:
+		case contest.FieldDeletedBy, contest.FieldTitle, contest.FieldDescription, contest.FieldStatus, contest.FieldRegistrationMode, contest.FieldScoringPolicy, contest.FieldRatingAlgorithmVersion:
 			values[i] = new(sql.NullString)
-		case contest.FieldCreatedAt, contest.FieldUpdatedAt, contest.FieldDeletedAt, contest.FieldStartTime, contest.FieldEndTime:
+		case contest.FieldCreatedAt, contest.FieldUpdatedAt, contest.FieldDeletedAt, contest.FieldStartTime, contest.FieldEndTime, contest.FieldRegistrationOpensAt, contest.FieldRegistrationClosesAt, contest.FieldFreezeStandingsAt, contest.FieldPublishedAt, contest.FieldStartedAt, contest.FieldEndedAt, contest.FieldCancelledAt, contest.FieldRatingCompletedAt:
 			values[i] = new(sql.NullTime)
+		case contest.FieldID, contest.FieldAuthorID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -148,11 +284,11 @@ func (_m *Contest) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case contest.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case contest.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -173,11 +309,11 @@ func (_m *Contest) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case contest.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case contest.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -209,17 +345,122 @@ func (_m *Contest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = contest.Status(value.String)
 			}
-		case contest.FieldAuthorID:
+		case contest.FieldVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field author_id", values[i])
+				return fmt.Errorf("unexpected type %T for field version", values[i])
 			} else if value.Valid {
-				_m.AuthorID = int(value.Int64)
+				_m.Version = value.Int64
+			}
+		case contest.FieldAuthorID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field author_id", values[i])
+			} else if value != nil {
+				_m.AuthorID = *value
+			}
+		case contest.FieldRegistrationMode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field registration_mode", values[i])
+			} else if value.Valid {
+				_m.RegistrationMode = contest.RegistrationMode(value.String)
+			}
+		case contest.FieldRegistrationOpensAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field registration_opens_at", values[i])
+			} else if value.Valid {
+				_m.RegistrationOpensAt = new(time.Time)
+				*_m.RegistrationOpensAt = value.Time
+			}
+		case contest.FieldRegistrationClosesAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field registration_closes_at", values[i])
+			} else if value.Valid {
+				_m.RegistrationClosesAt = new(time.Time)
+				*_m.RegistrationClosesAt = value.Time
 			}
 		case contest.FieldMaxParticipants:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_participants", values[i])
 			} else if value.Valid {
-				_m.MaxParticipants = int(value.Int64)
+				_m.MaxParticipants = new(int)
+				*_m.MaxParticipants = int(value.Int64)
+			}
+		case contest.FieldNextSubmissionSequence:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field next_submission_sequence", values[i])
+			} else if value.Valid {
+				_m.NextSubmissionSequence = value.Int64
+			}
+		case contest.FieldScoringPolicy:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field scoring_policy", values[i])
+			} else if value.Valid {
+				_m.ScoringPolicy = contest.ScoringPolicy(value.String)
+			}
+		case contest.FieldScoringPolicyVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field scoring_policy_version", values[i])
+			} else if value.Valid {
+				_m.ScoringPolicyVersion = value.Int64
+			}
+		case contest.FieldStandingsProjectionVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field standings_projection_version", values[i])
+			} else if value.Valid {
+				_m.StandingsProjectionVersion = value.Int64
+			}
+		case contest.FieldFreezeStandingsAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field freeze_standings_at", values[i])
+			} else if value.Valid {
+				_m.FreezeStandingsAt = new(time.Time)
+				*_m.FreezeStandingsAt = value.Time
+			}
+		case contest.FieldRated:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field rated", values[i])
+			} else if value.Valid {
+				_m.Rated = value.Bool
+			}
+		case contest.FieldRatingAlgorithmVersion:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field rating_algorithm_version", values[i])
+			} else if value.Valid {
+				_m.RatingAlgorithmVersion = value.String
+			}
+		case contest.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field published_at", values[i])
+			} else if value.Valid {
+				_m.PublishedAt = new(time.Time)
+				*_m.PublishedAt = value.Time
+			}
+		case contest.FieldStartedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field started_at", values[i])
+			} else if value.Valid {
+				_m.StartedAt = new(time.Time)
+				*_m.StartedAt = value.Time
+			}
+		case contest.FieldEndedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field ended_at", values[i])
+			} else if value.Valid {
+				_m.EndedAt = new(time.Time)
+				*_m.EndedAt = value.Time
+			}
+		case contest.FieldCancelledAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field cancelled_at", values[i])
+			} else if value.Valid {
+				_m.CancelledAt = new(time.Time)
+				*_m.CancelledAt = value.Time
+			}
+		case contest.FieldRatingCompletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field rating_completed_at", values[i])
+			} else if value.Valid {
+				_m.RatingCompletedAt = new(time.Time)
+				*_m.RatingCompletedAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -239,9 +480,19 @@ func (_m *Contest) QueryAuthor() *UserQuery {
 	return NewContestClient(_m.config).QueryAuthor(_m)
 }
 
-// QueryProblems queries the "problems" edge of the Contest entity.
-func (_m *Contest) QueryProblems() *ProblemQuery {
-	return NewContestClient(_m.config).QueryProblems(_m)
+// QueryDraftProblems queries the "draft_problems" edge of the Contest entity.
+func (_m *Contest) QueryDraftProblems() *ContestDraftProblemQuery {
+	return NewContestClient(_m.config).QueryDraftProblems(_m)
+}
+
+// QueryContestProblems queries the "contest_problems" edge of the Contest entity.
+func (_m *Contest) QueryContestProblems() *ContestProblemQuery {
+	return NewContestClient(_m.config).QueryContestProblems(_m)
+}
+
+// QueryTransitions queries the "transitions" edge of the Contest entity.
+func (_m *Contest) QueryTransitions() *ContestTransitionQuery {
+	return NewContestClient(_m.config).QueryTransitions(_m)
 }
 
 // QueryRegistrations queries the "registrations" edge of the Contest entity.
@@ -262,6 +513,41 @@ func (_m *Contest) QuerySubmissions() *SubmissionQuery {
 // QueryRatingHistories queries the "rating_histories" edge of the Contest entity.
 func (_m *Contest) QueryRatingHistories() *RatingHistoryQuery {
 	return NewContestClient(_m.config).QueryRatingHistories(_m)
+}
+
+// QueryRatingSequenceSlots queries the "rating_sequence_slots" edge of the Contest entity.
+func (_m *Contest) QueryRatingSequenceSlots() *RatingSequenceSlotQuery {
+	return NewContestClient(_m.config).QueryRatingSequenceSlots(_m)
+}
+
+// QueryRatingRuns queries the "rating_runs" edge of the Contest entity.
+func (_m *Contest) QueryRatingRuns() *ContestRatingRunQuery {
+	return NewContestClient(_m.config).QueryRatingRuns(_m)
+}
+
+// QueryAnnouncements queries the "announcements" edge of the Contest entity.
+func (_m *Contest) QueryAnnouncements() *ContestAnnouncementQuery {
+	return NewContestClient(_m.config).QueryAnnouncements(_m)
+}
+
+// QueryClarifications queries the "clarifications" edge of the Contest entity.
+func (_m *Contest) QueryClarifications() *ContestClarificationQuery {
+	return NewContestClient(_m.config).QueryClarifications(_m)
+}
+
+// QueryContentCommands queries the "content_commands" edge of the Contest entity.
+func (_m *Contest) QueryContentCommands() *ContestContentCommandQuery {
+	return NewContestClient(_m.config).QueryContentCommands(_m)
+}
+
+// QueryScoringAttempts queries the "scoring_attempts" edge of the Contest entity.
+func (_m *Contest) QueryScoringAttempts() *ContestScoringAttemptQuery {
+	return NewContestClient(_m.config).QueryScoringAttempts(_m)
+}
+
+// QueryProblemResults queries the "problem_results" edge of the Contest entity.
+func (_m *Contest) QueryProblemResults() *ContestProblemResultQuery {
+	return NewContestClient(_m.config).QueryProblemResults(_m)
 }
 
 // Update returns a builder for updating this Contest.
@@ -300,7 +586,7 @@ func (_m *Contest) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("title=")
@@ -318,21 +604,79 @@ func (_m *Contest) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
 	builder.WriteString("author_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AuthorID))
 	builder.WriteString(", ")
-	builder.WriteString("max_participants=")
-	builder.WriteString(fmt.Sprintf("%v", _m.MaxParticipants))
+	builder.WriteString("registration_mode=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RegistrationMode))
+	builder.WriteString(", ")
+	if v := _m.RegistrationOpensAt; v != nil {
+		builder.WriteString("registration_opens_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.RegistrationClosesAt; v != nil {
+		builder.WriteString("registration_closes_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.MaxParticipants; v != nil {
+		builder.WriteString("max_participants=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("next_submission_sequence=")
+	builder.WriteString(fmt.Sprintf("%v", _m.NextSubmissionSequence))
+	builder.WriteString(", ")
+	builder.WriteString("scoring_policy=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ScoringPolicy))
+	builder.WriteString(", ")
+	builder.WriteString("scoring_policy_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ScoringPolicyVersion))
+	builder.WriteString(", ")
+	builder.WriteString("standings_projection_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.StandingsProjectionVersion))
+	builder.WriteString(", ")
+	if v := _m.FreezeStandingsAt; v != nil {
+		builder.WriteString("freeze_standings_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("rated=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Rated))
+	builder.WriteString(", ")
+	builder.WriteString("rating_algorithm_version=")
+	builder.WriteString(_m.RatingAlgorithmVersion)
+	builder.WriteString(", ")
+	if v := _m.PublishedAt; v != nil {
+		builder.WriteString("published_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.StartedAt; v != nil {
+		builder.WriteString("started_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.EndedAt; v != nil {
+		builder.WriteString("ended_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.CancelledAt; v != nil {
+		builder.WriteString("cancelled_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.RatingCompletedAt; v != nil {
+		builder.WriteString("rating_completed_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Contest) GetID() int {
-	return _m.ID
-}
-
-func (_m *Contest) SetID(id int) {
-	_m.ID = id
 }
 
 // Contests is a parsable slice of Contest.

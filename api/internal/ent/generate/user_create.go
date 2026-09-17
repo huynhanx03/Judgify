@@ -8,23 +8,49 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsession"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessioncommandreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessionissuancereceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingresult"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestuserrating"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationrankingprojection"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaign"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignexplicituser"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrecipient"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationpreference"
+	"github.com/huynhanx03/judgify/internal/ent/generate/oauthcompletionticket"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffer"
+	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
-	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofilerevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -82,13 +108,13 @@ func (_c *UserCreate) SetNillableDeletedAt(v *time.Time) *UserCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *UserCreate) SetDeletedBy(v int) *UserCreate {
+func (_c *UserCreate) SetDeletedBy(v string) *UserCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *UserCreate) SetNillableDeletedBy(v *int) *UserCreate {
+func (_c *UserCreate) SetNillableDeletedBy(v *string) *UserCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -101,26 +127,127 @@ func (_c *UserCreate) SetUsername(v string) *UserCreate {
 	return _c
 }
 
-// SetRoleID sets the "role_id" field.
-func (_c *UserCreate) SetRoleID(v int) *UserCreate {
-	_c.mutation.SetRoleID(v)
+// SetStatus sets the "status" field.
+func (_c *UserCreate) SetStatus(v user.Status) *UserCreate {
+	_c.mutation.SetStatus(v)
 	return _c
 }
 
-// SetRole sets the "role" edge to the Role entity.
-func (_c *UserCreate) SetRole(v *Role) *UserCreate {
-	return _c.SetRoleID(v.ID)
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *UserCreate) SetNillableStatus(v *user.Status) *UserCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetSecurityVersion sets the "security_version" field.
+func (_c *UserCreate) SetSecurityVersion(v int64) *UserCreate {
+	_c.mutation.SetSecurityVersion(v)
+	return _c
+}
+
+// SetNillableSecurityVersion sets the "security_version" field if the given value is not nil.
+func (_c *UserCreate) SetNillableSecurityVersion(v *int64) *UserCreate {
+	if v != nil {
+		_c.SetSecurityVersion(*v)
+	}
+	return _c
+}
+
+// SetProfileVisibility sets the "profile_visibility" field.
+func (_c *UserCreate) SetProfileVisibility(v user.ProfileVisibility) *UserCreate {
+	_c.mutation.SetProfileVisibility(v)
+	return _c
+}
+
+// SetNillableProfileVisibility sets the "profile_visibility" field if the given value is not nil.
+func (_c *UserCreate) SetNillableProfileVisibility(v *user.ProfileVisibility) *UserCreate {
+	if v != nil {
+		_c.SetProfileVisibility(*v)
+	}
+	return _c
+}
+
+// SetProfileVisibilityVersion sets the "profile_visibility_version" field.
+func (_c *UserCreate) SetProfileVisibilityVersion(v int64) *UserCreate {
+	_c.mutation.SetProfileVisibilityVersion(v)
+	return _c
+}
+
+// SetNillableProfileVisibilityVersion sets the "profile_visibility_version" field if the given value is not nil.
+func (_c *UserCreate) SetNillableProfileVisibilityVersion(v *int64) *UserCreate {
+	if v != nil {
+		_c.SetProfileVisibilityVersion(*v)
+	}
+	return _c
+}
+
+// SetProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field.
+func (_c *UserCreate) SetProfileVisibilityUpdatedAt(v time.Time) *UserCreate {
+	_c.mutation.SetProfileVisibilityUpdatedAt(v)
+	return _c
+}
+
+// SetNillableProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableProfileVisibilityUpdatedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetProfileVisibilityUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetSuspendedAt sets the "suspended_at" field.
+func (_c *UserCreate) SetSuspendedAt(v time.Time) *UserCreate {
+	_c.mutation.SetSuspendedAt(v)
+	return _c
+}
+
+// SetNillableSuspendedAt sets the "suspended_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableSuspendedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetSuspendedAt(*v)
+	}
+	return _c
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (_c *UserCreate) SetSuspensionReason(v string) *UserCreate {
+	_c.mutation.SetSuspensionReason(v)
+	return _c
+}
+
+// SetNillableSuspensionReason sets the "suspension_reason" field if the given value is not nil.
+func (_c *UserCreate) SetNillableSuspensionReason(v *string) *UserCreate {
+	if v != nil {
+		_c.SetSuspensionReason(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserCreate) SetID(v uuid.UUID) *UserCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserCreate) SetNillableID(v *uuid.UUID) *UserCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
 }
 
 // AddCredentialIDs adds the "credentials" edge to the Credential entity by IDs.
-func (_c *UserCreate) AddCredentialIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddCredentialIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddCredentialIDs(ids...)
 	return _c
 }
 
 // AddCredentials adds the "credentials" edges to the Credential entity.
 func (_c *UserCreate) AddCredentials(v ...*Credential) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -128,14 +255,14 @@ func (_c *UserCreate) AddCredentials(v ...*Credential) *UserCreate {
 }
 
 // AddAttributeIDs adds the "attributes" edge to the UserAttributeValue entity by IDs.
-func (_c *UserCreate) AddAttributeIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddAttributeIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddAttributeIDs(ids...)
 	return _c
 }
 
 // AddAttributes adds the "attributes" edges to the UserAttributeValue entity.
 func (_c *UserCreate) AddAttributes(v ...*UserAttributeValue) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -143,29 +270,164 @@ func (_c *UserCreate) AddAttributes(v ...*UserAttributeValue) *UserCreate {
 }
 
 // AddFederatedIdentityIDs adds the "federated_identities" edge to the FederatedIdentity entity by IDs.
-func (_c *UserCreate) AddFederatedIdentityIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddFederatedIdentityIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddFederatedIdentityIDs(ids...)
 	return _c
 }
 
 // AddFederatedIdentities adds the "federated_identities" edges to the FederatedIdentity entity.
 func (_c *UserCreate) AddFederatedIdentities(v ...*FederatedIdentity) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddFederatedIdentityIDs(ids...)
 }
 
+// AddAuthSessionIDs adds the "auth_sessions" edge to the AuthSession entity by IDs.
+func (_c *UserCreate) AddAuthSessionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddAuthSessionIDs(ids...)
+	return _c
+}
+
+// AddAuthSessions adds the "auth_sessions" edges to the AuthSession entity.
+func (_c *UserCreate) AddAuthSessions(v ...*AuthSession) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAuthSessionIDs(ids...)
+}
+
+// AddRecoveryContactIDs adds the "recovery_contacts" edge to the UserRecoveryContact entity by IDs.
+func (_c *UserCreate) AddRecoveryContactIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddRecoveryContactIDs(ids...)
+	return _c
+}
+
+// AddRecoveryContacts adds the "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_c *UserCreate) AddRecoveryContacts(v ...*UserRecoveryContact) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRecoveryContactIDs(ids...)
+}
+
+// AddRecoveryContactCommandIDs adds the "recovery_contact_commands" edge to the RecoveryContactCommandReceipt entity by IDs.
+func (_c *UserCreate) AddRecoveryContactCommandIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddRecoveryContactCommandIDs(ids...)
+	return _c
+}
+
+// AddRecoveryContactCommands adds the "recovery_contact_commands" edges to the RecoveryContactCommandReceipt entity.
+func (_c *UserCreate) AddRecoveryContactCommands(v ...*RecoveryContactCommandReceipt) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRecoveryContactCommandIDs(ids...)
+}
+
+// AddPasswordResetTokenIDs adds the "password_reset_tokens" edge to the PasswordResetToken entity by IDs.
+func (_c *UserCreate) AddPasswordResetTokenIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddPasswordResetTokenIDs(ids...)
+	return _c
+}
+
+// AddPasswordResetTokens adds the "password_reset_tokens" edges to the PasswordResetToken entity.
+func (_c *UserCreate) AddPasswordResetTokens(v ...*PasswordResetToken) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddPasswordResetTokenIDs(ids...)
+}
+
+// AddSessionIssuanceReceiptIDs adds the "session_issuance_receipts" edge to the AuthSessionIssuanceReceipt entity by IDs.
+func (_c *UserCreate) AddSessionIssuanceReceiptIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddSessionIssuanceReceiptIDs(ids...)
+	return _c
+}
+
+// AddSessionIssuanceReceipts adds the "session_issuance_receipts" edges to the AuthSessionIssuanceReceipt entity.
+func (_c *UserCreate) AddSessionIssuanceReceipts(v ...*AuthSessionIssuanceReceipt) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSessionIssuanceReceiptIDs(ids...)
+}
+
+// AddConsumedTraitOfferIDs adds the "consumed_trait_offers" edge to the OnboardingTraitOffer entity by IDs.
+func (_c *UserCreate) AddConsumedTraitOfferIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddConsumedTraitOfferIDs(ids...)
+	return _c
+}
+
+// AddConsumedTraitOffers adds the "consumed_trait_offers" edges to the OnboardingTraitOffer entity.
+func (_c *UserCreate) AddConsumedTraitOffers(v ...*OnboardingTraitOffer) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddConsumedTraitOfferIDs(ids...)
+}
+
+// AddSessionCommandIDs adds the "session_commands" edge to the AuthSessionCommandReceipt entity by IDs.
+func (_c *UserCreate) AddSessionCommandIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddSessionCommandIDs(ids...)
+	return _c
+}
+
+// AddSessionCommands adds the "session_commands" edges to the AuthSessionCommandReceipt entity.
+func (_c *UserCreate) AddSessionCommands(v ...*AuthSessionCommandReceipt) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSessionCommandIDs(ids...)
+}
+
+// AddOauthCompletionTicketIDs adds the "oauth_completion_tickets" edge to the OAuthCompletionTicket entity by IDs.
+func (_c *UserCreate) AddOauthCompletionTicketIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddOauthCompletionTicketIDs(ids...)
+	return _c
+}
+
+// AddOauthCompletionTickets adds the "oauth_completion_tickets" edges to the OAuthCompletionTicket entity.
+func (_c *UserCreate) AddOauthCompletionTickets(v ...*OAuthCompletionTicket) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddOauthCompletionTicketIDs(ids...)
+}
+
+// AddAuthorizationUpdateIDs adds the "authorization_updates" edge to the AuthorizationState entity by IDs.
+func (_c *UserCreate) AddAuthorizationUpdateIDs(ids ...string) *UserCreate {
+	_c.mutation.AddAuthorizationUpdateIDs(ids...)
+	return _c
+}
+
+// AddAuthorizationUpdates adds the "authorization_updates" edges to the AuthorizationState entity.
+func (_c *UserCreate) AddAuthorizationUpdates(v ...*AuthorizationState) *UserCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAuthorizationUpdateIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_c *UserCreate) AddProblemIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddProblemIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddProblemIDs(ids...)
 	return _c
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_c *UserCreate) AddProblems(v ...*Problem) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -173,14 +435,14 @@ func (_c *UserCreate) AddProblems(v ...*Problem) *UserCreate {
 }
 
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_c *UserCreate) AddSubmissionIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddSubmissionIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddSubmissionIDs(ids...)
 	return _c
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_c *UserCreate) AddSubmissions(v ...*Submission) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -188,29 +450,44 @@ func (_c *UserCreate) AddSubmissions(v ...*Submission) *UserCreate {
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
-func (_c *UserCreate) AddUserTraitIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddUserTraitIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddUserTraitIDs(ids...)
 	return _c
 }
 
 // AddUserTraits adds the "user_traits" edges to the UserTrait entity.
 func (_c *UserCreate) AddUserTraits(v ...*UserTrait) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserTraitIDs(ids...)
 }
 
+// AddRewardProfileRevisionIDs adds the "reward_profile_revisions" edge to the UserRewardProfileRevision entity by IDs.
+func (_c *UserCreate) AddRewardProfileRevisionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddRewardProfileRevisionIDs(ids...)
+	return _c
+}
+
+// AddRewardProfileRevisions adds the "reward_profile_revisions" edges to the UserRewardProfileRevision entity.
+func (_c *UserCreate) AddRewardProfileRevisions(v ...*UserRewardProfileRevision) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRewardProfileRevisionIDs(ids...)
+}
+
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
-func (_c *UserCreate) AddUserElementExpIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddUserElementExpIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddUserElementExpIDs(ids...)
 	return _c
 }
 
 // AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
 func (_c *UserCreate) AddUserElementExps(v ...*UserElementExp) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -218,29 +495,44 @@ func (_c *UserCreate) AddUserElementExps(v ...*UserElementExp) *UserCreate {
 }
 
 // AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
-func (_c *UserCreate) AddUserStatIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddUserStatIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddUserStatIDs(ids...)
 	return _c
 }
 
 // AddUserStats adds the "user_stats" edges to the UserStats entity.
 func (_c *UserCreate) AddUserStats(v ...*UserStats) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserStatIDs(ids...)
 }
 
+// AddCultivationRankingProjectionIDs adds the "cultivation_ranking_projection" edge to the CultivationRankingProjection entity by IDs.
+func (_c *UserCreate) AddCultivationRankingProjectionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddCultivationRankingProjectionIDs(ids...)
+	return _c
+}
+
+// AddCultivationRankingProjection adds the "cultivation_ranking_projection" edges to the CultivationRankingProjection entity.
+func (_c *UserCreate) AddCultivationRankingProjection(v ...*CultivationRankingProjection) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddCultivationRankingProjectionIDs(ids...)
+}
+
 // AddSolvedProblemIDs adds the "solved_problems" edge to the UserSolvedProblem entity by IDs.
-func (_c *UserCreate) AddSolvedProblemIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddSolvedProblemIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddSolvedProblemIDs(ids...)
 	return _c
 }
 
 // AddSolvedProblems adds the "solved_problems" edges to the UserSolvedProblem entity.
 func (_c *UserCreate) AddSolvedProblems(v ...*UserSolvedProblem) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -248,14 +540,14 @@ func (_c *UserCreate) AddSolvedProblems(v ...*UserSolvedProblem) *UserCreate {
 }
 
 // AddDifficultyStatIDs adds the "difficulty_stats" edge to the UserDifficultyStats entity by IDs.
-func (_c *UserCreate) AddDifficultyStatIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddDifficultyStatIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddDifficultyStatIDs(ids...)
 	return _c
 }
 
 // AddDifficultyStats adds the "difficulty_stats" edges to the UserDifficultyStats entity.
 func (_c *UserCreate) AddDifficultyStats(v ...*UserDifficultyStats) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -263,14 +555,14 @@ func (_c *UserCreate) AddDifficultyStats(v ...*UserDifficultyStats) *UserCreate 
 }
 
 // AddTagStatIDs adds the "tag_stats" edge to the UserTagStats entity by IDs.
-func (_c *UserCreate) AddTagStatIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddTagStatIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddTagStatIDs(ids...)
 	return _c
 }
 
 // AddTagStats adds the "tag_stats" edges to the UserTagStats entity.
 func (_c *UserCreate) AddTagStats(v ...*UserTagStats) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -278,14 +570,14 @@ func (_c *UserCreate) AddTagStats(v ...*UserTagStats) *UserCreate {
 }
 
 // AddContestIDs adds the "contests" edge to the Contest entity by IDs.
-func (_c *UserCreate) AddContestIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddContestIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddContestIDs(ids...)
 	return _c
 }
 
 // AddContests adds the "contests" edges to the Contest entity.
 func (_c *UserCreate) AddContests(v ...*Contest) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -293,14 +585,14 @@ func (_c *UserCreate) AddContests(v ...*Contest) *UserCreate {
 }
 
 // AddContestRegistrationIDs adds the "contest_registrations" edge to the ContestRegistration entity by IDs.
-func (_c *UserCreate) AddContestRegistrationIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddContestRegistrationIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddContestRegistrationIDs(ids...)
 	return _c
 }
 
 // AddContestRegistrations adds the "contest_registrations" edges to the ContestRegistration entity.
 func (_c *UserCreate) AddContestRegistrations(v ...*ContestRegistration) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -308,14 +600,14 @@ func (_c *UserCreate) AddContestRegistrations(v ...*ContestRegistration) *UserCr
 }
 
 // AddContestStandingIDs adds the "contest_standings" edge to the ContestStanding entity by IDs.
-func (_c *UserCreate) AddContestStandingIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddContestStandingIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddContestStandingIDs(ids...)
 	return _c
 }
 
 // AddContestStandings adds the "contest_standings" edges to the ContestStanding entity.
 func (_c *UserCreate) AddContestStandings(v ...*ContestStanding) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -323,33 +615,243 @@ func (_c *UserCreate) AddContestStandings(v ...*ContestStanding) *UserCreate {
 }
 
 // AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
-func (_c *UserCreate) AddRatingHistoryIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddRatingHistoryIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddRatingHistoryIDs(ids...)
 	return _c
 }
 
 // AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
 func (_c *UserCreate) AddRatingHistories(v ...*RatingHistory) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddRatingHistoryIDs(ids...)
 }
 
+// AddContestRatingResultIDs adds the "contest_rating_results" edge to the ContestRatingResult entity by IDs.
+func (_c *UserCreate) AddContestRatingResultIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestRatingResultIDs(ids...)
+	return _c
+}
+
+// AddContestRatingResults adds the "contest_rating_results" edges to the ContestRatingResult entity.
+func (_c *UserCreate) AddContestRatingResults(v ...*ContestRatingResult) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestRatingResultIDs(ids...)
+}
+
+// AddContestUserRatingIDs adds the "contest_user_ratings" edge to the ContestUserRating entity by IDs.
+func (_c *UserCreate) AddContestUserRatingIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestUserRatingIDs(ids...)
+	return _c
+}
+
+// AddContestUserRatings adds the "contest_user_ratings" edges to the ContestUserRating entity.
+func (_c *UserCreate) AddContestUserRatings(v ...*ContestUserRating) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestUserRatingIDs(ids...)
+}
+
+// AddContestScoringAttemptIDs adds the "contest_scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_c *UserCreate) AddContestScoringAttemptIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestScoringAttemptIDs(ids...)
+	return _c
+}
+
+// AddContestScoringAttempts adds the "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_c *UserCreate) AddContestScoringAttempts(v ...*ContestScoringAttempt) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestScoringAttemptIDs(ids...)
+}
+
+// AddContestProblemResultIDs adds the "contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_c *UserCreate) AddContestProblemResultIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestProblemResultIDs(ids...)
+	return _c
+}
+
+// AddContestProblemResults adds the "contest_problem_results" edges to the ContestProblemResult entity.
+func (_c *UserCreate) AddContestProblemResults(v ...*ContestProblemResult) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestProblemResultIDs(ids...)
+}
+
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_c *UserCreate) AddMaterialIDs(ids ...int) *UserCreate {
+func (_c *UserCreate) AddMaterialIDs(ids ...uuid.UUID) *UserCreate {
 	_c.mutation.AddMaterialIDs(ids...)
 	return _c
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_c *UserCreate) AddMaterials(v ...*Material) *UserCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddMaterialIDs(ids...)
+}
+
+// AddMaterialRevisionIDs adds the "material_revisions" edge to the MaterialRevision entity by IDs.
+func (_c *UserCreate) AddMaterialRevisionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddMaterialRevisionIDs(ids...)
+	return _c
+}
+
+// AddMaterialRevisions adds the "material_revisions" edges to the MaterialRevision entity.
+func (_c *UserCreate) AddMaterialRevisions(v ...*MaterialRevision) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMaterialRevisionIDs(ids...)
+}
+
+// AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
+func (_c *UserCreate) AddNotificationIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddNotificationIDs(ids...)
+	return _c
+}
+
+// AddNotifications adds the "notifications" edges to the Notification entity.
+func (_c *UserCreate) AddNotifications(v ...*Notification) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddNotificationIDs(ids...)
+}
+
+// AddNotificationPreferenceIDs adds the "notification_preferences" edge to the NotificationPreference entity by IDs.
+func (_c *UserCreate) AddNotificationPreferenceIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddNotificationPreferenceIDs(ids...)
+	return _c
+}
+
+// AddNotificationPreferences adds the "notification_preferences" edges to the NotificationPreference entity.
+func (_c *UserCreate) AddNotificationPreferences(v ...*NotificationPreference) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddNotificationPreferenceIDs(ids...)
+}
+
+// AddCreatedNotificationCampaignIDs adds the "created_notification_campaigns" edge to the NotificationCampaign entity by IDs.
+func (_c *UserCreate) AddCreatedNotificationCampaignIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddCreatedNotificationCampaignIDs(ids...)
+	return _c
+}
+
+// AddCreatedNotificationCampaigns adds the "created_notification_campaigns" edges to the NotificationCampaign entity.
+func (_c *UserCreate) AddCreatedNotificationCampaigns(v ...*NotificationCampaign) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddCreatedNotificationCampaignIDs(ids...)
+}
+
+// AddNotificationCampaignRevisionIDs adds the "notification_campaign_revisions" edge to the NotificationCampaignRevision entity by IDs.
+func (_c *UserCreate) AddNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddNotificationCampaignRevisionIDs(ids...)
+	return _c
+}
+
+// AddNotificationCampaignRevisions adds the "notification_campaign_revisions" edges to the NotificationCampaignRevision entity.
+func (_c *UserCreate) AddNotificationCampaignRevisions(v ...*NotificationCampaignRevision) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddNotificationCampaignRevisionIDs(ids...)
+}
+
+// AddExplicitNotificationCampaignRevisionIDs adds the "explicit_notification_campaign_revisions" edge to the NotificationCampaignExplicitUser entity by IDs.
+func (_c *UserCreate) AddExplicitNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddExplicitNotificationCampaignRevisionIDs(ids...)
+	return _c
+}
+
+// AddExplicitNotificationCampaignRevisions adds the "explicit_notification_campaign_revisions" edges to the NotificationCampaignExplicitUser entity.
+func (_c *UserCreate) AddExplicitNotificationCampaignRevisions(v ...*NotificationCampaignExplicitUser) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddExplicitNotificationCampaignRevisionIDs(ids...)
+}
+
+// AddNotificationCampaignDeliveryIDs adds the "notification_campaign_deliveries" edge to the NotificationCampaignRecipient entity by IDs.
+func (_c *UserCreate) AddNotificationCampaignDeliveryIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddNotificationCampaignDeliveryIDs(ids...)
+	return _c
+}
+
+// AddNotificationCampaignDeliveries adds the "notification_campaign_deliveries" edges to the NotificationCampaignRecipient entity.
+func (_c *UserCreate) AddNotificationCampaignDeliveries(v ...*NotificationCampaignRecipient) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddNotificationCampaignDeliveryIDs(ids...)
+}
+
+// AddContestContentRevisionIDs adds the "contest_content_revisions" edge to the ContestContentRevision entity by IDs.
+func (_c *UserCreate) AddContestContentRevisionIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestContentRevisionIDs(ids...)
+	return _c
+}
+
+// AddContestContentRevisions adds the "contest_content_revisions" edges to the ContestContentRevision entity.
+func (_c *UserCreate) AddContestContentRevisions(v ...*ContestContentRevision) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestContentRevisionIDs(ids...)
+}
+
+// AddContestClarificationIDs adds the "contest_clarifications" edge to the ContestClarification entity by IDs.
+func (_c *UserCreate) AddContestClarificationIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestClarificationIDs(ids...)
+	return _c
+}
+
+// AddContestClarifications adds the "contest_clarifications" edges to the ContestClarification entity.
+func (_c *UserCreate) AddContestClarifications(v ...*ContestClarification) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestClarificationIDs(ids...)
+}
+
+// AddContestContentCommandIDs adds the "contest_content_commands" edge to the ContestContentCommand entity by IDs.
+func (_c *UserCreate) AddContestContentCommandIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddContestContentCommandIDs(ids...)
+	return _c
+}
+
+// AddContestContentCommands adds the "contest_content_commands" edges to the ContestContentCommand entity.
+func (_c *UserCreate) AddContestContentCommands(v ...*ContestContentCommand) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestContentCommandIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -403,6 +905,36 @@ func (_c *UserCreate) defaults() error {
 		v := user.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := user.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.SecurityVersion(); !ok {
+		v := user.DefaultSecurityVersion
+		_c.mutation.SetSecurityVersion(v)
+	}
+	if _, ok := _c.mutation.ProfileVisibility(); !ok {
+		v := user.DefaultProfileVisibility
+		_c.mutation.SetProfileVisibility(v)
+	}
+	if _, ok := _c.mutation.ProfileVisibilityVersion(); !ok {
+		v := user.DefaultProfileVisibilityVersion
+		_c.mutation.SetProfileVisibilityVersion(v)
+	}
+	if _, ok := _c.mutation.ProfileVisibilityUpdatedAt(); !ok {
+		if user.DefaultProfileVisibilityUpdatedAt == nil {
+			return fmt.Errorf("generate: uninitialized user.DefaultProfileVisibilityUpdatedAt (forgotten import generate/runtime?)")
+		}
+		v := user.DefaultProfileVisibilityUpdatedAt()
+		_c.mutation.SetProfileVisibilityUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if user.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized user.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := user.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -422,11 +954,45 @@ func (_c *UserCreate) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`generate: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.RoleID(); !ok {
-		return &ValidationError{Name: "role_id", err: errors.New(`generate: missing required field "User.role_id"`)}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "User.status"`)}
 	}
-	if len(_c.mutation.RoleIDs()) == 0 {
-		return &ValidationError{Name: "role", err: errors.New(`generate: missing required edge "User.role"`)}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := user.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "User.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SecurityVersion(); !ok {
+		return &ValidationError{Name: "security_version", err: errors.New(`generate: missing required field "User.security_version"`)}
+	}
+	if v, ok := _c.mutation.SecurityVersion(); ok {
+		if err := user.SecurityVersionValidator(v); err != nil {
+			return &ValidationError{Name: "security_version", err: fmt.Errorf(`generate: validator failed for field "User.security_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ProfileVisibility(); !ok {
+		return &ValidationError{Name: "profile_visibility", err: errors.New(`generate: missing required field "User.profile_visibility"`)}
+	}
+	if v, ok := _c.mutation.ProfileVisibility(); ok {
+		if err := user.ProfileVisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "profile_visibility", err: fmt.Errorf(`generate: validator failed for field "User.profile_visibility": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ProfileVisibilityVersion(); !ok {
+		return &ValidationError{Name: "profile_visibility_version", err: errors.New(`generate: missing required field "User.profile_visibility_version"`)}
+	}
+	if v, ok := _c.mutation.ProfileVisibilityVersion(); ok {
+		if err := user.ProfileVisibilityVersionValidator(v); err != nil {
+			return &ValidationError{Name: "profile_visibility_version", err: fmt.Errorf(`generate: validator failed for field "User.profile_visibility_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ProfileVisibilityUpdatedAt(); !ok {
+		return &ValidationError{Name: "profile_visibility_updated_at", err: errors.New(`generate: missing required field "User.profile_visibility_updated_at"`)}
+	}
+	if v, ok := _c.mutation.SuspensionReason(); ok {
+		if err := user.SuspensionReasonValidator(v); err != nil {
+			return &ValidationError{Name: "suspension_reason", err: fmt.Errorf(`generate: validator failed for field "User.suspension_reason": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -442,8 +1008,13 @@ func (_c *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -452,9 +1023,13 @@ func (_c *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
 		_node = &User{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -468,29 +1043,40 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(user.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(user.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
-	if nodes := _c.mutation.RoleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.RoleID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(user.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.SecurityVersion(); ok {
+		_spec.SetField(user.FieldSecurityVersion, field.TypeInt64, value)
+		_node.SecurityVersion = value
+	}
+	if value, ok := _c.mutation.ProfileVisibility(); ok {
+		_spec.SetField(user.FieldProfileVisibility, field.TypeEnum, value)
+		_node.ProfileVisibility = value
+	}
+	if value, ok := _c.mutation.ProfileVisibilityVersion(); ok {
+		_spec.SetField(user.FieldProfileVisibilityVersion, field.TypeInt64, value)
+		_node.ProfileVisibilityVersion = value
+	}
+	if value, ok := _c.mutation.ProfileVisibilityUpdatedAt(); ok {
+		_spec.SetField(user.FieldProfileVisibilityUpdatedAt, field.TypeTime, value)
+		_node.ProfileVisibilityUpdatedAt = value
+	}
+	if value, ok := _c.mutation.SuspendedAt(); ok {
+		_spec.SetField(user.FieldSuspendedAt, field.TypeTime, value)
+		_node.SuspendedAt = &value
+	}
+	if value, ok := _c.mutation.SuspensionReason(); ok {
+		_spec.SetField(user.FieldSuspensionReason, field.TypeString, value)
+		_node.SuspensionReason = &value
 	}
 	if nodes := _c.mutation.CredentialsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -500,7 +1086,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -516,7 +1102,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -532,7 +1118,151 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AuthSessionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RecoveryContactsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RecoveryContactCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.PasswordResetTokensIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SessionIssuanceReceiptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ConsumedTraitOffersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SessionCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.OauthCompletionTicketsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AuthorizationUpdatesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -548,7 +1278,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -564,7 +1294,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -580,7 +1310,23 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RewardProfileRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -596,7 +1342,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -612,7 +1358,23 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.CultivationRankingProjectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -628,7 +1390,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -644,7 +1406,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -660,7 +1422,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -676,7 +1438,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -692,7 +1454,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -708,7 +1470,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -724,7 +1486,71 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestRatingResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestUserRatingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -740,7 +1566,167 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MaterialRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.NotificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.NotificationPreferencesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.CreatedNotificationCampaignsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.NotificationCampaignRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ExplicitNotificationCampaignRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.NotificationCampaignDeliveriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestContentRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestClarificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestContentCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -831,7 +1817,7 @@ func (u *UserUpsert) ClearDeletedAt() *UserUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserUpsert) SetDeletedBy(v int) *UserUpsert {
+func (u *UserUpsert) SetDeletedBy(v string) *UserUpsert {
 	u.Set(user.FieldDeletedBy, v)
 	return u
 }
@@ -839,12 +1825,6 @@ func (u *UserUpsert) SetDeletedBy(v int) *UserUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *UserUpsert) UpdateDeletedBy() *UserUpsert {
 	u.SetExcluded(user.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserUpsert) AddDeletedBy(v int) *UserUpsert {
-	u.Add(user.FieldDeletedBy, v)
 	return u
 }
 
@@ -866,29 +1846,131 @@ func (u *UserUpsert) UpdateUsername() *UserUpsert {
 	return u
 }
 
-// SetRoleID sets the "role_id" field.
-func (u *UserUpsert) SetRoleID(v int) *UserUpsert {
-	u.Set(user.FieldRoleID, v)
+// SetStatus sets the "status" field.
+func (u *UserUpsert) SetStatus(v user.Status) *UserUpsert {
+	u.Set(user.FieldStatus, v)
 	return u
 }
 
-// UpdateRoleID sets the "role_id" field to the value that was provided on create.
-func (u *UserUpsert) UpdateRoleID() *UserUpsert {
-	u.SetExcluded(user.FieldRoleID)
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *UserUpsert) UpdateStatus() *UserUpsert {
+	u.SetExcluded(user.FieldStatus)
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetSecurityVersion sets the "security_version" field.
+func (u *UserUpsert) SetSecurityVersion(v int64) *UserUpsert {
+	u.Set(user.FieldSecurityVersion, v)
+	return u
+}
+
+// UpdateSecurityVersion sets the "security_version" field to the value that was provided on create.
+func (u *UserUpsert) UpdateSecurityVersion() *UserUpsert {
+	u.SetExcluded(user.FieldSecurityVersion)
+	return u
+}
+
+// AddSecurityVersion adds v to the "security_version" field.
+func (u *UserUpsert) AddSecurityVersion(v int64) *UserUpsert {
+	u.Add(user.FieldSecurityVersion, v)
+	return u
+}
+
+// SetProfileVisibility sets the "profile_visibility" field.
+func (u *UserUpsert) SetProfileVisibility(v user.ProfileVisibility) *UserUpsert {
+	u.Set(user.FieldProfileVisibility, v)
+	return u
+}
+
+// UpdateProfileVisibility sets the "profile_visibility" field to the value that was provided on create.
+func (u *UserUpsert) UpdateProfileVisibility() *UserUpsert {
+	u.SetExcluded(user.FieldProfileVisibility)
+	return u
+}
+
+// SetProfileVisibilityVersion sets the "profile_visibility_version" field.
+func (u *UserUpsert) SetProfileVisibilityVersion(v int64) *UserUpsert {
+	u.Set(user.FieldProfileVisibilityVersion, v)
+	return u
+}
+
+// UpdateProfileVisibilityVersion sets the "profile_visibility_version" field to the value that was provided on create.
+func (u *UserUpsert) UpdateProfileVisibilityVersion() *UserUpsert {
+	u.SetExcluded(user.FieldProfileVisibilityVersion)
+	return u
+}
+
+// AddProfileVisibilityVersion adds v to the "profile_visibility_version" field.
+func (u *UserUpsert) AddProfileVisibilityVersion(v int64) *UserUpsert {
+	u.Add(user.FieldProfileVisibilityVersion, v)
+	return u
+}
+
+// SetProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field.
+func (u *UserUpsert) SetProfileVisibilityUpdatedAt(v time.Time) *UserUpsert {
+	u.Set(user.FieldProfileVisibilityUpdatedAt, v)
+	return u
+}
+
+// UpdateProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field to the value that was provided on create.
+func (u *UserUpsert) UpdateProfileVisibilityUpdatedAt() *UserUpsert {
+	u.SetExcluded(user.FieldProfileVisibilityUpdatedAt)
+	return u
+}
+
+// SetSuspendedAt sets the "suspended_at" field.
+func (u *UserUpsert) SetSuspendedAt(v time.Time) *UserUpsert {
+	u.Set(user.FieldSuspendedAt, v)
+	return u
+}
+
+// UpdateSuspendedAt sets the "suspended_at" field to the value that was provided on create.
+func (u *UserUpsert) UpdateSuspendedAt() *UserUpsert {
+	u.SetExcluded(user.FieldSuspendedAt)
+	return u
+}
+
+// ClearSuspendedAt clears the value of the "suspended_at" field.
+func (u *UserUpsert) ClearSuspendedAt() *UserUpsert {
+	u.SetNull(user.FieldSuspendedAt)
+	return u
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (u *UserUpsert) SetSuspensionReason(v string) *UserUpsert {
+	u.Set(user.FieldSuspensionReason, v)
+	return u
+}
+
+// UpdateSuspensionReason sets the "suspension_reason" field to the value that was provided on create.
+func (u *UserUpsert) UpdateSuspensionReason() *UserUpsert {
+	u.SetExcluded(user.FieldSuspensionReason)
+	return u
+}
+
+// ClearSuspensionReason clears the value of the "suspension_reason" field.
+func (u *UserUpsert) ClearSuspensionReason() *UserUpsert {
+	u.SetNull(user.FieldSuspensionReason)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.User.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(user.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserUpsertOne) UpdateNewValues() *UserUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(user.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(user.FieldCreatedAt)
 		}
@@ -959,16 +2041,9 @@ func (u *UserUpsertOne) ClearDeletedAt() *UserUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserUpsertOne) SetDeletedBy(v int) *UserUpsertOne {
+func (u *UserUpsertOne) SetDeletedBy(v string) *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserUpsertOne) AddDeletedBy(v int) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1000,17 +2075,129 @@ func (u *UserUpsertOne) UpdateUsername() *UserUpsertOne {
 	})
 }
 
-// SetRoleID sets the "role_id" field.
-func (u *UserUpsertOne) SetRoleID(v int) *UserUpsertOne {
+// SetStatus sets the "status" field.
+func (u *UserUpsertOne) SetStatus(v user.Status) *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
-		s.SetRoleID(v)
+		s.SetStatus(v)
 	})
 }
 
-// UpdateRoleID sets the "role_id" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateRoleID() *UserUpsertOne {
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateStatus() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
-		s.UpdateRoleID()
+		s.UpdateStatus()
+	})
+}
+
+// SetSecurityVersion sets the "security_version" field.
+func (u *UserUpsertOne) SetSecurityVersion(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetSecurityVersion(v)
+	})
+}
+
+// AddSecurityVersion adds v to the "security_version" field.
+func (u *UserUpsertOne) AddSecurityVersion(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.AddSecurityVersion(v)
+	})
+}
+
+// UpdateSecurityVersion sets the "security_version" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateSecurityVersion() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateSecurityVersion()
+	})
+}
+
+// SetProfileVisibility sets the "profile_visibility" field.
+func (u *UserUpsertOne) SetProfileVisibility(v user.ProfileVisibility) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetProfileVisibility(v)
+	})
+}
+
+// UpdateProfileVisibility sets the "profile_visibility" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateProfileVisibility() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateProfileVisibility()
+	})
+}
+
+// SetProfileVisibilityVersion sets the "profile_visibility_version" field.
+func (u *UserUpsertOne) SetProfileVisibilityVersion(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetProfileVisibilityVersion(v)
+	})
+}
+
+// AddProfileVisibilityVersion adds v to the "profile_visibility_version" field.
+func (u *UserUpsertOne) AddProfileVisibilityVersion(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.AddProfileVisibilityVersion(v)
+	})
+}
+
+// UpdateProfileVisibilityVersion sets the "profile_visibility_version" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateProfileVisibilityVersion() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateProfileVisibilityVersion()
+	})
+}
+
+// SetProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field.
+func (u *UserUpsertOne) SetProfileVisibilityUpdatedAt(v time.Time) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetProfileVisibilityUpdatedAt(v)
+	})
+}
+
+// UpdateProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateProfileVisibilityUpdatedAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateProfileVisibilityUpdatedAt()
+	})
+}
+
+// SetSuspendedAt sets the "suspended_at" field.
+func (u *UserUpsertOne) SetSuspendedAt(v time.Time) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetSuspendedAt(v)
+	})
+}
+
+// UpdateSuspendedAt sets the "suspended_at" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateSuspendedAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateSuspendedAt()
+	})
+}
+
+// ClearSuspendedAt clears the value of the "suspended_at" field.
+func (u *UserUpsertOne) ClearSuspendedAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearSuspendedAt()
+	})
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (u *UserUpsertOne) SetSuspensionReason(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetSuspensionReason(v)
+	})
+}
+
+// UpdateSuspensionReason sets the "suspension_reason" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateSuspensionReason() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateSuspensionReason()
+	})
+}
+
+// ClearSuspensionReason clears the value of the "suspension_reason" field.
+func (u *UserUpsertOne) ClearSuspensionReason() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearSuspensionReason()
 	})
 }
 
@@ -1030,7 +2217,12 @@ func (u *UserUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserUpsertOne.ID is not supported by MySQL driver. Use UserUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1039,17 +2231,12 @@ func (u *UserUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserUpsertOne) IDX(ctx context.Context) int {
+func (u *UserUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserCreate) SetID(id int) *UserCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserCreateBulk is the builder for creating many User entities in bulk.
@@ -1099,10 +2286,6 @@ func (_c *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1189,12 +2372,18 @@ type UserUpsertBulk struct {
 //	client.User.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(user.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserUpsertBulk) UpdateNewValues() *UserUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(user.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(user.FieldCreatedAt)
 			}
@@ -1266,16 +2455,9 @@ func (u *UserUpsertBulk) ClearDeletedAt() *UserUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserUpsertBulk) SetDeletedBy(v int) *UserUpsertBulk {
+func (u *UserUpsertBulk) SetDeletedBy(v string) *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserUpsertBulk) AddDeletedBy(v int) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1307,17 +2489,129 @@ func (u *UserUpsertBulk) UpdateUsername() *UserUpsertBulk {
 	})
 }
 
-// SetRoleID sets the "role_id" field.
-func (u *UserUpsertBulk) SetRoleID(v int) *UserUpsertBulk {
+// SetStatus sets the "status" field.
+func (u *UserUpsertBulk) SetStatus(v user.Status) *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
-		s.SetRoleID(v)
+		s.SetStatus(v)
 	})
 }
 
-// UpdateRoleID sets the "role_id" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateRoleID() *UserUpsertBulk {
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateStatus() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
-		s.UpdateRoleID()
+		s.UpdateStatus()
+	})
+}
+
+// SetSecurityVersion sets the "security_version" field.
+func (u *UserUpsertBulk) SetSecurityVersion(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetSecurityVersion(v)
+	})
+}
+
+// AddSecurityVersion adds v to the "security_version" field.
+func (u *UserUpsertBulk) AddSecurityVersion(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.AddSecurityVersion(v)
+	})
+}
+
+// UpdateSecurityVersion sets the "security_version" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateSecurityVersion() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateSecurityVersion()
+	})
+}
+
+// SetProfileVisibility sets the "profile_visibility" field.
+func (u *UserUpsertBulk) SetProfileVisibility(v user.ProfileVisibility) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetProfileVisibility(v)
+	})
+}
+
+// UpdateProfileVisibility sets the "profile_visibility" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateProfileVisibility() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateProfileVisibility()
+	})
+}
+
+// SetProfileVisibilityVersion sets the "profile_visibility_version" field.
+func (u *UserUpsertBulk) SetProfileVisibilityVersion(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetProfileVisibilityVersion(v)
+	})
+}
+
+// AddProfileVisibilityVersion adds v to the "profile_visibility_version" field.
+func (u *UserUpsertBulk) AddProfileVisibilityVersion(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.AddProfileVisibilityVersion(v)
+	})
+}
+
+// UpdateProfileVisibilityVersion sets the "profile_visibility_version" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateProfileVisibilityVersion() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateProfileVisibilityVersion()
+	})
+}
+
+// SetProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field.
+func (u *UserUpsertBulk) SetProfileVisibilityUpdatedAt(v time.Time) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetProfileVisibilityUpdatedAt(v)
+	})
+}
+
+// UpdateProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateProfileVisibilityUpdatedAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateProfileVisibilityUpdatedAt()
+	})
+}
+
+// SetSuspendedAt sets the "suspended_at" field.
+func (u *UserUpsertBulk) SetSuspendedAt(v time.Time) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetSuspendedAt(v)
+	})
+}
+
+// UpdateSuspendedAt sets the "suspended_at" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateSuspendedAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateSuspendedAt()
+	})
+}
+
+// ClearSuspendedAt clears the value of the "suspended_at" field.
+func (u *UserUpsertBulk) ClearSuspendedAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearSuspendedAt()
+	})
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (u *UserUpsertBulk) SetSuspensionReason(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetSuspensionReason(v)
+	})
+}
+
+// UpdateSuspensionReason sets the "suspension_reason" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateSuspensionReason() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateSuspensionReason()
+	})
+}
+
+// ClearSuspensionReason clears the value of the "suspension_reason" field.
+func (u *UserUpsertBulk) ClearSuspensionReason() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearSuspensionReason()
 	})
 }
 

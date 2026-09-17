@@ -1,0 +1,19 @@
+schema_version: 1
+id: normal-1k-ccu-v1
+purpose: Practice workload baseline
+users: 1000
+ramp_up: 5m
+steady_state: 30m
+ramp_down: 5m
+behaviors:
+  browse:
+    users: 700
+    request_interval: 10s
+  submission_status:
+    users: 200
+    request_interval: 10s
+  authenticated_writes:
+    users: 100
+    request_interval: 30s
+submission_arrival_rate: 0.5/s
+

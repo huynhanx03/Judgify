@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -31,13 +32,13 @@ func (_u *UserTagStatsUpdate) Where(ps ...predicate.UserTagStats) *UserTagStatsU
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserTagStatsUpdate) SetUserID(v int) *UserTagStatsUpdate {
+func (_u *UserTagStatsUpdate) SetUserID(v uuid.UUID) *UserTagStatsUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserTagStatsUpdate) SetNillableUserID(v *int) *UserTagStatsUpdate {
+func (_u *UserTagStatsUpdate) SetNillableUserID(v *uuid.UUID) *UserTagStatsUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -45,13 +46,13 @@ func (_u *UserTagStatsUpdate) SetNillableUserID(v *int) *UserTagStatsUpdate {
 }
 
 // SetTagID sets the "tag_id" field.
-func (_u *UserTagStatsUpdate) SetTagID(v int) *UserTagStatsUpdate {
+func (_u *UserTagStatsUpdate) SetTagID(v uuid.UUID) *UserTagStatsUpdate {
 	_u.mutation.SetTagID(v)
 	return _u
 }
 
 // SetNillableTagID sets the "tag_id" field if the given value is not nil.
-func (_u *UserTagStatsUpdate) SetNillableTagID(v *int) *UserTagStatsUpdate {
+func (_u *UserTagStatsUpdate) SetNillableTagID(v *uuid.UUID) *UserTagStatsUpdate {
 	if v != nil {
 		_u.SetTagID(*v)
 	}
@@ -159,7 +160,7 @@ func (_u *UserTagStatsUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usertagstats.Table, usertagstats.Columns, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(usertagstats.Table, usertagstats.Columns, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -181,7 +182,7 @@ func (_u *UserTagStatsUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Columns: []string{usertagstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -194,7 +195,7 @@ func (_u *UserTagStatsUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Columns: []string{usertagstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -210,7 +211,7 @@ func (_u *UserTagStatsUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Columns: []string{usertagstats.TagColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -223,7 +224,7 @@ func (_u *UserTagStatsUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Columns: []string{usertagstats.TagColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -254,13 +255,13 @@ type UserTagStatsUpdateOne struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserTagStatsUpdateOne) SetUserID(v int) *UserTagStatsUpdateOne {
+func (_u *UserTagStatsUpdateOne) SetUserID(v uuid.UUID) *UserTagStatsUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserTagStatsUpdateOne) SetNillableUserID(v *int) *UserTagStatsUpdateOne {
+func (_u *UserTagStatsUpdateOne) SetNillableUserID(v *uuid.UUID) *UserTagStatsUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -268,13 +269,13 @@ func (_u *UserTagStatsUpdateOne) SetNillableUserID(v *int) *UserTagStatsUpdateOn
 }
 
 // SetTagID sets the "tag_id" field.
-func (_u *UserTagStatsUpdateOne) SetTagID(v int) *UserTagStatsUpdateOne {
+func (_u *UserTagStatsUpdateOne) SetTagID(v uuid.UUID) *UserTagStatsUpdateOne {
 	_u.mutation.SetTagID(v)
 	return _u
 }
 
 // SetNillableTagID sets the "tag_id" field if the given value is not nil.
-func (_u *UserTagStatsUpdateOne) SetNillableTagID(v *int) *UserTagStatsUpdateOne {
+func (_u *UserTagStatsUpdateOne) SetNillableTagID(v *uuid.UUID) *UserTagStatsUpdateOne {
 	if v != nil {
 		_u.SetTagID(*v)
 	}
@@ -395,7 +396,7 @@ func (_u *UserTagStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserTagSta
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usertagstats.Table, usertagstats.Columns, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(usertagstats.Table, usertagstats.Columns, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "UserTagStats.id" for update`)}
@@ -434,7 +435,7 @@ func (_u *UserTagStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserTagSta
 			Columns: []string{usertagstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -447,7 +448,7 @@ func (_u *UserTagStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserTagSta
 			Columns: []string{usertagstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -463,7 +464,7 @@ func (_u *UserTagStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserTagSta
 			Columns: []string{usertagstats.TagColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -476,7 +477,7 @@ func (_u *UserTagStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserTagSta
 			Columns: []string{usertagstats.TagColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

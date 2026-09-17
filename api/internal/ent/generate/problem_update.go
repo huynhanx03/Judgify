@@ -11,12 +11,19 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/problemrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testsetrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 )
@@ -62,29 +69,281 @@ func (_u *ProblemUpdate) ClearDeletedAt() *ProblemUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *ProblemUpdate) SetDeletedBy(v int) *ProblemUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *ProblemUpdate) SetDeletedBy(v string) *ProblemUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *ProblemUpdate) SetNillableDeletedBy(v *int) *ProblemUpdate {
+func (_u *ProblemUpdate) SetNillableDeletedBy(v *string) *ProblemUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
 	return _u
 }
 
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *ProblemUpdate) AddDeletedBy(v int) *ProblemUpdate {
-	_u.mutation.AddDeletedBy(v)
-	return _u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (_u *ProblemUpdate) ClearDeletedBy() *ProblemUpdate {
 	_u.mutation.ClearDeletedBy()
+	return _u
+}
+
+// SetLifecycle sets the "lifecycle" field.
+func (_u *ProblemUpdate) SetLifecycle(v problem.Lifecycle) *ProblemUpdate {
+	_u.mutation.SetLifecycle(v)
+	return _u
+}
+
+// SetNillableLifecycle sets the "lifecycle" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableLifecycle(v *problem.Lifecycle) *ProblemUpdate {
+	if v != nil {
+		_u.SetLifecycle(*v)
+	}
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ProblemUpdate) SetVersion(v int64) *ProblemUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableVersion(v *int64) *ProblemUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ProblemUpdate) AddVersion(v int64) *ProblemUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (_u *ProblemUpdate) SetDraftRevisionID(v uuid.UUID) *ProblemUpdate {
+	_u.mutation.SetDraftRevisionID(v)
+	return _u
+}
+
+// SetNillableDraftRevisionID sets the "draft_revision_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableDraftRevisionID(v *uuid.UUID) *ProblemUpdate {
+	if v != nil {
+		_u.SetDraftRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (_u *ProblemUpdate) ClearDraftRevisionID() *ProblemUpdate {
+	_u.mutation.ClearDraftRevisionID()
+	return _u
+}
+
+// SetDraftRenderSourceID sets the "draft_render_source_id" field.
+func (_u *ProblemUpdate) SetDraftRenderSourceID(v uuid.UUID) *ProblemUpdate {
+	_u.mutation.SetDraftRenderSourceID(v)
+	return _u
+}
+
+// SetNillableDraftRenderSourceID sets the "draft_render_source_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableDraftRenderSourceID(v *uuid.UUID) *ProblemUpdate {
+	if v != nil {
+		_u.SetDraftRenderSourceID(*v)
+	}
+	return _u
+}
+
+// ClearDraftRenderSourceID clears the value of the "draft_render_source_id" field.
+func (_u *ProblemUpdate) ClearDraftRenderSourceID() *ProblemUpdate {
+	_u.mutation.ClearDraftRenderSourceID()
+	return _u
+}
+
+// SetDraftRenderSourceKind sets the "draft_render_source_kind" field.
+func (_u *ProblemUpdate) SetDraftRenderSourceKind(v problem.DraftRenderSourceKind) *ProblemUpdate {
+	_u.mutation.SetDraftRenderSourceKind(v)
+	return _u
+}
+
+// SetNillableDraftRenderSourceKind sets the "draft_render_source_kind" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableDraftRenderSourceKind(v *problem.DraftRenderSourceKind) *ProblemUpdate {
+	if v != nil {
+		_u.SetDraftRenderSourceKind(*v)
+	}
+	return _u
+}
+
+// ClearDraftRenderSourceKind clears the value of the "draft_render_source_kind" field.
+func (_u *ProblemUpdate) ClearDraftRenderSourceKind() *ProblemUpdate {
+	_u.mutation.ClearDraftRenderSourceKind()
+	return _u
+}
+
+// SetDraftRenderSourceChecksum sets the "draft_render_source_checksum" field.
+func (_u *ProblemUpdate) SetDraftRenderSourceChecksum(v []byte) *ProblemUpdate {
+	_u.mutation.SetDraftRenderSourceChecksum(v)
+	return _u
+}
+
+// ClearDraftRenderSourceChecksum clears the value of the "draft_render_source_checksum" field.
+func (_u *ProblemUpdate) ClearDraftRenderSourceChecksum() *ProblemUpdate {
+	_u.mutation.ClearDraftRenderSourceChecksum()
+	return _u
+}
+
+// SetDraftRenderArtifactID sets the "draft_render_artifact_id" field.
+func (_u *ProblemUpdate) SetDraftRenderArtifactID(v uuid.UUID) *ProblemUpdate {
+	_u.mutation.SetDraftRenderArtifactID(v)
+	return _u
+}
+
+// SetNillableDraftRenderArtifactID sets the "draft_render_artifact_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableDraftRenderArtifactID(v *uuid.UUID) *ProblemUpdate {
+	if v != nil {
+		_u.SetDraftRenderArtifactID(*v)
+	}
+	return _u
+}
+
+// ClearDraftRenderArtifactID clears the value of the "draft_render_artifact_id" field.
+func (_u *ProblemUpdate) ClearDraftRenderArtifactID() *ProblemUpdate {
+	_u.mutation.ClearDraftRenderArtifactID()
+	return _u
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (_u *ProblemUpdate) SetPublishedRevisionID(v uuid.UUID) *ProblemUpdate {
+	_u.mutation.SetPublishedRevisionID(v)
+	return _u
+}
+
+// SetNillablePublishedRevisionID sets the "published_revision_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillablePublishedRevisionID(v *uuid.UUID) *ProblemUpdate {
+	if v != nil {
+		_u.SetPublishedRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (_u *ProblemUpdate) ClearPublishedRevisionID() *ProblemUpdate {
+	_u.mutation.ClearPublishedRevisionID()
+	return _u
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (_u *ProblemUpdate) SetPublishedRenderSourceID(v uuid.UUID) *ProblemUpdate {
+	_u.mutation.SetPublishedRenderSourceID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceID sets the "published_render_source_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillablePublishedRenderSourceID(v *uuid.UUID) *ProblemUpdate {
+	if v != nil {
+		_u.SetPublishedRenderSourceID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (_u *ProblemUpdate) ClearPublishedRenderSourceID() *ProblemUpdate {
+	_u.mutation.ClearPublishedRenderSourceID()
+	return _u
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (_u *ProblemUpdate) SetPublishedRenderSourceKind(v problem.PublishedRenderSourceKind) *ProblemUpdate {
+	_u.mutation.SetPublishedRenderSourceKind(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceKind sets the "published_render_source_kind" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillablePublishedRenderSourceKind(v *problem.PublishedRenderSourceKind) *ProblemUpdate {
+	if v != nil {
+		_u.SetPublishedRenderSourceKind(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (_u *ProblemUpdate) ClearPublishedRenderSourceKind() *ProblemUpdate {
+	_u.mutation.ClearPublishedRenderSourceKind()
+	return _u
+}
+
+// SetPublishedRenderSourceChecksum sets the "published_render_source_checksum" field.
+func (_u *ProblemUpdate) SetPublishedRenderSourceChecksum(v []byte) *ProblemUpdate {
+	_u.mutation.SetPublishedRenderSourceChecksum(v)
+	return _u
+}
+
+// ClearPublishedRenderSourceChecksum clears the value of the "published_render_source_checksum" field.
+func (_u *ProblemUpdate) ClearPublishedRenderSourceChecksum() *ProblemUpdate {
+	_u.mutation.ClearPublishedRenderSourceChecksum()
+	return _u
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (_u *ProblemUpdate) SetPublishedRenderArtifactID(v uuid.UUID) *ProblemUpdate {
+	_u.mutation.SetPublishedRenderArtifactID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderArtifactID sets the "published_render_artifact_id" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillablePublishedRenderArtifactID(v *uuid.UUID) *ProblemUpdate {
+	if v != nil {
+		_u.SetPublishedRenderArtifactID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (_u *ProblemUpdate) ClearPublishedRenderArtifactID() *ProblemUpdate {
+	_u.mutation.ClearPublishedRenderArtifactID()
+	return _u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_u *ProblemUpdate) SetPublishedAt(v time.Time) *ProblemUpdate {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillablePublishedAt(v *time.Time) *ProblemUpdate {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *ProblemUpdate) ClearPublishedAt() *ProblemUpdate {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_u *ProblemUpdate) SetArchivedAt(v time.Time) *ProblemUpdate {
+	_u.mutation.SetArchivedAt(v)
+	return _u
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_u *ProblemUpdate) SetNillableArchivedAt(v *time.Time) *ProblemUpdate {
+	if v != nil {
+		_u.SetArchivedAt(*v)
+	}
+	return _u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (_u *ProblemUpdate) ClearArchivedAt() *ProblemUpdate {
+	_u.mutation.ClearArchivedAt()
 	return _u
 }
 
@@ -117,13 +376,13 @@ func (_u *ProblemUpdate) SetNillableDescription(v *string) *ProblemUpdate {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_u *ProblemUpdate) SetDifficultyID(v int) *ProblemUpdate {
+func (_u *ProblemUpdate) SetDifficultyID(v uuid.UUID) *ProblemUpdate {
 	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
 // SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
-func (_u *ProblemUpdate) SetNillableDifficultyID(v *int) *ProblemUpdate {
+func (_u *ProblemUpdate) SetNillableDifficultyID(v *uuid.UUID) *ProblemUpdate {
 	if v != nil {
 		_u.SetDifficultyID(*v)
 	}
@@ -173,13 +432,13 @@ func (_u *ProblemUpdate) AddMemoryLimitKB(v int) *ProblemUpdate {
 }
 
 // SetAuthorID sets the "author_id" field.
-func (_u *ProblemUpdate) SetAuthorID(v int) *ProblemUpdate {
+func (_u *ProblemUpdate) SetAuthorID(v uuid.UUID) *ProblemUpdate {
 	_u.mutation.SetAuthorID(v)
 	return _u
 }
 
 // SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (_u *ProblemUpdate) SetNillableAuthorID(v *int) *ProblemUpdate {
+func (_u *ProblemUpdate) SetNillableAuthorID(v *uuid.UUID) *ProblemUpdate {
 	if v != nil {
 		_u.SetAuthorID(*v)
 	}
@@ -253,44 +512,134 @@ func (_u *ProblemUpdate) SetDifficulty(v *Difficulty) *ProblemUpdate {
 }
 
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by IDs.
-func (_u *ProblemUpdate) AddTestCaseIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) AddTestCaseIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.AddTestCaseIDs(ids...)
 	return _u
 }
 
 // AddTestCases adds the "test_cases" edges to the TestCase entity.
 func (_u *ProblemUpdate) AddTestCases(v ...*TestCase) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddTestCaseIDs(ids...)
 }
 
+// AddRevisionIDs adds the "revisions" edge to the ProblemRevision entity by IDs.
+func (_u *ProblemUpdate) AddRevisionIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the ProblemRevision entity.
+func (_u *ProblemUpdate) AddRevisions(v ...*ProblemRevision) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
+// AddTestsetRevisionIDs adds the "testset_revisions" edge to the TestsetRevision entity by IDs.
+func (_u *ProblemUpdate) AddTestsetRevisionIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.AddTestsetRevisionIDs(ids...)
+	return _u
+}
+
+// AddTestsetRevisions adds the "testset_revisions" edges to the TestsetRevision entity.
+func (_u *ProblemUpdate) AddTestsetRevisions(v ...*TestsetRevision) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTestsetRevisionIDs(ids...)
+}
+
+// AddContestDraftMembershipIDs adds the "contest_draft_memberships" edge to the ContestDraftProblem entity by IDs.
+func (_u *ProblemUpdate) AddContestDraftMembershipIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.AddContestDraftMembershipIDs(ids...)
+	return _u
+}
+
+// AddContestDraftMemberships adds the "contest_draft_memberships" edges to the ContestDraftProblem entity.
+func (_u *ProblemUpdate) AddContestDraftMemberships(v ...*ContestDraftProblem) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestDraftMembershipIDs(ids...)
+}
+
+// AddContestProblemSnapshotIDs adds the "contest_problem_snapshots" edge to the ContestProblem entity by IDs.
+func (_u *ProblemUpdate) AddContestProblemSnapshotIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.AddContestProblemSnapshotIDs(ids...)
+	return _u
+}
+
+// AddContestProblemSnapshots adds the "contest_problem_snapshots" edges to the ContestProblem entity.
+func (_u *ProblemUpdate) AddContestProblemSnapshots(v ...*ContestProblem) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemSnapshotIDs(ids...)
+}
+
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_u *ProblemUpdate) AddSubmissionIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) AddSubmissionIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.AddSubmissionIDs(ids...)
 	return _u
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_u *ProblemUpdate) AddSubmissions(v ...*Submission) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddSubmissionIDs(ids...)
 }
 
+// AddContestScoringAttemptIDs adds the "contest_scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_u *ProblemUpdate) AddContestScoringAttemptIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.AddContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// AddContestScoringAttempts adds the "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ProblemUpdate) AddContestScoringAttempts(v ...*ContestScoringAttempt) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestScoringAttemptIDs(ids...)
+}
+
+// AddContestProblemResultIDs adds the "contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *ProblemUpdate) AddContestProblemResultIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.AddContestProblemResultIDs(ids...)
+	return _u
+}
+
+// AddContestProblemResults adds the "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *ProblemUpdate) AddContestProblemResults(v ...*ContestProblemResult) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemResultIDs(ids...)
+}
+
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_u *ProblemUpdate) AddTagIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) AddTagIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.AddTagIDs(ids...)
 	return _u
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_u *ProblemUpdate) AddTags(v ...*Tag) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -298,14 +647,14 @@ func (_u *ProblemUpdate) AddTags(v ...*Tag) *ProblemUpdate {
 }
 
 // AddSolverIDs adds the "solvers" edge to the UserSolvedProblem entity by IDs.
-func (_u *ProblemUpdate) AddSolverIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) AddSolverIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.AddSolverIDs(ids...)
 	return _u
 }
 
 // AddSolvers adds the "solvers" edges to the UserSolvedProblem entity.
 func (_u *ProblemUpdate) AddSolvers(v ...*UserSolvedProblem) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -336,18 +685,102 @@ func (_u *ProblemUpdate) ClearTestCases() *ProblemUpdate {
 }
 
 // RemoveTestCaseIDs removes the "test_cases" edge to TestCase entities by IDs.
-func (_u *ProblemUpdate) RemoveTestCaseIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) RemoveTestCaseIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.RemoveTestCaseIDs(ids...)
 	return _u
 }
 
 // RemoveTestCases removes "test_cases" edges to TestCase entities.
 func (_u *ProblemUpdate) RemoveTestCases(v ...*TestCase) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTestCaseIDs(ids...)
+}
+
+// ClearRevisions clears all "revisions" edges to the ProblemRevision entity.
+func (_u *ProblemUpdate) ClearRevisions() *ProblemUpdate {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to ProblemRevision entities by IDs.
+func (_u *ProblemUpdate) RemoveRevisionIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to ProblemRevision entities.
+func (_u *ProblemUpdate) RemoveRevisions(v ...*ProblemRevision) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearTestsetRevisions clears all "testset_revisions" edges to the TestsetRevision entity.
+func (_u *ProblemUpdate) ClearTestsetRevisions() *ProblemUpdate {
+	_u.mutation.ClearTestsetRevisions()
+	return _u
+}
+
+// RemoveTestsetRevisionIDs removes the "testset_revisions" edge to TestsetRevision entities by IDs.
+func (_u *ProblemUpdate) RemoveTestsetRevisionIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.RemoveTestsetRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveTestsetRevisions removes "testset_revisions" edges to TestsetRevision entities.
+func (_u *ProblemUpdate) RemoveTestsetRevisions(v ...*TestsetRevision) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTestsetRevisionIDs(ids...)
+}
+
+// ClearContestDraftMemberships clears all "contest_draft_memberships" edges to the ContestDraftProblem entity.
+func (_u *ProblemUpdate) ClearContestDraftMemberships() *ProblemUpdate {
+	_u.mutation.ClearContestDraftMemberships()
+	return _u
+}
+
+// RemoveContestDraftMembershipIDs removes the "contest_draft_memberships" edge to ContestDraftProblem entities by IDs.
+func (_u *ProblemUpdate) RemoveContestDraftMembershipIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.RemoveContestDraftMembershipIDs(ids...)
+	return _u
+}
+
+// RemoveContestDraftMemberships removes "contest_draft_memberships" edges to ContestDraftProblem entities.
+func (_u *ProblemUpdate) RemoveContestDraftMemberships(v ...*ContestDraftProblem) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestDraftMembershipIDs(ids...)
+}
+
+// ClearContestProblemSnapshots clears all "contest_problem_snapshots" edges to the ContestProblem entity.
+func (_u *ProblemUpdate) ClearContestProblemSnapshots() *ProblemUpdate {
+	_u.mutation.ClearContestProblemSnapshots()
+	return _u
+}
+
+// RemoveContestProblemSnapshotIDs removes the "contest_problem_snapshots" edge to ContestProblem entities by IDs.
+func (_u *ProblemUpdate) RemoveContestProblemSnapshotIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.RemoveContestProblemSnapshotIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblemSnapshots removes "contest_problem_snapshots" edges to ContestProblem entities.
+func (_u *ProblemUpdate) RemoveContestProblemSnapshots(v ...*ContestProblem) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemSnapshotIDs(ids...)
 }
 
 // ClearSubmissions clears all "submissions" edges to the Submission entity.
@@ -357,18 +790,60 @@ func (_u *ProblemUpdate) ClearSubmissions() *ProblemUpdate {
 }
 
 // RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
-func (_u *ProblemUpdate) RemoveSubmissionIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) RemoveSubmissionIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.RemoveSubmissionIDs(ids...)
 	return _u
 }
 
 // RemoveSubmissions removes "submissions" edges to Submission entities.
 func (_u *ProblemUpdate) RemoveSubmissions(v ...*Submission) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSubmissionIDs(ids...)
+}
+
+// ClearContestScoringAttempts clears all "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ProblemUpdate) ClearContestScoringAttempts() *ProblemUpdate {
+	_u.mutation.ClearContestScoringAttempts()
+	return _u
+}
+
+// RemoveContestScoringAttemptIDs removes the "contest_scoring_attempts" edge to ContestScoringAttempt entities by IDs.
+func (_u *ProblemUpdate) RemoveContestScoringAttemptIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.RemoveContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// RemoveContestScoringAttempts removes "contest_scoring_attempts" edges to ContestScoringAttempt entities.
+func (_u *ProblemUpdate) RemoveContestScoringAttempts(v ...*ContestScoringAttempt) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestScoringAttemptIDs(ids...)
+}
+
+// ClearContestProblemResults clears all "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *ProblemUpdate) ClearContestProblemResults() *ProblemUpdate {
+	_u.mutation.ClearContestProblemResults()
+	return _u
+}
+
+// RemoveContestProblemResultIDs removes the "contest_problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *ProblemUpdate) RemoveContestProblemResultIDs(ids ...uuid.UUID) *ProblemUpdate {
+	_u.mutation.RemoveContestProblemResultIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblemResults removes "contest_problem_results" edges to ContestProblemResult entities.
+func (_u *ProblemUpdate) RemoveContestProblemResults(v ...*ContestProblemResult) *ProblemUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemResultIDs(ids...)
 }
 
 // ClearTags clears all "tags" edges to the Tag entity.
@@ -378,14 +853,14 @@ func (_u *ProblemUpdate) ClearTags() *ProblemUpdate {
 }
 
 // RemoveTagIDs removes the "tags" edge to Tag entities by IDs.
-func (_u *ProblemUpdate) RemoveTagIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) RemoveTagIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.RemoveTagIDs(ids...)
 	return _u
 }
 
 // RemoveTags removes "tags" edges to Tag entities.
 func (_u *ProblemUpdate) RemoveTags(v ...*Tag) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -399,14 +874,14 @@ func (_u *ProblemUpdate) ClearSolvers() *ProblemUpdate {
 }
 
 // RemoveSolverIDs removes the "solvers" edge to UserSolvedProblem entities by IDs.
-func (_u *ProblemUpdate) RemoveSolverIDs(ids ...int) *ProblemUpdate {
+func (_u *ProblemUpdate) RemoveSolverIDs(ids ...uuid.UUID) *ProblemUpdate {
 	_u.mutation.RemoveSolverIDs(ids...)
 	return _u
 }
 
 // RemoveSolvers removes "solvers" edges to UserSolvedProblem entities.
 func (_u *ProblemUpdate) RemoveSolvers(v ...*UserSolvedProblem) *ProblemUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -457,6 +932,26 @@ func (_u *ProblemUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ProblemUpdate) check() error {
+	if v, ok := _u.mutation.Lifecycle(); ok {
+		if err := problem.LifecycleValidator(v); err != nil {
+			return &ValidationError{Name: "lifecycle", err: fmt.Errorf(`generate: validator failed for field "Problem.lifecycle": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := problem.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Problem.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DraftRenderSourceKind(); ok {
+		if err := problem.DraftRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "draft_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Problem.draft_render_source_kind": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		if err := problem.PublishedRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "published_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Problem.published_render_source_kind": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Title(); ok {
 		if err := problem.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`generate: validator failed for field "Problem.title": %w`, err)}
@@ -486,7 +981,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -504,13 +999,91 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(problem.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(problem.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(problem.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(problem.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(problem.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(problem.FieldDeletedBy, field.TypeString)
+	}
+	if value, ok := _u.mutation.Lifecycle(); ok {
+		_spec.SetField(problem.FieldLifecycle, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(problem.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(problem.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.DraftRevisionID(); ok {
+		_spec.SetField(problem.FieldDraftRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.DraftRevisionIDCleared() {
+		_spec.ClearField(problem.FieldDraftRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.DraftRenderSourceID(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceID, field.TypeUUID, value)
+	}
+	if _u.mutation.DraftRenderSourceIDCleared() {
+		_spec.ClearField(problem.FieldDraftRenderSourceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.DraftRenderSourceKind(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceKind, field.TypeEnum, value)
+	}
+	if _u.mutation.DraftRenderSourceKindCleared() {
+		_spec.ClearField(problem.FieldDraftRenderSourceKind, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.DraftRenderSourceChecksum(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceChecksum, field.TypeBytes, value)
+	}
+	if _u.mutation.DraftRenderSourceChecksumCleared() {
+		_spec.ClearField(problem.FieldDraftRenderSourceChecksum, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.DraftRenderArtifactID(); ok {
+		_spec.SetField(problem.FieldDraftRenderArtifactID, field.TypeUUID, value)
+	}
+	if _u.mutation.DraftRenderArtifactIDCleared() {
+		_spec.ClearField(problem.FieldDraftRenderArtifactID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRevisionID(); ok {
+		_spec.SetField(problem.FieldPublishedRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRevisionIDCleared() {
+		_spec.ClearField(problem.FieldPublishedRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceID(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderSourceIDCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderSourceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceKind, field.TypeEnum, value)
+	}
+	if _u.mutation.PublishedRenderSourceKindCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderSourceKind, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceChecksum(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceChecksum, field.TypeBytes, value)
+	}
+	if _u.mutation.PublishedRenderSourceChecksumCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderSourceChecksum, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.PublishedRenderArtifactID(); ok {
+		_spec.SetField(problem.FieldPublishedRenderArtifactID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderArtifactIDCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderArtifactID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(problem.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(problem.FieldPublishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ArchivedAt(); ok {
+		_spec.SetField(problem.FieldArchivedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ArchivedAtCleared() {
+		_spec.ClearField(problem.FieldArchivedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
@@ -553,7 +1126,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -566,7 +1139,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -582,7 +1155,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -595,7 +1168,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -611,7 +1184,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -624,7 +1197,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -640,7 +1213,187 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TestsetRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTestsetRevisionsIDs(); len(nodes) > 0 && !_u.mutation.TestsetRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TestsetRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestDraftMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestDraftMembershipsIDs(); len(nodes) > 0 && !_u.mutation.ContestDraftMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestDraftMembershipsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemSnapshotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemSnapshotsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemSnapshotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemSnapshotsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -656,7 +1409,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -669,7 +1422,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -685,7 +1438,97 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestScoringAttemptsIDs(); len(nodes) > 0 && !_u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -701,7 +1544,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -714,7 +1557,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -730,7 +1573,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -746,7 +1589,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -759,7 +1602,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -775,7 +1618,7 @@ func (_u *ProblemUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -832,29 +1675,281 @@ func (_u *ProblemUpdateOne) ClearDeletedAt() *ProblemUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *ProblemUpdateOne) SetDeletedBy(v int) *ProblemUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *ProblemUpdateOne) SetDeletedBy(v string) *ProblemUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *ProblemUpdateOne) SetNillableDeletedBy(v *int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) SetNillableDeletedBy(v *string) *ProblemUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
 	return _u
 }
 
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *ProblemUpdateOne) AddDeletedBy(v int) *ProblemUpdateOne {
-	_u.mutation.AddDeletedBy(v)
-	return _u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (_u *ProblemUpdateOne) ClearDeletedBy() *ProblemUpdateOne {
 	_u.mutation.ClearDeletedBy()
+	return _u
+}
+
+// SetLifecycle sets the "lifecycle" field.
+func (_u *ProblemUpdateOne) SetLifecycle(v problem.Lifecycle) *ProblemUpdateOne {
+	_u.mutation.SetLifecycle(v)
+	return _u
+}
+
+// SetNillableLifecycle sets the "lifecycle" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableLifecycle(v *problem.Lifecycle) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetLifecycle(*v)
+	}
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ProblemUpdateOne) SetVersion(v int64) *ProblemUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableVersion(v *int64) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ProblemUpdateOne) AddVersion(v int64) *ProblemUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (_u *ProblemUpdateOne) SetDraftRevisionID(v uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.SetDraftRevisionID(v)
+	return _u
+}
+
+// SetNillableDraftRevisionID sets the "draft_revision_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableDraftRevisionID(v *uuid.UUID) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetDraftRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (_u *ProblemUpdateOne) ClearDraftRevisionID() *ProblemUpdateOne {
+	_u.mutation.ClearDraftRevisionID()
+	return _u
+}
+
+// SetDraftRenderSourceID sets the "draft_render_source_id" field.
+func (_u *ProblemUpdateOne) SetDraftRenderSourceID(v uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.SetDraftRenderSourceID(v)
+	return _u
+}
+
+// SetNillableDraftRenderSourceID sets the "draft_render_source_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableDraftRenderSourceID(v *uuid.UUID) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetDraftRenderSourceID(*v)
+	}
+	return _u
+}
+
+// ClearDraftRenderSourceID clears the value of the "draft_render_source_id" field.
+func (_u *ProblemUpdateOne) ClearDraftRenderSourceID() *ProblemUpdateOne {
+	_u.mutation.ClearDraftRenderSourceID()
+	return _u
+}
+
+// SetDraftRenderSourceKind sets the "draft_render_source_kind" field.
+func (_u *ProblemUpdateOne) SetDraftRenderSourceKind(v problem.DraftRenderSourceKind) *ProblemUpdateOne {
+	_u.mutation.SetDraftRenderSourceKind(v)
+	return _u
+}
+
+// SetNillableDraftRenderSourceKind sets the "draft_render_source_kind" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableDraftRenderSourceKind(v *problem.DraftRenderSourceKind) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetDraftRenderSourceKind(*v)
+	}
+	return _u
+}
+
+// ClearDraftRenderSourceKind clears the value of the "draft_render_source_kind" field.
+func (_u *ProblemUpdateOne) ClearDraftRenderSourceKind() *ProblemUpdateOne {
+	_u.mutation.ClearDraftRenderSourceKind()
+	return _u
+}
+
+// SetDraftRenderSourceChecksum sets the "draft_render_source_checksum" field.
+func (_u *ProblemUpdateOne) SetDraftRenderSourceChecksum(v []byte) *ProblemUpdateOne {
+	_u.mutation.SetDraftRenderSourceChecksum(v)
+	return _u
+}
+
+// ClearDraftRenderSourceChecksum clears the value of the "draft_render_source_checksum" field.
+func (_u *ProblemUpdateOne) ClearDraftRenderSourceChecksum() *ProblemUpdateOne {
+	_u.mutation.ClearDraftRenderSourceChecksum()
+	return _u
+}
+
+// SetDraftRenderArtifactID sets the "draft_render_artifact_id" field.
+func (_u *ProblemUpdateOne) SetDraftRenderArtifactID(v uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.SetDraftRenderArtifactID(v)
+	return _u
+}
+
+// SetNillableDraftRenderArtifactID sets the "draft_render_artifact_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableDraftRenderArtifactID(v *uuid.UUID) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetDraftRenderArtifactID(*v)
+	}
+	return _u
+}
+
+// ClearDraftRenderArtifactID clears the value of the "draft_render_artifact_id" field.
+func (_u *ProblemUpdateOne) ClearDraftRenderArtifactID() *ProblemUpdateOne {
+	_u.mutation.ClearDraftRenderArtifactID()
+	return _u
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (_u *ProblemUpdateOne) SetPublishedRevisionID(v uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.SetPublishedRevisionID(v)
+	return _u
+}
+
+// SetNillablePublishedRevisionID sets the "published_revision_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillablePublishedRevisionID(v *uuid.UUID) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetPublishedRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (_u *ProblemUpdateOne) ClearPublishedRevisionID() *ProblemUpdateOne {
+	_u.mutation.ClearPublishedRevisionID()
+	return _u
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (_u *ProblemUpdateOne) SetPublishedRenderSourceID(v uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.SetPublishedRenderSourceID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceID sets the "published_render_source_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillablePublishedRenderSourceID(v *uuid.UUID) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetPublishedRenderSourceID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (_u *ProblemUpdateOne) ClearPublishedRenderSourceID() *ProblemUpdateOne {
+	_u.mutation.ClearPublishedRenderSourceID()
+	return _u
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (_u *ProblemUpdateOne) SetPublishedRenderSourceKind(v problem.PublishedRenderSourceKind) *ProblemUpdateOne {
+	_u.mutation.SetPublishedRenderSourceKind(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceKind sets the "published_render_source_kind" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillablePublishedRenderSourceKind(v *problem.PublishedRenderSourceKind) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetPublishedRenderSourceKind(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (_u *ProblemUpdateOne) ClearPublishedRenderSourceKind() *ProblemUpdateOne {
+	_u.mutation.ClearPublishedRenderSourceKind()
+	return _u
+}
+
+// SetPublishedRenderSourceChecksum sets the "published_render_source_checksum" field.
+func (_u *ProblemUpdateOne) SetPublishedRenderSourceChecksum(v []byte) *ProblemUpdateOne {
+	_u.mutation.SetPublishedRenderSourceChecksum(v)
+	return _u
+}
+
+// ClearPublishedRenderSourceChecksum clears the value of the "published_render_source_checksum" field.
+func (_u *ProblemUpdateOne) ClearPublishedRenderSourceChecksum() *ProblemUpdateOne {
+	_u.mutation.ClearPublishedRenderSourceChecksum()
+	return _u
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (_u *ProblemUpdateOne) SetPublishedRenderArtifactID(v uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.SetPublishedRenderArtifactID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderArtifactID sets the "published_render_artifact_id" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillablePublishedRenderArtifactID(v *uuid.UUID) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetPublishedRenderArtifactID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (_u *ProblemUpdateOne) ClearPublishedRenderArtifactID() *ProblemUpdateOne {
+	_u.mutation.ClearPublishedRenderArtifactID()
+	return _u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_u *ProblemUpdateOne) SetPublishedAt(v time.Time) *ProblemUpdateOne {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillablePublishedAt(v *time.Time) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *ProblemUpdateOne) ClearPublishedAt() *ProblemUpdateOne {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_u *ProblemUpdateOne) SetArchivedAt(v time.Time) *ProblemUpdateOne {
+	_u.mutation.SetArchivedAt(v)
+	return _u
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_u *ProblemUpdateOne) SetNillableArchivedAt(v *time.Time) *ProblemUpdateOne {
+	if v != nil {
+		_u.SetArchivedAt(*v)
+	}
+	return _u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (_u *ProblemUpdateOne) ClearArchivedAt() *ProblemUpdateOne {
+	_u.mutation.ClearArchivedAt()
 	return _u
 }
 
@@ -887,13 +1982,13 @@ func (_u *ProblemUpdateOne) SetNillableDescription(v *string) *ProblemUpdateOne 
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_u *ProblemUpdateOne) SetDifficultyID(v int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) SetDifficultyID(v uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
 // SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
-func (_u *ProblemUpdateOne) SetNillableDifficultyID(v *int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) SetNillableDifficultyID(v *uuid.UUID) *ProblemUpdateOne {
 	if v != nil {
 		_u.SetDifficultyID(*v)
 	}
@@ -943,13 +2038,13 @@ func (_u *ProblemUpdateOne) AddMemoryLimitKB(v int) *ProblemUpdateOne {
 }
 
 // SetAuthorID sets the "author_id" field.
-func (_u *ProblemUpdateOne) SetAuthorID(v int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) SetAuthorID(v uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.SetAuthorID(v)
 	return _u
 }
 
 // SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (_u *ProblemUpdateOne) SetNillableAuthorID(v *int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) SetNillableAuthorID(v *uuid.UUID) *ProblemUpdateOne {
 	if v != nil {
 		_u.SetAuthorID(*v)
 	}
@@ -1023,44 +2118,134 @@ func (_u *ProblemUpdateOne) SetDifficulty(v *Difficulty) *ProblemUpdateOne {
 }
 
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by IDs.
-func (_u *ProblemUpdateOne) AddTestCaseIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) AddTestCaseIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.AddTestCaseIDs(ids...)
 	return _u
 }
 
 // AddTestCases adds the "test_cases" edges to the TestCase entity.
 func (_u *ProblemUpdateOne) AddTestCases(v ...*TestCase) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddTestCaseIDs(ids...)
 }
 
+// AddRevisionIDs adds the "revisions" edge to the ProblemRevision entity by IDs.
+func (_u *ProblemUpdateOne) AddRevisionIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the ProblemRevision entity.
+func (_u *ProblemUpdateOne) AddRevisions(v ...*ProblemRevision) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
+// AddTestsetRevisionIDs adds the "testset_revisions" edge to the TestsetRevision entity by IDs.
+func (_u *ProblemUpdateOne) AddTestsetRevisionIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.AddTestsetRevisionIDs(ids...)
+	return _u
+}
+
+// AddTestsetRevisions adds the "testset_revisions" edges to the TestsetRevision entity.
+func (_u *ProblemUpdateOne) AddTestsetRevisions(v ...*TestsetRevision) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTestsetRevisionIDs(ids...)
+}
+
+// AddContestDraftMembershipIDs adds the "contest_draft_memberships" edge to the ContestDraftProblem entity by IDs.
+func (_u *ProblemUpdateOne) AddContestDraftMembershipIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.AddContestDraftMembershipIDs(ids...)
+	return _u
+}
+
+// AddContestDraftMemberships adds the "contest_draft_memberships" edges to the ContestDraftProblem entity.
+func (_u *ProblemUpdateOne) AddContestDraftMemberships(v ...*ContestDraftProblem) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestDraftMembershipIDs(ids...)
+}
+
+// AddContestProblemSnapshotIDs adds the "contest_problem_snapshots" edge to the ContestProblem entity by IDs.
+func (_u *ProblemUpdateOne) AddContestProblemSnapshotIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.AddContestProblemSnapshotIDs(ids...)
+	return _u
+}
+
+// AddContestProblemSnapshots adds the "contest_problem_snapshots" edges to the ContestProblem entity.
+func (_u *ProblemUpdateOne) AddContestProblemSnapshots(v ...*ContestProblem) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemSnapshotIDs(ids...)
+}
+
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_u *ProblemUpdateOne) AddSubmissionIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) AddSubmissionIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.AddSubmissionIDs(ids...)
 	return _u
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_u *ProblemUpdateOne) AddSubmissions(v ...*Submission) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddSubmissionIDs(ids...)
 }
 
+// AddContestScoringAttemptIDs adds the "contest_scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_u *ProblemUpdateOne) AddContestScoringAttemptIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.AddContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// AddContestScoringAttempts adds the "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ProblemUpdateOne) AddContestScoringAttempts(v ...*ContestScoringAttempt) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestScoringAttemptIDs(ids...)
+}
+
+// AddContestProblemResultIDs adds the "contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *ProblemUpdateOne) AddContestProblemResultIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.AddContestProblemResultIDs(ids...)
+	return _u
+}
+
+// AddContestProblemResults adds the "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *ProblemUpdateOne) AddContestProblemResults(v ...*ContestProblemResult) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemResultIDs(ids...)
+}
+
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_u *ProblemUpdateOne) AddTagIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) AddTagIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.AddTagIDs(ids...)
 	return _u
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_u *ProblemUpdateOne) AddTags(v ...*Tag) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1068,14 +2253,14 @@ func (_u *ProblemUpdateOne) AddTags(v ...*Tag) *ProblemUpdateOne {
 }
 
 // AddSolverIDs adds the "solvers" edge to the UserSolvedProblem entity by IDs.
-func (_u *ProblemUpdateOne) AddSolverIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) AddSolverIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.AddSolverIDs(ids...)
 	return _u
 }
 
 // AddSolvers adds the "solvers" edges to the UserSolvedProblem entity.
 func (_u *ProblemUpdateOne) AddSolvers(v ...*UserSolvedProblem) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1106,18 +2291,102 @@ func (_u *ProblemUpdateOne) ClearTestCases() *ProblemUpdateOne {
 }
 
 // RemoveTestCaseIDs removes the "test_cases" edge to TestCase entities by IDs.
-func (_u *ProblemUpdateOne) RemoveTestCaseIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) RemoveTestCaseIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.RemoveTestCaseIDs(ids...)
 	return _u
 }
 
 // RemoveTestCases removes "test_cases" edges to TestCase entities.
 func (_u *ProblemUpdateOne) RemoveTestCases(v ...*TestCase) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTestCaseIDs(ids...)
+}
+
+// ClearRevisions clears all "revisions" edges to the ProblemRevision entity.
+func (_u *ProblemUpdateOne) ClearRevisions() *ProblemUpdateOne {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to ProblemRevision entities by IDs.
+func (_u *ProblemUpdateOne) RemoveRevisionIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to ProblemRevision entities.
+func (_u *ProblemUpdateOne) RemoveRevisions(v ...*ProblemRevision) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearTestsetRevisions clears all "testset_revisions" edges to the TestsetRevision entity.
+func (_u *ProblemUpdateOne) ClearTestsetRevisions() *ProblemUpdateOne {
+	_u.mutation.ClearTestsetRevisions()
+	return _u
+}
+
+// RemoveTestsetRevisionIDs removes the "testset_revisions" edge to TestsetRevision entities by IDs.
+func (_u *ProblemUpdateOne) RemoveTestsetRevisionIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.RemoveTestsetRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveTestsetRevisions removes "testset_revisions" edges to TestsetRevision entities.
+func (_u *ProblemUpdateOne) RemoveTestsetRevisions(v ...*TestsetRevision) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTestsetRevisionIDs(ids...)
+}
+
+// ClearContestDraftMemberships clears all "contest_draft_memberships" edges to the ContestDraftProblem entity.
+func (_u *ProblemUpdateOne) ClearContestDraftMemberships() *ProblemUpdateOne {
+	_u.mutation.ClearContestDraftMemberships()
+	return _u
+}
+
+// RemoveContestDraftMembershipIDs removes the "contest_draft_memberships" edge to ContestDraftProblem entities by IDs.
+func (_u *ProblemUpdateOne) RemoveContestDraftMembershipIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.RemoveContestDraftMembershipIDs(ids...)
+	return _u
+}
+
+// RemoveContestDraftMemberships removes "contest_draft_memberships" edges to ContestDraftProblem entities.
+func (_u *ProblemUpdateOne) RemoveContestDraftMemberships(v ...*ContestDraftProblem) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestDraftMembershipIDs(ids...)
+}
+
+// ClearContestProblemSnapshots clears all "contest_problem_snapshots" edges to the ContestProblem entity.
+func (_u *ProblemUpdateOne) ClearContestProblemSnapshots() *ProblemUpdateOne {
+	_u.mutation.ClearContestProblemSnapshots()
+	return _u
+}
+
+// RemoveContestProblemSnapshotIDs removes the "contest_problem_snapshots" edge to ContestProblem entities by IDs.
+func (_u *ProblemUpdateOne) RemoveContestProblemSnapshotIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.RemoveContestProblemSnapshotIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblemSnapshots removes "contest_problem_snapshots" edges to ContestProblem entities.
+func (_u *ProblemUpdateOne) RemoveContestProblemSnapshots(v ...*ContestProblem) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemSnapshotIDs(ids...)
 }
 
 // ClearSubmissions clears all "submissions" edges to the Submission entity.
@@ -1127,18 +2396,60 @@ func (_u *ProblemUpdateOne) ClearSubmissions() *ProblemUpdateOne {
 }
 
 // RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
-func (_u *ProblemUpdateOne) RemoveSubmissionIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) RemoveSubmissionIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.RemoveSubmissionIDs(ids...)
 	return _u
 }
 
 // RemoveSubmissions removes "submissions" edges to Submission entities.
 func (_u *ProblemUpdateOne) RemoveSubmissions(v ...*Submission) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSubmissionIDs(ids...)
+}
+
+// ClearContestScoringAttempts clears all "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ProblemUpdateOne) ClearContestScoringAttempts() *ProblemUpdateOne {
+	_u.mutation.ClearContestScoringAttempts()
+	return _u
+}
+
+// RemoveContestScoringAttemptIDs removes the "contest_scoring_attempts" edge to ContestScoringAttempt entities by IDs.
+func (_u *ProblemUpdateOne) RemoveContestScoringAttemptIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.RemoveContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// RemoveContestScoringAttempts removes "contest_scoring_attempts" edges to ContestScoringAttempt entities.
+func (_u *ProblemUpdateOne) RemoveContestScoringAttempts(v ...*ContestScoringAttempt) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestScoringAttemptIDs(ids...)
+}
+
+// ClearContestProblemResults clears all "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *ProblemUpdateOne) ClearContestProblemResults() *ProblemUpdateOne {
+	_u.mutation.ClearContestProblemResults()
+	return _u
+}
+
+// RemoveContestProblemResultIDs removes the "contest_problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *ProblemUpdateOne) RemoveContestProblemResultIDs(ids ...uuid.UUID) *ProblemUpdateOne {
+	_u.mutation.RemoveContestProblemResultIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblemResults removes "contest_problem_results" edges to ContestProblemResult entities.
+func (_u *ProblemUpdateOne) RemoveContestProblemResults(v ...*ContestProblemResult) *ProblemUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemResultIDs(ids...)
 }
 
 // ClearTags clears all "tags" edges to the Tag entity.
@@ -1148,14 +2459,14 @@ func (_u *ProblemUpdateOne) ClearTags() *ProblemUpdateOne {
 }
 
 // RemoveTagIDs removes the "tags" edge to Tag entities by IDs.
-func (_u *ProblemUpdateOne) RemoveTagIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) RemoveTagIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.RemoveTagIDs(ids...)
 	return _u
 }
 
 // RemoveTags removes "tags" edges to Tag entities.
 func (_u *ProblemUpdateOne) RemoveTags(v ...*Tag) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1169,14 +2480,14 @@ func (_u *ProblemUpdateOne) ClearSolvers() *ProblemUpdateOne {
 }
 
 // RemoveSolverIDs removes the "solvers" edge to UserSolvedProblem entities by IDs.
-func (_u *ProblemUpdateOne) RemoveSolverIDs(ids ...int) *ProblemUpdateOne {
+func (_u *ProblemUpdateOne) RemoveSolverIDs(ids ...uuid.UUID) *ProblemUpdateOne {
 	_u.mutation.RemoveSolverIDs(ids...)
 	return _u
 }
 
 // RemoveSolvers removes "solvers" edges to UserSolvedProblem entities.
 func (_u *ProblemUpdateOne) RemoveSolvers(v ...*UserSolvedProblem) *ProblemUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1240,6 +2551,26 @@ func (_u *ProblemUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ProblemUpdateOne) check() error {
+	if v, ok := _u.mutation.Lifecycle(); ok {
+		if err := problem.LifecycleValidator(v); err != nil {
+			return &ValidationError{Name: "lifecycle", err: fmt.Errorf(`generate: validator failed for field "Problem.lifecycle": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := problem.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Problem.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DraftRenderSourceKind(); ok {
+		if err := problem.DraftRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "draft_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Problem.draft_render_source_kind": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		if err := problem.PublishedRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "published_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Problem.published_render_source_kind": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Title(); ok {
 		if err := problem.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`generate: validator failed for field "Problem.title": %w`, err)}
@@ -1269,7 +2600,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Problem.id" for update`)}
@@ -1304,13 +2635,91 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 		_spec.ClearField(problem.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(problem.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(problem.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(problem.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(problem.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(problem.FieldDeletedBy, field.TypeString)
+	}
+	if value, ok := _u.mutation.Lifecycle(); ok {
+		_spec.SetField(problem.FieldLifecycle, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(problem.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(problem.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.DraftRevisionID(); ok {
+		_spec.SetField(problem.FieldDraftRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.DraftRevisionIDCleared() {
+		_spec.ClearField(problem.FieldDraftRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.DraftRenderSourceID(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceID, field.TypeUUID, value)
+	}
+	if _u.mutation.DraftRenderSourceIDCleared() {
+		_spec.ClearField(problem.FieldDraftRenderSourceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.DraftRenderSourceKind(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceKind, field.TypeEnum, value)
+	}
+	if _u.mutation.DraftRenderSourceKindCleared() {
+		_spec.ClearField(problem.FieldDraftRenderSourceKind, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.DraftRenderSourceChecksum(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceChecksum, field.TypeBytes, value)
+	}
+	if _u.mutation.DraftRenderSourceChecksumCleared() {
+		_spec.ClearField(problem.FieldDraftRenderSourceChecksum, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.DraftRenderArtifactID(); ok {
+		_spec.SetField(problem.FieldDraftRenderArtifactID, field.TypeUUID, value)
+	}
+	if _u.mutation.DraftRenderArtifactIDCleared() {
+		_spec.ClearField(problem.FieldDraftRenderArtifactID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRevisionID(); ok {
+		_spec.SetField(problem.FieldPublishedRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRevisionIDCleared() {
+		_spec.ClearField(problem.FieldPublishedRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceID(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderSourceIDCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderSourceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceKind, field.TypeEnum, value)
+	}
+	if _u.mutation.PublishedRenderSourceKindCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderSourceKind, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceChecksum(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceChecksum, field.TypeBytes, value)
+	}
+	if _u.mutation.PublishedRenderSourceChecksumCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderSourceChecksum, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.PublishedRenderArtifactID(); ok {
+		_spec.SetField(problem.FieldPublishedRenderArtifactID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderArtifactIDCleared() {
+		_spec.ClearField(problem.FieldPublishedRenderArtifactID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(problem.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(problem.FieldPublishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ArchivedAt(); ok {
+		_spec.SetField(problem.FieldArchivedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ArchivedAtCleared() {
+		_spec.ClearField(problem.FieldArchivedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
@@ -1353,7 +2762,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1366,7 +2775,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1382,7 +2791,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1395,7 +2804,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1411,7 +2820,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1424,7 +2833,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1440,7 +2849,187 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TestsetRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTestsetRevisionsIDs(); len(nodes) > 0 && !_u.mutation.TestsetRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TestsetRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestDraftMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestDraftMembershipsIDs(); len(nodes) > 0 && !_u.mutation.ContestDraftMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestDraftMembershipsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemSnapshotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemSnapshotsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemSnapshotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemSnapshotsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1456,7 +3045,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1469,7 +3058,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1485,7 +3074,97 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestScoringAttemptsIDs(); len(nodes) > 0 && !_u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1501,7 +3180,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1514,7 +3193,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1530,7 +3209,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1546,7 +3225,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1559,7 +3238,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1575,7 +3254,7 @@ func (_u *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err er
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

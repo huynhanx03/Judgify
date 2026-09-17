@@ -1,0 +1,561 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERIFY_POSTGRES_IMAGE: postgres:16.14-alpine3.23@sha256:42b8b8b29c8a4e933d88943e5b03001a78794905cf786e6e7634e9f2abd5a0d3
+
+jobs:
+  api-source:
+    name: API / Source contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: source/Judgify/api/go.sum
+
+      - name: Verify API formatting, modules, and static analysis
+        run: |
+          unformatted="$(find api -type f -name '*.go' -not -path '*/vendor/*' -print0 | xargs -0 gofmt -l)"
+          [[ -z "$unformatted" ]] || { printf '%s\n' "$unformatted"; exit 1; }
+          (cd api && go mod verify && go vet ./...)
+
+  api-security:
+    name: API / Dependency security
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          [[ "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::Set GO_COMMON_REF to an immutable 40-character go-common commit SHA."
+            exit 1
+          }
+
+      - name: Checkout go-common
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: |
+            source/Judgify/api/go.sum
+            source/go-common/go.sum
+
+      - name: Run Go vulnerability scan
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+          (cd ../go-common && govulncheck ./...)
+          (cd api && govulncheck ./...)
+
+  api-unit:
+    name: API / Unit, race, lint, and vulnerability checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          if [[ ! "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Set GO_COMMON_REF to an immutable 40-character go-common commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout go-common
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: |
+            source/Judgify/api/go.sum
+            source/go-common/go.sum
+
+      - name: Run canonical Go verification
+        run: scripts/verify/go.sh
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@9fae48acfc02a90574d7c304a1758ef9895495fa # v7
+        with:
+          version: v2.13.2
+          working-directory: source/Judgify/api
+          args: --timeout=5m
+
+      - name: Run vulnerability scan
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+          (cd ../go-common && govulncheck ./...)
+          (cd api && govulncheck ./...)
+
+  website-source:
+    name: Website / Source checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: source/Judgify/website/package-lock.json
+
+      - name: Run lint, architecture, contracts, routes, and type checks
+        run: scripts/verify/frontend.sh source
+
+  website-unit:
+    name: Website / Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: source/Judgify/website/package-lock.json
+
+      - name: Run Vitest unit suite
+        run: scripts/verify/frontend.sh unit
+
+  website-build:
+    name: Website / Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: source/Judgify/website/package-lock.json
+
+      - name: Build standalone production artifact and enforce bundle budget
+        run: scripts/verify/frontend.sh build
+
+  website-security:
+    name: Website / Dependency security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: source/Judgify/website/package-lock.json
+
+      - name: Audit every locked dependency for known vulnerabilities
+        run: scripts/verify/frontend.sh security
+
+  cross-stack-e2e:
+    name: Cross-stack / Browser E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          if [[ ! "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Set GO_COMMON_REF to an immutable 40-character go-common commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout go-common
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: |
+            source/Judgify/api/go.sum
+            source/go-common/go.sum
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: source/Judgify/website/package-lock.json
+
+      - name: Run browser release suite against disposable API and PostgreSQL
+        run: scripts/verify/frontend_e2e.sh
+
+  cross-stack-contracts:
+    name: Cross-stack / Static contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Run canonical contract verification
+        run: scripts/verify/contracts.sh
+
+      - name: Verify supply-chain source contracts
+        run: scripts/verify/supply_chain.sh --check
+
+  api-database:
+    name: API / Migration replay and desired-schema parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+    env:
+      JUDGIFY_VERIFY_POSTGRES_IMAGE: ${{ env.VERIFY_POSTGRES_IMAGE }}
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          if [[ ! "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Set GO_COMMON_REF to an immutable 40-character go-common commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout go-common
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: source/Judgify/api/go.sum
+
+      - name: Install pinned Atlas CLI
+        run: go install ariga.io/atlas/cmd/atlas@v1.0.0
+
+      - name: Load pinned PostgreSQL verifier image
+        run: docker pull "$JUDGIFY_VERIFY_POSTGRES_IMAGE"
+
+      - name: Verify migration replay and desired-schema parity
+        run: scripts/verify/migrations.sh --integration
+
+  cross-stack-packaging:
+    name: Cross-stack / Production packaging
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          if [[ ! "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Set GO_COMMON_REF to an immutable 40-character go-common commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout go-common
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Setup Go for image security tools
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+
+      - name: Install pinned image security tools
+        run: |
+          go install github.com/anchore/syft/cmd/syft@v1.18.1
+          go install github.com/anchore/grype/cmd/grype@v0.87.1
+          go install github.com/zricethezav/gitleaks/v8@v8.24.2
+
+      - name: Verify production topology
+        run: make verify-packaging
+
+      - name: Exercise Envoy gateway boundary
+        run: bash scripts/verify/envoy_e2e.sh
+
+      - name: Verify observability stack contract
+        run: bash scripts/verify/observability_stack_test.sh
+      - name: Verify Envoy ext_authz contract
+        run: bash scripts/verify/ext_authz_test.sh
+      - name: Verify release and rollback contract
+        run: bash scripts/verify/release_rollback_contract_test.sh
+
+      - name: Build production images
+        run: |
+          make docker-build \
+            GO_COMMON_CONTEXT=../go-common \
+            VERSION=ci-${{ github.sha }} \
+            VCS_REF=${{ github.sha }}
+
+      - name: Pull pinned Envoy gateway image
+        run: docker pull envoyproxy/envoy@sha256:6bf0d37dd5e8eac4b37effe89a1aec4760f7f2ce860d1fd6af22147eb87a5058
+
+      - name: Scan source and production images
+        env:
+          IMAGE_VERSION: ci-${{ github.sha }}
+        run: |
+          evidence_dir="${RUNNER_TEMP}/judgify-pr-security"
+          install -d -m 700 "$evidence_dir"
+          syft "dir:$PWD/api" -o spdx-json="$evidence_dir/api.spdx.json"
+          syft "dir:$PWD/website" -o spdx-json="$evidence_dir/website.spdx.json"
+          grype "sbom:$evidence_dir/api.spdx.json" --fail-on high
+          grype "sbom:$evidence_dir/website.spdx.json" --fail-on high
+          for image in api worker migrate website sandbox; do
+            syft "judgify/$image:$IMAGE_VERSION" -o spdx-json="$evidence_dir/image-$image.spdx.json"
+            grype "sbom:$evidence_dir/image-$image.spdx.json" --fail-on high
+          done
+          syft "envoyproxy/envoy@sha256:6bf0d37dd5e8eac4b37effe89a1aec4760f7f2ce860d1fd6af22147eb87a5058" -o spdx-json="$evidence_dir/image-envoy.spdx.json"
+          grype "sbom:$evidence_dir/image-envoy.spdx.json" --fail-on high
+          gitleaks detect --source "$PWD" --no-git --redact
+
+  api-gate:
+    name: API / Gate
+    runs-on: ubuntu-latest
+    needs: [api-source, api-unit, api-security, api-database]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Require every API job to pass
+        env:
+          API_SOURCE_RESULT: ${{ needs.api-source.result }}
+          API_UNIT_RESULT: ${{ needs.api-unit.result }}
+          API_SECURITY_RESULT: ${{ needs.api-security.result }}
+          API_DATABASE_RESULT: ${{ needs.api-database.result }}
+        run: |
+          for result in \
+            "$API_SOURCE_RESULT" \
+            "$API_UNIT_RESULT" \
+            "$API_SECURITY_RESULT" \
+            "$API_DATABASE_RESULT"; do
+            if [[ "$result" != "success" ]]; then
+              echo "::error::A required API job did not pass (result=$result)."
+              exit 1
+            fi
+          done
+
+  website-gate:
+    name: Website / Gate
+    runs-on: ubuntu-latest
+    needs: [website-source, website-unit, website-security, website-build]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Require every website job to pass
+        env:
+          WEBSITE_SOURCE_RESULT: ${{ needs.website-source.result }}
+          WEBSITE_UNIT_RESULT: ${{ needs.website-unit.result }}
+          WEBSITE_SECURITY_RESULT: ${{ needs.website-security.result }}
+          WEBSITE_BUILD_RESULT: ${{ needs.website-build.result }}
+        run: |
+          for result in \
+            "$WEBSITE_SOURCE_RESULT" \
+            "$WEBSITE_UNIT_RESULT" \
+            "$WEBSITE_SECURITY_RESULT" \
+            "$WEBSITE_BUILD_RESULT"; do
+            if [[ "$result" != "success" ]]; then
+              echo "::error::A required website job did not pass (result=$result)."
+              exit 1
+            fi
+          done
+
+  cross-stack-gate:
+    name: Cross-stack / Gate
+    runs-on: ubuntu-latest
+    needs: [cross-stack-contracts, cross-stack-e2e, cross-stack-packaging]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Require every cross-stack job to pass
+        env:
+          CONTRACTS_RESULT: ${{ needs.cross-stack-contracts.result }}
+          E2E_RESULT: ${{ needs.cross-stack-e2e.result }}
+          PACKAGING_RESULT: ${{ needs.cross-stack-packaging.result }}
+        run: |
+          for result in "$CONTRACTS_RESULT" "$E2E_RESULT" "$PACKAGING_RESULT"; do
+            if [[ "$result" != "success" ]]; then
+              echo "::error::A required cross-stack job did not pass (result=$result)."
+              exit 1
+            fi
+          done
+
+  final-gate:
+    name: PR / Final gate
+    runs-on: ubuntu-latest
+    needs: [api-gate, website-gate, cross-stack-gate]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Require API, website, and cross-stack gates
+        env:
+          API_RESULT: ${{ needs.api-gate.result }}
+          WEBSITE_RESULT: ${{ needs.website-gate.result }}
+          CROSS_STACK_RESULT: ${{ needs.cross-stack-gate.result }}
+        run: |
+          for result in "$API_RESULT" "$WEBSITE_RESULT" "$CROSS_STACK_RESULT"; do
+            if [[ "$result" != "success" ]]; then
+              echo "::error::A required PR track did not pass (result=$result)."
+              exit 1
+            fi
+          done

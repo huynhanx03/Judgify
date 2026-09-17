@@ -5,18 +5,16 @@
  * Reads current theme from next-themes and passes it to sonner.
  */
 
-import { Toaster } from "sonner";
-import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+
+const AppToasterContent = dynamic(
+  () =>
+    import("@/components/app-toaster-content").then(
+      (m) => m.AppToasterContent,
+    ),
+  { ssr: false },
+);
 
 export function AppToaster() {
-  const { resolvedTheme } = useTheme();
-
-  return (
-    <Toaster
-      position="bottom-right"
-      richColors
-      closeButton
-      theme={resolvedTheme === "dark" ? "dark" : "light"}
-    />
-  );
+  return <AppToasterContent />;
 }

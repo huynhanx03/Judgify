@@ -3,11 +3,12 @@
 package role
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -23,36 +24,20 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldDeletedBy holds the string denoting the deleted_by field in the database.
 	FieldDeletedBy = "deleted_by"
+	// FieldKey holds the string denoting the key field in the database.
+	FieldKey = "key"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldLevel holds the string denoting the level field in the database.
-	FieldLevel = "level"
-	// FieldParentID holds the string denoting the parent_id field in the database.
-	FieldParentID = "parent_id"
-	// FieldLft holds the string denoting the lft field in the database.
-	FieldLft = "lft"
-	// FieldRgt holds the string denoting the rgt field in the database.
-	FieldRgt = "rgt"
-	// EdgeUsers holds the string denoting the users edge name in mutations.
-	EdgeUsers = "users"
-	// EdgePermissions holds the string denoting the permissions edge name in mutations.
-	EdgePermissions = "permissions"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldIsSystem holds the string denoting the is_system field in the database.
+	FieldIsSystem = "is_system"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
 	// Table holds the table name of the role in the database.
 	Table = "roles"
-	// UsersTable is the table that holds the users relation/edge.
-	UsersTable = "users"
-	// UsersInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UsersInverseTable = "users"
-	// UsersColumn is the table column denoting the users relation/edge.
-	UsersColumn = "role_id"
-	// PermissionsTable is the table that holds the permissions relation/edge.
-	PermissionsTable = "permissions"
-	// PermissionsInverseTable is the table name for the Permission entity.
-	// It exists in this package in order to avoid circular dependency with the "permission" package.
-	PermissionsInverseTable = "permissions"
-	// PermissionsColumn is the table column denoting the permissions relation/edge.
-	PermissionsColumn = "role_id"
 )
 
 // Columns holds all SQL columns for role fields.
@@ -62,11 +47,12 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldDeletedBy,
+	FieldKey,
 	FieldName,
-	FieldLevel,
-	FieldParentID,
-	FieldLft,
-	FieldRgt,
+	FieldDescription,
+	FieldIsSystem,
+	FieldStatus,
+	FieldVersion,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -93,17 +79,45 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// KeyValidator is a validator for the "key" field. It is called by the builders before save.
+	KeyValidator func(string) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// DefaultLevel holds the default value on creation for the "level" field.
-	DefaultLevel int
-	// DefaultParentID holds the default value on creation for the "parent_id" field.
-	DefaultParentID int
-	// DefaultLft holds the default value on creation for the "lft" field.
-	DefaultLft int
-	// DefaultRgt holds the default value on creation for the "rgt" field.
-	DefaultRgt int
+	// DefaultIsSystem holds the default value on creation for the "is_system" field.
+	DefaultIsSystem bool
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusActive is the default value of the Status enum.
+const DefaultStatus = StatusActive
+
+// Status values.
+const (
+	StatusActive   Status = "active"
+	StatusArchived Status = "archived"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusActive, StatusArchived:
+		return nil
+	default:
+		return fmt.Errorf("role: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the Role queries.
 type OrderOption func(*sql.Selector)
@@ -133,69 +147,32 @@ func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedBy, opts...).ToFunc()
 }
 
+// ByKey orders the results by the key field.
+func ByKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKey, opts...).ToFunc()
+}
+
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByLevel orders the results by the level field.
-func ByLevel(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLevel, opts...).ToFunc()
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByParentID orders the results by the parent_id field.
-func ByParentID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldParentID, opts...).ToFunc()
+// ByIsSystem orders the results by the is_system field.
+func ByIsSystem(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsSystem, opts...).ToFunc()
 }
 
-// ByLft orders the results by the lft field.
-func ByLft(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLft, opts...).ToFunc()
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByRgt orders the results by the rgt field.
-func ByRgt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRgt, opts...).ToFunc()
-}
-
-// ByUsersCount orders the results by users count.
-func ByUsersCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUsersStep(), opts...)
-	}
-}
-
-// ByUsers orders the results by users terms.
-func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByPermissionsCount orders the results by permissions count.
-func ByPermissionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPermissionsStep(), opts...)
-	}
-}
-
-// ByPermissions orders the results by permissions terms.
-func ByPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newUsersStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UsersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UsersTable, UsersColumn),
-	)
-}
-func newPermissionsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PermissionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, PermissionsTable, PermissionsColumn),
-	)
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
 }

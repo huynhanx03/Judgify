@@ -40,7 +40,7 @@ func (_d *FederatedIdentityDelete) ExecX(ctx context.Context) int {
 }
 
 func (_d *FederatedIdentityDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(federatedidentity.Table, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(federatedidentity.Table, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

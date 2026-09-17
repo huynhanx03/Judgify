@@ -4,6 +4,7 @@ package generate
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,20 +13,23 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testcaserevision"
 )
 
 // TestCaseQuery is the builder for querying TestCase entities.
 type TestCaseQuery struct {
 	config
-	ctx         *QueryContext
-	order       []testcase.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.TestCase
-	withProblem *ProblemQuery
-	modifiers   []func(*sql.Selector)
+	ctx           *QueryContext
+	order         []testcase.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.TestCase
+	withProblem   *ProblemQuery
+	withRevisions *TestcaseRevisionQuery
+	modifiers     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -84,6 +88,28 @@ func (_q *TestCaseQuery) QueryProblem() *ProblemQuery {
 	return query
 }
 
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *TestCaseQuery) QueryRevisions() *TestcaseRevisionQuery {
+	query := (&TestcaseRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testcase.Table, testcase.FieldID, selector),
+			sqlgraph.To(testcaserevision.Table, testcaserevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, testcase.RevisionsTable, testcase.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first TestCase entity from the query.
 // Returns a *NotFoundError when no TestCase was found.
 func (_q *TestCaseQuery) First(ctx context.Context) (*TestCase, error) {
@@ -108,8 +134,8 @@ func (_q *TestCaseQuery) FirstX(ctx context.Context) *TestCase {
 
 // FirstID returns the first TestCase ID from the query.
 // Returns a *NotFoundError when no TestCase ID was found.
-func (_q *TestCaseQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TestCaseQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +147,7 @@ func (_q *TestCaseQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TestCaseQuery) FirstIDX(ctx context.Context) int {
+func (_q *TestCaseQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +185,8 @@ func (_q *TestCaseQuery) OnlyX(ctx context.Context) *TestCase {
 // OnlyID is like Only, but returns the only TestCase ID in the query.
 // Returns a *NotSingularError when more than one TestCase ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TestCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TestCaseQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +202,7 @@ func (_q *TestCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TestCaseQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TestCaseQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +230,7 @@ func (_q *TestCaseQuery) AllX(ctx context.Context) []*TestCase {
 }
 
 // IDs executes the query and returns a list of TestCase IDs.
-func (_q *TestCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *TestCaseQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -216,7 +242,7 @@ func (_q *TestCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TestCaseQuery) IDsX(ctx context.Context) []int {
+func (_q *TestCaseQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -271,12 +297,13 @@ func (_q *TestCaseQuery) Clone() *TestCaseQuery {
 		return nil
 	}
 	return &TestCaseQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]testcase.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.TestCase{}, _q.predicates...),
-		withProblem: _q.withProblem.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]testcase.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.TestCase{}, _q.predicates...),
+		withProblem:   _q.withProblem.Clone(),
+		withRevisions: _q.withRevisions.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -292,6 +319,17 @@ func (_q *TestCaseQuery) WithProblem(opts ...func(*ProblemQuery)) *TestCaseQuery
 		opt(query)
 	}
 	_q.withProblem = query
+	return _q
+}
+
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TestCaseQuery) WithRevisions(opts ...func(*TestcaseRevisionQuery)) *TestCaseQuery {
+	query := (&TestcaseRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
 	return _q
 }
 
@@ -373,8 +411,9 @@ func (_q *TestCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tes
 	var (
 		nodes       = []*TestCase{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withProblem != nil,
+			_q.withRevisions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -404,12 +443,24 @@ func (_q *TestCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tes
 			return nil, err
 		}
 	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *TestCase) { n.Edges.Revisions = []*TestcaseRevision{} },
+			func(n *TestCase, e *TestcaseRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.TestCase = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *TestCaseQuery) loadProblem(ctx context.Context, query *ProblemQuery, nodes []*TestCase, init func(*TestCase), assign func(*TestCase, *Problem)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*TestCase)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*TestCase)
 	for i := range nodes {
 		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
@@ -436,6 +487,36 @@ func (_q *TestCaseQuery) loadProblem(ctx context.Context, query *ProblemQuery, n
 	}
 	return nil
 }
+func (_q *TestCaseQuery) loadRevisions(ctx context.Context, query *TestcaseRevisionQuery, nodes []*TestCase, init func(*TestCase), assign func(*TestCase, *TestcaseRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*TestCase)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(testcaserevision.FieldTestCaseID)
+	}
+	query.Where(predicate.TestcaseRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(testcase.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TestCaseID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "test_case_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *TestCaseQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -450,7 +531,7 @@ func (_q *TestCaseQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *TestCaseQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(testcase.Table, testcase.Columns, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(testcase.Table, testcase.Columns, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

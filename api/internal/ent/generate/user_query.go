@@ -13,21 +13,46 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsession"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessioncommandreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessionissuancereceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingresult"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestuserrating"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationrankingprojection"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaign"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignexplicituser"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrecipient"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationpreference"
+	"github.com/huynhanx03/judgify/internal/ent/generate/oauthcompletionticket"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffer"
+	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
-	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofilerevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -37,28 +62,52 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx                      *QueryContext
-	order                    []user.OrderOption
-	inters                   []Interceptor
-	predicates               []predicate.User
-	withRole                 *RoleQuery
-	withCredentials          *CredentialQuery
-	withAttributes           *UserAttributeValueQuery
-	withFederatedIdentities  *FederatedIdentityQuery
-	withProblems             *ProblemQuery
-	withSubmissions          *SubmissionQuery
-	withUserTraits           *UserTraitQuery
-	withUserElementExps      *UserElementExpQuery
-	withUserStats            *UserStatsQuery
-	withSolvedProblems       *UserSolvedProblemQuery
-	withDifficultyStats      *UserDifficultyStatsQuery
-	withTagStats             *UserTagStatsQuery
-	withContests             *ContestQuery
-	withContestRegistrations *ContestRegistrationQuery
-	withContestStandings     *ContestStandingQuery
-	withRatingHistories      *RatingHistoryQuery
-	withMaterials            *MaterialQuery
-	modifiers                []func(*sql.Selector)
+	ctx                                       *QueryContext
+	order                                     []user.OrderOption
+	inters                                    []Interceptor
+	predicates                                []predicate.User
+	withCredentials                           *CredentialQuery
+	withAttributes                            *UserAttributeValueQuery
+	withFederatedIdentities                   *FederatedIdentityQuery
+	withAuthSessions                          *AuthSessionQuery
+	withRecoveryContacts                      *UserRecoveryContactQuery
+	withRecoveryContactCommands               *RecoveryContactCommandReceiptQuery
+	withPasswordResetTokens                   *PasswordResetTokenQuery
+	withSessionIssuanceReceipts               *AuthSessionIssuanceReceiptQuery
+	withConsumedTraitOffers                   *OnboardingTraitOfferQuery
+	withSessionCommands                       *AuthSessionCommandReceiptQuery
+	withOauthCompletionTickets                *OAuthCompletionTicketQuery
+	withAuthorizationUpdates                  *AuthorizationStateQuery
+	withProblems                              *ProblemQuery
+	withSubmissions                           *SubmissionQuery
+	withUserTraits                            *UserTraitQuery
+	withRewardProfileRevisions                *UserRewardProfileRevisionQuery
+	withUserElementExps                       *UserElementExpQuery
+	withUserStats                             *UserStatsQuery
+	withCultivationRankingProjection          *CultivationRankingProjectionQuery
+	withSolvedProblems                        *UserSolvedProblemQuery
+	withDifficultyStats                       *UserDifficultyStatsQuery
+	withTagStats                              *UserTagStatsQuery
+	withContests                              *ContestQuery
+	withContestRegistrations                  *ContestRegistrationQuery
+	withContestStandings                      *ContestStandingQuery
+	withRatingHistories                       *RatingHistoryQuery
+	withContestRatingResults                  *ContestRatingResultQuery
+	withContestUserRatings                    *ContestUserRatingQuery
+	withContestScoringAttempts                *ContestScoringAttemptQuery
+	withContestProblemResults                 *ContestProblemResultQuery
+	withMaterials                             *MaterialQuery
+	withMaterialRevisions                     *MaterialRevisionQuery
+	withNotifications                         *NotificationQuery
+	withNotificationPreferences               *NotificationPreferenceQuery
+	withCreatedNotificationCampaigns          *NotificationCampaignQuery
+	withNotificationCampaignRevisions         *NotificationCampaignRevisionQuery
+	withExplicitNotificationCampaignRevisions *NotificationCampaignExplicitUserQuery
+	withNotificationCampaignDeliveries        *NotificationCampaignRecipientQuery
+	withContestContentRevisions               *ContestContentRevisionQuery
+	withContestClarifications                 *ContestClarificationQuery
+	withContestContentCommands                *ContestContentCommandQuery
+	modifiers                                 []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -93,28 +142,6 @@ func (_q *UserQuery) Unique(unique bool) *UserQuery {
 func (_q *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	_q.order = append(_q.order, o...)
 	return _q
-}
-
-// QueryRole chains the current query on the "role" edge.
-func (_q *UserQuery) QueryRole() *RoleQuery {
-	query := (&RoleClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(role.Table, role.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.RoleTable, user.RoleColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryCredentials chains the current query on the "credentials" edge.
@@ -176,6 +203,204 @@ func (_q *UserQuery) QueryFederatedIdentities() *FederatedIdentityQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(federatedidentity.Table, federatedidentity.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.FederatedIdentitiesTable, user.FederatedIdentitiesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAuthSessions chains the current query on the "auth_sessions" edge.
+func (_q *UserQuery) QueryAuthSessions() *AuthSessionQuery {
+	query := (&AuthSessionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(authsession.Table, authsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AuthSessionsTable, user.AuthSessionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRecoveryContacts chains the current query on the "recovery_contacts" edge.
+func (_q *UserQuery) QueryRecoveryContacts() *UserRecoveryContactQuery {
+	query := (&UserRecoveryContactClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(userrecoverycontact.Table, userrecoverycontact.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.RecoveryContactsTable, user.RecoveryContactsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRecoveryContactCommands chains the current query on the "recovery_contact_commands" edge.
+func (_q *UserQuery) QueryRecoveryContactCommands() *RecoveryContactCommandReceiptQuery {
+	query := (&RecoveryContactCommandReceiptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(recoverycontactcommandreceipt.Table, recoverycontactcommandreceipt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.RecoveryContactCommandsTable, user.RecoveryContactCommandsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPasswordResetTokens chains the current query on the "password_reset_tokens" edge.
+func (_q *UserQuery) QueryPasswordResetTokens() *PasswordResetTokenQuery {
+	query := (&PasswordResetTokenClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(passwordresettoken.Table, passwordresettoken.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PasswordResetTokensTable, user.PasswordResetTokensColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySessionIssuanceReceipts chains the current query on the "session_issuance_receipts" edge.
+func (_q *UserQuery) QuerySessionIssuanceReceipts() *AuthSessionIssuanceReceiptQuery {
+	query := (&AuthSessionIssuanceReceiptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(authsessionissuancereceipt.Table, authsessionissuancereceipt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SessionIssuanceReceiptsTable, user.SessionIssuanceReceiptsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryConsumedTraitOffers chains the current query on the "consumed_trait_offers" edge.
+func (_q *UserQuery) QueryConsumedTraitOffers() *OnboardingTraitOfferQuery {
+	query := (&OnboardingTraitOfferClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(onboardingtraitoffer.Table, onboardingtraitoffer.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ConsumedTraitOffersTable, user.ConsumedTraitOffersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySessionCommands chains the current query on the "session_commands" edge.
+func (_q *UserQuery) QuerySessionCommands() *AuthSessionCommandReceiptQuery {
+	query := (&AuthSessionCommandReceiptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(authsessioncommandreceipt.Table, authsessioncommandreceipt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SessionCommandsTable, user.SessionCommandsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOauthCompletionTickets chains the current query on the "oauth_completion_tickets" edge.
+func (_q *UserQuery) QueryOauthCompletionTickets() *OAuthCompletionTicketQuery {
+	query := (&OAuthCompletionTicketClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(oauthcompletionticket.Table, oauthcompletionticket.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.OauthCompletionTicketsTable, user.OauthCompletionTicketsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAuthorizationUpdates chains the current query on the "authorization_updates" edge.
+func (_q *UserQuery) QueryAuthorizationUpdates() *AuthorizationStateQuery {
+	query := (&AuthorizationStateClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(authorizationstate.Table, authorizationstate.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AuthorizationUpdatesTable, user.AuthorizationUpdatesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -249,6 +474,28 @@ func (_q *UserQuery) QueryUserTraits() *UserTraitQuery {
 	return query
 }
 
+// QueryRewardProfileRevisions chains the current query on the "reward_profile_revisions" edge.
+func (_q *UserQuery) QueryRewardProfileRevisions() *UserRewardProfileRevisionQuery {
+	query := (&UserRewardProfileRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(userrewardprofilerevision.Table, userrewardprofilerevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.RewardProfileRevisionsTable, user.RewardProfileRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryUserElementExps chains the current query on the "user_element_exps" edge.
 func (_q *UserQuery) QueryUserElementExps() *UserElementExpQuery {
 	query := (&UserElementExpClient{config: _q.config}).Query()
@@ -286,6 +533,28 @@ func (_q *UserQuery) QueryUserStats() *UserStatsQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(userstats.Table, userstats.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UserStatsTable, user.UserStatsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCultivationRankingProjection chains the current query on the "cultivation_ranking_projection" edge.
+func (_q *UserQuery) QueryCultivationRankingProjection() *CultivationRankingProjectionQuery {
+	query := (&CultivationRankingProjectionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(cultivationrankingprojection.Table, cultivationrankingprojection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CultivationRankingProjectionTable, user.CultivationRankingProjectionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -447,6 +716,94 @@ func (_q *UserQuery) QueryRatingHistories() *RatingHistoryQuery {
 	return query
 }
 
+// QueryContestRatingResults chains the current query on the "contest_rating_results" edge.
+func (_q *UserQuery) QueryContestRatingResults() *ContestRatingResultQuery {
+	query := (&ContestRatingResultClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestratingresult.Table, contestratingresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestRatingResultsTable, user.ContestRatingResultsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestUserRatings chains the current query on the "contest_user_ratings" edge.
+func (_q *UserQuery) QueryContestUserRatings() *ContestUserRatingQuery {
+	query := (&ContestUserRatingClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestuserrating.Table, contestuserrating.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestUserRatingsTable, user.ContestUserRatingsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestScoringAttempts chains the current query on the "contest_scoring_attempts" edge.
+func (_q *UserQuery) QueryContestScoringAttempts() *ContestScoringAttemptQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestscoringattempt.Table, contestscoringattempt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestScoringAttemptsTable, user.ContestScoringAttemptsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestProblemResults chains the current query on the "contest_problem_results" edge.
+func (_q *UserQuery) QueryContestProblemResults() *ContestProblemResultQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestproblemresult.Table, contestproblemresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestProblemResultsTable, user.ContestProblemResultsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryMaterials chains the current query on the "materials" edge.
 func (_q *UserQuery) QueryMaterials() *MaterialQuery {
 	query := (&MaterialClient{config: _q.config}).Query()
@@ -462,6 +819,226 @@ func (_q *UserQuery) QueryMaterials() *MaterialQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(material.Table, material.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.MaterialsTable, user.MaterialsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMaterialRevisions chains the current query on the "material_revisions" edge.
+func (_q *UserQuery) QueryMaterialRevisions() *MaterialRevisionQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(materialrevision.Table, materialrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MaterialRevisionsTable, user.MaterialRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryNotifications chains the current query on the "notifications" edge.
+func (_q *UserQuery) QueryNotifications() *NotificationQuery {
+	query := (&NotificationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(notification.Table, notification.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.NotificationsTable, user.NotificationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryNotificationPreferences chains the current query on the "notification_preferences" edge.
+func (_q *UserQuery) QueryNotificationPreferences() *NotificationPreferenceQuery {
+	query := (&NotificationPreferenceClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(notificationpreference.Table, notificationpreference.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.NotificationPreferencesTable, user.NotificationPreferencesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCreatedNotificationCampaigns chains the current query on the "created_notification_campaigns" edge.
+func (_q *UserQuery) QueryCreatedNotificationCampaigns() *NotificationCampaignQuery {
+	query := (&NotificationCampaignClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(notificationcampaign.Table, notificationcampaign.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CreatedNotificationCampaignsTable, user.CreatedNotificationCampaignsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryNotificationCampaignRevisions chains the current query on the "notification_campaign_revisions" edge.
+func (_q *UserQuery) QueryNotificationCampaignRevisions() *NotificationCampaignRevisionQuery {
+	query := (&NotificationCampaignRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(notificationcampaignrevision.Table, notificationcampaignrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.NotificationCampaignRevisionsTable, user.NotificationCampaignRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryExplicitNotificationCampaignRevisions chains the current query on the "explicit_notification_campaign_revisions" edge.
+func (_q *UserQuery) QueryExplicitNotificationCampaignRevisions() *NotificationCampaignExplicitUserQuery {
+	query := (&NotificationCampaignExplicitUserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(notificationcampaignexplicituser.Table, notificationcampaignexplicituser.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ExplicitNotificationCampaignRevisionsTable, user.ExplicitNotificationCampaignRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryNotificationCampaignDeliveries chains the current query on the "notification_campaign_deliveries" edge.
+func (_q *UserQuery) QueryNotificationCampaignDeliveries() *NotificationCampaignRecipientQuery {
+	query := (&NotificationCampaignRecipientClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(notificationcampaignrecipient.Table, notificationcampaignrecipient.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.NotificationCampaignDeliveriesTable, user.NotificationCampaignDeliveriesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestContentRevisions chains the current query on the "contest_content_revisions" edge.
+func (_q *UserQuery) QueryContestContentRevisions() *ContestContentRevisionQuery {
+	query := (&ContestContentRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestcontentrevision.Table, contestcontentrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestContentRevisionsTable, user.ContestContentRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestClarifications chains the current query on the "contest_clarifications" edge.
+func (_q *UserQuery) QueryContestClarifications() *ContestClarificationQuery {
+	query := (&ContestClarificationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestclarification.Table, contestclarification.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestClarificationsTable, user.ContestClarificationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestContentCommands chains the current query on the "contest_content_commands" edge.
+func (_q *UserQuery) QueryContestContentCommands() *ContestContentCommandQuery {
+	query := (&ContestContentCommandClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestcontentcommand.Table, contestcontentcommand.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestContentCommandsTable, user.ContestContentCommandsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -493,8 +1070,8 @@ func (_q *UserQuery) FirstX(ctx context.Context) *User {
 
 // FirstID returns the first User ID from the query.
 // Returns a *NotFoundError when no User ID was found.
-func (_q *UserQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -506,7 +1083,7 @@ func (_q *UserQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserQuery) FirstIDX(ctx context.Context) int {
+func (_q *UserQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -544,8 +1121,8 @@ func (_q *UserQuery) OnlyX(ctx context.Context) *User {
 // OnlyID is like Only, but returns the only User ID in the query.
 // Returns a *NotSingularError when more than one User ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -561,7 +1138,7 @@ func (_q *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserQuery) OnlyIDX(ctx context.Context) int {
+func (_q *UserQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -589,7 +1166,7 @@ func (_q *UserQuery) AllX(ctx context.Context) []*User {
 }
 
 // IDs executes the query and returns a list of User IDs.
-func (_q *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *UserQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -601,7 +1178,7 @@ func (_q *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserQuery) IDsX(ctx context.Context) []int {
+func (_q *UserQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -656,44 +1233,57 @@ func (_q *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:                   _q.config,
-		ctx:                      _q.ctx.Clone(),
-		order:                    append([]user.OrderOption{}, _q.order...),
-		inters:                   append([]Interceptor{}, _q.inters...),
-		predicates:               append([]predicate.User{}, _q.predicates...),
-		withRole:                 _q.withRole.Clone(),
-		withCredentials:          _q.withCredentials.Clone(),
-		withAttributes:           _q.withAttributes.Clone(),
-		withFederatedIdentities:  _q.withFederatedIdentities.Clone(),
-		withProblems:             _q.withProblems.Clone(),
-		withSubmissions:          _q.withSubmissions.Clone(),
-		withUserTraits:           _q.withUserTraits.Clone(),
-		withUserElementExps:      _q.withUserElementExps.Clone(),
-		withUserStats:            _q.withUserStats.Clone(),
-		withSolvedProblems:       _q.withSolvedProblems.Clone(),
-		withDifficultyStats:      _q.withDifficultyStats.Clone(),
-		withTagStats:             _q.withTagStats.Clone(),
-		withContests:             _q.withContests.Clone(),
-		withContestRegistrations: _q.withContestRegistrations.Clone(),
-		withContestStandings:     _q.withContestStandings.Clone(),
-		withRatingHistories:      _q.withRatingHistories.Clone(),
-		withMaterials:            _q.withMaterials.Clone(),
+		config:                                    _q.config,
+		ctx:                                       _q.ctx.Clone(),
+		order:                                     append([]user.OrderOption{}, _q.order...),
+		inters:                                    append([]Interceptor{}, _q.inters...),
+		predicates:                                append([]predicate.User{}, _q.predicates...),
+		withCredentials:                           _q.withCredentials.Clone(),
+		withAttributes:                            _q.withAttributes.Clone(),
+		withFederatedIdentities:                   _q.withFederatedIdentities.Clone(),
+		withAuthSessions:                          _q.withAuthSessions.Clone(),
+		withRecoveryContacts:                      _q.withRecoveryContacts.Clone(),
+		withRecoveryContactCommands:               _q.withRecoveryContactCommands.Clone(),
+		withPasswordResetTokens:                   _q.withPasswordResetTokens.Clone(),
+		withSessionIssuanceReceipts:               _q.withSessionIssuanceReceipts.Clone(),
+		withConsumedTraitOffers:                   _q.withConsumedTraitOffers.Clone(),
+		withSessionCommands:                       _q.withSessionCommands.Clone(),
+		withOauthCompletionTickets:                _q.withOauthCompletionTickets.Clone(),
+		withAuthorizationUpdates:                  _q.withAuthorizationUpdates.Clone(),
+		withProblems:                              _q.withProblems.Clone(),
+		withSubmissions:                           _q.withSubmissions.Clone(),
+		withUserTraits:                            _q.withUserTraits.Clone(),
+		withRewardProfileRevisions:                _q.withRewardProfileRevisions.Clone(),
+		withUserElementExps:                       _q.withUserElementExps.Clone(),
+		withUserStats:                             _q.withUserStats.Clone(),
+		withCultivationRankingProjection:          _q.withCultivationRankingProjection.Clone(),
+		withSolvedProblems:                        _q.withSolvedProblems.Clone(),
+		withDifficultyStats:                       _q.withDifficultyStats.Clone(),
+		withTagStats:                              _q.withTagStats.Clone(),
+		withContests:                              _q.withContests.Clone(),
+		withContestRegistrations:                  _q.withContestRegistrations.Clone(),
+		withContestStandings:                      _q.withContestStandings.Clone(),
+		withRatingHistories:                       _q.withRatingHistories.Clone(),
+		withContestRatingResults:                  _q.withContestRatingResults.Clone(),
+		withContestUserRatings:                    _q.withContestUserRatings.Clone(),
+		withContestScoringAttempts:                _q.withContestScoringAttempts.Clone(),
+		withContestProblemResults:                 _q.withContestProblemResults.Clone(),
+		withMaterials:                             _q.withMaterials.Clone(),
+		withMaterialRevisions:                     _q.withMaterialRevisions.Clone(),
+		withNotifications:                         _q.withNotifications.Clone(),
+		withNotificationPreferences:               _q.withNotificationPreferences.Clone(),
+		withCreatedNotificationCampaigns:          _q.withCreatedNotificationCampaigns.Clone(),
+		withNotificationCampaignRevisions:         _q.withNotificationCampaignRevisions.Clone(),
+		withExplicitNotificationCampaignRevisions: _q.withExplicitNotificationCampaignRevisions.Clone(),
+		withNotificationCampaignDeliveries:        _q.withNotificationCampaignDeliveries.Clone(),
+		withContestContentRevisions:               _q.withContestContentRevisions.Clone(),
+		withContestClarifications:                 _q.withContestClarifications.Clone(),
+		withContestContentCommands:                _q.withContestContentCommands.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
-}
-
-// WithRole tells the query-builder to eager-load the nodes that are connected to
-// the "role" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithRole(opts ...func(*RoleQuery)) *UserQuery {
-	query := (&RoleClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withRole = query
-	return _q
 }
 
 // WithCredentials tells the query-builder to eager-load the nodes that are connected to
@@ -726,6 +1316,105 @@ func (_q *UserQuery) WithFederatedIdentities(opts ...func(*FederatedIdentityQuer
 		opt(query)
 	}
 	_q.withFederatedIdentities = query
+	return _q
+}
+
+// WithAuthSessions tells the query-builder to eager-load the nodes that are connected to
+// the "auth_sessions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithAuthSessions(opts ...func(*AuthSessionQuery)) *UserQuery {
+	query := (&AuthSessionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAuthSessions = query
+	return _q
+}
+
+// WithRecoveryContacts tells the query-builder to eager-load the nodes that are connected to
+// the "recovery_contacts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithRecoveryContacts(opts ...func(*UserRecoveryContactQuery)) *UserQuery {
+	query := (&UserRecoveryContactClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRecoveryContacts = query
+	return _q
+}
+
+// WithRecoveryContactCommands tells the query-builder to eager-load the nodes that are connected to
+// the "recovery_contact_commands" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithRecoveryContactCommands(opts ...func(*RecoveryContactCommandReceiptQuery)) *UserQuery {
+	query := (&RecoveryContactCommandReceiptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRecoveryContactCommands = query
+	return _q
+}
+
+// WithPasswordResetTokens tells the query-builder to eager-load the nodes that are connected to
+// the "password_reset_tokens" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithPasswordResetTokens(opts ...func(*PasswordResetTokenQuery)) *UserQuery {
+	query := (&PasswordResetTokenClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPasswordResetTokens = query
+	return _q
+}
+
+// WithSessionIssuanceReceipts tells the query-builder to eager-load the nodes that are connected to
+// the "session_issuance_receipts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithSessionIssuanceReceipts(opts ...func(*AuthSessionIssuanceReceiptQuery)) *UserQuery {
+	query := (&AuthSessionIssuanceReceiptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSessionIssuanceReceipts = query
+	return _q
+}
+
+// WithConsumedTraitOffers tells the query-builder to eager-load the nodes that are connected to
+// the "consumed_trait_offers" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithConsumedTraitOffers(opts ...func(*OnboardingTraitOfferQuery)) *UserQuery {
+	query := (&OnboardingTraitOfferClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withConsumedTraitOffers = query
+	return _q
+}
+
+// WithSessionCommands tells the query-builder to eager-load the nodes that are connected to
+// the "session_commands" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithSessionCommands(opts ...func(*AuthSessionCommandReceiptQuery)) *UserQuery {
+	query := (&AuthSessionCommandReceiptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSessionCommands = query
+	return _q
+}
+
+// WithOauthCompletionTickets tells the query-builder to eager-load the nodes that are connected to
+// the "oauth_completion_tickets" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithOauthCompletionTickets(opts ...func(*OAuthCompletionTicketQuery)) *UserQuery {
+	query := (&OAuthCompletionTicketClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withOauthCompletionTickets = query
+	return _q
+}
+
+// WithAuthorizationUpdates tells the query-builder to eager-load the nodes that are connected to
+// the "authorization_updates" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithAuthorizationUpdates(opts ...func(*AuthorizationStateQuery)) *UserQuery {
+	query := (&AuthorizationStateClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAuthorizationUpdates = query
 	return _q
 }
 
@@ -762,6 +1451,17 @@ func (_q *UserQuery) WithUserTraits(opts ...func(*UserTraitQuery)) *UserQuery {
 	return _q
 }
 
+// WithRewardProfileRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "reward_profile_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithRewardProfileRevisions(opts ...func(*UserRewardProfileRevisionQuery)) *UserQuery {
+	query := (&UserRewardProfileRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRewardProfileRevisions = query
+	return _q
+}
+
 // WithUserElementExps tells the query-builder to eager-load the nodes that are connected to
 // the "user_element_exps" edge. The optional arguments are used to configure the query builder of the edge.
 func (_q *UserQuery) WithUserElementExps(opts ...func(*UserElementExpQuery)) *UserQuery {
@@ -781,6 +1481,17 @@ func (_q *UserQuery) WithUserStats(opts ...func(*UserStatsQuery)) *UserQuery {
 		opt(query)
 	}
 	_q.withUserStats = query
+	return _q
+}
+
+// WithCultivationRankingProjection tells the query-builder to eager-load the nodes that are connected to
+// the "cultivation_ranking_projection" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithCultivationRankingProjection(opts ...func(*CultivationRankingProjectionQuery)) *UserQuery {
+	query := (&CultivationRankingProjectionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withCultivationRankingProjection = query
 	return _q
 }
 
@@ -861,6 +1572,50 @@ func (_q *UserQuery) WithRatingHistories(opts ...func(*RatingHistoryQuery)) *Use
 	return _q
 }
 
+// WithContestRatingResults tells the query-builder to eager-load the nodes that are connected to
+// the "contest_rating_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestRatingResults(opts ...func(*ContestRatingResultQuery)) *UserQuery {
+	query := (&ContestRatingResultClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestRatingResults = query
+	return _q
+}
+
+// WithContestUserRatings tells the query-builder to eager-load the nodes that are connected to
+// the "contest_user_ratings" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestUserRatings(opts ...func(*ContestUserRatingQuery)) *UserQuery {
+	query := (&ContestUserRatingClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestUserRatings = query
+	return _q
+}
+
+// WithContestScoringAttempts tells the query-builder to eager-load the nodes that are connected to
+// the "contest_scoring_attempts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestScoringAttempts(opts ...func(*ContestScoringAttemptQuery)) *UserQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestScoringAttempts = query
+	return _q
+}
+
+// WithContestProblemResults tells the query-builder to eager-load the nodes that are connected to
+// the "contest_problem_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestProblemResults(opts ...func(*ContestProblemResultQuery)) *UserQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestProblemResults = query
+	return _q
+}
+
 // WithMaterials tells the query-builder to eager-load the nodes that are connected to
 // the "materials" edge. The optional arguments are used to configure the query builder of the edge.
 func (_q *UserQuery) WithMaterials(opts ...func(*MaterialQuery)) *UserQuery {
@@ -869,6 +1624,116 @@ func (_q *UserQuery) WithMaterials(opts ...func(*MaterialQuery)) *UserQuery {
 		opt(query)
 	}
 	_q.withMaterials = query
+	return _q
+}
+
+// WithMaterialRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "material_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithMaterialRevisions(opts ...func(*MaterialRevisionQuery)) *UserQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMaterialRevisions = query
+	return _q
+}
+
+// WithNotifications tells the query-builder to eager-load the nodes that are connected to
+// the "notifications" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNotifications(opts ...func(*NotificationQuery)) *UserQuery {
+	query := (&NotificationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withNotifications = query
+	return _q
+}
+
+// WithNotificationPreferences tells the query-builder to eager-load the nodes that are connected to
+// the "notification_preferences" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNotificationPreferences(opts ...func(*NotificationPreferenceQuery)) *UserQuery {
+	query := (&NotificationPreferenceClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withNotificationPreferences = query
+	return _q
+}
+
+// WithCreatedNotificationCampaigns tells the query-builder to eager-load the nodes that are connected to
+// the "created_notification_campaigns" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithCreatedNotificationCampaigns(opts ...func(*NotificationCampaignQuery)) *UserQuery {
+	query := (&NotificationCampaignClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withCreatedNotificationCampaigns = query
+	return _q
+}
+
+// WithNotificationCampaignRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "notification_campaign_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNotificationCampaignRevisions(opts ...func(*NotificationCampaignRevisionQuery)) *UserQuery {
+	query := (&NotificationCampaignRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withNotificationCampaignRevisions = query
+	return _q
+}
+
+// WithExplicitNotificationCampaignRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "explicit_notification_campaign_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithExplicitNotificationCampaignRevisions(opts ...func(*NotificationCampaignExplicitUserQuery)) *UserQuery {
+	query := (&NotificationCampaignExplicitUserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withExplicitNotificationCampaignRevisions = query
+	return _q
+}
+
+// WithNotificationCampaignDeliveries tells the query-builder to eager-load the nodes that are connected to
+// the "notification_campaign_deliveries" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNotificationCampaignDeliveries(opts ...func(*NotificationCampaignRecipientQuery)) *UserQuery {
+	query := (&NotificationCampaignRecipientClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withNotificationCampaignDeliveries = query
+	return _q
+}
+
+// WithContestContentRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "contest_content_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestContentRevisions(opts ...func(*ContestContentRevisionQuery)) *UserQuery {
+	query := (&ContestContentRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestContentRevisions = query
+	return _q
+}
+
+// WithContestClarifications tells the query-builder to eager-load the nodes that are connected to
+// the "contest_clarifications" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestClarifications(opts ...func(*ContestClarificationQuery)) *UserQuery {
+	query := (&ContestClarificationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestClarifications = query
+	return _q
+}
+
+// WithContestContentCommands tells the query-builder to eager-load the nodes that are connected to
+// the "contest_content_commands" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithContestContentCommands(opts ...func(*ContestContentCommandQuery)) *UserQuery {
+	query := (&ContestContentCommandClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestContentCommands = query
 	return _q
 }
 
@@ -950,16 +1815,26 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [17]bool{
-			_q.withRole != nil,
+		loadedTypes = [41]bool{
 			_q.withCredentials != nil,
 			_q.withAttributes != nil,
 			_q.withFederatedIdentities != nil,
+			_q.withAuthSessions != nil,
+			_q.withRecoveryContacts != nil,
+			_q.withRecoveryContactCommands != nil,
+			_q.withPasswordResetTokens != nil,
+			_q.withSessionIssuanceReceipts != nil,
+			_q.withConsumedTraitOffers != nil,
+			_q.withSessionCommands != nil,
+			_q.withOauthCompletionTickets != nil,
+			_q.withAuthorizationUpdates != nil,
 			_q.withProblems != nil,
 			_q.withSubmissions != nil,
 			_q.withUserTraits != nil,
+			_q.withRewardProfileRevisions != nil,
 			_q.withUserElementExps != nil,
 			_q.withUserStats != nil,
+			_q.withCultivationRankingProjection != nil,
 			_q.withSolvedProblems != nil,
 			_q.withDifficultyStats != nil,
 			_q.withTagStats != nil,
@@ -967,7 +1842,21 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			_q.withContestRegistrations != nil,
 			_q.withContestStandings != nil,
 			_q.withRatingHistories != nil,
+			_q.withContestRatingResults != nil,
+			_q.withContestUserRatings != nil,
+			_q.withContestScoringAttempts != nil,
+			_q.withContestProblemResults != nil,
 			_q.withMaterials != nil,
+			_q.withMaterialRevisions != nil,
+			_q.withNotifications != nil,
+			_q.withNotificationPreferences != nil,
+			_q.withCreatedNotificationCampaigns != nil,
+			_q.withNotificationCampaignRevisions != nil,
+			_q.withExplicitNotificationCampaignRevisions != nil,
+			_q.withNotificationCampaignDeliveries != nil,
+			_q.withContestContentRevisions != nil,
+			_q.withContestClarifications != nil,
+			_q.withContestContentCommands != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -990,12 +1879,6 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
-	}
-	if query := _q.withRole; query != nil {
-		if err := _q.loadRole(ctx, query, nodes, nil,
-			func(n *User, e *Role) { n.Edges.Role = e }); err != nil {
-			return nil, err
-		}
 	}
 	if query := _q.withCredentials; query != nil {
 		if err := _q.loadCredentials(ctx, query, nodes,
@@ -1028,6 +1911,114 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 				n.Edges.FederatedIdentities = append(n.Edges.FederatedIdentities, e)
 				if !e.Edges.loadedTypes[0] {
 					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAuthSessions; query != nil {
+		if err := _q.loadAuthSessions(ctx, query, nodes,
+			func(n *User) { n.Edges.AuthSessions = []*AuthSession{} },
+			func(n *User, e *AuthSession) {
+				n.Edges.AuthSessions = append(n.Edges.AuthSessions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withRecoveryContacts; query != nil {
+		if err := _q.loadRecoveryContacts(ctx, query, nodes,
+			func(n *User) { n.Edges.RecoveryContacts = []*UserRecoveryContact{} },
+			func(n *User, e *UserRecoveryContact) {
+				n.Edges.RecoveryContacts = append(n.Edges.RecoveryContacts, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withRecoveryContactCommands; query != nil {
+		if err := _q.loadRecoveryContactCommands(ctx, query, nodes,
+			func(n *User) { n.Edges.RecoveryContactCommands = []*RecoveryContactCommandReceipt{} },
+			func(n *User, e *RecoveryContactCommandReceipt) {
+				n.Edges.RecoveryContactCommands = append(n.Edges.RecoveryContactCommands, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withPasswordResetTokens; query != nil {
+		if err := _q.loadPasswordResetTokens(ctx, query, nodes,
+			func(n *User) { n.Edges.PasswordResetTokens = []*PasswordResetToken{} },
+			func(n *User, e *PasswordResetToken) {
+				n.Edges.PasswordResetTokens = append(n.Edges.PasswordResetTokens, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSessionIssuanceReceipts; query != nil {
+		if err := _q.loadSessionIssuanceReceipts(ctx, query, nodes,
+			func(n *User) { n.Edges.SessionIssuanceReceipts = []*AuthSessionIssuanceReceipt{} },
+			func(n *User, e *AuthSessionIssuanceReceipt) {
+				n.Edges.SessionIssuanceReceipts = append(n.Edges.SessionIssuanceReceipts, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withConsumedTraitOffers; query != nil {
+		if err := _q.loadConsumedTraitOffers(ctx, query, nodes,
+			func(n *User) { n.Edges.ConsumedTraitOffers = []*OnboardingTraitOffer{} },
+			func(n *User, e *OnboardingTraitOffer) {
+				n.Edges.ConsumedTraitOffers = append(n.Edges.ConsumedTraitOffers, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.ConsumedByUser = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSessionCommands; query != nil {
+		if err := _q.loadSessionCommands(ctx, query, nodes,
+			func(n *User) { n.Edges.SessionCommands = []*AuthSessionCommandReceipt{} },
+			func(n *User, e *AuthSessionCommandReceipt) {
+				n.Edges.SessionCommands = append(n.Edges.SessionCommands, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withOauthCompletionTickets; query != nil {
+		if err := _q.loadOauthCompletionTickets(ctx, query, nodes,
+			func(n *User) { n.Edges.OauthCompletionTickets = []*OAuthCompletionTicket{} },
+			func(n *User, e *OAuthCompletionTicket) {
+				n.Edges.OauthCompletionTickets = append(n.Edges.OauthCompletionTickets, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.BoundUser = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAuthorizationUpdates; query != nil {
+		if err := _q.loadAuthorizationUpdates(ctx, query, nodes,
+			func(n *User) { n.Edges.AuthorizationUpdates = []*AuthorizationState{} },
+			func(n *User, e *AuthorizationState) {
+				n.Edges.AuthorizationUpdates = append(n.Edges.AuthorizationUpdates, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Updater = n
 				}
 			}); err != nil {
 			return nil, err
@@ -1069,6 +2060,18 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := _q.withRewardProfileRevisions; query != nil {
+		if err := _q.loadRewardProfileRevisions(ctx, query, nodes,
+			func(n *User) { n.Edges.RewardProfileRevisions = []*UserRewardProfileRevision{} },
+			func(n *User, e *UserRewardProfileRevision) {
+				n.Edges.RewardProfileRevisions = append(n.Edges.RewardProfileRevisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withUserElementExps; query != nil {
 		if err := _q.loadUserElementExps(ctx, query, nodes,
 			func(n *User) { n.Edges.UserElementExps = []*UserElementExp{} },
@@ -1086,6 +2089,18 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			func(n *User) { n.Edges.UserStats = []*UserStats{} },
 			func(n *User, e *UserStats) {
 				n.Edges.UserStats = append(n.Edges.UserStats, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withCultivationRankingProjection; query != nil {
+		if err := _q.loadCultivationRankingProjection(ctx, query, nodes,
+			func(n *User) { n.Edges.CultivationRankingProjection = []*CultivationRankingProjection{} },
+			func(n *User, e *CultivationRankingProjection) {
+				n.Edges.CultivationRankingProjection = append(n.Edges.CultivationRankingProjection, e)
 				if !e.Edges.loadedTypes[0] {
 					e.Edges.User = n
 				}
@@ -1177,13 +2192,181 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := _q.withContestRatingResults; query != nil {
+		if err := _q.loadContestRatingResults(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestRatingResults = []*ContestRatingResult{} },
+			func(n *User, e *ContestRatingResult) {
+				n.Edges.ContestRatingResults = append(n.Edges.ContestRatingResults, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestUserRatings; query != nil {
+		if err := _q.loadContestUserRatings(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestUserRatings = []*ContestUserRating{} },
+			func(n *User, e *ContestUserRating) {
+				n.Edges.ContestUserRatings = append(n.Edges.ContestUserRatings, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestScoringAttempts; query != nil {
+		if err := _q.loadContestScoringAttempts(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestScoringAttempts = []*ContestScoringAttempt{} },
+			func(n *User, e *ContestScoringAttempt) {
+				n.Edges.ContestScoringAttempts = append(n.Edges.ContestScoringAttempts, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestProblemResults; query != nil {
+		if err := _q.loadContestProblemResults(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestProblemResults = []*ContestProblemResult{} },
+			func(n *User, e *ContestProblemResult) {
+				n.Edges.ContestProblemResults = append(n.Edges.ContestProblemResults, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withMaterials; query != nil {
 		if err := _q.loadMaterials(ctx, query, nodes,
 			func(n *User) { n.Edges.Materials = []*Material{} },
 			func(n *User, e *Material) {
 				n.Edges.Materials = append(n.Edges.Materials, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Author = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withMaterialRevisions; query != nil {
+		if err := _q.loadMaterialRevisions(ctx, query, nodes,
+			func(n *User) { n.Edges.MaterialRevisions = []*MaterialRevision{} },
+			func(n *User, e *MaterialRevision) {
+				n.Edges.MaterialRevisions = append(n.Edges.MaterialRevisions, e)
+				if !e.Edges.loadedTypes[3] {
+					e.Edges.Author = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withNotifications; query != nil {
+		if err := _q.loadNotifications(ctx, query, nodes,
+			func(n *User) { n.Edges.Notifications = []*Notification{} },
+			func(n *User, e *Notification) {
+				n.Edges.Notifications = append(n.Edges.Notifications, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withNotificationPreferences; query != nil {
+		if err := _q.loadNotificationPreferences(ctx, query, nodes,
+			func(n *User) { n.Edges.NotificationPreferences = []*NotificationPreference{} },
+			func(n *User, e *NotificationPreference) {
+				n.Edges.NotificationPreferences = append(n.Edges.NotificationPreferences, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withCreatedNotificationCampaigns; query != nil {
+		if err := _q.loadCreatedNotificationCampaigns(ctx, query, nodes,
+			func(n *User) { n.Edges.CreatedNotificationCampaigns = []*NotificationCampaign{} },
+			func(n *User, e *NotificationCampaign) {
+				n.Edges.CreatedNotificationCampaigns = append(n.Edges.CreatedNotificationCampaigns, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Creator = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withNotificationCampaignRevisions; query != nil {
+		if err := _q.loadNotificationCampaignRevisions(ctx, query, nodes,
+			func(n *User) { n.Edges.NotificationCampaignRevisions = []*NotificationCampaignRevision{} },
+			func(n *User, e *NotificationCampaignRevision) {
+				n.Edges.NotificationCampaignRevisions = append(n.Edges.NotificationCampaignRevisions, e)
 				if !e.Edges.loadedTypes[1] {
 					e.Edges.Author = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withExplicitNotificationCampaignRevisions; query != nil {
+		if err := _q.loadExplicitNotificationCampaignRevisions(ctx, query, nodes,
+			func(n *User) { n.Edges.ExplicitNotificationCampaignRevisions = []*NotificationCampaignExplicitUser{} },
+			func(n *User, e *NotificationCampaignExplicitUser) {
+				n.Edges.ExplicitNotificationCampaignRevisions = append(n.Edges.ExplicitNotificationCampaignRevisions, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withNotificationCampaignDeliveries; query != nil {
+		if err := _q.loadNotificationCampaignDeliveries(ctx, query, nodes,
+			func(n *User) { n.Edges.NotificationCampaignDeliveries = []*NotificationCampaignRecipient{} },
+			func(n *User, e *NotificationCampaignRecipient) {
+				n.Edges.NotificationCampaignDeliveries = append(n.Edges.NotificationCampaignDeliveries, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestContentRevisions; query != nil {
+		if err := _q.loadContestContentRevisions(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestContentRevisions = []*ContestContentRevision{} },
+			func(n *User, e *ContestContentRevision) {
+				n.Edges.ContestContentRevisions = append(n.Edges.ContestContentRevisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Author = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestClarifications; query != nil {
+		if err := _q.loadContestClarifications(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestClarifications = []*ContestClarification{} },
+			func(n *User, e *ContestClarification) {
+				n.Edges.ContestClarifications = append(n.Edges.ContestClarifications, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Requester = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestContentCommands; query != nil {
+		if err := _q.loadContestContentCommands(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestContentCommands = []*ContestContentCommand{} },
+			func(n *User, e *ContestContentCommand) {
+				n.Edges.ContestContentCommands = append(n.Edges.ContestContentCommands, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Actor = n
 				}
 			}); err != nil {
 			return nil, err
@@ -1192,38 +2375,9 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	return nodes, nil
 }
 
-func (_q *UserQuery) loadRole(ctx context.Context, query *RoleQuery, nodes []*User, init func(*User), assign func(*User, *Role)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*User)
-	for i := range nodes {
-		fk := nodes[i].RoleID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(role.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "role_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (_q *UserQuery) loadCredentials(ctx context.Context, query *CredentialQuery, nodes []*User, init func(*User), assign func(*User, *Credential)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1253,7 +2407,7 @@ func (_q *UserQuery) loadCredentials(ctx context.Context, query *CredentialQuery
 }
 func (_q *UserQuery) loadAttributes(ctx context.Context, query *UserAttributeValueQuery, nodes []*User, init func(*User), assign func(*User, *UserAttributeValue)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1283,7 +2437,7 @@ func (_q *UserQuery) loadAttributes(ctx context.Context, query *UserAttributeVal
 }
 func (_q *UserQuery) loadFederatedIdentities(ctx context.Context, query *FederatedIdentityQuery, nodes []*User, init func(*User), assign func(*User, *FederatedIdentity)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1311,9 +2465,9 @@ func (_q *UserQuery) loadFederatedIdentities(ctx context.Context, query *Federat
 	}
 	return nil
 }
-func (_q *UserQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*User, init func(*User), assign func(*User, *Problem)) error {
+func (_q *UserQuery) loadAuthSessions(ctx context.Context, query *AuthSessionQuery, nodes []*User, init func(*User), assign func(*User, *AuthSession)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1321,7 +2475,288 @@ func (_q *UserQuery) loadProblems(ctx context.Context, query *ProblemQuery, node
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(authsession.FieldUserID)
+	}
+	query.Where(predicate.AuthSession(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.AuthSessionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadRecoveryContacts(ctx context.Context, query *UserRecoveryContactQuery, nodes []*User, init func(*User), assign func(*User, *UserRecoveryContact)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userrecoverycontact.FieldUserID)
+	}
+	query.Where(predicate.UserRecoveryContact(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.RecoveryContactsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadRecoveryContactCommands(ctx context.Context, query *RecoveryContactCommandReceiptQuery, nodes []*User, init func(*User), assign func(*User, *RecoveryContactCommandReceipt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(recoverycontactcommandreceipt.FieldUserID)
+	}
+	query.Where(predicate.RecoveryContactCommandReceipt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.RecoveryContactCommandsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadPasswordResetTokens(ctx context.Context, query *PasswordResetTokenQuery, nodes []*User, init func(*User), assign func(*User, *PasswordResetToken)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(passwordresettoken.FieldUserID)
+	}
+	query.Where(predicate.PasswordResetToken(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.PasswordResetTokensColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadSessionIssuanceReceipts(ctx context.Context, query *AuthSessionIssuanceReceiptQuery, nodes []*User, init func(*User), assign func(*User, *AuthSessionIssuanceReceipt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(authsessionissuancereceipt.FieldUserID)
+	}
+	query.Where(predicate.AuthSessionIssuanceReceipt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.SessionIssuanceReceiptsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadConsumedTraitOffers(ctx context.Context, query *OnboardingTraitOfferQuery, nodes []*User, init func(*User), assign func(*User, *OnboardingTraitOffer)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(onboardingtraitoffer.FieldConsumedByUserID)
+	}
+	query.Where(predicate.OnboardingTraitOffer(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ConsumedTraitOffersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ConsumedByUserID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "consumed_by_user_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "consumed_by_user_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadSessionCommands(ctx context.Context, query *AuthSessionCommandReceiptQuery, nodes []*User, init func(*User), assign func(*User, *AuthSessionCommandReceipt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(authsessioncommandreceipt.FieldUserID)
+	}
+	query.Where(predicate.AuthSessionCommandReceipt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.SessionCommandsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadOauthCompletionTickets(ctx context.Context, query *OAuthCompletionTicketQuery, nodes []*User, init func(*User), assign func(*User, *OAuthCompletionTicket)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(oauthcompletionticket.FieldBoundUserID)
+	}
+	query.Where(predicate.OAuthCompletionTicket(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.OauthCompletionTicketsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.BoundUserID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "bound_user_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "bound_user_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadAuthorizationUpdates(ctx context.Context, query *AuthorizationStateQuery, nodes []*User, init func(*User), assign func(*User, *AuthorizationState)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(authorizationstate.FieldUpdatedBy)
+	}
+	query.Where(predicate.AuthorizationState(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.AuthorizationUpdatesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UpdatedBy
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "updated_by" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "updated_by" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*User, init func(*User), assign func(*User, *Problem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(problem.FieldAuthorID)
 	}
@@ -1344,7 +2779,7 @@ func (_q *UserQuery) loadProblems(ctx context.Context, query *ProblemQuery, node
 }
 func (_q *UserQuery) loadSubmissions(ctx context.Context, query *SubmissionQuery, nodes []*User, init func(*User), assign func(*User, *Submission)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1374,7 +2809,7 @@ func (_q *UserQuery) loadSubmissions(ctx context.Context, query *SubmissionQuery
 }
 func (_q *UserQuery) loadUserTraits(ctx context.Context, query *UserTraitQuery, nodes []*User, init func(*User), assign func(*User, *UserTrait)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1402,9 +2837,39 @@ func (_q *UserQuery) loadUserTraits(ctx context.Context, query *UserTraitQuery, 
 	}
 	return nil
 }
+func (_q *UserQuery) loadRewardProfileRevisions(ctx context.Context, query *UserRewardProfileRevisionQuery, nodes []*User, init func(*User), assign func(*User, *UserRewardProfileRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userrewardprofilerevision.FieldUserID)
+	}
+	query.Where(predicate.UserRewardProfileRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.RewardProfileRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *UserQuery) loadUserElementExps(ctx context.Context, query *UserElementExpQuery, nodes []*User, init func(*User), assign func(*User, *UserElementExp)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1434,7 +2899,7 @@ func (_q *UserQuery) loadUserElementExps(ctx context.Context, query *UserElement
 }
 func (_q *UserQuery) loadUserStats(ctx context.Context, query *UserStatsQuery, nodes []*User, init func(*User), assign func(*User, *UserStats)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1462,9 +2927,39 @@ func (_q *UserQuery) loadUserStats(ctx context.Context, query *UserStatsQuery, n
 	}
 	return nil
 }
+func (_q *UserQuery) loadCultivationRankingProjection(ctx context.Context, query *CultivationRankingProjectionQuery, nodes []*User, init func(*User), assign func(*User, *CultivationRankingProjection)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(cultivationrankingprojection.FieldUserID)
+	}
+	query.Where(predicate.CultivationRankingProjection(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.CultivationRankingProjectionColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *UserQuery) loadSolvedProblems(ctx context.Context, query *UserSolvedProblemQuery, nodes []*User, init func(*User), assign func(*User, *UserSolvedProblem)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1494,7 +2989,7 @@ func (_q *UserQuery) loadSolvedProblems(ctx context.Context, query *UserSolvedPr
 }
 func (_q *UserQuery) loadDifficultyStats(ctx context.Context, query *UserDifficultyStatsQuery, nodes []*User, init func(*User), assign func(*User, *UserDifficultyStats)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1524,7 +3019,7 @@ func (_q *UserQuery) loadDifficultyStats(ctx context.Context, query *UserDifficu
 }
 func (_q *UserQuery) loadTagStats(ctx context.Context, query *UserTagStatsQuery, nodes []*User, init func(*User), assign func(*User, *UserTagStats)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1554,7 +3049,7 @@ func (_q *UserQuery) loadTagStats(ctx context.Context, query *UserTagStatsQuery,
 }
 func (_q *UserQuery) loadContests(ctx context.Context, query *ContestQuery, nodes []*User, init func(*User), assign func(*User, *Contest)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1584,7 +3079,7 @@ func (_q *UserQuery) loadContests(ctx context.Context, query *ContestQuery, node
 }
 func (_q *UserQuery) loadContestRegistrations(ctx context.Context, query *ContestRegistrationQuery, nodes []*User, init func(*User), assign func(*User, *ContestRegistration)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1614,7 +3109,7 @@ func (_q *UserQuery) loadContestRegistrations(ctx context.Context, query *Contes
 }
 func (_q *UserQuery) loadContestStandings(ctx context.Context, query *ContestStandingQuery, nodes []*User, init func(*User), assign func(*User, *ContestStanding)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1644,7 +3139,7 @@ func (_q *UserQuery) loadContestStandings(ctx context.Context, query *ContestSta
 }
 func (_q *UserQuery) loadRatingHistories(ctx context.Context, query *RatingHistoryQuery, nodes []*User, init func(*User), assign func(*User, *RatingHistory)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1672,9 +3167,129 @@ func (_q *UserQuery) loadRatingHistories(ctx context.Context, query *RatingHisto
 	}
 	return nil
 }
+func (_q *UserQuery) loadContestRatingResults(ctx context.Context, query *ContestRatingResultQuery, nodes []*User, init func(*User), assign func(*User, *ContestRatingResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestratingresult.FieldUserID)
+	}
+	query.Where(predicate.ContestRatingResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestRatingResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadContestUserRatings(ctx context.Context, query *ContestUserRatingQuery, nodes []*User, init func(*User), assign func(*User, *ContestUserRating)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestuserrating.FieldUserID)
+	}
+	query.Where(predicate.ContestUserRating(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestUserRatingsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadContestScoringAttempts(ctx context.Context, query *ContestScoringAttemptQuery, nodes []*User, init func(*User), assign func(*User, *ContestScoringAttempt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestscoringattempt.FieldUserID)
+	}
+	query.Where(predicate.ContestScoringAttempt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestScoringAttemptsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadContestProblemResults(ctx context.Context, query *ContestProblemResultQuery, nodes []*User, init func(*User), assign func(*User, *ContestProblemResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestproblemresult.FieldUserID)
+	}
+	query.Where(predicate.ContestProblemResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestProblemResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *UserQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nodes []*User, init func(*User), assign func(*User, *Material)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -1702,6 +3317,306 @@ func (_q *UserQuery) loadMaterials(ctx context.Context, query *MaterialQuery, no
 	}
 	return nil
 }
+func (_q *UserQuery) loadMaterialRevisions(ctx context.Context, query *MaterialRevisionQuery, nodes []*User, init func(*User), assign func(*User, *MaterialRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialrevision.FieldAuthorID)
+	}
+	query.Where(predicate.MaterialRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.MaterialRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AuthorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "author_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadNotifications(ctx context.Context, query *NotificationQuery, nodes []*User, init func(*User), assign func(*User, *Notification)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notification.FieldUserID)
+	}
+	query.Where(predicate.Notification(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.NotificationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadNotificationPreferences(ctx context.Context, query *NotificationPreferenceQuery, nodes []*User, init func(*User), assign func(*User, *NotificationPreference)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notificationpreference.FieldUserID)
+	}
+	query.Where(predicate.NotificationPreference(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.NotificationPreferencesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadCreatedNotificationCampaigns(ctx context.Context, query *NotificationCampaignQuery, nodes []*User, init func(*User), assign func(*User, *NotificationCampaign)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notificationcampaign.FieldCreatedBy)
+	}
+	query.Where(predicate.NotificationCampaign(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.CreatedNotificationCampaignsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CreatedBy
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "created_by" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadNotificationCampaignRevisions(ctx context.Context, query *NotificationCampaignRevisionQuery, nodes []*User, init func(*User), assign func(*User, *NotificationCampaignRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notificationcampaignrevision.FieldAuthorID)
+	}
+	query.Where(predicate.NotificationCampaignRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.NotificationCampaignRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AuthorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "author_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadExplicitNotificationCampaignRevisions(ctx context.Context, query *NotificationCampaignExplicitUserQuery, nodes []*User, init func(*User), assign func(*User, *NotificationCampaignExplicitUser)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notificationcampaignexplicituser.FieldUserID)
+	}
+	query.Where(predicate.NotificationCampaignExplicitUser(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ExplicitNotificationCampaignRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadNotificationCampaignDeliveries(ctx context.Context, query *NotificationCampaignRecipientQuery, nodes []*User, init func(*User), assign func(*User, *NotificationCampaignRecipient)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notificationcampaignrecipient.FieldUserID)
+	}
+	query.Where(predicate.NotificationCampaignRecipient(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.NotificationCampaignDeliveriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadContestContentRevisions(ctx context.Context, query *ContestContentRevisionQuery, nodes []*User, init func(*User), assign func(*User, *ContestContentRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestcontentrevision.FieldAuthorID)
+	}
+	query.Where(predicate.ContestContentRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestContentRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AuthorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "author_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadContestClarifications(ctx context.Context, query *ContestClarificationQuery, nodes []*User, init func(*User), assign func(*User, *ContestClarification)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestclarification.FieldRequesterID)
+	}
+	query.Where(predicate.ContestClarification(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestClarificationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RequesterID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "requester_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadContestContentCommands(ctx context.Context, query *ContestContentCommandQuery, nodes []*User, init func(*User), assign func(*User, *ContestContentCommand)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestcontentcommand.FieldActorUserID)
+	}
+	query.Where(predicate.ContestContentCommand(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestContentCommandsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ActorUserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "actor_user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *UserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -1716,7 +3631,7 @@ func (_q *UserQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *UserQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -1730,9 +3645,6 @@ func (_q *UserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != user.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withRole != nil {
-			_spec.Node.AddColumnOnce(user.FieldRoleID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

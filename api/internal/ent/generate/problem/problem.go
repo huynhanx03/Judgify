@@ -3,11 +3,13 @@
 package problem
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -23,6 +25,40 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldDeletedBy holds the string denoting the deleted_by field in the database.
 	FieldDeletedBy = "deleted_by"
+	// FieldSlug holds the string denoting the slug field in the database.
+	FieldSlug = "slug"
+	// FieldLifecycle holds the string denoting the lifecycle field in the database.
+	FieldLifecycle = "lifecycle"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldTagMappingID holds the string denoting the tag_mapping_id field in the database.
+	FieldTagMappingID = "tag_mapping_id"
+	// FieldElementMappingID holds the string denoting the element_mapping_id field in the database.
+	FieldElementMappingID = "element_mapping_id"
+	// FieldDraftRevisionID holds the string denoting the draft_revision_id field in the database.
+	FieldDraftRevisionID = "draft_revision_id"
+	// FieldDraftRenderSourceID holds the string denoting the draft_render_source_id field in the database.
+	FieldDraftRenderSourceID = "draft_render_source_id"
+	// FieldDraftRenderSourceKind holds the string denoting the draft_render_source_kind field in the database.
+	FieldDraftRenderSourceKind = "draft_render_source_kind"
+	// FieldDraftRenderSourceChecksum holds the string denoting the draft_render_source_checksum field in the database.
+	FieldDraftRenderSourceChecksum = "draft_render_source_checksum"
+	// FieldDraftRenderArtifactID holds the string denoting the draft_render_artifact_id field in the database.
+	FieldDraftRenderArtifactID = "draft_render_artifact_id"
+	// FieldPublishedRevisionID holds the string denoting the published_revision_id field in the database.
+	FieldPublishedRevisionID = "published_revision_id"
+	// FieldPublishedRenderSourceID holds the string denoting the published_render_source_id field in the database.
+	FieldPublishedRenderSourceID = "published_render_source_id"
+	// FieldPublishedRenderSourceKind holds the string denoting the published_render_source_kind field in the database.
+	FieldPublishedRenderSourceKind = "published_render_source_kind"
+	// FieldPublishedRenderSourceChecksum holds the string denoting the published_render_source_checksum field in the database.
+	FieldPublishedRenderSourceChecksum = "published_render_source_checksum"
+	// FieldPublishedRenderArtifactID holds the string denoting the published_render_artifact_id field in the database.
+	FieldPublishedRenderArtifactID = "published_render_artifact_id"
+	// FieldPublishedAt holds the string denoting the published_at field in the database.
+	FieldPublishedAt = "published_at"
+	// FieldArchivedAt holds the string denoting the archived_at field in the database.
+	FieldArchivedAt = "archived_at"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -47,8 +83,20 @@ const (
 	EdgeDifficulty = "difficulty"
 	// EdgeTestCases holds the string denoting the test_cases edge name in mutations.
 	EdgeTestCases = "test_cases"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
+	// EdgeTestsetRevisions holds the string denoting the testset_revisions edge name in mutations.
+	EdgeTestsetRevisions = "testset_revisions"
+	// EdgeContestDraftMemberships holds the string denoting the contest_draft_memberships edge name in mutations.
+	EdgeContestDraftMemberships = "contest_draft_memberships"
+	// EdgeContestProblemSnapshots holds the string denoting the contest_problem_snapshots edge name in mutations.
+	EdgeContestProblemSnapshots = "contest_problem_snapshots"
 	// EdgeSubmissions holds the string denoting the submissions edge name in mutations.
 	EdgeSubmissions = "submissions"
+	// EdgeContestScoringAttempts holds the string denoting the contest_scoring_attempts edge name in mutations.
+	EdgeContestScoringAttempts = "contest_scoring_attempts"
+	// EdgeContestProblemResults holds the string denoting the contest_problem_results edge name in mutations.
+	EdgeContestProblemResults = "contest_problem_results"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
 	EdgeTags = "tags"
 	// EdgeSolvers holds the string denoting the solvers edge name in mutations.
@@ -76,6 +124,34 @@ const (
 	TestCasesInverseTable = "test_cases"
 	// TestCasesColumn is the table column denoting the test_cases relation/edge.
 	TestCasesColumn = "problem_id"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "problem_revisions"
+	// RevisionsInverseTable is the table name for the ProblemRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "problemrevision" package.
+	RevisionsInverseTable = "problem_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "problem_id"
+	// TestsetRevisionsTable is the table that holds the testset_revisions relation/edge.
+	TestsetRevisionsTable = "testset_revisions"
+	// TestsetRevisionsInverseTable is the table name for the TestsetRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "testsetrevision" package.
+	TestsetRevisionsInverseTable = "testset_revisions"
+	// TestsetRevisionsColumn is the table column denoting the testset_revisions relation/edge.
+	TestsetRevisionsColumn = "problem_id"
+	// ContestDraftMembershipsTable is the table that holds the contest_draft_memberships relation/edge.
+	ContestDraftMembershipsTable = "contest_draft_problems"
+	// ContestDraftMembershipsInverseTable is the table name for the ContestDraftProblem entity.
+	// It exists in this package in order to avoid circular dependency with the "contestdraftproblem" package.
+	ContestDraftMembershipsInverseTable = "contest_draft_problems"
+	// ContestDraftMembershipsColumn is the table column denoting the contest_draft_memberships relation/edge.
+	ContestDraftMembershipsColumn = "problem_id"
+	// ContestProblemSnapshotsTable is the table that holds the contest_problem_snapshots relation/edge.
+	ContestProblemSnapshotsTable = "contest_problems"
+	// ContestProblemSnapshotsInverseTable is the table name for the ContestProblem entity.
+	// It exists in this package in order to avoid circular dependency with the "contestproblem" package.
+	ContestProblemSnapshotsInverseTable = "contest_problems"
+	// ContestProblemSnapshotsColumn is the table column denoting the contest_problem_snapshots relation/edge.
+	ContestProblemSnapshotsColumn = "problem_id"
 	// SubmissionsTable is the table that holds the submissions relation/edge.
 	SubmissionsTable = "submissions"
 	// SubmissionsInverseTable is the table name for the Submission entity.
@@ -83,6 +159,20 @@ const (
 	SubmissionsInverseTable = "submissions"
 	// SubmissionsColumn is the table column denoting the submissions relation/edge.
 	SubmissionsColumn = "problem_id"
+	// ContestScoringAttemptsTable is the table that holds the contest_scoring_attempts relation/edge.
+	ContestScoringAttemptsTable = "contest_scoring_attempts"
+	// ContestScoringAttemptsInverseTable is the table name for the ContestScoringAttempt entity.
+	// It exists in this package in order to avoid circular dependency with the "contestscoringattempt" package.
+	ContestScoringAttemptsInverseTable = "contest_scoring_attempts"
+	// ContestScoringAttemptsColumn is the table column denoting the contest_scoring_attempts relation/edge.
+	ContestScoringAttemptsColumn = "problem_id"
+	// ContestProblemResultsTable is the table that holds the contest_problem_results relation/edge.
+	ContestProblemResultsTable = "contest_problem_results"
+	// ContestProblemResultsInverseTable is the table name for the ContestProblemResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestproblemresult" package.
+	ContestProblemResultsInverseTable = "contest_problem_results"
+	// ContestProblemResultsColumn is the table column denoting the contest_problem_results relation/edge.
+	ContestProblemResultsColumn = "problem_id"
 	// TagsTable is the table that holds the tags relation/edge. The primary key declared below.
 	TagsTable = "problem_tags"
 	// TagsInverseTable is the table name for the Tag entity.
@@ -104,6 +194,23 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldDeletedBy,
+	FieldSlug,
+	FieldLifecycle,
+	FieldVersion,
+	FieldTagMappingID,
+	FieldElementMappingID,
+	FieldDraftRevisionID,
+	FieldDraftRenderSourceID,
+	FieldDraftRenderSourceKind,
+	FieldDraftRenderSourceChecksum,
+	FieldDraftRenderArtifactID,
+	FieldPublishedRevisionID,
+	FieldPublishedRenderSourceID,
+	FieldPublishedRenderSourceKind,
+	FieldPublishedRenderSourceChecksum,
+	FieldPublishedRenderArtifactID,
+	FieldPublishedAt,
+	FieldArchivedAt,
 	FieldTitle,
 	FieldDescription,
 	FieldDifficultyID,
@@ -113,12 +220,6 @@ var Columns = []string{
 	FieldIsPublished,
 	FieldSubmissionCount,
 	FieldAcceptedCount,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "problems"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"contest_problems",
 }
 
 var (
@@ -131,11 +232,6 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -156,6 +252,16 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	SlugValidator func(string) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultTagMappingID holds the default value on creation for the "tag_mapping_id" field.
+	DefaultTagMappingID func() uuid.UUID
+	// DefaultElementMappingID holds the default value on creation for the "element_mapping_id" field.
+	DefaultElementMappingID func() uuid.UUID
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
@@ -170,7 +276,80 @@ var (
 	DefaultSubmissionCount int
 	// DefaultAcceptedCount holds the default value on creation for the "accepted_count" field.
 	DefaultAcceptedCount int
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
+
+// Lifecycle defines the type for the "lifecycle" enum field.
+type Lifecycle string
+
+// LifecycleDraft is the default value of the Lifecycle enum.
+const DefaultLifecycle = LifecycleDraft
+
+// Lifecycle values.
+const (
+	LifecycleDraft     Lifecycle = "draft"
+	LifecyclePublished Lifecycle = "published"
+	LifecycleArchived  Lifecycle = "archived"
+)
+
+func (l Lifecycle) String() string {
+	return string(l)
+}
+
+// LifecycleValidator is a validator for the "lifecycle" field enum values. It is called by the builders before save.
+func LifecycleValidator(l Lifecycle) error {
+	switch l {
+	case LifecycleDraft, LifecyclePublished, LifecycleArchived:
+		return nil
+	default:
+		return fmt.Errorf("problem: invalid enum value for lifecycle field: %q", l)
+	}
+}
+
+// DraftRenderSourceKind defines the type for the "draft_render_source_kind" enum field.
+type DraftRenderSourceKind string
+
+// DraftRenderSourceKind values.
+const (
+	DraftRenderSourceKindProblemStatement DraftRenderSourceKind = "problem_statement"
+)
+
+func (drsk DraftRenderSourceKind) String() string {
+	return string(drsk)
+}
+
+// DraftRenderSourceKindValidator is a validator for the "draft_render_source_kind" field enum values. It is called by the builders before save.
+func DraftRenderSourceKindValidator(drsk DraftRenderSourceKind) error {
+	switch drsk {
+	case DraftRenderSourceKindProblemStatement:
+		return nil
+	default:
+		return fmt.Errorf("problem: invalid enum value for draft_render_source_kind field: %q", drsk)
+	}
+}
+
+// PublishedRenderSourceKind defines the type for the "published_render_source_kind" enum field.
+type PublishedRenderSourceKind string
+
+// PublishedRenderSourceKind values.
+const (
+	PublishedRenderSourceKindProblemStatement PublishedRenderSourceKind = "problem_statement"
+)
+
+func (prsk PublishedRenderSourceKind) String() string {
+	return string(prsk)
+}
+
+// PublishedRenderSourceKindValidator is a validator for the "published_render_source_kind" field enum values. It is called by the builders before save.
+func PublishedRenderSourceKindValidator(prsk PublishedRenderSourceKind) error {
+	switch prsk {
+	case PublishedRenderSourceKindProblemStatement:
+		return nil
+	default:
+		return fmt.Errorf("problem: invalid enum value for published_render_source_kind field: %q", prsk)
+	}
+}
 
 // OrderOption defines the ordering options for the Problem queries.
 type OrderOption func(*sql.Selector)
@@ -198,6 +377,81 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedBy orders the results by the deleted_by field.
 func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedBy, opts...).ToFunc()
+}
+
+// BySlug orders the results by the slug field.
+func BySlug(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSlug, opts...).ToFunc()
+}
+
+// ByLifecycle orders the results by the lifecycle field.
+func ByLifecycle(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLifecycle, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByTagMappingID orders the results by the tag_mapping_id field.
+func ByTagMappingID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTagMappingID, opts...).ToFunc()
+}
+
+// ByElementMappingID orders the results by the element_mapping_id field.
+func ByElementMappingID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldElementMappingID, opts...).ToFunc()
+}
+
+// ByDraftRevisionID orders the results by the draft_revision_id field.
+func ByDraftRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDraftRevisionID, opts...).ToFunc()
+}
+
+// ByDraftRenderSourceID orders the results by the draft_render_source_id field.
+func ByDraftRenderSourceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDraftRenderSourceID, opts...).ToFunc()
+}
+
+// ByDraftRenderSourceKind orders the results by the draft_render_source_kind field.
+func ByDraftRenderSourceKind(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDraftRenderSourceKind, opts...).ToFunc()
+}
+
+// ByDraftRenderArtifactID orders the results by the draft_render_artifact_id field.
+func ByDraftRenderArtifactID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDraftRenderArtifactID, opts...).ToFunc()
+}
+
+// ByPublishedRevisionID orders the results by the published_revision_id field.
+func ByPublishedRevisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRevisionID, opts...).ToFunc()
+}
+
+// ByPublishedRenderSourceID orders the results by the published_render_source_id field.
+func ByPublishedRenderSourceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRenderSourceID, opts...).ToFunc()
+}
+
+// ByPublishedRenderSourceKind orders the results by the published_render_source_kind field.
+func ByPublishedRenderSourceKind(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRenderSourceKind, opts...).ToFunc()
+}
+
+// ByPublishedRenderArtifactID orders the results by the published_render_artifact_id field.
+func ByPublishedRenderArtifactID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedRenderArtifactID, opts...).ToFunc()
+}
+
+// ByPublishedAt orders the results by the published_at field.
+func ByPublishedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedAt, opts...).ToFunc()
+}
+
+// ByArchivedAt orders the results by the archived_at field.
+func ByArchivedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldArchivedAt, opts...).ToFunc()
 }
 
 // ByTitle orders the results by the title field.
@@ -273,6 +527,62 @@ func ByTestCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTestsetRevisionsCount orders the results by testset_revisions count.
+func ByTestsetRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestsetRevisionsStep(), opts...)
+	}
+}
+
+// ByTestsetRevisions orders the results by testset_revisions terms.
+func ByTestsetRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestsetRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestDraftMembershipsCount orders the results by contest_draft_memberships count.
+func ByContestDraftMembershipsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestDraftMembershipsStep(), opts...)
+	}
+}
+
+// ByContestDraftMemberships orders the results by contest_draft_memberships terms.
+func ByContestDraftMemberships(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestDraftMembershipsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestProblemSnapshotsCount orders the results by contest_problem_snapshots count.
+func ByContestProblemSnapshotsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestProblemSnapshotsStep(), opts...)
+	}
+}
+
+// ByContestProblemSnapshots orders the results by contest_problem_snapshots terms.
+func ByContestProblemSnapshots(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestProblemSnapshotsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // BySubmissionsCount orders the results by submissions count.
 func BySubmissionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -284,6 +594,34 @@ func BySubmissionsCount(opts ...sql.OrderTermOption) OrderOption {
 func BySubmissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newSubmissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestScoringAttemptsCount orders the results by contest_scoring_attempts count.
+func ByContestScoringAttemptsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestScoringAttemptsStep(), opts...)
+	}
+}
+
+// ByContestScoringAttempts orders the results by contest_scoring_attempts terms.
+func ByContestScoringAttempts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestScoringAttemptsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestProblemResultsCount orders the results by contest_problem_results count.
+func ByContestProblemResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestProblemResultsStep(), opts...)
+	}
+}
+
+// ByContestProblemResults orders the results by contest_problem_results terms.
+func ByContestProblemResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestProblemResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -335,11 +673,53 @@ func newTestCasesStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, TestCasesTable, TestCasesColumn),
 	)
 }
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
+}
+func newTestsetRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestsetRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestsetRevisionsTable, TestsetRevisionsColumn),
+	)
+}
+func newContestDraftMembershipsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestDraftMembershipsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestDraftMembershipsTable, ContestDraftMembershipsColumn),
+	)
+}
+func newContestProblemSnapshotsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestProblemSnapshotsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemSnapshotsTable, ContestProblemSnapshotsColumn),
+	)
+}
 func newSubmissionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SubmissionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionsTable, SubmissionsColumn),
+	)
+}
+func newContestScoringAttemptsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestScoringAttemptsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestScoringAttemptsTable, ContestScoringAttemptsColumn),
+	)
+}
+func newContestProblemResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestProblemResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemResultsTable, ContestProblemResultsColumn),
 	)
 }
 func newTagsStep() *sqlgraph.Step {

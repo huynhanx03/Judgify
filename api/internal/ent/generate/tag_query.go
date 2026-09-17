@@ -13,26 +13,31 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevisiontag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 )
 
 // TagQuery is the builder for querying Tag entities.
 type TagQuery struct {
 	config
-	ctx              *QueryContext
-	order            []tag.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.Tag
-	withProblems     *ProblemQuery
-	withElements     *ElementQuery
-	withUserTagStats *UserTagStatsQuery
-	withMaterials    *MaterialQuery
-	modifiers        []func(*sql.Selector)
+	ctx                      *QueryContext
+	order                    []tag.OrderOption
+	inters                   []Interceptor
+	predicates               []predicate.Tag
+	withRevisions            *TagRevisionQuery
+	withProblems             *ProblemQuery
+	withElements             *ElementQuery
+	withUserTagStats         *UserTagStatsQuery
+	withMaterialRevisionTags *MaterialRevisionTagQuery
+	withMaterials            *MaterialQuery
+	modifiers                []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -67,6 +72,28 @@ func (_q *TagQuery) Unique(unique bool) *TagQuery {
 func (_q *TagQuery) Order(o ...tag.OrderOption) *TagQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *TagQuery) QueryRevisions() *TagRevisionQuery {
+	query := (&TagRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, selector),
+			sqlgraph.To(tagrevision.Table, tagrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tag.RevisionsTable, tag.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryProblems chains the current query on the "problems" edge.
@@ -135,6 +162,28 @@ func (_q *TagQuery) QueryUserTagStats() *UserTagStatsQuery {
 	return query
 }
 
+// QueryMaterialRevisionTags chains the current query on the "material_revision_tags" edge.
+func (_q *TagQuery) QueryMaterialRevisionTags() *MaterialRevisionTagQuery {
+	query := (&MaterialRevisionTagClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tag.Table, tag.FieldID, selector),
+			sqlgraph.To(materialrevisiontag.Table, materialrevisiontag.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tag.MaterialRevisionTagsTable, tag.MaterialRevisionTagsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryMaterials chains the current query on the "materials" edge.
 func (_q *TagQuery) QueryMaterials() *MaterialQuery {
 	query := (&MaterialClient{config: _q.config}).Query()
@@ -181,8 +230,8 @@ func (_q *TagQuery) FirstX(ctx context.Context) *Tag {
 
 // FirstID returns the first Tag ID from the query.
 // Returns a *NotFoundError when no Tag ID was found.
-func (_q *TagQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TagQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -194,7 +243,7 @@ func (_q *TagQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TagQuery) FirstIDX(ctx context.Context) int {
+func (_q *TagQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -232,8 +281,8 @@ func (_q *TagQuery) OnlyX(ctx context.Context) *Tag {
 // OnlyID is like Only, but returns the only Tag ID in the query.
 // Returns a *NotSingularError when more than one Tag ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TagQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TagQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -249,7 +298,7 @@ func (_q *TagQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TagQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TagQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -277,7 +326,7 @@ func (_q *TagQuery) AllX(ctx context.Context) []*Tag {
 }
 
 // IDs executes the query and returns a list of Tag IDs.
-func (_q *TagQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *TagQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -289,7 +338,7 @@ func (_q *TagQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TagQuery) IDsX(ctx context.Context) []int {
+func (_q *TagQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -344,20 +393,33 @@ func (_q *TagQuery) Clone() *TagQuery {
 		return nil
 	}
 	return &TagQuery{
-		config:           _q.config,
-		ctx:              _q.ctx.Clone(),
-		order:            append([]tag.OrderOption{}, _q.order...),
-		inters:           append([]Interceptor{}, _q.inters...),
-		predicates:       append([]predicate.Tag{}, _q.predicates...),
-		withProblems:     _q.withProblems.Clone(),
-		withElements:     _q.withElements.Clone(),
-		withUserTagStats: _q.withUserTagStats.Clone(),
-		withMaterials:    _q.withMaterials.Clone(),
+		config:                   _q.config,
+		ctx:                      _q.ctx.Clone(),
+		order:                    append([]tag.OrderOption{}, _q.order...),
+		inters:                   append([]Interceptor{}, _q.inters...),
+		predicates:               append([]predicate.Tag{}, _q.predicates...),
+		withRevisions:            _q.withRevisions.Clone(),
+		withProblems:             _q.withProblems.Clone(),
+		withElements:             _q.withElements.Clone(),
+		withUserTagStats:         _q.withUserTagStats.Clone(),
+		withMaterialRevisionTags: _q.withMaterialRevisionTags.Clone(),
+		withMaterials:            _q.withMaterials.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
+}
+
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TagQuery) WithRevisions(opts ...func(*TagRevisionQuery)) *TagQuery {
+	query := (&TagRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
 }
 
 // WithProblems tells the query-builder to eager-load the nodes that are connected to
@@ -390,6 +452,17 @@ func (_q *TagQuery) WithUserTagStats(opts ...func(*UserTagStatsQuery)) *TagQuery
 		opt(query)
 	}
 	_q.withUserTagStats = query
+	return _q
+}
+
+// WithMaterialRevisionTags tells the query-builder to eager-load the nodes that are connected to
+// the "material_revision_tags" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TagQuery) WithMaterialRevisionTags(opts ...func(*MaterialRevisionTagQuery)) *TagQuery {
+	query := (&MaterialRevisionTagClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMaterialRevisionTags = query
 	return _q
 }
 
@@ -482,10 +555,12 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 	var (
 		nodes       = []*Tag{}
 		_spec       = _q.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [6]bool{
+			_q.withRevisions != nil,
 			_q.withProblems != nil,
 			_q.withElements != nil,
 			_q.withUserTagStats != nil,
+			_q.withMaterialRevisionTags != nil,
 			_q.withMaterials != nil,
 		}
 	)
@@ -509,6 +584,18 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *Tag) { n.Edges.Revisions = []*TagRevision{} },
+			func(n *Tag, e *TagRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Tag = n
+				}
+			}); err != nil {
+			return nil, err
+		}
 	}
 	if query := _q.withProblems; query != nil {
 		if err := _q.loadProblems(ctx, query, nodes,
@@ -536,6 +623,18 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 			return nil, err
 		}
 	}
+	if query := _q.withMaterialRevisionTags; query != nil {
+		if err := _q.loadMaterialRevisionTags(ctx, query, nodes,
+			func(n *Tag) { n.Edges.MaterialRevisionTags = []*MaterialRevisionTag{} },
+			func(n *Tag, e *MaterialRevisionTag) {
+				n.Edges.MaterialRevisionTags = append(n.Edges.MaterialRevisionTags, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Tag = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withMaterials; query != nil {
 		if err := _q.loadMaterials(ctx, query, nodes,
 			func(n *Tag) { n.Edges.Materials = []*Material{} },
@@ -546,10 +645,40 @@ func (_q *TagQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tag, err
 	return nodes, nil
 }
 
+func (_q *TagQuery) loadRevisions(ctx context.Context, query *TagRevisionQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *TagRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Tag)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(tagrevision.FieldTagID)
+	}
+	query.Where(predicate.TagRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(tag.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TagID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "tag_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *TagQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *Problem)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Tag)
-	nids := make(map[int]map[*Tag]struct{})
+	byID := make(map[uuid.UUID]*Tag)
+	nids := make(map[uuid.UUID]map[*Tag]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -578,11 +707,11 @@ func (_q *TagQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Tag]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -609,8 +738,8 @@ func (_q *TagQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes
 }
 func (_q *TagQuery) loadElements(ctx context.Context, query *ElementQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *Element)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Tag)
-	nids := make(map[int]map[*Tag]struct{})
+	byID := make(map[uuid.UUID]*Tag)
+	nids := make(map[uuid.UUID]map[*Tag]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -639,11 +768,11 @@ func (_q *TagQuery) loadElements(ctx context.Context, query *ElementQuery, nodes
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Tag]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -670,7 +799,7 @@ func (_q *TagQuery) loadElements(ctx context.Context, query *ElementQuery, nodes
 }
 func (_q *TagQuery) loadUserTagStats(ctx context.Context, query *UserTagStatsQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *UserTagStats)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Tag)
+	nodeids := make(map[uuid.UUID]*Tag)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -698,10 +827,40 @@ func (_q *TagQuery) loadUserTagStats(ctx context.Context, query *UserTagStatsQue
 	}
 	return nil
 }
+func (_q *TagQuery) loadMaterialRevisionTags(ctx context.Context, query *MaterialRevisionTagQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *MaterialRevisionTag)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Tag)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialrevisiontag.FieldTagID)
+	}
+	query.Where(predicate.MaterialRevisionTag(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(tag.MaterialRevisionTagsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TagID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "tag_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *TagQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nodes []*Tag, init func(*Tag), assign func(*Tag, *Material)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Tag)
-	nids := make(map[int]map[*Tag]struct{})
+	byID := make(map[uuid.UUID]*Tag)
+	nids := make(map[uuid.UUID]map[*Tag]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -730,11 +889,11 @@ func (_q *TagQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nod
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Tag]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -773,7 +932,7 @@ func (_q *TagQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *TagQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(tag.Table, tag.Columns, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(tag.Table, tag.Columns, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

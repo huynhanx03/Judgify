@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -24,13 +26,13 @@ type ContestStandingCreate struct {
 }
 
 // SetContestID sets the "contest_id" field.
-func (_c *ContestStandingCreate) SetContestID(v int) *ContestStandingCreate {
+func (_c *ContestStandingCreate) SetContestID(v uuid.UUID) *ContestStandingCreate {
 	_c.mutation.SetContestID(v)
 	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *ContestStandingCreate) SetUserID(v int) *ContestStandingCreate {
+func (_c *ContestStandingCreate) SetUserID(v uuid.UUID) *ContestStandingCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
@@ -66,6 +68,130 @@ func (_c *ContestStandingCreate) SetNillablePenalty(v *int) *ContestStandingCrea
 // SetProblemResults sets the "problem_results" field.
 func (_c *ContestStandingCreate) SetProblemResults(v map[string]interface{}) *ContestStandingCreate {
 	_c.mutation.SetProblemResults(v)
+	return _c
+}
+
+// SetLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field.
+func (_c *ContestStandingCreate) SetLastAcceptedElapsedMs(v int64) *ContestStandingCreate {
+	_c.mutation.SetLastAcceptedElapsedMs(v)
+	return _c
+}
+
+// SetNillableLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableLastAcceptedElapsedMs(v *int64) *ContestStandingCreate {
+	if v != nil {
+		_c.SetLastAcceptedElapsedMs(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *ContestStandingCreate) SetVersion(v int64) *ContestStandingCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableVersion(v *int64) *ContestStandingCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetFrozenSolvedCount sets the "frozen_solved_count" field.
+func (_c *ContestStandingCreate) SetFrozenSolvedCount(v int) *ContestStandingCreate {
+	_c.mutation.SetFrozenSolvedCount(v)
+	return _c
+}
+
+// SetNillableFrozenSolvedCount sets the "frozen_solved_count" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableFrozenSolvedCount(v *int) *ContestStandingCreate {
+	if v != nil {
+		_c.SetFrozenSolvedCount(*v)
+	}
+	return _c
+}
+
+// SetFrozenPenalty sets the "frozen_penalty" field.
+func (_c *ContestStandingCreate) SetFrozenPenalty(v int) *ContestStandingCreate {
+	_c.mutation.SetFrozenPenalty(v)
+	return _c
+}
+
+// SetNillableFrozenPenalty sets the "frozen_penalty" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableFrozenPenalty(v *int) *ContestStandingCreate {
+	if v != nil {
+		_c.SetFrozenPenalty(*v)
+	}
+	return _c
+}
+
+// SetFrozenProblemResults sets the "frozen_problem_results" field.
+func (_c *ContestStandingCreate) SetFrozenProblemResults(v map[string]interface{}) *ContestStandingCreate {
+	_c.mutation.SetFrozenProblemResults(v)
+	return _c
+}
+
+// SetFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field.
+func (_c *ContestStandingCreate) SetFrozenPendingProblemAttempts(v map[string]int) *ContestStandingCreate {
+	_c.mutation.SetFrozenPendingProblemAttempts(v)
+	return _c
+}
+
+// SetFrozenPendingAttempts sets the "frozen_pending_attempts" field.
+func (_c *ContestStandingCreate) SetFrozenPendingAttempts(v int) *ContestStandingCreate {
+	_c.mutation.SetFrozenPendingAttempts(v)
+	return _c
+}
+
+// SetNillableFrozenPendingAttempts sets the "frozen_pending_attempts" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableFrozenPendingAttempts(v *int) *ContestStandingCreate {
+	if v != nil {
+		_c.SetFrozenPendingAttempts(*v)
+	}
+	return _c
+}
+
+// SetFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field.
+func (_c *ContestStandingCreate) SetFrozenLastAcceptedElapsedMs(v int64) *ContestStandingCreate {
+	_c.mutation.SetFrozenLastAcceptedElapsedMs(v)
+	return _c
+}
+
+// SetNillableFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableFrozenLastAcceptedElapsedMs(v *int64) *ContestStandingCreate {
+	if v != nil {
+		_c.SetFrozenLastAcceptedElapsedMs(*v)
+	}
+	return _c
+}
+
+// SetFrozenVersion sets the "frozen_version" field.
+func (_c *ContestStandingCreate) SetFrozenVersion(v int64) *ContestStandingCreate {
+	_c.mutation.SetFrozenVersion(v)
+	return _c
+}
+
+// SetNillableFrozenVersion sets the "frozen_version" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableFrozenVersion(v *int64) *ContestStandingCreate {
+	if v != nil {
+		_c.SetFrozenVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *ContestStandingCreate) SetID(v uuid.UUID) *ContestStandingCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *ContestStandingCreate) SetNillableID(v *uuid.UUID) *ContestStandingCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
 	return _c
 }
 
@@ -122,6 +248,30 @@ func (_c *ContestStandingCreate) defaults() {
 		v := conteststanding.DefaultPenalty
 		_c.mutation.SetPenalty(v)
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := conteststanding.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.FrozenSolvedCount(); !ok {
+		v := conteststanding.DefaultFrozenSolvedCount
+		_c.mutation.SetFrozenSolvedCount(v)
+	}
+	if _, ok := _c.mutation.FrozenPenalty(); !ok {
+		v := conteststanding.DefaultFrozenPenalty
+		_c.mutation.SetFrozenPenalty(v)
+	}
+	if _, ok := _c.mutation.FrozenPendingAttempts(); !ok {
+		v := conteststanding.DefaultFrozenPendingAttempts
+		_c.mutation.SetFrozenPendingAttempts(v)
+	}
+	if _, ok := _c.mutation.FrozenVersion(); !ok {
+		v := conteststanding.DefaultFrozenVersion
+		_c.mutation.SetFrozenVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := conteststanding.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -137,6 +287,56 @@ func (_c *ContestStandingCreate) check() error {
 	}
 	if _, ok := _c.mutation.Penalty(); !ok {
 		return &ValidationError{Name: "penalty", err: errors.New(`generate: missing required field "ContestStanding.penalty"`)}
+	}
+	if v, ok := _c.mutation.LastAcceptedElapsedMs(); ok {
+		if err := conteststanding.LastAcceptedElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "last_accepted_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.last_accepted_elapsed_ms": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "ContestStanding.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := conteststanding.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.FrozenSolvedCount(); !ok {
+		return &ValidationError{Name: "frozen_solved_count", err: errors.New(`generate: missing required field "ContestStanding.frozen_solved_count"`)}
+	}
+	if v, ok := _c.mutation.FrozenSolvedCount(); ok {
+		if err := conteststanding.FrozenSolvedCountValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_solved_count", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_solved_count": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.FrozenPenalty(); !ok {
+		return &ValidationError{Name: "frozen_penalty", err: errors.New(`generate: missing required field "ContestStanding.frozen_penalty"`)}
+	}
+	if v, ok := _c.mutation.FrozenPenalty(); ok {
+		if err := conteststanding.FrozenPenaltyValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_penalty", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_penalty": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.FrozenPendingAttempts(); !ok {
+		return &ValidationError{Name: "frozen_pending_attempts", err: errors.New(`generate: missing required field "ContestStanding.frozen_pending_attempts"`)}
+	}
+	if v, ok := _c.mutation.FrozenPendingAttempts(); ok {
+		if err := conteststanding.FrozenPendingAttemptsValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_pending_attempts", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_pending_attempts": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.FrozenLastAcceptedElapsedMs(); ok {
+		if err := conteststanding.FrozenLastAcceptedElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_last_accepted_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_last_accepted_elapsed_ms": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.FrozenVersion(); !ok {
+		return &ValidationError{Name: "frozen_version", err: errors.New(`generate: missing required field "ContestStanding.frozen_version"`)}
+	}
+	if v, ok := _c.mutation.FrozenVersion(); ok {
+		if err := conteststanding.FrozenVersionValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_version", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_version": %w`, err)}
+		}
 	}
 	if len(_c.mutation.ContestIDs()) == 0 {
 		return &ValidationError{Name: "contest", err: errors.New(`generate: missing required edge "ContestStanding.contest"`)}
@@ -158,8 +358,13 @@ func (_c *ContestStandingCreate) sqlSave(ctx context.Context) (*ContestStanding,
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -168,9 +373,13 @@ func (_c *ContestStandingCreate) sqlSave(ctx context.Context) (*ContestStanding,
 func (_c *ContestStandingCreate) createSpec() (*ContestStanding, *sqlgraph.CreateSpec) {
 	var (
 		_node = &ContestStanding{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(conteststanding.Table, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(conteststanding.Table, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.SolvedCount(); ok {
 		_spec.SetField(conteststanding.FieldSolvedCount, field.TypeInt, value)
 		_node.SolvedCount = value
@@ -183,6 +392,42 @@ func (_c *ContestStandingCreate) createSpec() (*ContestStanding, *sqlgraph.Creat
 		_spec.SetField(conteststanding.FieldProblemResults, field.TypeJSON, value)
 		_node.ProblemResults = value
 	}
+	if value, ok := _c.mutation.LastAcceptedElapsedMs(); ok {
+		_spec.SetField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64, value)
+		_node.LastAcceptedElapsedMs = &value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(conteststanding.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.FrozenSolvedCount(); ok {
+		_spec.SetField(conteststanding.FieldFrozenSolvedCount, field.TypeInt, value)
+		_node.FrozenSolvedCount = value
+	}
+	if value, ok := _c.mutation.FrozenPenalty(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPenalty, field.TypeInt, value)
+		_node.FrozenPenalty = value
+	}
+	if value, ok := _c.mutation.FrozenProblemResults(); ok {
+		_spec.SetField(conteststanding.FieldFrozenProblemResults, field.TypeJSON, value)
+		_node.FrozenProblemResults = value
+	}
+	if value, ok := _c.mutation.FrozenPendingProblemAttempts(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPendingProblemAttempts, field.TypeJSON, value)
+		_node.FrozenPendingProblemAttempts = value
+	}
+	if value, ok := _c.mutation.FrozenPendingAttempts(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPendingAttempts, field.TypeInt, value)
+		_node.FrozenPendingAttempts = value
+	}
+	if value, ok := _c.mutation.FrozenLastAcceptedElapsedMs(); ok {
+		_spec.SetField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64, value)
+		_node.FrozenLastAcceptedElapsedMs = &value
+	}
+	if value, ok := _c.mutation.FrozenVersion(); ok {
+		_spec.SetField(conteststanding.FieldFrozenVersion, field.TypeInt64, value)
+		_node.FrozenVersion = value
+	}
 	if nodes := _c.mutation.ContestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -191,7 +436,7 @@ func (_c *ContestStandingCreate) createSpec() (*ContestStanding, *sqlgraph.Creat
 			Columns: []string{conteststanding.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -208,7 +453,7 @@ func (_c *ContestStandingCreate) createSpec() (*ContestStanding, *sqlgraph.Creat
 			Columns: []string{conteststanding.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -270,7 +515,7 @@ type (
 )
 
 // SetContestID sets the "contest_id" field.
-func (u *ContestStandingUpsert) SetContestID(v int) *ContestStandingUpsert {
+func (u *ContestStandingUpsert) SetContestID(v uuid.UUID) *ContestStandingUpsert {
 	u.Set(conteststanding.FieldContestID, v)
 	return u
 }
@@ -282,7 +527,7 @@ func (u *ContestStandingUpsert) UpdateContestID() *ContestStandingUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *ContestStandingUpsert) SetUserID(v int) *ContestStandingUpsert {
+func (u *ContestStandingUpsert) SetUserID(v uuid.UUID) *ContestStandingUpsert {
 	u.Set(conteststanding.FieldUserID, v)
 	return u
 }
@@ -347,16 +592,198 @@ func (u *ContestStandingUpsert) ClearProblemResults() *ContestStandingUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsert) SetLastAcceptedElapsedMs(v int64) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldLastAcceptedElapsedMs, v)
+	return u
+}
+
+// UpdateLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateLastAcceptedElapsedMs() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldLastAcceptedElapsedMs)
+	return u
+}
+
+// AddLastAcceptedElapsedMs adds v to the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsert) AddLastAcceptedElapsedMs(v int64) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldLastAcceptedElapsedMs, v)
+	return u
+}
+
+// ClearLastAcceptedElapsedMs clears the value of the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsert) ClearLastAcceptedElapsedMs() *ContestStandingUpsert {
+	u.SetNull(conteststanding.FieldLastAcceptedElapsedMs)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *ContestStandingUpsert) SetVersion(v int64) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateVersion() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestStandingUpsert) AddVersion(v int64) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldVersion, v)
+	return u
+}
+
+// SetFrozenSolvedCount sets the "frozen_solved_count" field.
+func (u *ContestStandingUpsert) SetFrozenSolvedCount(v int) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenSolvedCount, v)
+	return u
+}
+
+// UpdateFrozenSolvedCount sets the "frozen_solved_count" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenSolvedCount() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenSolvedCount)
+	return u
+}
+
+// AddFrozenSolvedCount adds v to the "frozen_solved_count" field.
+func (u *ContestStandingUpsert) AddFrozenSolvedCount(v int) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldFrozenSolvedCount, v)
+	return u
+}
+
+// SetFrozenPenalty sets the "frozen_penalty" field.
+func (u *ContestStandingUpsert) SetFrozenPenalty(v int) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenPenalty, v)
+	return u
+}
+
+// UpdateFrozenPenalty sets the "frozen_penalty" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenPenalty() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenPenalty)
+	return u
+}
+
+// AddFrozenPenalty adds v to the "frozen_penalty" field.
+func (u *ContestStandingUpsert) AddFrozenPenalty(v int) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldFrozenPenalty, v)
+	return u
+}
+
+// SetFrozenProblemResults sets the "frozen_problem_results" field.
+func (u *ContestStandingUpsert) SetFrozenProblemResults(v map[string]interface{}) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenProblemResults, v)
+	return u
+}
+
+// UpdateFrozenProblemResults sets the "frozen_problem_results" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenProblemResults() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenProblemResults)
+	return u
+}
+
+// ClearFrozenProblemResults clears the value of the "frozen_problem_results" field.
+func (u *ContestStandingUpsert) ClearFrozenProblemResults() *ContestStandingUpsert {
+	u.SetNull(conteststanding.FieldFrozenProblemResults)
+	return u
+}
+
+// SetFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field.
+func (u *ContestStandingUpsert) SetFrozenPendingProblemAttempts(v map[string]int) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenPendingProblemAttempts, v)
+	return u
+}
+
+// UpdateFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenPendingProblemAttempts() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenPendingProblemAttempts)
+	return u
+}
+
+// ClearFrozenPendingProblemAttempts clears the value of the "frozen_pending_problem_attempts" field.
+func (u *ContestStandingUpsert) ClearFrozenPendingProblemAttempts() *ContestStandingUpsert {
+	u.SetNull(conteststanding.FieldFrozenPendingProblemAttempts)
+	return u
+}
+
+// SetFrozenPendingAttempts sets the "frozen_pending_attempts" field.
+func (u *ContestStandingUpsert) SetFrozenPendingAttempts(v int) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenPendingAttempts, v)
+	return u
+}
+
+// UpdateFrozenPendingAttempts sets the "frozen_pending_attempts" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenPendingAttempts() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenPendingAttempts)
+	return u
+}
+
+// AddFrozenPendingAttempts adds v to the "frozen_pending_attempts" field.
+func (u *ContestStandingUpsert) AddFrozenPendingAttempts(v int) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldFrozenPendingAttempts, v)
+	return u
+}
+
+// SetFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsert) SetFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenLastAcceptedElapsedMs, v)
+	return u
+}
+
+// UpdateFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenLastAcceptedElapsedMs() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenLastAcceptedElapsedMs)
+	return u
+}
+
+// AddFrozenLastAcceptedElapsedMs adds v to the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsert) AddFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldFrozenLastAcceptedElapsedMs, v)
+	return u
+}
+
+// ClearFrozenLastAcceptedElapsedMs clears the value of the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsert) ClearFrozenLastAcceptedElapsedMs() *ContestStandingUpsert {
+	u.SetNull(conteststanding.FieldFrozenLastAcceptedElapsedMs)
+	return u
+}
+
+// SetFrozenVersion sets the "frozen_version" field.
+func (u *ContestStandingUpsert) SetFrozenVersion(v int64) *ContestStandingUpsert {
+	u.Set(conteststanding.FieldFrozenVersion, v)
+	return u
+}
+
+// UpdateFrozenVersion sets the "frozen_version" field to the value that was provided on create.
+func (u *ContestStandingUpsert) UpdateFrozenVersion() *ContestStandingUpsert {
+	u.SetExcluded(conteststanding.FieldFrozenVersion)
+	return u
+}
+
+// AddFrozenVersion adds v to the "frozen_version" field.
+func (u *ContestStandingUpsert) AddFrozenVersion(v int64) *ContestStandingUpsert {
+	u.Add(conteststanding.FieldFrozenVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.ContestStanding.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(conteststanding.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ContestStandingUpsertOne) UpdateNewValues() *ContestStandingUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(conteststanding.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -388,7 +815,7 @@ func (u *ContestStandingUpsertOne) Update(set func(*ContestStandingUpsert)) *Con
 }
 
 // SetContestID sets the "contest_id" field.
-func (u *ContestStandingUpsertOne) SetContestID(v int) *ContestStandingUpsertOne {
+func (u *ContestStandingUpsertOne) SetContestID(v uuid.UUID) *ContestStandingUpsertOne {
 	return u.Update(func(s *ContestStandingUpsert) {
 		s.SetContestID(v)
 	})
@@ -402,7 +829,7 @@ func (u *ContestStandingUpsertOne) UpdateContestID() *ContestStandingUpsertOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *ContestStandingUpsertOne) SetUserID(v int) *ContestStandingUpsertOne {
+func (u *ContestStandingUpsertOne) SetUserID(v uuid.UUID) *ContestStandingUpsertOne {
 	return u.Update(func(s *ContestStandingUpsert) {
 		s.SetUserID(v)
 	})
@@ -478,6 +905,209 @@ func (u *ContestStandingUpsertOne) ClearProblemResults() *ContestStandingUpsertO
 	})
 }
 
+// SetLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertOne) SetLastAcceptedElapsedMs(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetLastAcceptedElapsedMs(v)
+	})
+}
+
+// AddLastAcceptedElapsedMs adds v to the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertOne) AddLastAcceptedElapsedMs(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddLastAcceptedElapsedMs(v)
+	})
+}
+
+// UpdateLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateLastAcceptedElapsedMs() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateLastAcceptedElapsedMs()
+	})
+}
+
+// ClearLastAcceptedElapsedMs clears the value of the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertOne) ClearLastAcceptedElapsedMs() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearLastAcceptedElapsedMs()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ContestStandingUpsertOne) SetVersion(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestStandingUpsertOne) AddVersion(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateVersion() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetFrozenSolvedCount sets the "frozen_solved_count" field.
+func (u *ContestStandingUpsertOne) SetFrozenSolvedCount(v int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenSolvedCount(v)
+	})
+}
+
+// AddFrozenSolvedCount adds v to the "frozen_solved_count" field.
+func (u *ContestStandingUpsertOne) AddFrozenSolvedCount(v int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenSolvedCount(v)
+	})
+}
+
+// UpdateFrozenSolvedCount sets the "frozen_solved_count" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenSolvedCount() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenSolvedCount()
+	})
+}
+
+// SetFrozenPenalty sets the "frozen_penalty" field.
+func (u *ContestStandingUpsertOne) SetFrozenPenalty(v int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenPenalty(v)
+	})
+}
+
+// AddFrozenPenalty adds v to the "frozen_penalty" field.
+func (u *ContestStandingUpsertOne) AddFrozenPenalty(v int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenPenalty(v)
+	})
+}
+
+// UpdateFrozenPenalty sets the "frozen_penalty" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenPenalty() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenPenalty()
+	})
+}
+
+// SetFrozenProblemResults sets the "frozen_problem_results" field.
+func (u *ContestStandingUpsertOne) SetFrozenProblemResults(v map[string]interface{}) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenProblemResults(v)
+	})
+}
+
+// UpdateFrozenProblemResults sets the "frozen_problem_results" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenProblemResults() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenProblemResults()
+	})
+}
+
+// ClearFrozenProblemResults clears the value of the "frozen_problem_results" field.
+func (u *ContestStandingUpsertOne) ClearFrozenProblemResults() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearFrozenProblemResults()
+	})
+}
+
+// SetFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field.
+func (u *ContestStandingUpsertOne) SetFrozenPendingProblemAttempts(v map[string]int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenPendingProblemAttempts(v)
+	})
+}
+
+// UpdateFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenPendingProblemAttempts() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenPendingProblemAttempts()
+	})
+}
+
+// ClearFrozenPendingProblemAttempts clears the value of the "frozen_pending_problem_attempts" field.
+func (u *ContestStandingUpsertOne) ClearFrozenPendingProblemAttempts() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearFrozenPendingProblemAttempts()
+	})
+}
+
+// SetFrozenPendingAttempts sets the "frozen_pending_attempts" field.
+func (u *ContestStandingUpsertOne) SetFrozenPendingAttempts(v int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenPendingAttempts(v)
+	})
+}
+
+// AddFrozenPendingAttempts adds v to the "frozen_pending_attempts" field.
+func (u *ContestStandingUpsertOne) AddFrozenPendingAttempts(v int) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenPendingAttempts(v)
+	})
+}
+
+// UpdateFrozenPendingAttempts sets the "frozen_pending_attempts" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenPendingAttempts() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenPendingAttempts()
+	})
+}
+
+// SetFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertOne) SetFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenLastAcceptedElapsedMs(v)
+	})
+}
+
+// AddFrozenLastAcceptedElapsedMs adds v to the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertOne) AddFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenLastAcceptedElapsedMs(v)
+	})
+}
+
+// UpdateFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenLastAcceptedElapsedMs() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenLastAcceptedElapsedMs()
+	})
+}
+
+// ClearFrozenLastAcceptedElapsedMs clears the value of the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertOne) ClearFrozenLastAcceptedElapsedMs() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearFrozenLastAcceptedElapsedMs()
+	})
+}
+
+// SetFrozenVersion sets the "frozen_version" field.
+func (u *ContestStandingUpsertOne) SetFrozenVersion(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenVersion(v)
+	})
+}
+
+// AddFrozenVersion adds v to the "frozen_version" field.
+func (u *ContestStandingUpsertOne) AddFrozenVersion(v int64) *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenVersion(v)
+	})
+}
+
+// UpdateFrozenVersion sets the "frozen_version" field to the value that was provided on create.
+func (u *ContestStandingUpsertOne) UpdateFrozenVersion() *ContestStandingUpsertOne {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenVersion()
+	})
+}
+
 // Exec executes the query.
 func (u *ContestStandingUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -494,7 +1124,12 @@ func (u *ContestStandingUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ContestStandingUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ContestStandingUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: ContestStandingUpsertOne.ID is not supported by MySQL driver. Use ContestStandingUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -503,17 +1138,12 @@ func (u *ContestStandingUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ContestStandingUpsertOne) IDX(ctx context.Context) int {
+func (u *ContestStandingUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *ContestStandingCreate) SetID(id int) *ContestStandingCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // ContestStandingCreateBulk is the builder for creating many ContestStanding entities in bulk.
@@ -563,10 +1193,6 @@ func (_c *ContestStandingCreateBulk) Save(ctx context.Context) ([]*ContestStandi
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -653,10 +1279,20 @@ type ContestStandingUpsertBulk struct {
 //	client.ContestStanding.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(conteststanding.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ContestStandingUpsertBulk) UpdateNewValues() *ContestStandingUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(conteststanding.FieldID)
+			}
+		}
+	}))
 	return u
 }
 
@@ -688,7 +1324,7 @@ func (u *ContestStandingUpsertBulk) Update(set func(*ContestStandingUpsert)) *Co
 }
 
 // SetContestID sets the "contest_id" field.
-func (u *ContestStandingUpsertBulk) SetContestID(v int) *ContestStandingUpsertBulk {
+func (u *ContestStandingUpsertBulk) SetContestID(v uuid.UUID) *ContestStandingUpsertBulk {
 	return u.Update(func(s *ContestStandingUpsert) {
 		s.SetContestID(v)
 	})
@@ -702,7 +1338,7 @@ func (u *ContestStandingUpsertBulk) UpdateContestID() *ContestStandingUpsertBulk
 }
 
 // SetUserID sets the "user_id" field.
-func (u *ContestStandingUpsertBulk) SetUserID(v int) *ContestStandingUpsertBulk {
+func (u *ContestStandingUpsertBulk) SetUserID(v uuid.UUID) *ContestStandingUpsertBulk {
 	return u.Update(func(s *ContestStandingUpsert) {
 		s.SetUserID(v)
 	})
@@ -775,6 +1411,209 @@ func (u *ContestStandingUpsertBulk) UpdateProblemResults() *ContestStandingUpser
 func (u *ContestStandingUpsertBulk) ClearProblemResults() *ContestStandingUpsertBulk {
 	return u.Update(func(s *ContestStandingUpsert) {
 		s.ClearProblemResults()
+	})
+}
+
+// SetLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertBulk) SetLastAcceptedElapsedMs(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetLastAcceptedElapsedMs(v)
+	})
+}
+
+// AddLastAcceptedElapsedMs adds v to the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertBulk) AddLastAcceptedElapsedMs(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddLastAcceptedElapsedMs(v)
+	})
+}
+
+// UpdateLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateLastAcceptedElapsedMs() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateLastAcceptedElapsedMs()
+	})
+}
+
+// ClearLastAcceptedElapsedMs clears the value of the "last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertBulk) ClearLastAcceptedElapsedMs() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearLastAcceptedElapsedMs()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ContestStandingUpsertBulk) SetVersion(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestStandingUpsertBulk) AddVersion(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateVersion() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetFrozenSolvedCount sets the "frozen_solved_count" field.
+func (u *ContestStandingUpsertBulk) SetFrozenSolvedCount(v int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenSolvedCount(v)
+	})
+}
+
+// AddFrozenSolvedCount adds v to the "frozen_solved_count" field.
+func (u *ContestStandingUpsertBulk) AddFrozenSolvedCount(v int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenSolvedCount(v)
+	})
+}
+
+// UpdateFrozenSolvedCount sets the "frozen_solved_count" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenSolvedCount() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenSolvedCount()
+	})
+}
+
+// SetFrozenPenalty sets the "frozen_penalty" field.
+func (u *ContestStandingUpsertBulk) SetFrozenPenalty(v int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenPenalty(v)
+	})
+}
+
+// AddFrozenPenalty adds v to the "frozen_penalty" field.
+func (u *ContestStandingUpsertBulk) AddFrozenPenalty(v int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenPenalty(v)
+	})
+}
+
+// UpdateFrozenPenalty sets the "frozen_penalty" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenPenalty() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenPenalty()
+	})
+}
+
+// SetFrozenProblemResults sets the "frozen_problem_results" field.
+func (u *ContestStandingUpsertBulk) SetFrozenProblemResults(v map[string]interface{}) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenProblemResults(v)
+	})
+}
+
+// UpdateFrozenProblemResults sets the "frozen_problem_results" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenProblemResults() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenProblemResults()
+	})
+}
+
+// ClearFrozenProblemResults clears the value of the "frozen_problem_results" field.
+func (u *ContestStandingUpsertBulk) ClearFrozenProblemResults() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearFrozenProblemResults()
+	})
+}
+
+// SetFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field.
+func (u *ContestStandingUpsertBulk) SetFrozenPendingProblemAttempts(v map[string]int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenPendingProblemAttempts(v)
+	})
+}
+
+// UpdateFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenPendingProblemAttempts() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenPendingProblemAttempts()
+	})
+}
+
+// ClearFrozenPendingProblemAttempts clears the value of the "frozen_pending_problem_attempts" field.
+func (u *ContestStandingUpsertBulk) ClearFrozenPendingProblemAttempts() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearFrozenPendingProblemAttempts()
+	})
+}
+
+// SetFrozenPendingAttempts sets the "frozen_pending_attempts" field.
+func (u *ContestStandingUpsertBulk) SetFrozenPendingAttempts(v int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenPendingAttempts(v)
+	})
+}
+
+// AddFrozenPendingAttempts adds v to the "frozen_pending_attempts" field.
+func (u *ContestStandingUpsertBulk) AddFrozenPendingAttempts(v int) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenPendingAttempts(v)
+	})
+}
+
+// UpdateFrozenPendingAttempts sets the "frozen_pending_attempts" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenPendingAttempts() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenPendingAttempts()
+	})
+}
+
+// SetFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertBulk) SetFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenLastAcceptedElapsedMs(v)
+	})
+}
+
+// AddFrozenLastAcceptedElapsedMs adds v to the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertBulk) AddFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenLastAcceptedElapsedMs(v)
+	})
+}
+
+// UpdateFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenLastAcceptedElapsedMs() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenLastAcceptedElapsedMs()
+	})
+}
+
+// ClearFrozenLastAcceptedElapsedMs clears the value of the "frozen_last_accepted_elapsed_ms" field.
+func (u *ContestStandingUpsertBulk) ClearFrozenLastAcceptedElapsedMs() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.ClearFrozenLastAcceptedElapsedMs()
+	})
+}
+
+// SetFrozenVersion sets the "frozen_version" field.
+func (u *ContestStandingUpsertBulk) SetFrozenVersion(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.SetFrozenVersion(v)
+	})
+}
+
+// AddFrozenVersion adds v to the "frozen_version" field.
+func (u *ContestStandingUpsertBulk) AddFrozenVersion(v int64) *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.AddFrozenVersion(v)
+	})
+}
+
+// UpdateFrozenVersion sets the "frozen_version" field to the value that was provided on create.
+func (u *ContestStandingUpsertBulk) UpdateFrozenVersion() *ContestStandingUpsertBulk {
+	return u.Update(func(s *ContestStandingUpsert) {
+		s.UpdateFrozenVersion()
 	})
 }
 

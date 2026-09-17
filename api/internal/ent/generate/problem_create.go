@@ -8,14 +8,22 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/problemrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testsetrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 )
@@ -71,15 +79,229 @@ func (_c *ProblemCreate) SetNillableDeletedAt(v *time.Time) *ProblemCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *ProblemCreate) SetDeletedBy(v int) *ProblemCreate {
+func (_c *ProblemCreate) SetDeletedBy(v string) *ProblemCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *ProblemCreate) SetNillableDeletedBy(v *int) *ProblemCreate {
+func (_c *ProblemCreate) SetNillableDeletedBy(v *string) *ProblemCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
+	}
+	return _c
+}
+
+// SetSlug sets the "slug" field.
+func (_c *ProblemCreate) SetSlug(v string) *ProblemCreate {
+	_c.mutation.SetSlug(v)
+	return _c
+}
+
+// SetLifecycle sets the "lifecycle" field.
+func (_c *ProblemCreate) SetLifecycle(v problem.Lifecycle) *ProblemCreate {
+	_c.mutation.SetLifecycle(v)
+	return _c
+}
+
+// SetNillableLifecycle sets the "lifecycle" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableLifecycle(v *problem.Lifecycle) *ProblemCreate {
+	if v != nil {
+		_c.SetLifecycle(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *ProblemCreate) SetVersion(v int64) *ProblemCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableVersion(v *int64) *ProblemCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetTagMappingID sets the "tag_mapping_id" field.
+func (_c *ProblemCreate) SetTagMappingID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetTagMappingID(v)
+	return _c
+}
+
+// SetNillableTagMappingID sets the "tag_mapping_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableTagMappingID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetTagMappingID(*v)
+	}
+	return _c
+}
+
+// SetElementMappingID sets the "element_mapping_id" field.
+func (_c *ProblemCreate) SetElementMappingID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetElementMappingID(v)
+	return _c
+}
+
+// SetNillableElementMappingID sets the "element_mapping_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableElementMappingID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetElementMappingID(*v)
+	}
+	return _c
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (_c *ProblemCreate) SetDraftRevisionID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetDraftRevisionID(v)
+	return _c
+}
+
+// SetNillableDraftRevisionID sets the "draft_revision_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableDraftRevisionID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetDraftRevisionID(*v)
+	}
+	return _c
+}
+
+// SetDraftRenderSourceID sets the "draft_render_source_id" field.
+func (_c *ProblemCreate) SetDraftRenderSourceID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetDraftRenderSourceID(v)
+	return _c
+}
+
+// SetNillableDraftRenderSourceID sets the "draft_render_source_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableDraftRenderSourceID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetDraftRenderSourceID(*v)
+	}
+	return _c
+}
+
+// SetDraftRenderSourceKind sets the "draft_render_source_kind" field.
+func (_c *ProblemCreate) SetDraftRenderSourceKind(v problem.DraftRenderSourceKind) *ProblemCreate {
+	_c.mutation.SetDraftRenderSourceKind(v)
+	return _c
+}
+
+// SetNillableDraftRenderSourceKind sets the "draft_render_source_kind" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableDraftRenderSourceKind(v *problem.DraftRenderSourceKind) *ProblemCreate {
+	if v != nil {
+		_c.SetDraftRenderSourceKind(*v)
+	}
+	return _c
+}
+
+// SetDraftRenderSourceChecksum sets the "draft_render_source_checksum" field.
+func (_c *ProblemCreate) SetDraftRenderSourceChecksum(v []byte) *ProblemCreate {
+	_c.mutation.SetDraftRenderSourceChecksum(v)
+	return _c
+}
+
+// SetDraftRenderArtifactID sets the "draft_render_artifact_id" field.
+func (_c *ProblemCreate) SetDraftRenderArtifactID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetDraftRenderArtifactID(v)
+	return _c
+}
+
+// SetNillableDraftRenderArtifactID sets the "draft_render_artifact_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableDraftRenderArtifactID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetDraftRenderArtifactID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (_c *ProblemCreate) SetPublishedRevisionID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetPublishedRevisionID(v)
+	return _c
+}
+
+// SetNillablePublishedRevisionID sets the "published_revision_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillablePublishedRevisionID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetPublishedRevisionID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (_c *ProblemCreate) SetPublishedRenderSourceID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetPublishedRenderSourceID(v)
+	return _c
+}
+
+// SetNillablePublishedRenderSourceID sets the "published_render_source_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillablePublishedRenderSourceID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetPublishedRenderSourceID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (_c *ProblemCreate) SetPublishedRenderSourceKind(v problem.PublishedRenderSourceKind) *ProblemCreate {
+	_c.mutation.SetPublishedRenderSourceKind(v)
+	return _c
+}
+
+// SetNillablePublishedRenderSourceKind sets the "published_render_source_kind" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillablePublishedRenderSourceKind(v *problem.PublishedRenderSourceKind) *ProblemCreate {
+	if v != nil {
+		_c.SetPublishedRenderSourceKind(*v)
+	}
+	return _c
+}
+
+// SetPublishedRenderSourceChecksum sets the "published_render_source_checksum" field.
+func (_c *ProblemCreate) SetPublishedRenderSourceChecksum(v []byte) *ProblemCreate {
+	_c.mutation.SetPublishedRenderSourceChecksum(v)
+	return _c
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (_c *ProblemCreate) SetPublishedRenderArtifactID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetPublishedRenderArtifactID(v)
+	return _c
+}
+
+// SetNillablePublishedRenderArtifactID sets the "published_render_artifact_id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillablePublishedRenderArtifactID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetPublishedRenderArtifactID(*v)
+	}
+	return _c
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_c *ProblemCreate) SetPublishedAt(v time.Time) *ProblemCreate {
+	_c.mutation.SetPublishedAt(v)
+	return _c
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillablePublishedAt(v *time.Time) *ProblemCreate {
+	if v != nil {
+		_c.SetPublishedAt(*v)
+	}
+	return _c
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_c *ProblemCreate) SetArchivedAt(v time.Time) *ProblemCreate {
+	_c.mutation.SetArchivedAt(v)
+	return _c
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableArchivedAt(v *time.Time) *ProblemCreate {
+	if v != nil {
+		_c.SetArchivedAt(*v)
 	}
 	return _c
 }
@@ -97,7 +319,7 @@ func (_c *ProblemCreate) SetDescription(v string) *ProblemCreate {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_c *ProblemCreate) SetDifficultyID(v int) *ProblemCreate {
+func (_c *ProblemCreate) SetDifficultyID(v uuid.UUID) *ProblemCreate {
 	_c.mutation.SetDifficultyID(v)
 	return _c
 }
@@ -131,7 +353,7 @@ func (_c *ProblemCreate) SetNillableMemoryLimitKB(v *int) *ProblemCreate {
 }
 
 // SetAuthorID sets the "author_id" field.
-func (_c *ProblemCreate) SetAuthorID(v int) *ProblemCreate {
+func (_c *ProblemCreate) SetAuthorID(v uuid.UUID) *ProblemCreate {
 	_c.mutation.SetAuthorID(v)
 	return _c
 }
@@ -178,6 +400,20 @@ func (_c *ProblemCreate) SetNillableAcceptedCount(v *int) *ProblemCreate {
 	return _c
 }
 
+// SetID sets the "id" field.
+func (_c *ProblemCreate) SetID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *ProblemCreate) SetNillableID(v *uuid.UUID) *ProblemCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_c *ProblemCreate) SetAuthor(v *User) *ProblemCreate {
 	return _c.SetAuthorID(v.ID)
@@ -189,44 +425,134 @@ func (_c *ProblemCreate) SetDifficulty(v *Difficulty) *ProblemCreate {
 }
 
 // AddTestCaseIDs adds the "test_cases" edge to the TestCase entity by IDs.
-func (_c *ProblemCreate) AddTestCaseIDs(ids ...int) *ProblemCreate {
+func (_c *ProblemCreate) AddTestCaseIDs(ids ...uuid.UUID) *ProblemCreate {
 	_c.mutation.AddTestCaseIDs(ids...)
 	return _c
 }
 
 // AddTestCases adds the "test_cases" edges to the TestCase entity.
 func (_c *ProblemCreate) AddTestCases(v ...*TestCase) *ProblemCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddTestCaseIDs(ids...)
 }
 
+// AddRevisionIDs adds the "revisions" edge to the ProblemRevision entity by IDs.
+func (_c *ProblemCreate) AddRevisionIDs(ids ...uuid.UUID) *ProblemCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the ProblemRevision entity.
+func (_c *ProblemCreate) AddRevisions(v ...*ProblemRevision) *ProblemCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
+}
+
+// AddTestsetRevisionIDs adds the "testset_revisions" edge to the TestsetRevision entity by IDs.
+func (_c *ProblemCreate) AddTestsetRevisionIDs(ids ...uuid.UUID) *ProblemCreate {
+	_c.mutation.AddTestsetRevisionIDs(ids...)
+	return _c
+}
+
+// AddTestsetRevisions adds the "testset_revisions" edges to the TestsetRevision entity.
+func (_c *ProblemCreate) AddTestsetRevisions(v ...*TestsetRevision) *ProblemCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTestsetRevisionIDs(ids...)
+}
+
+// AddContestDraftMembershipIDs adds the "contest_draft_memberships" edge to the ContestDraftProblem entity by IDs.
+func (_c *ProblemCreate) AddContestDraftMembershipIDs(ids ...uuid.UUID) *ProblemCreate {
+	_c.mutation.AddContestDraftMembershipIDs(ids...)
+	return _c
+}
+
+// AddContestDraftMemberships adds the "contest_draft_memberships" edges to the ContestDraftProblem entity.
+func (_c *ProblemCreate) AddContestDraftMemberships(v ...*ContestDraftProblem) *ProblemCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestDraftMembershipIDs(ids...)
+}
+
+// AddContestProblemSnapshotIDs adds the "contest_problem_snapshots" edge to the ContestProblem entity by IDs.
+func (_c *ProblemCreate) AddContestProblemSnapshotIDs(ids ...uuid.UUID) *ProblemCreate {
+	_c.mutation.AddContestProblemSnapshotIDs(ids...)
+	return _c
+}
+
+// AddContestProblemSnapshots adds the "contest_problem_snapshots" edges to the ContestProblem entity.
+func (_c *ProblemCreate) AddContestProblemSnapshots(v ...*ContestProblem) *ProblemCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestProblemSnapshotIDs(ids...)
+}
+
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_c *ProblemCreate) AddSubmissionIDs(ids ...int) *ProblemCreate {
+func (_c *ProblemCreate) AddSubmissionIDs(ids ...uuid.UUID) *ProblemCreate {
 	_c.mutation.AddSubmissionIDs(ids...)
 	return _c
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_c *ProblemCreate) AddSubmissions(v ...*Submission) *ProblemCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddSubmissionIDs(ids...)
 }
 
+// AddContestScoringAttemptIDs adds the "contest_scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_c *ProblemCreate) AddContestScoringAttemptIDs(ids ...uuid.UUID) *ProblemCreate {
+	_c.mutation.AddContestScoringAttemptIDs(ids...)
+	return _c
+}
+
+// AddContestScoringAttempts adds the "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_c *ProblemCreate) AddContestScoringAttempts(v ...*ContestScoringAttempt) *ProblemCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestScoringAttemptIDs(ids...)
+}
+
+// AddContestProblemResultIDs adds the "contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_c *ProblemCreate) AddContestProblemResultIDs(ids ...uuid.UUID) *ProblemCreate {
+	_c.mutation.AddContestProblemResultIDs(ids...)
+	return _c
+}
+
+// AddContestProblemResults adds the "contest_problem_results" edges to the ContestProblemResult entity.
+func (_c *ProblemCreate) AddContestProblemResults(v ...*ContestProblemResult) *ProblemCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddContestProblemResultIDs(ids...)
+}
+
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_c *ProblemCreate) AddTagIDs(ids ...int) *ProblemCreate {
+func (_c *ProblemCreate) AddTagIDs(ids ...uuid.UUID) *ProblemCreate {
 	_c.mutation.AddTagIDs(ids...)
 	return _c
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_c *ProblemCreate) AddTags(v ...*Tag) *ProblemCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -234,14 +560,14 @@ func (_c *ProblemCreate) AddTags(v ...*Tag) *ProblemCreate {
 }
 
 // AddSolverIDs adds the "solvers" edge to the UserSolvedProblem entity by IDs.
-func (_c *ProblemCreate) AddSolverIDs(ids ...int) *ProblemCreate {
+func (_c *ProblemCreate) AddSolverIDs(ids ...uuid.UUID) *ProblemCreate {
 	_c.mutation.AddSolverIDs(ids...)
 	return _c
 }
 
 // AddSolvers adds the "solvers" edges to the UserSolvedProblem entity.
 func (_c *ProblemCreate) AddSolvers(v ...*UserSolvedProblem) *ProblemCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -299,6 +625,28 @@ func (_c *ProblemCreate) defaults() error {
 		v := problem.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Lifecycle(); !ok {
+		v := problem.DefaultLifecycle
+		_c.mutation.SetLifecycle(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := problem.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.TagMappingID(); !ok {
+		if problem.DefaultTagMappingID == nil {
+			return fmt.Errorf("generate: uninitialized problem.DefaultTagMappingID (forgotten import generate/runtime?)")
+		}
+		v := problem.DefaultTagMappingID()
+		_c.mutation.SetTagMappingID(v)
+	}
+	if _, ok := _c.mutation.ElementMappingID(); !ok {
+		if problem.DefaultElementMappingID == nil {
+			return fmt.Errorf("generate: uninitialized problem.DefaultElementMappingID (forgotten import generate/runtime?)")
+		}
+		v := problem.DefaultElementMappingID()
+		_c.mutation.SetElementMappingID(v)
+	}
 	if _, ok := _c.mutation.TimeLimitMs(); !ok {
 		v := problem.DefaultTimeLimitMs
 		_c.mutation.SetTimeLimitMs(v)
@@ -319,6 +667,13 @@ func (_c *ProblemCreate) defaults() error {
 		v := problem.DefaultAcceptedCount
 		_c.mutation.SetAcceptedCount(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if problem.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized problem.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := problem.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -329,6 +684,46 @@ func (_c *ProblemCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Problem.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Slug(); !ok {
+		return &ValidationError{Name: "slug", err: errors.New(`generate: missing required field "Problem.slug"`)}
+	}
+	if v, ok := _c.mutation.Slug(); ok {
+		if err := problem.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`generate: validator failed for field "Problem.slug": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Lifecycle(); !ok {
+		return &ValidationError{Name: "lifecycle", err: errors.New(`generate: missing required field "Problem.lifecycle"`)}
+	}
+	if v, ok := _c.mutation.Lifecycle(); ok {
+		if err := problem.LifecycleValidator(v); err != nil {
+			return &ValidationError{Name: "lifecycle", err: fmt.Errorf(`generate: validator failed for field "Problem.lifecycle": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Problem.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := problem.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Problem.version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.TagMappingID(); !ok {
+		return &ValidationError{Name: "tag_mapping_id", err: errors.New(`generate: missing required field "Problem.tag_mapping_id"`)}
+	}
+	if _, ok := _c.mutation.ElementMappingID(); !ok {
+		return &ValidationError{Name: "element_mapping_id", err: errors.New(`generate: missing required field "Problem.element_mapping_id"`)}
+	}
+	if v, ok := _c.mutation.DraftRenderSourceKind(); ok {
+		if err := problem.DraftRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "draft_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Problem.draft_render_source_kind": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.PublishedRenderSourceKind(); ok {
+		if err := problem.PublishedRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "published_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Problem.published_render_source_kind": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`generate: missing required field "Problem.title"`)}
@@ -387,8 +782,13 @@ func (_c *ProblemCreate) sqlSave(ctx context.Context) (*Problem, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -397,9 +797,13 @@ func (_c *ProblemCreate) sqlSave(ctx context.Context) (*Problem, error) {
 func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Problem{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(problem.Table, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(problem.Table, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(problem.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -413,8 +817,76 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(problem.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(problem.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.Slug(); ok {
+		_spec.SetField(problem.FieldSlug, field.TypeString, value)
+		_node.Slug = value
+	}
+	if value, ok := _c.mutation.Lifecycle(); ok {
+		_spec.SetField(problem.FieldLifecycle, field.TypeEnum, value)
+		_node.Lifecycle = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(problem.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.TagMappingID(); ok {
+		_spec.SetField(problem.FieldTagMappingID, field.TypeUUID, value)
+		_node.TagMappingID = value
+	}
+	if value, ok := _c.mutation.ElementMappingID(); ok {
+		_spec.SetField(problem.FieldElementMappingID, field.TypeUUID, value)
+		_node.ElementMappingID = value
+	}
+	if value, ok := _c.mutation.DraftRevisionID(); ok {
+		_spec.SetField(problem.FieldDraftRevisionID, field.TypeUUID, value)
+		_node.DraftRevisionID = &value
+	}
+	if value, ok := _c.mutation.DraftRenderSourceID(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceID, field.TypeUUID, value)
+		_node.DraftRenderSourceID = &value
+	}
+	if value, ok := _c.mutation.DraftRenderSourceKind(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceKind, field.TypeEnum, value)
+		_node.DraftRenderSourceKind = &value
+	}
+	if value, ok := _c.mutation.DraftRenderSourceChecksum(); ok {
+		_spec.SetField(problem.FieldDraftRenderSourceChecksum, field.TypeBytes, value)
+		_node.DraftRenderSourceChecksum = &value
+	}
+	if value, ok := _c.mutation.DraftRenderArtifactID(); ok {
+		_spec.SetField(problem.FieldDraftRenderArtifactID, field.TypeUUID, value)
+		_node.DraftRenderArtifactID = &value
+	}
+	if value, ok := _c.mutation.PublishedRevisionID(); ok {
+		_spec.SetField(problem.FieldPublishedRevisionID, field.TypeUUID, value)
+		_node.PublishedRevisionID = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderSourceID(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceID, field.TypeUUID, value)
+		_node.PublishedRenderSourceID = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderSourceKind(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceKind, field.TypeEnum, value)
+		_node.PublishedRenderSourceKind = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderSourceChecksum(); ok {
+		_spec.SetField(problem.FieldPublishedRenderSourceChecksum, field.TypeBytes, value)
+		_node.PublishedRenderSourceChecksum = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderArtifactID(); ok {
+		_spec.SetField(problem.FieldPublishedRenderArtifactID, field.TypeUUID, value)
+		_node.PublishedRenderArtifactID = &value
+	}
+	if value, ok := _c.mutation.PublishedAt(); ok {
+		_spec.SetField(problem.FieldPublishedAt, field.TypeTime, value)
+		_node.PublishedAt = &value
+	}
+	if value, ok := _c.mutation.ArchivedAt(); ok {
+		_spec.SetField(problem.FieldArchivedAt, field.TypeTime, value)
+		_node.ArchivedAt = &value
 	}
 	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
@@ -452,7 +924,7 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: []string{problem.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -469,7 +941,7 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: []string{problem.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -486,7 +958,71 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: []string{problem.TestCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.RevisionsTable,
+			Columns: []string{problem.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TestsetRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.TestsetRevisionsTable,
+			Columns: []string{problem.TestsetRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testsetrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestDraftMembershipsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestDraftMembershipsTable,
+			Columns: []string{problem.ContestDraftMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestProblemSnapshotsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemSnapshotsTable,
+			Columns: []string{problem.ContestProblemSnapshotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -502,7 +1038,39 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: []string{problem.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestScoringAttemptsTable,
+			Columns: []string{problem.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ContestProblemResultsTable,
+			Columns: []string{problem.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -518,7 +1086,7 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: problem.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -534,7 +1102,7 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: []string{problem.SolversColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -625,7 +1193,7 @@ func (u *ProblemUpsert) ClearDeletedAt() *ProblemUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ProblemUpsert) SetDeletedBy(v int) *ProblemUpsert {
+func (u *ProblemUpsert) SetDeletedBy(v string) *ProblemUpsert {
 	u.Set(problem.FieldDeletedBy, v)
 	return u
 }
@@ -636,15 +1204,255 @@ func (u *ProblemUpsert) UpdateDeletedBy() *ProblemUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ProblemUpsert) AddDeletedBy(v int) *ProblemUpsert {
-	u.Add(problem.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *ProblemUpsert) ClearDeletedBy() *ProblemUpsert {
 	u.SetNull(problem.FieldDeletedBy)
+	return u
+}
+
+// SetLifecycle sets the "lifecycle" field.
+func (u *ProblemUpsert) SetLifecycle(v problem.Lifecycle) *ProblemUpsert {
+	u.Set(problem.FieldLifecycle, v)
+	return u
+}
+
+// UpdateLifecycle sets the "lifecycle" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateLifecycle() *ProblemUpsert {
+	u.SetExcluded(problem.FieldLifecycle)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *ProblemUpsert) SetVersion(v int64) *ProblemUpsert {
+	u.Set(problem.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateVersion() *ProblemUpsert {
+	u.SetExcluded(problem.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ProblemUpsert) AddVersion(v int64) *ProblemUpsert {
+	u.Add(problem.FieldVersion, v)
+	return u
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (u *ProblemUpsert) SetDraftRevisionID(v uuid.UUID) *ProblemUpsert {
+	u.Set(problem.FieldDraftRevisionID, v)
+	return u
+}
+
+// UpdateDraftRevisionID sets the "draft_revision_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateDraftRevisionID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldDraftRevisionID)
+	return u
+}
+
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (u *ProblemUpsert) ClearDraftRevisionID() *ProblemUpsert {
+	u.SetNull(problem.FieldDraftRevisionID)
+	return u
+}
+
+// SetDraftRenderSourceID sets the "draft_render_source_id" field.
+func (u *ProblemUpsert) SetDraftRenderSourceID(v uuid.UUID) *ProblemUpsert {
+	u.Set(problem.FieldDraftRenderSourceID, v)
+	return u
+}
+
+// UpdateDraftRenderSourceID sets the "draft_render_source_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateDraftRenderSourceID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldDraftRenderSourceID)
+	return u
+}
+
+// ClearDraftRenderSourceID clears the value of the "draft_render_source_id" field.
+func (u *ProblemUpsert) ClearDraftRenderSourceID() *ProblemUpsert {
+	u.SetNull(problem.FieldDraftRenderSourceID)
+	return u
+}
+
+// SetDraftRenderSourceKind sets the "draft_render_source_kind" field.
+func (u *ProblemUpsert) SetDraftRenderSourceKind(v problem.DraftRenderSourceKind) *ProblemUpsert {
+	u.Set(problem.FieldDraftRenderSourceKind, v)
+	return u
+}
+
+// UpdateDraftRenderSourceKind sets the "draft_render_source_kind" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateDraftRenderSourceKind() *ProblemUpsert {
+	u.SetExcluded(problem.FieldDraftRenderSourceKind)
+	return u
+}
+
+// ClearDraftRenderSourceKind clears the value of the "draft_render_source_kind" field.
+func (u *ProblemUpsert) ClearDraftRenderSourceKind() *ProblemUpsert {
+	u.SetNull(problem.FieldDraftRenderSourceKind)
+	return u
+}
+
+// SetDraftRenderSourceChecksum sets the "draft_render_source_checksum" field.
+func (u *ProblemUpsert) SetDraftRenderSourceChecksum(v []byte) *ProblemUpsert {
+	u.Set(problem.FieldDraftRenderSourceChecksum, v)
+	return u
+}
+
+// UpdateDraftRenderSourceChecksum sets the "draft_render_source_checksum" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateDraftRenderSourceChecksum() *ProblemUpsert {
+	u.SetExcluded(problem.FieldDraftRenderSourceChecksum)
+	return u
+}
+
+// ClearDraftRenderSourceChecksum clears the value of the "draft_render_source_checksum" field.
+func (u *ProblemUpsert) ClearDraftRenderSourceChecksum() *ProblemUpsert {
+	u.SetNull(problem.FieldDraftRenderSourceChecksum)
+	return u
+}
+
+// SetDraftRenderArtifactID sets the "draft_render_artifact_id" field.
+func (u *ProblemUpsert) SetDraftRenderArtifactID(v uuid.UUID) *ProblemUpsert {
+	u.Set(problem.FieldDraftRenderArtifactID, v)
+	return u
+}
+
+// UpdateDraftRenderArtifactID sets the "draft_render_artifact_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateDraftRenderArtifactID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldDraftRenderArtifactID)
+	return u
+}
+
+// ClearDraftRenderArtifactID clears the value of the "draft_render_artifact_id" field.
+func (u *ProblemUpsert) ClearDraftRenderArtifactID() *ProblemUpsert {
+	u.SetNull(problem.FieldDraftRenderArtifactID)
+	return u
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (u *ProblemUpsert) SetPublishedRevisionID(v uuid.UUID) *ProblemUpsert {
+	u.Set(problem.FieldPublishedRevisionID, v)
+	return u
+}
+
+// UpdatePublishedRevisionID sets the "published_revision_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdatePublishedRevisionID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldPublishedRevisionID)
+	return u
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (u *ProblemUpsert) ClearPublishedRevisionID() *ProblemUpsert {
+	u.SetNull(problem.FieldPublishedRevisionID)
+	return u
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (u *ProblemUpsert) SetPublishedRenderSourceID(v uuid.UUID) *ProblemUpsert {
+	u.Set(problem.FieldPublishedRenderSourceID, v)
+	return u
+}
+
+// UpdatePublishedRenderSourceID sets the "published_render_source_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdatePublishedRenderSourceID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldPublishedRenderSourceID)
+	return u
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (u *ProblemUpsert) ClearPublishedRenderSourceID() *ProblemUpsert {
+	u.SetNull(problem.FieldPublishedRenderSourceID)
+	return u
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (u *ProblemUpsert) SetPublishedRenderSourceKind(v problem.PublishedRenderSourceKind) *ProblemUpsert {
+	u.Set(problem.FieldPublishedRenderSourceKind, v)
+	return u
+}
+
+// UpdatePublishedRenderSourceKind sets the "published_render_source_kind" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdatePublishedRenderSourceKind() *ProblemUpsert {
+	u.SetExcluded(problem.FieldPublishedRenderSourceKind)
+	return u
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (u *ProblemUpsert) ClearPublishedRenderSourceKind() *ProblemUpsert {
+	u.SetNull(problem.FieldPublishedRenderSourceKind)
+	return u
+}
+
+// SetPublishedRenderSourceChecksum sets the "published_render_source_checksum" field.
+func (u *ProblemUpsert) SetPublishedRenderSourceChecksum(v []byte) *ProblemUpsert {
+	u.Set(problem.FieldPublishedRenderSourceChecksum, v)
+	return u
+}
+
+// UpdatePublishedRenderSourceChecksum sets the "published_render_source_checksum" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdatePublishedRenderSourceChecksum() *ProblemUpsert {
+	u.SetExcluded(problem.FieldPublishedRenderSourceChecksum)
+	return u
+}
+
+// ClearPublishedRenderSourceChecksum clears the value of the "published_render_source_checksum" field.
+func (u *ProblemUpsert) ClearPublishedRenderSourceChecksum() *ProblemUpsert {
+	u.SetNull(problem.FieldPublishedRenderSourceChecksum)
+	return u
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (u *ProblemUpsert) SetPublishedRenderArtifactID(v uuid.UUID) *ProblemUpsert {
+	u.Set(problem.FieldPublishedRenderArtifactID, v)
+	return u
+}
+
+// UpdatePublishedRenderArtifactID sets the "published_render_artifact_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdatePublishedRenderArtifactID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldPublishedRenderArtifactID)
+	return u
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (u *ProblemUpsert) ClearPublishedRenderArtifactID() *ProblemUpsert {
+	u.SetNull(problem.FieldPublishedRenderArtifactID)
+	return u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *ProblemUpsert) SetPublishedAt(v time.Time) *ProblemUpsert {
+	u.Set(problem.FieldPublishedAt, v)
+	return u
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdatePublishedAt() *ProblemUpsert {
+	u.SetExcluded(problem.FieldPublishedAt)
+	return u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *ProblemUpsert) ClearPublishedAt() *ProblemUpsert {
+	u.SetNull(problem.FieldPublishedAt)
+	return u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (u *ProblemUpsert) SetArchivedAt(v time.Time) *ProblemUpsert {
+	u.Set(problem.FieldArchivedAt, v)
+	return u
+}
+
+// UpdateArchivedAt sets the "archived_at" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateArchivedAt() *ProblemUpsert {
+	u.SetExcluded(problem.FieldArchivedAt)
+	return u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (u *ProblemUpsert) ClearArchivedAt() *ProblemUpsert {
+	u.SetNull(problem.FieldArchivedAt)
 	return u
 }
 
@@ -673,7 +1481,7 @@ func (u *ProblemUpsert) UpdateDescription() *ProblemUpsert {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *ProblemUpsert) SetDifficultyID(v int) *ProblemUpsert {
+func (u *ProblemUpsert) SetDifficultyID(v uuid.UUID) *ProblemUpsert {
 	u.Set(problem.FieldDifficultyID, v)
 	return u
 }
@@ -721,7 +1529,7 @@ func (u *ProblemUpsert) AddMemoryLimitKB(v int) *ProblemUpsert {
 }
 
 // SetAuthorID sets the "author_id" field.
-func (u *ProblemUpsert) SetAuthorID(v int) *ProblemUpsert {
+func (u *ProblemUpsert) SetAuthorID(v uuid.UUID) *ProblemUpsert {
 	u.Set(problem.FieldAuthorID, v)
 	return u
 }
@@ -780,19 +1588,34 @@ func (u *ProblemUpsert) AddAcceptedCount(v int) *ProblemUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Problem.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(problem.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ProblemUpsertOne) UpdateNewValues() *ProblemUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(problem.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(problem.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.Slug(); exists {
+			s.SetIgnore(problem.FieldSlug)
+		}
+		if _, exists := u.create.mutation.TagMappingID(); exists {
+			s.SetIgnore(problem.FieldTagMappingID)
+		}
+		if _, exists := u.create.mutation.ElementMappingID(); exists {
+			s.SetIgnore(problem.FieldElementMappingID)
 		}
 	}))
 	return u
@@ -861,16 +1684,9 @@ func (u *ProblemUpsertOne) ClearDeletedAt() *ProblemUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ProblemUpsertOne) SetDeletedBy(v int) *ProblemUpsertOne {
+func (u *ProblemUpsertOne) SetDeletedBy(v string) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ProblemUpsertOne) AddDeletedBy(v int) *ProblemUpsertOne {
-	return u.Update(func(s *ProblemUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -885,6 +1701,293 @@ func (u *ProblemUpsertOne) UpdateDeletedBy() *ProblemUpsertOne {
 func (u *ProblemUpsertOne) ClearDeletedBy() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.ClearDeletedBy()
+	})
+}
+
+// SetLifecycle sets the "lifecycle" field.
+func (u *ProblemUpsertOne) SetLifecycle(v problem.Lifecycle) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetLifecycle(v)
+	})
+}
+
+// UpdateLifecycle sets the "lifecycle" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateLifecycle() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateLifecycle()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ProblemUpsertOne) SetVersion(v int64) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ProblemUpsertOne) AddVersion(v int64) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateVersion() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (u *ProblemUpsertOne) SetDraftRevisionID(v uuid.UUID) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRevisionID(v)
+	})
+}
+
+// UpdateDraftRevisionID sets the "draft_revision_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateDraftRevisionID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRevisionID()
+	})
+}
+
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (u *ProblemUpsertOne) ClearDraftRevisionID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRevisionID()
+	})
+}
+
+// SetDraftRenderSourceID sets the "draft_render_source_id" field.
+func (u *ProblemUpsertOne) SetDraftRenderSourceID(v uuid.UUID) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderSourceID(v)
+	})
+}
+
+// UpdateDraftRenderSourceID sets the "draft_render_source_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateDraftRenderSourceID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderSourceID()
+	})
+}
+
+// ClearDraftRenderSourceID clears the value of the "draft_render_source_id" field.
+func (u *ProblemUpsertOne) ClearDraftRenderSourceID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderSourceID()
+	})
+}
+
+// SetDraftRenderSourceKind sets the "draft_render_source_kind" field.
+func (u *ProblemUpsertOne) SetDraftRenderSourceKind(v problem.DraftRenderSourceKind) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderSourceKind(v)
+	})
+}
+
+// UpdateDraftRenderSourceKind sets the "draft_render_source_kind" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateDraftRenderSourceKind() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderSourceKind()
+	})
+}
+
+// ClearDraftRenderSourceKind clears the value of the "draft_render_source_kind" field.
+func (u *ProblemUpsertOne) ClearDraftRenderSourceKind() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderSourceKind()
+	})
+}
+
+// SetDraftRenderSourceChecksum sets the "draft_render_source_checksum" field.
+func (u *ProblemUpsertOne) SetDraftRenderSourceChecksum(v []byte) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderSourceChecksum(v)
+	})
+}
+
+// UpdateDraftRenderSourceChecksum sets the "draft_render_source_checksum" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateDraftRenderSourceChecksum() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderSourceChecksum()
+	})
+}
+
+// ClearDraftRenderSourceChecksum clears the value of the "draft_render_source_checksum" field.
+func (u *ProblemUpsertOne) ClearDraftRenderSourceChecksum() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderSourceChecksum()
+	})
+}
+
+// SetDraftRenderArtifactID sets the "draft_render_artifact_id" field.
+func (u *ProblemUpsertOne) SetDraftRenderArtifactID(v uuid.UUID) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderArtifactID(v)
+	})
+}
+
+// UpdateDraftRenderArtifactID sets the "draft_render_artifact_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateDraftRenderArtifactID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderArtifactID()
+	})
+}
+
+// ClearDraftRenderArtifactID clears the value of the "draft_render_artifact_id" field.
+func (u *ProblemUpsertOne) ClearDraftRenderArtifactID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderArtifactID()
+	})
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (u *ProblemUpsertOne) SetPublishedRevisionID(v uuid.UUID) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRevisionID(v)
+	})
+}
+
+// UpdatePublishedRevisionID sets the "published_revision_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdatePublishedRevisionID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRevisionID()
+	})
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (u *ProblemUpsertOne) ClearPublishedRevisionID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRevisionID()
+	})
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (u *ProblemUpsertOne) SetPublishedRenderSourceID(v uuid.UUID) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderSourceID(v)
+	})
+}
+
+// UpdatePublishedRenderSourceID sets the "published_render_source_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdatePublishedRenderSourceID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderSourceID()
+	})
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (u *ProblemUpsertOne) ClearPublishedRenderSourceID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderSourceID()
+	})
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (u *ProblemUpsertOne) SetPublishedRenderSourceKind(v problem.PublishedRenderSourceKind) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderSourceKind(v)
+	})
+}
+
+// UpdatePublishedRenderSourceKind sets the "published_render_source_kind" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdatePublishedRenderSourceKind() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderSourceKind()
+	})
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (u *ProblemUpsertOne) ClearPublishedRenderSourceKind() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderSourceKind()
+	})
+}
+
+// SetPublishedRenderSourceChecksum sets the "published_render_source_checksum" field.
+func (u *ProblemUpsertOne) SetPublishedRenderSourceChecksum(v []byte) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderSourceChecksum(v)
+	})
+}
+
+// UpdatePublishedRenderSourceChecksum sets the "published_render_source_checksum" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdatePublishedRenderSourceChecksum() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderSourceChecksum()
+	})
+}
+
+// ClearPublishedRenderSourceChecksum clears the value of the "published_render_source_checksum" field.
+func (u *ProblemUpsertOne) ClearPublishedRenderSourceChecksum() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderSourceChecksum()
+	})
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (u *ProblemUpsertOne) SetPublishedRenderArtifactID(v uuid.UUID) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderArtifactID(v)
+	})
+}
+
+// UpdatePublishedRenderArtifactID sets the "published_render_artifact_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdatePublishedRenderArtifactID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderArtifactID()
+	})
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (u *ProblemUpsertOne) ClearPublishedRenderArtifactID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderArtifactID()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *ProblemUpsertOne) SetPublishedAt(v time.Time) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdatePublishedAt() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *ProblemUpsertOne) ClearPublishedAt() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedAt()
+	})
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (u *ProblemUpsertOne) SetArchivedAt(v time.Time) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetArchivedAt(v)
+	})
+}
+
+// UpdateArchivedAt sets the "archived_at" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateArchivedAt() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateArchivedAt()
+	})
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (u *ProblemUpsertOne) ClearArchivedAt() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearArchivedAt()
 	})
 }
 
@@ -917,7 +2020,7 @@ func (u *ProblemUpsertOne) UpdateDescription() *ProblemUpsertOne {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *ProblemUpsertOne) SetDifficultyID(v int) *ProblemUpsertOne {
+func (u *ProblemUpsertOne) SetDifficultyID(v uuid.UUID) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetDifficultyID(v)
 	})
@@ -973,7 +2076,7 @@ func (u *ProblemUpsertOne) UpdateMemoryLimitKB() *ProblemUpsertOne {
 }
 
 // SetAuthorID sets the "author_id" field.
-func (u *ProblemUpsertOne) SetAuthorID(v int) *ProblemUpsertOne {
+func (u *ProblemUpsertOne) SetAuthorID(v uuid.UUID) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetAuthorID(v)
 	})
@@ -1058,7 +2161,12 @@ func (u *ProblemUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ProblemUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ProblemUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: ProblemUpsertOne.ID is not supported by MySQL driver. Use ProblemUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1067,17 +2175,12 @@ func (u *ProblemUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ProblemUpsertOne) IDX(ctx context.Context) int {
+func (u *ProblemUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *ProblemCreate) SetID(id int) *ProblemCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // ProblemCreateBulk is the builder for creating many Problem entities in bulk.
@@ -1127,10 +2230,6 @@ func (_c *ProblemCreateBulk) Save(ctx context.Context) ([]*Problem, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1217,14 +2316,29 @@ type ProblemUpsertBulk struct {
 //	client.Problem.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(problem.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ProblemUpsertBulk) UpdateNewValues() *ProblemUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(problem.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(problem.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.Slug(); exists {
+				s.SetIgnore(problem.FieldSlug)
+			}
+			if _, exists := b.mutation.TagMappingID(); exists {
+				s.SetIgnore(problem.FieldTagMappingID)
+			}
+			if _, exists := b.mutation.ElementMappingID(); exists {
+				s.SetIgnore(problem.FieldElementMappingID)
 			}
 		}
 	}))
@@ -1294,16 +2408,9 @@ func (u *ProblemUpsertBulk) ClearDeletedAt() *ProblemUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *ProblemUpsertBulk) SetDeletedBy(v int) *ProblemUpsertBulk {
+func (u *ProblemUpsertBulk) SetDeletedBy(v string) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *ProblemUpsertBulk) AddDeletedBy(v int) *ProblemUpsertBulk {
-	return u.Update(func(s *ProblemUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1318,6 +2425,293 @@ func (u *ProblemUpsertBulk) UpdateDeletedBy() *ProblemUpsertBulk {
 func (u *ProblemUpsertBulk) ClearDeletedBy() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.ClearDeletedBy()
+	})
+}
+
+// SetLifecycle sets the "lifecycle" field.
+func (u *ProblemUpsertBulk) SetLifecycle(v problem.Lifecycle) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetLifecycle(v)
+	})
+}
+
+// UpdateLifecycle sets the "lifecycle" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateLifecycle() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateLifecycle()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ProblemUpsertBulk) SetVersion(v int64) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ProblemUpsertBulk) AddVersion(v int64) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateVersion() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (u *ProblemUpsertBulk) SetDraftRevisionID(v uuid.UUID) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRevisionID(v)
+	})
+}
+
+// UpdateDraftRevisionID sets the "draft_revision_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateDraftRevisionID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRevisionID()
+	})
+}
+
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (u *ProblemUpsertBulk) ClearDraftRevisionID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRevisionID()
+	})
+}
+
+// SetDraftRenderSourceID sets the "draft_render_source_id" field.
+func (u *ProblemUpsertBulk) SetDraftRenderSourceID(v uuid.UUID) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderSourceID(v)
+	})
+}
+
+// UpdateDraftRenderSourceID sets the "draft_render_source_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateDraftRenderSourceID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderSourceID()
+	})
+}
+
+// ClearDraftRenderSourceID clears the value of the "draft_render_source_id" field.
+func (u *ProblemUpsertBulk) ClearDraftRenderSourceID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderSourceID()
+	})
+}
+
+// SetDraftRenderSourceKind sets the "draft_render_source_kind" field.
+func (u *ProblemUpsertBulk) SetDraftRenderSourceKind(v problem.DraftRenderSourceKind) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderSourceKind(v)
+	})
+}
+
+// UpdateDraftRenderSourceKind sets the "draft_render_source_kind" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateDraftRenderSourceKind() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderSourceKind()
+	})
+}
+
+// ClearDraftRenderSourceKind clears the value of the "draft_render_source_kind" field.
+func (u *ProblemUpsertBulk) ClearDraftRenderSourceKind() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderSourceKind()
+	})
+}
+
+// SetDraftRenderSourceChecksum sets the "draft_render_source_checksum" field.
+func (u *ProblemUpsertBulk) SetDraftRenderSourceChecksum(v []byte) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderSourceChecksum(v)
+	})
+}
+
+// UpdateDraftRenderSourceChecksum sets the "draft_render_source_checksum" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateDraftRenderSourceChecksum() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderSourceChecksum()
+	})
+}
+
+// ClearDraftRenderSourceChecksum clears the value of the "draft_render_source_checksum" field.
+func (u *ProblemUpsertBulk) ClearDraftRenderSourceChecksum() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderSourceChecksum()
+	})
+}
+
+// SetDraftRenderArtifactID sets the "draft_render_artifact_id" field.
+func (u *ProblemUpsertBulk) SetDraftRenderArtifactID(v uuid.UUID) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetDraftRenderArtifactID(v)
+	})
+}
+
+// UpdateDraftRenderArtifactID sets the "draft_render_artifact_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateDraftRenderArtifactID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateDraftRenderArtifactID()
+	})
+}
+
+// ClearDraftRenderArtifactID clears the value of the "draft_render_artifact_id" field.
+func (u *ProblemUpsertBulk) ClearDraftRenderArtifactID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearDraftRenderArtifactID()
+	})
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (u *ProblemUpsertBulk) SetPublishedRevisionID(v uuid.UUID) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRevisionID(v)
+	})
+}
+
+// UpdatePublishedRevisionID sets the "published_revision_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdatePublishedRevisionID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRevisionID()
+	})
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (u *ProblemUpsertBulk) ClearPublishedRevisionID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRevisionID()
+	})
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (u *ProblemUpsertBulk) SetPublishedRenderSourceID(v uuid.UUID) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderSourceID(v)
+	})
+}
+
+// UpdatePublishedRenderSourceID sets the "published_render_source_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdatePublishedRenderSourceID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderSourceID()
+	})
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (u *ProblemUpsertBulk) ClearPublishedRenderSourceID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderSourceID()
+	})
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (u *ProblemUpsertBulk) SetPublishedRenderSourceKind(v problem.PublishedRenderSourceKind) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderSourceKind(v)
+	})
+}
+
+// UpdatePublishedRenderSourceKind sets the "published_render_source_kind" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdatePublishedRenderSourceKind() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderSourceKind()
+	})
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (u *ProblemUpsertBulk) ClearPublishedRenderSourceKind() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderSourceKind()
+	})
+}
+
+// SetPublishedRenderSourceChecksum sets the "published_render_source_checksum" field.
+func (u *ProblemUpsertBulk) SetPublishedRenderSourceChecksum(v []byte) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderSourceChecksum(v)
+	})
+}
+
+// UpdatePublishedRenderSourceChecksum sets the "published_render_source_checksum" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdatePublishedRenderSourceChecksum() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderSourceChecksum()
+	})
+}
+
+// ClearPublishedRenderSourceChecksum clears the value of the "published_render_source_checksum" field.
+func (u *ProblemUpsertBulk) ClearPublishedRenderSourceChecksum() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderSourceChecksum()
+	})
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (u *ProblemUpsertBulk) SetPublishedRenderArtifactID(v uuid.UUID) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedRenderArtifactID(v)
+	})
+}
+
+// UpdatePublishedRenderArtifactID sets the "published_render_artifact_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdatePublishedRenderArtifactID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedRenderArtifactID()
+	})
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (u *ProblemUpsertBulk) ClearPublishedRenderArtifactID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedRenderArtifactID()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *ProblemUpsertBulk) SetPublishedAt(v time.Time) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdatePublishedAt() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *ProblemUpsertBulk) ClearPublishedAt() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearPublishedAt()
+	})
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (u *ProblemUpsertBulk) SetArchivedAt(v time.Time) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetArchivedAt(v)
+	})
+}
+
+// UpdateArchivedAt sets the "archived_at" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateArchivedAt() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateArchivedAt()
+	})
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (u *ProblemUpsertBulk) ClearArchivedAt() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.ClearArchivedAt()
 	})
 }
 
@@ -1350,7 +2744,7 @@ func (u *ProblemUpsertBulk) UpdateDescription() *ProblemUpsertBulk {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *ProblemUpsertBulk) SetDifficultyID(v int) *ProblemUpsertBulk {
+func (u *ProblemUpsertBulk) SetDifficultyID(v uuid.UUID) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetDifficultyID(v)
 	})
@@ -1406,7 +2800,7 @@ func (u *ProblemUpsertBulk) UpdateMemoryLimitKB() *ProblemUpsertBulk {
 }
 
 // SetAuthorID sets the "author_id" field.
-func (u *ProblemUpsertBulk) SetAuthorID(v int) *ProblemUpsertBulk {
+func (u *ProblemUpsertBulk) SetAuthorID(v uuid.UUID) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetAuthorID(v)
 	})

@@ -8,11 +8,16 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffertalent"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
+	"github.com/huynhanx03/judgify/internal/ent/generate/traiteffectrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofiletrait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
@@ -67,16 +72,22 @@ func (_c *TraitCreate) SetNillableDeletedAt(v *time.Time) *TraitCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *TraitCreate) SetDeletedBy(v int) *TraitCreate {
+func (_c *TraitCreate) SetDeletedBy(v string) *TraitCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *TraitCreate) SetNillableDeletedBy(v *int) *TraitCreate {
+func (_c *TraitCreate) SetNillableDeletedBy(v *string) *TraitCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
+	return _c
+}
+
+// SetCode sets the "code" field.
+func (_c *TraitCreate) SetCode(v string) *TraitCreate {
+	_c.mutation.SetCode(v)
 	return _c
 }
 
@@ -93,7 +104,7 @@ func (_c *TraitCreate) SetName(v string) *TraitCreate {
 }
 
 // SetRarityID sets the "rarity_id" field.
-func (_c *TraitCreate) SetRarityID(v int) *TraitCreate {
+func (_c *TraitCreate) SetRarityID(v uuid.UUID) *TraitCreate {
 	_c.mutation.SetRarityID(v)
 	return _c
 }
@@ -112,9 +123,59 @@ func (_c *TraitCreate) SetNillableDescription(v *string) *TraitCreate {
 	return _c
 }
 
-// SetMetadata sets the "metadata" field.
-func (_c *TraitCreate) SetMetadata(v map[string]interface{}) *TraitCreate {
-	_c.mutation.SetMetadata(v)
+// SetDisplayOrder sets the "display_order" field.
+func (_c *TraitCreate) SetDisplayOrder(v int) *TraitCreate {
+	_c.mutation.SetDisplayOrder(v)
+	return _c
+}
+
+// SetNillableDisplayOrder sets the "display_order" field if the given value is not nil.
+func (_c *TraitCreate) SetNillableDisplayOrder(v *int) *TraitCreate {
+	if v != nil {
+		_c.SetDisplayOrder(*v)
+	}
+	return _c
+}
+
+// SetActive sets the "active" field.
+func (_c *TraitCreate) SetActive(v bool) *TraitCreate {
+	_c.mutation.SetActive(v)
+	return _c
+}
+
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (_c *TraitCreate) SetNillableActive(v *bool) *TraitCreate {
+	if v != nil {
+		_c.SetActive(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *TraitCreate) SetVersion(v int64) *TraitCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *TraitCreate) SetNillableVersion(v *int64) *TraitCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *TraitCreate) SetID(v uuid.UUID) *TraitCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *TraitCreate) SetNillableID(v *uuid.UUID) *TraitCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
 	return _c
 }
 
@@ -124,18 +185,63 @@ func (_c *TraitCreate) SetRarity(v *Rarity) *TraitCreate {
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
-func (_c *TraitCreate) AddUserTraitIDs(ids ...int) *TraitCreate {
+func (_c *TraitCreate) AddUserTraitIDs(ids ...uuid.UUID) *TraitCreate {
 	_c.mutation.AddUserTraitIDs(ids...)
 	return _c
 }
 
 // AddUserTraits adds the "user_traits" edges to the UserTrait entity.
 func (_c *TraitCreate) AddUserTraits(v ...*UserTrait) *TraitCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserTraitIDs(ids...)
+}
+
+// AddOnboardingOfferTalentIDs adds the "onboarding_offer_talents" edge to the OnboardingTraitOfferTalent entity by IDs.
+func (_c *TraitCreate) AddOnboardingOfferTalentIDs(ids ...int) *TraitCreate {
+	_c.mutation.AddOnboardingOfferTalentIDs(ids...)
+	return _c
+}
+
+// AddOnboardingOfferTalents adds the "onboarding_offer_talents" edges to the OnboardingTraitOfferTalent entity.
+func (_c *TraitCreate) AddOnboardingOfferTalents(v ...*OnboardingTraitOfferTalent) *TraitCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddOnboardingOfferTalentIDs(ids...)
+}
+
+// AddEffectRevisionIDs adds the "effect_revisions" edge to the TraitEffectRevision entity by IDs.
+func (_c *TraitCreate) AddEffectRevisionIDs(ids ...uuid.UUID) *TraitCreate {
+	_c.mutation.AddEffectRevisionIDs(ids...)
+	return _c
+}
+
+// AddEffectRevisions adds the "effect_revisions" edges to the TraitEffectRevision entity.
+func (_c *TraitCreate) AddEffectRevisions(v ...*TraitEffectRevision) *TraitCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddEffectRevisionIDs(ids...)
+}
+
+// AddRewardProfileTraitIDs adds the "reward_profile_traits" edge to the UserRewardProfileTrait entity by IDs.
+func (_c *TraitCreate) AddRewardProfileTraitIDs(ids ...uuid.UUID) *TraitCreate {
+	_c.mutation.AddRewardProfileTraitIDs(ids...)
+	return _c
+}
+
+// AddRewardProfileTraits adds the "reward_profile_traits" edges to the UserRewardProfileTrait entity.
+func (_c *TraitCreate) AddRewardProfileTraits(v ...*UserRewardProfileTrait) *TraitCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRewardProfileTraitIDs(ids...)
 }
 
 // Mutation returns the TraitMutation object of the builder.
@@ -189,6 +295,25 @@ func (_c *TraitCreate) defaults() error {
 		v := trait.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.DisplayOrder(); !ok {
+		v := trait.DefaultDisplayOrder
+		_c.mutation.SetDisplayOrder(v)
+	}
+	if _, ok := _c.mutation.Active(); !ok {
+		v := trait.DefaultActive
+		_c.mutation.SetActive(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := trait.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if trait.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized trait.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := trait.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -199,6 +324,14 @@ func (_c *TraitCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Trait.updated_at"`)}
+	}
+	if _, ok := _c.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`generate: missing required field "Trait.code"`)}
+	}
+	if v, ok := _c.mutation.Code(); ok {
+		if err := trait.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`generate: validator failed for field "Trait.code": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`generate: missing required field "Trait.type"`)}
@@ -224,6 +357,25 @@ func (_c *TraitCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Trait.description": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.DisplayOrder(); !ok {
+		return &ValidationError{Name: "display_order", err: errors.New(`generate: missing required field "Trait.display_order"`)}
+	}
+	if v, ok := _c.mutation.DisplayOrder(); ok {
+		if err := trait.DisplayOrderValidator(v); err != nil {
+			return &ValidationError{Name: "display_order", err: fmt.Errorf(`generate: validator failed for field "Trait.display_order": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Active(); !ok {
+		return &ValidationError{Name: "active", err: errors.New(`generate: missing required field "Trait.active"`)}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Trait.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := trait.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Trait.version": %w`, err)}
+		}
+	}
 	if len(_c.mutation.RarityIDs()) == 0 {
 		return &ValidationError{Name: "rarity", err: errors.New(`generate: missing required edge "Trait.rarity"`)}
 	}
@@ -241,8 +393,13 @@ func (_c *TraitCreate) sqlSave(ctx context.Context) (*Trait, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -251,9 +408,13 @@ func (_c *TraitCreate) sqlSave(ctx context.Context) (*Trait, error) {
 func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Trait{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(trait.Table, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(trait.Table, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(trait.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -267,8 +428,12 @@ func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(trait.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(trait.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.Code(); ok {
+		_spec.SetField(trait.FieldCode, field.TypeString, value)
+		_node.Code = value
 	}
 	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(trait.FieldType, field.TypeEnum, value)
@@ -282,9 +447,17 @@ func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 		_spec.SetField(trait.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := _c.mutation.Metadata(); ok {
-		_spec.SetField(trait.FieldMetadata, field.TypeJSON, value)
-		_node.Metadata = value
+	if value, ok := _c.mutation.DisplayOrder(); ok {
+		_spec.SetField(trait.FieldDisplayOrder, field.TypeInt, value)
+		_node.DisplayOrder = value
+	}
+	if value, ok := _c.mutation.Active(); ok {
+		_spec.SetField(trait.FieldActive, field.TypeBool, value)
+		_node.Active = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(trait.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
 	}
 	if nodes := _c.mutation.RarityIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -294,7 +467,7 @@ func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 			Columns: []string{trait.RarityColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -311,7 +484,55 @@ func (_c *TraitCreate) createSpec() (*Trait, *sqlgraph.CreateSpec) {
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.OnboardingOfferTalentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.EffectRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RewardProfileTraitsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -402,7 +623,7 @@ func (u *TraitUpsert) ClearDeletedAt() *TraitUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TraitUpsert) SetDeletedBy(v int) *TraitUpsert {
+func (u *TraitUpsert) SetDeletedBy(v string) *TraitUpsert {
 	u.Set(trait.FieldDeletedBy, v)
 	return u
 }
@@ -410,12 +631,6 @@ func (u *TraitUpsert) SetDeletedBy(v int) *TraitUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *TraitUpsert) UpdateDeletedBy() *TraitUpsert {
 	u.SetExcluded(trait.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TraitUpsert) AddDeletedBy(v int) *TraitUpsert {
-	u.Add(trait.FieldDeletedBy, v)
 	return u
 }
 
@@ -450,7 +665,7 @@ func (u *TraitUpsert) UpdateName() *TraitUpsert {
 }
 
 // SetRarityID sets the "rarity_id" field.
-func (u *TraitUpsert) SetRarityID(v int) *TraitUpsert {
+func (u *TraitUpsert) SetRarityID(v uuid.UUID) *TraitUpsert {
 	u.Set(trait.FieldRarityID, v)
 	return u
 }
@@ -479,37 +694,76 @@ func (u *TraitUpsert) ClearDescription() *TraitUpsert {
 	return u
 }
 
-// SetMetadata sets the "metadata" field.
-func (u *TraitUpsert) SetMetadata(v map[string]interface{}) *TraitUpsert {
-	u.Set(trait.FieldMetadata, v)
+// SetDisplayOrder sets the "display_order" field.
+func (u *TraitUpsert) SetDisplayOrder(v int) *TraitUpsert {
+	u.Set(trait.FieldDisplayOrder, v)
 	return u
 }
 
-// UpdateMetadata sets the "metadata" field to the value that was provided on create.
-func (u *TraitUpsert) UpdateMetadata() *TraitUpsert {
-	u.SetExcluded(trait.FieldMetadata)
+// UpdateDisplayOrder sets the "display_order" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateDisplayOrder() *TraitUpsert {
+	u.SetExcluded(trait.FieldDisplayOrder)
 	return u
 }
 
-// ClearMetadata clears the value of the "metadata" field.
-func (u *TraitUpsert) ClearMetadata() *TraitUpsert {
-	u.SetNull(trait.FieldMetadata)
+// AddDisplayOrder adds v to the "display_order" field.
+func (u *TraitUpsert) AddDisplayOrder(v int) *TraitUpsert {
+	u.Add(trait.FieldDisplayOrder, v)
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetActive sets the "active" field.
+func (u *TraitUpsert) SetActive(v bool) *TraitUpsert {
+	u.Set(trait.FieldActive, v)
+	return u
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateActive() *TraitUpsert {
+	u.SetExcluded(trait.FieldActive)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *TraitUpsert) SetVersion(v int64) *TraitUpsert {
+	u.Set(trait.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *TraitUpsert) UpdateVersion() *TraitUpsert {
+	u.SetExcluded(trait.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *TraitUpsert) AddVersion(v int64) *TraitUpsert {
+	u.Add(trait.FieldVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Trait.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(trait.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TraitUpsertOne) UpdateNewValues() *TraitUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(trait.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(trait.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.Code(); exists {
+			s.SetIgnore(trait.FieldCode)
 		}
 	}))
 	return u
@@ -578,16 +832,9 @@ func (u *TraitUpsertOne) ClearDeletedAt() *TraitUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TraitUpsertOne) SetDeletedBy(v int) *TraitUpsertOne {
+func (u *TraitUpsertOne) SetDeletedBy(v string) *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TraitUpsertOne) AddDeletedBy(v int) *TraitUpsertOne {
-	return u.Update(func(s *TraitUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -634,7 +881,7 @@ func (u *TraitUpsertOne) UpdateName() *TraitUpsertOne {
 }
 
 // SetRarityID sets the "rarity_id" field.
-func (u *TraitUpsertOne) SetRarityID(v int) *TraitUpsertOne {
+func (u *TraitUpsertOne) SetRarityID(v uuid.UUID) *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
 		s.SetRarityID(v)
 	})
@@ -668,24 +915,59 @@ func (u *TraitUpsertOne) ClearDescription() *TraitUpsertOne {
 	})
 }
 
-// SetMetadata sets the "metadata" field.
-func (u *TraitUpsertOne) SetMetadata(v map[string]interface{}) *TraitUpsertOne {
+// SetDisplayOrder sets the "display_order" field.
+func (u *TraitUpsertOne) SetDisplayOrder(v int) *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
-		s.SetMetadata(v)
+		s.SetDisplayOrder(v)
 	})
 }
 
-// UpdateMetadata sets the "metadata" field to the value that was provided on create.
-func (u *TraitUpsertOne) UpdateMetadata() *TraitUpsertOne {
+// AddDisplayOrder adds v to the "display_order" field.
+func (u *TraitUpsertOne) AddDisplayOrder(v int) *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
-		s.UpdateMetadata()
+		s.AddDisplayOrder(v)
 	})
 }
 
-// ClearMetadata clears the value of the "metadata" field.
-func (u *TraitUpsertOne) ClearMetadata() *TraitUpsertOne {
+// UpdateDisplayOrder sets the "display_order" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateDisplayOrder() *TraitUpsertOne {
 	return u.Update(func(s *TraitUpsert) {
-		s.ClearMetadata()
+		s.UpdateDisplayOrder()
+	})
+}
+
+// SetActive sets the "active" field.
+func (u *TraitUpsertOne) SetActive(v bool) *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetActive(v)
+	})
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateActive() *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateActive()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *TraitUpsertOne) SetVersion(v int64) *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *TraitUpsertOne) AddVersion(v int64) *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *TraitUpsertOne) UpdateVersion() *TraitUpsertOne {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateVersion()
 	})
 }
 
@@ -705,7 +987,12 @@ func (u *TraitUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *TraitUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *TraitUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: TraitUpsertOne.ID is not supported by MySQL driver. Use TraitUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -714,17 +1001,12 @@ func (u *TraitUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *TraitUpsertOne) IDX(ctx context.Context) int {
+func (u *TraitUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *TraitCreate) SetID(id int) *TraitCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // TraitCreateBulk is the builder for creating many Trait entities in bulk.
@@ -774,10 +1056,6 @@ func (_c *TraitCreateBulk) Save(ctx context.Context) ([]*Trait, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -864,14 +1142,23 @@ type TraitUpsertBulk struct {
 //	client.Trait.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(trait.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TraitUpsertBulk) UpdateNewValues() *TraitUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(trait.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(trait.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.Code(); exists {
+				s.SetIgnore(trait.FieldCode)
 			}
 		}
 	}))
@@ -941,16 +1228,9 @@ func (u *TraitUpsertBulk) ClearDeletedAt() *TraitUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TraitUpsertBulk) SetDeletedBy(v int) *TraitUpsertBulk {
+func (u *TraitUpsertBulk) SetDeletedBy(v string) *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TraitUpsertBulk) AddDeletedBy(v int) *TraitUpsertBulk {
-	return u.Update(func(s *TraitUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -997,7 +1277,7 @@ func (u *TraitUpsertBulk) UpdateName() *TraitUpsertBulk {
 }
 
 // SetRarityID sets the "rarity_id" field.
-func (u *TraitUpsertBulk) SetRarityID(v int) *TraitUpsertBulk {
+func (u *TraitUpsertBulk) SetRarityID(v uuid.UUID) *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
 		s.SetRarityID(v)
 	})
@@ -1031,24 +1311,59 @@ func (u *TraitUpsertBulk) ClearDescription() *TraitUpsertBulk {
 	})
 }
 
-// SetMetadata sets the "metadata" field.
-func (u *TraitUpsertBulk) SetMetadata(v map[string]interface{}) *TraitUpsertBulk {
+// SetDisplayOrder sets the "display_order" field.
+func (u *TraitUpsertBulk) SetDisplayOrder(v int) *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
-		s.SetMetadata(v)
+		s.SetDisplayOrder(v)
 	})
 }
 
-// UpdateMetadata sets the "metadata" field to the value that was provided on create.
-func (u *TraitUpsertBulk) UpdateMetadata() *TraitUpsertBulk {
+// AddDisplayOrder adds v to the "display_order" field.
+func (u *TraitUpsertBulk) AddDisplayOrder(v int) *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
-		s.UpdateMetadata()
+		s.AddDisplayOrder(v)
 	})
 }
 
-// ClearMetadata clears the value of the "metadata" field.
-func (u *TraitUpsertBulk) ClearMetadata() *TraitUpsertBulk {
+// UpdateDisplayOrder sets the "display_order" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateDisplayOrder() *TraitUpsertBulk {
 	return u.Update(func(s *TraitUpsert) {
-		s.ClearMetadata()
+		s.UpdateDisplayOrder()
+	})
+}
+
+// SetActive sets the "active" field.
+func (u *TraitUpsertBulk) SetActive(v bool) *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetActive(v)
+	})
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateActive() *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateActive()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *TraitUpsertBulk) SetVersion(v int64) *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *TraitUpsertBulk) AddVersion(v int64) *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *TraitUpsertBulk) UpdateVersion() *TraitUpsertBulk {
+	return u.Update(func(s *TraitUpsert) {
+		s.UpdateVersion()
 	})
 }
 

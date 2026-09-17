@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.UserElementExp {
+func ID(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.UserElementExp {
+func IDEQ(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.UserElementExp {
+func IDNEQ(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.UserElementExp {
+func IDIn(ids ...uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.UserElementExp {
+func IDNotIn(ids ...uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.UserElementExp {
+func IDGT(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.UserElementExp {
+func IDGTE(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.UserElementExp {
+func IDLT(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.UserElementExp {
+func IDLTE(id uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,17 +72,17 @@ func DeletedAt(v time.Time) predicate.UserElementExp {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.UserElementExp {
+func DeletedBy(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.UserElementExp {
+func UserID(v uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldUserID, v))
 }
 
 // ElementID applies equality check predicate on the "element_id" field. It's identical to ElementIDEQ.
-func ElementID(v int) predicate.UserElementExp {
+func ElementID(v uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldElementID, v))
 }
 
@@ -221,43 +222,58 @@ func DeletedAtNotNil() predicate.UserElementExp {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.UserElementExp {
+func DeletedByEQ(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.UserElementExp {
+func DeletedByNEQ(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.UserElementExp {
+func DeletedByIn(vs ...string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.UserElementExp {
+func DeletedByNotIn(vs ...string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.UserElementExp {
+func DeletedByGT(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.UserElementExp {
+func DeletedByGTE(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.UserElementExp {
+func DeletedByLT(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.UserElementExp {
+func DeletedByLTE(v string) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.UserElementExp {
+	return predicate.UserElementExp(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.UserElementExp {
+	return predicate.UserElementExp(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.UserElementExp {
+	return predicate.UserElementExp(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -270,43 +286,53 @@ func DeletedByNotNil() predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.UserElementExp {
+	return predicate.UserElementExp(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.UserElementExp {
+	return predicate.UserElementExp(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.UserElementExp {
+func UserIDEQ(v uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.UserElementExp {
+func UserIDNEQ(v uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.UserElementExp {
+func UserIDIn(vs ...uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.UserElementExp {
+func UserIDNotIn(vs ...uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // ElementIDEQ applies the EQ predicate on the "element_id" field.
-func ElementIDEQ(v int) predicate.UserElementExp {
+func ElementIDEQ(v uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldEQ(FieldElementID, v))
 }
 
 // ElementIDNEQ applies the NEQ predicate on the "element_id" field.
-func ElementIDNEQ(v int) predicate.UserElementExp {
+func ElementIDNEQ(v uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNEQ(FieldElementID, v))
 }
 
 // ElementIDIn applies the In predicate on the "element_id" field.
-func ElementIDIn(vs ...int) predicate.UserElementExp {
+func ElementIDIn(vs ...uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldIn(FieldElementID, vs...))
 }
 
 // ElementIDNotIn applies the NotIn predicate on the "element_id" field.
-func ElementIDNotIn(vs ...int) predicate.UserElementExp {
+func ElementIDNotIn(vs ...uuid.UUID) predicate.UserElementExp {
 	return predicate.UserElementExp(sql.FieldNotIn(FieldElementID, vs...))
 }
 

@@ -3,11 +3,11 @@ package utils
 import (
 	"context"
 
-	"github.com/huynhanx03/judgify/pkg/common/cache"
+	"github.com/huynhanx03/go-common/pkg/common/cache"
 
-	"github.com/huynhanx03/judgify/internal/identity/constant"
-	"github.com/huynhanx03/judgify/internal/identity/core/entity"
-	"github.com/huynhanx03/judgify/internal/identity/ports"
+	"github.com/huynhanx03/judgify/internal/constant"
+	entity "github.com/huynhanx03/judgify/internal/identity/domain"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 // GetAttributeDefinition retrieves attribute definition by key with caching.
@@ -27,7 +27,7 @@ func GetAttributeDefinition(
 		return nil, err
 	}
 
-	cache.Set(localCache, cacheKey, def)
+	cache.SetWithTTL(localCache, cacheKey, def, constant.EntityCacheTTL)
 	return def, nil
 }
 
@@ -45,7 +45,9 @@ func GetAttributeValue(
 	}
 
 	for _, attr := range existingAttrs {
-		if attr.AttributeID == def.ID {
+		if attr != nil && attr.AttributeID == def.ID &&
+			def.ActiveRevisionID != nil &&
+			attr.DefinitionRevisionID == *def.ActiveRevisionID {
 			return attr.Value
 		}
 	}

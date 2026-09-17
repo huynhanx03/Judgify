@@ -5,7 +5,7 @@
  * Form fields: name (required), level (required), exp_reward (optional), description (optional).
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TEXT } from "@/constants/text";
+import { ADMIN_TEXT } from "@/constants/admin-text";
 import type { DifficultyResponse } from "@/types/difficulty";
 
 interface DifficultyDialogProps {
@@ -26,24 +27,12 @@ interface DifficultyDialogProps {
 }
 
 export function DifficultyDialog({ open, editing, onSave, onClose, isSaving }: DifficultyDialogProps) {
-  const [name, setName] = useState("");
-  const [level, setLevel] = useState(1);
-  const [expReward, setExpReward] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    if (editing) {
-      setName(editing.name);
-      setLevel(editing.level);
-      setExpReward(editing.exp_reward != null ? String(editing.exp_reward) : "");
-      setDescription(editing.description ?? "");
-    } else {
-      setName("");
-      setLevel(1);
-      setExpReward("");
-      setDescription("");
-    }
-  }, [editing, open]);
+  const [name, setName] = useState(editing?.name ?? "");
+  const [level, setLevel] = useState(editing?.level ?? 1);
+  const [expReward, setExpReward] = useState(
+    editing?.exp_reward != null ? String(editing.exp_reward) : "",
+  );
+  const [description, setDescription] = useState(editing?.description ?? "");
 
   function handleSubmit() {
     if (!name.trim()) return;
@@ -60,35 +49,36 @@ export function DifficultyDialog({ open, editing, onSave, onClose, isSaving }: D
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editing ? TEXT.ADMIN.DIFFICULTIES.DIALOG_EDIT_TITLE : TEXT.ADMIN.DIFFICULTIES.DIALOG_CREATE_TITLE}
+            {editing ? ADMIN_TEXT.DIFFICULTIES.DIALOG_EDIT_TITLE : ADMIN_TEXT.DIFFICULTIES.DIALOG_CREATE_TITLE}
           </DialogTitle>
           <DialogDescription>
-            {editing ? TEXT.ADMIN.DIFFICULTIES.DIALOG_EDIT_DESC : TEXT.ADMIN.DIFFICULTIES.DIALOG_CREATE_DESC}
+            {editing ? ADMIN_TEXT.DIFFICULTIES.DIALOG_EDIT_DESC : ADMIN_TEXT.DIFFICULTIES.DIALOG_CREATE_DESC}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.NAME}</Label>
-            <Input placeholder="VD: Dễ" value={name} onChange={(e) => setName(e.target.value)} />
+            <Label htmlFor="difficulty-name">{ADMIN_TEXT.FIELDS.NAME}</Label>
+            <Input id="difficulty-name" placeholder={ADMIN_TEXT.EXAMPLES.DIFFICULTY} value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.LEVEL_NUM}</Label>
-            <Input type="number" min={1} value={level} onChange={(e) => setLevel(Number(e.target.value))} />
+            <Label htmlFor="difficulty-level">{ADMIN_TEXT.FIELDS.LEVEL_NUM}</Label>
+            <Input id="difficulty-level" type="number" min={1} value={level} onChange={(e) => setLevel(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.EXP_REWARD}</Label>
+            <Label htmlFor="difficulty-exp-reward">{ADMIN_TEXT.FIELDS.EXP_REWARD}</Label>
             <Input
+              id="difficulty-exp-reward"
               type="number"
               min={0}
-              placeholder="Tuỳ chọn"
+              placeholder={ADMIN_TEXT.OPTIONAL}
               value={expReward}
               onChange={(e) => setExpReward(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.DESCRIPTION}</Label>
-            <Input placeholder={TEXT.ADMIN.FIELDS.DESCRIPTION_PLACEHOLDER} value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Label htmlFor="difficulty-description">{ADMIN_TEXT.FIELDS.DESCRIPTION}</Label>
+            <Input id="difficulty-description" placeholder={ADMIN_TEXT.FIELDS.DESCRIPTION_PLACEHOLDER} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
         </div>
 
@@ -101,7 +91,7 @@ export function DifficultyDialog({ open, editing, onSave, onClose, isSaving }: D
             disabled={!name.trim() || isSaving}
             onClick={handleSubmit}
           >
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2 motion-reduce:animate-none" aria-hidden="true" />}
             {editing ? TEXT.COMMON.SAVE : TEXT.COMMON.CREATE}
           </Button>
         </DialogFooter>

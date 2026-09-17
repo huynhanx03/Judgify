@@ -8,11 +8,15 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficultyrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 )
@@ -68,13 +72,13 @@ func (_c *DifficultyCreate) SetNillableDeletedAt(v *time.Time) *DifficultyCreate
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *DifficultyCreate) SetDeletedBy(v int) *DifficultyCreate {
+func (_c *DifficultyCreate) SetDeletedBy(v string) *DifficultyCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *DifficultyCreate) SetNillableDeletedBy(v *int) *DifficultyCreate {
+func (_c *DifficultyCreate) SetNillableDeletedBy(v *string) *DifficultyCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -121,15 +125,58 @@ func (_c *DifficultyCreate) SetNillableDescription(v *string) *DifficultyCreate 
 	return _c
 }
 
+// SetVersion sets the "version" field.
+func (_c *DifficultyCreate) SetVersion(v int64) *DifficultyCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *DifficultyCreate) SetNillableVersion(v *int64) *DifficultyCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *DifficultyCreate) SetID(v uuid.UUID) *DifficultyCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *DifficultyCreate) SetNillableID(v *uuid.UUID) *DifficultyCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddRevisionIDs adds the "revisions" edge to the DifficultyRevision entity by IDs.
+func (_c *DifficultyCreate) AddRevisionIDs(ids ...uuid.UUID) *DifficultyCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the DifficultyRevision entity.
+func (_c *DifficultyCreate) AddRevisions(v ...*DifficultyRevision) *DifficultyCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_c *DifficultyCreate) AddProblemIDs(ids ...int) *DifficultyCreate {
+func (_c *DifficultyCreate) AddProblemIDs(ids ...uuid.UUID) *DifficultyCreate {
 	_c.mutation.AddProblemIDs(ids...)
 	return _c
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_c *DifficultyCreate) AddProblems(v ...*Problem) *DifficultyCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -137,14 +184,14 @@ func (_c *DifficultyCreate) AddProblems(v ...*Problem) *DifficultyCreate {
 }
 
 // AddUserDifficultyStatIDs adds the "user_difficulty_stats" edge to the UserDifficultyStats entity by IDs.
-func (_c *DifficultyCreate) AddUserDifficultyStatIDs(ids ...int) *DifficultyCreate {
+func (_c *DifficultyCreate) AddUserDifficultyStatIDs(ids ...uuid.UUID) *DifficultyCreate {
 	_c.mutation.AddUserDifficultyStatIDs(ids...)
 	return _c
 }
 
 // AddUserDifficultyStats adds the "user_difficulty_stats" edges to the UserDifficultyStats entity.
 func (_c *DifficultyCreate) AddUserDifficultyStats(v ...*UserDifficultyStats) *DifficultyCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -152,18 +199,33 @@ func (_c *DifficultyCreate) AddUserDifficultyStats(v ...*UserDifficultyStats) *D
 }
 
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_c *DifficultyCreate) AddMaterialIDs(ids ...int) *DifficultyCreate {
+func (_c *DifficultyCreate) AddMaterialIDs(ids ...uuid.UUID) *DifficultyCreate {
 	_c.mutation.AddMaterialIDs(ids...)
 	return _c
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_c *DifficultyCreate) AddMaterials(v ...*Material) *DifficultyCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddMaterialIDs(ids...)
+}
+
+// AddMaterialRevisionIDs adds the "material_revisions" edge to the MaterialRevision entity by IDs.
+func (_c *DifficultyCreate) AddMaterialRevisionIDs(ids ...uuid.UUID) *DifficultyCreate {
+	_c.mutation.AddMaterialRevisionIDs(ids...)
+	return _c
+}
+
+// AddMaterialRevisions adds the "material_revisions" edges to the MaterialRevision entity.
+func (_c *DifficultyCreate) AddMaterialRevisions(v ...*MaterialRevision) *DifficultyCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMaterialRevisionIDs(ids...)
 }
 
 // Mutation returns the DifficultyMutation object of the builder.
@@ -221,6 +283,17 @@ func (_c *DifficultyCreate) defaults() error {
 		v := difficulty.DefaultExpReward
 		_c.mutation.SetExpReward(v)
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := difficulty.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if difficulty.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized difficulty.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := difficulty.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -261,6 +334,14 @@ func (_c *DifficultyCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Difficulty.description": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Difficulty.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := difficulty.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Difficulty.version": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -275,8 +356,13 @@ func (_c *DifficultyCreate) sqlSave(ctx context.Context) (*Difficulty, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -285,9 +371,13 @@ func (_c *DifficultyCreate) sqlSave(ctx context.Context) (*Difficulty, error) {
 func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Difficulty{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(difficulty.Table, sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(difficulty.Table, sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(difficulty.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -301,7 +391,7 @@ func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(difficulty.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(difficulty.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
@@ -320,6 +410,26 @@ func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 		_spec.SetField(difficulty.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(difficulty.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.RevisionsTable,
+			Columns: []string{difficulty.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(difficultyrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := _c.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -328,7 +438,7 @@ func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 			Columns: []string{difficulty.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -344,7 +454,7 @@ func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 			Columns: []string{difficulty.UserDifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -360,7 +470,23 @@ func (_c *DifficultyCreate) createSpec() (*Difficulty, *sqlgraph.CreateSpec) {
 			Columns: []string{difficulty.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MaterialRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   difficulty.MaterialRevisionsTable,
+			Columns: []string{difficulty.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -451,7 +577,7 @@ func (u *DifficultyUpsert) ClearDeletedAt() *DifficultyUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *DifficultyUpsert) SetDeletedBy(v int) *DifficultyUpsert {
+func (u *DifficultyUpsert) SetDeletedBy(v string) *DifficultyUpsert {
 	u.Set(difficulty.FieldDeletedBy, v)
 	return u
 }
@@ -459,12 +585,6 @@ func (u *DifficultyUpsert) SetDeletedBy(v int) *DifficultyUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *DifficultyUpsert) UpdateDeletedBy() *DifficultyUpsert {
 	u.SetExcluded(difficulty.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *DifficultyUpsert) AddDeletedBy(v int) *DifficultyUpsert {
-	u.Add(difficulty.FieldDeletedBy, v)
 	return u
 }
 
@@ -540,17 +660,41 @@ func (u *DifficultyUpsert) ClearDescription() *DifficultyUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetVersion sets the "version" field.
+func (u *DifficultyUpsert) SetVersion(v int64) *DifficultyUpsert {
+	u.Set(difficulty.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *DifficultyUpsert) UpdateVersion() *DifficultyUpsert {
+	u.SetExcluded(difficulty.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *DifficultyUpsert) AddVersion(v int64) *DifficultyUpsert {
+	u.Add(difficulty.FieldVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Difficulty.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(difficulty.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *DifficultyUpsertOne) UpdateNewValues() *DifficultyUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(difficulty.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(difficulty.FieldCreatedAt)
 		}
@@ -621,16 +765,9 @@ func (u *DifficultyUpsertOne) ClearDeletedAt() *DifficultyUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *DifficultyUpsertOne) SetDeletedBy(v int) *DifficultyUpsertOne {
+func (u *DifficultyUpsertOne) SetDeletedBy(v string) *DifficultyUpsertOne {
 	return u.Update(func(s *DifficultyUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *DifficultyUpsertOne) AddDeletedBy(v int) *DifficultyUpsertOne {
-	return u.Update(func(s *DifficultyUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -725,6 +862,27 @@ func (u *DifficultyUpsertOne) ClearDescription() *DifficultyUpsertOne {
 	})
 }
 
+// SetVersion sets the "version" field.
+func (u *DifficultyUpsertOne) SetVersion(v int64) *DifficultyUpsertOne {
+	return u.Update(func(s *DifficultyUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *DifficultyUpsertOne) AddVersion(v int64) *DifficultyUpsertOne {
+	return u.Update(func(s *DifficultyUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *DifficultyUpsertOne) UpdateVersion() *DifficultyUpsertOne {
+	return u.Update(func(s *DifficultyUpsert) {
+		s.UpdateVersion()
+	})
+}
+
 // Exec executes the query.
 func (u *DifficultyUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -741,7 +899,12 @@ func (u *DifficultyUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *DifficultyUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *DifficultyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: DifficultyUpsertOne.ID is not supported by MySQL driver. Use DifficultyUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -750,17 +913,12 @@ func (u *DifficultyUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *DifficultyUpsertOne) IDX(ctx context.Context) int {
+func (u *DifficultyUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *DifficultyCreate) SetID(id int) *DifficultyCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // DifficultyCreateBulk is the builder for creating many Difficulty entities in bulk.
@@ -810,10 +968,6 @@ func (_c *DifficultyCreateBulk) Save(ctx context.Context) ([]*Difficulty, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -900,12 +1054,18 @@ type DifficultyUpsertBulk struct {
 //	client.Difficulty.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(difficulty.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *DifficultyUpsertBulk) UpdateNewValues() *DifficultyUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(difficulty.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(difficulty.FieldCreatedAt)
 			}
@@ -977,16 +1137,9 @@ func (u *DifficultyUpsertBulk) ClearDeletedAt() *DifficultyUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *DifficultyUpsertBulk) SetDeletedBy(v int) *DifficultyUpsertBulk {
+func (u *DifficultyUpsertBulk) SetDeletedBy(v string) *DifficultyUpsertBulk {
 	return u.Update(func(s *DifficultyUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *DifficultyUpsertBulk) AddDeletedBy(v int) *DifficultyUpsertBulk {
-	return u.Update(func(s *DifficultyUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1078,6 +1231,27 @@ func (u *DifficultyUpsertBulk) UpdateDescription() *DifficultyUpsertBulk {
 func (u *DifficultyUpsertBulk) ClearDescription() *DifficultyUpsertBulk {
 	return u.Update(func(s *DifficultyUpsert) {
 		s.ClearDescription()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *DifficultyUpsertBulk) SetVersion(v int64) *DifficultyUpsertBulk {
+	return u.Update(func(s *DifficultyUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *DifficultyUpsertBulk) AddVersion(v int64) *DifficultyUpsertBulk {
+	return u.Update(func(s *DifficultyUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *DifficultyUpsertBulk) UpdateVersion() *DifficultyUpsertBulk {
+	return u.Update(func(s *DifficultyUpsert) {
+		s.UpdateVersion()
 	})
 }
 

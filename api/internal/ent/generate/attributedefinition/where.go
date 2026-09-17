@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.AttributeDefinition {
+func ID(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.AttributeDefinition {
+func IDEQ(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.AttributeDefinition {
+func IDNEQ(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.AttributeDefinition {
+func IDIn(ids ...uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.AttributeDefinition {
+func IDNotIn(ids ...uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.AttributeDefinition {
+func IDGT(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.AttributeDefinition {
+func IDGTE(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.AttributeDefinition {
+func IDLT(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.AttributeDefinition {
+func IDLTE(id uuid.UUID) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.AttributeDefinition {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.AttributeDefinition {
+func DeletedBy(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -80,14 +81,24 @@ func Key(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldEQ(FieldKey, v))
 }
 
-// DataType applies equality check predicate on the "data_type" field. It's identical to DataTypeEQ.
-func DataType(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldEQ(FieldDataType, v))
+// RequiredOnOnboarding applies equality check predicate on the "required_on_onboarding" field. It's identical to RequiredOnOnboardingEQ.
+func RequiredOnOnboarding(v bool) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldRequiredOnOnboarding, v))
 }
 
-// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
-func Description(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldEQ(FieldDescription, v))
+// DraftRevisionID applies equality check predicate on the "draft_revision_id" field. It's identical to DraftRevisionIDEQ.
+func DraftRevisionID(v uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldDraftRevisionID, v))
+}
+
+// ActiveRevisionID applies equality check predicate on the "active_revision_id" field. It's identical to ActiveRevisionIDEQ.
+func ActiveRevisionID(v uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldActiveRevisionID, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldVersion, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -221,43 +232,58 @@ func DeletedAtNotNil() predicate.AttributeDefinition {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.AttributeDefinition {
+func DeletedByEQ(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.AttributeDefinition {
+func DeletedByNEQ(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.AttributeDefinition {
+func DeletedByIn(vs ...string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.AttributeDefinition {
+func DeletedByNotIn(vs ...string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.AttributeDefinition {
+func DeletedByGT(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.AttributeDefinition {
+func DeletedByGTE(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.AttributeDefinition {
+func DeletedByLT(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.AttributeDefinition {
+func DeletedByLTE(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -268,6 +294,16 @@ func DeletedByIsNil() predicate.AttributeDefinition {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // KeyEQ applies the EQ predicate on the "key" field.
@@ -335,144 +371,154 @@ func KeyContainsFold(v string) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(sql.FieldContainsFold(FieldKey, v))
 }
 
-// DataTypeEQ applies the EQ predicate on the "data_type" field.
-func DataTypeEQ(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldEQ(FieldDataType, v))
+// KindEQ applies the EQ predicate on the "kind" field.
+func KindEQ(v Kind) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldKind, v))
 }
 
-// DataTypeNEQ applies the NEQ predicate on the "data_type" field.
-func DataTypeNEQ(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldNEQ(FieldDataType, v))
+// KindNEQ applies the NEQ predicate on the "kind" field.
+func KindNEQ(v Kind) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNEQ(FieldKind, v))
 }
 
-// DataTypeIn applies the In predicate on the "data_type" field.
-func DataTypeIn(vs ...string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldIn(FieldDataType, vs...))
+// KindIn applies the In predicate on the "kind" field.
+func KindIn(vs ...Kind) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIn(FieldKind, vs...))
 }
 
-// DataTypeNotIn applies the NotIn predicate on the "data_type" field.
-func DataTypeNotIn(vs ...string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldNotIn(FieldDataType, vs...))
+// KindNotIn applies the NotIn predicate on the "kind" field.
+func KindNotIn(vs ...Kind) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotIn(FieldKind, vs...))
 }
 
-// DataTypeGT applies the GT predicate on the "data_type" field.
-func DataTypeGT(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldGT(FieldDataType, v))
+// RequiredOnOnboardingEQ applies the EQ predicate on the "required_on_onboarding" field.
+func RequiredOnOnboardingEQ(v bool) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldRequiredOnOnboarding, v))
 }
 
-// DataTypeGTE applies the GTE predicate on the "data_type" field.
-func DataTypeGTE(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldGTE(FieldDataType, v))
+// RequiredOnOnboardingNEQ applies the NEQ predicate on the "required_on_onboarding" field.
+func RequiredOnOnboardingNEQ(v bool) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNEQ(FieldRequiredOnOnboarding, v))
 }
 
-// DataTypeLT applies the LT predicate on the "data_type" field.
-func DataTypeLT(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldLT(FieldDataType, v))
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldStatus, v))
 }
 
-// DataTypeLTE applies the LTE predicate on the "data_type" field.
-func DataTypeLTE(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldLTE(FieldDataType, v))
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNEQ(FieldStatus, v))
 }
 
-// DataTypeContains applies the Contains predicate on the "data_type" field.
-func DataTypeContains(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldContains(FieldDataType, v))
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIn(FieldStatus, vs...))
 }
 
-// DataTypeHasPrefix applies the HasPrefix predicate on the "data_type" field.
-func DataTypeHasPrefix(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldHasPrefix(FieldDataType, v))
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// DataTypeHasSuffix applies the HasSuffix predicate on the "data_type" field.
-func DataTypeHasSuffix(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldHasSuffix(FieldDataType, v))
+// DraftRevisionIDEQ applies the EQ predicate on the "draft_revision_id" field.
+func DraftRevisionIDEQ(v uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldDraftRevisionID, v))
 }
 
-// DataTypeEqualFold applies the EqualFold predicate on the "data_type" field.
-func DataTypeEqualFold(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldEqualFold(FieldDataType, v))
+// DraftRevisionIDNEQ applies the NEQ predicate on the "draft_revision_id" field.
+func DraftRevisionIDNEQ(v uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNEQ(FieldDraftRevisionID, v))
 }
 
-// DataTypeContainsFold applies the ContainsFold predicate on the "data_type" field.
-func DataTypeContainsFold(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldContainsFold(FieldDataType, v))
+// DraftRevisionIDIn applies the In predicate on the "draft_revision_id" field.
+func DraftRevisionIDIn(vs ...uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIn(FieldDraftRevisionID, vs...))
 }
 
-// DescriptionEQ applies the EQ predicate on the "description" field.
-func DescriptionEQ(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldEQ(FieldDescription, v))
+// DraftRevisionIDNotIn applies the NotIn predicate on the "draft_revision_id" field.
+func DraftRevisionIDNotIn(vs ...uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotIn(FieldDraftRevisionID, vs...))
 }
 
-// DescriptionNEQ applies the NEQ predicate on the "description" field.
-func DescriptionNEQ(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldNEQ(FieldDescription, v))
+// DraftRevisionIDIsNil applies the IsNil predicate on the "draft_revision_id" field.
+func DraftRevisionIDIsNil() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIsNull(FieldDraftRevisionID))
 }
 
-// DescriptionIn applies the In predicate on the "description" field.
-func DescriptionIn(vs ...string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldIn(FieldDescription, vs...))
+// DraftRevisionIDNotNil applies the NotNil predicate on the "draft_revision_id" field.
+func DraftRevisionIDNotNil() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotNull(FieldDraftRevisionID))
 }
 
-// DescriptionNotIn applies the NotIn predicate on the "description" field.
-func DescriptionNotIn(vs ...string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldNotIn(FieldDescription, vs...))
+// ActiveRevisionIDEQ applies the EQ predicate on the "active_revision_id" field.
+func ActiveRevisionIDEQ(v uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldActiveRevisionID, v))
 }
 
-// DescriptionGT applies the GT predicate on the "description" field.
-func DescriptionGT(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldGT(FieldDescription, v))
+// ActiveRevisionIDNEQ applies the NEQ predicate on the "active_revision_id" field.
+func ActiveRevisionIDNEQ(v uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNEQ(FieldActiveRevisionID, v))
 }
 
-// DescriptionGTE applies the GTE predicate on the "description" field.
-func DescriptionGTE(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldGTE(FieldDescription, v))
+// ActiveRevisionIDIn applies the In predicate on the "active_revision_id" field.
+func ActiveRevisionIDIn(vs ...uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIn(FieldActiveRevisionID, vs...))
 }
 
-// DescriptionLT applies the LT predicate on the "description" field.
-func DescriptionLT(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldLT(FieldDescription, v))
+// ActiveRevisionIDNotIn applies the NotIn predicate on the "active_revision_id" field.
+func ActiveRevisionIDNotIn(vs ...uuid.UUID) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotIn(FieldActiveRevisionID, vs...))
 }
 
-// DescriptionLTE applies the LTE predicate on the "description" field.
-func DescriptionLTE(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldLTE(FieldDescription, v))
+// ActiveRevisionIDIsNil applies the IsNil predicate on the "active_revision_id" field.
+func ActiveRevisionIDIsNil() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIsNull(FieldActiveRevisionID))
 }
 
-// DescriptionContains applies the Contains predicate on the "description" field.
-func DescriptionContains(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldContains(FieldDescription, v))
+// ActiveRevisionIDNotNil applies the NotNil predicate on the "active_revision_id" field.
+func ActiveRevisionIDNotNil() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotNull(FieldActiveRevisionID))
 }
 
-// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
-func DescriptionHasPrefix(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldHasPrefix(FieldDescription, v))
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldEQ(FieldVersion, v))
 }
 
-// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
-func DescriptionHasSuffix(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldHasSuffix(FieldDescription, v))
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNEQ(FieldVersion, v))
 }
 
-// DescriptionIsNil applies the IsNil predicate on the "description" field.
-func DescriptionIsNil() predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldIsNull(FieldDescription))
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldIn(FieldVersion, vs...))
 }
 
-// DescriptionNotNil applies the NotNil predicate on the "description" field.
-func DescriptionNotNil() predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldNotNull(FieldDescription))
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldNotIn(FieldVersion, vs...))
 }
 
-// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
-func DescriptionEqualFold(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldEqualFold(FieldDescription, v))
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldGT(FieldVersion, v))
 }
 
-// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
-func DescriptionContainsFold(v string) predicate.AttributeDefinition {
-	return predicate.AttributeDefinition(sql.FieldContainsFold(FieldDescription, v))
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(sql.FieldLTE(FieldVersion, v))
 }
 
 // HasValues applies the HasEdge predicate on the "values" edge.
@@ -490,6 +536,75 @@ func HasValues() predicate.AttributeDefinition {
 func HasValuesWith(preds ...predicate.UserAttributeValue) predicate.AttributeDefinition {
 	return predicate.AttributeDefinition(func(s *sql.Selector) {
 		step := newValuesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.AttributeDefinitionRevision) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(func(s *sql.Selector) {
+		step := newRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDraftRevision applies the HasEdge predicate on the "draft_revision" edge.
+func HasDraftRevision() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, DraftRevisionTable, DraftRevisionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDraftRevisionWith applies the HasEdge predicate on the "draft_revision" edge with a given conditions (other predicates).
+func HasDraftRevisionWith(preds ...predicate.AttributeDefinitionRevision) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(func(s *sql.Selector) {
+		step := newDraftRevisionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasActiveRevision applies the HasEdge predicate on the "active_revision" edge.
+func HasActiveRevision() predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, ActiveRevisionTable, ActiveRevisionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasActiveRevisionWith applies the HasEdge predicate on the "active_revision" edge with a given conditions (other predicates).
+func HasActiveRevisionWith(preds ...predicate.AttributeDefinitionRevision) predicate.AttributeDefinition {
+	return predicate.AttributeDefinition(func(s *sql.Selector) {
+		step := newActiveRevisionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

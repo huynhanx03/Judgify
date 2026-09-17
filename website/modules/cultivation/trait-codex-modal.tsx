@@ -1,90 +1,180 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2 } from "lucide-react";
+import {
+  Bone,
+  CircleAlert,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { TEXT } from "@/constants/text";
-import { TraitCard } from "./trait-card";
+import type { AsyncResourceStatus } from "@/hooks/use-retryable-resource";
+import { TraitCard } from "@/modules/cultivation/trait-card";
 import type { TraitResponse } from "@/types/cultivation";
 
 interface TraitCodexModalProps {
   open: boolean;
   onClose: () => void;
   traits: TraitResponse[];
-  loading?: boolean;
+  status: AsyncResourceStatus;
+  onRetry: () => void;
 }
 
-/** Fullscreen modal showing all available traits — root bones on top, talents in 3-col grid below. */
-export function TraitCodexModal({ open, onClose, traits, loading }: TraitCodexModalProps) {
-  const rootBones = traits.filter((t) => t.type === "root_bone");
-  const talents = traits.filter((t) => t.type === "talent");
+function TraitGroup({
+  title,
+  empty,
+  traits,
+  icon,
+}: {
+  title: string;
+  empty: string;
+  traits: TraitResponse[];
+  icon: "bone" | "talent";
+}) {
+  const Icon = icon === "bone" ? Bone : Sparkles;
+  return (
+    <section aria-labelledby={`trait-group-${icon}`}>
+      <h3
+        id={`trait-group-${icon}`}
+        className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wider text-foreground uppercase"
+      >
+        <Icon className="size-4 text-primary" aria-hidden="true" />
+        {title} ({traits.length})
+      </h3>
+      {traits.length > 0 ? (
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+          {traits.map((trait) => (
+            <TraitCard key={trait.id} trait={trait} variant="compact" />
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-border bg-muted/15 px-4 py-8 text-center text-sm text-muted-foreground">
+          {empty}
+        </p>
+      )}
+    </section>
+  );
+}
+
+export function TraitCodexModal({
+  open,
+  onClose,
+  traits,
+  status,
+  onRetry,
+}: TraitCodexModalProps) {
+  const rootBones = traits.filter((trait) => trait.type === "root_bone");
+  const talents = traits.filter((trait) => trait.type === "talent");
+  const initialLoading =
+    (status === "idle" || status === "loading") &&
+    traits.length === 0;
+  const unavailable = status === "error" && traits.length === 0;
+  const stale = status === "error" && traits.length > 0;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative w-[90vw] max-w-6xl max-h-[85vh] overflow-y-auto bg-zinc-950/95 border border-white/10 rounded-2xl custom-scrollbar"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Sticky Header */}
-            <div className="sticky top-0 z-10 bg-zinc-950/90 backdrop-blur-lg border-b border-white/10 px-6 py-4 rounded-t-2xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-primary tracking-wide">Thiên Mệnh Thư Quán</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">Tổng hợp Căn Cốt và Thiên Phú trong thế giới tu luyện</p>
-                </div>
-                <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/5">
-                  <X className="w-5 h-5" />
-                </button>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
+      }}
+    >
+      <DialogContent className="grid max-h-[88dvh] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:max-w-6xl">
+        <DialogHeader className="border-b border-border px-6 py-5 pr-14">
+          <DialogTitle className="text-xl font-bold tracking-wide text-primary">
+            {TEXT.CULTIVATION.CODEX_TITLE}
+          </DialogTitle>
+          <DialogDescription>
+            {TEXT.CULTIVATION.CODEX_DESCRIPTION}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="min-h-0 overflow-y-auto px-6 py-6">
+          {initialLoading ? (
+            <div
+              className="flex min-h-[50dvh] items-center justify-center gap-3 text-sm text-muted-foreground"
+              role="status"
+            >
+              <Loader2
+                className="size-6 animate-spin text-primary motion-reduce:animate-none"
+                aria-hidden="true"
+              />
+              {TEXT.CULTIVATION.CODEX_LOADING}
+            </div>
+          ) : unavailable ? (
+            <div
+              className="flex min-h-[50dvh] flex-col items-center justify-center px-6 text-center"
+              role="alert"
+            >
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+                <CircleAlert className="size-5" aria-hidden="true" />
               </div>
+              <p className="mt-4 font-semibold text-foreground">
+                {TEXT.CULTIVATION.CODEX_LOAD_ERROR}
+              </p>
+              <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {TEXT.CULTIVATION.CODEX_LOAD_ERROR_DESCRIPTION}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-5"
+                onClick={onRetry}
+              >
+                <RefreshCw className="size-4" aria-hidden="true" />
+                {TEXT.COMMON.RETRY}
+              </Button>
             </div>
-
-            {/* Content */}
-            <div className="px-6 py-6">
-              {loading ? (
-                <div className="h-[60vh] flex items-center justify-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          ) : (
+            <div className="space-y-6">
+              {stale ? (
+                <div
+                  className="flex flex-wrap items-center gap-3 rounded-xl border border-warning/25 bg-warning/5 p-3 text-sm text-muted-foreground"
+                  role="status"
+                >
+                  <CircleAlert
+                    className="size-4 shrink-0 text-warning"
+                    aria-hidden="true"
+                  />
+                  <span className="min-w-0 flex-1">
+                    {TEXT.CULTIVATION.CODEX_STALE}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={onRetry}
+                  >
+                    <RefreshCw className="size-4" aria-hidden="true" />
+                    {TEXT.COMMON.RETRY}
+                  </Button>
                 </div>
-              ) : (
-                <>
-                  {/* Root Bones — 3 cols */}
-                  <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3">
-                    🦴 {TEXT.AUTH.TRAIT_ROOT_BONE} ({rootBones.length})
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
-                    {rootBones.map((trait) => (
-                      <TraitCard key={trait.id} trait={trait} variant="compact" />
-                    ))}
-                  </div>
-
-                  <Separator className="bg-white/5 my-5" />
-
-                  {/* Talents — 3 cols */}
-                  <p className="text-xs font-bold uppercase tracking-wider text-purple-400 mb-3">
-                    ✨ {TEXT.AUTH.TRAIT_TALENT} ({talents.length})
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {talents.map((trait) => (
-                      <TraitCard key={trait.id} trait={trait} variant="compact" />
-                    ))}
-                  </div>
-                </>
-              )}
+              ) : null}
+              <TraitGroup
+                title={TEXT.AUTH.TRAIT_ROOT_BONE}
+                empty={TEXT.CULTIVATION.CODEX_ROOT_EMPTY}
+                traits={rootBones}
+                icon="bone"
+              />
+              <Separator />
+              <TraitGroup
+                title={TEXT.AUTH.TRAIT_TALENT}
+                empty={TEXT.CULTIVATION.CODEX_TALENT_EMPTY}
+                traits={talents}
+                icon="talent"
+              />
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

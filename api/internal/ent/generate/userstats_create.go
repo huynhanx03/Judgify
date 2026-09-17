@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 )
@@ -66,13 +68,13 @@ func (_c *UserStatsCreate) SetNillableDeletedAt(v *time.Time) *UserStatsCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *UserStatsCreate) SetDeletedBy(v int) *UserStatsCreate {
+func (_c *UserStatsCreate) SetDeletedBy(v string) *UserStatsCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *UserStatsCreate) SetNillableDeletedBy(v *int) *UserStatsCreate {
+func (_c *UserStatsCreate) SetNillableDeletedBy(v *string) *UserStatsCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -80,7 +82,7 @@ func (_c *UserStatsCreate) SetNillableDeletedBy(v *int) *UserStatsCreate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *UserStatsCreate) SetUserID(v int) *UserStatsCreate {
+func (_c *UserStatsCreate) SetUserID(v uuid.UUID) *UserStatsCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
@@ -137,6 +139,76 @@ func (_c *UserStatsCreate) SetAcceptedCount(v int) *UserStatsCreate {
 func (_c *UserStatsCreate) SetNillableAcceptedCount(v *int) *UserStatsCreate {
 	if v != nil {
 		_c.SetAcceptedCount(*v)
+	}
+	return _c
+}
+
+// SetProgressionVersion sets the "progression_version" field.
+func (_c *UserStatsCreate) SetProgressionVersion(v int64) *UserStatsCreate {
+	_c.mutation.SetProgressionVersion(v)
+	return _c
+}
+
+// SetNillableProgressionVersion sets the "progression_version" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableProgressionVersion(v *int64) *UserStatsCreate {
+	if v != nil {
+		_c.SetProgressionVersion(*v)
+	}
+	return _c
+}
+
+// SetRatingVersion sets the "rating_version" field.
+func (_c *UserStatsCreate) SetRatingVersion(v int64) *UserStatsCreate {
+	_c.mutation.SetRatingVersion(v)
+	return _c
+}
+
+// SetNillableRatingVersion sets the "rating_version" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableRatingVersion(v *int64) *UserStatsCreate {
+	if v != nil {
+		_c.SetRatingVersion(*v)
+	}
+	return _c
+}
+
+// SetProgressionUpdatedAt sets the "progression_updated_at" field.
+func (_c *UserStatsCreate) SetProgressionUpdatedAt(v time.Time) *UserStatsCreate {
+	_c.mutation.SetProgressionUpdatedAt(v)
+	return _c
+}
+
+// SetNillableProgressionUpdatedAt sets the "progression_updated_at" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableProgressionUpdatedAt(v *time.Time) *UserStatsCreate {
+	if v != nil {
+		_c.SetProgressionUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetRatingUpdatedAt sets the "rating_updated_at" field.
+func (_c *UserStatsCreate) SetRatingUpdatedAt(v time.Time) *UserStatsCreate {
+	_c.mutation.SetRatingUpdatedAt(v)
+	return _c
+}
+
+// SetNillableRatingUpdatedAt sets the "rating_updated_at" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableRatingUpdatedAt(v *time.Time) *UserStatsCreate {
+	if v != nil {
+		_c.SetRatingUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserStatsCreate) SetID(v uuid.UUID) *UserStatsCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserStatsCreate) SetNillableID(v *uuid.UUID) *UserStatsCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -213,6 +285,21 @@ func (_c *UserStatsCreate) defaults() error {
 		v := userstats.DefaultAcceptedCount
 		_c.mutation.SetAcceptedCount(v)
 	}
+	if _, ok := _c.mutation.ProgressionVersion(); !ok {
+		v := userstats.DefaultProgressionVersion
+		_c.mutation.SetProgressionVersion(v)
+	}
+	if _, ok := _c.mutation.RatingVersion(); !ok {
+		v := userstats.DefaultRatingVersion
+		_c.mutation.SetRatingVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if userstats.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized userstats.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := userstats.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -238,6 +325,11 @@ func (_c *UserStatsCreate) check() error {
 	if _, ok := _c.mutation.Rating(); !ok {
 		return &ValidationError{Name: "rating", err: errors.New(`generate: missing required field "UserStats.rating"`)}
 	}
+	if v, ok := _c.mutation.Rating(); ok {
+		if err := userstats.RatingValidator(v); err != nil {
+			return &ValidationError{Name: "rating", err: fmt.Errorf(`generate: validator failed for field "UserStats.rating": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.TotalSubmissions(); !ok {
 		return &ValidationError{Name: "total_submissions", err: errors.New(`generate: missing required field "UserStats.total_submissions"`)}
 	}
@@ -252,6 +344,22 @@ func (_c *UserStatsCreate) check() error {
 	if v, ok := _c.mutation.AcceptedCount(); ok {
 		if err := userstats.AcceptedCountValidator(v); err != nil {
 			return &ValidationError{Name: "accepted_count", err: fmt.Errorf(`generate: validator failed for field "UserStats.accepted_count": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ProgressionVersion(); !ok {
+		return &ValidationError{Name: "progression_version", err: errors.New(`generate: missing required field "UserStats.progression_version"`)}
+	}
+	if v, ok := _c.mutation.ProgressionVersion(); ok {
+		if err := userstats.ProgressionVersionValidator(v); err != nil {
+			return &ValidationError{Name: "progression_version", err: fmt.Errorf(`generate: validator failed for field "UserStats.progression_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.RatingVersion(); !ok {
+		return &ValidationError{Name: "rating_version", err: errors.New(`generate: missing required field "UserStats.rating_version"`)}
+	}
+	if v, ok := _c.mutation.RatingVersion(); ok {
+		if err := userstats.RatingVersionValidator(v); err != nil {
+			return &ValidationError{Name: "rating_version", err: fmt.Errorf(`generate: validator failed for field "UserStats.rating_version": %w`, err)}
 		}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
@@ -271,8 +379,13 @@ func (_c *UserStatsCreate) sqlSave(ctx context.Context) (*UserStats, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -281,9 +394,13 @@ func (_c *UserStatsCreate) sqlSave(ctx context.Context) (*UserStats, error) {
 func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserStats{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(userstats.Table, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(userstats.Table, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(userstats.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -297,7 +414,7 @@ func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(userstats.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userstats.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.TotalExp(); ok {
@@ -316,6 +433,22 @@ func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 		_spec.SetField(userstats.FieldAcceptedCount, field.TypeInt, value)
 		_node.AcceptedCount = value
 	}
+	if value, ok := _c.mutation.ProgressionVersion(); ok {
+		_spec.SetField(userstats.FieldProgressionVersion, field.TypeInt64, value)
+		_node.ProgressionVersion = value
+	}
+	if value, ok := _c.mutation.RatingVersion(); ok {
+		_spec.SetField(userstats.FieldRatingVersion, field.TypeInt64, value)
+		_node.RatingVersion = value
+	}
+	if value, ok := _c.mutation.ProgressionUpdatedAt(); ok {
+		_spec.SetField(userstats.FieldProgressionUpdatedAt, field.TypeTime, value)
+		_node.ProgressionUpdatedAt = &value
+	}
+	if value, ok := _c.mutation.RatingUpdatedAt(); ok {
+		_spec.SetField(userstats.FieldRatingUpdatedAt, field.TypeTime, value)
+		_node.RatingUpdatedAt = &value
+	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -324,7 +457,7 @@ func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 			Columns: []string{userstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -416,7 +549,7 @@ func (u *UserStatsUpsert) ClearDeletedAt() *UserStatsUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserStatsUpsert) SetDeletedBy(v int) *UserStatsUpsert {
+func (u *UserStatsUpsert) SetDeletedBy(v string) *UserStatsUpsert {
 	u.Set(userstats.FieldDeletedBy, v)
 	return u
 }
@@ -427,12 +560,6 @@ func (u *UserStatsUpsert) UpdateDeletedBy() *UserStatsUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserStatsUpsert) AddDeletedBy(v int) *UserStatsUpsert {
-	u.Add(userstats.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *UserStatsUpsert) ClearDeletedBy() *UserStatsUpsert {
 	u.SetNull(userstats.FieldDeletedBy)
@@ -440,7 +567,7 @@ func (u *UserStatsUpsert) ClearDeletedBy() *UserStatsUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserStatsUpsert) SetUserID(v int) *UserStatsUpsert {
+func (u *UserStatsUpsert) SetUserID(v uuid.UUID) *UserStatsUpsert {
 	u.Set(userstats.FieldUserID, v)
 	return u
 }
@@ -523,17 +650,95 @@ func (u *UserStatsUpsert) AddAcceptedCount(v int) *UserStatsUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetProgressionVersion sets the "progression_version" field.
+func (u *UserStatsUpsert) SetProgressionVersion(v int64) *UserStatsUpsert {
+	u.Set(userstats.FieldProgressionVersion, v)
+	return u
+}
+
+// UpdateProgressionVersion sets the "progression_version" field to the value that was provided on create.
+func (u *UserStatsUpsert) UpdateProgressionVersion() *UserStatsUpsert {
+	u.SetExcluded(userstats.FieldProgressionVersion)
+	return u
+}
+
+// AddProgressionVersion adds v to the "progression_version" field.
+func (u *UserStatsUpsert) AddProgressionVersion(v int64) *UserStatsUpsert {
+	u.Add(userstats.FieldProgressionVersion, v)
+	return u
+}
+
+// SetRatingVersion sets the "rating_version" field.
+func (u *UserStatsUpsert) SetRatingVersion(v int64) *UserStatsUpsert {
+	u.Set(userstats.FieldRatingVersion, v)
+	return u
+}
+
+// UpdateRatingVersion sets the "rating_version" field to the value that was provided on create.
+func (u *UserStatsUpsert) UpdateRatingVersion() *UserStatsUpsert {
+	u.SetExcluded(userstats.FieldRatingVersion)
+	return u
+}
+
+// AddRatingVersion adds v to the "rating_version" field.
+func (u *UserStatsUpsert) AddRatingVersion(v int64) *UserStatsUpsert {
+	u.Add(userstats.FieldRatingVersion, v)
+	return u
+}
+
+// SetProgressionUpdatedAt sets the "progression_updated_at" field.
+func (u *UserStatsUpsert) SetProgressionUpdatedAt(v time.Time) *UserStatsUpsert {
+	u.Set(userstats.FieldProgressionUpdatedAt, v)
+	return u
+}
+
+// UpdateProgressionUpdatedAt sets the "progression_updated_at" field to the value that was provided on create.
+func (u *UserStatsUpsert) UpdateProgressionUpdatedAt() *UserStatsUpsert {
+	u.SetExcluded(userstats.FieldProgressionUpdatedAt)
+	return u
+}
+
+// ClearProgressionUpdatedAt clears the value of the "progression_updated_at" field.
+func (u *UserStatsUpsert) ClearProgressionUpdatedAt() *UserStatsUpsert {
+	u.SetNull(userstats.FieldProgressionUpdatedAt)
+	return u
+}
+
+// SetRatingUpdatedAt sets the "rating_updated_at" field.
+func (u *UserStatsUpsert) SetRatingUpdatedAt(v time.Time) *UserStatsUpsert {
+	u.Set(userstats.FieldRatingUpdatedAt, v)
+	return u
+}
+
+// UpdateRatingUpdatedAt sets the "rating_updated_at" field to the value that was provided on create.
+func (u *UserStatsUpsert) UpdateRatingUpdatedAt() *UserStatsUpsert {
+	u.SetExcluded(userstats.FieldRatingUpdatedAt)
+	return u
+}
+
+// ClearRatingUpdatedAt clears the value of the "rating_updated_at" field.
+func (u *UserStatsUpsert) ClearRatingUpdatedAt() *UserStatsUpsert {
+	u.SetNull(userstats.FieldRatingUpdatedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.UserStats.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userstats.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserStatsUpsertOne) UpdateNewValues() *UserStatsUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(userstats.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userstats.FieldCreatedAt)
 		}
@@ -604,16 +809,9 @@ func (u *UserStatsUpsertOne) ClearDeletedAt() *UserStatsUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserStatsUpsertOne) SetDeletedBy(v int) *UserStatsUpsertOne {
+func (u *UserStatsUpsertOne) SetDeletedBy(v string) *UserStatsUpsertOne {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserStatsUpsertOne) AddDeletedBy(v int) *UserStatsUpsertOne {
-	return u.Update(func(s *UserStatsUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -632,7 +830,7 @@ func (u *UserStatsUpsertOne) ClearDeletedBy() *UserStatsUpsertOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserStatsUpsertOne) SetUserID(v int) *UserStatsUpsertOne {
+func (u *UserStatsUpsertOne) SetUserID(v uuid.UUID) *UserStatsUpsertOne {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.SetUserID(v)
 	})
@@ -729,6 +927,90 @@ func (u *UserStatsUpsertOne) UpdateAcceptedCount() *UserStatsUpsertOne {
 	})
 }
 
+// SetProgressionVersion sets the "progression_version" field.
+func (u *UserStatsUpsertOne) SetProgressionVersion(v int64) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetProgressionVersion(v)
+	})
+}
+
+// AddProgressionVersion adds v to the "progression_version" field.
+func (u *UserStatsUpsertOne) AddProgressionVersion(v int64) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddProgressionVersion(v)
+	})
+}
+
+// UpdateProgressionVersion sets the "progression_version" field to the value that was provided on create.
+func (u *UserStatsUpsertOne) UpdateProgressionVersion() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateProgressionVersion()
+	})
+}
+
+// SetRatingVersion sets the "rating_version" field.
+func (u *UserStatsUpsertOne) SetRatingVersion(v int64) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetRatingVersion(v)
+	})
+}
+
+// AddRatingVersion adds v to the "rating_version" field.
+func (u *UserStatsUpsertOne) AddRatingVersion(v int64) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddRatingVersion(v)
+	})
+}
+
+// UpdateRatingVersion sets the "rating_version" field to the value that was provided on create.
+func (u *UserStatsUpsertOne) UpdateRatingVersion() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateRatingVersion()
+	})
+}
+
+// SetProgressionUpdatedAt sets the "progression_updated_at" field.
+func (u *UserStatsUpsertOne) SetProgressionUpdatedAt(v time.Time) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetProgressionUpdatedAt(v)
+	})
+}
+
+// UpdateProgressionUpdatedAt sets the "progression_updated_at" field to the value that was provided on create.
+func (u *UserStatsUpsertOne) UpdateProgressionUpdatedAt() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateProgressionUpdatedAt()
+	})
+}
+
+// ClearProgressionUpdatedAt clears the value of the "progression_updated_at" field.
+func (u *UserStatsUpsertOne) ClearProgressionUpdatedAt() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.ClearProgressionUpdatedAt()
+	})
+}
+
+// SetRatingUpdatedAt sets the "rating_updated_at" field.
+func (u *UserStatsUpsertOne) SetRatingUpdatedAt(v time.Time) *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetRatingUpdatedAt(v)
+	})
+}
+
+// UpdateRatingUpdatedAt sets the "rating_updated_at" field to the value that was provided on create.
+func (u *UserStatsUpsertOne) UpdateRatingUpdatedAt() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateRatingUpdatedAt()
+	})
+}
+
+// ClearRatingUpdatedAt clears the value of the "rating_updated_at" field.
+func (u *UserStatsUpsertOne) ClearRatingUpdatedAt() *UserStatsUpsertOne {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.ClearRatingUpdatedAt()
+	})
+}
+
 // Exec executes the query.
 func (u *UserStatsUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -745,7 +1027,12 @@ func (u *UserStatsUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserStatsUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserStatsUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserStatsUpsertOne.ID is not supported by MySQL driver. Use UserStatsUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -754,17 +1041,12 @@ func (u *UserStatsUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserStatsUpsertOne) IDX(ctx context.Context) int {
+func (u *UserStatsUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserStatsCreate) SetID(id int) *UserStatsCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserStatsCreateBulk is the builder for creating many UserStats entities in bulk.
@@ -814,10 +1096,6 @@ func (_c *UserStatsCreateBulk) Save(ctx context.Context) ([]*UserStats, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -904,12 +1182,18 @@ type UserStatsUpsertBulk struct {
 //	client.UserStats.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userstats.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserStatsUpsertBulk) UpdateNewValues() *UserStatsUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(userstats.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userstats.FieldCreatedAt)
 			}
@@ -981,16 +1265,9 @@ func (u *UserStatsUpsertBulk) ClearDeletedAt() *UserStatsUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserStatsUpsertBulk) SetDeletedBy(v int) *UserStatsUpsertBulk {
+func (u *UserStatsUpsertBulk) SetDeletedBy(v string) *UserStatsUpsertBulk {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserStatsUpsertBulk) AddDeletedBy(v int) *UserStatsUpsertBulk {
-	return u.Update(func(s *UserStatsUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1009,7 +1286,7 @@ func (u *UserStatsUpsertBulk) ClearDeletedBy() *UserStatsUpsertBulk {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserStatsUpsertBulk) SetUserID(v int) *UserStatsUpsertBulk {
+func (u *UserStatsUpsertBulk) SetUserID(v uuid.UUID) *UserStatsUpsertBulk {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.SetUserID(v)
 	})
@@ -1103,6 +1380,90 @@ func (u *UserStatsUpsertBulk) AddAcceptedCount(v int) *UserStatsUpsertBulk {
 func (u *UserStatsUpsertBulk) UpdateAcceptedCount() *UserStatsUpsertBulk {
 	return u.Update(func(s *UserStatsUpsert) {
 		s.UpdateAcceptedCount()
+	})
+}
+
+// SetProgressionVersion sets the "progression_version" field.
+func (u *UserStatsUpsertBulk) SetProgressionVersion(v int64) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetProgressionVersion(v)
+	})
+}
+
+// AddProgressionVersion adds v to the "progression_version" field.
+func (u *UserStatsUpsertBulk) AddProgressionVersion(v int64) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddProgressionVersion(v)
+	})
+}
+
+// UpdateProgressionVersion sets the "progression_version" field to the value that was provided on create.
+func (u *UserStatsUpsertBulk) UpdateProgressionVersion() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateProgressionVersion()
+	})
+}
+
+// SetRatingVersion sets the "rating_version" field.
+func (u *UserStatsUpsertBulk) SetRatingVersion(v int64) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetRatingVersion(v)
+	})
+}
+
+// AddRatingVersion adds v to the "rating_version" field.
+func (u *UserStatsUpsertBulk) AddRatingVersion(v int64) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.AddRatingVersion(v)
+	})
+}
+
+// UpdateRatingVersion sets the "rating_version" field to the value that was provided on create.
+func (u *UserStatsUpsertBulk) UpdateRatingVersion() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateRatingVersion()
+	})
+}
+
+// SetProgressionUpdatedAt sets the "progression_updated_at" field.
+func (u *UserStatsUpsertBulk) SetProgressionUpdatedAt(v time.Time) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetProgressionUpdatedAt(v)
+	})
+}
+
+// UpdateProgressionUpdatedAt sets the "progression_updated_at" field to the value that was provided on create.
+func (u *UserStatsUpsertBulk) UpdateProgressionUpdatedAt() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateProgressionUpdatedAt()
+	})
+}
+
+// ClearProgressionUpdatedAt clears the value of the "progression_updated_at" field.
+func (u *UserStatsUpsertBulk) ClearProgressionUpdatedAt() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.ClearProgressionUpdatedAt()
+	})
+}
+
+// SetRatingUpdatedAt sets the "rating_updated_at" field.
+func (u *UserStatsUpsertBulk) SetRatingUpdatedAt(v time.Time) *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.SetRatingUpdatedAt(v)
+	})
+}
+
+// UpdateRatingUpdatedAt sets the "rating_updated_at" field to the value that was provided on create.
+func (u *UserStatsUpsertBulk) UpdateRatingUpdatedAt() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.UpdateRatingUpdatedAt()
+	})
+}
+
+// ClearRatingUpdatedAt clears the value of the "rating_updated_at" field.
+func (u *UserStatsUpsertBulk) ClearRatingUpdatedAt() *UserStatsUpsertBulk {
+	return u.Update(func(s *UserStatsUpsert) {
+		s.ClearRatingUpdatedAt()
 	})
 }
 

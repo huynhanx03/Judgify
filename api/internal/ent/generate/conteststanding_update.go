@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
@@ -31,13 +32,13 @@ func (_u *ContestStandingUpdate) Where(ps ...predicate.ContestStanding) *Contest
 }
 
 // SetContestID sets the "contest_id" field.
-func (_u *ContestStandingUpdate) SetContestID(v int) *ContestStandingUpdate {
+func (_u *ContestStandingUpdate) SetContestID(v uuid.UUID) *ContestStandingUpdate {
 	_u.mutation.SetContestID(v)
 	return _u
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *ContestStandingUpdate) SetNillableContestID(v *int) *ContestStandingUpdate {
+func (_u *ContestStandingUpdate) SetNillableContestID(v *uuid.UUID) *ContestStandingUpdate {
 	if v != nil {
 		_u.SetContestID(*v)
 	}
@@ -45,13 +46,13 @@ func (_u *ContestStandingUpdate) SetNillableContestID(v *int) *ContestStandingUp
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *ContestStandingUpdate) SetUserID(v int) *ContestStandingUpdate {
+func (_u *ContestStandingUpdate) SetUserID(v uuid.UUID) *ContestStandingUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *ContestStandingUpdate) SetNillableUserID(v *int) *ContestStandingUpdate {
+func (_u *ContestStandingUpdate) SetNillableUserID(v *uuid.UUID) *ContestStandingUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -112,6 +113,189 @@ func (_u *ContestStandingUpdate) ClearProblemResults() *ContestStandingUpdate {
 	return _u
 }
 
+// SetLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdate) SetLastAcceptedElapsedMs(v int64) *ContestStandingUpdate {
+	_u.mutation.ResetLastAcceptedElapsedMs()
+	_u.mutation.SetLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// SetNillableLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableLastAcceptedElapsedMs(v *int64) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetLastAcceptedElapsedMs(*v)
+	}
+	return _u
+}
+
+// AddLastAcceptedElapsedMs adds value to the "last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdate) AddLastAcceptedElapsedMs(v int64) *ContestStandingUpdate {
+	_u.mutation.AddLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// ClearLastAcceptedElapsedMs clears the value of the "last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdate) ClearLastAcceptedElapsedMs() *ContestStandingUpdate {
+	_u.mutation.ClearLastAcceptedElapsedMs()
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ContestStandingUpdate) SetVersion(v int64) *ContestStandingUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableVersion(v *int64) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ContestStandingUpdate) AddVersion(v int64) *ContestStandingUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetFrozenSolvedCount sets the "frozen_solved_count" field.
+func (_u *ContestStandingUpdate) SetFrozenSolvedCount(v int) *ContestStandingUpdate {
+	_u.mutation.ResetFrozenSolvedCount()
+	_u.mutation.SetFrozenSolvedCount(v)
+	return _u
+}
+
+// SetNillableFrozenSolvedCount sets the "frozen_solved_count" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableFrozenSolvedCount(v *int) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetFrozenSolvedCount(*v)
+	}
+	return _u
+}
+
+// AddFrozenSolvedCount adds value to the "frozen_solved_count" field.
+func (_u *ContestStandingUpdate) AddFrozenSolvedCount(v int) *ContestStandingUpdate {
+	_u.mutation.AddFrozenSolvedCount(v)
+	return _u
+}
+
+// SetFrozenPenalty sets the "frozen_penalty" field.
+func (_u *ContestStandingUpdate) SetFrozenPenalty(v int) *ContestStandingUpdate {
+	_u.mutation.ResetFrozenPenalty()
+	_u.mutation.SetFrozenPenalty(v)
+	return _u
+}
+
+// SetNillableFrozenPenalty sets the "frozen_penalty" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableFrozenPenalty(v *int) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetFrozenPenalty(*v)
+	}
+	return _u
+}
+
+// AddFrozenPenalty adds value to the "frozen_penalty" field.
+func (_u *ContestStandingUpdate) AddFrozenPenalty(v int) *ContestStandingUpdate {
+	_u.mutation.AddFrozenPenalty(v)
+	return _u
+}
+
+// SetFrozenProblemResults sets the "frozen_problem_results" field.
+func (_u *ContestStandingUpdate) SetFrozenProblemResults(v map[string]interface{}) *ContestStandingUpdate {
+	_u.mutation.SetFrozenProblemResults(v)
+	return _u
+}
+
+// ClearFrozenProblemResults clears the value of the "frozen_problem_results" field.
+func (_u *ContestStandingUpdate) ClearFrozenProblemResults() *ContestStandingUpdate {
+	_u.mutation.ClearFrozenProblemResults()
+	return _u
+}
+
+// SetFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field.
+func (_u *ContestStandingUpdate) SetFrozenPendingProblemAttempts(v map[string]int) *ContestStandingUpdate {
+	_u.mutation.SetFrozenPendingProblemAttempts(v)
+	return _u
+}
+
+// ClearFrozenPendingProblemAttempts clears the value of the "frozen_pending_problem_attempts" field.
+func (_u *ContestStandingUpdate) ClearFrozenPendingProblemAttempts() *ContestStandingUpdate {
+	_u.mutation.ClearFrozenPendingProblemAttempts()
+	return _u
+}
+
+// SetFrozenPendingAttempts sets the "frozen_pending_attempts" field.
+func (_u *ContestStandingUpdate) SetFrozenPendingAttempts(v int) *ContestStandingUpdate {
+	_u.mutation.ResetFrozenPendingAttempts()
+	_u.mutation.SetFrozenPendingAttempts(v)
+	return _u
+}
+
+// SetNillableFrozenPendingAttempts sets the "frozen_pending_attempts" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableFrozenPendingAttempts(v *int) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetFrozenPendingAttempts(*v)
+	}
+	return _u
+}
+
+// AddFrozenPendingAttempts adds value to the "frozen_pending_attempts" field.
+func (_u *ContestStandingUpdate) AddFrozenPendingAttempts(v int) *ContestStandingUpdate {
+	_u.mutation.AddFrozenPendingAttempts(v)
+	return _u
+}
+
+// SetFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdate) SetFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpdate {
+	_u.mutation.ResetFrozenLastAcceptedElapsedMs()
+	_u.mutation.SetFrozenLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// SetNillableFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableFrozenLastAcceptedElapsedMs(v *int64) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetFrozenLastAcceptedElapsedMs(*v)
+	}
+	return _u
+}
+
+// AddFrozenLastAcceptedElapsedMs adds value to the "frozen_last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdate) AddFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpdate {
+	_u.mutation.AddFrozenLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// ClearFrozenLastAcceptedElapsedMs clears the value of the "frozen_last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdate) ClearFrozenLastAcceptedElapsedMs() *ContestStandingUpdate {
+	_u.mutation.ClearFrozenLastAcceptedElapsedMs()
+	return _u
+}
+
+// SetFrozenVersion sets the "frozen_version" field.
+func (_u *ContestStandingUpdate) SetFrozenVersion(v int64) *ContestStandingUpdate {
+	_u.mutation.ResetFrozenVersion()
+	_u.mutation.SetFrozenVersion(v)
+	return _u
+}
+
+// SetNillableFrozenVersion sets the "frozen_version" field if the given value is not nil.
+func (_u *ContestStandingUpdate) SetNillableFrozenVersion(v *int64) *ContestStandingUpdate {
+	if v != nil {
+		_u.SetFrozenVersion(*v)
+	}
+	return _u
+}
+
+// AddFrozenVersion adds value to the "frozen_version" field.
+func (_u *ContestStandingUpdate) AddFrozenVersion(v int64) *ContestStandingUpdate {
+	_u.mutation.AddFrozenVersion(v)
+	return _u
+}
+
 // SetContest sets the "contest" edge to the Contest entity.
 func (_u *ContestStandingUpdate) SetContest(v *Contest) *ContestStandingUpdate {
 	return _u.SetContestID(v.ID)
@@ -168,6 +352,41 @@ func (_u *ContestStandingUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ContestStandingUpdate) check() error {
+	if v, ok := _u.mutation.LastAcceptedElapsedMs(); ok {
+		if err := conteststanding.LastAcceptedElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "last_accepted_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.last_accepted_elapsed_ms": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := conteststanding.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenSolvedCount(); ok {
+		if err := conteststanding.FrozenSolvedCountValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_solved_count", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_solved_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenPenalty(); ok {
+		if err := conteststanding.FrozenPenaltyValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_penalty", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_penalty": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenPendingAttempts(); ok {
+		if err := conteststanding.FrozenPendingAttemptsValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_pending_attempts", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_pending_attempts": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenLastAcceptedElapsedMs(); ok {
+		if err := conteststanding.FrozenLastAcceptedElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_last_accepted_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_last_accepted_elapsed_ms": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenVersion(); ok {
+		if err := conteststanding.FrozenVersionValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_version", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_version": %w`, err)}
+		}
+	}
 	if _u.mutation.ContestCleared() && len(_u.mutation.ContestIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "ContestStanding.contest"`)
 	}
@@ -187,7 +406,7 @@ func (_u *ContestStandingUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(conteststanding.Table, conteststanding.Columns, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(conteststanding.Table, conteststanding.Columns, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -213,6 +432,66 @@ func (_u *ContestStandingUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if _u.mutation.ProblemResultsCleared() {
 		_spec.ClearField(conteststanding.FieldProblemResults, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.LastAcceptedElapsedMs(); ok {
+		_spec.SetField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedLastAcceptedElapsedMs(); ok {
+		_spec.AddField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if _u.mutation.LastAcceptedElapsedMsCleared() {
+		_spec.ClearField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(conteststanding.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(conteststanding.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.FrozenSolvedCount(); ok {
+		_spec.SetField(conteststanding.FieldFrozenSolvedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenSolvedCount(); ok {
+		_spec.AddField(conteststanding.FieldFrozenSolvedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FrozenPenalty(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPenalty, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenPenalty(); ok {
+		_spec.AddField(conteststanding.FieldFrozenPenalty, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FrozenProblemResults(); ok {
+		_spec.SetField(conteststanding.FieldFrozenProblemResults, field.TypeJSON, value)
+	}
+	if _u.mutation.FrozenProblemResultsCleared() {
+		_spec.ClearField(conteststanding.FieldFrozenProblemResults, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.FrozenPendingProblemAttempts(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPendingProblemAttempts, field.TypeJSON, value)
+	}
+	if _u.mutation.FrozenPendingProblemAttemptsCleared() {
+		_spec.ClearField(conteststanding.FieldFrozenPendingProblemAttempts, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.FrozenPendingAttempts(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPendingAttempts, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenPendingAttempts(); ok {
+		_spec.AddField(conteststanding.FieldFrozenPendingAttempts, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FrozenLastAcceptedElapsedMs(); ok {
+		_spec.SetField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenLastAcceptedElapsedMs(); ok {
+		_spec.AddField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if _u.mutation.FrozenLastAcceptedElapsedMsCleared() {
+		_spec.ClearField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.FrozenVersion(); ok {
+		_spec.SetField(conteststanding.FieldFrozenVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenVersion(); ok {
+		_spec.AddField(conteststanding.FieldFrozenVersion, field.TypeInt64, value)
+	}
 	if _u.mutation.ContestCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -221,7 +500,7 @@ func (_u *ContestStandingUpdate) sqlSave(ctx context.Context) (_node int, err er
 			Columns: []string{conteststanding.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -234,7 +513,7 @@ func (_u *ContestStandingUpdate) sqlSave(ctx context.Context) (_node int, err er
 			Columns: []string{conteststanding.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -250,7 +529,7 @@ func (_u *ContestStandingUpdate) sqlSave(ctx context.Context) (_node int, err er
 			Columns: []string{conteststanding.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -263,7 +542,7 @@ func (_u *ContestStandingUpdate) sqlSave(ctx context.Context) (_node int, err er
 			Columns: []string{conteststanding.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -294,13 +573,13 @@ type ContestStandingUpdateOne struct {
 }
 
 // SetContestID sets the "contest_id" field.
-func (_u *ContestStandingUpdateOne) SetContestID(v int) *ContestStandingUpdateOne {
+func (_u *ContestStandingUpdateOne) SetContestID(v uuid.UUID) *ContestStandingUpdateOne {
 	_u.mutation.SetContestID(v)
 	return _u
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *ContestStandingUpdateOne) SetNillableContestID(v *int) *ContestStandingUpdateOne {
+func (_u *ContestStandingUpdateOne) SetNillableContestID(v *uuid.UUID) *ContestStandingUpdateOne {
 	if v != nil {
 		_u.SetContestID(*v)
 	}
@@ -308,13 +587,13 @@ func (_u *ContestStandingUpdateOne) SetNillableContestID(v *int) *ContestStandin
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *ContestStandingUpdateOne) SetUserID(v int) *ContestStandingUpdateOne {
+func (_u *ContestStandingUpdateOne) SetUserID(v uuid.UUID) *ContestStandingUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *ContestStandingUpdateOne) SetNillableUserID(v *int) *ContestStandingUpdateOne {
+func (_u *ContestStandingUpdateOne) SetNillableUserID(v *uuid.UUID) *ContestStandingUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -372,6 +651,189 @@ func (_u *ContestStandingUpdateOne) SetProblemResults(v map[string]interface{}) 
 // ClearProblemResults clears the value of the "problem_results" field.
 func (_u *ContestStandingUpdateOne) ClearProblemResults() *ContestStandingUpdateOne {
 	_u.mutation.ClearProblemResults()
+	return _u
+}
+
+// SetLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdateOne) SetLastAcceptedElapsedMs(v int64) *ContestStandingUpdateOne {
+	_u.mutation.ResetLastAcceptedElapsedMs()
+	_u.mutation.SetLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// SetNillableLastAcceptedElapsedMs sets the "last_accepted_elapsed_ms" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableLastAcceptedElapsedMs(v *int64) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetLastAcceptedElapsedMs(*v)
+	}
+	return _u
+}
+
+// AddLastAcceptedElapsedMs adds value to the "last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdateOne) AddLastAcceptedElapsedMs(v int64) *ContestStandingUpdateOne {
+	_u.mutation.AddLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// ClearLastAcceptedElapsedMs clears the value of the "last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdateOne) ClearLastAcceptedElapsedMs() *ContestStandingUpdateOne {
+	_u.mutation.ClearLastAcceptedElapsedMs()
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ContestStandingUpdateOne) SetVersion(v int64) *ContestStandingUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableVersion(v *int64) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ContestStandingUpdateOne) AddVersion(v int64) *ContestStandingUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetFrozenSolvedCount sets the "frozen_solved_count" field.
+func (_u *ContestStandingUpdateOne) SetFrozenSolvedCount(v int) *ContestStandingUpdateOne {
+	_u.mutation.ResetFrozenSolvedCount()
+	_u.mutation.SetFrozenSolvedCount(v)
+	return _u
+}
+
+// SetNillableFrozenSolvedCount sets the "frozen_solved_count" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableFrozenSolvedCount(v *int) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetFrozenSolvedCount(*v)
+	}
+	return _u
+}
+
+// AddFrozenSolvedCount adds value to the "frozen_solved_count" field.
+func (_u *ContestStandingUpdateOne) AddFrozenSolvedCount(v int) *ContestStandingUpdateOne {
+	_u.mutation.AddFrozenSolvedCount(v)
+	return _u
+}
+
+// SetFrozenPenalty sets the "frozen_penalty" field.
+func (_u *ContestStandingUpdateOne) SetFrozenPenalty(v int) *ContestStandingUpdateOne {
+	_u.mutation.ResetFrozenPenalty()
+	_u.mutation.SetFrozenPenalty(v)
+	return _u
+}
+
+// SetNillableFrozenPenalty sets the "frozen_penalty" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableFrozenPenalty(v *int) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetFrozenPenalty(*v)
+	}
+	return _u
+}
+
+// AddFrozenPenalty adds value to the "frozen_penalty" field.
+func (_u *ContestStandingUpdateOne) AddFrozenPenalty(v int) *ContestStandingUpdateOne {
+	_u.mutation.AddFrozenPenalty(v)
+	return _u
+}
+
+// SetFrozenProblemResults sets the "frozen_problem_results" field.
+func (_u *ContestStandingUpdateOne) SetFrozenProblemResults(v map[string]interface{}) *ContestStandingUpdateOne {
+	_u.mutation.SetFrozenProblemResults(v)
+	return _u
+}
+
+// ClearFrozenProblemResults clears the value of the "frozen_problem_results" field.
+func (_u *ContestStandingUpdateOne) ClearFrozenProblemResults() *ContestStandingUpdateOne {
+	_u.mutation.ClearFrozenProblemResults()
+	return _u
+}
+
+// SetFrozenPendingProblemAttempts sets the "frozen_pending_problem_attempts" field.
+func (_u *ContestStandingUpdateOne) SetFrozenPendingProblemAttempts(v map[string]int) *ContestStandingUpdateOne {
+	_u.mutation.SetFrozenPendingProblemAttempts(v)
+	return _u
+}
+
+// ClearFrozenPendingProblemAttempts clears the value of the "frozen_pending_problem_attempts" field.
+func (_u *ContestStandingUpdateOne) ClearFrozenPendingProblemAttempts() *ContestStandingUpdateOne {
+	_u.mutation.ClearFrozenPendingProblemAttempts()
+	return _u
+}
+
+// SetFrozenPendingAttempts sets the "frozen_pending_attempts" field.
+func (_u *ContestStandingUpdateOne) SetFrozenPendingAttempts(v int) *ContestStandingUpdateOne {
+	_u.mutation.ResetFrozenPendingAttempts()
+	_u.mutation.SetFrozenPendingAttempts(v)
+	return _u
+}
+
+// SetNillableFrozenPendingAttempts sets the "frozen_pending_attempts" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableFrozenPendingAttempts(v *int) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetFrozenPendingAttempts(*v)
+	}
+	return _u
+}
+
+// AddFrozenPendingAttempts adds value to the "frozen_pending_attempts" field.
+func (_u *ContestStandingUpdateOne) AddFrozenPendingAttempts(v int) *ContestStandingUpdateOne {
+	_u.mutation.AddFrozenPendingAttempts(v)
+	return _u
+}
+
+// SetFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdateOne) SetFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpdateOne {
+	_u.mutation.ResetFrozenLastAcceptedElapsedMs()
+	_u.mutation.SetFrozenLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// SetNillableFrozenLastAcceptedElapsedMs sets the "frozen_last_accepted_elapsed_ms" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableFrozenLastAcceptedElapsedMs(v *int64) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetFrozenLastAcceptedElapsedMs(*v)
+	}
+	return _u
+}
+
+// AddFrozenLastAcceptedElapsedMs adds value to the "frozen_last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdateOne) AddFrozenLastAcceptedElapsedMs(v int64) *ContestStandingUpdateOne {
+	_u.mutation.AddFrozenLastAcceptedElapsedMs(v)
+	return _u
+}
+
+// ClearFrozenLastAcceptedElapsedMs clears the value of the "frozen_last_accepted_elapsed_ms" field.
+func (_u *ContestStandingUpdateOne) ClearFrozenLastAcceptedElapsedMs() *ContestStandingUpdateOne {
+	_u.mutation.ClearFrozenLastAcceptedElapsedMs()
+	return _u
+}
+
+// SetFrozenVersion sets the "frozen_version" field.
+func (_u *ContestStandingUpdateOne) SetFrozenVersion(v int64) *ContestStandingUpdateOne {
+	_u.mutation.ResetFrozenVersion()
+	_u.mutation.SetFrozenVersion(v)
+	return _u
+}
+
+// SetNillableFrozenVersion sets the "frozen_version" field if the given value is not nil.
+func (_u *ContestStandingUpdateOne) SetNillableFrozenVersion(v *int64) *ContestStandingUpdateOne {
+	if v != nil {
+		_u.SetFrozenVersion(*v)
+	}
+	return _u
+}
+
+// AddFrozenVersion adds value to the "frozen_version" field.
+func (_u *ContestStandingUpdateOne) AddFrozenVersion(v int64) *ContestStandingUpdateOne {
+	_u.mutation.AddFrozenVersion(v)
 	return _u
 }
 
@@ -444,6 +906,41 @@ func (_u *ContestStandingUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ContestStandingUpdateOne) check() error {
+	if v, ok := _u.mutation.LastAcceptedElapsedMs(); ok {
+		if err := conteststanding.LastAcceptedElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "last_accepted_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.last_accepted_elapsed_ms": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := conteststanding.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenSolvedCount(); ok {
+		if err := conteststanding.FrozenSolvedCountValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_solved_count", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_solved_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenPenalty(); ok {
+		if err := conteststanding.FrozenPenaltyValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_penalty", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_penalty": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenPendingAttempts(); ok {
+		if err := conteststanding.FrozenPendingAttemptsValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_pending_attempts", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_pending_attempts": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenLastAcceptedElapsedMs(); ok {
+		if err := conteststanding.FrozenLastAcceptedElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_last_accepted_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_last_accepted_elapsed_ms": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FrozenVersion(); ok {
+		if err := conteststanding.FrozenVersionValidator(v); err != nil {
+			return &ValidationError{Name: "frozen_version", err: fmt.Errorf(`generate: validator failed for field "ContestStanding.frozen_version": %w`, err)}
+		}
+	}
 	if _u.mutation.ContestCleared() && len(_u.mutation.ContestIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "ContestStanding.contest"`)
 	}
@@ -463,7 +960,7 @@ func (_u *ContestStandingUpdateOne) sqlSave(ctx context.Context) (_node *Contest
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(conteststanding.Table, conteststanding.Columns, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(conteststanding.Table, conteststanding.Columns, sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "ContestStanding.id" for update`)}
@@ -506,6 +1003,66 @@ func (_u *ContestStandingUpdateOne) sqlSave(ctx context.Context) (_node *Contest
 	if _u.mutation.ProblemResultsCleared() {
 		_spec.ClearField(conteststanding.FieldProblemResults, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.LastAcceptedElapsedMs(); ok {
+		_spec.SetField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedLastAcceptedElapsedMs(); ok {
+		_spec.AddField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if _u.mutation.LastAcceptedElapsedMsCleared() {
+		_spec.ClearField(conteststanding.FieldLastAcceptedElapsedMs, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(conteststanding.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(conteststanding.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.FrozenSolvedCount(); ok {
+		_spec.SetField(conteststanding.FieldFrozenSolvedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenSolvedCount(); ok {
+		_spec.AddField(conteststanding.FieldFrozenSolvedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FrozenPenalty(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPenalty, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenPenalty(); ok {
+		_spec.AddField(conteststanding.FieldFrozenPenalty, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FrozenProblemResults(); ok {
+		_spec.SetField(conteststanding.FieldFrozenProblemResults, field.TypeJSON, value)
+	}
+	if _u.mutation.FrozenProblemResultsCleared() {
+		_spec.ClearField(conteststanding.FieldFrozenProblemResults, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.FrozenPendingProblemAttempts(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPendingProblemAttempts, field.TypeJSON, value)
+	}
+	if _u.mutation.FrozenPendingProblemAttemptsCleared() {
+		_spec.ClearField(conteststanding.FieldFrozenPendingProblemAttempts, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.FrozenPendingAttempts(); ok {
+		_spec.SetField(conteststanding.FieldFrozenPendingAttempts, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenPendingAttempts(); ok {
+		_spec.AddField(conteststanding.FieldFrozenPendingAttempts, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.FrozenLastAcceptedElapsedMs(); ok {
+		_spec.SetField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenLastAcceptedElapsedMs(); ok {
+		_spec.AddField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64, value)
+	}
+	if _u.mutation.FrozenLastAcceptedElapsedMsCleared() {
+		_spec.ClearField(conteststanding.FieldFrozenLastAcceptedElapsedMs, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.FrozenVersion(); ok {
+		_spec.SetField(conteststanding.FieldFrozenVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedFrozenVersion(); ok {
+		_spec.AddField(conteststanding.FieldFrozenVersion, field.TypeInt64, value)
+	}
 	if _u.mutation.ContestCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -514,7 +1071,7 @@ func (_u *ContestStandingUpdateOne) sqlSave(ctx context.Context) (_node *Contest
 			Columns: []string{conteststanding.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -527,7 +1084,7 @@ func (_u *ContestStandingUpdateOne) sqlSave(ctx context.Context) (_node *Contest
 			Columns: []string{conteststanding.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -543,7 +1100,7 @@ func (_u *ContestStandingUpdateOne) sqlSave(ctx context.Context) (_node *Contest
 			Columns: []string{conteststanding.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -556,7 +1113,7 @@ func (_u *ContestStandingUpdateOne) sqlSave(ctx context.Context) (_node *Contest
 			Columns: []string{conteststanding.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

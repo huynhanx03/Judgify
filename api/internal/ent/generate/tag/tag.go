@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -25,16 +26,29 @@ const (
 	FieldDeletedBy = "deleted_by"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
 	// EdgeElements holds the string denoting the elements edge name in mutations.
 	EdgeElements = "elements"
 	// EdgeUserTagStats holds the string denoting the user_tag_stats edge name in mutations.
 	EdgeUserTagStats = "user_tag_stats"
+	// EdgeMaterialRevisionTags holds the string denoting the material_revision_tags edge name in mutations.
+	EdgeMaterialRevisionTags = "material_revision_tags"
 	// EdgeMaterials holds the string denoting the materials edge name in mutations.
 	EdgeMaterials = "materials"
 	// Table holds the table name of the tag in the database.
 	Table = "tags"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "tag_revisions"
+	// RevisionsInverseTable is the table name for the TagRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "tagrevision" package.
+	RevisionsInverseTable = "tag_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "tag_id"
 	// ProblemsTable is the table that holds the problems relation/edge. The primary key declared below.
 	ProblemsTable = "problem_tags"
 	// ProblemsInverseTable is the table name for the Problem entity.
@@ -52,6 +66,13 @@ const (
 	UserTagStatsInverseTable = "user_tag_stats"
 	// UserTagStatsColumn is the table column denoting the user_tag_stats relation/edge.
 	UserTagStatsColumn = "tag_id"
+	// MaterialRevisionTagsTable is the table that holds the material_revision_tags relation/edge.
+	MaterialRevisionTagsTable = "material_revision_tags"
+	// MaterialRevisionTagsInverseTable is the table name for the MaterialRevisionTag entity.
+	// It exists in this package in order to avoid circular dependency with the "materialrevisiontag" package.
+	MaterialRevisionTagsInverseTable = "material_revision_tags"
+	// MaterialRevisionTagsColumn is the table column denoting the material_revision_tags relation/edge.
+	MaterialRevisionTagsColumn = "tag_id"
 	// MaterialsTable is the table that holds the materials relation/edge. The primary key declared below.
 	MaterialsTable = "material_tags"
 	// MaterialsInverseTable is the table name for the Material entity.
@@ -67,6 +88,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldDeletedBy,
 	FieldName,
+	FieldVersion,
 }
 
 var (
@@ -107,6 +129,12 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the Tag queries.
@@ -140,6 +168,25 @@ func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 
 // ByProblemsCount orders the results by problems count.
@@ -184,6 +231,20 @@ func ByUserTagStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByMaterialRevisionTagsCount orders the results by material_revision_tags count.
+func ByMaterialRevisionTagsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMaterialRevisionTagsStep(), opts...)
+	}
+}
+
+// ByMaterialRevisionTags orders the results by material_revision_tags terms.
+func ByMaterialRevisionTags(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMaterialRevisionTagsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByMaterialsCount orders the results by materials count.
 func ByMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -196,6 +257,13 @@ func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
 }
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -216,6 +284,13 @@ func newUserTagStatsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserTagStatsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserTagStatsTable, UserTagStatsColumn),
+	)
+}
+func newMaterialRevisionTagsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MaterialRevisionTagsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MaterialRevisionTagsTable, MaterialRevisionTagsColumn),
 	)
 }
 func newMaterialsStep() *sqlgraph.Step {

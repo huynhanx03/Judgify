@@ -5,6 +5,7 @@ package conteststanding
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -22,6 +23,24 @@ const (
 	FieldPenalty = "penalty"
 	// FieldProblemResults holds the string denoting the problem_results field in the database.
 	FieldProblemResults = "problem_results"
+	// FieldLastAcceptedElapsedMs holds the string denoting the last_accepted_elapsed_ms field in the database.
+	FieldLastAcceptedElapsedMs = "last_accepted_elapsed_ms"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldFrozenSolvedCount holds the string denoting the frozen_solved_count field in the database.
+	FieldFrozenSolvedCount = "frozen_solved_count"
+	// FieldFrozenPenalty holds the string denoting the frozen_penalty field in the database.
+	FieldFrozenPenalty = "frozen_penalty"
+	// FieldFrozenProblemResults holds the string denoting the frozen_problem_results field in the database.
+	FieldFrozenProblemResults = "frozen_problem_results"
+	// FieldFrozenPendingProblemAttempts holds the string denoting the frozen_pending_problem_attempts field in the database.
+	FieldFrozenPendingProblemAttempts = "frozen_pending_problem_attempts"
+	// FieldFrozenPendingAttempts holds the string denoting the frozen_pending_attempts field in the database.
+	FieldFrozenPendingAttempts = "frozen_pending_attempts"
+	// FieldFrozenLastAcceptedElapsedMs holds the string denoting the frozen_last_accepted_elapsed_ms field in the database.
+	FieldFrozenLastAcceptedElapsedMs = "frozen_last_accepted_elapsed_ms"
+	// FieldFrozenVersion holds the string denoting the frozen_version field in the database.
+	FieldFrozenVersion = "frozen_version"
 	// EdgeContest holds the string denoting the contest edge name in mutations.
 	EdgeContest = "contest"
 	// EdgeUser holds the string denoting the user edge name in mutations.
@@ -52,6 +71,15 @@ var Columns = []string{
 	FieldSolvedCount,
 	FieldPenalty,
 	FieldProblemResults,
+	FieldLastAcceptedElapsedMs,
+	FieldVersion,
+	FieldFrozenSolvedCount,
+	FieldFrozenPenalty,
+	FieldFrozenProblemResults,
+	FieldFrozenPendingProblemAttempts,
+	FieldFrozenPendingAttempts,
+	FieldFrozenLastAcceptedElapsedMs,
+	FieldFrozenVersion,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -69,6 +97,32 @@ var (
 	DefaultSolvedCount int
 	// DefaultPenalty holds the default value on creation for the "penalty" field.
 	DefaultPenalty int
+	// LastAcceptedElapsedMsValidator is a validator for the "last_accepted_elapsed_ms" field. It is called by the builders before save.
+	LastAcceptedElapsedMsValidator func(int64) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultFrozenSolvedCount holds the default value on creation for the "frozen_solved_count" field.
+	DefaultFrozenSolvedCount int
+	// FrozenSolvedCountValidator is a validator for the "frozen_solved_count" field. It is called by the builders before save.
+	FrozenSolvedCountValidator func(int) error
+	// DefaultFrozenPenalty holds the default value on creation for the "frozen_penalty" field.
+	DefaultFrozenPenalty int
+	// FrozenPenaltyValidator is a validator for the "frozen_penalty" field. It is called by the builders before save.
+	FrozenPenaltyValidator func(int) error
+	// DefaultFrozenPendingAttempts holds the default value on creation for the "frozen_pending_attempts" field.
+	DefaultFrozenPendingAttempts int
+	// FrozenPendingAttemptsValidator is a validator for the "frozen_pending_attempts" field. It is called by the builders before save.
+	FrozenPendingAttemptsValidator func(int) error
+	// FrozenLastAcceptedElapsedMsValidator is a validator for the "frozen_last_accepted_elapsed_ms" field. It is called by the builders before save.
+	FrozenLastAcceptedElapsedMsValidator func(int64) error
+	// DefaultFrozenVersion holds the default value on creation for the "frozen_version" field.
+	DefaultFrozenVersion int64
+	// FrozenVersionValidator is a validator for the "frozen_version" field. It is called by the builders before save.
+	FrozenVersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the ContestStanding queries.
@@ -97,6 +151,41 @@ func BySolvedCount(opts ...sql.OrderTermOption) OrderOption {
 // ByPenalty orders the results by the penalty field.
 func ByPenalty(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPenalty, opts...).ToFunc()
+}
+
+// ByLastAcceptedElapsedMs orders the results by the last_accepted_elapsed_ms field.
+func ByLastAcceptedElapsedMs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastAcceptedElapsedMs, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByFrozenSolvedCount orders the results by the frozen_solved_count field.
+func ByFrozenSolvedCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrozenSolvedCount, opts...).ToFunc()
+}
+
+// ByFrozenPenalty orders the results by the frozen_penalty field.
+func ByFrozenPenalty(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrozenPenalty, opts...).ToFunc()
+}
+
+// ByFrozenPendingAttempts orders the results by the frozen_pending_attempts field.
+func ByFrozenPendingAttempts(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrozenPendingAttempts, opts...).ToFunc()
+}
+
+// ByFrozenLastAcceptedElapsedMs orders the results by the frozen_last_accepted_elapsed_ms field.
+func ByFrozenLastAcceptedElapsedMs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrozenLastAcceptedElapsedMs, opts...).ToFunc()
+}
+
+// ByFrozenVersion orders the results by the frozen_version field.
+func ByFrozenVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrozenVersion, opts...).ToFunc()
 }
 
 // ByContestField orders the results by contest field.

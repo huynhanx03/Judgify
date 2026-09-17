@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testcaserevision"
 )
 
 // TestCaseCreate is the builder for creating a TestCase entity.
@@ -66,13 +69,13 @@ func (_c *TestCaseCreate) SetNillableDeletedAt(v *time.Time) *TestCaseCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *TestCaseCreate) SetDeletedBy(v int) *TestCaseCreate {
+func (_c *TestCaseCreate) SetDeletedBy(v string) *TestCaseCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *TestCaseCreate) SetNillableDeletedBy(v *int) *TestCaseCreate {
+func (_c *TestCaseCreate) SetNillableDeletedBy(v *string) *TestCaseCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -80,46 +83,43 @@ func (_c *TestCaseCreate) SetNillableDeletedBy(v *int) *TestCaseCreate {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (_c *TestCaseCreate) SetProblemID(v int) *TestCaseCreate {
+func (_c *TestCaseCreate) SetProblemID(v uuid.UUID) *TestCaseCreate {
 	_c.mutation.SetProblemID(v)
 	return _c
 }
 
-// SetInput sets the "input" field.
-func (_c *TestCaseCreate) SetInput(v string) *TestCaseCreate {
-	_c.mutation.SetInput(v)
+// SetID sets the "id" field.
+func (_c *TestCaseCreate) SetID(v uuid.UUID) *TestCaseCreate {
+	_c.mutation.SetID(v)
 	return _c
 }
 
-// SetExpectedOutput sets the "expected_output" field.
-func (_c *TestCaseCreate) SetExpectedOutput(v string) *TestCaseCreate {
-	_c.mutation.SetExpectedOutput(v)
-	return _c
-}
-
-// SetIsHidden sets the "is_hidden" field.
-func (_c *TestCaseCreate) SetIsHidden(v bool) *TestCaseCreate {
-	_c.mutation.SetIsHidden(v)
-	return _c
-}
-
-// SetNillableIsHidden sets the "is_hidden" field if the given value is not nil.
-func (_c *TestCaseCreate) SetNillableIsHidden(v *bool) *TestCaseCreate {
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *TestCaseCreate) SetNillableID(v *uuid.UUID) *TestCaseCreate {
 	if v != nil {
-		_c.SetIsHidden(*v)
+		_c.SetID(*v)
 	}
-	return _c
-}
-
-// SetOrderIndex sets the "order_index" field.
-func (_c *TestCaseCreate) SetOrderIndex(v int) *TestCaseCreate {
-	_c.mutation.SetOrderIndex(v)
 	return _c
 }
 
 // SetProblem sets the "problem" edge to the Problem entity.
 func (_c *TestCaseCreate) SetProblem(v *Problem) *TestCaseCreate {
 	return _c.SetProblemID(v.ID)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the TestcaseRevision entity by IDs.
+func (_c *TestCaseCreate) AddRevisionIDs(ids ...uuid.UUID) *TestCaseCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the TestcaseRevision entity.
+func (_c *TestCaseCreate) AddRevisions(v ...*TestcaseRevision) *TestCaseCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
 }
 
 // Mutation returns the TestCaseMutation object of the builder.
@@ -173,9 +173,12 @@ func (_c *TestCaseCreate) defaults() error {
 		v := testcase.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.IsHidden(); !ok {
-		v := testcase.DefaultIsHidden
-		_c.mutation.SetIsHidden(v)
+	if _, ok := _c.mutation.ID(); !ok {
+		if testcase.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized testcase.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := testcase.DefaultID()
+		_c.mutation.SetID(v)
 	}
 	return nil
 }
@@ -190,28 +193,6 @@ func (_c *TestCaseCreate) check() error {
 	}
 	if _, ok := _c.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem_id", err: errors.New(`generate: missing required field "TestCase.problem_id"`)}
-	}
-	if _, ok := _c.mutation.Input(); !ok {
-		return &ValidationError{Name: "input", err: errors.New(`generate: missing required field "TestCase.input"`)}
-	}
-	if v, ok := _c.mutation.Input(); ok {
-		if err := testcase.InputValidator(v); err != nil {
-			return &ValidationError{Name: "input", err: fmt.Errorf(`generate: validator failed for field "TestCase.input": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.ExpectedOutput(); !ok {
-		return &ValidationError{Name: "expected_output", err: errors.New(`generate: missing required field "TestCase.expected_output"`)}
-	}
-	if v, ok := _c.mutation.ExpectedOutput(); ok {
-		if err := testcase.ExpectedOutputValidator(v); err != nil {
-			return &ValidationError{Name: "expected_output", err: fmt.Errorf(`generate: validator failed for field "TestCase.expected_output": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.IsHidden(); !ok {
-		return &ValidationError{Name: "is_hidden", err: errors.New(`generate: missing required field "TestCase.is_hidden"`)}
-	}
-	if _, ok := _c.mutation.OrderIndex(); !ok {
-		return &ValidationError{Name: "order_index", err: errors.New(`generate: missing required field "TestCase.order_index"`)}
 	}
 	if len(_c.mutation.ProblemIDs()) == 0 {
 		return &ValidationError{Name: "problem", err: errors.New(`generate: missing required edge "TestCase.problem"`)}
@@ -230,8 +211,13 @@ func (_c *TestCaseCreate) sqlSave(ctx context.Context) (*TestCase, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -240,9 +226,13 @@ func (_c *TestCaseCreate) sqlSave(ctx context.Context) (*TestCase, error) {
 func (_c *TestCaseCreate) createSpec() (*TestCase, *sqlgraph.CreateSpec) {
 	var (
 		_node = &TestCase{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(testcase.Table, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(testcase.Table, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(testcase.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -256,24 +246,8 @@ func (_c *TestCaseCreate) createSpec() (*TestCase, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(testcase.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(testcase.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
-	}
-	if value, ok := _c.mutation.Input(); ok {
-		_spec.SetField(testcase.FieldInput, field.TypeString, value)
-		_node.Input = value
-	}
-	if value, ok := _c.mutation.ExpectedOutput(); ok {
-		_spec.SetField(testcase.FieldExpectedOutput, field.TypeString, value)
-		_node.ExpectedOutput = value
-	}
-	if value, ok := _c.mutation.IsHidden(); ok {
-		_spec.SetField(testcase.FieldIsHidden, field.TypeBool, value)
-		_node.IsHidden = value
-	}
-	if value, ok := _c.mutation.OrderIndex(); ok {
-		_spec.SetField(testcase.FieldOrderIndex, field.TypeInt, value)
-		_node.OrderIndex = value
 	}
 	if nodes := _c.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -283,13 +257,29 @@ func (_c *TestCaseCreate) createSpec() (*TestCase, *sqlgraph.CreateSpec) {
 			Columns: []string{testcase.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ProblemID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -375,7 +365,7 @@ func (u *TestCaseUpsert) ClearDeletedAt() *TestCaseUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TestCaseUpsert) SetDeletedBy(v int) *TestCaseUpsert {
+func (u *TestCaseUpsert) SetDeletedBy(v string) *TestCaseUpsert {
 	u.Set(testcase.FieldDeletedBy, v)
 	return u
 }
@@ -386,97 +376,34 @@ func (u *TestCaseUpsert) UpdateDeletedBy() *TestCaseUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TestCaseUpsert) AddDeletedBy(v int) *TestCaseUpsert {
-	u.Add(testcase.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *TestCaseUpsert) ClearDeletedBy() *TestCaseUpsert {
 	u.SetNull(testcase.FieldDeletedBy)
 	return u
 }
 
-// SetProblemID sets the "problem_id" field.
-func (u *TestCaseUpsert) SetProblemID(v int) *TestCaseUpsert {
-	u.Set(testcase.FieldProblemID, v)
-	return u
-}
-
-// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
-func (u *TestCaseUpsert) UpdateProblemID() *TestCaseUpsert {
-	u.SetExcluded(testcase.FieldProblemID)
-	return u
-}
-
-// SetInput sets the "input" field.
-func (u *TestCaseUpsert) SetInput(v string) *TestCaseUpsert {
-	u.Set(testcase.FieldInput, v)
-	return u
-}
-
-// UpdateInput sets the "input" field to the value that was provided on create.
-func (u *TestCaseUpsert) UpdateInput() *TestCaseUpsert {
-	u.SetExcluded(testcase.FieldInput)
-	return u
-}
-
-// SetExpectedOutput sets the "expected_output" field.
-func (u *TestCaseUpsert) SetExpectedOutput(v string) *TestCaseUpsert {
-	u.Set(testcase.FieldExpectedOutput, v)
-	return u
-}
-
-// UpdateExpectedOutput sets the "expected_output" field to the value that was provided on create.
-func (u *TestCaseUpsert) UpdateExpectedOutput() *TestCaseUpsert {
-	u.SetExcluded(testcase.FieldExpectedOutput)
-	return u
-}
-
-// SetIsHidden sets the "is_hidden" field.
-func (u *TestCaseUpsert) SetIsHidden(v bool) *TestCaseUpsert {
-	u.Set(testcase.FieldIsHidden, v)
-	return u
-}
-
-// UpdateIsHidden sets the "is_hidden" field to the value that was provided on create.
-func (u *TestCaseUpsert) UpdateIsHidden() *TestCaseUpsert {
-	u.SetExcluded(testcase.FieldIsHidden)
-	return u
-}
-
-// SetOrderIndex sets the "order_index" field.
-func (u *TestCaseUpsert) SetOrderIndex(v int) *TestCaseUpsert {
-	u.Set(testcase.FieldOrderIndex, v)
-	return u
-}
-
-// UpdateOrderIndex sets the "order_index" field to the value that was provided on create.
-func (u *TestCaseUpsert) UpdateOrderIndex() *TestCaseUpsert {
-	u.SetExcluded(testcase.FieldOrderIndex)
-	return u
-}
-
-// AddOrderIndex adds v to the "order_index" field.
-func (u *TestCaseUpsert) AddOrderIndex(v int) *TestCaseUpsert {
-	u.Add(testcase.FieldOrderIndex, v)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.TestCase.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(testcase.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TestCaseUpsertOne) UpdateNewValues() *TestCaseUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(testcase.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(testcase.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.ProblemID(); exists {
+			s.SetIgnore(testcase.FieldProblemID)
 		}
 	}))
 	return u
@@ -545,16 +472,9 @@ func (u *TestCaseUpsertOne) ClearDeletedAt() *TestCaseUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TestCaseUpsertOne) SetDeletedBy(v int) *TestCaseUpsertOne {
+func (u *TestCaseUpsertOne) SetDeletedBy(v string) *TestCaseUpsertOne {
 	return u.Update(func(s *TestCaseUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TestCaseUpsertOne) AddDeletedBy(v int) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -569,83 +489,6 @@ func (u *TestCaseUpsertOne) UpdateDeletedBy() *TestCaseUpsertOne {
 func (u *TestCaseUpsertOne) ClearDeletedBy() *TestCaseUpsertOne {
 	return u.Update(func(s *TestCaseUpsert) {
 		s.ClearDeletedBy()
-	})
-}
-
-// SetProblemID sets the "problem_id" field.
-func (u *TestCaseUpsertOne) SetProblemID(v int) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetProblemID(v)
-	})
-}
-
-// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
-func (u *TestCaseUpsertOne) UpdateProblemID() *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateProblemID()
-	})
-}
-
-// SetInput sets the "input" field.
-func (u *TestCaseUpsertOne) SetInput(v string) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetInput(v)
-	})
-}
-
-// UpdateInput sets the "input" field to the value that was provided on create.
-func (u *TestCaseUpsertOne) UpdateInput() *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateInput()
-	})
-}
-
-// SetExpectedOutput sets the "expected_output" field.
-func (u *TestCaseUpsertOne) SetExpectedOutput(v string) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetExpectedOutput(v)
-	})
-}
-
-// UpdateExpectedOutput sets the "expected_output" field to the value that was provided on create.
-func (u *TestCaseUpsertOne) UpdateExpectedOutput() *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateExpectedOutput()
-	})
-}
-
-// SetIsHidden sets the "is_hidden" field.
-func (u *TestCaseUpsertOne) SetIsHidden(v bool) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetIsHidden(v)
-	})
-}
-
-// UpdateIsHidden sets the "is_hidden" field to the value that was provided on create.
-func (u *TestCaseUpsertOne) UpdateIsHidden() *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateIsHidden()
-	})
-}
-
-// SetOrderIndex sets the "order_index" field.
-func (u *TestCaseUpsertOne) SetOrderIndex(v int) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetOrderIndex(v)
-	})
-}
-
-// AddOrderIndex adds v to the "order_index" field.
-func (u *TestCaseUpsertOne) AddOrderIndex(v int) *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.AddOrderIndex(v)
-	})
-}
-
-// UpdateOrderIndex sets the "order_index" field to the value that was provided on create.
-func (u *TestCaseUpsertOne) UpdateOrderIndex() *TestCaseUpsertOne {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateOrderIndex()
 	})
 }
 
@@ -665,7 +508,12 @@ func (u *TestCaseUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *TestCaseUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *TestCaseUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: TestCaseUpsertOne.ID is not supported by MySQL driver. Use TestCaseUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -674,17 +522,12 @@ func (u *TestCaseUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *TestCaseUpsertOne) IDX(ctx context.Context) int {
+func (u *TestCaseUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *TestCaseCreate) SetID(id int) *TestCaseCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // TestCaseCreateBulk is the builder for creating many TestCase entities in bulk.
@@ -734,10 +577,6 @@ func (_c *TestCaseCreateBulk) Save(ctx context.Context) ([]*TestCase, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -824,14 +663,23 @@ type TestCaseUpsertBulk struct {
 //	client.TestCase.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(testcase.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TestCaseUpsertBulk) UpdateNewValues() *TestCaseUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(testcase.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(testcase.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.ProblemID(); exists {
+				s.SetIgnore(testcase.FieldProblemID)
 			}
 		}
 	}))
@@ -901,16 +749,9 @@ func (u *TestCaseUpsertBulk) ClearDeletedAt() *TestCaseUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TestCaseUpsertBulk) SetDeletedBy(v int) *TestCaseUpsertBulk {
+func (u *TestCaseUpsertBulk) SetDeletedBy(v string) *TestCaseUpsertBulk {
 	return u.Update(func(s *TestCaseUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TestCaseUpsertBulk) AddDeletedBy(v int) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -925,83 +766,6 @@ func (u *TestCaseUpsertBulk) UpdateDeletedBy() *TestCaseUpsertBulk {
 func (u *TestCaseUpsertBulk) ClearDeletedBy() *TestCaseUpsertBulk {
 	return u.Update(func(s *TestCaseUpsert) {
 		s.ClearDeletedBy()
-	})
-}
-
-// SetProblemID sets the "problem_id" field.
-func (u *TestCaseUpsertBulk) SetProblemID(v int) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetProblemID(v)
-	})
-}
-
-// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
-func (u *TestCaseUpsertBulk) UpdateProblemID() *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateProblemID()
-	})
-}
-
-// SetInput sets the "input" field.
-func (u *TestCaseUpsertBulk) SetInput(v string) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetInput(v)
-	})
-}
-
-// UpdateInput sets the "input" field to the value that was provided on create.
-func (u *TestCaseUpsertBulk) UpdateInput() *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateInput()
-	})
-}
-
-// SetExpectedOutput sets the "expected_output" field.
-func (u *TestCaseUpsertBulk) SetExpectedOutput(v string) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetExpectedOutput(v)
-	})
-}
-
-// UpdateExpectedOutput sets the "expected_output" field to the value that was provided on create.
-func (u *TestCaseUpsertBulk) UpdateExpectedOutput() *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateExpectedOutput()
-	})
-}
-
-// SetIsHidden sets the "is_hidden" field.
-func (u *TestCaseUpsertBulk) SetIsHidden(v bool) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetIsHidden(v)
-	})
-}
-
-// UpdateIsHidden sets the "is_hidden" field to the value that was provided on create.
-func (u *TestCaseUpsertBulk) UpdateIsHidden() *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateIsHidden()
-	})
-}
-
-// SetOrderIndex sets the "order_index" field.
-func (u *TestCaseUpsertBulk) SetOrderIndex(v int) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.SetOrderIndex(v)
-	})
-}
-
-// AddOrderIndex adds v to the "order_index" field.
-func (u *TestCaseUpsertBulk) AddOrderIndex(v int) *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.AddOrderIndex(v)
-	})
-}
-
-// UpdateOrderIndex sets the "order_index" field to the value that was provided on create.
-func (u *TestCaseUpsertBulk) UpdateOrderIndex() *TestCaseUpsertBulk {
-	return u.Update(func(s *TestCaseUpsert) {
-		s.UpdateOrderIndex()
 	})
 }
 

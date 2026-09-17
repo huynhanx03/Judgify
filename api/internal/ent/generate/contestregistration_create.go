@@ -6,12 +6,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistrationtransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
 
@@ -23,15 +27,161 @@ type ContestRegistrationCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *ContestRegistrationCreate) SetCreatedAt(v time.Time) *ContestRegistrationCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableCreatedAt(v *time.Time) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *ContestRegistrationCreate) SetUpdatedAt(v time.Time) *ContestRegistrationCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableUpdatedAt(v *time.Time) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
 // SetContestID sets the "contest_id" field.
-func (_c *ContestRegistrationCreate) SetContestID(v int) *ContestRegistrationCreate {
+func (_c *ContestRegistrationCreate) SetContestID(v uuid.UUID) *ContestRegistrationCreate {
 	_c.mutation.SetContestID(v)
 	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *ContestRegistrationCreate) SetUserID(v int) *ContestRegistrationCreate {
+func (_c *ContestRegistrationCreate) SetUserID(v uuid.UUID) *ContestRegistrationCreate {
 	_c.mutation.SetUserID(v)
+	return _c
+}
+
+// SetStatus sets the "status" field.
+func (_c *ContestRegistrationCreate) SetStatus(v contestregistration.Status) *ContestRegistrationCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableStatus(v *contestregistration.Status) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetSource sets the "source" field.
+func (_c *ContestRegistrationCreate) SetSource(v contestregistration.Source) *ContestRegistrationCreate {
+	_c.mutation.SetSource(v)
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *ContestRegistrationCreate) SetVersion(v int64) *ContestRegistrationCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableVersion(v *int64) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetOfficialSubmissionCount sets the "official_submission_count" field.
+func (_c *ContestRegistrationCreate) SetOfficialSubmissionCount(v int64) *ContestRegistrationCreate {
+	_c.mutation.SetOfficialSubmissionCount(v)
+	return _c
+}
+
+// SetNillableOfficialSubmissionCount sets the "official_submission_count" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableOfficialSubmissionCount(v *int64) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetOfficialSubmissionCount(*v)
+	}
+	return _c
+}
+
+// SetRegisteredAt sets the "registered_at" field.
+func (_c *ContestRegistrationCreate) SetRegisteredAt(v time.Time) *ContestRegistrationCreate {
+	_c.mutation.SetRegisteredAt(v)
+	return _c
+}
+
+// SetNillableRegisteredAt sets the "registered_at" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableRegisteredAt(v *time.Time) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetRegisteredAt(*v)
+	}
+	return _c
+}
+
+// SetWithdrawnAt sets the "withdrawn_at" field.
+func (_c *ContestRegistrationCreate) SetWithdrawnAt(v time.Time) *ContestRegistrationCreate {
+	_c.mutation.SetWithdrawnAt(v)
+	return _c
+}
+
+// SetNillableWithdrawnAt sets the "withdrawn_at" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableWithdrawnAt(v *time.Time) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetWithdrawnAt(*v)
+	}
+	return _c
+}
+
+// SetBannedAt sets the "banned_at" field.
+func (_c *ContestRegistrationCreate) SetBannedAt(v time.Time) *ContestRegistrationCreate {
+	_c.mutation.SetBannedAt(v)
+	return _c
+}
+
+// SetNillableBannedAt sets the "banned_at" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableBannedAt(v *time.Time) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetBannedAt(*v)
+	}
+	return _c
+}
+
+// SetReason sets the "reason" field.
+func (_c *ContestRegistrationCreate) SetReason(v string) *ContestRegistrationCreate {
+	_c.mutation.SetReason(v)
+	return _c
+}
+
+// SetNillableReason sets the "reason" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableReason(v *string) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetReason(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *ContestRegistrationCreate) SetID(v uuid.UUID) *ContestRegistrationCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *ContestRegistrationCreate) SetNillableID(v *uuid.UUID) *ContestRegistrationCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
 	return _c
 }
 
@@ -45,6 +195,21 @@ func (_c *ContestRegistrationCreate) SetUser(v *User) *ContestRegistrationCreate
 	return _c.SetUserID(v.ID)
 }
 
+// AddTransitionIDs adds the "transitions" edge to the ContestRegistrationTransition entity by IDs.
+func (_c *ContestRegistrationCreate) AddTransitionIDs(ids ...uuid.UUID) *ContestRegistrationCreate {
+	_c.mutation.AddTransitionIDs(ids...)
+	return _c
+}
+
+// AddTransitions adds the "transitions" edges to the ContestRegistrationTransition entity.
+func (_c *ContestRegistrationCreate) AddTransitions(v ...*ContestRegistrationTransition) *ContestRegistrationCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTransitionIDs(ids...)
+}
+
 // Mutation returns the ContestRegistrationMutation object of the builder.
 func (_c *ContestRegistrationCreate) Mutation() *ContestRegistrationMutation {
 	return _c.mutation
@@ -52,6 +217,7 @@ func (_c *ContestRegistrationCreate) Mutation() *ContestRegistrationMutation {
 
 // Save creates the ContestRegistration in the database.
 func (_c *ContestRegistrationCreate) Save(ctx context.Context) (*ContestRegistration, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -77,13 +243,84 @@ func (_c *ContestRegistrationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *ContestRegistrationCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := contestregistration.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := contestregistration.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := contestregistration.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := contestregistration.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.OfficialSubmissionCount(); !ok {
+		v := contestregistration.DefaultOfficialSubmissionCount
+		_c.mutation.SetOfficialSubmissionCount(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := contestregistration.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *ContestRegistrationCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "ContestRegistration.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "ContestRegistration.updated_at"`)}
+	}
 	if _, ok := _c.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`generate: missing required field "ContestRegistration.contest_id"`)}
 	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "ContestRegistration.user_id"`)}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "ContestRegistration.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := contestregistration.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Source(); !ok {
+		return &ValidationError{Name: "source", err: errors.New(`generate: missing required field "ContestRegistration.source"`)}
+	}
+	if v, ok := _c.mutation.Source(); ok {
+		if err := contestregistration.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.source": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "ContestRegistration.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := contestregistration.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.OfficialSubmissionCount(); !ok {
+		return &ValidationError{Name: "official_submission_count", err: errors.New(`generate: missing required field "ContestRegistration.official_submission_count"`)}
+	}
+	if v, ok := _c.mutation.OfficialSubmissionCount(); ok {
+		if err := contestregistration.OfficialSubmissionCountValidator(v); err != nil {
+			return &ValidationError{Name: "official_submission_count", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.official_submission_count": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.Reason(); ok {
+		if err := contestregistration.ReasonValidator(v); err != nil {
+			return &ValidationError{Name: "reason", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.reason": %w`, err)}
+		}
 	}
 	if len(_c.mutation.ContestIDs()) == 0 {
 		return &ValidationError{Name: "contest", err: errors.New(`generate: missing required edge "ContestRegistration.contest"`)}
@@ -105,8 +342,13 @@ func (_c *ContestRegistrationCreate) sqlSave(ctx context.Context) (*ContestRegis
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -115,9 +357,53 @@ func (_c *ContestRegistrationCreate) sqlSave(ctx context.Context) (*ContestRegis
 func (_c *ContestRegistrationCreate) createSpec() (*ContestRegistration, *sqlgraph.CreateSpec) {
 	var (
 		_node = &ContestRegistration{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(contestregistration.Table, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(contestregistration.Table, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(contestregistration.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(contestregistration.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(contestregistration.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.Source(); ok {
+		_spec.SetField(contestregistration.FieldSource, field.TypeEnum, value)
+		_node.Source = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(contestregistration.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.OfficialSubmissionCount(); ok {
+		_spec.SetField(contestregistration.FieldOfficialSubmissionCount, field.TypeInt64, value)
+		_node.OfficialSubmissionCount = value
+	}
+	if value, ok := _c.mutation.RegisteredAt(); ok {
+		_spec.SetField(contestregistration.FieldRegisteredAt, field.TypeTime, value)
+		_node.RegisteredAt = &value
+	}
+	if value, ok := _c.mutation.WithdrawnAt(); ok {
+		_spec.SetField(contestregistration.FieldWithdrawnAt, field.TypeTime, value)
+		_node.WithdrawnAt = &value
+	}
+	if value, ok := _c.mutation.BannedAt(); ok {
+		_spec.SetField(contestregistration.FieldBannedAt, field.TypeTime, value)
+		_node.BannedAt = &value
+	}
+	if value, ok := _c.mutation.Reason(); ok {
+		_spec.SetField(contestregistration.FieldReason, field.TypeString, value)
+		_node.Reason = &value
+	}
 	if nodes := _c.mutation.ContestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -126,7 +412,7 @@ func (_c *ContestRegistrationCreate) createSpec() (*ContestRegistration, *sqlgra
 			Columns: []string{contestregistration.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -143,13 +429,29 @@ func (_c *ContestRegistrationCreate) createSpec() (*ContestRegistration, *sqlgra
 			Columns: []string{contestregistration.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TransitionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -159,7 +461,7 @@ func (_c *ContestRegistrationCreate) createSpec() (*ContestRegistration, *sqlgra
 // of the `INSERT` statement. For example:
 //
 //	client.ContestRegistration.Create().
-//		SetContestID(v).
+//		SetCreatedAt(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -168,7 +470,7 @@ func (_c *ContestRegistrationCreate) createSpec() (*ContestRegistration, *sqlgra
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestRegistrationUpsert) {
-//			SetContestID(v+v).
+//			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestRegistrationCreate) OnConflict(opts ...sql.ConflictOption) *ContestRegistrationUpsertOne {
@@ -204,8 +506,20 @@ type (
 	}
 )
 
+// SetUpdatedAt sets the "updated_at" field.
+func (u *ContestRegistrationUpsert) SetUpdatedAt(v time.Time) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateUpdatedAt() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldUpdatedAt)
+	return u
+}
+
 // SetContestID sets the "contest_id" field.
-func (u *ContestRegistrationUpsert) SetContestID(v int) *ContestRegistrationUpsert {
+func (u *ContestRegistrationUpsert) SetContestID(v uuid.UUID) *ContestRegistrationUpsert {
 	u.Set(contestregistration.FieldContestID, v)
 	return u
 }
@@ -217,7 +531,7 @@ func (u *ContestRegistrationUpsert) UpdateContestID() *ContestRegistrationUpsert
 }
 
 // SetUserID sets the "user_id" field.
-func (u *ContestRegistrationUpsert) SetUserID(v int) *ContestRegistrationUpsert {
+func (u *ContestRegistrationUpsert) SetUserID(v uuid.UUID) *ContestRegistrationUpsert {
 	u.Set(contestregistration.FieldUserID, v)
 	return u
 }
@@ -228,16 +542,159 @@ func (u *ContestRegistrationUpsert) UpdateUserID() *ContestRegistrationUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetStatus sets the "status" field.
+func (u *ContestRegistrationUpsert) SetStatus(v contestregistration.Status) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateStatus() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldStatus)
+	return u
+}
+
+// SetSource sets the "source" field.
+func (u *ContestRegistrationUpsert) SetSource(v contestregistration.Source) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldSource, v)
+	return u
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateSource() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldSource)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *ContestRegistrationUpsert) SetVersion(v int64) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateVersion() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestRegistrationUpsert) AddVersion(v int64) *ContestRegistrationUpsert {
+	u.Add(contestregistration.FieldVersion, v)
+	return u
+}
+
+// SetOfficialSubmissionCount sets the "official_submission_count" field.
+func (u *ContestRegistrationUpsert) SetOfficialSubmissionCount(v int64) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldOfficialSubmissionCount, v)
+	return u
+}
+
+// UpdateOfficialSubmissionCount sets the "official_submission_count" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateOfficialSubmissionCount() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldOfficialSubmissionCount)
+	return u
+}
+
+// AddOfficialSubmissionCount adds v to the "official_submission_count" field.
+func (u *ContestRegistrationUpsert) AddOfficialSubmissionCount(v int64) *ContestRegistrationUpsert {
+	u.Add(contestregistration.FieldOfficialSubmissionCount, v)
+	return u
+}
+
+// SetRegisteredAt sets the "registered_at" field.
+func (u *ContestRegistrationUpsert) SetRegisteredAt(v time.Time) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldRegisteredAt, v)
+	return u
+}
+
+// UpdateRegisteredAt sets the "registered_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateRegisteredAt() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldRegisteredAt)
+	return u
+}
+
+// ClearRegisteredAt clears the value of the "registered_at" field.
+func (u *ContestRegistrationUpsert) ClearRegisteredAt() *ContestRegistrationUpsert {
+	u.SetNull(contestregistration.FieldRegisteredAt)
+	return u
+}
+
+// SetWithdrawnAt sets the "withdrawn_at" field.
+func (u *ContestRegistrationUpsert) SetWithdrawnAt(v time.Time) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldWithdrawnAt, v)
+	return u
+}
+
+// UpdateWithdrawnAt sets the "withdrawn_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateWithdrawnAt() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldWithdrawnAt)
+	return u
+}
+
+// ClearWithdrawnAt clears the value of the "withdrawn_at" field.
+func (u *ContestRegistrationUpsert) ClearWithdrawnAt() *ContestRegistrationUpsert {
+	u.SetNull(contestregistration.FieldWithdrawnAt)
+	return u
+}
+
+// SetBannedAt sets the "banned_at" field.
+func (u *ContestRegistrationUpsert) SetBannedAt(v time.Time) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldBannedAt, v)
+	return u
+}
+
+// UpdateBannedAt sets the "banned_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateBannedAt() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldBannedAt)
+	return u
+}
+
+// ClearBannedAt clears the value of the "banned_at" field.
+func (u *ContestRegistrationUpsert) ClearBannedAt() *ContestRegistrationUpsert {
+	u.SetNull(contestregistration.FieldBannedAt)
+	return u
+}
+
+// SetReason sets the "reason" field.
+func (u *ContestRegistrationUpsert) SetReason(v string) *ContestRegistrationUpsert {
+	u.Set(contestregistration.FieldReason, v)
+	return u
+}
+
+// UpdateReason sets the "reason" field to the value that was provided on create.
+func (u *ContestRegistrationUpsert) UpdateReason() *ContestRegistrationUpsert {
+	u.SetExcluded(contestregistration.FieldReason)
+	return u
+}
+
+// ClearReason clears the value of the "reason" field.
+func (u *ContestRegistrationUpsert) ClearReason() *ContestRegistrationUpsert {
+	u.SetNull(contestregistration.FieldReason)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.ContestRegistration.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(contestregistration.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ContestRegistrationUpsertOne) UpdateNewValues() *ContestRegistrationUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(contestregistration.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(contestregistration.FieldCreatedAt)
+		}
+	}))
 	return u
 }
 
@@ -268,8 +725,22 @@ func (u *ContestRegistrationUpsertOne) Update(set func(*ContestRegistrationUpser
 	return u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (u *ContestRegistrationUpsertOne) SetUpdatedAt(v time.Time) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateUpdatedAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
 // SetContestID sets the "contest_id" field.
-func (u *ContestRegistrationUpsertOne) SetContestID(v int) *ContestRegistrationUpsertOne {
+func (u *ContestRegistrationUpsertOne) SetContestID(v uuid.UUID) *ContestRegistrationUpsertOne {
 	return u.Update(func(s *ContestRegistrationUpsert) {
 		s.SetContestID(v)
 	})
@@ -283,7 +754,7 @@ func (u *ContestRegistrationUpsertOne) UpdateContestID() *ContestRegistrationUps
 }
 
 // SetUserID sets the "user_id" field.
-func (u *ContestRegistrationUpsertOne) SetUserID(v int) *ContestRegistrationUpsertOne {
+func (u *ContestRegistrationUpsertOne) SetUserID(v uuid.UUID) *ContestRegistrationUpsertOne {
 	return u.Update(func(s *ContestRegistrationUpsert) {
 		s.SetUserID(v)
 	})
@@ -293,6 +764,160 @@ func (u *ContestRegistrationUpsertOne) SetUserID(v int) *ContestRegistrationUpse
 func (u *ContestRegistrationUpsertOne) UpdateUserID() *ContestRegistrationUpsertOne {
 	return u.Update(func(s *ContestRegistrationUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *ContestRegistrationUpsertOne) SetStatus(v contestregistration.Status) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateStatus() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetSource sets the "source" field.
+func (u *ContestRegistrationUpsertOne) SetSource(v contestregistration.Source) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetSource(v)
+	})
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateSource() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateSource()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ContestRegistrationUpsertOne) SetVersion(v int64) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestRegistrationUpsertOne) AddVersion(v int64) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateVersion() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetOfficialSubmissionCount sets the "official_submission_count" field.
+func (u *ContestRegistrationUpsertOne) SetOfficialSubmissionCount(v int64) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetOfficialSubmissionCount(v)
+	})
+}
+
+// AddOfficialSubmissionCount adds v to the "official_submission_count" field.
+func (u *ContestRegistrationUpsertOne) AddOfficialSubmissionCount(v int64) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.AddOfficialSubmissionCount(v)
+	})
+}
+
+// UpdateOfficialSubmissionCount sets the "official_submission_count" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateOfficialSubmissionCount() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateOfficialSubmissionCount()
+	})
+}
+
+// SetRegisteredAt sets the "registered_at" field.
+func (u *ContestRegistrationUpsertOne) SetRegisteredAt(v time.Time) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetRegisteredAt(v)
+	})
+}
+
+// UpdateRegisteredAt sets the "registered_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateRegisteredAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateRegisteredAt()
+	})
+}
+
+// ClearRegisteredAt clears the value of the "registered_at" field.
+func (u *ContestRegistrationUpsertOne) ClearRegisteredAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearRegisteredAt()
+	})
+}
+
+// SetWithdrawnAt sets the "withdrawn_at" field.
+func (u *ContestRegistrationUpsertOne) SetWithdrawnAt(v time.Time) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetWithdrawnAt(v)
+	})
+}
+
+// UpdateWithdrawnAt sets the "withdrawn_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateWithdrawnAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateWithdrawnAt()
+	})
+}
+
+// ClearWithdrawnAt clears the value of the "withdrawn_at" field.
+func (u *ContestRegistrationUpsertOne) ClearWithdrawnAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearWithdrawnAt()
+	})
+}
+
+// SetBannedAt sets the "banned_at" field.
+func (u *ContestRegistrationUpsertOne) SetBannedAt(v time.Time) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetBannedAt(v)
+	})
+}
+
+// UpdateBannedAt sets the "banned_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateBannedAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateBannedAt()
+	})
+}
+
+// ClearBannedAt clears the value of the "banned_at" field.
+func (u *ContestRegistrationUpsertOne) ClearBannedAt() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearBannedAt()
+	})
+}
+
+// SetReason sets the "reason" field.
+func (u *ContestRegistrationUpsertOne) SetReason(v string) *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetReason(v)
+	})
+}
+
+// UpdateReason sets the "reason" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertOne) UpdateReason() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateReason()
+	})
+}
+
+// ClearReason clears the value of the "reason" field.
+func (u *ContestRegistrationUpsertOne) ClearReason() *ContestRegistrationUpsertOne {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearReason()
 	})
 }
 
@@ -312,7 +937,12 @@ func (u *ContestRegistrationUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ContestRegistrationUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ContestRegistrationUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: ContestRegistrationUpsertOne.ID is not supported by MySQL driver. Use ContestRegistrationUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -321,17 +951,12 @@ func (u *ContestRegistrationUpsertOne) ID(ctx context.Context) (id int, err erro
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ContestRegistrationUpsertOne) IDX(ctx context.Context) int {
+func (u *ContestRegistrationUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *ContestRegistrationCreate) SetID(id int) *ContestRegistrationCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // ContestRegistrationCreateBulk is the builder for creating many ContestRegistration entities in bulk.
@@ -353,6 +978,7 @@ func (_c *ContestRegistrationCreateBulk) Save(ctx context.Context) ([]*ContestRe
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ContestRegistrationMutation)
 				if !ok {
@@ -380,10 +1006,6 @@ func (_c *ContestRegistrationCreateBulk) Save(ctx context.Context) ([]*ContestRe
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -435,7 +1057,7 @@ func (_c *ContestRegistrationCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestRegistrationUpsert) {
-//			SetContestID(v+v).
+//			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestRegistrationCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContestRegistrationUpsertBulk {
@@ -470,10 +1092,23 @@ type ContestRegistrationUpsertBulk struct {
 //	client.ContestRegistration.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(contestregistration.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ContestRegistrationUpsertBulk) UpdateNewValues() *ContestRegistrationUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(contestregistration.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(contestregistration.FieldCreatedAt)
+			}
+		}
+	}))
 	return u
 }
 
@@ -504,8 +1139,22 @@ func (u *ContestRegistrationUpsertBulk) Update(set func(*ContestRegistrationUpse
 	return u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (u *ContestRegistrationUpsertBulk) SetUpdatedAt(v time.Time) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateUpdatedAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
 // SetContestID sets the "contest_id" field.
-func (u *ContestRegistrationUpsertBulk) SetContestID(v int) *ContestRegistrationUpsertBulk {
+func (u *ContestRegistrationUpsertBulk) SetContestID(v uuid.UUID) *ContestRegistrationUpsertBulk {
 	return u.Update(func(s *ContestRegistrationUpsert) {
 		s.SetContestID(v)
 	})
@@ -519,7 +1168,7 @@ func (u *ContestRegistrationUpsertBulk) UpdateContestID() *ContestRegistrationUp
 }
 
 // SetUserID sets the "user_id" field.
-func (u *ContestRegistrationUpsertBulk) SetUserID(v int) *ContestRegistrationUpsertBulk {
+func (u *ContestRegistrationUpsertBulk) SetUserID(v uuid.UUID) *ContestRegistrationUpsertBulk {
 	return u.Update(func(s *ContestRegistrationUpsert) {
 		s.SetUserID(v)
 	})
@@ -529,6 +1178,160 @@ func (u *ContestRegistrationUpsertBulk) SetUserID(v int) *ContestRegistrationUps
 func (u *ContestRegistrationUpsertBulk) UpdateUserID() *ContestRegistrationUpsertBulk {
 	return u.Update(func(s *ContestRegistrationUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *ContestRegistrationUpsertBulk) SetStatus(v contestregistration.Status) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateStatus() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetSource sets the "source" field.
+func (u *ContestRegistrationUpsertBulk) SetSource(v contestregistration.Source) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetSource(v)
+	})
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateSource() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateSource()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *ContestRegistrationUpsertBulk) SetVersion(v int64) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *ContestRegistrationUpsertBulk) AddVersion(v int64) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateVersion() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetOfficialSubmissionCount sets the "official_submission_count" field.
+func (u *ContestRegistrationUpsertBulk) SetOfficialSubmissionCount(v int64) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetOfficialSubmissionCount(v)
+	})
+}
+
+// AddOfficialSubmissionCount adds v to the "official_submission_count" field.
+func (u *ContestRegistrationUpsertBulk) AddOfficialSubmissionCount(v int64) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.AddOfficialSubmissionCount(v)
+	})
+}
+
+// UpdateOfficialSubmissionCount sets the "official_submission_count" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateOfficialSubmissionCount() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateOfficialSubmissionCount()
+	})
+}
+
+// SetRegisteredAt sets the "registered_at" field.
+func (u *ContestRegistrationUpsertBulk) SetRegisteredAt(v time.Time) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetRegisteredAt(v)
+	})
+}
+
+// UpdateRegisteredAt sets the "registered_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateRegisteredAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateRegisteredAt()
+	})
+}
+
+// ClearRegisteredAt clears the value of the "registered_at" field.
+func (u *ContestRegistrationUpsertBulk) ClearRegisteredAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearRegisteredAt()
+	})
+}
+
+// SetWithdrawnAt sets the "withdrawn_at" field.
+func (u *ContestRegistrationUpsertBulk) SetWithdrawnAt(v time.Time) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetWithdrawnAt(v)
+	})
+}
+
+// UpdateWithdrawnAt sets the "withdrawn_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateWithdrawnAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateWithdrawnAt()
+	})
+}
+
+// ClearWithdrawnAt clears the value of the "withdrawn_at" field.
+func (u *ContestRegistrationUpsertBulk) ClearWithdrawnAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearWithdrawnAt()
+	})
+}
+
+// SetBannedAt sets the "banned_at" field.
+func (u *ContestRegistrationUpsertBulk) SetBannedAt(v time.Time) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetBannedAt(v)
+	})
+}
+
+// UpdateBannedAt sets the "banned_at" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateBannedAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateBannedAt()
+	})
+}
+
+// ClearBannedAt clears the value of the "banned_at" field.
+func (u *ContestRegistrationUpsertBulk) ClearBannedAt() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearBannedAt()
+	})
+}
+
+// SetReason sets the "reason" field.
+func (u *ContestRegistrationUpsertBulk) SetReason(v string) *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.SetReason(v)
+	})
+}
+
+// UpdateReason sets the "reason" field to the value that was provided on create.
+func (u *ContestRegistrationUpsertBulk) UpdateReason() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.UpdateReason()
+	})
+}
+
+// ClearReason clears the value of the "reason" field.
+func (u *ContestRegistrationUpsertBulk) ClearReason() *ContestRegistrationUpsertBulk {
+	return u.Update(func(s *ContestRegistrationUpsert) {
+		s.ClearReason()
 	})
 }
 

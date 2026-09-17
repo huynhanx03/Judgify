@@ -3,18 +3,19 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"entgo.io/ent/dialect/sql"
 
-	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
-	d "github.com/huynhanx03/judgify/pkg/dto"
+	commonEnt "github.com/huynhanx03/go-common/pkg/database/ent"
+	d "github.com/huynhanx03/go-common/pkg/dto"
 
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
-	"github.com/huynhanx03/judgify/internal/material/adapters/driven/db/builder"
-	"github.com/huynhanx03/judgify/internal/material/adapters/driven/db/mapper"
-	"github.com/huynhanx03/judgify/internal/material/core/entity"
-	"github.com/huynhanx03/judgify/internal/material/ports"
+	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
+	entity "github.com/huynhanx03/judgify/internal/material/domain"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 const materialRepoName = "Material"
@@ -24,12 +25,25 @@ type MaterialRepository struct {
 	client *dbEnt.EntClient
 }
 
-// NewMaterialRepository creates a new MaterialRepository.
+// NewMaterialRepository constructs a MaterialRepository.
 func NewMaterialRepository(client *dbEnt.EntClient) ports.MaterialRepository {
 	return &MaterialRepository{client: client}
 }
 
 func (r *MaterialRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error) {
+	return r.find(ctx, opts)
+}
+
+func (r *MaterialRepository) FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error) {
+	return r.find(
+		ctx,
+		opts,
+		material.StatusEQ(material.StatusPublished),
+		material.VisibilityEQ(material.VisibilityPublic),
+	)
+}
+
+func (r *MaterialRepository) find(ctx context.Context, opts *d.QueryOptions, accessPredicates ...predicate.Material) (*d.Paginated[*entity.Material], error) {
 	client := r.client.DB(ctx)
 
 	query := client.Material.Query().
@@ -39,24 +53,20 @@ func (r *MaterialRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d
 		WithTags(func(tq *generate.TagQuery) {
 			tq.WithElements()
 		})
-
-	if opts != nil {
-		query.Where(func(s *sql.Selector) {
-			commonEnt.ApplyFilters(opts.Filters, s)
-		})
-	}
+	query.Where(accessPredicates...)
+	query.Where(materialSearchPredicates(opts)...)
+	query.Where(func(s *sql.Selector) {
+		commonEnt.ApplyQueryFilters(opts, s, materialQueryColumns...)
+	})
 
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, materialRepoName)
 	}
 
-	if opts != nil {
-		query.Where(func(s *sql.Selector) {
-			commonEnt.ApplySort(opts.Sort, s)
-			commonEnt.ApplyPagination(opts.Pagination, s)
-		})
-	}
+	query.Where(func(s *sql.Selector) {
+		commonEnt.ApplyQueryWindow(opts, s, materialQueryColumns...)
+	})
 
 	records, err := query.All(ctx)
 	if err != nil {
@@ -65,7 +75,7 @@ func (r *MaterialRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d
 
 	entities := make([]*entity.Material, len(records))
 	for i, record := range records {
-		entities[i] = mapper.ToMaterialEntity(record)
+		entities[i] = ToMaterialEntity(record)
 	}
 
 	paginationOpts := &d.PaginationOptions{}
@@ -87,9 +97,26 @@ func (r *MaterialRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d
 	}, nil
 }
 
-func (r *MaterialRepository) Get(ctx context.Context, id int) (*entity.Material, error) {
+func (r *MaterialRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Material, error) {
+	return r.get(ctx, id)
+}
+
+func (r *MaterialRepository) GetPublic(ctx context.Context, id uuid.UUID) (*entity.Material, error) {
+	return r.get(
+		ctx,
+		id,
+		material.StatusEQ(material.StatusPublished),
+		material.VisibilityEQ(material.VisibilityPublic),
+	)
+}
+
+func (r *MaterialRepository) get(ctx context.Context, id uuid.UUID, accessPredicates ...predicate.Material) (*entity.Material, error) {
+	predicates := append([]predicate.Material{
+		material.IDEQ(id),
+		material.DeletedAtIsNil(),
+	}, accessPredicates...)
 	record, err := r.client.DB(ctx).Material.Query().
-		Where(material.IDEQ(id), material.DeletedAtIsNil()).
+		Where(predicates...).
 		WithCategory().
 		WithDifficulty().
 		WithTags(func(tq *generate.TagQuery) {
@@ -99,34 +126,34 @@ func (r *MaterialRepository) Get(ctx context.Context, id int) (*entity.Material,
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, materialRepoName)
 	}
-	return mapper.ToMaterialEntity(record), nil
+	return ToMaterialEntity(record), nil
 }
 
 func (r *MaterialRepository) Create(ctx context.Context, e *entity.Material) error {
-	create := builder.BuildCreateMaterial(ctx, e)
+	create := BuildCreateMaterial(r.client.DB(ctx), e)
 	record, err := create.Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, materialRepoName)
 	}
-	if created := mapper.ToMaterialEntity(record); created != nil {
+	if created := ToMaterialEntity(record); created != nil {
 		*e = *created
 	}
 	return nil
 }
 
 func (r *MaterialRepository) Update(ctx context.Context, e *entity.Material) error {
-	update := builder.BuildUpdateMaterial(ctx, e)
+	update := BuildUpdateMaterial(r.client.DB(ctx), e)
 	record, err := update.Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, materialRepoName)
 	}
-	if updated := mapper.ToMaterialEntity(record); updated != nil {
+	if updated := ToMaterialEntity(record); updated != nil {
 		e.UpdatedAt = updated.UpdatedAt
 	}
 	return nil
 }
 
-func (r *MaterialRepository) Delete(ctx context.Context, id int) error {
+func (r *MaterialRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	err := r.client.DB(ctx).Material.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, materialRepoName)
@@ -134,7 +161,7 @@ func (r *MaterialRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *MaterialRepository) Exists(ctx context.Context, id int) (bool, error) {
+func (r *MaterialRepository) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
 	exists, err := r.client.DB(ctx).Material.Query().
 		Where(material.IDEQ(id), material.DeletedAtIsNil()).
 		Exist(ctx)
@@ -144,7 +171,7 @@ func (r *MaterialRepository) Exists(ctx context.Context, id int) (bool, error) {
 	return exists, nil
 }
 
-func (r *MaterialRepository) IncrementViewCount(ctx context.Context, id int) error {
+func (r *MaterialRepository) IncrementViewCount(ctx context.Context, id uuid.UUID) error {
 	_, err := r.client.DB(ctx).Material.UpdateOneID(id).
 		AddViewCount(1).
 		Save(ctx)
@@ -154,7 +181,7 @@ func (r *MaterialRepository) IncrementViewCount(ctx context.Context, id int) err
 	return nil
 }
 
-func (r *MaterialRepository) AddTags(ctx context.Context, materialID int, tagIDs []int) error {
+func (r *MaterialRepository) AddTags(ctx context.Context, materialID uuid.UUID, tagIDs []uuid.UUID) error {
 	_, err := r.client.DB(ctx).Material.UpdateOneID(materialID).
 		AddTagIDs(tagIDs...).
 		Save(ctx)
@@ -164,7 +191,7 @@ func (r *MaterialRepository) AddTags(ctx context.Context, materialID int, tagIDs
 	return nil
 }
 
-func (r *MaterialRepository) RemoveAllTags(ctx context.Context, materialID int) error {
+func (r *MaterialRepository) RemoveAllTags(ctx context.Context, materialID uuid.UUID) error {
 	_, err := r.client.DB(ctx).Material.UpdateOneID(materialID).
 		ClearTags().
 		Save(ctx)

@@ -3,13 +3,13 @@
 package generate
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 )
@@ -18,7 +18,7 @@ import (
 type Trait struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -26,17 +26,23 @@ type Trait struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
-	// ROOT_BONE = 1 unique slot, TALENT = gacha pool
+	DeletedBy *string `json:"deleted_by,omitempty"`
+	// Code holds the value of the "code" field.
+	Code string `json:"code,omitempty"`
+	// ROOT_BONE = one offered slot; TALENT = weighted offer pool
 	Type trait.Type `json:"type,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// RarityID holds the value of the "rarity_id" field.
-	RarityID int `json:"rarity_id,omitempty"`
+	RarityID uuid.UUID `json:"rarity_id,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// Buff config: {type, value, target_scope, target_elements, daily_limit}
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// DisplayOrder holds the value of the "display_order" field.
+	DisplayOrder int `json:"display_order,omitempty"`
+	// Active holds the value of the "active" field.
+	Active bool `json:"active,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TraitQuery when eager-loading is set.
 	Edges        TraitEdges `json:"edges"`
@@ -49,9 +55,15 @@ type TraitEdges struct {
 	Rarity *Rarity `json:"rarity,omitempty"`
 	// UserTraits holds the value of the user_traits edge.
 	UserTraits []*UserTrait `json:"user_traits,omitempty"`
+	// OnboardingOfferTalents holds the value of the onboarding_offer_talents edge.
+	OnboardingOfferTalents []*OnboardingTraitOfferTalent `json:"onboarding_offer_talents,omitempty"`
+	// EffectRevisions holds the value of the effect_revisions edge.
+	EffectRevisions []*TraitEffectRevision `json:"effect_revisions,omitempty"`
+	// RewardProfileTraits holds the value of the reward_profile_traits edge.
+	RewardProfileTraits []*UserRewardProfileTrait `json:"reward_profile_traits,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [5]bool
 }
 
 // RarityOrErr returns the Rarity value or an error if the edge
@@ -74,19 +86,48 @@ func (e TraitEdges) UserTraitsOrErr() ([]*UserTrait, error) {
 	return nil, &NotLoadedError{edge: "user_traits"}
 }
 
+// OnboardingOfferTalentsOrErr returns the OnboardingOfferTalents value or an error if the edge
+// was not loaded in eager-loading.
+func (e TraitEdges) OnboardingOfferTalentsOrErr() ([]*OnboardingTraitOfferTalent, error) {
+	if e.loadedTypes[2] {
+		return e.OnboardingOfferTalents, nil
+	}
+	return nil, &NotLoadedError{edge: "onboarding_offer_talents"}
+}
+
+// EffectRevisionsOrErr returns the EffectRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e TraitEdges) EffectRevisionsOrErr() ([]*TraitEffectRevision, error) {
+	if e.loadedTypes[3] {
+		return e.EffectRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "effect_revisions"}
+}
+
+// RewardProfileTraitsOrErr returns the RewardProfileTraits value or an error if the edge
+// was not loaded in eager-loading.
+func (e TraitEdges) RewardProfileTraitsOrErr() ([]*UserRewardProfileTrait, error) {
+	if e.loadedTypes[4] {
+		return e.RewardProfileTraits, nil
+	}
+	return nil, &NotLoadedError{edge: "reward_profile_traits"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Trait) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case trait.FieldMetadata:
-			values[i] = new([]byte)
-		case trait.FieldID, trait.FieldDeletedBy, trait.FieldRarityID:
+		case trait.FieldActive:
+			values[i] = new(sql.NullBool)
+		case trait.FieldDisplayOrder, trait.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case trait.FieldType, trait.FieldName, trait.FieldDescription:
+		case trait.FieldDeletedBy, trait.FieldCode, trait.FieldType, trait.FieldName, trait.FieldDescription:
 			values[i] = new(sql.NullString)
 		case trait.FieldCreatedAt, trait.FieldUpdatedAt, trait.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case trait.FieldID, trait.FieldRarityID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -103,11 +144,11 @@ func (_m *Trait) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case trait.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case trait.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -128,11 +169,17 @@ func (_m *Trait) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case trait.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
+			}
+		case trait.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				_m.Code = value.String
 			}
 		case trait.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -147,10 +194,10 @@ func (_m *Trait) assignValues(columns []string, values []any) error {
 				_m.Name = value.String
 			}
 		case trait.FieldRarityID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field rarity_id", values[i])
-			} else if value.Valid {
-				_m.RarityID = int(value.Int64)
+			} else if value != nil {
+				_m.RarityID = *value
 			}
 		case trait.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -158,13 +205,23 @@ func (_m *Trait) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = value.String
 			}
-		case trait.FieldMetadata:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field metadata", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
-					return fmt.Errorf("unmarshal field metadata: %w", err)
-				}
+		case trait.FieldDisplayOrder:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field display_order", values[i])
+			} else if value.Valid {
+				_m.DisplayOrder = int(value.Int64)
+			}
+		case trait.FieldActive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field active", values[i])
+			} else if value.Valid {
+				_m.Active = value.Bool
+			}
+		case trait.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -187,6 +244,21 @@ func (_m *Trait) QueryRarity() *RarityQuery {
 // QueryUserTraits queries the "user_traits" edge of the Trait entity.
 func (_m *Trait) QueryUserTraits() *UserTraitQuery {
 	return NewTraitClient(_m.config).QueryUserTraits(_m)
+}
+
+// QueryOnboardingOfferTalents queries the "onboarding_offer_talents" edge of the Trait entity.
+func (_m *Trait) QueryOnboardingOfferTalents() *OnboardingTraitOfferTalentQuery {
+	return NewTraitClient(_m.config).QueryOnboardingOfferTalents(_m)
+}
+
+// QueryEffectRevisions queries the "effect_revisions" edge of the Trait entity.
+func (_m *Trait) QueryEffectRevisions() *TraitEffectRevisionQuery {
+	return NewTraitClient(_m.config).QueryEffectRevisions(_m)
+}
+
+// QueryRewardProfileTraits queries the "reward_profile_traits" edge of the Trait entity.
+func (_m *Trait) QueryRewardProfileTraits() *UserRewardProfileTraitQuery {
+	return NewTraitClient(_m.config).QueryRewardProfileTraits(_m)
 }
 
 // Update returns a builder for updating this Trait.
@@ -225,8 +297,11 @@ func (_m *Trait) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(_m.Code)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Type))
@@ -240,18 +315,16 @@ func (_m *Trait) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
-	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
+	builder.WriteString("display_order=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DisplayOrder))
+	builder.WriteString(", ")
+	builder.WriteString("active=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Active))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Trait) GetID() int {
-	return _m.ID
-}
-
-func (_m *Trait) SetID(id int) {
-	_m.ID = id
 }
 
 // Traits is a parsable slice of Trait.
