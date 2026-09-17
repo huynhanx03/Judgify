@@ -10,7 +10,9 @@ import { Loader2, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/page-header";
 import { TEXT } from "@/constants/text";
+import { ResourceCollectionFeedback } from "@/modules/shared/resource-feedback";
 
 interface DataTableShellProps {
   title: string;
@@ -59,18 +61,10 @@ export function DataTableShell({
   return (
     <div className="space-y-6" aria-busy={isLoading}>
       {/* Header */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="min-w-0">
-          <h1 className="break-words text-2xl font-bold tracking-tight">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-1 break-words text-sm text-muted-foreground">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        {canCreate ? (
+      <PageHeader
+        title={title}
+        description={subtitle}
+        actions={canCreate ? (
           <Button
             className="w-full gap-2 cursor-pointer sm:w-auto"
             onClick={onCreateClick}
@@ -78,8 +72,8 @@ export function DataTableShell({
             <Plus className="h-4 w-4" />
             {createLabel}
           </Button>
-        ) : null}
-      </div>
+        ) : undefined}
+      />
 
       {/* Search + extra filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -118,22 +112,22 @@ export function DataTableShell({
         ) : null}
       </div>
 
+      {/* A failed collection occupies the table's exact content slot. */}
       {loadError ? (
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-          role="alert"
-        >
-          <span>{loadError}</span>
-          {onRetryLoad ? (
-            <Button type="button" variant="outline" size="sm" onClick={onRetryLoad}>
-              {TEXT.COMMON.RETRY}
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Data table */}
-      {table}
+        onRetryLoad ? (
+          <ResourceCollectionFeedback
+            className="min-h-72"
+            title={TEXT.COMMON.ERROR}
+            description={loadError}
+            retryLabel={TEXT.COMMON.RETRY}
+            onRetry={onRetryLoad}
+          />
+        ) : (
+          <div className="flex min-h-72 items-center justify-center px-6 text-center text-sm text-muted-foreground" role="alert">
+            {loadError}
+          </div>
+        )
+      ) : table}
 
       {/* Dialogs rendered outside table to avoid stacking issues */}
       {dialog}

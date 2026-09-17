@@ -73,6 +73,28 @@ test("unsafe same-origin requests include cookies, CSRF, idempotency and expecte
   assert.equal(requests[0].headers.get("If-Match"), '"7"');
   assert.equal(requests[0].headers.get("Authorization"), null);
   assert.equal(requests[0].headers.get("Content-Type"), "application/json");
+  assert.equal(requests[0].headers.get("X-Correlation-ID"), null);
+  assert.equal(requests[0].headers.get("X-Request-ID"), null);
+});
+
+test("each browser attempt leaves gateway identity headers to Envoy", async () => {
+  const requests: Request[] = [];
+  const client = createApiClient({
+    baseUrl: window.location.origin,
+    fetcher: async (input, init) => {
+      requests.push(requestFromFetchArguments(input, init));
+      return success({ code: 20000, message: "success", data: {} });
+    },
+  });
+
+  await client.api("/session/me");
+  await client.api("/session/me");
+
+  assert.equal(requests.length, 2);
+  for (const request of requests) {
+    assert.equal(request.headers.get("X-Correlation-ID"), null);
+    assert.equal(request.headers.get("X-Request-ID"), null);
+  }
 });
 
 test("safe requests omit CSRF and 204 returns undefined", async () => {

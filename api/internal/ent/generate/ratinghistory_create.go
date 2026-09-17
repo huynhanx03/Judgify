@@ -7,10 +7,13 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -24,14 +27,56 @@ type RatingHistoryCreate struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *RatingHistoryCreate) SetUserID(v int) *RatingHistoryCreate {
+func (_c *RatingHistoryCreate) SetUserID(v uuid.UUID) *RatingHistoryCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetContestID sets the "contest_id" field.
-func (_c *RatingHistoryCreate) SetContestID(v int) *RatingHistoryCreate {
+func (_c *RatingHistoryCreate) SetContestID(v uuid.UUID) *RatingHistoryCreate {
 	_c.mutation.SetContestID(v)
+	return _c
+}
+
+// SetRatingRunID sets the "rating_run_id" field.
+func (_c *RatingHistoryCreate) SetRatingRunID(v uuid.UUID) *RatingHistoryCreate {
+	_c.mutation.SetRatingRunID(v)
+	return _c
+}
+
+// SetNillableRatingRunID sets the "rating_run_id" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableRatingRunID(v *uuid.UUID) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetRatingRunID(*v)
+	}
+	return _c
+}
+
+// SetRatingSequence sets the "rating_sequence" field.
+func (_c *RatingHistoryCreate) SetRatingSequence(v int64) *RatingHistoryCreate {
+	_c.mutation.SetRatingSequence(v)
+	return _c
+}
+
+// SetNillableRatingSequence sets the "rating_sequence" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableRatingSequence(v *int64) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetRatingSequence(*v)
+	}
+	return _c
+}
+
+// SetRunVersion sets the "run_version" field.
+func (_c *RatingHistoryCreate) SetRunVersion(v int64) *RatingHistoryCreate {
+	_c.mutation.SetRunVersion(v)
+	return _c
+}
+
+// SetNillableRunVersion sets the "run_version" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableRunVersion(v *int64) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetRunVersion(*v)
+	}
 	return _c
 }
 
@@ -77,6 +122,90 @@ func (_c *RatingHistoryCreate) SetNillableRankPosition(v *int) *RatingHistoryCre
 	return _c
 }
 
+// SetPriorRatedContestCount sets the "prior_rated_contest_count" field.
+func (_c *RatingHistoryCreate) SetPriorRatedContestCount(v int) *RatingHistoryCreate {
+	_c.mutation.SetPriorRatedContestCount(v)
+	return _c
+}
+
+// SetNillablePriorRatedContestCount sets the "prior_rated_contest_count" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillablePriorRatedContestCount(v *int) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetPriorRatedContestCount(*v)
+	}
+	return _c
+}
+
+// SetActualRank sets the "actual_rank" field.
+func (_c *RatingHistoryCreate) SetActualRank(v float64) *RatingHistoryCreate {
+	_c.mutation.SetActualRank(v)
+	return _c
+}
+
+// SetNillableActualRank sets the "actual_rank" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableActualRank(v *float64) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetActualRank(*v)
+	}
+	return _c
+}
+
+// SetExpectedRank sets the "expected_rank" field.
+func (_c *RatingHistoryCreate) SetExpectedRank(v float64) *RatingHistoryCreate {
+	_c.mutation.SetExpectedRank(v)
+	return _c
+}
+
+// SetNillableExpectedRank sets the "expected_rank" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableExpectedRank(v *float64) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetExpectedRank(*v)
+	}
+	return _c
+}
+
+// SetDelta sets the "delta" field.
+func (_c *RatingHistoryCreate) SetDelta(v int) *RatingHistoryCreate {
+	_c.mutation.SetDelta(v)
+	return _c
+}
+
+// SetNillableDelta sets the "delta" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableDelta(v *int) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetDelta(*v)
+	}
+	return _c
+}
+
+// SetAlgorithmVersion sets the "algorithm_version" field.
+func (_c *RatingHistoryCreate) SetAlgorithmVersion(v string) *RatingHistoryCreate {
+	_c.mutation.SetAlgorithmVersion(v)
+	return _c
+}
+
+// SetNillableAlgorithmVersion sets the "algorithm_version" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableAlgorithmVersion(v *string) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetAlgorithmVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *RatingHistoryCreate) SetID(v uuid.UUID) *RatingHistoryCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *RatingHistoryCreate) SetNillableID(v *uuid.UUID) *RatingHistoryCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_c *RatingHistoryCreate) SetUser(v *User) *RatingHistoryCreate {
 	return _c.SetUserID(v.ID)
@@ -85,6 +214,11 @@ func (_c *RatingHistoryCreate) SetUser(v *User) *RatingHistoryCreate {
 // SetContest sets the "contest" edge to the Contest entity.
 func (_c *RatingHistoryCreate) SetContest(v *Contest) *RatingHistoryCreate {
 	return _c.SetContestID(v.ID)
+}
+
+// SetRatingRun sets the "rating_run" edge to the ContestRatingRun entity.
+func (_c *RatingHistoryCreate) SetRatingRun(v *ContestRatingRun) *RatingHistoryCreate {
+	return _c.SetRatingRunID(v.ID)
 }
 
 // Mutation returns the RatingHistoryMutation object of the builder.
@@ -134,6 +268,18 @@ func (_c *RatingHistoryCreate) defaults() {
 		v := ratinghistory.DefaultRankPosition
 		_c.mutation.SetRankPosition(v)
 	}
+	if _, ok := _c.mutation.PriorRatedContestCount(); !ok {
+		v := ratinghistory.DefaultPriorRatedContestCount
+		_c.mutation.SetPriorRatedContestCount(v)
+	}
+	if _, ok := _c.mutation.Delta(); !ok {
+		v := ratinghistory.DefaultDelta
+		_c.mutation.SetDelta(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := ratinghistory.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -144,6 +290,16 @@ func (_c *RatingHistoryCreate) check() error {
 	if _, ok := _c.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`generate: missing required field "RatingHistory.contest_id"`)}
 	}
+	if v, ok := _c.mutation.RatingSequence(); ok {
+		if err := ratinghistory.RatingSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "rating_sequence", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.rating_sequence": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.RunVersion(); ok {
+		if err := ratinghistory.RunVersionValidator(v); err != nil {
+			return &ValidationError{Name: "run_version", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.run_version": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.OldRating(); !ok {
 		return &ValidationError{Name: "old_rating", err: errors.New(`generate: missing required field "RatingHistory.old_rating"`)}
 	}
@@ -152,6 +308,32 @@ func (_c *RatingHistoryCreate) check() error {
 	}
 	if _, ok := _c.mutation.RankPosition(); !ok {
 		return &ValidationError{Name: "rank_position", err: errors.New(`generate: missing required field "RatingHistory.rank_position"`)}
+	}
+	if _, ok := _c.mutation.PriorRatedContestCount(); !ok {
+		return &ValidationError{Name: "prior_rated_contest_count", err: errors.New(`generate: missing required field "RatingHistory.prior_rated_contest_count"`)}
+	}
+	if v, ok := _c.mutation.PriorRatedContestCount(); ok {
+		if err := ratinghistory.PriorRatedContestCountValidator(v); err != nil {
+			return &ValidationError{Name: "prior_rated_contest_count", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.prior_rated_contest_count": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.ActualRank(); ok {
+		if err := ratinghistory.ActualRankValidator(v); err != nil {
+			return &ValidationError{Name: "actual_rank", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.actual_rank": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.ExpectedRank(); ok {
+		if err := ratinghistory.ExpectedRankValidator(v); err != nil {
+			return &ValidationError{Name: "expected_rank", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.expected_rank": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Delta(); !ok {
+		return &ValidationError{Name: "delta", err: errors.New(`generate: missing required field "RatingHistory.delta"`)}
+	}
+	if v, ok := _c.mutation.AlgorithmVersion(); ok {
+		if err := ratinghistory.AlgorithmVersionValidator(v); err != nil {
+			return &ValidationError{Name: "algorithm_version", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.algorithm_version": %w`, err)}
+		}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`generate: missing required edge "RatingHistory.user"`)}
@@ -173,8 +355,13 @@ func (_c *RatingHistoryCreate) sqlSave(ctx context.Context) (*RatingHistory, err
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -183,9 +370,21 @@ func (_c *RatingHistoryCreate) sqlSave(ctx context.Context) (*RatingHistory, err
 func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpec) {
 	var (
 		_node = &RatingHistory{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(ratinghistory.Table, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(ratinghistory.Table, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.RatingSequence(); ok {
+		_spec.SetField(ratinghistory.FieldRatingSequence, field.TypeInt64, value)
+		_node.RatingSequence = &value
+	}
+	if value, ok := _c.mutation.RunVersion(); ok {
+		_spec.SetField(ratinghistory.FieldRunVersion, field.TypeInt64, value)
+		_node.RunVersion = &value
+	}
 	if value, ok := _c.mutation.OldRating(); ok {
 		_spec.SetField(ratinghistory.FieldOldRating, field.TypeInt, value)
 		_node.OldRating = value
@@ -198,6 +397,26 @@ func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpe
 		_spec.SetField(ratinghistory.FieldRankPosition, field.TypeInt, value)
 		_node.RankPosition = value
 	}
+	if value, ok := _c.mutation.PriorRatedContestCount(); ok {
+		_spec.SetField(ratinghistory.FieldPriorRatedContestCount, field.TypeInt, value)
+		_node.PriorRatedContestCount = value
+	}
+	if value, ok := _c.mutation.ActualRank(); ok {
+		_spec.SetField(ratinghistory.FieldActualRank, field.TypeFloat64, value)
+		_node.ActualRank = &value
+	}
+	if value, ok := _c.mutation.ExpectedRank(); ok {
+		_spec.SetField(ratinghistory.FieldExpectedRank, field.TypeFloat64, value)
+		_node.ExpectedRank = &value
+	}
+	if value, ok := _c.mutation.Delta(); ok {
+		_spec.SetField(ratinghistory.FieldDelta, field.TypeInt, value)
+		_node.Delta = value
+	}
+	if value, ok := _c.mutation.AlgorithmVersion(); ok {
+		_spec.SetField(ratinghistory.FieldAlgorithmVersion, field.TypeString, value)
+		_node.AlgorithmVersion = &value
+	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -206,7 +425,7 @@ func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpe
 			Columns: []string{ratinghistory.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -223,13 +442,30 @@ func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpe
 			Columns: []string{ratinghistory.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ContestID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RatingRunIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   ratinghistory.RatingRunTable,
+			Columns: []string{ratinghistory.RatingRunColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.RatingRunID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -285,7 +521,7 @@ type (
 )
 
 // SetUserID sets the "user_id" field.
-func (u *RatingHistoryUpsert) SetUserID(v int) *RatingHistoryUpsert {
+func (u *RatingHistoryUpsert) SetUserID(v uuid.UUID) *RatingHistoryUpsert {
 	u.Set(ratinghistory.FieldUserID, v)
 	return u
 }
@@ -297,7 +533,7 @@ func (u *RatingHistoryUpsert) UpdateUserID() *RatingHistoryUpsert {
 }
 
 // SetContestID sets the "contest_id" field.
-func (u *RatingHistoryUpsert) SetContestID(v int) *RatingHistoryUpsert {
+func (u *RatingHistoryUpsert) SetContestID(v uuid.UUID) *RatingHistoryUpsert {
 	u.Set(ratinghistory.FieldContestID, v)
 	return u
 }
@@ -305,6 +541,72 @@ func (u *RatingHistoryUpsert) SetContestID(v int) *RatingHistoryUpsert {
 // UpdateContestID sets the "contest_id" field to the value that was provided on create.
 func (u *RatingHistoryUpsert) UpdateContestID() *RatingHistoryUpsert {
 	u.SetExcluded(ratinghistory.FieldContestID)
+	return u
+}
+
+// SetRatingRunID sets the "rating_run_id" field.
+func (u *RatingHistoryUpsert) SetRatingRunID(v uuid.UUID) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldRatingRunID, v)
+	return u
+}
+
+// UpdateRatingRunID sets the "rating_run_id" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateRatingRunID() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldRatingRunID)
+	return u
+}
+
+// ClearRatingRunID clears the value of the "rating_run_id" field.
+func (u *RatingHistoryUpsert) ClearRatingRunID() *RatingHistoryUpsert {
+	u.SetNull(ratinghistory.FieldRatingRunID)
+	return u
+}
+
+// SetRatingSequence sets the "rating_sequence" field.
+func (u *RatingHistoryUpsert) SetRatingSequence(v int64) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldRatingSequence, v)
+	return u
+}
+
+// UpdateRatingSequence sets the "rating_sequence" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateRatingSequence() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldRatingSequence)
+	return u
+}
+
+// AddRatingSequence adds v to the "rating_sequence" field.
+func (u *RatingHistoryUpsert) AddRatingSequence(v int64) *RatingHistoryUpsert {
+	u.Add(ratinghistory.FieldRatingSequence, v)
+	return u
+}
+
+// ClearRatingSequence clears the value of the "rating_sequence" field.
+func (u *RatingHistoryUpsert) ClearRatingSequence() *RatingHistoryUpsert {
+	u.SetNull(ratinghistory.FieldRatingSequence)
+	return u
+}
+
+// SetRunVersion sets the "run_version" field.
+func (u *RatingHistoryUpsert) SetRunVersion(v int64) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldRunVersion, v)
+	return u
+}
+
+// UpdateRunVersion sets the "run_version" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateRunVersion() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldRunVersion)
+	return u
+}
+
+// AddRunVersion adds v to the "run_version" field.
+func (u *RatingHistoryUpsert) AddRunVersion(v int64) *RatingHistoryUpsert {
+	u.Add(ratinghistory.FieldRunVersion, v)
+	return u
+}
+
+// ClearRunVersion clears the value of the "run_version" field.
+func (u *RatingHistoryUpsert) ClearRunVersion() *RatingHistoryUpsert {
+	u.SetNull(ratinghistory.FieldRunVersion)
 	return u
 }
 
@@ -362,16 +664,126 @@ func (u *RatingHistoryUpsert) AddRankPosition(v int) *RatingHistoryUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetPriorRatedContestCount sets the "prior_rated_contest_count" field.
+func (u *RatingHistoryUpsert) SetPriorRatedContestCount(v int) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldPriorRatedContestCount, v)
+	return u
+}
+
+// UpdatePriorRatedContestCount sets the "prior_rated_contest_count" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdatePriorRatedContestCount() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldPriorRatedContestCount)
+	return u
+}
+
+// AddPriorRatedContestCount adds v to the "prior_rated_contest_count" field.
+func (u *RatingHistoryUpsert) AddPriorRatedContestCount(v int) *RatingHistoryUpsert {
+	u.Add(ratinghistory.FieldPriorRatedContestCount, v)
+	return u
+}
+
+// SetActualRank sets the "actual_rank" field.
+func (u *RatingHistoryUpsert) SetActualRank(v float64) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldActualRank, v)
+	return u
+}
+
+// UpdateActualRank sets the "actual_rank" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateActualRank() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldActualRank)
+	return u
+}
+
+// AddActualRank adds v to the "actual_rank" field.
+func (u *RatingHistoryUpsert) AddActualRank(v float64) *RatingHistoryUpsert {
+	u.Add(ratinghistory.FieldActualRank, v)
+	return u
+}
+
+// ClearActualRank clears the value of the "actual_rank" field.
+func (u *RatingHistoryUpsert) ClearActualRank() *RatingHistoryUpsert {
+	u.SetNull(ratinghistory.FieldActualRank)
+	return u
+}
+
+// SetExpectedRank sets the "expected_rank" field.
+func (u *RatingHistoryUpsert) SetExpectedRank(v float64) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldExpectedRank, v)
+	return u
+}
+
+// UpdateExpectedRank sets the "expected_rank" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateExpectedRank() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldExpectedRank)
+	return u
+}
+
+// AddExpectedRank adds v to the "expected_rank" field.
+func (u *RatingHistoryUpsert) AddExpectedRank(v float64) *RatingHistoryUpsert {
+	u.Add(ratinghistory.FieldExpectedRank, v)
+	return u
+}
+
+// ClearExpectedRank clears the value of the "expected_rank" field.
+func (u *RatingHistoryUpsert) ClearExpectedRank() *RatingHistoryUpsert {
+	u.SetNull(ratinghistory.FieldExpectedRank)
+	return u
+}
+
+// SetDelta sets the "delta" field.
+func (u *RatingHistoryUpsert) SetDelta(v int) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldDelta, v)
+	return u
+}
+
+// UpdateDelta sets the "delta" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateDelta() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldDelta)
+	return u
+}
+
+// AddDelta adds v to the "delta" field.
+func (u *RatingHistoryUpsert) AddDelta(v int) *RatingHistoryUpsert {
+	u.Add(ratinghistory.FieldDelta, v)
+	return u
+}
+
+// SetAlgorithmVersion sets the "algorithm_version" field.
+func (u *RatingHistoryUpsert) SetAlgorithmVersion(v string) *RatingHistoryUpsert {
+	u.Set(ratinghistory.FieldAlgorithmVersion, v)
+	return u
+}
+
+// UpdateAlgorithmVersion sets the "algorithm_version" field to the value that was provided on create.
+func (u *RatingHistoryUpsert) UpdateAlgorithmVersion() *RatingHistoryUpsert {
+	u.SetExcluded(ratinghistory.FieldAlgorithmVersion)
+	return u
+}
+
+// ClearAlgorithmVersion clears the value of the "algorithm_version" field.
+func (u *RatingHistoryUpsert) ClearAlgorithmVersion() *RatingHistoryUpsert {
+	u.SetNull(ratinghistory.FieldAlgorithmVersion)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.RatingHistory.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(ratinghistory.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RatingHistoryUpsertOne) UpdateNewValues() *RatingHistoryUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(ratinghistory.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -403,7 +815,7 @@ func (u *RatingHistoryUpsertOne) Update(set func(*RatingHistoryUpsert)) *RatingH
 }
 
 // SetUserID sets the "user_id" field.
-func (u *RatingHistoryUpsertOne) SetUserID(v int) *RatingHistoryUpsertOne {
+func (u *RatingHistoryUpsertOne) SetUserID(v uuid.UUID) *RatingHistoryUpsertOne {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.SetUserID(v)
 	})
@@ -417,7 +829,7 @@ func (u *RatingHistoryUpsertOne) UpdateUserID() *RatingHistoryUpsertOne {
 }
 
 // SetContestID sets the "contest_id" field.
-func (u *RatingHistoryUpsertOne) SetContestID(v int) *RatingHistoryUpsertOne {
+func (u *RatingHistoryUpsertOne) SetContestID(v uuid.UUID) *RatingHistoryUpsertOne {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.SetContestID(v)
 	})
@@ -427,6 +839,83 @@ func (u *RatingHistoryUpsertOne) SetContestID(v int) *RatingHistoryUpsertOne {
 func (u *RatingHistoryUpsertOne) UpdateContestID() *RatingHistoryUpsertOne {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.UpdateContestID()
+	})
+}
+
+// SetRatingRunID sets the "rating_run_id" field.
+func (u *RatingHistoryUpsertOne) SetRatingRunID(v uuid.UUID) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetRatingRunID(v)
+	})
+}
+
+// UpdateRatingRunID sets the "rating_run_id" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateRatingRunID() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateRatingRunID()
+	})
+}
+
+// ClearRatingRunID clears the value of the "rating_run_id" field.
+func (u *RatingHistoryUpsertOne) ClearRatingRunID() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearRatingRunID()
+	})
+}
+
+// SetRatingSequence sets the "rating_sequence" field.
+func (u *RatingHistoryUpsertOne) SetRatingSequence(v int64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetRatingSequence(v)
+	})
+}
+
+// AddRatingSequence adds v to the "rating_sequence" field.
+func (u *RatingHistoryUpsertOne) AddRatingSequence(v int64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddRatingSequence(v)
+	})
+}
+
+// UpdateRatingSequence sets the "rating_sequence" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateRatingSequence() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateRatingSequence()
+	})
+}
+
+// ClearRatingSequence clears the value of the "rating_sequence" field.
+func (u *RatingHistoryUpsertOne) ClearRatingSequence() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearRatingSequence()
+	})
+}
+
+// SetRunVersion sets the "run_version" field.
+func (u *RatingHistoryUpsertOne) SetRunVersion(v int64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetRunVersion(v)
+	})
+}
+
+// AddRunVersion adds v to the "run_version" field.
+func (u *RatingHistoryUpsertOne) AddRunVersion(v int64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddRunVersion(v)
+	})
+}
+
+// UpdateRunVersion sets the "run_version" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateRunVersion() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateRunVersion()
+	})
+}
+
+// ClearRunVersion clears the value of the "run_version" field.
+func (u *RatingHistoryUpsertOne) ClearRunVersion() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearRunVersion()
 	})
 }
 
@@ -493,6 +982,125 @@ func (u *RatingHistoryUpsertOne) UpdateRankPosition() *RatingHistoryUpsertOne {
 	})
 }
 
+// SetPriorRatedContestCount sets the "prior_rated_contest_count" field.
+func (u *RatingHistoryUpsertOne) SetPriorRatedContestCount(v int) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetPriorRatedContestCount(v)
+	})
+}
+
+// AddPriorRatedContestCount adds v to the "prior_rated_contest_count" field.
+func (u *RatingHistoryUpsertOne) AddPriorRatedContestCount(v int) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddPriorRatedContestCount(v)
+	})
+}
+
+// UpdatePriorRatedContestCount sets the "prior_rated_contest_count" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdatePriorRatedContestCount() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdatePriorRatedContestCount()
+	})
+}
+
+// SetActualRank sets the "actual_rank" field.
+func (u *RatingHistoryUpsertOne) SetActualRank(v float64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetActualRank(v)
+	})
+}
+
+// AddActualRank adds v to the "actual_rank" field.
+func (u *RatingHistoryUpsertOne) AddActualRank(v float64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddActualRank(v)
+	})
+}
+
+// UpdateActualRank sets the "actual_rank" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateActualRank() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateActualRank()
+	})
+}
+
+// ClearActualRank clears the value of the "actual_rank" field.
+func (u *RatingHistoryUpsertOne) ClearActualRank() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearActualRank()
+	})
+}
+
+// SetExpectedRank sets the "expected_rank" field.
+func (u *RatingHistoryUpsertOne) SetExpectedRank(v float64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetExpectedRank(v)
+	})
+}
+
+// AddExpectedRank adds v to the "expected_rank" field.
+func (u *RatingHistoryUpsertOne) AddExpectedRank(v float64) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddExpectedRank(v)
+	})
+}
+
+// UpdateExpectedRank sets the "expected_rank" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateExpectedRank() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateExpectedRank()
+	})
+}
+
+// ClearExpectedRank clears the value of the "expected_rank" field.
+func (u *RatingHistoryUpsertOne) ClearExpectedRank() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearExpectedRank()
+	})
+}
+
+// SetDelta sets the "delta" field.
+func (u *RatingHistoryUpsertOne) SetDelta(v int) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetDelta(v)
+	})
+}
+
+// AddDelta adds v to the "delta" field.
+func (u *RatingHistoryUpsertOne) AddDelta(v int) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddDelta(v)
+	})
+}
+
+// UpdateDelta sets the "delta" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateDelta() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateDelta()
+	})
+}
+
+// SetAlgorithmVersion sets the "algorithm_version" field.
+func (u *RatingHistoryUpsertOne) SetAlgorithmVersion(v string) *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetAlgorithmVersion(v)
+	})
+}
+
+// UpdateAlgorithmVersion sets the "algorithm_version" field to the value that was provided on create.
+func (u *RatingHistoryUpsertOne) UpdateAlgorithmVersion() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateAlgorithmVersion()
+	})
+}
+
+// ClearAlgorithmVersion clears the value of the "algorithm_version" field.
+func (u *RatingHistoryUpsertOne) ClearAlgorithmVersion() *RatingHistoryUpsertOne {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearAlgorithmVersion()
+	})
+}
+
 // Exec executes the query.
 func (u *RatingHistoryUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -509,7 +1117,12 @@ func (u *RatingHistoryUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *RatingHistoryUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *RatingHistoryUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: RatingHistoryUpsertOne.ID is not supported by MySQL driver. Use RatingHistoryUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -518,17 +1131,12 @@ func (u *RatingHistoryUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *RatingHistoryUpsertOne) IDX(ctx context.Context) int {
+func (u *RatingHistoryUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *RatingHistoryCreate) SetID(id int) *RatingHistoryCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // RatingHistoryCreateBulk is the builder for creating many RatingHistory entities in bulk.
@@ -578,10 +1186,6 @@ func (_c *RatingHistoryCreateBulk) Save(ctx context.Context) ([]*RatingHistory, 
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -668,10 +1272,20 @@ type RatingHistoryUpsertBulk struct {
 //	client.RatingHistory.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(ratinghistory.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RatingHistoryUpsertBulk) UpdateNewValues() *RatingHistoryUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(ratinghistory.FieldID)
+			}
+		}
+	}))
 	return u
 }
 
@@ -703,7 +1317,7 @@ func (u *RatingHistoryUpsertBulk) Update(set func(*RatingHistoryUpsert)) *Rating
 }
 
 // SetUserID sets the "user_id" field.
-func (u *RatingHistoryUpsertBulk) SetUserID(v int) *RatingHistoryUpsertBulk {
+func (u *RatingHistoryUpsertBulk) SetUserID(v uuid.UUID) *RatingHistoryUpsertBulk {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.SetUserID(v)
 	})
@@ -717,7 +1331,7 @@ func (u *RatingHistoryUpsertBulk) UpdateUserID() *RatingHistoryUpsertBulk {
 }
 
 // SetContestID sets the "contest_id" field.
-func (u *RatingHistoryUpsertBulk) SetContestID(v int) *RatingHistoryUpsertBulk {
+func (u *RatingHistoryUpsertBulk) SetContestID(v uuid.UUID) *RatingHistoryUpsertBulk {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.SetContestID(v)
 	})
@@ -727,6 +1341,83 @@ func (u *RatingHistoryUpsertBulk) SetContestID(v int) *RatingHistoryUpsertBulk {
 func (u *RatingHistoryUpsertBulk) UpdateContestID() *RatingHistoryUpsertBulk {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.UpdateContestID()
+	})
+}
+
+// SetRatingRunID sets the "rating_run_id" field.
+func (u *RatingHistoryUpsertBulk) SetRatingRunID(v uuid.UUID) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetRatingRunID(v)
+	})
+}
+
+// UpdateRatingRunID sets the "rating_run_id" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateRatingRunID() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateRatingRunID()
+	})
+}
+
+// ClearRatingRunID clears the value of the "rating_run_id" field.
+func (u *RatingHistoryUpsertBulk) ClearRatingRunID() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearRatingRunID()
+	})
+}
+
+// SetRatingSequence sets the "rating_sequence" field.
+func (u *RatingHistoryUpsertBulk) SetRatingSequence(v int64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetRatingSequence(v)
+	})
+}
+
+// AddRatingSequence adds v to the "rating_sequence" field.
+func (u *RatingHistoryUpsertBulk) AddRatingSequence(v int64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddRatingSequence(v)
+	})
+}
+
+// UpdateRatingSequence sets the "rating_sequence" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateRatingSequence() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateRatingSequence()
+	})
+}
+
+// ClearRatingSequence clears the value of the "rating_sequence" field.
+func (u *RatingHistoryUpsertBulk) ClearRatingSequence() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearRatingSequence()
+	})
+}
+
+// SetRunVersion sets the "run_version" field.
+func (u *RatingHistoryUpsertBulk) SetRunVersion(v int64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetRunVersion(v)
+	})
+}
+
+// AddRunVersion adds v to the "run_version" field.
+func (u *RatingHistoryUpsertBulk) AddRunVersion(v int64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddRunVersion(v)
+	})
+}
+
+// UpdateRunVersion sets the "run_version" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateRunVersion() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateRunVersion()
+	})
+}
+
+// ClearRunVersion clears the value of the "run_version" field.
+func (u *RatingHistoryUpsertBulk) ClearRunVersion() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearRunVersion()
 	})
 }
 
@@ -790,6 +1481,125 @@ func (u *RatingHistoryUpsertBulk) AddRankPosition(v int) *RatingHistoryUpsertBul
 func (u *RatingHistoryUpsertBulk) UpdateRankPosition() *RatingHistoryUpsertBulk {
 	return u.Update(func(s *RatingHistoryUpsert) {
 		s.UpdateRankPosition()
+	})
+}
+
+// SetPriorRatedContestCount sets the "prior_rated_contest_count" field.
+func (u *RatingHistoryUpsertBulk) SetPriorRatedContestCount(v int) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetPriorRatedContestCount(v)
+	})
+}
+
+// AddPriorRatedContestCount adds v to the "prior_rated_contest_count" field.
+func (u *RatingHistoryUpsertBulk) AddPriorRatedContestCount(v int) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddPriorRatedContestCount(v)
+	})
+}
+
+// UpdatePriorRatedContestCount sets the "prior_rated_contest_count" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdatePriorRatedContestCount() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdatePriorRatedContestCount()
+	})
+}
+
+// SetActualRank sets the "actual_rank" field.
+func (u *RatingHistoryUpsertBulk) SetActualRank(v float64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetActualRank(v)
+	})
+}
+
+// AddActualRank adds v to the "actual_rank" field.
+func (u *RatingHistoryUpsertBulk) AddActualRank(v float64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddActualRank(v)
+	})
+}
+
+// UpdateActualRank sets the "actual_rank" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateActualRank() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateActualRank()
+	})
+}
+
+// ClearActualRank clears the value of the "actual_rank" field.
+func (u *RatingHistoryUpsertBulk) ClearActualRank() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearActualRank()
+	})
+}
+
+// SetExpectedRank sets the "expected_rank" field.
+func (u *RatingHistoryUpsertBulk) SetExpectedRank(v float64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetExpectedRank(v)
+	})
+}
+
+// AddExpectedRank adds v to the "expected_rank" field.
+func (u *RatingHistoryUpsertBulk) AddExpectedRank(v float64) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddExpectedRank(v)
+	})
+}
+
+// UpdateExpectedRank sets the "expected_rank" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateExpectedRank() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateExpectedRank()
+	})
+}
+
+// ClearExpectedRank clears the value of the "expected_rank" field.
+func (u *RatingHistoryUpsertBulk) ClearExpectedRank() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearExpectedRank()
+	})
+}
+
+// SetDelta sets the "delta" field.
+func (u *RatingHistoryUpsertBulk) SetDelta(v int) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetDelta(v)
+	})
+}
+
+// AddDelta adds v to the "delta" field.
+func (u *RatingHistoryUpsertBulk) AddDelta(v int) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.AddDelta(v)
+	})
+}
+
+// UpdateDelta sets the "delta" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateDelta() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateDelta()
+	})
+}
+
+// SetAlgorithmVersion sets the "algorithm_version" field.
+func (u *RatingHistoryUpsertBulk) SetAlgorithmVersion(v string) *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.SetAlgorithmVersion(v)
+	})
+}
+
+// UpdateAlgorithmVersion sets the "algorithm_version" field to the value that was provided on create.
+func (u *RatingHistoryUpsertBulk) UpdateAlgorithmVersion() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.UpdateAlgorithmVersion()
+	})
+}
+
+// ClearAlgorithmVersion clears the value of the "algorithm_version" field.
+func (u *RatingHistoryUpsertBulk) ClearAlgorithmVersion() *RatingHistoryUpsertBulk {
+	return u.Update(func(s *RatingHistoryUpsert) {
+		s.ClearAlgorithmVersion()
 	})
 }
 

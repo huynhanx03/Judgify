@@ -4,7 +4,6 @@
  * remains in API DTOs and must not be copied into this catalog.
  */
 
-
 export const vi = {
   // App-level
   APP_NAME: "Judgify",
@@ -29,18 +28,18 @@ export const vi = {
   },
 
   META: {
-    LOGIN_TITLE: "Đăng Nhập | Judgify",
-    REGISTER_TITLE: "Khai Căn Trúc Cốt | Judgify",
-    RESET_PASSWORD_TITLE: "Đặt Lại Mật Khẩu | Judgify",
+    LOGIN_TITLE: "Đăng Nhập",
+    REGISTER_TITLE: "Khai Căn Trúc Cốt",
+    RESET_PASSWORD_TITLE: "Đặt Lại Mật Khẩu",
     ACCEPT_INVITATION_TITLE: "Hoàn Tất Tài Khoản",
     ACCEPT_INVITATION_DESCRIPTION:
       "Thiết lập mật khẩu để kích hoạt tài khoản Judgify từ một lời mời bảo mật.",
     VERIFY_RECOVERY_CONTACT_TITLE: "Xác Minh Email Khôi Phục",
-    OAUTH_CALLBACK_TITLE: "Hoàn Tất Xác Minh | Judgify",
-    ABOUT_TITLE: "Tông Môn Bí Lục | Judgify",
-		PUBLIC_PROFILE_TITLE: "Hồ Sơ Công Khai | Judgify",
-		PUBLIC_PROFILE_DESCRIPTION:
-			"Xem thông tin hồ sơ mà một thành viên Judgify chủ động chia sẻ công khai.",
+    OAUTH_CALLBACK_TITLE: "Hoàn Tất Xác Minh",
+    ABOUT_TITLE: "Tông Môn Bí Lục",
+    PUBLIC_PROFILE_TITLE: "Hồ Sơ Công Khai",
+    PUBLIC_PROFILE_DESCRIPTION:
+      "Xem thông tin hồ sơ mà một thành viên Judgify chủ động chia sẻ công khai.",
   },
 
   // Navigation
@@ -155,7 +154,8 @@ export const vi = {
       },
       SECURITY: {
         LABEL: "Bảo mật tài khoản",
-        DESCRIPTION: "Phiên đăng nhập và những thay đổi nhạy cảm của tài khoản.",
+        DESCRIPTION:
+          "Phiên đăng nhập và những thay đổi nhạy cảm của tài khoản.",
       },
       SUBMISSION: {
         LABEL: "Bài nộp",
@@ -190,7 +190,8 @@ export const vi = {
       CONTEST_REGISTRATION_BODY: (contest: string, status: string) =>
         `${contest}: ${status}.`,
       CONTEST_STARTED_TITLE: "Cuộc thi đã bắt đầu",
-      CONTEST_STARTED_BODY: (contest: string) => `${contest} đã chính thức bắt đầu.`,
+      CONTEST_STARTED_BODY: (contest: string) =>
+        `${contest} đã chính thức bắt đầu.`,
       CONTEST_LIFECYCLE_TITLE: "Cuộc thi có cập nhật mới",
       CONTEST_LIFECYCLE_BODY: (contest: string, status: string) =>
         `${contest} hiện ở trạng thái ${status}.`,
@@ -258,17 +259,18 @@ export const vi = {
     LOGIN_TITLE: "Đạo Hữu Quay Lại!",
     LOGIN_SUBTITLE: "Nhập danh tính để tiếp tục con đường tu tiên.",
     LOGIN_BUTTON: "ĐĂNG NHẬP",
-		LOGIN_INVALID: "Tên đăng nhập hoặc mật khẩu không đúng.",
-		LOGIN_ERROR: "Chưa thể đăng nhập lúc này. Vui lòng thử lại.",
-		REGISTER_ERROR: "Chưa thể tạo tài khoản lúc này. Vui lòng kiểm tra thông tin và thử lại.",
-		OAUTH_PROVIDER_NAME: {
-			google: "Google",
-			github: "GitHub",
-		},
-		OAUTH_LOGIN_WITH: (provider: string) => `Đăng nhập bằng ${provider}`,
-		OAUTH_CONNECTING: (provider: string) => `Đang kết nối ${provider}...`,
-		OAUTH_START_ERROR: (provider: string) =>
-			`Không thể bắt đầu đăng nhập bằng ${provider}. Vui lòng thử lại.`,
+    LOGIN_INVALID: "Tên đăng nhập hoặc mật khẩu không đúng.",
+    LOGIN_ERROR: "Chưa thể đăng nhập lúc này. Vui lòng thử lại.",
+    REGISTER_ERROR:
+      "Chưa thể tạo tài khoản lúc này. Vui lòng kiểm tra thông tin và thử lại.",
+    OAUTH_PROVIDER_NAME: {
+      google: "Google",
+      github: "GitHub",
+    },
+    OAUTH_LOGIN_WITH: (provider: string) => `Đăng nhập bằng ${provider}`,
+    OAUTH_CONNECTING: (provider: string) => `Đang kết nối ${provider}...`,
+    OAUTH_START_ERROR: (provider: string) =>
+      `Không thể bắt đầu đăng nhập bằng ${provider}. Vui lòng thử lại.`,
     OAUTH_CALLBACK_TITLE: "Đang xác minh danh tính",
     OAUTH_CALLBACK_DESCRIPTION:
       "Judgify đang hoàn tất phiên đăng nhập an toàn của bạn.",
@@ -279,15 +281,15 @@ export const vi = {
       "Yêu cầu đăng nhập đã bị hủy. Bạn có thể quay lại và thử lại khi sẵn sàng.",
     OAUTH_CALLBACK_INVALID:
       "Liên kết xác minh không hợp lệ hoặc thiếu thông tin cần thiết.",
-		OAUTH_ONBOARDING_TITLE: "Chọn thiên mệnh khởi đầu",
-		OAUTH_ONBOARDING_DESCRIPTION:
-			"Kiểm tra hồ sơ bắt buộc và chọn đủ ba Thiên Phú trước khi hoàn tất tài khoản mới.",
-		OAUTH_ONBOARDING_LOADING: "Đang tải thiên mệnh dành cho bạn...",
-		OAUTH_ONBOARDING_COMPLETE: "Hoàn tất đăng nhập",
-		OAUTH_ONBOARDING_SUBMITTING: "Đang hoàn tất...",
-		OAUTH_ONBOARDING_COMPLETE_ERROR:
-			"Chưa thể hoàn tất lựa chọn. Vui lòng thử lại; Judgify sẽ không tạo thêm tài khoản.",
-		OAUTH_ONBOARDING_RETRY: "Thử lại",
+    OAUTH_ONBOARDING_TITLE: "Chọn thiên mệnh khởi đầu",
+    OAUTH_ONBOARDING_DESCRIPTION:
+      "Kiểm tra hồ sơ bắt buộc và chọn đủ ba Thiên Phú trước khi hoàn tất tài khoản mới.",
+    OAUTH_ONBOARDING_LOADING: "Đang tải thiên mệnh dành cho bạn...",
+    OAUTH_ONBOARDING_COMPLETE: "Hoàn tất đăng nhập",
+    OAUTH_ONBOARDING_SUBMITTING: "Đang hoàn tất...",
+    OAUTH_ONBOARDING_COMPLETE_ERROR:
+      "Chưa thể hoàn tất lựa chọn. Vui lòng thử lại; Judgify sẽ không tạo thêm tài khoản.",
+    OAUTH_ONBOARDING_RETRY: "Thử lại",
     OAUTH_LINK_DESCRIPTION:
       "Judgify đang liên kết nhà cung cấp đăng nhập với tài khoản hiện tại của bạn.",
     OAUTH_LINK_SUCCESS: "Đã liên kết tài khoản đăng nhập an toàn.",
@@ -422,11 +424,12 @@ export const vi = {
   ABOUT: {
     BRAND: "Judgify",
     MOTTO: "Vạn Cổ Thống Trị - Nhất Lộ Duy Tâm",
+    DESCRIPTION:
+      "Nơi lưu giữ hành trình, triết lý và tinh thần của những người chinh phục thuật toán.",
     GREETING: "Kính thưa chư vị đạo hữu...",
     INTRO:
       "Tại hạ giới bao la này, giữa dòng đời cuồn cuộn như thác đổ, Judgify mọc lên như một ngọn cô phong giữa biển mây. Đây không chỉ là nơi hội tụ của những linh hồn đam mê mật mã, mà là một Thánh địa liễu ngộ, nơi chân lý không nằm ở những trang kinh thư khô khan, mà nằm trong từng nhịp gõ của trí tuệ, trong từng hơi thở của logic.",
-    WAY:
-      "Người xưa có câu: \"Nghịch thiên nhi hành, vị chi tu tiên\". Kẻ sĩ luyện code chúng ta cũng vậy. Mỗi một thuật toán thâm sâu chính là một đạo chân ngôn. Mỗi một dòng mã lệnh thực thi chính là một lần vận chuyển linh khí trong kinh mạch. Thế giới này vốn dĩ hỗn độn, và chúng ta—những tu chân giả của thời đại mới—dùng trật tự của logic để định hình lại càn khôn.",
+    WAY: 'Người xưa có câu: "Nghịch thiên nhi hành, vị chi tu tiên". Kẻ sĩ luyện code chúng ta cũng vậy. Mỗi một thuật toán thâm sâu chính là một đạo chân ngôn. Mỗi một dòng mã lệnh thực thi chính là một lần vận chuyển linh khí trong kinh mạch. Thế giới này vốn dĩ hỗn độn, và chúng ta—những tu chân giả của thời đại mới—dùng trật tự của logic để định hình lại càn khôn.',
     CHALLENGE_PREFIX:
       "Hãy nhìn vào những bài tập tại Arena, chúng không đơn thuần là những câu đố. Đó là những Thiên Kiếp mà mỗi đạo hữu phải đối mặt trên con đường phi thăng. Một khi ấn tích",
     ACCEPTED: "Accepted",
@@ -442,8 +445,7 @@ export const vi = {
     JOURNEY:
       "Ngày mà chư vị đứng trên đỉnh cao của Vạn Cổ Tiên Bảng, ngắm nhìn chúng sinh đang mải miết dưới chân, lúc đó chư vị sẽ hiểu rằng: Hóa ra, hành trình vạn dặm khởi đầu từ một hàm `main()`, và sự trường sinh nằm ở niềm đam mê bất diệt với logic.",
     BLESSING_TITLE: "Đạo Pháp Tự Nhiên - Thiên Địa Trường Tồn",
-    BLESSING:
-      "Kính chúc chư vị đạo hữu sớm ngày đắc đạo, danh chấn thiên hạ.",
+    BLESSING: "Kính chúc chư vị đạo hữu sớm ngày đắc đạo, danh chấn thiên hạ.",
   },
 
   // Profile
@@ -519,15 +521,19 @@ export const vi = {
           | "pattern"
           | "payload_size",
       ) => {
-        if (error === "required") return "Trường này là bắt buộc."
-        if (error === "minimum") return "Giá trị nhỏ hơn mức tối thiểu cho phép."
-        if (error === "maximum") return "Giá trị lớn hơn mức tối đa cho phép."
-        if (error === "min_length") return "Nội dung chưa đạt độ dài tối thiểu."
-        if (error === "max_length") return "Nội dung vượt quá độ dài tối đa."
-        if (error === "enum") return "Giá trị không thuộc danh sách được cho phép."
-        if (error === "pattern") return "Giá trị chưa đúng định dạng yêu cầu."
-        if (error === "payload_size") return "Giá trị vượt quá dung lượng cho phép."
-        return "Giá trị không hợp lệ."
+        if (error === "required") return "Trường này là bắt buộc.";
+        if (error === "minimum")
+          return "Giá trị nhỏ hơn mức tối thiểu cho phép.";
+        if (error === "maximum") return "Giá trị lớn hơn mức tối đa cho phép.";
+        if (error === "min_length")
+          return "Nội dung chưa đạt độ dài tối thiểu.";
+        if (error === "max_length") return "Nội dung vượt quá độ dài tối đa.";
+        if (error === "enum")
+          return "Giá trị không thuộc danh sách được cho phép.";
+        if (error === "pattern") return "Giá trị chưa đúng định dạng yêu cầu.";
+        if (error === "payload_size")
+          return "Giá trị vượt quá dung lượng cho phép.";
+        return "Giá trị không hợp lệ.";
       },
     },
     LOAD_ERROR_TITLE: "Không thể tải hồ sơ",
@@ -724,87 +730,88 @@ export const vi = {
       PLATFORM_LINUX: "Linux",
       PLATFORM_WEB: "Web",
     },
-		PRIVACY: {
-			TITLE: "Quyền Riêng Tư Hồ Sơ",
-			DESCRIPTION:
-				"Chọn liệu hồ sơ tối giản của bạn có thể được mở bằng đường dẫn công khai hay không.",
-			PUBLIC_LABEL: "Hồ sơ công khai",
-			PUBLIC_DESCRIPTION:
-				"Mọi người có đường dẫn đều có thể xem tên tài khoản, ngày gia nhập và các trường được quản trị viên đánh dấu công khai.",
-			PRIVATE_LABEL: "Chỉ mình bạn",
-			PRIVATE_DESCRIPTION:
-				"Đường dẫn công khai trả về cùng trạng thái không tìm thấy như một tài khoản không tồn tại.",
-			ENABLE: "Cho phép mở hồ sơ công khai",
-			DISABLE: "Đặt hồ sơ về chế độ riêng tư",
-			LOADING: "Đang đồng bộ quyền riêng tư...",
-			LOAD_ERROR_TITLE: "Không thể tải quyền riêng tư",
-			LOAD_ERROR_DESCRIPTION:
-				"Hệ thống chưa xác nhận được thiết lập hiện tại. Hồ sơ không được tự động công khai.",
-			RETRY: "Tải Lại Thiết Lập",
-			UPDATING: "Đang lưu thiết lập...",
-			PUBLIC_SUCCESS: "Hồ sơ công khai đã được bật.",
-			PRIVATE_SUCCESS: "Hồ sơ đã được chuyển về riêng tư.",
-			CONFLICT:
-				"Thiết lập vừa thay đổi ở một nơi khác. Phiên bản mới nhất đang được tải lại.",
-			UPDATE_ERROR:
-				"Chưa xác nhận được kết quả. Hãy thử lại; Judgify sẽ dùng lại đúng yêu cầu để không tạo thay đổi trùng.",
-			VIEW_PUBLIC: "Xem Hồ Sơ Công Khai",
-			UPDATED_AT: (value: string) => `Cập nhật gần nhất ${value}`,
-			SAFETY_NOTE:
-				"Email, vai trò, trạng thái bảo mật, revision nội bộ và các trường riêng tư không bao giờ xuất hiện trong hồ sơ công khai.",
-		},
-		OAUTH_ACCOUNTS: {
-			TITLE: "Tài Khoản Đăng Nhập Liên Kết",
-			DESCRIPTION:
-				"Kết nối Google hoặc GitHub để đăng nhập nhanh mà không chia sẻ mật khẩu với Judgify.",
-			CONNECTED: "Đã liên kết",
-			NOT_CONNECTED: "Chưa liên kết",
-			CONNECT: "Liên Kết",
-			CONNECTING: "Đang chuyển hướng...",
-			DISCONNECT: "Gỡ Liên Kết",
-			DISCONNECT_TITLE: "Gỡ tài khoản đăng nhập?",
-			DISCONNECT_DESCRIPTION: (provider: string) =>
-				`Bạn sẽ không thể đăng nhập bằng ${provider} cho đến khi liên kết lại.`,
-			DISCONNECT_CONFIRM: "Gỡ Liên Kết",
-			LINKED_AT: "Liên kết lúc",
-			LAST_USED: "Xác thực gần nhất",
-			ACCOUNT_LABEL: "Tài khoản nhà cung cấp",
-			LOAD_ERROR_TITLE: "Không thể tải tài khoản liên kết",
-			LOAD_ERROR_DESCRIPTION:
-				"Cài đặt đăng nhập đang tạm thời không khả dụng. Hãy tải lại riêng khu vực này.",
-			RETRY: "Tải Lại",
-			CONNECT_ERROR: "Chưa thể bắt đầu liên kết. Vui lòng thử lại.",
-			DISCONNECT_ERROR: "Chưa thể gỡ liên kết. Vui lòng thử lại.",
-			LAST_METHOD_ERROR:
-				"Không thể gỡ phương thức đăng nhập cuối cùng. Hãy đặt mật khẩu hoặc liên kết nhà cung cấp khác trước.",
-			NOT_FOUND: "Liên kết này không còn tồn tại. Danh sách mới nhất đang được tải lại.",
-			DISCONNECT_SUCCESS: (provider: string) => `Đã gỡ liên kết ${provider}.`,
-			SECURITY_NOTE:
-				"Judgify chỉ lưu định danh cần thiết; mã truy cập của nhà cung cấp không được lưu trong trình duyệt.",
-		},
+    PRIVACY: {
+      TITLE: "Quyền Riêng Tư Hồ Sơ",
+      DESCRIPTION:
+        "Chọn liệu hồ sơ tối giản của bạn có thể được mở bằng đường dẫn công khai hay không.",
+      PUBLIC_LABEL: "Hồ sơ công khai",
+      PUBLIC_DESCRIPTION:
+        "Mọi người có đường dẫn đều có thể xem tên tài khoản, ngày gia nhập và các trường được quản trị viên đánh dấu công khai.",
+      PRIVATE_LABEL: "Chỉ mình bạn",
+      PRIVATE_DESCRIPTION:
+        "Đường dẫn công khai trả về cùng trạng thái không tìm thấy như một tài khoản không tồn tại.",
+      ENABLE: "Cho phép mở hồ sơ công khai",
+      DISABLE: "Đặt hồ sơ về chế độ riêng tư",
+      LOADING: "Đang đồng bộ quyền riêng tư...",
+      LOAD_ERROR_TITLE: "Không thể tải quyền riêng tư",
+      LOAD_ERROR_DESCRIPTION:
+        "Hệ thống chưa xác nhận được thiết lập hiện tại. Hồ sơ không được tự động công khai.",
+      RETRY: "Tải Lại Thiết Lập",
+      UPDATING: "Đang lưu thiết lập...",
+      PUBLIC_SUCCESS: "Hồ sơ công khai đã được bật.",
+      PRIVATE_SUCCESS: "Hồ sơ đã được chuyển về riêng tư.",
+      CONFLICT:
+        "Thiết lập vừa thay đổi ở một nơi khác. Phiên bản mới nhất đang được tải lại.",
+      UPDATE_ERROR:
+        "Chưa xác nhận được kết quả. Hãy thử lại; Judgify sẽ dùng lại đúng yêu cầu để không tạo thay đổi trùng.",
+      VIEW_PUBLIC: "Xem Hồ Sơ Công Khai",
+      UPDATED_AT: (value: string) => `Cập nhật gần nhất ${value}`,
+      SAFETY_NOTE:
+        "Email, vai trò, trạng thái bảo mật, revision nội bộ và các trường riêng tư không bao giờ xuất hiện trong hồ sơ công khai.",
+    },
+    OAUTH_ACCOUNTS: {
+      TITLE: "Tài Khoản Đăng Nhập Liên Kết",
+      DESCRIPTION:
+        "Kết nối Google hoặc GitHub để đăng nhập nhanh mà không chia sẻ mật khẩu với Judgify.",
+      CONNECTED: "Đã liên kết",
+      NOT_CONNECTED: "Chưa liên kết",
+      CONNECT: "Liên Kết",
+      CONNECTING: "Đang chuyển hướng...",
+      DISCONNECT: "Gỡ Liên Kết",
+      DISCONNECT_TITLE: "Gỡ tài khoản đăng nhập?",
+      DISCONNECT_DESCRIPTION: (provider: string) =>
+        `Bạn sẽ không thể đăng nhập bằng ${provider} cho đến khi liên kết lại.`,
+      DISCONNECT_CONFIRM: "Gỡ Liên Kết",
+      LINKED_AT: "Liên kết lúc",
+      LAST_USED: "Xác thực gần nhất",
+      ACCOUNT_LABEL: "Tài khoản nhà cung cấp",
+      LOAD_ERROR_TITLE: "Không thể tải tài khoản liên kết",
+      LOAD_ERROR_DESCRIPTION:
+        "Cài đặt đăng nhập đang tạm thời không khả dụng. Hãy tải lại riêng khu vực này.",
+      RETRY: "Tải Lại",
+      CONNECT_ERROR: "Chưa thể bắt đầu liên kết. Vui lòng thử lại.",
+      DISCONNECT_ERROR: "Chưa thể gỡ liên kết. Vui lòng thử lại.",
+      LAST_METHOD_ERROR:
+        "Không thể gỡ phương thức đăng nhập cuối cùng. Hãy đặt mật khẩu hoặc liên kết nhà cung cấp khác trước.",
+      NOT_FOUND:
+        "Liên kết này không còn tồn tại. Danh sách mới nhất đang được tải lại.",
+      DISCONNECT_SUCCESS: (provider: string) => `Đã gỡ liên kết ${provider}.`,
+      SECURITY_NOTE:
+        "Judgify chỉ lưu định danh cần thiết; mã truy cập của nhà cung cấp không được lưu trong trình duyệt.",
+    },
   },
 
-	PUBLIC_PROFILE: {
-		EYEBROW: "Hồ sơ công khai",
-		JOINED: "Gia nhập Judgify",
-		ATTRIBUTES_TITLE: "Thông Tin Được Chia Sẻ",
-		ATTRIBUTES_DESCRIPTION:
-			"Chỉ những trường đang hoạt động và được cấu hình công khai mới xuất hiện tại đây.",
-		EMPTY_TITLE: "Chưa có thông tin công khai",
-		EMPTY_DESCRIPTION:
-			"Tài khoản này đang công khai hồ sơ nhưng chưa chia sẻ thêm trường thông tin nào.",
-		BOOLEAN_TRUE: "Có",
-		BOOLEAN_FALSE: "Không",
-		LOADING: "Đang tải hồ sơ công khai...",
-		NOT_FOUND_TITLE: "Không tìm thấy hồ sơ công khai",
-		NOT_FOUND_DESCRIPTION:
-			"Tài khoản không tồn tại, chưa hoạt động hoặc chủ tài khoản đang để hồ sơ ở chế độ riêng tư.",
-		LOAD_ERROR_TITLE: "Chưa thể mở hồ sơ",
-		LOAD_ERROR_DESCRIPTION:
-			"Kết nối dữ liệu đang gián đoạn. Hãy thử tải lại sau ít giây.",
-		RETRY: "Tải Lại Hồ Sơ",
-		BACK_TO_ARENA: "Về Luyện Tập",
-	},
+  PUBLIC_PROFILE: {
+    EYEBROW: "Hồ sơ công khai",
+    JOINED: "Gia nhập Judgify",
+    ATTRIBUTES_TITLE: "Thông Tin Được Chia Sẻ",
+    ATTRIBUTES_DESCRIPTION:
+      "Chỉ những trường đang hoạt động và được cấu hình công khai mới xuất hiện tại đây.",
+    EMPTY_TITLE: "Chưa có thông tin công khai",
+    EMPTY_DESCRIPTION:
+      "Tài khoản này đang công khai hồ sơ nhưng chưa chia sẻ thêm trường thông tin nào.",
+    BOOLEAN_TRUE: "Có",
+    BOOLEAN_FALSE: "Không",
+    LOADING: "Đang tải hồ sơ công khai...",
+    NOT_FOUND_TITLE: "Không tìm thấy hồ sơ công khai",
+    NOT_FOUND_DESCRIPTION:
+      "Tài khoản không tồn tại, chưa hoạt động hoặc chủ tài khoản đang để hồ sơ ở chế độ riêng tư.",
+    LOAD_ERROR_TITLE: "Chưa thể mở hồ sơ",
+    LOAD_ERROR_DESCRIPTION:
+      "Kết nối dữ liệu đang gián đoạn. Hãy thử tải lại sau ít giây.",
+    RETRY: "Tải Lại Hồ Sơ",
+    BACK_TO_ARENA: "Về Luyện Tập",
+  },
 
   STATS: {
     TITLE: "Thống Kê Tu Luyện",
@@ -823,6 +830,7 @@ export const vi = {
 
   // Arena
   ARENA: {
+    EYEBROW: "ĐẠO TRƯỜNG THUẬT TOÁN",
     TITLE: "Thánh Địa Luyện Tập",
     SUBTITLE: "Nơi ngưng tụ linh khí, rèn luyện pháp thuật và đột phá đạo cơ.",
     ALL: "Tất Cả",
@@ -838,7 +846,8 @@ export const vi = {
     UNSOLVED: "Chưa Giải",
     ATTEMPTED: "Đang Thử",
     NO_PROBLEMS: "Chưa có bài tập nào",
-    NO_PROBLEMS_DESC: "Đạo hữu có thể thử tìm kiếm hoặc điều chỉnh lại bộ lọc Phẩm Chất.",
+    NO_PROBLEMS_DESC:
+      "Đạo hữu có thể thử tìm kiếm hoặc điều chỉnh lại bộ lọc Phẩm Chất.",
     NO_FILTERED_PROBLEMS: "Không tìm thấy bài tập phù hợp",
     NO_FILTERED_PROBLEMS_DESC:
       "Hãy thử từ khóa khác hoặc xóa bớt bộ lọc để mở rộng kết quả.",
@@ -846,13 +855,10 @@ export const vi = {
     PROBLEMS_LOADING: "Đang tải danh sách bài tập...",
     PROBLEMS_REFRESHING: "Đang cập nhật kết quả...",
     RESULTS_SUMMARY: (count: number) => `${count} bài tập phù hợp`,
-    LOAD_ERROR_TITLE: "Không thể tải danh sách bài tập",
+    LOAD_ERROR_TITLE: "Chưa thể tải bài tập",
     LOAD_ERROR_DESCRIPTION:
-      "Dữ liệu bài tập đang tạm thời không khả dụng. Bộ lọc của bạn vẫn được giữ nguyên.",
+      "Kết nối tới danh sách bài tập đang gián đoạn. Hãy thử tải lại để tiếp tục luyện tập.",
     FILTERS_LOADING: "Đang tải bộ lọc...",
-    FILTERS_LOAD_ERROR_TITLE: "Một số bộ lọc chưa tải được",
-    FILTERS_LOAD_ERROR_DESCRIPTION:
-      "Bạn vẫn có thể xem và tìm kiếm bài tập. Hãy thử lại để dùng đầy đủ bộ lọc độ khó và chủ đề.",
     RETRY: "Tải lại",
     GO_TO_PAGE: (page: number) => `Đi đến trang ${page}`,
     CURRENT_PAGE: (page: number) => `Trang hiện tại, trang ${page}`,
@@ -892,7 +898,8 @@ export const vi = {
   // Contest
   CONTEST: {
     TITLE: "Đại Hội Tỷ Thí",
-    SUBTITLE: "Các giải đấu lập trình định kỳ — thi đấu, leo rank, tranh danh hiệu.",
+    SUBTITLE:
+      "Các giải đấu lập trình định kỳ — thi đấu, leo rank, tranh danh hiệu.",
     SEARCH_LABEL: "Tìm kiếm cuộc thi theo tên",
     SEARCH_PLACEHOLDER: "Tìm kiếm cuộc thi...",
     LIST_LOADING: "Đang tải danh sách cuộc thi...",
@@ -903,8 +910,7 @@ export const vi = {
     RETRY: "Thử tải lại",
     NO_CONTESTS: "Chưa có cuộc thi nào",
     NO_CONTESTS_DESC: "Hiện chưa có đại hội nào được tổ chức.",
-    NO_MATCHING_CONTESTS_DESC:
-      "Không có cuộc thi phù hợp với bộ lọc hiện tại.",
+    NO_MATCHING_CONTESTS_DESC: "Không có cuộc thi phù hợp với bộ lọc hiện tại.",
     REGISTER: "Đăng Ký Tham Gia",
     LOGIN_TO_REGISTER: "Đăng nhập để đăng ký",
     UNREGISTER: "Hủy Đăng Ký",
@@ -970,7 +976,7 @@ export const vi = {
     HERO_IMAGE_ALT: "Khán đài đại hội lập trình",
     HERO_BADGE: "ĐẠI HỘI QUẦN HÙNG",
     HERO_DESCRIPTION:
-      "Nơi vạn tông hội tụ, thiên tài tranh phong. Khai mở bí cảnh, đoạt lấy thiên địa linh bảo và ghi danh trên Vạn Cổ Tiên Bảng.",
+      "Nơi vạn tông tranh phong, phá bí cảnh và ghi danh Vạn Cổ Tiên Bảng.",
     HERO_REGISTER: "KHÁM PHÁ ĐẠI HỘI",
     HERO_SCHEDULE: "XEM LỊCH SẮP TỚI",
     STANDINGS_EMPTY: "Chưa có dữ liệu xếp hạng",
@@ -1170,8 +1176,7 @@ export const vi = {
     HISTORY_LATEST_RESULT: (status: string) =>
       `Kết quả bài nộp mới nhất: ${status}`,
     HISTORY_STATUS_LABEL: "Trạng thái đồng bộ kết quả",
-    HISTORY_OPEN_SUBMISSION: (id: string) =>
-      `Xem chi tiết bài nộp ${id}`,
+    HISTORY_OPEN_SUBMISSION: (id: string) => `Xem chi tiết bài nộp ${id}`,
     SUBMIT: "Nộp Bài",
     SUBMITTING: "Đang gửi...",
     WORKBENCH_TITLE: "Không gian làm bài",
@@ -1207,10 +1212,8 @@ export const vi = {
     SUBMIT_SUCCESS: "Đã chấp nhận! Chúc mừng đạo hữu đã giải thành công!",
     TIME_LIMIT: "Thời gian",
     MEMORY_LIMIT: "Bộ nhớ",
-    ACCEPTANCE_RATE_LABEL: (value: string) =>
-      `Tỷ lệ chấp nhận ${value}`,
-    SUBMISSION_COUNT_LABEL: (value: string) =>
-      `${value} lượt nộp`,
+    ACCEPTANCE_RATE_LABEL: (value: string) => `Tỷ lệ chấp nhận ${value}`,
+    SUBMISSION_COUNT_LABEL: (value: string) => `${value} lượt nộp`,
     INPUT_FORMAT: "Định dạng đầu vào",
     OUTPUT_FORMAT: "Định dạng đầu ra",
     // Submission history table
@@ -1299,7 +1302,10 @@ export const vi = {
   },
 
   MATERIALS: {
+    EYEBROW: "TÀNG KINH TRI THỨC",
     NOT_FOUND: "Không tìm thấy bài viết",
+    NOT_FOUND_DESCRIPTION:
+      "Bài viết có thể đã được di chuyển, gỡ khỏi thư viện hoặc đường dẫn không còn hợp lệ.",
     BACK_TO_LIBRARY: "Quay lại Tàng Kinh Các",
     LIBRARY: "Tàng Kinh Các",
     ARTICLE: "Bài viết",
@@ -1340,7 +1346,7 @@ export const vi = {
     DIFFICULTY_BASIC: "Cơ Bản",
     DIFFICULTY_ADVANCED: "Nâng Cao",
     HERO_DESCRIPTION:
-      "Kho tài liệu học thuật từ cơ bản đến nâng cao, bao gồm cấu trúc dữ liệu, giải thuật, ngôn ngữ lập trình và thiết kế hệ thống.",
+      "Kho tàng tâm pháp thuật toán, công pháp lập trình từ nhập môn đến đại thành.",
     SEARCH_PLACEHOLDER: "Tìm kiếm bài viết...",
     ARTICLE_COUNT_LABEL: "bài viết",
     MINUTES_SHORT: "phút",
@@ -1359,8 +1365,7 @@ export const vi = {
     TRAINING_SPEED: "Tu Luyện Tốc",
     BASE_EXP: "EXP Cơ Bản",
     CODEX_TITLE: "Thiên Mệnh Thư Quán",
-    CODEX_DESCRIPTION:
-      "Tổng hợp Căn Cốt và Thiên Phú trong thế giới tu luyện",
+    CODEX_DESCRIPTION: "Tổng hợp Căn Cốt và Thiên Phú trong thế giới tu luyện",
     CODEX_LOADING: "Đang tải thiên mệnh thư quán...",
     CODEX_LOAD_ERROR: "Không thể tải thiên mệnh thư quán",
     CODEX_LOAD_ERROR_DESCRIPTION:
@@ -1399,7 +1404,8 @@ export const vi = {
     SECT: "Tông Môn",
     POINTS: "Linh Lực",
     HERO_BADGE: "VẠN CỔ TIÊN BẢNG",
-    HERO_DESC: "Nơi vinh danh những bậc đại năng có căn cốt phi phàm, khắc tên vào sử sách của giới tu chân.",
+    HERO_DESC:
+      "Nơi vinh danh những bậc đại năng có căn cốt phi phàm, khắc tên vào sử sách của giới tu chân.",
     TABLE_TITLE: "Quần Anh Hội Tụ",
     RANK_LABEL: "Thứ Hạng",
     CULTIVATOR_LABEL: "Vị Đại Năng",
@@ -1420,11 +1426,11 @@ export const vi = {
       "Bảng sẽ tự động hiển thị khi có thành tích xếp hạng đầu tiên.",
     STALE_DATA:
       "Đang hiển thị dữ liệu gần nhất vì lần làm mới vừa rồi chưa thành công.",
-	REFRESHING: "Đang làm mới bảng xếp hạng",
-	ANONYMOUS: "Tu sĩ ẩn danh",
-	LOAD_MORE: "Xem thêm thứ hạng",
-	LOADING_MORE: "Đang tải thêm...",
-	END_OF_LIST: "Đã hiển thị toàn bộ thứ hạng hiện có.",
+    REFRESHING: "Đang làm mới bảng xếp hạng",
+    ANONYMOUS: "Tu sĩ ẩn danh",
+    LOAD_MORE: "Xem thêm thứ hạng",
+    LOADING_MORE: "Đang tải thêm...",
+    END_OF_LIST: "Đã hiển thị toàn bộ thứ hạng hiện có.",
   },
 
   // Theme
@@ -1456,6 +1462,7 @@ export const vi = {
     SEARCH_PLACEHOLDER: "Tìm kiếm...",
     FILTER: "Lọc",
     NO_DATA: "Không có dữ liệu",
+    DATA_TABLE: "Bảng dữ liệu",
     UNKNOWN: "Không xác định",
     NOT_AVAILABLE: "Chưa cập nhật",
     UNITS: {

@@ -3,7 +3,7 @@ import { TEXT } from "@/constants/text";
 import { NotificationCenter } from "@/modules/notifications/notification-center";
 
 export const metadata: Metadata = {
-  title: `${TEXT.NOTIFICATION.TITLE} | ${TEXT.APP_NAME}`,
+  title: TEXT.NOTIFICATION.TITLE,
   description: TEXT.NOTIFICATION.DESCRIPTION,
 };
 

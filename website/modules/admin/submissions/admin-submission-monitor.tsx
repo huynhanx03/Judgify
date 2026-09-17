@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  type FormEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -21,6 +16,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -73,10 +69,7 @@ import { getErrorMessage } from "@/lib/toast";
 import { STATUS_CONFIG } from "@/modules/problem/submission-detail";
 import { submissionService } from "@/services/submission.service";
 import type { Paginated } from "@/types/api";
-import type {
-  AdminSubmissionSummary,
-  JudgeRuntime,
-} from "@/types/submission";
+import type { AdminSubmissionSummary, JudgeRuntime } from "@/types/submission";
 import { AdminSubmissionDetailDialog } from "./admin-submission-detail-dialog";
 
 type LoadState = "loading" | "refreshing" | "ready" | "error";
@@ -112,7 +105,11 @@ function SubmissionStatusBadge({
   );
 }
 
-function SubmissionContext({ submission }: { submission: AdminSubmissionSummary }) {
+function SubmissionContext({
+  submission,
+}: {
+  submission: AdminSubmissionSummary;
+}) {
   return (
     <dl className="grid gap-1 text-xs text-muted-foreground">
       <div className="flex items-center gap-2">
@@ -139,11 +136,17 @@ function SubmissionContext({ submission }: { submission: AdminSubmissionSummary 
   );
 }
 
-function SubmissionResources({ submission }: { submission: AdminSubmissionSummary }) {
+function SubmissionResources({
+  submission,
+}: {
+  submission: AdminSubmissionSummary;
+}) {
   return (
     <div className="grid gap-1 text-xs tabular-nums text-muted-foreground">
       <span>
-        {submission.time_ms == null ? TEXT.COMMON.NOT_AVAILABLE : formatDuration(submission.time_ms)}
+        {submission.time_ms == null
+          ? TEXT.COMMON.NOT_AVAILABLE
+          : formatDuration(submission.time_ms)}
       </span>
       <span>
         {submission.memory_kb == null
@@ -206,15 +209,14 @@ export function AdminSubmissionMonitor() {
       ),
     [appliedFilters, page],
   );
-  const resultResource = useRetryableResource<
-    Paginated<AdminSubmissionSummary> | null
-  >({
-    resetKey: `${authorizationRevision}:${JSON.stringify(query)}`,
-    initialData: null,
-    keepPreviousData: true,
-    load: (signal) => submissionService.findAdmin(query, signal),
-    onSuccess: () => setLastUpdatedAt(new Date().toISOString()),
-  });
+  const resultResource =
+    useRetryableResource<Paginated<AdminSubmissionSummary> | null>({
+      resetKey: `${authorizationRevision}:${JSON.stringify(query)}`,
+      initialData: null,
+      keepPreviousData: true,
+      load: (signal) => submissionService.findAdmin(query, signal),
+      onSuccess: () => setLastUpdatedAt(new Date().toISOString()),
+    });
   const runtimeResource = useRetryableResource<readonly JudgeRuntime[]>({
     resetKey: "judge-runtime-catalog",
     initialData: [],
@@ -313,35 +315,25 @@ export function AdminSubmissionMonitor() {
   const isRefreshing = loadState === "refreshing";
 
   return (
-    <div className="mx-auto max-w-[1600px] space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-5 shadow-sm sm:p-6">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-4 ring-primary/5">
-              <Activity className="size-5" aria-hidden="true" />
+    <div className="space-y-6">
+      <PageHeader
+        icon={Activity}
+        title={ADMIN_TEXT.SUBMISSIONS.TITLE}
+        description={
+          <>
+            {ADMIN_TEXT.SUBMISSIONS.SUBTITLE}
+            <span className="mt-2 block min-h-5 text-xs" aria-live="polite">
+              {isRefreshing
+                ? ADMIN_TEXT.SUBMISSIONS.REFRESHING
+                : lastUpdatedAt
+                  ? ADMIN_TEXT.SUBMISSIONS.UPDATED_AT(
+                      formatDateTime(lastUpdatedAt),
+                    )
+                  : null}
             </span>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                {ADMIN_TEXT.SUBMISSIONS.TITLE}
-              </h1>
-              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                {ADMIN_TEXT.SUBMISSIONS.SUBTITLE}
-              </p>
-              <p
-                className="mt-2 min-h-5 text-xs text-muted-foreground"
-                aria-live="polite"
-              >
-                {isRefreshing
-                  ? ADMIN_TEXT.SUBMISSIONS.REFRESHING
-                  : lastUpdatedAt
-                    ? ADMIN_TEXT.SUBMISSIONS.UPDATED_AT(
-                        formatDateTime(lastUpdatedAt),
-                      )
-                    : null}
-              </p>
-            </div>
-          </div>
+          </>
+        }
+        actions={
           <Button
             type="button"
             variant="outline"
@@ -357,8 +349,8 @@ export function AdminSubmissionMonitor() {
               ? ADMIN_TEXT.SUBMISSIONS.REFRESHING
               : ADMIN_TEXT.SUBMISSIONS.REFRESH}
           </Button>
-        </div>
-      </section>
+        }
+      />
 
       <section aria-labelledby="submission-summary-heading">
         <h2 id="submission-summary-heading" className="sr-only">
@@ -459,12 +451,11 @@ export function AdminSubmissionMonitor() {
                     <SelectItem value={ADMIN_SUBMISSION_FILTER_ALL}>
                       {ADMIN_TEXT.SUBMISSIONS.ALL_LANGUAGES}
                     </SelectItem>
-                    {[...new Map(
-                      runtimes.map((runtime) => [
-                        runtime.language,
-                        runtime,
-                      ]),
-                    ).values()].map((runtime) => (
+                    {[
+                      ...new Map(
+                        runtimes.map((runtime) => [runtime.language, runtime]),
+                      ).values(),
+                    ].map((runtime) => (
                       <SelectItem
                         key={runtime.language}
                         value={runtime.language}
@@ -486,7 +477,11 @@ export function AdminSubmissionMonitor() {
               </div>
 
               {(
-                ["problemId", "userId", "contestId"] as const satisfies readonly AdminSubmissionIdentifierField[]
+                [
+                  "problemId",
+                  "userId",
+                  "contestId",
+                ] as const satisfies readonly AdminSubmissionIdentifierField[]
               ).map((field) => {
                 const isInvalid = invalidFields.includes(field);
                 const inputId = `submission-${field}-filter`;
@@ -530,10 +525,7 @@ export function AdminSubmissionMonitor() {
                 <RotateCcw className="size-4" aria-hidden="true" />
                 {ADMIN_TEXT.SUBMISSIONS.RESET_FILTERS}
               </Button>
-              <Button
-                type="submit"
-                className="min-h-11 cursor-pointer gap-2"
-              >
+              <Button type="submit" className="min-h-11 cursor-pointer gap-2">
                 <Search className="size-4" aria-hidden="true" />
                 {ADMIN_TEXT.SUBMISSIONS.APPLY_FILTERS}
               </Button>
@@ -633,7 +625,11 @@ export function AdminSubmissionMonitor() {
         <section className="space-y-4" aria-busy={isRefreshing}>
           <div className="space-y-3 md:hidden">
             {records.map((submission) => (
-              <Card key={submission.id} size="sm" className="bg-card/80 shadow-sm">
+              <Card
+                key={submission.id}
+                size="sm"
+                className="bg-card/80 shadow-sm"
+              >
                 <CardHeader className="border-b border-border">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -694,8 +690,8 @@ export function AdminSubmissionMonitor() {
             ))}
           </div>
 
-          <div className="hidden overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm md:block">
-            <Table>
+          <div className="hidden rounded-xl border border-border bg-card/70 shadow-sm md:block">
+            <Table containerLabel={ADMIN_TEXT.SUBMISSIONS.TABLE_LABEL}>
               <TableCaption className="sr-only">
                 {ADMIN_TEXT.SUBMISSIONS.TABLE_LABEL}
               </TableCaption>
@@ -706,8 +702,12 @@ export function AdminSubmissionMonitor() {
                   </TableHead>
                   <TableHead>{ADMIN_TEXT.SUBMISSIONS.COLUMN_STATUS}</TableHead>
                   <TableHead>{ADMIN_TEXT.SUBMISSIONS.COLUMN_RUNTIME}</TableHead>
-                  <TableHead>{ADMIN_TEXT.SUBMISSIONS.COLUMN_PROGRESS}</TableHead>
-                  <TableHead>{ADMIN_TEXT.SUBMISSIONS.COLUMN_RESOURCES}</TableHead>
+                  <TableHead>
+                    {ADMIN_TEXT.SUBMISSIONS.COLUMN_PROGRESS}
+                  </TableHead>
+                  <TableHead>
+                    {ADMIN_TEXT.SUBMISSIONS.COLUMN_RESOURCES}
+                  </TableHead>
                   <TableHead>{ADMIN_TEXT.SUBMISSIONS.COLUMN_CONTEXT}</TableHead>
                   <TableHead />
                 </TableRow>

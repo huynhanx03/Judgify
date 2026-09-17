@@ -20,7 +20,7 @@ const MAXIMUM_ERROR_FIELDS = 64;
 export interface ApiErrorOptions {
   code: string;
   status: number;
-  cid: string;
+  cid?: string;
   params?: Record<string, string | number | boolean>;
   fields?: Record<string, string>;
   retryable?: boolean;
@@ -30,7 +30,7 @@ export interface ApiErrorOptions {
 export class ApiError extends Error {
   readonly code: string;
   readonly status: number;
-  readonly cid: CorrelationID;
+  readonly cid?: CorrelationID;
   readonly params?: Readonly<Record<string, string | number | boolean>>;
   readonly fields?: Readonly<Record<string, string>>;
   readonly retryable: boolean;
@@ -45,7 +45,10 @@ export class ApiError extends Error {
       options.status,
       "$.status",
     );
-    this.cid = correlationIDSchema.parse(options.cid, "$.meta.cid");
+    this.cid =
+      options.cid === undefined
+        ? undefined
+        : correlationIDSchema.parse(options.cid, "$.meta.cid");
     this.params = options.params
       ? Object.freeze({ ...parseSafeParams(options.params, "$.error.params") })
       : undefined;

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
 
@@ -17,7 +17,7 @@ import (
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,11 +25,23 @@ type User struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Username holds the value of the "username" field.
 	Username string `json:"username,omitempty"`
-	// RoleID holds the value of the "role_id" field.
-	RoleID int `json:"role_id,omitempty"`
+	// Status holds the value of the "status" field.
+	Status user.Status `json:"status,omitempty"`
+	// SecurityVersion holds the value of the "security_version" field.
+	SecurityVersion int64 `json:"security_version,omitempty"`
+	// ProfileVisibility holds the value of the "profile_visibility" field.
+	ProfileVisibility user.ProfileVisibility `json:"profile_visibility,omitempty"`
+	// ProfileVisibilityVersion holds the value of the "profile_visibility_version" field.
+	ProfileVisibilityVersion int64 `json:"profile_visibility_version,omitempty"`
+	// ProfileVisibilityUpdatedAt holds the value of the "profile_visibility_updated_at" field.
+	ProfileVisibilityUpdatedAt time.Time `json:"profile_visibility_updated_at,omitempty"`
+	// SuspendedAt holds the value of the "suspended_at" field.
+	SuspendedAt *time.Time `json:"suspended_at,omitempty"`
+	// SuspensionReason holds the value of the "suspension_reason" field.
+	SuspensionReason *string `json:"-"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -38,24 +50,44 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Role holds the value of the role edge.
-	Role *Role `json:"role,omitempty"`
 	// Credentials holds the value of the credentials edge.
 	Credentials []*Credential `json:"credentials,omitempty"`
 	// Attributes holds the value of the attributes edge.
 	Attributes []*UserAttributeValue `json:"attributes,omitempty"`
 	// FederatedIdentities holds the value of the federated_identities edge.
 	FederatedIdentities []*FederatedIdentity `json:"federated_identities,omitempty"`
+	// AuthSessions holds the value of the auth_sessions edge.
+	AuthSessions []*AuthSession `json:"auth_sessions,omitempty"`
+	// RecoveryContacts holds the value of the recovery_contacts edge.
+	RecoveryContacts []*UserRecoveryContact `json:"recovery_contacts,omitempty"`
+	// RecoveryContactCommands holds the value of the recovery_contact_commands edge.
+	RecoveryContactCommands []*RecoveryContactCommandReceipt `json:"recovery_contact_commands,omitempty"`
+	// PasswordResetTokens holds the value of the password_reset_tokens edge.
+	PasswordResetTokens []*PasswordResetToken `json:"password_reset_tokens,omitempty"`
+	// SessionIssuanceReceipts holds the value of the session_issuance_receipts edge.
+	SessionIssuanceReceipts []*AuthSessionIssuanceReceipt `json:"session_issuance_receipts,omitempty"`
+	// ConsumedTraitOffers holds the value of the consumed_trait_offers edge.
+	ConsumedTraitOffers []*OnboardingTraitOffer `json:"consumed_trait_offers,omitempty"`
+	// SessionCommands holds the value of the session_commands edge.
+	SessionCommands []*AuthSessionCommandReceipt `json:"session_commands,omitempty"`
+	// OauthCompletionTickets holds the value of the oauth_completion_tickets edge.
+	OauthCompletionTickets []*OAuthCompletionTicket `json:"oauth_completion_tickets,omitempty"`
+	// AuthorizationUpdates holds the value of the authorization_updates edge.
+	AuthorizationUpdates []*AuthorizationState `json:"authorization_updates,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
 	// Submissions holds the value of the submissions edge.
 	Submissions []*Submission `json:"submissions,omitempty"`
 	// UserTraits holds the value of the user_traits edge.
 	UserTraits []*UserTrait `json:"user_traits,omitempty"`
+	// RewardProfileRevisions holds the value of the reward_profile_revisions edge.
+	RewardProfileRevisions []*UserRewardProfileRevision `json:"reward_profile_revisions,omitempty"`
 	// UserElementExps holds the value of the user_element_exps edge.
 	UserElementExps []*UserElementExp `json:"user_element_exps,omitempty"`
 	// UserStats holds the value of the user_stats edge.
 	UserStats []*UserStats `json:"user_stats,omitempty"`
+	// CultivationRankingProjection holds the value of the cultivation_ranking_projection edge.
+	CultivationRankingProjection []*CultivationRankingProjection `json:"cultivation_ranking_projection,omitempty"`
 	// SolvedProblems holds the value of the solved_problems edge.
 	SolvedProblems []*UserSolvedProblem `json:"solved_problems,omitempty"`
 	// DifficultyStats holds the value of the difficulty_stats edge.
@@ -70,28 +102,45 @@ type UserEdges struct {
 	ContestStandings []*ContestStanding `json:"contest_standings,omitempty"`
 	// RatingHistories holds the value of the rating_histories edge.
 	RatingHistories []*RatingHistory `json:"rating_histories,omitempty"`
+	// ContestRatingResults holds the value of the contest_rating_results edge.
+	ContestRatingResults []*ContestRatingResult `json:"contest_rating_results,omitempty"`
+	// ContestUserRatings holds the value of the contest_user_ratings edge.
+	ContestUserRatings []*ContestUserRating `json:"contest_user_ratings,omitempty"`
+	// ContestScoringAttempts holds the value of the contest_scoring_attempts edge.
+	ContestScoringAttempts []*ContestScoringAttempt `json:"contest_scoring_attempts,omitempty"`
+	// ContestProblemResults holds the value of the contest_problem_results edge.
+	ContestProblemResults []*ContestProblemResult `json:"contest_problem_results,omitempty"`
 	// Materials holds the value of the materials edge.
 	Materials []*Material `json:"materials,omitempty"`
+	// MaterialRevisions holds the value of the material_revisions edge.
+	MaterialRevisions []*MaterialRevision `json:"material_revisions,omitempty"`
+	// Notifications holds the value of the notifications edge.
+	Notifications []*Notification `json:"notifications,omitempty"`
+	// NotificationPreferences holds the value of the notification_preferences edge.
+	NotificationPreferences []*NotificationPreference `json:"notification_preferences,omitempty"`
+	// CreatedNotificationCampaigns holds the value of the created_notification_campaigns edge.
+	CreatedNotificationCampaigns []*NotificationCampaign `json:"created_notification_campaigns,omitempty"`
+	// NotificationCampaignRevisions holds the value of the notification_campaign_revisions edge.
+	NotificationCampaignRevisions []*NotificationCampaignRevision `json:"notification_campaign_revisions,omitempty"`
+	// ExplicitNotificationCampaignRevisions holds the value of the explicit_notification_campaign_revisions edge.
+	ExplicitNotificationCampaignRevisions []*NotificationCampaignExplicitUser `json:"explicit_notification_campaign_revisions,omitempty"`
+	// NotificationCampaignDeliveries holds the value of the notification_campaign_deliveries edge.
+	NotificationCampaignDeliveries []*NotificationCampaignRecipient `json:"notification_campaign_deliveries,omitempty"`
+	// ContestContentRevisions holds the value of the contest_content_revisions edge.
+	ContestContentRevisions []*ContestContentRevision `json:"contest_content_revisions,omitempty"`
+	// ContestClarifications holds the value of the contest_clarifications edge.
+	ContestClarifications []*ContestClarification `json:"contest_clarifications,omitempty"`
+	// ContestContentCommands holds the value of the contest_content_commands edge.
+	ContestContentCommands []*ContestContentCommand `json:"contest_content_commands,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [17]bool
-}
-
-// RoleOrErr returns the Role value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) RoleOrErr() (*Role, error) {
-	if e.Role != nil {
-		return e.Role, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: role.Label}
-	}
-	return nil, &NotLoadedError{edge: "role"}
+	loadedTypes [41]bool
 }
 
 // CredentialsOrErr returns the Credentials value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) CredentialsOrErr() ([]*Credential, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		return e.Credentials, nil
 	}
 	return nil, &NotLoadedError{edge: "credentials"}
@@ -100,7 +149,7 @@ func (e UserEdges) CredentialsOrErr() ([]*Credential, error) {
 // AttributesOrErr returns the Attributes value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) AttributesOrErr() ([]*UserAttributeValue, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		return e.Attributes, nil
 	}
 	return nil, &NotLoadedError{edge: "attributes"}
@@ -109,16 +158,97 @@ func (e UserEdges) AttributesOrErr() ([]*UserAttributeValue, error) {
 // FederatedIdentitiesOrErr returns the FederatedIdentities value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) FederatedIdentitiesOrErr() ([]*FederatedIdentity, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[2] {
 		return e.FederatedIdentities, nil
 	}
 	return nil, &NotLoadedError{edge: "federated_identities"}
 }
 
+// AuthSessionsOrErr returns the AuthSessions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuthSessionsOrErr() ([]*AuthSession, error) {
+	if e.loadedTypes[3] {
+		return e.AuthSessions, nil
+	}
+	return nil, &NotLoadedError{edge: "auth_sessions"}
+}
+
+// RecoveryContactsOrErr returns the RecoveryContacts value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RecoveryContactsOrErr() ([]*UserRecoveryContact, error) {
+	if e.loadedTypes[4] {
+		return e.RecoveryContacts, nil
+	}
+	return nil, &NotLoadedError{edge: "recovery_contacts"}
+}
+
+// RecoveryContactCommandsOrErr returns the RecoveryContactCommands value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RecoveryContactCommandsOrErr() ([]*RecoveryContactCommandReceipt, error) {
+	if e.loadedTypes[5] {
+		return e.RecoveryContactCommands, nil
+	}
+	return nil, &NotLoadedError{edge: "recovery_contact_commands"}
+}
+
+// PasswordResetTokensOrErr returns the PasswordResetTokens value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PasswordResetTokensOrErr() ([]*PasswordResetToken, error) {
+	if e.loadedTypes[6] {
+		return e.PasswordResetTokens, nil
+	}
+	return nil, &NotLoadedError{edge: "password_reset_tokens"}
+}
+
+// SessionIssuanceReceiptsOrErr returns the SessionIssuanceReceipts value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SessionIssuanceReceiptsOrErr() ([]*AuthSessionIssuanceReceipt, error) {
+	if e.loadedTypes[7] {
+		return e.SessionIssuanceReceipts, nil
+	}
+	return nil, &NotLoadedError{edge: "session_issuance_receipts"}
+}
+
+// ConsumedTraitOffersOrErr returns the ConsumedTraitOffers value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ConsumedTraitOffersOrErr() ([]*OnboardingTraitOffer, error) {
+	if e.loadedTypes[8] {
+		return e.ConsumedTraitOffers, nil
+	}
+	return nil, &NotLoadedError{edge: "consumed_trait_offers"}
+}
+
+// SessionCommandsOrErr returns the SessionCommands value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SessionCommandsOrErr() ([]*AuthSessionCommandReceipt, error) {
+	if e.loadedTypes[9] {
+		return e.SessionCommands, nil
+	}
+	return nil, &NotLoadedError{edge: "session_commands"}
+}
+
+// OauthCompletionTicketsOrErr returns the OauthCompletionTickets value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) OauthCompletionTicketsOrErr() ([]*OAuthCompletionTicket, error) {
+	if e.loadedTypes[10] {
+		return e.OauthCompletionTickets, nil
+	}
+	return nil, &NotLoadedError{edge: "oauth_completion_tickets"}
+}
+
+// AuthorizationUpdatesOrErr returns the AuthorizationUpdates value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuthorizationUpdatesOrErr() ([]*AuthorizationState, error) {
+	if e.loadedTypes[11] {
+		return e.AuthorizationUpdates, nil
+	}
+	return nil, &NotLoadedError{edge: "authorization_updates"}
+}
+
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ProblemsOrErr() ([]*Problem, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[12] {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
@@ -127,7 +257,7 @@ func (e UserEdges) ProblemsOrErr() ([]*Problem, error) {
 // SubmissionsOrErr returns the Submissions value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) SubmissionsOrErr() ([]*Submission, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[13] {
 		return e.Submissions, nil
 	}
 	return nil, &NotLoadedError{edge: "submissions"}
@@ -136,16 +266,25 @@ func (e UserEdges) SubmissionsOrErr() ([]*Submission, error) {
 // UserTraitsOrErr returns the UserTraits value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserTraitsOrErr() ([]*UserTrait, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[14] {
 		return e.UserTraits, nil
 	}
 	return nil, &NotLoadedError{edge: "user_traits"}
 }
 
+// RewardProfileRevisionsOrErr returns the RewardProfileRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RewardProfileRevisionsOrErr() ([]*UserRewardProfileRevision, error) {
+	if e.loadedTypes[15] {
+		return e.RewardProfileRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "reward_profile_revisions"}
+}
+
 // UserElementExpsOrErr returns the UserElementExps value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[16] {
 		return e.UserElementExps, nil
 	}
 	return nil, &NotLoadedError{edge: "user_element_exps"}
@@ -154,16 +293,25 @@ func (e UserEdges) UserElementExpsOrErr() ([]*UserElementExp, error) {
 // UserStatsOrErr returns the UserStats value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserStatsOrErr() ([]*UserStats, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[17] {
 		return e.UserStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_stats"}
 }
 
+// CultivationRankingProjectionOrErr returns the CultivationRankingProjection value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CultivationRankingProjectionOrErr() ([]*CultivationRankingProjection, error) {
+	if e.loadedTypes[18] {
+		return e.CultivationRankingProjection, nil
+	}
+	return nil, &NotLoadedError{edge: "cultivation_ranking_projection"}
+}
+
 // SolvedProblemsOrErr returns the SolvedProblems value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) SolvedProblemsOrErr() ([]*UserSolvedProblem, error) {
-	if e.loadedTypes[9] {
+	if e.loadedTypes[19] {
 		return e.SolvedProblems, nil
 	}
 	return nil, &NotLoadedError{edge: "solved_problems"}
@@ -172,7 +320,7 @@ func (e UserEdges) SolvedProblemsOrErr() ([]*UserSolvedProblem, error) {
 // DifficultyStatsOrErr returns the DifficultyStats value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) DifficultyStatsOrErr() ([]*UserDifficultyStats, error) {
-	if e.loadedTypes[10] {
+	if e.loadedTypes[20] {
 		return e.DifficultyStats, nil
 	}
 	return nil, &NotLoadedError{edge: "difficulty_stats"}
@@ -181,7 +329,7 @@ func (e UserEdges) DifficultyStatsOrErr() ([]*UserDifficultyStats, error) {
 // TagStatsOrErr returns the TagStats value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) TagStatsOrErr() ([]*UserTagStats, error) {
-	if e.loadedTypes[11] {
+	if e.loadedTypes[21] {
 		return e.TagStats, nil
 	}
 	return nil, &NotLoadedError{edge: "tag_stats"}
@@ -190,7 +338,7 @@ func (e UserEdges) TagStatsOrErr() ([]*UserTagStats, error) {
 // ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ContestsOrErr() ([]*Contest, error) {
-	if e.loadedTypes[12] {
+	if e.loadedTypes[22] {
 		return e.Contests, nil
 	}
 	return nil, &NotLoadedError{edge: "contests"}
@@ -199,7 +347,7 @@ func (e UserEdges) ContestsOrErr() ([]*Contest, error) {
 // ContestRegistrationsOrErr returns the ContestRegistrations value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ContestRegistrationsOrErr() ([]*ContestRegistration, error) {
-	if e.loadedTypes[13] {
+	if e.loadedTypes[23] {
 		return e.ContestRegistrations, nil
 	}
 	return nil, &NotLoadedError{edge: "contest_registrations"}
@@ -208,7 +356,7 @@ func (e UserEdges) ContestRegistrationsOrErr() ([]*ContestRegistration, error) {
 // ContestStandingsOrErr returns the ContestStandings value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ContestStandingsOrErr() ([]*ContestStanding, error) {
-	if e.loadedTypes[14] {
+	if e.loadedTypes[24] {
 		return e.ContestStandings, nil
 	}
 	return nil, &NotLoadedError{edge: "contest_standings"}
@@ -217,19 +365,145 @@ func (e UserEdges) ContestStandingsOrErr() ([]*ContestStanding, error) {
 // RatingHistoriesOrErr returns the RatingHistories value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) RatingHistoriesOrErr() ([]*RatingHistory, error) {
-	if e.loadedTypes[15] {
+	if e.loadedTypes[25] {
 		return e.RatingHistories, nil
 	}
 	return nil, &NotLoadedError{edge: "rating_histories"}
 }
 
+// ContestRatingResultsOrErr returns the ContestRatingResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestRatingResultsOrErr() ([]*ContestRatingResult, error) {
+	if e.loadedTypes[26] {
+		return e.ContestRatingResults, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_rating_results"}
+}
+
+// ContestUserRatingsOrErr returns the ContestUserRatings value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestUserRatingsOrErr() ([]*ContestUserRating, error) {
+	if e.loadedTypes[27] {
+		return e.ContestUserRatings, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_user_ratings"}
+}
+
+// ContestScoringAttemptsOrErr returns the ContestScoringAttempts value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestScoringAttemptsOrErr() ([]*ContestScoringAttempt, error) {
+	if e.loadedTypes[28] {
+		return e.ContestScoringAttempts, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_scoring_attempts"}
+}
+
+// ContestProblemResultsOrErr returns the ContestProblemResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestProblemResultsOrErr() ([]*ContestProblemResult, error) {
+	if e.loadedTypes[29] {
+		return e.ContestProblemResults, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_problem_results"}
+}
+
 // MaterialsOrErr returns the Materials value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) MaterialsOrErr() ([]*Material, error) {
-	if e.loadedTypes[16] {
+	if e.loadedTypes[30] {
 		return e.Materials, nil
 	}
 	return nil, &NotLoadedError{edge: "materials"}
+}
+
+// MaterialRevisionsOrErr returns the MaterialRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) MaterialRevisionsOrErr() ([]*MaterialRevision, error) {
+	if e.loadedTypes[31] {
+		return e.MaterialRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "material_revisions"}
+}
+
+// NotificationsOrErr returns the Notifications value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) NotificationsOrErr() ([]*Notification, error) {
+	if e.loadedTypes[32] {
+		return e.Notifications, nil
+	}
+	return nil, &NotLoadedError{edge: "notifications"}
+}
+
+// NotificationPreferencesOrErr returns the NotificationPreferences value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) NotificationPreferencesOrErr() ([]*NotificationPreference, error) {
+	if e.loadedTypes[33] {
+		return e.NotificationPreferences, nil
+	}
+	return nil, &NotLoadedError{edge: "notification_preferences"}
+}
+
+// CreatedNotificationCampaignsOrErr returns the CreatedNotificationCampaigns value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CreatedNotificationCampaignsOrErr() ([]*NotificationCampaign, error) {
+	if e.loadedTypes[34] {
+		return e.CreatedNotificationCampaigns, nil
+	}
+	return nil, &NotLoadedError{edge: "created_notification_campaigns"}
+}
+
+// NotificationCampaignRevisionsOrErr returns the NotificationCampaignRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) NotificationCampaignRevisionsOrErr() ([]*NotificationCampaignRevision, error) {
+	if e.loadedTypes[35] {
+		return e.NotificationCampaignRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "notification_campaign_revisions"}
+}
+
+// ExplicitNotificationCampaignRevisionsOrErr returns the ExplicitNotificationCampaignRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ExplicitNotificationCampaignRevisionsOrErr() ([]*NotificationCampaignExplicitUser, error) {
+	if e.loadedTypes[36] {
+		return e.ExplicitNotificationCampaignRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "explicit_notification_campaign_revisions"}
+}
+
+// NotificationCampaignDeliveriesOrErr returns the NotificationCampaignDeliveries value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) NotificationCampaignDeliveriesOrErr() ([]*NotificationCampaignRecipient, error) {
+	if e.loadedTypes[37] {
+		return e.NotificationCampaignDeliveries, nil
+	}
+	return nil, &NotLoadedError{edge: "notification_campaign_deliveries"}
+}
+
+// ContestContentRevisionsOrErr returns the ContestContentRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestContentRevisionsOrErr() ([]*ContestContentRevision, error) {
+	if e.loadedTypes[38] {
+		return e.ContestContentRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_content_revisions"}
+}
+
+// ContestClarificationsOrErr returns the ContestClarifications value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestClarificationsOrErr() ([]*ContestClarification, error) {
+	if e.loadedTypes[39] {
+		return e.ContestClarifications, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_clarifications"}
+}
+
+// ContestContentCommandsOrErr returns the ContestContentCommands value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestContentCommandsOrErr() ([]*ContestContentCommand, error) {
+	if e.loadedTypes[40] {
+		return e.ContestContentCommands, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_content_commands"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -237,12 +511,14 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID, user.FieldDeletedBy, user.FieldRoleID:
+		case user.FieldSecurityVersion, user.FieldProfileVisibilityVersion:
 			values[i] = new(sql.NullInt64)
-		case user.FieldUsername:
+		case user.FieldDeletedBy, user.FieldUsername, user.FieldStatus, user.FieldProfileVisibility, user.FieldSuspensionReason:
 			values[i] = new(sql.NullString)
-		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
+		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldProfileVisibilityUpdatedAt, user.FieldSuspendedAt:
 			values[i] = new(sql.NullTime)
+		case user.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -259,11 +535,11 @@ func (_m *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -284,11 +560,11 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case user.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case user.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -296,11 +572,49 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Username = value.String
 			}
-		case user.FieldRoleID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field role_id", values[i])
+		case user.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.RoleID = int(value.Int64)
+				_m.Status = user.Status(value.String)
+			}
+		case user.FieldSecurityVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field security_version", values[i])
+			} else if value.Valid {
+				_m.SecurityVersion = value.Int64
+			}
+		case user.FieldProfileVisibility:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field profile_visibility", values[i])
+			} else if value.Valid {
+				_m.ProfileVisibility = user.ProfileVisibility(value.String)
+			}
+		case user.FieldProfileVisibilityVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field profile_visibility_version", values[i])
+			} else if value.Valid {
+				_m.ProfileVisibilityVersion = value.Int64
+			}
+		case user.FieldProfileVisibilityUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field profile_visibility_updated_at", values[i])
+			} else if value.Valid {
+				_m.ProfileVisibilityUpdatedAt = value.Time
+			}
+		case user.FieldSuspendedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field suspended_at", values[i])
+			} else if value.Valid {
+				_m.SuspendedAt = new(time.Time)
+				*_m.SuspendedAt = value.Time
+			}
+		case user.FieldSuspensionReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field suspension_reason", values[i])
+			} else if value.Valid {
+				_m.SuspensionReason = new(string)
+				*_m.SuspensionReason = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -313,11 +627,6 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
-}
-
-// QueryRole queries the "role" edge of the User entity.
-func (_m *User) QueryRole() *RoleQuery {
-	return NewUserClient(_m.config).QueryRole(_m)
 }
 
 // QueryCredentials queries the "credentials" edge of the User entity.
@@ -335,6 +644,51 @@ func (_m *User) QueryFederatedIdentities() *FederatedIdentityQuery {
 	return NewUserClient(_m.config).QueryFederatedIdentities(_m)
 }
 
+// QueryAuthSessions queries the "auth_sessions" edge of the User entity.
+func (_m *User) QueryAuthSessions() *AuthSessionQuery {
+	return NewUserClient(_m.config).QueryAuthSessions(_m)
+}
+
+// QueryRecoveryContacts queries the "recovery_contacts" edge of the User entity.
+func (_m *User) QueryRecoveryContacts() *UserRecoveryContactQuery {
+	return NewUserClient(_m.config).QueryRecoveryContacts(_m)
+}
+
+// QueryRecoveryContactCommands queries the "recovery_contact_commands" edge of the User entity.
+func (_m *User) QueryRecoveryContactCommands() *RecoveryContactCommandReceiptQuery {
+	return NewUserClient(_m.config).QueryRecoveryContactCommands(_m)
+}
+
+// QueryPasswordResetTokens queries the "password_reset_tokens" edge of the User entity.
+func (_m *User) QueryPasswordResetTokens() *PasswordResetTokenQuery {
+	return NewUserClient(_m.config).QueryPasswordResetTokens(_m)
+}
+
+// QuerySessionIssuanceReceipts queries the "session_issuance_receipts" edge of the User entity.
+func (_m *User) QuerySessionIssuanceReceipts() *AuthSessionIssuanceReceiptQuery {
+	return NewUserClient(_m.config).QuerySessionIssuanceReceipts(_m)
+}
+
+// QueryConsumedTraitOffers queries the "consumed_trait_offers" edge of the User entity.
+func (_m *User) QueryConsumedTraitOffers() *OnboardingTraitOfferQuery {
+	return NewUserClient(_m.config).QueryConsumedTraitOffers(_m)
+}
+
+// QuerySessionCommands queries the "session_commands" edge of the User entity.
+func (_m *User) QuerySessionCommands() *AuthSessionCommandReceiptQuery {
+	return NewUserClient(_m.config).QuerySessionCommands(_m)
+}
+
+// QueryOauthCompletionTickets queries the "oauth_completion_tickets" edge of the User entity.
+func (_m *User) QueryOauthCompletionTickets() *OAuthCompletionTicketQuery {
+	return NewUserClient(_m.config).QueryOauthCompletionTickets(_m)
+}
+
+// QueryAuthorizationUpdates queries the "authorization_updates" edge of the User entity.
+func (_m *User) QueryAuthorizationUpdates() *AuthorizationStateQuery {
+	return NewUserClient(_m.config).QueryAuthorizationUpdates(_m)
+}
+
 // QueryProblems queries the "problems" edge of the User entity.
 func (_m *User) QueryProblems() *ProblemQuery {
 	return NewUserClient(_m.config).QueryProblems(_m)
@@ -350,6 +704,11 @@ func (_m *User) QueryUserTraits() *UserTraitQuery {
 	return NewUserClient(_m.config).QueryUserTraits(_m)
 }
 
+// QueryRewardProfileRevisions queries the "reward_profile_revisions" edge of the User entity.
+func (_m *User) QueryRewardProfileRevisions() *UserRewardProfileRevisionQuery {
+	return NewUserClient(_m.config).QueryRewardProfileRevisions(_m)
+}
+
 // QueryUserElementExps queries the "user_element_exps" edge of the User entity.
 func (_m *User) QueryUserElementExps() *UserElementExpQuery {
 	return NewUserClient(_m.config).QueryUserElementExps(_m)
@@ -358,6 +717,11 @@ func (_m *User) QueryUserElementExps() *UserElementExpQuery {
 // QueryUserStats queries the "user_stats" edge of the User entity.
 func (_m *User) QueryUserStats() *UserStatsQuery {
 	return NewUserClient(_m.config).QueryUserStats(_m)
+}
+
+// QueryCultivationRankingProjection queries the "cultivation_ranking_projection" edge of the User entity.
+func (_m *User) QueryCultivationRankingProjection() *CultivationRankingProjectionQuery {
+	return NewUserClient(_m.config).QueryCultivationRankingProjection(_m)
 }
 
 // QuerySolvedProblems queries the "solved_problems" edge of the User entity.
@@ -395,9 +759,79 @@ func (_m *User) QueryRatingHistories() *RatingHistoryQuery {
 	return NewUserClient(_m.config).QueryRatingHistories(_m)
 }
 
+// QueryContestRatingResults queries the "contest_rating_results" edge of the User entity.
+func (_m *User) QueryContestRatingResults() *ContestRatingResultQuery {
+	return NewUserClient(_m.config).QueryContestRatingResults(_m)
+}
+
+// QueryContestUserRatings queries the "contest_user_ratings" edge of the User entity.
+func (_m *User) QueryContestUserRatings() *ContestUserRatingQuery {
+	return NewUserClient(_m.config).QueryContestUserRatings(_m)
+}
+
+// QueryContestScoringAttempts queries the "contest_scoring_attempts" edge of the User entity.
+func (_m *User) QueryContestScoringAttempts() *ContestScoringAttemptQuery {
+	return NewUserClient(_m.config).QueryContestScoringAttempts(_m)
+}
+
+// QueryContestProblemResults queries the "contest_problem_results" edge of the User entity.
+func (_m *User) QueryContestProblemResults() *ContestProblemResultQuery {
+	return NewUserClient(_m.config).QueryContestProblemResults(_m)
+}
+
 // QueryMaterials queries the "materials" edge of the User entity.
 func (_m *User) QueryMaterials() *MaterialQuery {
 	return NewUserClient(_m.config).QueryMaterials(_m)
+}
+
+// QueryMaterialRevisions queries the "material_revisions" edge of the User entity.
+func (_m *User) QueryMaterialRevisions() *MaterialRevisionQuery {
+	return NewUserClient(_m.config).QueryMaterialRevisions(_m)
+}
+
+// QueryNotifications queries the "notifications" edge of the User entity.
+func (_m *User) QueryNotifications() *NotificationQuery {
+	return NewUserClient(_m.config).QueryNotifications(_m)
+}
+
+// QueryNotificationPreferences queries the "notification_preferences" edge of the User entity.
+func (_m *User) QueryNotificationPreferences() *NotificationPreferenceQuery {
+	return NewUserClient(_m.config).QueryNotificationPreferences(_m)
+}
+
+// QueryCreatedNotificationCampaigns queries the "created_notification_campaigns" edge of the User entity.
+func (_m *User) QueryCreatedNotificationCampaigns() *NotificationCampaignQuery {
+	return NewUserClient(_m.config).QueryCreatedNotificationCampaigns(_m)
+}
+
+// QueryNotificationCampaignRevisions queries the "notification_campaign_revisions" edge of the User entity.
+func (_m *User) QueryNotificationCampaignRevisions() *NotificationCampaignRevisionQuery {
+	return NewUserClient(_m.config).QueryNotificationCampaignRevisions(_m)
+}
+
+// QueryExplicitNotificationCampaignRevisions queries the "explicit_notification_campaign_revisions" edge of the User entity.
+func (_m *User) QueryExplicitNotificationCampaignRevisions() *NotificationCampaignExplicitUserQuery {
+	return NewUserClient(_m.config).QueryExplicitNotificationCampaignRevisions(_m)
+}
+
+// QueryNotificationCampaignDeliveries queries the "notification_campaign_deliveries" edge of the User entity.
+func (_m *User) QueryNotificationCampaignDeliveries() *NotificationCampaignRecipientQuery {
+	return NewUserClient(_m.config).QueryNotificationCampaignDeliveries(_m)
+}
+
+// QueryContestContentRevisions queries the "contest_content_revisions" edge of the User entity.
+func (_m *User) QueryContestContentRevisions() *ContestContentRevisionQuery {
+	return NewUserClient(_m.config).QueryContestContentRevisions(_m)
+}
+
+// QueryContestClarifications queries the "contest_clarifications" edge of the User entity.
+func (_m *User) QueryContestClarifications() *ContestClarificationQuery {
+	return NewUserClient(_m.config).QueryContestClarifications(_m)
+}
+
+// QueryContestContentCommands queries the "contest_content_commands" edge of the User entity.
+func (_m *User) QueryContestContentCommands() *ContestContentCommandQuery {
+	return NewUserClient(_m.config).QueryContestContentCommands(_m)
 }
 
 // Update returns a builder for updating this User.
@@ -436,24 +870,35 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("username=")
 	builder.WriteString(_m.Username)
 	builder.WriteString(", ")
-	builder.WriteString("role_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.RoleID))
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("security_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SecurityVersion))
+	builder.WriteString(", ")
+	builder.WriteString("profile_visibility=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ProfileVisibility))
+	builder.WriteString(", ")
+	builder.WriteString("profile_visibility_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ProfileVisibilityVersion))
+	builder.WriteString(", ")
+	builder.WriteString("profile_visibility_updated_at=")
+	builder.WriteString(_m.ProfileVisibilityUpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.SuspendedAt; v != nil {
+		builder.WriteString("suspended_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("suspension_reason=<sensitive>")
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *User) GetID() int {
-	return _m.ID
-}
-
-func (_m *User) SetID(id int) {
-	_m.ID = id
 }
 
 // Users is a parsable slice of User.

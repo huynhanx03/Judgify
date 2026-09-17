@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -57,23 +58,16 @@ func (_u *CredentialUpdate) ClearDeletedAt() *CredentialUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *CredentialUpdate) SetDeletedBy(v int) *CredentialUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *CredentialUpdate) SetDeletedBy(v string) *CredentialUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *CredentialUpdate) SetNillableDeletedBy(v *int) *CredentialUpdate {
+func (_u *CredentialUpdate) SetNillableDeletedBy(v *string) *CredentialUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *CredentialUpdate) AddDeletedBy(v int) *CredentialUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -84,13 +78,13 @@ func (_u *CredentialUpdate) ClearDeletedBy() *CredentialUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *CredentialUpdate) SetUserID(v int) *CredentialUpdate {
+func (_u *CredentialUpdate) SetUserID(v uuid.UUID) *CredentialUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *CredentialUpdate) SetNillableUserID(v *int) *CredentialUpdate {
+func (_u *CredentialUpdate) SetNillableUserID(v *uuid.UUID) *CredentialUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -114,6 +108,61 @@ func (_u *CredentialUpdate) SetNillableType(v *string) *CredentialUpdate {
 // SetCredentialData sets the "credential_data" field.
 func (_u *CredentialUpdate) SetCredentialData(v map[string]interface{}) *CredentialUpdate {
 	_u.mutation.SetCredentialData(v)
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *CredentialUpdate) SetVersion(v int64) *CredentialUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *CredentialUpdate) SetNillableVersion(v *int64) *CredentialUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *CredentialUpdate) AddVersion(v int64) *CredentialUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetActive sets the "active" field.
+func (_u *CredentialUpdate) SetActive(v bool) *CredentialUpdate {
+	_u.mutation.SetActive(v)
+	return _u
+}
+
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (_u *CredentialUpdate) SetNillableActive(v *bool) *CredentialUpdate {
+	if v != nil {
+		_u.SetActive(*v)
+	}
+	return _u
+}
+
+// SetLastUsedAt sets the "last_used_at" field.
+func (_u *CredentialUpdate) SetLastUsedAt(v time.Time) *CredentialUpdate {
+	_u.mutation.SetLastUsedAt(v)
+	return _u
+}
+
+// SetNillableLastUsedAt sets the "last_used_at" field if the given value is not nil.
+func (_u *CredentialUpdate) SetNillableLastUsedAt(v *time.Time) *CredentialUpdate {
+	if v != nil {
+		_u.SetLastUsedAt(*v)
+	}
+	return _u
+}
+
+// ClearLastUsedAt clears the value of the "last_used_at" field.
+func (_u *CredentialUpdate) ClearLastUsedAt() *CredentialUpdate {
+	_u.mutation.ClearLastUsedAt()
 	return _u
 }
 
@@ -182,6 +231,11 @@ func (_u *CredentialUpdate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`generate: validator failed for field "Credential.type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := credential.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Credential.version": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Credential.user"`)
 	}
@@ -198,7 +252,7 @@ func (_u *CredentialUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(credential.Table, credential.Columns, sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(credential.Table, credential.Columns, sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -216,19 +270,31 @@ func (_u *CredentialUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		_spec.ClearField(credential.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(credential.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(credential.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(credential.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(credential.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(credential.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(credential.FieldType, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.CredentialData(); ok {
 		_spec.SetField(credential.FieldCredentialData, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(credential.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(credential.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.Active(); ok {
+		_spec.SetField(credential.FieldActive, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.LastUsedAt(); ok {
+		_spec.SetField(credential.FieldLastUsedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastUsedAtCleared() {
+		_spec.ClearField(credential.FieldLastUsedAt, field.TypeTime)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -238,7 +304,7 @@ func (_u *CredentialUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Columns: []string{credential.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -251,7 +317,7 @@ func (_u *CredentialUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Columns: []string{credential.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -308,23 +374,16 @@ func (_u *CredentialUpdateOne) ClearDeletedAt() *CredentialUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *CredentialUpdateOne) SetDeletedBy(v int) *CredentialUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *CredentialUpdateOne) SetDeletedBy(v string) *CredentialUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *CredentialUpdateOne) SetNillableDeletedBy(v *int) *CredentialUpdateOne {
+func (_u *CredentialUpdateOne) SetNillableDeletedBy(v *string) *CredentialUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *CredentialUpdateOne) AddDeletedBy(v int) *CredentialUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -335,13 +394,13 @@ func (_u *CredentialUpdateOne) ClearDeletedBy() *CredentialUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *CredentialUpdateOne) SetUserID(v int) *CredentialUpdateOne {
+func (_u *CredentialUpdateOne) SetUserID(v uuid.UUID) *CredentialUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *CredentialUpdateOne) SetNillableUserID(v *int) *CredentialUpdateOne {
+func (_u *CredentialUpdateOne) SetNillableUserID(v *uuid.UUID) *CredentialUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -365,6 +424,61 @@ func (_u *CredentialUpdateOne) SetNillableType(v *string) *CredentialUpdateOne {
 // SetCredentialData sets the "credential_data" field.
 func (_u *CredentialUpdateOne) SetCredentialData(v map[string]interface{}) *CredentialUpdateOne {
 	_u.mutation.SetCredentialData(v)
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *CredentialUpdateOne) SetVersion(v int64) *CredentialUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *CredentialUpdateOne) SetNillableVersion(v *int64) *CredentialUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *CredentialUpdateOne) AddVersion(v int64) *CredentialUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetActive sets the "active" field.
+func (_u *CredentialUpdateOne) SetActive(v bool) *CredentialUpdateOne {
+	_u.mutation.SetActive(v)
+	return _u
+}
+
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (_u *CredentialUpdateOne) SetNillableActive(v *bool) *CredentialUpdateOne {
+	if v != nil {
+		_u.SetActive(*v)
+	}
+	return _u
+}
+
+// SetLastUsedAt sets the "last_used_at" field.
+func (_u *CredentialUpdateOne) SetLastUsedAt(v time.Time) *CredentialUpdateOne {
+	_u.mutation.SetLastUsedAt(v)
+	return _u
+}
+
+// SetNillableLastUsedAt sets the "last_used_at" field if the given value is not nil.
+func (_u *CredentialUpdateOne) SetNillableLastUsedAt(v *time.Time) *CredentialUpdateOne {
+	if v != nil {
+		_u.SetLastUsedAt(*v)
+	}
+	return _u
+}
+
+// ClearLastUsedAt clears the value of the "last_used_at" field.
+func (_u *CredentialUpdateOne) ClearLastUsedAt() *CredentialUpdateOne {
+	_u.mutation.ClearLastUsedAt()
 	return _u
 }
 
@@ -446,6 +560,11 @@ func (_u *CredentialUpdateOne) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`generate: validator failed for field "Credential.type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := credential.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Credential.version": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Credential.user"`)
 	}
@@ -462,7 +581,7 @@ func (_u *CredentialUpdateOne) sqlSave(ctx context.Context) (_node *Credential, 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(credential.Table, credential.Columns, sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(credential.Table, credential.Columns, sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Credential.id" for update`)}
@@ -497,19 +616,31 @@ func (_u *CredentialUpdateOne) sqlSave(ctx context.Context) (_node *Credential, 
 		_spec.ClearField(credential.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(credential.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(credential.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(credential.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(credential.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(credential.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(credential.FieldType, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.CredentialData(); ok {
 		_spec.SetField(credential.FieldCredentialData, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(credential.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(credential.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.Active(); ok {
+		_spec.SetField(credential.FieldActive, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.LastUsedAt(); ok {
+		_spec.SetField(credential.FieldLastUsedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastUsedAtCleared() {
+		_spec.ClearField(credential.FieldLastUsedAt, field.TypeTime)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -519,7 +650,7 @@ func (_u *CredentialUpdateOne) sqlSave(ctx context.Context) (_node *Credential, 
 			Columns: []string{credential.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -532,7 +663,7 @@ func (_u *CredentialUpdateOne) sqlSave(ctx context.Context) (_node *Credential, 
 			Columns: []string{credential.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

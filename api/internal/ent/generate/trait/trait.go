@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -24,6 +25,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldDeletedBy holds the string denoting the deleted_by field in the database.
 	FieldDeletedBy = "deleted_by"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
 	// FieldName holds the string denoting the name field in the database.
@@ -32,12 +35,22 @@ const (
 	FieldRarityID = "rarity_id"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldMetadata holds the string denoting the metadata field in the database.
-	FieldMetadata = "metadata"
+	// FieldDisplayOrder holds the string denoting the display_order field in the database.
+	FieldDisplayOrder = "display_order"
+	// FieldActive holds the string denoting the active field in the database.
+	FieldActive = "active"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
 	// EdgeRarity holds the string denoting the rarity edge name in mutations.
 	EdgeRarity = "rarity"
 	// EdgeUserTraits holds the string denoting the user_traits edge name in mutations.
 	EdgeUserTraits = "user_traits"
+	// EdgeOnboardingOfferTalents holds the string denoting the onboarding_offer_talents edge name in mutations.
+	EdgeOnboardingOfferTalents = "onboarding_offer_talents"
+	// EdgeEffectRevisions holds the string denoting the effect_revisions edge name in mutations.
+	EdgeEffectRevisions = "effect_revisions"
+	// EdgeRewardProfileTraits holds the string denoting the reward_profile_traits edge name in mutations.
+	EdgeRewardProfileTraits = "reward_profile_traits"
 	// Table holds the table name of the trait in the database.
 	Table = "traits"
 	// RarityTable is the table that holds the rarity relation/edge.
@@ -54,6 +67,27 @@ const (
 	UserTraitsInverseTable = "user_traits"
 	// UserTraitsColumn is the table column denoting the user_traits relation/edge.
 	UserTraitsColumn = "trait_id"
+	// OnboardingOfferTalentsTable is the table that holds the onboarding_offer_talents relation/edge.
+	OnboardingOfferTalentsTable = "onboarding_trait_offer_talents"
+	// OnboardingOfferTalentsInverseTable is the table name for the OnboardingTraitOfferTalent entity.
+	// It exists in this package in order to avoid circular dependency with the "onboardingtraitoffertalent" package.
+	OnboardingOfferTalentsInverseTable = "onboarding_trait_offer_talents"
+	// OnboardingOfferTalentsColumn is the table column denoting the onboarding_offer_talents relation/edge.
+	OnboardingOfferTalentsColumn = "trait_id"
+	// EffectRevisionsTable is the table that holds the effect_revisions relation/edge.
+	EffectRevisionsTable = "trait_effect_revisions"
+	// EffectRevisionsInverseTable is the table name for the TraitEffectRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "traiteffectrevision" package.
+	EffectRevisionsInverseTable = "trait_effect_revisions"
+	// EffectRevisionsColumn is the table column denoting the effect_revisions relation/edge.
+	EffectRevisionsColumn = "trait_id"
+	// RewardProfileTraitsTable is the table that holds the reward_profile_traits relation/edge.
+	RewardProfileTraitsTable = "user_reward_profile_traits"
+	// RewardProfileTraitsInverseTable is the table name for the UserRewardProfileTrait entity.
+	// It exists in this package in order to avoid circular dependency with the "userrewardprofiletrait" package.
+	RewardProfileTraitsInverseTable = "user_reward_profile_traits"
+	// RewardProfileTraitsColumn is the table column denoting the reward_profile_traits relation/edge.
+	RewardProfileTraitsColumn = "trait_id"
 )
 
 // Columns holds all SQL columns for trait fields.
@@ -63,11 +97,14 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldDeletedBy,
+	FieldCode,
 	FieldType,
 	FieldName,
 	FieldRarityID,
 	FieldDescription,
-	FieldMetadata,
+	FieldDisplayOrder,
+	FieldActive,
+	FieldVersion,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -94,10 +131,24 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultDisplayOrder holds the default value on creation for the "display_order" field.
+	DefaultDisplayOrder int
+	// DisplayOrderValidator is a validator for the "display_order" field. It is called by the builders before save.
+	DisplayOrderValidator func(int) error
+	// DefaultActive holds the default value on creation for the "active" field.
+	DefaultActive bool
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // Type defines the type for the "type" enum field.
@@ -151,6 +202,11 @@ func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedBy, opts...).ToFunc()
 }
 
+// ByCode orders the results by the code field.
+func ByCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCode, opts...).ToFunc()
+}
+
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
@@ -169,6 +225,21 @@ func ByRarityID(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByDisplayOrder orders the results by the display_order field.
+func ByDisplayOrder(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDisplayOrder, opts...).ToFunc()
+}
+
+// ByActive orders the results by the active field.
+func ByActive(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActive, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
 }
 
 // ByRarityField orders the results by rarity field.
@@ -191,6 +262,48 @@ func ByUserTraits(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserTraitsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByOnboardingOfferTalentsCount orders the results by onboarding_offer_talents count.
+func ByOnboardingOfferTalentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOnboardingOfferTalentsStep(), opts...)
+	}
+}
+
+// ByOnboardingOfferTalents orders the results by onboarding_offer_talents terms.
+func ByOnboardingOfferTalents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOnboardingOfferTalentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByEffectRevisionsCount orders the results by effect_revisions count.
+func ByEffectRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newEffectRevisionsStep(), opts...)
+	}
+}
+
+// ByEffectRevisions orders the results by effect_revisions terms.
+func ByEffectRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEffectRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRewardProfileTraitsCount orders the results by reward_profile_traits count.
+func ByRewardProfileTraitsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRewardProfileTraitsStep(), opts...)
+	}
+}
+
+// ByRewardProfileTraits orders the results by reward_profile_traits terms.
+func ByRewardProfileTraits(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRewardProfileTraitsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRarityStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -203,5 +316,26 @@ func newUserTraitsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserTraitsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserTraitsTable, UserTraitsColumn),
+	)
+}
+func newOnboardingOfferTalentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OnboardingOfferTalentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OnboardingOfferTalentsTable, OnboardingOfferTalentsColumn),
+	)
+}
+func newEffectRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EffectRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, EffectRevisionsTable, EffectRevisionsColumn),
+	)
+}
+func newRewardProfileTraitsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RewardProfileTraitsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RewardProfileTraitsTable, RewardProfileTraitsColumn),
 	)
 }

@@ -1,1 +1,33 @@
 .gitnexus
+
+# Local environment and secret material
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+/api/certs/*.pem
+!/api/certs/*.pem.example
+
+# Runtime state
+/api/storages/
+/storages/
+*.log
+
+# Generated verification output
+/api/coverage.out
+/api/bin/
+/api/tmp/
+/website/.next/
+/website/node_modules/
+/website/playwright-report/
+/website/test-results/
+/website/coverage/
+
+# Production operator material must never enter source control.
+/deploy/secrets/
+/deploy/env.production
+/deploy/config.production.yaml
+/deploy/*.local
+.DS_Store

@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -31,13 +32,13 @@ func (_u *UserDifficultyStatsUpdate) Where(ps ...predicate.UserDifficultyStats) 
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserDifficultyStatsUpdate) SetUserID(v int) *UserDifficultyStatsUpdate {
+func (_u *UserDifficultyStatsUpdate) SetUserID(v uuid.UUID) *UserDifficultyStatsUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserDifficultyStatsUpdate) SetNillableUserID(v *int) *UserDifficultyStatsUpdate {
+func (_u *UserDifficultyStatsUpdate) SetNillableUserID(v *uuid.UUID) *UserDifficultyStatsUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -45,13 +46,13 @@ func (_u *UserDifficultyStatsUpdate) SetNillableUserID(v *int) *UserDifficultySt
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_u *UserDifficultyStatsUpdate) SetDifficultyID(v int) *UserDifficultyStatsUpdate {
+func (_u *UserDifficultyStatsUpdate) SetDifficultyID(v uuid.UUID) *UserDifficultyStatsUpdate {
 	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
 // SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
-func (_u *UserDifficultyStatsUpdate) SetNillableDifficultyID(v *int) *UserDifficultyStatsUpdate {
+func (_u *UserDifficultyStatsUpdate) SetNillableDifficultyID(v *uuid.UUID) *UserDifficultyStatsUpdate {
 	if v != nil {
 		_u.SetDifficultyID(*v)
 	}
@@ -159,7 +160,7 @@ func (_u *UserDifficultyStatsUpdate) sqlSave(ctx context.Context) (_node int, er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userdifficultystats.Table, userdifficultystats.Columns, sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(userdifficultystats.Table, userdifficultystats.Columns, sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -181,7 +182,7 @@ func (_u *UserDifficultyStatsUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{userdifficultystats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -194,7 +195,7 @@ func (_u *UserDifficultyStatsUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{userdifficultystats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -210,7 +211,7 @@ func (_u *UserDifficultyStatsUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{userdifficultystats.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -223,7 +224,7 @@ func (_u *UserDifficultyStatsUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{userdifficultystats.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -254,13 +255,13 @@ type UserDifficultyStatsUpdateOne struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserDifficultyStatsUpdateOne) SetUserID(v int) *UserDifficultyStatsUpdateOne {
+func (_u *UserDifficultyStatsUpdateOne) SetUserID(v uuid.UUID) *UserDifficultyStatsUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserDifficultyStatsUpdateOne) SetNillableUserID(v *int) *UserDifficultyStatsUpdateOne {
+func (_u *UserDifficultyStatsUpdateOne) SetNillableUserID(v *uuid.UUID) *UserDifficultyStatsUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -268,13 +269,13 @@ func (_u *UserDifficultyStatsUpdateOne) SetNillableUserID(v *int) *UserDifficult
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_u *UserDifficultyStatsUpdateOne) SetDifficultyID(v int) *UserDifficultyStatsUpdateOne {
+func (_u *UserDifficultyStatsUpdateOne) SetDifficultyID(v uuid.UUID) *UserDifficultyStatsUpdateOne {
 	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
 // SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
-func (_u *UserDifficultyStatsUpdateOne) SetNillableDifficultyID(v *int) *UserDifficultyStatsUpdateOne {
+func (_u *UserDifficultyStatsUpdateOne) SetNillableDifficultyID(v *uuid.UUID) *UserDifficultyStatsUpdateOne {
 	if v != nil {
 		_u.SetDifficultyID(*v)
 	}
@@ -395,7 +396,7 @@ func (_u *UserDifficultyStatsUpdateOne) sqlSave(ctx context.Context) (_node *Use
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userdifficultystats.Table, userdifficultystats.Columns, sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(userdifficultystats.Table, userdifficultystats.Columns, sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "UserDifficultyStats.id" for update`)}
@@ -434,7 +435,7 @@ func (_u *UserDifficultyStatsUpdateOne) sqlSave(ctx context.Context) (_node *Use
 			Columns: []string{userdifficultystats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -447,7 +448,7 @@ func (_u *UserDifficultyStatsUpdateOne) sqlSave(ctx context.Context) (_node *Use
 			Columns: []string{userdifficultystats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -463,7 +464,7 @@ func (_u *UserDifficultyStatsUpdateOne) sqlSave(ctx context.Context) (_node *Use
 			Columns: []string{userdifficultystats.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -476,7 +477,7 @@ func (_u *UserDifficultyStatsUpdateOne) sqlSave(ctx context.Context) (_node *Use
 			Columns: []string{userdifficultystats.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

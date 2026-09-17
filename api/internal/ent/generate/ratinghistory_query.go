@@ -12,7 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -21,13 +23,14 @@ import (
 // RatingHistoryQuery is the builder for querying RatingHistory entities.
 type RatingHistoryQuery struct {
 	config
-	ctx         *QueryContext
-	order       []ratinghistory.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.RatingHistory
-	withUser    *UserQuery
-	withContest *ContestQuery
-	modifiers   []func(*sql.Selector)
+	ctx           *QueryContext
+	order         []ratinghistory.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.RatingHistory
+	withUser      *UserQuery
+	withContest   *ContestQuery
+	withRatingRun *ContestRatingRunQuery
+	modifiers     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -108,6 +111,28 @@ func (_q *RatingHistoryQuery) QueryContest() *ContestQuery {
 	return query
 }
 
+// QueryRatingRun chains the current query on the "rating_run" edge.
+func (_q *RatingHistoryQuery) QueryRatingRun() *ContestRatingRunQuery {
+	query := (&ContestRatingRunClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(ratinghistory.Table, ratinghistory.FieldID, selector),
+			sqlgraph.To(contestratingrun.Table, contestratingrun.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ratinghistory.RatingRunTable, ratinghistory.RatingRunColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first RatingHistory entity from the query.
 // Returns a *NotFoundError when no RatingHistory was found.
 func (_q *RatingHistoryQuery) First(ctx context.Context) (*RatingHistory, error) {
@@ -132,8 +157,8 @@ func (_q *RatingHistoryQuery) FirstX(ctx context.Context) *RatingHistory {
 
 // FirstID returns the first RatingHistory ID from the query.
 // Returns a *NotFoundError when no RatingHistory ID was found.
-func (_q *RatingHistoryQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *RatingHistoryQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -145,7 +170,7 @@ func (_q *RatingHistoryQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *RatingHistoryQuery) FirstIDX(ctx context.Context) int {
+func (_q *RatingHistoryQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -183,8 +208,8 @@ func (_q *RatingHistoryQuery) OnlyX(ctx context.Context) *RatingHistory {
 // OnlyID is like Only, but returns the only RatingHistory ID in the query.
 // Returns a *NotSingularError when more than one RatingHistory ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *RatingHistoryQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *RatingHistoryQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -200,7 +225,7 @@ func (_q *RatingHistoryQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *RatingHistoryQuery) OnlyIDX(ctx context.Context) int {
+func (_q *RatingHistoryQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -228,7 +253,7 @@ func (_q *RatingHistoryQuery) AllX(ctx context.Context) []*RatingHistory {
 }
 
 // IDs executes the query and returns a list of RatingHistory IDs.
-func (_q *RatingHistoryQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *RatingHistoryQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -240,7 +265,7 @@ func (_q *RatingHistoryQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *RatingHistoryQuery) IDsX(ctx context.Context) []int {
+func (_q *RatingHistoryQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -295,13 +320,14 @@ func (_q *RatingHistoryQuery) Clone() *RatingHistoryQuery {
 		return nil
 	}
 	return &RatingHistoryQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]ratinghistory.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.RatingHistory{}, _q.predicates...),
-		withUser:    _q.withUser.Clone(),
-		withContest: _q.withContest.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]ratinghistory.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.RatingHistory{}, _q.predicates...),
+		withUser:      _q.withUser.Clone(),
+		withContest:   _q.withContest.Clone(),
+		withRatingRun: _q.withRatingRun.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -331,13 +357,24 @@ func (_q *RatingHistoryQuery) WithContest(opts ...func(*ContestQuery)) *RatingHi
 	return _q
 }
 
+// WithRatingRun tells the query-builder to eager-load the nodes that are connected to
+// the "rating_run" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RatingHistoryQuery) WithRatingRun(opts ...func(*ContestRatingRunQuery)) *RatingHistoryQuery {
+	query := (&ContestRatingRunClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRatingRun = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		UserID uuid.UUID `json:"user_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -360,7 +397,7 @@ func (_q *RatingHistoryQuery) GroupBy(field string, fields ...string) *RatingHis
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		UserID uuid.UUID `json:"user_id,omitempty"`
 //	}
 //
 //	client.RatingHistory.Query().
@@ -409,9 +446,10 @@ func (_q *RatingHistoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	var (
 		nodes       = []*RatingHistory{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withUser != nil,
 			_q.withContest != nil,
+			_q.withRatingRun != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -447,12 +485,18 @@ func (_q *RatingHistoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 			return nil, err
 		}
 	}
+	if query := _q.withRatingRun; query != nil {
+		if err := _q.loadRatingRun(ctx, query, nodes, nil,
+			func(n *RatingHistory, e *ContestRatingRun) { n.Edges.RatingRun = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *RatingHistoryQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*RatingHistory, init func(*RatingHistory), assign func(*RatingHistory, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*RatingHistory)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*RatingHistory)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -480,8 +524,8 @@ func (_q *RatingHistoryQuery) loadUser(ctx context.Context, query *UserQuery, no
 	return nil
 }
 func (_q *RatingHistoryQuery) loadContest(ctx context.Context, query *ContestQuery, nodes []*RatingHistory, init func(*RatingHistory), assign func(*RatingHistory, *Contest)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*RatingHistory)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*RatingHistory)
 	for i := range nodes {
 		fk := nodes[i].ContestID
 		if _, ok := nodeids[fk]; !ok {
@@ -508,6 +552,38 @@ func (_q *RatingHistoryQuery) loadContest(ctx context.Context, query *ContestQue
 	}
 	return nil
 }
+func (_q *RatingHistoryQuery) loadRatingRun(ctx context.Context, query *ContestRatingRunQuery, nodes []*RatingHistory, init func(*RatingHistory), assign func(*RatingHistory, *ContestRatingRun)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*RatingHistory)
+	for i := range nodes {
+		if nodes[i].RatingRunID == nil {
+			continue
+		}
+		fk := *nodes[i].RatingRunID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(contestratingrun.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "rating_run_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *RatingHistoryQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -522,7 +598,7 @@ func (_q *RatingHistoryQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *RatingHistoryQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(ratinghistory.Table, ratinghistory.Columns, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(ratinghistory.Table, ratinghistory.Columns, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -542,6 +618,9 @@ func (_q *RatingHistoryQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withContest != nil {
 			_spec.Node.AddColumnOnce(ratinghistory.FieldContestID)
+		}
+		if _q.withRatingRun != nil {
+			_spec.Node.AddColumnOnce(ratinghistory.FieldRatingRunID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

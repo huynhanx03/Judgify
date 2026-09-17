@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "title": "Judgify API",
+  "refresh": "30s",
+  "panels": [
+    {
+      "title": "Request rate by status class",
+      "unit": "requests/s",
+      "expr": "sum by (status_class) (rate(judgify_http_requests_total{role=\"api\"}[5m]))"
+    },
+    {
+      "title": "Route p95 latency",
+      "unit": "seconds",
+      "expr": "histogram_quantile(0.95, sum by (route, le) (rate(judgify_http_request_duration_seconds_bucket{role=\"api\"}[5m])))"
+    },
+    {
+      "title": "Readiness failures",
+      "unit": "checks/s",
+      "expr": "sum by (check, outcome) (rate(judgify_health_checks_total{role=\"api\",probe=\"ready\",outcome!=\"healthy\"}[5m]))"
+    },
+    {
+      "title": "Database pool",
+      "unit": "connections",
+      "expr": "max by (state) (judgify_database_pool_connections)"
+    },
+    {
+      "title": "Authorization revision",
+      "unit": "revision",
+      "expr": "max by (kind) (judgify_authorization_revision)"
+    },
+    {
+      "title": "Process resources",
+      "unit": "count",
+      "expr": "max(judgify_process_goroutines)"
+    }
+  ]
+}

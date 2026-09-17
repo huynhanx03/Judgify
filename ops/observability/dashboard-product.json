@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "title": "Judgify Product",
+  "refresh": "30s",
+  "panels": [
+    {
+      "title": "Outbox state",
+      "unit": "events",
+      "expr": "max by (state) (judgify_outbox_events)"
+    },
+    {
+      "title": "Outbox convergence",
+      "unit": "seconds",
+      "expr": "max(judgify_outbox_oldest_pending_seconds)"
+    },
+    {
+      "title": "Realtime connections",
+      "unit": "connections",
+      "expr": "max(judgify_websocket_connections)"
+    },
+    {
+      "title": "Realtime outcomes",
+      "unit": "messages/s",
+      "expr": "sum by (direction, outcome) (rate(judgify_websocket_messages_total[5m]))"
+    },
+    {
+      "title": "Security email queue",
+      "unit": "deliveries",
+      "expr": "max by (state) (judgify_security_email_jobs)"
+    },
+    {
+      "title": "Campaign operations",
+      "unit": "operations",
+      "expr": "max by (state) (judgify_notification_campaign_operations)"
+    },
+    {
+      "title": "Contest projection lag",
+      "unit": "seconds",
+      "expr": "max by (projection) (judgify_contest_projection_lag_seconds)"
+    },
+    {
+      "title": "Backup age",
+      "unit": "seconds",
+      "expr": "time() - judgify_backup_last_success_timestamp_seconds"
+    }
+  ]
+}

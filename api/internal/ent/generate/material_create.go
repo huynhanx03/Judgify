@@ -8,12 +8,17 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialslug"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialviewdaily"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -69,13 +74,13 @@ func (_c *MaterialCreate) SetNillableDeletedAt(v *time.Time) *MaterialCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *MaterialCreate) SetDeletedBy(v int) *MaterialCreate {
+func (_c *MaterialCreate) SetDeletedBy(v string) *MaterialCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *MaterialCreate) SetNillableDeletedBy(v *int) *MaterialCreate {
+func (_c *MaterialCreate) SetNillableDeletedBy(v *string) *MaterialCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -85,6 +90,14 @@ func (_c *MaterialCreate) SetNillableDeletedBy(v *int) *MaterialCreate {
 // SetTitle sets the "title" field.
 func (_c *MaterialCreate) SetTitle(v string) *MaterialCreate {
 	_c.mutation.SetTitle(v)
+	return _c
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableTitle(v *string) *MaterialCreate {
+	if v != nil {
+		_c.SetTitle(*v)
+	}
 	return _c
 }
 
@@ -117,20 +130,92 @@ func (_c *MaterialCreate) SetNillableContent(v *string) *MaterialCreate {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_c *MaterialCreate) SetDifficultyID(v int) *MaterialCreate {
+func (_c *MaterialCreate) SetDifficultyID(v uuid.UUID) *MaterialCreate {
 	_c.mutation.SetDifficultyID(v)
 	return _c
 }
 
-// SetAuthorID sets the "author_id" field.
-func (_c *MaterialCreate) SetAuthorID(v int) *MaterialCreate {
-	_c.mutation.SetAuthorID(v)
+// SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableDifficultyID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetDifficultyID(*v)
+	}
 	return _c
 }
 
 // SetCategoryID sets the "category_id" field.
-func (_c *MaterialCreate) SetCategoryID(v int) *MaterialCreate {
+func (_c *MaterialCreate) SetCategoryID(v uuid.UUID) *MaterialCreate {
 	_c.mutation.SetCategoryID(v)
+	return _c
+}
+
+// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableCategoryID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetCategoryID(*v)
+	}
+	return _c
+}
+
+// SetGroupID sets the "group_id" field.
+func (_c *MaterialCreate) SetGroupID(v int) *MaterialCreate {
+	_c.mutation.SetGroupID(v)
+	return _c
+}
+
+// SetNillableGroupID sets the "group_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableGroupID(v *int) *MaterialCreate {
+	if v != nil {
+		_c.SetGroupID(*v)
+	}
+	return _c
+}
+
+// SetEstimatedReadTime sets the "estimated_read_time" field.
+func (_c *MaterialCreate) SetEstimatedReadTime(v int) *MaterialCreate {
+	_c.mutation.SetEstimatedReadTime(v)
+	return _c
+}
+
+// SetNillableEstimatedReadTime sets the "estimated_read_time" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableEstimatedReadTime(v *int) *MaterialCreate {
+	if v != nil {
+		_c.SetEstimatedReadTime(*v)
+	}
+	return _c
+}
+
+// SetCurrentSlugID sets the "current_slug_id" field.
+func (_c *MaterialCreate) SetCurrentSlugID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetCurrentSlugID(v)
+	return _c
+}
+
+// SetNillableCurrentSlugID sets the "current_slug_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableCurrentSlugID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetCurrentSlugID(*v)
+	}
+	return _c
+}
+
+// SetCurrentSlugState sets the "current_slug_state" field.
+func (_c *MaterialCreate) SetCurrentSlugState(v material.CurrentSlugState) *MaterialCreate {
+	_c.mutation.SetCurrentSlugState(v)
+	return _c
+}
+
+// SetNillableCurrentSlugState sets the "current_slug_state" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableCurrentSlugState(v *material.CurrentSlugState) *MaterialCreate {
+	if v != nil {
+		_c.SetCurrentSlugState(*v)
+	}
+	return _c
+}
+
+// SetAuthorID sets the "author_id" field.
+func (_c *MaterialCreate) SetAuthorID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetAuthorID(v)
 	return _c
 }
 
@@ -162,56 +247,160 @@ func (_c *MaterialCreate) SetNillableVisibility(v *material.Visibility) *Materia
 	return _c
 }
 
-// SetGroupID sets the "group_id" field.
-func (_c *MaterialCreate) SetGroupID(v int) *MaterialCreate {
-	_c.mutation.SetGroupID(v)
+// SetCurrentDraftRevisionID sets the "current_draft_revision_id" field.
+func (_c *MaterialCreate) SetCurrentDraftRevisionID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetCurrentDraftRevisionID(v)
 	return _c
 }
 
-// SetNillableGroupID sets the "group_id" field if the given value is not nil.
-func (_c *MaterialCreate) SetNillableGroupID(v *int) *MaterialCreate {
+// SetNillableCurrentDraftRevisionID sets the "current_draft_revision_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableCurrentDraftRevisionID(v *uuid.UUID) *MaterialCreate {
 	if v != nil {
-		_c.SetGroupID(*v)
+		_c.SetCurrentDraftRevisionID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (_c *MaterialCreate) SetPublishedRevisionID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetPublishedRevisionID(v)
+	return _c
+}
+
+// SetNillablePublishedRevisionID sets the "published_revision_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillablePublishedRevisionID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetPublishedRevisionID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (_c *MaterialCreate) SetPublishedRenderSourceID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetPublishedRenderSourceID(v)
+	return _c
+}
+
+// SetNillablePublishedRenderSourceID sets the "published_render_source_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillablePublishedRenderSourceID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetPublishedRenderSourceID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (_c *MaterialCreate) SetPublishedRenderArtifactID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetPublishedRenderArtifactID(v)
+	return _c
+}
+
+// SetNillablePublishedRenderArtifactID sets the "published_render_artifact_id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillablePublishedRenderArtifactID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetPublishedRenderArtifactID(*v)
+	}
+	return _c
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (_c *MaterialCreate) SetPublishedRenderSourceKind(v material.PublishedRenderSourceKind) *MaterialCreate {
+	_c.mutation.SetPublishedRenderSourceKind(v)
+	return _c
+}
+
+// SetNillablePublishedRenderSourceKind sets the "published_render_source_kind" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillablePublishedRenderSourceKind(v *material.PublishedRenderSourceKind) *MaterialCreate {
+	if v != nil {
+		_c.SetPublishedRenderSourceKind(*v)
+	}
+	return _c
+}
+
+// SetPublishedSourceChecksum sets the "published_source_checksum" field.
+func (_c *MaterialCreate) SetPublishedSourceChecksum(v []byte) *MaterialCreate {
+	_c.mutation.SetPublishedSourceChecksum(v)
+	return _c
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_c *MaterialCreate) SetPublishedAt(v time.Time) *MaterialCreate {
+	_c.mutation.SetPublishedAt(v)
+	return _c
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillablePublishedAt(v *time.Time) *MaterialCreate {
+	if v != nil {
+		_c.SetPublishedAt(*v)
+	}
+	return _c
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_c *MaterialCreate) SetArchivedAt(v time.Time) *MaterialCreate {
+	_c.mutation.SetArchivedAt(v)
+	return _c
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableArchivedAt(v *time.Time) *MaterialCreate {
+	if v != nil {
+		_c.SetArchivedAt(*v)
 	}
 	return _c
 }
 
 // SetViewCount sets the "view_count" field.
-func (_c *MaterialCreate) SetViewCount(v int) *MaterialCreate {
+func (_c *MaterialCreate) SetViewCount(v int64) *MaterialCreate {
 	_c.mutation.SetViewCount(v)
 	return _c
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (_c *MaterialCreate) SetNillableViewCount(v *int) *MaterialCreate {
+func (_c *MaterialCreate) SetNillableViewCount(v *int64) *MaterialCreate {
 	if v != nil {
 		_c.SetViewCount(*v)
 	}
 	return _c
 }
 
-// SetEstimatedReadTime sets the "estimated_read_time" field.
-func (_c *MaterialCreate) SetEstimatedReadTime(v int) *MaterialCreate {
-	_c.mutation.SetEstimatedReadTime(v)
+// SetVersion sets the "version" field.
+func (_c *MaterialCreate) SetVersion(v int64) *MaterialCreate {
+	_c.mutation.SetVersion(v)
 	return _c
 }
 
-// SetNillableEstimatedReadTime sets the "estimated_read_time" field if the given value is not nil.
-func (_c *MaterialCreate) SetNillableEstimatedReadTime(v *int) *MaterialCreate {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableVersion(v *int64) *MaterialCreate {
 	if v != nil {
-		_c.SetEstimatedReadTime(*v)
+		_c.SetVersion(*v)
 	}
 	return _c
 }
 
-// SetCategory sets the "category" edge to the MaterialCategory entity.
-func (_c *MaterialCreate) SetCategory(v *MaterialCategory) *MaterialCreate {
-	return _c.SetCategoryID(v.ID)
+// SetID sets the "id" field.
+func (_c *MaterialCreate) SetID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *MaterialCreate) SetNillableID(v *uuid.UUID) *MaterialCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
 }
 
 // SetAuthor sets the "author" edge to the User entity.
 func (_c *MaterialCreate) SetAuthor(v *User) *MaterialCreate {
 	return _c.SetAuthorID(v.ID)
+}
+
+// SetCategory sets the "category" edge to the MaterialCategory entity.
+func (_c *MaterialCreate) SetCategory(v *MaterialCategory) *MaterialCreate {
+	return _c.SetCategoryID(v.ID)
 }
 
 // SetDifficulty sets the "difficulty" edge to the Difficulty entity.
@@ -220,18 +409,63 @@ func (_c *MaterialCreate) SetDifficulty(v *Difficulty) *MaterialCreate {
 }
 
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_c *MaterialCreate) AddTagIDs(ids ...int) *MaterialCreate {
+func (_c *MaterialCreate) AddTagIDs(ids ...uuid.UUID) *MaterialCreate {
 	_c.mutation.AddTagIDs(ids...)
 	return _c
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_c *MaterialCreate) AddTags(v ...*Tag) *MaterialCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddTagIDs(ids...)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the MaterialRevision entity by IDs.
+func (_c *MaterialCreate) AddRevisionIDs(ids ...uuid.UUID) *MaterialCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the MaterialRevision entity.
+func (_c *MaterialCreate) AddRevisions(v ...*MaterialRevision) *MaterialCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
+}
+
+// AddSlugIDs adds the "slugs" edge to the MaterialSlug entity by IDs.
+func (_c *MaterialCreate) AddSlugIDs(ids ...uuid.UUID) *MaterialCreate {
+	_c.mutation.AddSlugIDs(ids...)
+	return _c
+}
+
+// AddSlugs adds the "slugs" edges to the MaterialSlug entity.
+func (_c *MaterialCreate) AddSlugs(v ...*MaterialSlug) *MaterialCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSlugIDs(ids...)
+}
+
+// AddDailyViewIDs adds the "daily_views" edge to the MaterialViewDaily entity by IDs.
+func (_c *MaterialCreate) AddDailyViewIDs(ids ...uuid.UUID) *MaterialCreate {
+	_c.mutation.AddDailyViewIDs(ids...)
+	return _c
+}
+
+// AddDailyViews adds the "daily_views" edges to the MaterialViewDaily entity.
+func (_c *MaterialCreate) AddDailyViews(v ...*MaterialViewDaily) *MaterialCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddDailyViewIDs(ids...)
 }
 
 // Mutation returns the MaterialMutation object of the builder.
@@ -285,6 +519,14 @@ func (_c *MaterialCreate) defaults() error {
 		v := material.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.EstimatedReadTime(); !ok {
+		v := material.DefaultEstimatedReadTime
+		_c.mutation.SetEstimatedReadTime(v)
+	}
+	if _, ok := _c.mutation.CurrentSlugState(); !ok {
+		v := material.DefaultCurrentSlugState
+		_c.mutation.SetCurrentSlugState(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := material.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -297,9 +539,16 @@ func (_c *MaterialCreate) defaults() error {
 		v := material.DefaultViewCount
 		_c.mutation.SetViewCount(v)
 	}
-	if _, ok := _c.mutation.EstimatedReadTime(); !ok {
-		v := material.DefaultEstimatedReadTime
-		_c.mutation.SetEstimatedReadTime(v)
+	if _, ok := _c.mutation.Version(); !ok {
+		v := material.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if material.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized material.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := material.DefaultID()
+		_c.mutation.SetID(v)
 	}
 	return nil
 }
@@ -312,9 +561,6 @@ func (_c *MaterialCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Material.updated_at"`)}
 	}
-	if _, ok := _c.mutation.Title(); !ok {
-		return &ValidationError{Name: "title", err: errors.New(`generate: missing required field "Material.title"`)}
-	}
 	if v, ok := _c.mutation.Title(); ok {
 		if err := material.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`generate: validator failed for field "Material.title": %w`, err)}
@@ -325,14 +571,24 @@ func (_c *MaterialCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Material.description": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.DifficultyID(); !ok {
-		return &ValidationError{Name: "difficulty_id", err: errors.New(`generate: missing required field "Material.difficulty_id"`)}
+	if _, ok := _c.mutation.EstimatedReadTime(); !ok {
+		return &ValidationError{Name: "estimated_read_time", err: errors.New(`generate: missing required field "Material.estimated_read_time"`)}
+	}
+	if v, ok := _c.mutation.EstimatedReadTime(); ok {
+		if err := material.EstimatedReadTimeValidator(v); err != nil {
+			return &ValidationError{Name: "estimated_read_time", err: fmt.Errorf(`generate: validator failed for field "Material.estimated_read_time": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.CurrentSlugState(); !ok {
+		return &ValidationError{Name: "current_slug_state", err: errors.New(`generate: missing required field "Material.current_slug_state"`)}
+	}
+	if v, ok := _c.mutation.CurrentSlugState(); ok {
+		if err := material.CurrentSlugStateValidator(v); err != nil {
+			return &ValidationError{Name: "current_slug_state", err: fmt.Errorf(`generate: validator failed for field "Material.current_slug_state": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.AuthorID(); !ok {
 		return &ValidationError{Name: "author_id", err: errors.New(`generate: missing required field "Material.author_id"`)}
-	}
-	if _, ok := _c.mutation.CategoryID(); !ok {
-		return &ValidationError{Name: "category_id", err: errors.New(`generate: missing required field "Material.category_id"`)}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "Material.status"`)}
@@ -350,6 +606,11 @@ func (_c *MaterialCreate) check() error {
 			return &ValidationError{Name: "visibility", err: fmt.Errorf(`generate: validator failed for field "Material.visibility": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.PublishedRenderSourceKind(); ok {
+		if err := material.PublishedRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "published_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Material.published_render_source_kind": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.ViewCount(); !ok {
 		return &ValidationError{Name: "view_count", err: errors.New(`generate: missing required field "Material.view_count"`)}
 	}
@@ -358,22 +619,16 @@ func (_c *MaterialCreate) check() error {
 			return &ValidationError{Name: "view_count", err: fmt.Errorf(`generate: validator failed for field "Material.view_count": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.EstimatedReadTime(); !ok {
-		return &ValidationError{Name: "estimated_read_time", err: errors.New(`generate: missing required field "Material.estimated_read_time"`)}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Material.version"`)}
 	}
-	if v, ok := _c.mutation.EstimatedReadTime(); ok {
-		if err := material.EstimatedReadTimeValidator(v); err != nil {
-			return &ValidationError{Name: "estimated_read_time", err: fmt.Errorf(`generate: validator failed for field "Material.estimated_read_time": %w`, err)}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := material.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Material.version": %w`, err)}
 		}
-	}
-	if len(_c.mutation.CategoryIDs()) == 0 {
-		return &ValidationError{Name: "category", err: errors.New(`generate: missing required edge "Material.category"`)}
 	}
 	if len(_c.mutation.AuthorIDs()) == 0 {
 		return &ValidationError{Name: "author", err: errors.New(`generate: missing required edge "Material.author"`)}
-	}
-	if len(_c.mutation.DifficultyIDs()) == 0 {
-		return &ValidationError{Name: "difficulty", err: errors.New(`generate: missing required edge "Material.difficulty"`)}
 	}
 	return nil
 }
@@ -389,8 +644,13 @@ func (_c *MaterialCreate) sqlSave(ctx context.Context) (*Material, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -399,9 +659,13 @@ func (_c *MaterialCreate) sqlSave(ctx context.Context) (*Material, error) {
 func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Material{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(material.Table, sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(material.Table, sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(material.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -415,7 +679,7 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(material.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(material.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Title(); ok {
@@ -430,6 +694,22 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 		_spec.SetField(material.FieldContent, field.TypeString, value)
 		_node.Content = value
 	}
+	if value, ok := _c.mutation.GroupID(); ok {
+		_spec.SetField(material.FieldGroupID, field.TypeInt, value)
+		_node.GroupID = &value
+	}
+	if value, ok := _c.mutation.EstimatedReadTime(); ok {
+		_spec.SetField(material.FieldEstimatedReadTime, field.TypeInt, value)
+		_node.EstimatedReadTime = value
+	}
+	if value, ok := _c.mutation.CurrentSlugID(); ok {
+		_spec.SetField(material.FieldCurrentSlugID, field.TypeUUID, value)
+		_node.CurrentSlugID = &value
+	}
+	if value, ok := _c.mutation.CurrentSlugState(); ok {
+		_spec.SetField(material.FieldCurrentSlugState, field.TypeEnum, value)
+		_node.CurrentSlugState = value
+	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(material.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
@@ -438,34 +718,45 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 		_spec.SetField(material.FieldVisibility, field.TypeEnum, value)
 		_node.Visibility = value
 	}
-	if value, ok := _c.mutation.GroupID(); ok {
-		_spec.SetField(material.FieldGroupID, field.TypeInt, value)
-		_node.GroupID = &value
+	if value, ok := _c.mutation.CurrentDraftRevisionID(); ok {
+		_spec.SetField(material.FieldCurrentDraftRevisionID, field.TypeUUID, value)
+		_node.CurrentDraftRevisionID = &value
+	}
+	if value, ok := _c.mutation.PublishedRevisionID(); ok {
+		_spec.SetField(material.FieldPublishedRevisionID, field.TypeUUID, value)
+		_node.PublishedRevisionID = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderSourceID(); ok {
+		_spec.SetField(material.FieldPublishedRenderSourceID, field.TypeUUID, value)
+		_node.PublishedRenderSourceID = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderArtifactID(); ok {
+		_spec.SetField(material.FieldPublishedRenderArtifactID, field.TypeUUID, value)
+		_node.PublishedRenderArtifactID = &value
+	}
+	if value, ok := _c.mutation.PublishedRenderSourceKind(); ok {
+		_spec.SetField(material.FieldPublishedRenderSourceKind, field.TypeEnum, value)
+		_node.PublishedRenderSourceKind = &value
+	}
+	if value, ok := _c.mutation.PublishedSourceChecksum(); ok {
+		_spec.SetField(material.FieldPublishedSourceChecksum, field.TypeBytes, value)
+		_node.PublishedSourceChecksum = &value
+	}
+	if value, ok := _c.mutation.PublishedAt(); ok {
+		_spec.SetField(material.FieldPublishedAt, field.TypeTime, value)
+		_node.PublishedAt = &value
+	}
+	if value, ok := _c.mutation.ArchivedAt(); ok {
+		_spec.SetField(material.FieldArchivedAt, field.TypeTime, value)
+		_node.ArchivedAt = &value
 	}
 	if value, ok := _c.mutation.ViewCount(); ok {
-		_spec.SetField(material.FieldViewCount, field.TypeInt, value)
+		_spec.SetField(material.FieldViewCount, field.TypeInt64, value)
 		_node.ViewCount = value
 	}
-	if value, ok := _c.mutation.EstimatedReadTime(); ok {
-		_spec.SetField(material.FieldEstimatedReadTime, field.TypeInt, value)
-		_node.EstimatedReadTime = value
-	}
-	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   material.CategoryTable,
-			Columns: []string{material.CategoryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.CategoryID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(material.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
 	}
 	if nodes := _c.mutation.AuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -475,13 +766,30 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 			Columns: []string{material.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AuthorID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   material.CategoryTable,
+			Columns: []string{material.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CategoryID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.DifficultyIDs(); len(nodes) > 0 {
@@ -492,7 +800,7 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 			Columns: []string{material.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -509,7 +817,55 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SlugsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DailyViewsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -600,7 +956,7 @@ func (u *MaterialUpsert) ClearDeletedAt() *MaterialUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *MaterialUpsert) SetDeletedBy(v int) *MaterialUpsert {
+func (u *MaterialUpsert) SetDeletedBy(v string) *MaterialUpsert {
 	u.Set(material.FieldDeletedBy, v)
 	return u
 }
@@ -608,12 +964,6 @@ func (u *MaterialUpsert) SetDeletedBy(v int) *MaterialUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *MaterialUpsert) UpdateDeletedBy() *MaterialUpsert {
 	u.SetExcluded(material.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *MaterialUpsert) AddDeletedBy(v int) *MaterialUpsert {
-	u.Add(material.FieldDeletedBy, v)
 	return u
 }
 
@@ -632,6 +982,12 @@ func (u *MaterialUpsert) SetTitle(v string) *MaterialUpsert {
 // UpdateTitle sets the "title" field to the value that was provided on create.
 func (u *MaterialUpsert) UpdateTitle() *MaterialUpsert {
 	u.SetExcluded(material.FieldTitle)
+	return u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *MaterialUpsert) ClearTitle() *MaterialUpsert {
+	u.SetNull(material.FieldTitle)
 	return u
 }
 
@@ -672,7 +1028,7 @@ func (u *MaterialUpsert) ClearContent() *MaterialUpsert {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *MaterialUpsert) SetDifficultyID(v int) *MaterialUpsert {
+func (u *MaterialUpsert) SetDifficultyID(v uuid.UUID) *MaterialUpsert {
 	u.Set(material.FieldDifficultyID, v)
 	return u
 }
@@ -683,20 +1039,14 @@ func (u *MaterialUpsert) UpdateDifficultyID() *MaterialUpsert {
 	return u
 }
 
-// SetAuthorID sets the "author_id" field.
-func (u *MaterialUpsert) SetAuthorID(v int) *MaterialUpsert {
-	u.Set(material.FieldAuthorID, v)
-	return u
-}
-
-// UpdateAuthorID sets the "author_id" field to the value that was provided on create.
-func (u *MaterialUpsert) UpdateAuthorID() *MaterialUpsert {
-	u.SetExcluded(material.FieldAuthorID)
+// ClearDifficultyID clears the value of the "difficulty_id" field.
+func (u *MaterialUpsert) ClearDifficultyID() *MaterialUpsert {
+	u.SetNull(material.FieldDifficultyID)
 	return u
 }
 
 // SetCategoryID sets the "category_id" field.
-func (u *MaterialUpsert) SetCategoryID(v int) *MaterialUpsert {
+func (u *MaterialUpsert) SetCategoryID(v uuid.UUID) *MaterialUpsert {
 	u.Set(material.FieldCategoryID, v)
 	return u
 }
@@ -707,27 +1057,9 @@ func (u *MaterialUpsert) UpdateCategoryID() *MaterialUpsert {
 	return u
 }
 
-// SetStatus sets the "status" field.
-func (u *MaterialUpsert) SetStatus(v material.Status) *MaterialUpsert {
-	u.Set(material.FieldStatus, v)
-	return u
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *MaterialUpsert) UpdateStatus() *MaterialUpsert {
-	u.SetExcluded(material.FieldStatus)
-	return u
-}
-
-// SetVisibility sets the "visibility" field.
-func (u *MaterialUpsert) SetVisibility(v material.Visibility) *MaterialUpsert {
-	u.Set(material.FieldVisibility, v)
-	return u
-}
-
-// UpdateVisibility sets the "visibility" field to the value that was provided on create.
-func (u *MaterialUpsert) UpdateVisibility() *MaterialUpsert {
-	u.SetExcluded(material.FieldVisibility)
+// ClearCategoryID clears the value of the "category_id" field.
+func (u *MaterialUpsert) ClearCategoryID() *MaterialUpsert {
+	u.SetNull(material.FieldCategoryID)
 	return u
 }
 
@@ -755,24 +1087,6 @@ func (u *MaterialUpsert) ClearGroupID() *MaterialUpsert {
 	return u
 }
 
-// SetViewCount sets the "view_count" field.
-func (u *MaterialUpsert) SetViewCount(v int) *MaterialUpsert {
-	u.Set(material.FieldViewCount, v)
-	return u
-}
-
-// UpdateViewCount sets the "view_count" field to the value that was provided on create.
-func (u *MaterialUpsert) UpdateViewCount() *MaterialUpsert {
-	u.SetExcluded(material.FieldViewCount)
-	return u
-}
-
-// AddViewCount adds v to the "view_count" field.
-func (u *MaterialUpsert) AddViewCount(v int) *MaterialUpsert {
-	u.Add(material.FieldViewCount, v)
-	return u
-}
-
 // SetEstimatedReadTime sets the "estimated_read_time" field.
 func (u *MaterialUpsert) SetEstimatedReadTime(v int) *MaterialUpsert {
 	u.Set(material.FieldEstimatedReadTime, v)
@@ -791,17 +1105,269 @@ func (u *MaterialUpsert) AddEstimatedReadTime(v int) *MaterialUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetCurrentSlugID sets the "current_slug_id" field.
+func (u *MaterialUpsert) SetCurrentSlugID(v uuid.UUID) *MaterialUpsert {
+	u.Set(material.FieldCurrentSlugID, v)
+	return u
+}
+
+// UpdateCurrentSlugID sets the "current_slug_id" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateCurrentSlugID() *MaterialUpsert {
+	u.SetExcluded(material.FieldCurrentSlugID)
+	return u
+}
+
+// ClearCurrentSlugID clears the value of the "current_slug_id" field.
+func (u *MaterialUpsert) ClearCurrentSlugID() *MaterialUpsert {
+	u.SetNull(material.FieldCurrentSlugID)
+	return u
+}
+
+// SetCurrentSlugState sets the "current_slug_state" field.
+func (u *MaterialUpsert) SetCurrentSlugState(v material.CurrentSlugState) *MaterialUpsert {
+	u.Set(material.FieldCurrentSlugState, v)
+	return u
+}
+
+// UpdateCurrentSlugState sets the "current_slug_state" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateCurrentSlugState() *MaterialUpsert {
+	u.SetExcluded(material.FieldCurrentSlugState)
+	return u
+}
+
+// SetAuthorID sets the "author_id" field.
+func (u *MaterialUpsert) SetAuthorID(v uuid.UUID) *MaterialUpsert {
+	u.Set(material.FieldAuthorID, v)
+	return u
+}
+
+// UpdateAuthorID sets the "author_id" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateAuthorID() *MaterialUpsert {
+	u.SetExcluded(material.FieldAuthorID)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *MaterialUpsert) SetStatus(v material.Status) *MaterialUpsert {
+	u.Set(material.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateStatus() *MaterialUpsert {
+	u.SetExcluded(material.FieldStatus)
+	return u
+}
+
+// SetVisibility sets the "visibility" field.
+func (u *MaterialUpsert) SetVisibility(v material.Visibility) *MaterialUpsert {
+	u.Set(material.FieldVisibility, v)
+	return u
+}
+
+// UpdateVisibility sets the "visibility" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateVisibility() *MaterialUpsert {
+	u.SetExcluded(material.FieldVisibility)
+	return u
+}
+
+// SetCurrentDraftRevisionID sets the "current_draft_revision_id" field.
+func (u *MaterialUpsert) SetCurrentDraftRevisionID(v uuid.UUID) *MaterialUpsert {
+	u.Set(material.FieldCurrentDraftRevisionID, v)
+	return u
+}
+
+// UpdateCurrentDraftRevisionID sets the "current_draft_revision_id" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateCurrentDraftRevisionID() *MaterialUpsert {
+	u.SetExcluded(material.FieldCurrentDraftRevisionID)
+	return u
+}
+
+// ClearCurrentDraftRevisionID clears the value of the "current_draft_revision_id" field.
+func (u *MaterialUpsert) ClearCurrentDraftRevisionID() *MaterialUpsert {
+	u.SetNull(material.FieldCurrentDraftRevisionID)
+	return u
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (u *MaterialUpsert) SetPublishedRevisionID(v uuid.UUID) *MaterialUpsert {
+	u.Set(material.FieldPublishedRevisionID, v)
+	return u
+}
+
+// UpdatePublishedRevisionID sets the "published_revision_id" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdatePublishedRevisionID() *MaterialUpsert {
+	u.SetExcluded(material.FieldPublishedRevisionID)
+	return u
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (u *MaterialUpsert) ClearPublishedRevisionID() *MaterialUpsert {
+	u.SetNull(material.FieldPublishedRevisionID)
+	return u
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (u *MaterialUpsert) SetPublishedRenderSourceID(v uuid.UUID) *MaterialUpsert {
+	u.Set(material.FieldPublishedRenderSourceID, v)
+	return u
+}
+
+// UpdatePublishedRenderSourceID sets the "published_render_source_id" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdatePublishedRenderSourceID() *MaterialUpsert {
+	u.SetExcluded(material.FieldPublishedRenderSourceID)
+	return u
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (u *MaterialUpsert) ClearPublishedRenderSourceID() *MaterialUpsert {
+	u.SetNull(material.FieldPublishedRenderSourceID)
+	return u
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (u *MaterialUpsert) SetPublishedRenderArtifactID(v uuid.UUID) *MaterialUpsert {
+	u.Set(material.FieldPublishedRenderArtifactID, v)
+	return u
+}
+
+// UpdatePublishedRenderArtifactID sets the "published_render_artifact_id" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdatePublishedRenderArtifactID() *MaterialUpsert {
+	u.SetExcluded(material.FieldPublishedRenderArtifactID)
+	return u
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (u *MaterialUpsert) ClearPublishedRenderArtifactID() *MaterialUpsert {
+	u.SetNull(material.FieldPublishedRenderArtifactID)
+	return u
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (u *MaterialUpsert) SetPublishedRenderSourceKind(v material.PublishedRenderSourceKind) *MaterialUpsert {
+	u.Set(material.FieldPublishedRenderSourceKind, v)
+	return u
+}
+
+// UpdatePublishedRenderSourceKind sets the "published_render_source_kind" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdatePublishedRenderSourceKind() *MaterialUpsert {
+	u.SetExcluded(material.FieldPublishedRenderSourceKind)
+	return u
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (u *MaterialUpsert) ClearPublishedRenderSourceKind() *MaterialUpsert {
+	u.SetNull(material.FieldPublishedRenderSourceKind)
+	return u
+}
+
+// SetPublishedSourceChecksum sets the "published_source_checksum" field.
+func (u *MaterialUpsert) SetPublishedSourceChecksum(v []byte) *MaterialUpsert {
+	u.Set(material.FieldPublishedSourceChecksum, v)
+	return u
+}
+
+// UpdatePublishedSourceChecksum sets the "published_source_checksum" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdatePublishedSourceChecksum() *MaterialUpsert {
+	u.SetExcluded(material.FieldPublishedSourceChecksum)
+	return u
+}
+
+// ClearPublishedSourceChecksum clears the value of the "published_source_checksum" field.
+func (u *MaterialUpsert) ClearPublishedSourceChecksum() *MaterialUpsert {
+	u.SetNull(material.FieldPublishedSourceChecksum)
+	return u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *MaterialUpsert) SetPublishedAt(v time.Time) *MaterialUpsert {
+	u.Set(material.FieldPublishedAt, v)
+	return u
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdatePublishedAt() *MaterialUpsert {
+	u.SetExcluded(material.FieldPublishedAt)
+	return u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *MaterialUpsert) ClearPublishedAt() *MaterialUpsert {
+	u.SetNull(material.FieldPublishedAt)
+	return u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (u *MaterialUpsert) SetArchivedAt(v time.Time) *MaterialUpsert {
+	u.Set(material.FieldArchivedAt, v)
+	return u
+}
+
+// UpdateArchivedAt sets the "archived_at" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateArchivedAt() *MaterialUpsert {
+	u.SetExcluded(material.FieldArchivedAt)
+	return u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (u *MaterialUpsert) ClearArchivedAt() *MaterialUpsert {
+	u.SetNull(material.FieldArchivedAt)
+	return u
+}
+
+// SetViewCount sets the "view_count" field.
+func (u *MaterialUpsert) SetViewCount(v int64) *MaterialUpsert {
+	u.Set(material.FieldViewCount, v)
+	return u
+}
+
+// UpdateViewCount sets the "view_count" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateViewCount() *MaterialUpsert {
+	u.SetExcluded(material.FieldViewCount)
+	return u
+}
+
+// AddViewCount adds v to the "view_count" field.
+func (u *MaterialUpsert) AddViewCount(v int64) *MaterialUpsert {
+	u.Add(material.FieldViewCount, v)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *MaterialUpsert) SetVersion(v int64) *MaterialUpsert {
+	u.Set(material.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *MaterialUpsert) UpdateVersion() *MaterialUpsert {
+	u.SetExcluded(material.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *MaterialUpsert) AddVersion(v int64) *MaterialUpsert {
+	u.Add(material.FieldVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Material.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(material.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MaterialUpsertOne) UpdateNewValues() *MaterialUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(material.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(material.FieldCreatedAt)
 		}
@@ -872,16 +1438,9 @@ func (u *MaterialUpsertOne) ClearDeletedAt() *MaterialUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *MaterialUpsertOne) SetDeletedBy(v int) *MaterialUpsertOne {
+func (u *MaterialUpsertOne) SetDeletedBy(v string) *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *MaterialUpsertOne) AddDeletedBy(v int) *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -910,6 +1469,13 @@ func (u *MaterialUpsertOne) SetTitle(v string) *MaterialUpsertOne {
 func (u *MaterialUpsertOne) UpdateTitle() *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
 		s.UpdateTitle()
+	})
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *MaterialUpsertOne) ClearTitle() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearTitle()
 	})
 }
 
@@ -956,7 +1522,7 @@ func (u *MaterialUpsertOne) ClearContent() *MaterialUpsertOne {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *MaterialUpsertOne) SetDifficultyID(v int) *MaterialUpsertOne {
+func (u *MaterialUpsertOne) SetDifficultyID(v uuid.UUID) *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
 		s.SetDifficultyID(v)
 	})
@@ -969,22 +1535,15 @@ func (u *MaterialUpsertOne) UpdateDifficultyID() *MaterialUpsertOne {
 	})
 }
 
-// SetAuthorID sets the "author_id" field.
-func (u *MaterialUpsertOne) SetAuthorID(v int) *MaterialUpsertOne {
+// ClearDifficultyID clears the value of the "difficulty_id" field.
+func (u *MaterialUpsertOne) ClearDifficultyID() *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
-		s.SetAuthorID(v)
-	})
-}
-
-// UpdateAuthorID sets the "author_id" field to the value that was provided on create.
-func (u *MaterialUpsertOne) UpdateAuthorID() *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateAuthorID()
+		s.ClearDifficultyID()
 	})
 }
 
 // SetCategoryID sets the "category_id" field.
-func (u *MaterialUpsertOne) SetCategoryID(v int) *MaterialUpsertOne {
+func (u *MaterialUpsertOne) SetCategoryID(v uuid.UUID) *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
 		s.SetCategoryID(v)
 	})
@@ -997,31 +1556,10 @@ func (u *MaterialUpsertOne) UpdateCategoryID() *MaterialUpsertOne {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *MaterialUpsertOne) SetStatus(v material.Status) *MaterialUpsertOne {
+// ClearCategoryID clears the value of the "category_id" field.
+func (u *MaterialUpsertOne) ClearCategoryID() *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
-		s.SetStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *MaterialUpsertOne) UpdateStatus() *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateStatus()
-	})
-}
-
-// SetVisibility sets the "visibility" field.
-func (u *MaterialUpsertOne) SetVisibility(v material.Visibility) *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.SetVisibility(v)
-	})
-}
-
-// UpdateVisibility sets the "visibility" field to the value that was provided on create.
-func (u *MaterialUpsertOne) UpdateVisibility() *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateVisibility()
+		s.ClearCategoryID()
 	})
 }
 
@@ -1053,27 +1591,6 @@ func (u *MaterialUpsertOne) ClearGroupID() *MaterialUpsertOne {
 	})
 }
 
-// SetViewCount sets the "view_count" field.
-func (u *MaterialUpsertOne) SetViewCount(v int) *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.SetViewCount(v)
-	})
-}
-
-// AddViewCount adds v to the "view_count" field.
-func (u *MaterialUpsertOne) AddViewCount(v int) *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.AddViewCount(v)
-	})
-}
-
-// UpdateViewCount sets the "view_count" field to the value that was provided on create.
-func (u *MaterialUpsertOne) UpdateViewCount() *MaterialUpsertOne {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateViewCount()
-	})
-}
-
 // SetEstimatedReadTime sets the "estimated_read_time" field.
 func (u *MaterialUpsertOne) SetEstimatedReadTime(v int) *MaterialUpsertOne {
 	return u.Update(func(s *MaterialUpsert) {
@@ -1095,6 +1612,293 @@ func (u *MaterialUpsertOne) UpdateEstimatedReadTime() *MaterialUpsertOne {
 	})
 }
 
+// SetCurrentSlugID sets the "current_slug_id" field.
+func (u *MaterialUpsertOne) SetCurrentSlugID(v uuid.UUID) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetCurrentSlugID(v)
+	})
+}
+
+// UpdateCurrentSlugID sets the "current_slug_id" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateCurrentSlugID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateCurrentSlugID()
+	})
+}
+
+// ClearCurrentSlugID clears the value of the "current_slug_id" field.
+func (u *MaterialUpsertOne) ClearCurrentSlugID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearCurrentSlugID()
+	})
+}
+
+// SetCurrentSlugState sets the "current_slug_state" field.
+func (u *MaterialUpsertOne) SetCurrentSlugState(v material.CurrentSlugState) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetCurrentSlugState(v)
+	})
+}
+
+// UpdateCurrentSlugState sets the "current_slug_state" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateCurrentSlugState() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateCurrentSlugState()
+	})
+}
+
+// SetAuthorID sets the "author_id" field.
+func (u *MaterialUpsertOne) SetAuthorID(v uuid.UUID) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetAuthorID(v)
+	})
+}
+
+// UpdateAuthorID sets the "author_id" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateAuthorID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateAuthorID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *MaterialUpsertOne) SetStatus(v material.Status) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateStatus() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetVisibility sets the "visibility" field.
+func (u *MaterialUpsertOne) SetVisibility(v material.Visibility) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetVisibility(v)
+	})
+}
+
+// UpdateVisibility sets the "visibility" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateVisibility() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateVisibility()
+	})
+}
+
+// SetCurrentDraftRevisionID sets the "current_draft_revision_id" field.
+func (u *MaterialUpsertOne) SetCurrentDraftRevisionID(v uuid.UUID) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetCurrentDraftRevisionID(v)
+	})
+}
+
+// UpdateCurrentDraftRevisionID sets the "current_draft_revision_id" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateCurrentDraftRevisionID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateCurrentDraftRevisionID()
+	})
+}
+
+// ClearCurrentDraftRevisionID clears the value of the "current_draft_revision_id" field.
+func (u *MaterialUpsertOne) ClearCurrentDraftRevisionID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearCurrentDraftRevisionID()
+	})
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (u *MaterialUpsertOne) SetPublishedRevisionID(v uuid.UUID) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRevisionID(v)
+	})
+}
+
+// UpdatePublishedRevisionID sets the "published_revision_id" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdatePublishedRevisionID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRevisionID()
+	})
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (u *MaterialUpsertOne) ClearPublishedRevisionID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRevisionID()
+	})
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (u *MaterialUpsertOne) SetPublishedRenderSourceID(v uuid.UUID) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRenderSourceID(v)
+	})
+}
+
+// UpdatePublishedRenderSourceID sets the "published_render_source_id" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdatePublishedRenderSourceID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRenderSourceID()
+	})
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (u *MaterialUpsertOne) ClearPublishedRenderSourceID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRenderSourceID()
+	})
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (u *MaterialUpsertOne) SetPublishedRenderArtifactID(v uuid.UUID) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRenderArtifactID(v)
+	})
+}
+
+// UpdatePublishedRenderArtifactID sets the "published_render_artifact_id" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdatePublishedRenderArtifactID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRenderArtifactID()
+	})
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (u *MaterialUpsertOne) ClearPublishedRenderArtifactID() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRenderArtifactID()
+	})
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (u *MaterialUpsertOne) SetPublishedRenderSourceKind(v material.PublishedRenderSourceKind) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRenderSourceKind(v)
+	})
+}
+
+// UpdatePublishedRenderSourceKind sets the "published_render_source_kind" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdatePublishedRenderSourceKind() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRenderSourceKind()
+	})
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (u *MaterialUpsertOne) ClearPublishedRenderSourceKind() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRenderSourceKind()
+	})
+}
+
+// SetPublishedSourceChecksum sets the "published_source_checksum" field.
+func (u *MaterialUpsertOne) SetPublishedSourceChecksum(v []byte) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedSourceChecksum(v)
+	})
+}
+
+// UpdatePublishedSourceChecksum sets the "published_source_checksum" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdatePublishedSourceChecksum() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedSourceChecksum()
+	})
+}
+
+// ClearPublishedSourceChecksum clears the value of the "published_source_checksum" field.
+func (u *MaterialUpsertOne) ClearPublishedSourceChecksum() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedSourceChecksum()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *MaterialUpsertOne) SetPublishedAt(v time.Time) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdatePublishedAt() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *MaterialUpsertOne) ClearPublishedAt() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedAt()
+	})
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (u *MaterialUpsertOne) SetArchivedAt(v time.Time) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetArchivedAt(v)
+	})
+}
+
+// UpdateArchivedAt sets the "archived_at" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateArchivedAt() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateArchivedAt()
+	})
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (u *MaterialUpsertOne) ClearArchivedAt() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearArchivedAt()
+	})
+}
+
+// SetViewCount sets the "view_count" field.
+func (u *MaterialUpsertOne) SetViewCount(v int64) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetViewCount(v)
+	})
+}
+
+// AddViewCount adds v to the "view_count" field.
+func (u *MaterialUpsertOne) AddViewCount(v int64) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.AddViewCount(v)
+	})
+}
+
+// UpdateViewCount sets the "view_count" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateViewCount() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateViewCount()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *MaterialUpsertOne) SetVersion(v int64) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *MaterialUpsertOne) AddVersion(v int64) *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *MaterialUpsertOne) UpdateVersion() *MaterialUpsertOne {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateVersion()
+	})
+}
+
 // Exec executes the query.
 func (u *MaterialUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -1111,7 +1915,12 @@ func (u *MaterialUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *MaterialUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *MaterialUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: MaterialUpsertOne.ID is not supported by MySQL driver. Use MaterialUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1120,17 +1929,12 @@ func (u *MaterialUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *MaterialUpsertOne) IDX(ctx context.Context) int {
+func (u *MaterialUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *MaterialCreate) SetID(id int) *MaterialCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // MaterialCreateBulk is the builder for creating many Material entities in bulk.
@@ -1180,10 +1984,6 @@ func (_c *MaterialCreateBulk) Save(ctx context.Context) ([]*Material, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1270,12 +2070,18 @@ type MaterialUpsertBulk struct {
 //	client.Material.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(material.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *MaterialUpsertBulk) UpdateNewValues() *MaterialUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(material.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(material.FieldCreatedAt)
 			}
@@ -1347,16 +2153,9 @@ func (u *MaterialUpsertBulk) ClearDeletedAt() *MaterialUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *MaterialUpsertBulk) SetDeletedBy(v int) *MaterialUpsertBulk {
+func (u *MaterialUpsertBulk) SetDeletedBy(v string) *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *MaterialUpsertBulk) AddDeletedBy(v int) *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1385,6 +2184,13 @@ func (u *MaterialUpsertBulk) SetTitle(v string) *MaterialUpsertBulk {
 func (u *MaterialUpsertBulk) UpdateTitle() *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
 		s.UpdateTitle()
+	})
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *MaterialUpsertBulk) ClearTitle() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearTitle()
 	})
 }
 
@@ -1431,7 +2237,7 @@ func (u *MaterialUpsertBulk) ClearContent() *MaterialUpsertBulk {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *MaterialUpsertBulk) SetDifficultyID(v int) *MaterialUpsertBulk {
+func (u *MaterialUpsertBulk) SetDifficultyID(v uuid.UUID) *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
 		s.SetDifficultyID(v)
 	})
@@ -1444,22 +2250,15 @@ func (u *MaterialUpsertBulk) UpdateDifficultyID() *MaterialUpsertBulk {
 	})
 }
 
-// SetAuthorID sets the "author_id" field.
-func (u *MaterialUpsertBulk) SetAuthorID(v int) *MaterialUpsertBulk {
+// ClearDifficultyID clears the value of the "difficulty_id" field.
+func (u *MaterialUpsertBulk) ClearDifficultyID() *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
-		s.SetAuthorID(v)
-	})
-}
-
-// UpdateAuthorID sets the "author_id" field to the value that was provided on create.
-func (u *MaterialUpsertBulk) UpdateAuthorID() *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateAuthorID()
+		s.ClearDifficultyID()
 	})
 }
 
 // SetCategoryID sets the "category_id" field.
-func (u *MaterialUpsertBulk) SetCategoryID(v int) *MaterialUpsertBulk {
+func (u *MaterialUpsertBulk) SetCategoryID(v uuid.UUID) *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
 		s.SetCategoryID(v)
 	})
@@ -1472,31 +2271,10 @@ func (u *MaterialUpsertBulk) UpdateCategoryID() *MaterialUpsertBulk {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *MaterialUpsertBulk) SetStatus(v material.Status) *MaterialUpsertBulk {
+// ClearCategoryID clears the value of the "category_id" field.
+func (u *MaterialUpsertBulk) ClearCategoryID() *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
-		s.SetStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *MaterialUpsertBulk) UpdateStatus() *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateStatus()
-	})
-}
-
-// SetVisibility sets the "visibility" field.
-func (u *MaterialUpsertBulk) SetVisibility(v material.Visibility) *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.SetVisibility(v)
-	})
-}
-
-// UpdateVisibility sets the "visibility" field to the value that was provided on create.
-func (u *MaterialUpsertBulk) UpdateVisibility() *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateVisibility()
+		s.ClearCategoryID()
 	})
 }
 
@@ -1528,27 +2306,6 @@ func (u *MaterialUpsertBulk) ClearGroupID() *MaterialUpsertBulk {
 	})
 }
 
-// SetViewCount sets the "view_count" field.
-func (u *MaterialUpsertBulk) SetViewCount(v int) *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.SetViewCount(v)
-	})
-}
-
-// AddViewCount adds v to the "view_count" field.
-func (u *MaterialUpsertBulk) AddViewCount(v int) *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.AddViewCount(v)
-	})
-}
-
-// UpdateViewCount sets the "view_count" field to the value that was provided on create.
-func (u *MaterialUpsertBulk) UpdateViewCount() *MaterialUpsertBulk {
-	return u.Update(func(s *MaterialUpsert) {
-		s.UpdateViewCount()
-	})
-}
-
 // SetEstimatedReadTime sets the "estimated_read_time" field.
 func (u *MaterialUpsertBulk) SetEstimatedReadTime(v int) *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
@@ -1567,6 +2324,293 @@ func (u *MaterialUpsertBulk) AddEstimatedReadTime(v int) *MaterialUpsertBulk {
 func (u *MaterialUpsertBulk) UpdateEstimatedReadTime() *MaterialUpsertBulk {
 	return u.Update(func(s *MaterialUpsert) {
 		s.UpdateEstimatedReadTime()
+	})
+}
+
+// SetCurrentSlugID sets the "current_slug_id" field.
+func (u *MaterialUpsertBulk) SetCurrentSlugID(v uuid.UUID) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetCurrentSlugID(v)
+	})
+}
+
+// UpdateCurrentSlugID sets the "current_slug_id" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateCurrentSlugID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateCurrentSlugID()
+	})
+}
+
+// ClearCurrentSlugID clears the value of the "current_slug_id" field.
+func (u *MaterialUpsertBulk) ClearCurrentSlugID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearCurrentSlugID()
+	})
+}
+
+// SetCurrentSlugState sets the "current_slug_state" field.
+func (u *MaterialUpsertBulk) SetCurrentSlugState(v material.CurrentSlugState) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetCurrentSlugState(v)
+	})
+}
+
+// UpdateCurrentSlugState sets the "current_slug_state" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateCurrentSlugState() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateCurrentSlugState()
+	})
+}
+
+// SetAuthorID sets the "author_id" field.
+func (u *MaterialUpsertBulk) SetAuthorID(v uuid.UUID) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetAuthorID(v)
+	})
+}
+
+// UpdateAuthorID sets the "author_id" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateAuthorID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateAuthorID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *MaterialUpsertBulk) SetStatus(v material.Status) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateStatus() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetVisibility sets the "visibility" field.
+func (u *MaterialUpsertBulk) SetVisibility(v material.Visibility) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetVisibility(v)
+	})
+}
+
+// UpdateVisibility sets the "visibility" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateVisibility() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateVisibility()
+	})
+}
+
+// SetCurrentDraftRevisionID sets the "current_draft_revision_id" field.
+func (u *MaterialUpsertBulk) SetCurrentDraftRevisionID(v uuid.UUID) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetCurrentDraftRevisionID(v)
+	})
+}
+
+// UpdateCurrentDraftRevisionID sets the "current_draft_revision_id" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateCurrentDraftRevisionID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateCurrentDraftRevisionID()
+	})
+}
+
+// ClearCurrentDraftRevisionID clears the value of the "current_draft_revision_id" field.
+func (u *MaterialUpsertBulk) ClearCurrentDraftRevisionID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearCurrentDraftRevisionID()
+	})
+}
+
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (u *MaterialUpsertBulk) SetPublishedRevisionID(v uuid.UUID) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRevisionID(v)
+	})
+}
+
+// UpdatePublishedRevisionID sets the "published_revision_id" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdatePublishedRevisionID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRevisionID()
+	})
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (u *MaterialUpsertBulk) ClearPublishedRevisionID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRevisionID()
+	})
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (u *MaterialUpsertBulk) SetPublishedRenderSourceID(v uuid.UUID) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRenderSourceID(v)
+	})
+}
+
+// UpdatePublishedRenderSourceID sets the "published_render_source_id" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdatePublishedRenderSourceID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRenderSourceID()
+	})
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (u *MaterialUpsertBulk) ClearPublishedRenderSourceID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRenderSourceID()
+	})
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (u *MaterialUpsertBulk) SetPublishedRenderArtifactID(v uuid.UUID) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRenderArtifactID(v)
+	})
+}
+
+// UpdatePublishedRenderArtifactID sets the "published_render_artifact_id" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdatePublishedRenderArtifactID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRenderArtifactID()
+	})
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (u *MaterialUpsertBulk) ClearPublishedRenderArtifactID() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRenderArtifactID()
+	})
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (u *MaterialUpsertBulk) SetPublishedRenderSourceKind(v material.PublishedRenderSourceKind) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedRenderSourceKind(v)
+	})
+}
+
+// UpdatePublishedRenderSourceKind sets the "published_render_source_kind" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdatePublishedRenderSourceKind() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedRenderSourceKind()
+	})
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (u *MaterialUpsertBulk) ClearPublishedRenderSourceKind() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedRenderSourceKind()
+	})
+}
+
+// SetPublishedSourceChecksum sets the "published_source_checksum" field.
+func (u *MaterialUpsertBulk) SetPublishedSourceChecksum(v []byte) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedSourceChecksum(v)
+	})
+}
+
+// UpdatePublishedSourceChecksum sets the "published_source_checksum" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdatePublishedSourceChecksum() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedSourceChecksum()
+	})
+}
+
+// ClearPublishedSourceChecksum clears the value of the "published_source_checksum" field.
+func (u *MaterialUpsertBulk) ClearPublishedSourceChecksum() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedSourceChecksum()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *MaterialUpsertBulk) SetPublishedAt(v time.Time) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdatePublishedAt() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *MaterialUpsertBulk) ClearPublishedAt() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearPublishedAt()
+	})
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (u *MaterialUpsertBulk) SetArchivedAt(v time.Time) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetArchivedAt(v)
+	})
+}
+
+// UpdateArchivedAt sets the "archived_at" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateArchivedAt() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateArchivedAt()
+	})
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (u *MaterialUpsertBulk) ClearArchivedAt() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.ClearArchivedAt()
+	})
+}
+
+// SetViewCount sets the "view_count" field.
+func (u *MaterialUpsertBulk) SetViewCount(v int64) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetViewCount(v)
+	})
+}
+
+// AddViewCount adds v to the "view_count" field.
+func (u *MaterialUpsertBulk) AddViewCount(v int64) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.AddViewCount(v)
+	})
+}
+
+// UpdateViewCount sets the "view_count" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateViewCount() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateViewCount()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *MaterialUpsertBulk) SetVersion(v int64) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *MaterialUpsertBulk) AddVersion(v int64) *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *MaterialUpsertBulk) UpdateVersion() *MaterialUpsertBulk {
+	return u.Update(func(s *MaterialUpsert) {
+		s.UpdateVersion()
 	})
 }
 

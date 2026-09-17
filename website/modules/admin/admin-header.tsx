@@ -38,8 +38,8 @@ export function AdminHeader({ onToggleMobileSidebar }: AdminHeaderProps) {
             ? pathname === APP_ROUTES.ADMIN
             : pathname === item.href || pathname.startsWith(`${item.href}/`),
         )
-        .sort((left, right) => right.href.length - left.href.length)[0]?.label ??
-      adminText("DASHBOARD_TITLE")
+        .sort((left, right) => right.href.length - left.href.length)[0]
+        ?.label ?? adminText("DASHBOARD_TITLE")
     );
   }, [pathname]);
 
@@ -48,58 +48,65 @@ export function AdminHeader({ onToggleMobileSidebar }: AdminHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b border-border bg-background/90 px-3 backdrop-blur-lg sm:gap-3 sm:px-6 lg:px-8">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden"
-        onClick={onToggleMobileSidebar}
-        aria-label={text("NAV.OPEN_SIDEBAR")}
-      >
-        <PanelLeft className="size-5" aria-hidden="true" />
-      </Button>
-
-      <nav
-        className="flex min-w-0 items-center gap-1.5 text-sm"
-        aria-label={adminText("BREADCRUMB_LABEL")}
-      >
-        <Link
-          href={APP_ROUTES.ADMIN}
-          className="shrink-0 rounded-md px-1 py-2 text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+    <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-lg">
+      <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:px-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden"
+          onClick={onToggleMobileSidebar}
+          aria-label={text("NAV.OPEN_SIDEBAR")}
         >
-          {adminText("BREADCRUMB_ROOT")}
-        </Link>
-        <span className="text-muted-foreground/50" aria-hidden="true">
-          /
-        </span>
-        <span
-          className="truncate font-medium text-foreground"
-          aria-current="page"
+          <PanelLeft className="size-5" aria-hidden="true" />
+        </Button>
+
+        <nav
+          className="flex min-w-0 items-center gap-1.5 text-sm"
+          aria-label={adminText("BREADCRUMB_LABEL")}
         >
-          {currentLabel}
-        </span>
-      </nav>
+          <Link
+            href={APP_ROUTES.ADMIN}
+            className="shrink-0 rounded-md px-1 py-2 text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+          >
+            {adminText("BREADCRUMB_ROOT")}
+          </Link>
+          <span className="text-muted-foreground/50" aria-hidden="true">
+            /
+          </span>
+          <span
+            className="truncate font-medium text-foreground"
+            aria-current="page"
+          >
+            {currentLabel}
+          </span>
+        </nav>
 
-      <div className="flex-1" />
+        <div className="flex-1" />
 
-      <ThemeToggle />
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleLogout}
-        disabled={isLoggingOut}
-        className="text-muted-foreground hover:text-foreground"
-        aria-label={isLoggingOut ? text("NAV.LOGGING_OUT") : adminText("LOGOUT")}
-      >
-        {isLoggingOut ? (
-          <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-        ) : (
-          <LogOut className="size-4" aria-hidden="true" />
-        )}
-        <span className="hidden sm:inline">
-          {isLoggingOut ? text("NAV.LOGGING_OUT") : adminText("LOGOUT")}
-        </span>
-      </Button>
+        <ThemeToggle />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="text-muted-foreground hover:text-foreground"
+          aria-label={
+            isLoggingOut ? text("NAV.LOGGING_OUT") : adminText("LOGOUT")
+          }
+        >
+          {isLoggingOut ? (
+            <Loader2
+              className="size-4 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
+          ) : (
+            <LogOut className="size-4" aria-hidden="true" />
+          )}
+          <span className="hidden sm:inline">
+            {isLoggingOut ? text("NAV.LOGGING_OUT") : adminText("LOGOUT")}
+          </span>
+        </Button>
+      </div>
     </header>
   );
 }

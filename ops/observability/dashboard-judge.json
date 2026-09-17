@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "title": "Judgify Judge",
+  "refresh": "15s",
+  "panels": [
+    {
+      "title": "Durable jobs",
+      "unit": "jobs",
+      "expr": "max by (state) (judgify_judge_jobs)"
+    },
+    {
+      "title": "Oldest ready job",
+      "unit": "seconds",
+      "expr": "max(judgify_judge_oldest_ready_job_seconds)"
+    },
+    {
+      "title": "Worker capacity",
+      "unit": "slots",
+      "expr": "max by (kind) (judgify_judge_worker_capacity)"
+    },
+    {
+      "title": "Lease outcomes",
+      "unit": "events/s",
+      "expr": "sum by (outcome) (rate(judgify_judge_lease_events_total[5m]))"
+    },
+    {
+      "title": "Finalization outcomes",
+      "unit": "events/s",
+      "expr": "sum by (outcome) (rate(judgify_judge_finalizations_total[5m]))"
+    },
+    {
+      "title": "Sandbox limit events",
+      "unit": "events",
+      "expr": "sum by (event) (increase(judgify_sandbox_cgroup_events_total[15m]))"
+    },
+    {
+      "title": "Judge staging free disk",
+      "unit": "bytes",
+      "expr": "min(judgify_host_disk_available_bytes{storage=\"judge_staging\"})"
+    }
+  ]
+}

@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -24,13 +26,13 @@ type UserDifficultyStatsCreate struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *UserDifficultyStatsCreate) SetUserID(v int) *UserDifficultyStatsCreate {
+func (_c *UserDifficultyStatsCreate) SetUserID(v uuid.UUID) *UserDifficultyStatsCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_c *UserDifficultyStatsCreate) SetDifficultyID(v int) *UserDifficultyStatsCreate {
+func (_c *UserDifficultyStatsCreate) SetDifficultyID(v uuid.UUID) *UserDifficultyStatsCreate {
 	_c.mutation.SetDifficultyID(v)
 	return _c
 }
@@ -45,6 +47,20 @@ func (_c *UserDifficultyStatsCreate) SetSolvedCount(v int) *UserDifficultyStatsC
 func (_c *UserDifficultyStatsCreate) SetNillableSolvedCount(v *int) *UserDifficultyStatsCreate {
 	if v != nil {
 		_c.SetSolvedCount(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserDifficultyStatsCreate) SetID(v uuid.UUID) *UserDifficultyStatsCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserDifficultyStatsCreate) SetNillableID(v *uuid.UUID) *UserDifficultyStatsCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -98,6 +114,10 @@ func (_c *UserDifficultyStatsCreate) defaults() {
 		v := userdifficultystats.DefaultSolvedCount
 		_c.mutation.SetSolvedCount(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := userdifficultystats.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -136,8 +156,13 @@ func (_c *UserDifficultyStatsCreate) sqlSave(ctx context.Context) (*UserDifficul
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -146,9 +171,13 @@ func (_c *UserDifficultyStatsCreate) sqlSave(ctx context.Context) (*UserDifficul
 func (_c *UserDifficultyStatsCreate) createSpec() (*UserDifficultyStats, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserDifficultyStats{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(userdifficultystats.Table, sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(userdifficultystats.Table, sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.SolvedCount(); ok {
 		_spec.SetField(userdifficultystats.FieldSolvedCount, field.TypeInt, value)
 		_node.SolvedCount = value
@@ -161,7 +190,7 @@ func (_c *UserDifficultyStatsCreate) createSpec() (*UserDifficultyStats, *sqlgra
 			Columns: []string{userdifficultystats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -178,7 +207,7 @@ func (_c *UserDifficultyStatsCreate) createSpec() (*UserDifficultyStats, *sqlgra
 			Columns: []string{userdifficultystats.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -240,7 +269,7 @@ type (
 )
 
 // SetUserID sets the "user_id" field.
-func (u *UserDifficultyStatsUpsert) SetUserID(v int) *UserDifficultyStatsUpsert {
+func (u *UserDifficultyStatsUpsert) SetUserID(v uuid.UUID) *UserDifficultyStatsUpsert {
 	u.Set(userdifficultystats.FieldUserID, v)
 	return u
 }
@@ -252,7 +281,7 @@ func (u *UserDifficultyStatsUpsert) UpdateUserID() *UserDifficultyStatsUpsert {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *UserDifficultyStatsUpsert) SetDifficultyID(v int) *UserDifficultyStatsUpsert {
+func (u *UserDifficultyStatsUpsert) SetDifficultyID(v uuid.UUID) *UserDifficultyStatsUpsert {
 	u.Set(userdifficultystats.FieldDifficultyID, v)
 	return u
 }
@@ -281,16 +310,24 @@ func (u *UserDifficultyStatsUpsert) AddSolvedCount(v int) *UserDifficultyStatsUp
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.UserDifficultyStats.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userdifficultystats.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserDifficultyStatsUpsertOne) UpdateNewValues() *UserDifficultyStatsUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(userdifficultystats.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -322,7 +359,7 @@ func (u *UserDifficultyStatsUpsertOne) Update(set func(*UserDifficultyStatsUpser
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserDifficultyStatsUpsertOne) SetUserID(v int) *UserDifficultyStatsUpsertOne {
+func (u *UserDifficultyStatsUpsertOne) SetUserID(v uuid.UUID) *UserDifficultyStatsUpsertOne {
 	return u.Update(func(s *UserDifficultyStatsUpsert) {
 		s.SetUserID(v)
 	})
@@ -336,7 +373,7 @@ func (u *UserDifficultyStatsUpsertOne) UpdateUserID() *UserDifficultyStatsUpsert
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *UserDifficultyStatsUpsertOne) SetDifficultyID(v int) *UserDifficultyStatsUpsertOne {
+func (u *UserDifficultyStatsUpsertOne) SetDifficultyID(v uuid.UUID) *UserDifficultyStatsUpsertOne {
 	return u.Update(func(s *UserDifficultyStatsUpsert) {
 		s.SetDifficultyID(v)
 	})
@@ -386,7 +423,12 @@ func (u *UserDifficultyStatsUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserDifficultyStatsUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserDifficultyStatsUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserDifficultyStatsUpsertOne.ID is not supported by MySQL driver. Use UserDifficultyStatsUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -395,17 +437,12 @@ func (u *UserDifficultyStatsUpsertOne) ID(ctx context.Context) (id int, err erro
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserDifficultyStatsUpsertOne) IDX(ctx context.Context) int {
+func (u *UserDifficultyStatsUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserDifficultyStatsCreate) SetID(id int) *UserDifficultyStatsCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserDifficultyStatsCreateBulk is the builder for creating many UserDifficultyStats entities in bulk.
@@ -455,10 +492,6 @@ func (_c *UserDifficultyStatsCreateBulk) Save(ctx context.Context) ([]*UserDiffi
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -545,10 +578,20 @@ type UserDifficultyStatsUpsertBulk struct {
 //	client.UserDifficultyStats.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userdifficultystats.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserDifficultyStatsUpsertBulk) UpdateNewValues() *UserDifficultyStatsUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(userdifficultystats.FieldID)
+			}
+		}
+	}))
 	return u
 }
 
@@ -580,7 +623,7 @@ func (u *UserDifficultyStatsUpsertBulk) Update(set func(*UserDifficultyStatsUpse
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserDifficultyStatsUpsertBulk) SetUserID(v int) *UserDifficultyStatsUpsertBulk {
+func (u *UserDifficultyStatsUpsertBulk) SetUserID(v uuid.UUID) *UserDifficultyStatsUpsertBulk {
 	return u.Update(func(s *UserDifficultyStatsUpsert) {
 		s.SetUserID(v)
 	})
@@ -594,7 +637,7 @@ func (u *UserDifficultyStatsUpsertBulk) UpdateUserID() *UserDifficultyStatsUpser
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (u *UserDifficultyStatsUpsertBulk) SetDifficultyID(v int) *UserDifficultyStatsUpsertBulk {
+func (u *UserDifficultyStatsUpsertBulk) SetDifficultyID(v uuid.UUID) *UserDifficultyStatsUpsertBulk {
 	return u.Update(func(s *UserDifficultyStatsUpsert) {
 		s.SetDifficultyID(v)
 	})

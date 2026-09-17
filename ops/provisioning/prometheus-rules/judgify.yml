@@ -1,0 +1,36 @@
+groups:
+  - name: judgify-core
+    rules:
+      - alert: JudgifyAPIHighErrorRate
+        expr: sum(rate(judgify_http_requests_total{status_class="5xx"}[5m])) / clamp_min(sum(rate(judgify_http_requests_total[5m])), 1) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Judgify API 5xx error rate exceeds 1%
+          runbook: ops/runbooks/api-availability.md
+      - alert: JudgifyAPIHighLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(judgify_http_request_duration_seconds_bucket[10m]))) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Judgify API p95 exceeds 500 ms
+          runbook: ops/runbooks/api-availability.md
+      - alert: JudgifyJudgeQueueAgeHigh
+        expr: max(judgify_judge_oldest_ready_job_seconds) > 120
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Judgify judge queue age exceeds 120 seconds
+          runbook: ops/runbooks/judge-queue.md
+      - alert: JudgifyJudgeCapacityUnavailable
+        expr: max(judgify_judge_worker_capacity{kind="free"}) < 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Judgify has no free judge worker capacity
+          runbook: ops/runbooks/judge-queue.md
+

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Inbox, Megaphone } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AUTHORIZATION_ACTION,
@@ -123,7 +124,7 @@ export function AdminContestCommunications({
 
   return (
     <div className="mx-auto w-full max-w-[90rem] space-y-6">
-      <header className="rounded-2xl border border-border bg-card px-5 py-5 shadow-sm sm:px-7">
+      <div>
         <Link
           href={APP_ROUTES.ADMIN_CONTESTS}
           className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -131,15 +132,12 @@ export function AdminContestCommunications({
           <ArrowLeft className="size-4" aria-hidden="true" />
           {TEXT.CONTEST.BACK_TO_LIST}
         </Link>
-        <div className="mt-3 max-w-3xl">
-          <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">
-            {TEXT.CONTEST.COMMUNICATIONS_TITLE}
-          </h1>
-          <p className="mt-2 text-pretty text-sm leading-6 text-muted-foreground">
-            {TEXT.CONTEST.COMMUNICATIONS_SUBTITLE}
-          </p>
-        </div>
-      </header>
+        <PageHeader
+          className="mt-3"
+          title={TEXT.CONTEST.COMMUNICATIONS_TITLE}
+          description={TEXT.CONTEST.COMMUNICATIONS_SUBTITLE}
+        />
+      </div>
 
       <Tabs defaultValue="announcements">
         <TabsList className="w-full justify-start overflow-x-auto sm:w-fit">

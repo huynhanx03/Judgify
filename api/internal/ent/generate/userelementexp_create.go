@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
@@ -67,13 +69,13 @@ func (_c *UserElementExpCreate) SetNillableDeletedAt(v *time.Time) *UserElementE
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *UserElementExpCreate) SetDeletedBy(v int) *UserElementExpCreate {
+func (_c *UserElementExpCreate) SetDeletedBy(v string) *UserElementExpCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *UserElementExpCreate) SetNillableDeletedBy(v *int) *UserElementExpCreate {
+func (_c *UserElementExpCreate) SetNillableDeletedBy(v *string) *UserElementExpCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -81,13 +83,13 @@ func (_c *UserElementExpCreate) SetNillableDeletedBy(v *int) *UserElementExpCrea
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *UserElementExpCreate) SetUserID(v int) *UserElementExpCreate {
+func (_c *UserElementExpCreate) SetUserID(v uuid.UUID) *UserElementExpCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetElementID sets the "element_id" field.
-func (_c *UserElementExpCreate) SetElementID(v int) *UserElementExpCreate {
+func (_c *UserElementExpCreate) SetElementID(v uuid.UUID) *UserElementExpCreate {
 	_c.mutation.SetElementID(v)
 	return _c
 }
@@ -102,6 +104,20 @@ func (_c *UserElementExpCreate) SetExp(v int64) *UserElementExpCreate {
 func (_c *UserElementExpCreate) SetNillableExp(v *int64) *UserElementExpCreate {
 	if v != nil {
 		_c.SetExp(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserElementExpCreate) SetID(v uuid.UUID) *UserElementExpCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserElementExpCreate) SetNillableID(v *uuid.UUID) *UserElementExpCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -171,6 +187,13 @@ func (_c *UserElementExpCreate) defaults() error {
 		v := userelementexp.DefaultExp
 		_c.mutation.SetExp(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if userelementexp.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized userelementexp.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := userelementexp.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -216,8 +239,13 @@ func (_c *UserElementExpCreate) sqlSave(ctx context.Context) (*UserElementExp, e
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -226,9 +254,13 @@ func (_c *UserElementExpCreate) sqlSave(ctx context.Context) (*UserElementExp, e
 func (_c *UserElementExpCreate) createSpec() (*UserElementExp, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserElementExp{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(userelementexp.Table, sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(userelementexp.Table, sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(userelementexp.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -242,7 +274,7 @@ func (_c *UserElementExpCreate) createSpec() (*UserElementExp, *sqlgraph.CreateS
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Exp(); ok {
@@ -257,7 +289,7 @@ func (_c *UserElementExpCreate) createSpec() (*UserElementExp, *sqlgraph.CreateS
 			Columns: []string{userelementexp.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -274,7 +306,7 @@ func (_c *UserElementExpCreate) createSpec() (*UserElementExp, *sqlgraph.CreateS
 			Columns: []string{userelementexp.ElementColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -366,7 +398,7 @@ func (u *UserElementExpUpsert) ClearDeletedAt() *UserElementExpUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserElementExpUpsert) SetDeletedBy(v int) *UserElementExpUpsert {
+func (u *UserElementExpUpsert) SetDeletedBy(v string) *UserElementExpUpsert {
 	u.Set(userelementexp.FieldDeletedBy, v)
 	return u
 }
@@ -377,12 +409,6 @@ func (u *UserElementExpUpsert) UpdateDeletedBy() *UserElementExpUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserElementExpUpsert) AddDeletedBy(v int) *UserElementExpUpsert {
-	u.Add(userelementexp.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *UserElementExpUpsert) ClearDeletedBy() *UserElementExpUpsert {
 	u.SetNull(userelementexp.FieldDeletedBy)
@@ -390,7 +416,7 @@ func (u *UserElementExpUpsert) ClearDeletedBy() *UserElementExpUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserElementExpUpsert) SetUserID(v int) *UserElementExpUpsert {
+func (u *UserElementExpUpsert) SetUserID(v uuid.UUID) *UserElementExpUpsert {
 	u.Set(userelementexp.FieldUserID, v)
 	return u
 }
@@ -402,7 +428,7 @@ func (u *UserElementExpUpsert) UpdateUserID() *UserElementExpUpsert {
 }
 
 // SetElementID sets the "element_id" field.
-func (u *UserElementExpUpsert) SetElementID(v int) *UserElementExpUpsert {
+func (u *UserElementExpUpsert) SetElementID(v uuid.UUID) *UserElementExpUpsert {
 	u.Set(userelementexp.FieldElementID, v)
 	return u
 }
@@ -431,17 +457,23 @@ func (u *UserElementExpUpsert) AddExp(v int64) *UserElementExpUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.UserElementExp.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userelementexp.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserElementExpUpsertOne) UpdateNewValues() *UserElementExpUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(userelementexp.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userelementexp.FieldCreatedAt)
 		}
@@ -512,16 +544,9 @@ func (u *UserElementExpUpsertOne) ClearDeletedAt() *UserElementExpUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserElementExpUpsertOne) SetDeletedBy(v int) *UserElementExpUpsertOne {
+func (u *UserElementExpUpsertOne) SetDeletedBy(v string) *UserElementExpUpsertOne {
 	return u.Update(func(s *UserElementExpUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserElementExpUpsertOne) AddDeletedBy(v int) *UserElementExpUpsertOne {
-	return u.Update(func(s *UserElementExpUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -540,7 +565,7 @@ func (u *UserElementExpUpsertOne) ClearDeletedBy() *UserElementExpUpsertOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserElementExpUpsertOne) SetUserID(v int) *UserElementExpUpsertOne {
+func (u *UserElementExpUpsertOne) SetUserID(v uuid.UUID) *UserElementExpUpsertOne {
 	return u.Update(func(s *UserElementExpUpsert) {
 		s.SetUserID(v)
 	})
@@ -554,7 +579,7 @@ func (u *UserElementExpUpsertOne) UpdateUserID() *UserElementExpUpsertOne {
 }
 
 // SetElementID sets the "element_id" field.
-func (u *UserElementExpUpsertOne) SetElementID(v int) *UserElementExpUpsertOne {
+func (u *UserElementExpUpsertOne) SetElementID(v uuid.UUID) *UserElementExpUpsertOne {
 	return u.Update(func(s *UserElementExpUpsert) {
 		s.SetElementID(v)
 	})
@@ -604,7 +629,12 @@ func (u *UserElementExpUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserElementExpUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserElementExpUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserElementExpUpsertOne.ID is not supported by MySQL driver. Use UserElementExpUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -613,17 +643,12 @@ func (u *UserElementExpUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserElementExpUpsertOne) IDX(ctx context.Context) int {
+func (u *UserElementExpUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserElementExpCreate) SetID(id int) *UserElementExpCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserElementExpCreateBulk is the builder for creating many UserElementExp entities in bulk.
@@ -673,10 +698,6 @@ func (_c *UserElementExpCreateBulk) Save(ctx context.Context) ([]*UserElementExp
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -763,12 +784,18 @@ type UserElementExpUpsertBulk struct {
 //	client.UserElementExp.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userelementexp.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserElementExpUpsertBulk) UpdateNewValues() *UserElementExpUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(userelementexp.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userelementexp.FieldCreatedAt)
 			}
@@ -840,16 +867,9 @@ func (u *UserElementExpUpsertBulk) ClearDeletedAt() *UserElementExpUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserElementExpUpsertBulk) SetDeletedBy(v int) *UserElementExpUpsertBulk {
+func (u *UserElementExpUpsertBulk) SetDeletedBy(v string) *UserElementExpUpsertBulk {
 	return u.Update(func(s *UserElementExpUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserElementExpUpsertBulk) AddDeletedBy(v int) *UserElementExpUpsertBulk {
-	return u.Update(func(s *UserElementExpUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -868,7 +888,7 @@ func (u *UserElementExpUpsertBulk) ClearDeletedBy() *UserElementExpUpsertBulk {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserElementExpUpsertBulk) SetUserID(v int) *UserElementExpUpsertBulk {
+func (u *UserElementExpUpsertBulk) SetUserID(v uuid.UUID) *UserElementExpUpsertBulk {
 	return u.Update(func(s *UserElementExpUpsert) {
 		s.SetUserID(v)
 	})
@@ -882,7 +902,7 @@ func (u *UserElementExpUpsertBulk) UpdateUserID() *UserElementExpUpsertBulk {
 }
 
 // SetElementID sets the "element_id" field.
-func (u *UserElementExpUpsertBulk) SetElementID(v int) *UserElementExpUpsertBulk {
+func (u *UserElementExpUpsertBulk) SetElementID(v uuid.UUID) *UserElementExpUpsertBulk {
 	return u.Update(func(s *UserElementExpUpsert) {
 		s.SetElementID(v)
 	})

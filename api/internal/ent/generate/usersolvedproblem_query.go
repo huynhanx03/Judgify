@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -132,8 +133,8 @@ func (_q *UserSolvedProblemQuery) FirstX(ctx context.Context) *UserSolvedProblem
 
 // FirstID returns the first UserSolvedProblem ID from the query.
 // Returns a *NotFoundError when no UserSolvedProblem ID was found.
-func (_q *UserSolvedProblemQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserSolvedProblemQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -145,7 +146,7 @@ func (_q *UserSolvedProblemQuery) FirstID(ctx context.Context) (id int, err erro
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserSolvedProblemQuery) FirstIDX(ctx context.Context) int {
+func (_q *UserSolvedProblemQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -183,8 +184,8 @@ func (_q *UserSolvedProblemQuery) OnlyX(ctx context.Context) *UserSolvedProblem 
 // OnlyID is like Only, but returns the only UserSolvedProblem ID in the query.
 // Returns a *NotSingularError when more than one UserSolvedProblem ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserSolvedProblemQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserSolvedProblemQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -200,7 +201,7 @@ func (_q *UserSolvedProblemQuery) OnlyID(ctx context.Context) (id int, err error
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserSolvedProblemQuery) OnlyIDX(ctx context.Context) int {
+func (_q *UserSolvedProblemQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -228,7 +229,7 @@ func (_q *UserSolvedProblemQuery) AllX(ctx context.Context) []*UserSolvedProblem
 }
 
 // IDs executes the query and returns a list of UserSolvedProblem IDs.
-func (_q *UserSolvedProblemQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *UserSolvedProblemQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -240,7 +241,7 @@ func (_q *UserSolvedProblemQuery) IDs(ctx context.Context) (ids []int, err error
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserSolvedProblemQuery) IDsX(ctx context.Context) []int {
+func (_q *UserSolvedProblemQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -337,7 +338,7 @@ func (_q *UserSolvedProblemQuery) WithProblem(opts ...func(*ProblemQuery)) *User
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		UserID uuid.UUID `json:"user_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -360,7 +361,7 @@ func (_q *UserSolvedProblemQuery) GroupBy(field string, fields ...string) *UserS
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		UserID uuid.UUID `json:"user_id,omitempty"`
 //	}
 //
 //	client.UserSolvedProblem.Query().
@@ -451,8 +452,8 @@ func (_q *UserSolvedProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook
 }
 
 func (_q *UserSolvedProblemQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserSolvedProblem, init func(*UserSolvedProblem), assign func(*UserSolvedProblem, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserSolvedProblem)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserSolvedProblem)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -480,8 +481,8 @@ func (_q *UserSolvedProblemQuery) loadUser(ctx context.Context, query *UserQuery
 	return nil
 }
 func (_q *UserSolvedProblemQuery) loadProblem(ctx context.Context, query *ProblemQuery, nodes []*UserSolvedProblem, init func(*UserSolvedProblem), assign func(*UserSolvedProblem, *Problem)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserSolvedProblem)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserSolvedProblem)
 	for i := range nodes {
 		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
@@ -522,7 +523,7 @@ func (_q *UserSolvedProblemQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *UserSolvedProblemQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(usersolvedproblem.Table, usersolvedproblem.Columns, sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(usersolvedproblem.Table, usersolvedproblem.Columns, sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 )
@@ -66,13 +68,13 @@ func (_c *RarityCreate) SetNillableDeletedAt(v *time.Time) *RarityCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *RarityCreate) SetDeletedBy(v int) *RarityCreate {
+func (_c *RarityCreate) SetDeletedBy(v string) *RarityCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *RarityCreate) SetNillableDeletedBy(v *int) *RarityCreate {
+func (_c *RarityCreate) SetNillableDeletedBy(v *string) *RarityCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -119,15 +121,29 @@ func (_c *RarityCreate) SetNillableDescription(v *string) *RarityCreate {
 	return _c
 }
 
+// SetID sets the "id" field.
+func (_c *RarityCreate) SetID(v uuid.UUID) *RarityCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *RarityCreate) SetNillableID(v *uuid.UUID) *RarityCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // AddTraitIDs adds the "traits" edge to the Trait entity by IDs.
-func (_c *RarityCreate) AddTraitIDs(ids ...int) *RarityCreate {
+func (_c *RarityCreate) AddTraitIDs(ids ...uuid.UUID) *RarityCreate {
 	_c.mutation.AddTraitIDs(ids...)
 	return _c
 }
 
 // AddTraits adds the "traits" edges to the Trait entity.
 func (_c *RarityCreate) AddTraits(v ...*Trait) *RarityCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -189,6 +205,13 @@ func (_c *RarityCreate) defaults() error {
 		v := rarity.DefaultWeight
 		_c.mutation.SetWeight(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if rarity.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized rarity.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := rarity.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -243,8 +266,13 @@ func (_c *RarityCreate) sqlSave(ctx context.Context) (*Rarity, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -253,9 +281,13 @@ func (_c *RarityCreate) sqlSave(ctx context.Context) (*Rarity, error) {
 func (_c *RarityCreate) createSpec() (*Rarity, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Rarity{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(rarity.Table, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(rarity.Table, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(rarity.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -269,7 +301,7 @@ func (_c *RarityCreate) createSpec() (*Rarity, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(rarity.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(rarity.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
@@ -296,7 +328,7 @@ func (_c *RarityCreate) createSpec() (*Rarity, *sqlgraph.CreateSpec) {
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -387,7 +419,7 @@ func (u *RarityUpsert) ClearDeletedAt() *RarityUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RarityUpsert) SetDeletedBy(v int) *RarityUpsert {
+func (u *RarityUpsert) SetDeletedBy(v string) *RarityUpsert {
 	u.Set(rarity.FieldDeletedBy, v)
 	return u
 }
@@ -395,12 +427,6 @@ func (u *RarityUpsert) SetDeletedBy(v int) *RarityUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *RarityUpsert) UpdateDeletedBy() *RarityUpsert {
 	u.SetExcluded(rarity.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RarityUpsert) AddDeletedBy(v int) *RarityUpsert {
-	u.Add(rarity.FieldDeletedBy, v)
 	return u
 }
 
@@ -470,17 +496,23 @@ func (u *RarityUpsert) ClearDescription() *RarityUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Rarity.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(rarity.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RarityUpsertOne) UpdateNewValues() *RarityUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(rarity.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(rarity.FieldCreatedAt)
 		}
@@ -551,16 +583,9 @@ func (u *RarityUpsertOne) ClearDeletedAt() *RarityUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RarityUpsertOne) SetDeletedBy(v int) *RarityUpsertOne {
+func (u *RarityUpsertOne) SetDeletedBy(v string) *RarityUpsertOne {
 	return u.Update(func(s *RarityUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RarityUpsertOne) AddDeletedBy(v int) *RarityUpsertOne {
-	return u.Update(func(s *RarityUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -664,7 +689,12 @@ func (u *RarityUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *RarityUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *RarityUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: RarityUpsertOne.ID is not supported by MySQL driver. Use RarityUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -673,17 +703,12 @@ func (u *RarityUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *RarityUpsertOne) IDX(ctx context.Context) int {
+func (u *RarityUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *RarityCreate) SetID(id int) *RarityCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // RarityCreateBulk is the builder for creating many Rarity entities in bulk.
@@ -733,10 +758,6 @@ func (_c *RarityCreateBulk) Save(ctx context.Context) ([]*Rarity, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -823,12 +844,18 @@ type RarityUpsertBulk struct {
 //	client.Rarity.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(rarity.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RarityUpsertBulk) UpdateNewValues() *RarityUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(rarity.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(rarity.FieldCreatedAt)
 			}
@@ -900,16 +927,9 @@ func (u *RarityUpsertBulk) ClearDeletedAt() *RarityUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RarityUpsertBulk) SetDeletedBy(v int) *RarityUpsertBulk {
+func (u *RarityUpsertBulk) SetDeletedBy(v string) *RarityUpsertBulk {
 	return u.Update(func(s *RarityUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RarityUpsertBulk) AddDeletedBy(v int) *RarityUpsertBulk {
-	return u.Update(func(s *RarityUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 

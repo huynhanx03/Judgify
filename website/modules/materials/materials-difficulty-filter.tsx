@@ -14,6 +14,7 @@ interface MaterialsDifficultyFilterProps {
   active: EntityID | null;
   onChange: (difficultyId: EntityID | null) => void;
   loading?: boolean;
+  available?: boolean;
 }
 
 export function MaterialsDifficultyFilter({
@@ -21,7 +22,10 @@ export function MaterialsDifficultyFilter({
   active,
   onChange,
   loading = false,
+  available = true,
 }: MaterialsDifficultyFilterProps) {
+  if (!available) return null;
+
   return (
     <div
       className="flex flex-wrap items-center gap-1.5"

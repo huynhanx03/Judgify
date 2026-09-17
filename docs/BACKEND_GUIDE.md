@@ -33,12 +33,12 @@ api/
 │   │   ├── ports/              # Interfaces (contracts)
 │   │   ├── constant/           # Domain constants
 │   │   ├── di/                 # Domain DI container
-│   │   └── store/              # Domain-specific stores (SSE hub, etc.)
+│   │   └── store/              # Optional domain-local state (không chứa shared transport hub)
 │   │
 │   ├── identity/               # Auth & user module
 │   ├── problem/                # Problems & test cases
 │   ├── submission/             # Code submissions
-│   ├── cultivation/            # Gamification (XP, elements, gacha)
+│   ├── cultivation/            # Progression ledger, catalogs, and durable trait offers
 │   └── material/               # Learning materials
 │
 ├── pkg/                        # Shared packages
@@ -112,7 +112,7 @@ internal/notification/
 │   └── constant.go                 # Domain constants
 ├── di/
 │   └── di.go                       # Domain DI container
-└── store/                          # Optional: SSE hub, etc.
+└── store/                          # Optional domain-local state; shared transport nằm ở internal/realtime
 ```
 
 ### Bước implementation

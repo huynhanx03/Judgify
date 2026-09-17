@@ -12,32 +12,121 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/huynhanx03/judgify/internal/ent/generate/activatedjudgecapability"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/auditlog"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationaction"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationresource"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authrefreshreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authrefreshtoken"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsession"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessioncommandreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessionissuancereceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/casbinrule"
+	"github.com/huynhanx03/judgify/internal/ent/generate/checkerprofile"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contentrenderartifact"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contentrendersource"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestannouncement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistrationtransition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contesttransition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestuserrating"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationcatalogrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationrankingprivacychange"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationrankingprojection"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationrankingstate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficultyrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
+	"github.com/huynhanx03/judgify/internal/ent/generate/elementrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgeattempt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgejob"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgespec"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgetestresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgeworkercapability"
+	"github.com/huynhanx03/judgify/internal/ent/generate/judgeworkerinstance"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
-	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevisiontag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialslug"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialviewdaily"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaign"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignconfirmation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignexplicituser"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrecipient"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationinboxstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationpreference"
+	"github.com/huynhanx03/judgify/internal/ent/generate/oauthcompletionticket"
+	"github.com/huynhanx03/judgify/internal/ent/generate/oauthflow"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffer"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffertalent"
+	"github.com/huynhanx03/judgify/internal/ent/generate/operation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/operationbatch"
+	"github.com/huynhanx03/judgify/internal/ent/generate/operationcontrolreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/outboxevent"
+	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/problemrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/profileschemastate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/progressionledgerentry"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
-	"github.com/huynhanx03/judgify/internal/ent/generate/resource"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingprojectiongeneration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingrunchain"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingrunchainentry"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingsequenceslot"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/realtimecursorstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/realtimeevent"
+	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactverificationtoken"
+	"github.com/huynhanx03/judgify/internal/ent/generate/rewardrulerevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/runtimeprofile"
+	"github.com/huynhanx03/judgify/internal/ent/generate/securityemaildelivery"
+	"github.com/huynhanx03/judgify/internal/ent/generate/solverewardcursor"
+	"github.com/huynhanx03/judgify/internal/ent/generate/solverewardprocessedtransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevisionelement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testasset"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testcasegroup"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testcaserevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testsetrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
+	"github.com/huynhanx03/judgify/internal/ent/generate/traiteffectrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userproblemsolve"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userproblemsolvetransition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofilerevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofiletrait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -102,36 +191,125 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			attributedefinition.Table: attributedefinition.ValidColumn,
-			contest.Table:             contest.ValidColumn,
-			contestregistration.Table: contestregistration.ValidColumn,
-			conteststanding.Table:     conteststanding.ValidColumn,
-			credential.Table:          credential.ValidColumn,
-			difficulty.Table:          difficulty.ValidColumn,
-			element.Table:             element.ValidColumn,
-			federatedidentity.Table:   federatedidentity.ValidColumn,
-			level.Table:               level.ValidColumn,
-			material.Table:            material.ValidColumn,
-			materialcategory.Table:    materialcategory.ValidColumn,
-			permission.Table:          permission.ValidColumn,
-			problem.Table:             problem.ValidColumn,
-			rank.Table:                rank.ValidColumn,
-			rarity.Table:              rarity.ValidColumn,
-			ratinghistory.Table:       ratinghistory.ValidColumn,
-			resource.Table:            resource.ValidColumn,
-			role.Table:                role.ValidColumn,
-			submission.Table:          submission.ValidColumn,
-			tag.Table:                 tag.ValidColumn,
-			testcase.Table:            testcase.ValidColumn,
-			trait.Table:               trait.ValidColumn,
-			user.Table:                user.ValidColumn,
-			userattributevalue.Table:  userattributevalue.ValidColumn,
-			userdifficultystats.Table: userdifficultystats.ValidColumn,
-			userelementexp.Table:      userelementexp.ValidColumn,
-			usersolvedproblem.Table:   usersolvedproblem.ValidColumn,
-			userstats.Table:           userstats.ValidColumn,
-			usertagstats.Table:        usertagstats.ValidColumn,
-			usertrait.Table:           usertrait.ValidColumn,
+			activatedjudgecapability.Table:         activatedjudgecapability.ValidColumn,
+			attributedefinition.Table:              attributedefinition.ValidColumn,
+			attributedefinitionrevision.Table:      attributedefinitionrevision.ValidColumn,
+			auditlog.Table:                         auditlog.ValidColumn,
+			authrefreshreceipt.Table:               authrefreshreceipt.ValidColumn,
+			authrefreshtoken.Table:                 authrefreshtoken.ValidColumn,
+			authsession.Table:                      authsession.ValidColumn,
+			authsessioncommandreceipt.Table:        authsessioncommandreceipt.ValidColumn,
+			authsessionissuancereceipt.Table:       authsessionissuancereceipt.ValidColumn,
+			authorizationaction.Table:              authorizationaction.ValidColumn,
+			authorizationresource.Table:            authorizationresource.ValidColumn,
+			authorizationstate.Table:               authorizationstate.ValidColumn,
+			casbinrule.Table:                       casbinrule.ValidColumn,
+			checkerprofile.Table:                   checkerprofile.ValidColumn,
+			contentrenderartifact.Table:            contentrenderartifact.ValidColumn,
+			contentrendersource.Table:              contentrendersource.ValidColumn,
+			contest.Table:                          contest.ValidColumn,
+			contestannouncement.Table:              contestannouncement.ValidColumn,
+			contestclarification.Table:             contestclarification.ValidColumn,
+			contestcontentcommand.Table:            contestcontentcommand.ValidColumn,
+			contestcontentrevision.Table:           contestcontentrevision.ValidColumn,
+			contestdraftproblem.Table:              contestdraftproblem.ValidColumn,
+			contestproblem.Table:                   contestproblem.ValidColumn,
+			contestproblemresult.Table:             contestproblemresult.ValidColumn,
+			contestratingresult.Table:              contestratingresult.ValidColumn,
+			contestratingrun.Table:                 contestratingrun.ValidColumn,
+			contestregistration.Table:              contestregistration.ValidColumn,
+			contestregistrationtransition.Table:    contestregistrationtransition.ValidColumn,
+			contestscoringattempt.Table:            contestscoringattempt.ValidColumn,
+			conteststanding.Table:                  conteststanding.ValidColumn,
+			contesttransition.Table:                contesttransition.ValidColumn,
+			contestuserrating.Table:                contestuserrating.ValidColumn,
+			credential.Table:                       credential.ValidColumn,
+			cultivationcatalogrevision.Table:       cultivationcatalogrevision.ValidColumn,
+			cultivationrankingprivacychange.Table:  cultivationrankingprivacychange.ValidColumn,
+			cultivationrankingprojection.Table:     cultivationrankingprojection.ValidColumn,
+			cultivationrankingstate.Table:          cultivationrankingstate.ValidColumn,
+			difficulty.Table:                       difficulty.ValidColumn,
+			difficultyrevision.Table:               difficultyrevision.ValidColumn,
+			element.Table:                          element.ValidColumn,
+			elementrevision.Table:                  elementrevision.ValidColumn,
+			federatedidentity.Table:                federatedidentity.ValidColumn,
+			judgeattempt.Table:                     judgeattempt.ValidColumn,
+			judgejob.Table:                         judgejob.ValidColumn,
+			judgespec.Table:                        judgespec.ValidColumn,
+			judgetestresult.Table:                  judgetestresult.ValidColumn,
+			judgeworkercapability.Table:            judgeworkercapability.ValidColumn,
+			judgeworkerinstance.Table:              judgeworkerinstance.ValidColumn,
+			judgement.Table:                        judgement.ValidColumn,
+			level.Table:                            level.ValidColumn,
+			material.Table:                         material.ValidColumn,
+			materialcategory.Table:                 materialcategory.ValidColumn,
+			materialrevision.Table:                 materialrevision.ValidColumn,
+			materialrevisiontag.Table:              materialrevisiontag.ValidColumn,
+			materialslug.Table:                     materialslug.ValidColumn,
+			materialviewdaily.Table:                materialviewdaily.ValidColumn,
+			notification.Table:                     notification.ValidColumn,
+			notificationcampaign.Table:             notificationcampaign.ValidColumn,
+			notificationcampaignconfirmation.Table: notificationcampaignconfirmation.ValidColumn,
+			notificationcampaignexplicituser.Table: notificationcampaignexplicituser.ValidColumn,
+			notificationcampaignrecipient.Table:    notificationcampaignrecipient.ValidColumn,
+			notificationcampaignrevision.Table:     notificationcampaignrevision.ValidColumn,
+			notificationinboxstate.Table:           notificationinboxstate.ValidColumn,
+			notificationpreference.Table:           notificationpreference.ValidColumn,
+			oauthcompletionticket.Table:            oauthcompletionticket.ValidColumn,
+			oauthflow.Table:                        oauthflow.ValidColumn,
+			onboardingtraitoffer.Table:             onboardingtraitoffer.ValidColumn,
+			onboardingtraitoffertalent.Table:       onboardingtraitoffertalent.ValidColumn,
+			operation.Table:                        operation.ValidColumn,
+			operationbatch.Table:                   operationbatch.ValidColumn,
+			operationcontrolreceipt.Table:          operationcontrolreceipt.ValidColumn,
+			outboxevent.Table:                      outboxevent.ValidColumn,
+			passwordresettoken.Table:               passwordresettoken.ValidColumn,
+			problem.Table:                          problem.ValidColumn,
+			problemrevision.Table:                  problemrevision.ValidColumn,
+			profileschemastate.Table:               profileschemastate.ValidColumn,
+			progressionledgerentry.Table:           progressionledgerentry.ValidColumn,
+			rank.Table:                             rank.ValidColumn,
+			rarity.Table:                           rarity.ValidColumn,
+			ratinghistory.Table:                    ratinghistory.ValidColumn,
+			ratingprojectiongeneration.Table:       ratingprojectiongeneration.ValidColumn,
+			ratingrunchain.Table:                   ratingrunchain.ValidColumn,
+			ratingrunchainentry.Table:              ratingrunchainentry.ValidColumn,
+			ratingsequenceslot.Table:               ratingsequenceslot.ValidColumn,
+			ratingstate.Table:                      ratingstate.ValidColumn,
+			realtimecursorstate.Table:              realtimecursorstate.ValidColumn,
+			realtimeevent.Table:                    realtimeevent.ValidColumn,
+			recoverycontactcommandreceipt.Table:    recoverycontactcommandreceipt.ValidColumn,
+			recoverycontactverificationtoken.Table: recoverycontactverificationtoken.ValidColumn,
+			rewardrulerevision.Table:               rewardrulerevision.ValidColumn,
+			role.Table:                             role.ValidColumn,
+			runtimeprofile.Table:                   runtimeprofile.ValidColumn,
+			securityemaildelivery.Table:            securityemaildelivery.ValidColumn,
+			solverewardcursor.Table:                solverewardcursor.ValidColumn,
+			solverewardprocessedtransition.Table:   solverewardprocessedtransition.ValidColumn,
+			submission.Table:                       submission.ValidColumn,
+			tag.Table:                              tag.ValidColumn,
+			tagrevision.Table:                      tagrevision.ValidColumn,
+			tagrevisionelement.Table:               tagrevisionelement.ValidColumn,
+			testasset.Table:                        testasset.ValidColumn,
+			testcase.Table:                         testcase.ValidColumn,
+			testcasegroup.Table:                    testcasegroup.ValidColumn,
+			testcaserevision.Table:                 testcaserevision.ValidColumn,
+			testsetrevision.Table:                  testsetrevision.ValidColumn,
+			trait.Table:                            trait.ValidColumn,
+			traiteffectrevision.Table:              traiteffectrevision.ValidColumn,
+			user.Table:                             user.ValidColumn,
+			userattributevalue.Table:               userattributevalue.ValidColumn,
+			userdifficultystats.Table:              userdifficultystats.ValidColumn,
+			userelementexp.Table:                   userelementexp.ValidColumn,
+			userproblemsolve.Table:                 userproblemsolve.ValidColumn,
+			userproblemsolvetransition.Table:       userproblemsolvetransition.ValidColumn,
+			userrecoverycontact.Table:              userrecoverycontact.ValidColumn,
+			userrewardprofilerevision.Table:        userrewardprofilerevision.ValidColumn,
+			userrewardprofiletrait.Table:           userrewardprofiletrait.ValidColumn,
+			usersolvedproblem.Table:                usersolvedproblem.ValidColumn,
+			userstats.Table:                        userstats.ValidColumn,
+			usertagstats.Table:                     usertagstats.ValidColumn,
+			usertrait.Table:                        usertrait.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

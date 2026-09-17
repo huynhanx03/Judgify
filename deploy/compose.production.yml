@@ -1,0 +1,394 @@
+name: judgify
+
+x-app-hardening: &app-hardening
+  init: true
+  read_only: true
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  stop_grace_period: 45s
+
+x-app-environment: &app-environment
+  GO_ENV: production
+  JUDGIFY_VERSION: ${JUDGIFY_VERSION:?set the immutable release version}
+  OBSERVABILITY_VERSION: ${JUDGIFY_VERSION:?set the immutable release version}
+  DATABASE_DRIVER: postgres
+  DATABASE_HOST: postgres
+  DATABASE_PORT: "5432"
+  DATABASE_DATABASE: judgify
+
+x-observability-logging: &observability-logging
+  driver: syslog
+  options:
+    syslog-address: tcp://127.0.0.1:1514
+    syslog-format: rfc5424
+    mode: non-blocking
+    max-buffer-size: 4m
+
+services:
+  postgres:
+    image: postgres:16.14-alpine3.23@sha256:42b8b8b29c8a4e933d88943e5b03001a78794905cf786e6e7634e9f2abd5a0d3
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: judgify_bootstrap
+      POSTGRES_DB: judgify
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_bootstrap_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=peer
+    secrets:
+      - postgres_bootstrap_password
+      - postgres_api_password
+      - postgres_worker_password
+      - postgres_migrator_password
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./postgres/init-roles.sh
+        target: /docker-entrypoint-initdb.d/010-init-roles.sh
+        read_only: true
+      - type: bind
+        source: ./postgres/init-roles.sql
+        target: /opt/judgify/init-roles.sql
+        read_only: true
+    tmpfs:
+      - /tmp:mode=1777
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username=$${POSTGRES_USER} --dbname=$${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 60s
+    shm_size: 256m
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2g
+          pids: 256
+
+  migrate:
+    <<: *app-hardening
+    image: ${JUDGIFY_MIGRATE_IMAGE:?set a digest-pinned migrator image}
+    user: "65532:65532"
+    restart: "no"
+    command: ["migrate"]
+    environment:
+      <<: *app-environment
+      DATABASE_USERNAME: judgify_migrator
+      DATABASE_PASSWORD_FILE: /run/secrets/postgres_migrator_password
+    configs:
+      - source: production_config
+        target: /app/config/production.yaml
+        mode: 0444
+    secrets:
+      - postgres_migrator_password
+    tmpfs:
+      - /tmp:uid=65532,gid=65532,mode=1777
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512m
+          pids: 128
+
+  api:
+    <<: *app-hardening
+    image: ${JUDGIFY_API_IMAGE:?set a digest-pinned API image}
+    user: "65532:65532"
+    command: ["api"]
+    environment:
+      <<: *app-environment
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "8000"
+      PORT: "8000"
+      JUDGIFY_GATEWAY_IDENTITY_MODE: envoy
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${JUDGIFY_OTEL_EXPORTER_ENDPOINT:-host.docker.internal:4317}
+      DATABASE_USERNAME: judgify_api
+      DATABASE_PASSWORD_FILE: /run/secrets/postgres_api_password
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
+      GOOGLE_CLIENT_ID: ${JUDGIFY_GOOGLE_CLIENT_ID:?set the Google OAuth client ID}
+      GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
+      GITHUB_CLIENT_ID: ${JUDGIFY_GITHUB_CLIENT_ID:?set the GitHub OAuth client ID}
+      GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
+      RESEND_API_KEY_FILE: /run/secrets/resend_api_key
+      RESEND_FROM_EMAIL: ${JUDGIFY_RESEND_FROM_EMAIL:?set the verified sender address}
+      RESEND_FROM_NAME: ${JUDGIFY_RESEND_FROM_NAME:-Judgify}
+      RESEND_RESET_URL: https://${JUDGIFY_PUBLIC_HOST:?set the public hostname}/reset-password
+      RESEND_VERIFICATION_URL: https://${JUDGIFY_PUBLIC_HOST:?set the public hostname}/verify-recovery-contact
+      RESEND_INVITATION_URL: https://${JUDGIFY_PUBLIC_HOST:?set the public hostname}/accept-invitation
+    configs:
+      - source: production_config
+        target: /app/config/production.yaml
+        mode: 0444
+    volumes:
+      - type: bind
+        source: ${JUDGIFY_RELEASE_MANIFEST_FILE:?set the approved release manifest file}
+        target: /run/judgify/release-manifest.json
+        read_only: true
+    secrets:
+      - postgres_api_password
+      - jwt_secret
+      - jwt_private_key
+      - jwt_public_key
+      - google_client_secret
+      - github_client_secret
+      - resend_api_key
+      - authz_server_certificate
+      - authz_server_private_key
+      - authz_client_ca_certificate
+    tmpfs:
+      - /tmp:uid=65532,gid=65532,mode=1777
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:${JUDGIFY_API_PROBE_PORT:-19092}:9090"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    logging:
+      <<: *observability-logging
+      options:
+        syslog-address: tcp://127.0.0.1:1514
+        syslog-format: rfc5424
+        mode: non-blocking
+        max-buffer-size: 4m
+        tag: judgify-api
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:9090/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1g
+          pids: 256
+
+  worker:
+    <<: *app-hardening
+    image: ${JUDGIFY_WORKER_IMAGE:?set a digest-pinned worker image}
+    user: "${JUDGIFY_WORKER_UID:?set the rootless Docker UID}:${JUDGIFY_WORKER_GID:?set the rootless Docker GID}"
+    command: ["judge-worker"]
+    environment:
+      <<: *app-environment
+      DATABASE_USERNAME: judgify_worker
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${JUDGIFY_OTEL_EXPORTER_ENDPOINT:-host.docker.internal:4317}
+      DATABASE_PASSWORD_FILE: /run/secrets/postgres_worker_password
+      DOCKER_HOST: unix:///run/docker.sock
+      FORGE_DATA_DIR: /var/lib/judgify/forge
+      JUDGE_DOCKER_IMAGE: ${JUDGIFY_SANDBOX_IMAGE:?set a digest-pinned sandbox image}
+    configs:
+      - source: production_config
+        target: /app/config/production.yaml
+        mode: 0444
+    secrets:
+      - postgres_worker_password
+    volumes:
+      - type: bind
+        source: ${JUDGIFY_ROOTLESS_DOCKER_SOCKET:?set the dedicated rootless Docker socket}
+        target: /run/docker.sock
+      - type: bind
+        source: ${JUDGIFY_WORKER_DATA_DIR:?set the worker data directory}
+        target: /var/lib/judgify/forge
+      - type: bind
+        source: ${JUDGIFY_RELEASE_MANIFEST_FILE:?set the approved release manifest file}
+        target: /run/judgify/release-manifest.json
+        read_only: true
+    tmpfs:
+      - /tmp:uid=${JUDGIFY_WORKER_UID},gid=${JUDGIFY_WORKER_GID},mode=1777
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:${JUDGIFY_WORKER_PROBE_PORT:-19093}:9091"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    logging:
+      <<: *observability-logging
+      options:
+        syslog-address: tcp://127.0.0.1:1514
+        syslog-format: rfc5424
+        mode: non-blocking
+        max-buffer-size: 4m
+        tag: judgify-worker
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:9091/ready"]
+      interval: 15s
+      timeout: 3s
+      retries: 4
+      start_period: 120s
+    stop_grace_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 4g
+          pids: 512
+
+  website:
+    <<: *app-hardening
+    image: ${JUDGIFY_WEBSITE_IMAGE:?set a digest-pinned website image}
+    user: "10001:10001"
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+      NEXT_TELEMETRY_DISABLED: "1"
+    tmpfs:
+      - /tmp:uid=10001,gid=10001,mode=1777
+      - /app/.next/cache:uid=10001,gid=10001,mode=0755
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:3000/"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    logging:
+      <<: *observability-logging
+      options:
+        syslog-address: tcp://127.0.0.1:1514
+        syslog-format: rfc5424
+        mode: non-blocking
+        max-buffer-size: 4m
+        tag: judgify-website
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1g
+          pids: 256
+
+  ingress:
+    <<: *app-hardening
+    image: ${JUDGIFY_ENVOY_IMAGE:?set a digest-pinned Envoy image}
+    user: "65532:65532"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--base-id", "1"]
+    configs:
+      - source: envoy_config
+        target: /etc/envoy/envoy.yaml
+        mode: 0444
+    secrets:
+      - source: tls_certificate
+        target: tls_certificate
+      - source: tls_private_key
+        target: tls_private_key
+      - source: authz_client_certificate
+        target: authz_client_certificate
+      - source: authz_client_private_key
+        target: authz_client_private_key
+      - source: authz_server_ca_certificate
+        target: authz_server_ca_certificate
+    tmpfs:
+      - /tmp:uid=65532,gid=65532,mode=1777
+    networks:
+      edge:
+        ipv4_address: 172.31.248.2
+      backend: {}
+    depends_on:
+      api:
+        condition: service_healthy
+      website:
+        condition: service_healthy
+    ports:
+      - name: https
+        target: 8443
+        published: ${JUDGIFY_HTTPS_PORT:-443}
+        protocol: tcp
+        mode: host
+    healthcheck:
+      test: ["CMD", "envoy", "--mode", "validate", "-c", "/etc/envoy/envoy.yaml"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    logging:
+      <<: *observability-logging
+      options:
+        syslog-address: tcp://127.0.0.1:1514
+        syslog-format: rfc5424
+        mode: non-blocking
+        max-buffer-size: 4m
+        tag: judgify-envoy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256m
+          pids: 128
+
+configs:
+  production_config:
+    file: ${JUDGIFY_CONFIG_FILE:?set the absolute production config file}
+  envoy_config:
+    file: ${JUDGIFY_ENVOY_CONFIG_FILE:?rendered immutable Envoy config file}
+
+secrets:
+  postgres_bootstrap_password:
+    file: ${JUDGIFY_POSTGRES_BOOTSTRAP_PASSWORD_FILE:?set the PostgreSQL bootstrap password file}
+  postgres_api_password:
+    file: ${JUDGIFY_POSTGRES_API_PASSWORD_FILE:?set the PostgreSQL API password file}
+  postgres_worker_password:
+    file: ${JUDGIFY_POSTGRES_WORKER_PASSWORD_FILE:?set the PostgreSQL worker password file}
+  postgres_migrator_password:
+    file: ${JUDGIFY_POSTGRES_MIGRATOR_PASSWORD_FILE:?set the PostgreSQL migrator password file}
+  jwt_secret:
+    file: ${JUDGIFY_JWT_SECRET_FILE:?set the JWT secret file}
+  jwt_private_key:
+    file: ${JUDGIFY_JWT_PRIVATE_KEY_FILE:?set the JWT private key file}
+  jwt_public_key:
+    file: ${JUDGIFY_JWT_PUBLIC_KEY_FILE:?set the JWT public key file}
+  google_client_secret:
+    file: ${JUDGIFY_GOOGLE_CLIENT_SECRET_FILE:?set the Google OAuth client secret file}
+  github_client_secret:
+    file: ${JUDGIFY_GITHUB_CLIENT_SECRET_FILE:?set the GitHub OAuth client secret file}
+  resend_api_key:
+    file: ${JUDGIFY_RESEND_API_KEY_FILE:?set the Resend API key file}
+  tls_certificate:
+    file: ${JUDGIFY_TLS_CERTIFICATE_FILE:?set the TLS certificate file}
+  tls_private_key:
+    file: ${JUDGIFY_TLS_PRIVATE_KEY_FILE:?set the TLS private key file}
+  authz_server_certificate:
+    file: ${JUDGIFY_AUTHZ_SERVER_CERTIFICATE_FILE:?set the ext_authz server certificate file}
+  authz_server_private_key:
+    file: ${JUDGIFY_AUTHZ_SERVER_PRIVATE_KEY_FILE:?set the ext_authz server private key file}
+  authz_client_ca_certificate:
+    file: ${JUDGIFY_AUTHZ_CLIENT_CA_CERTIFICATE_FILE:?set the CA that signs the Envoy ext_authz client certificate}
+  authz_client_certificate:
+    file: ${JUDGIFY_AUTHZ_CLIENT_CERTIFICATE_FILE:?set the Envoy ext_authz client certificate file}
+  authz_client_private_key:
+    file: ${JUDGIFY_AUTHZ_CLIENT_PRIVATE_KEY_FILE:?set the Envoy ext_authz client private key file}
+  authz_server_ca_certificate:
+    file: ${JUDGIFY_AUTHZ_SERVER_CA_CERTIFICATE_FILE:?set the CA that signs the ext_authz server certificate}
+
+networks:
+  backend:
+    internal: true
+  edge:
+    ipam:
+      config:
+        - subnet: 172.31.248.0/24
+
+volumes:
+  postgres_data:

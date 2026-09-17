@@ -127,7 +127,7 @@ test("public UI wires recoverable OAuth, profile, and ranking states", async () 
   assert.match(callback, /role="alert"/);
   assert.match(profile, /ProfileEditDialog/);
   assert.match(profile, /setSavedProfile\(\{ userID, profile: updatedProfile \}\)/);
-  assert.match(rankingList, /role="alert"/);
+  assert.match(rankingList, /ResourceCollectionFeedback/);
   assert.match(rankingList, /TEXT\.COMMON\.RETRY/);
   assert.doesNotMatch(ranking, /isLoading \|\| !data/);
 });

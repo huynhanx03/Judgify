@@ -23,7 +23,7 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
-/** Main navigation items displayed in the sidebar. */
+/** Main product navigation; compact layouts may also render the supplied icon. */
 export const MAIN_NAV_ITEMS: NavItem[] = [
   {
     labelKey: "NAV.ARENA",

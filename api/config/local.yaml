@@ -2,6 +2,9 @@ server:
   port: 8000
   mode: "dev"
   host: "localhost"
+  trusted_proxies: []
+  max_request_body_bytes: 4194304
+  request_timeout_seconds: 30
   rate_limit:
     limit: 100
     burst: 50
@@ -15,24 +18,195 @@ database:
   driver: "postgres"
   host: "localhost"
   port: 5432
-  username: "admin"
-  password: "admin"
+  username: "judgify_dev"
+  # Bound from DATABASE_PASSWORD in api/.env by the bootstrap loader.
+  password: ""
   database: "judgify"
   max_open_conns: 10
   max_idle_conns: 5
-  conn_max_lifetime: 300
+  conn_max_lifetime: 1800
+  conn_max_idle_time: 300
+
+migration:
+  apply_timeout_seconds: 900
+  lock_timeout_seconds: 30
+  connect_timeout_seconds: 10
+
+observability:
+  version: "development"
+  api_probe_address: "127.0.0.1:9090"
+  worker_probe_address: "127.0.0.1:9091"
+  envoy_authz_address: "127.0.0.1:9000"
+  envoy_authz_certificate_path: ""
+  envoy_authz_private_key_path: ""
+  envoy_authz_client_ca_path: ""
+  debug_maximum_duration: "15m"
+  debug_recent_authentication_ttl: "10m"
 
 jwt:
   secret: "${JWT_SECRET}"
   private_key_path: "./certs/private_key.pem"
   public_key_path: "./certs/public_key.pem"
 
+authentication:
+  issuer: "judgify-api"
+  audience: "judgify-web"
+  signing_key_id: "judgify-local-rs256"
+  secret_key_id: "judgify-local-v1"
+  access_ttl: "15m"
+  refresh_ttl: "720h"
+  session_idle_ttl: "168h"
+  session_absolute_ttl: "720h"
+  recovery_receipt_ttl: "12m"
+  password_reset_ttl: "15m"
+  password_reset_short_window: "15m"
+  password_reset_short_limit: 3
+  password_reset_daily_limit: 10
+  recovery_verification_ttl: "24h"
+  recovery_reauthentication_ttl: "10m"
+  recovery_resend_cooldown: "1m"
+  recovery_command_receipt_ttl: "168h"
+  recovery_replacement_daily_limit: 3
+  recovery_verification_hourly_limit: 5
+  recovery_verification_daily_limit: 10
+  recovery_terminal_retention: "720h"
+  receipt_cleanup_interval: "1m"
+  receipt_cleanup_timeout: "10s"
+  receipt_cleanup_batch: 500
+  receipt_cleanup_batches: 4
+  refresh_cookie_name: "judgify_refresh"
+  refresh_cookie_path: "/auth/refresh"
+  refresh_cookie_secure: false
+  refresh_cookie_same_site: "strict"
+  access_cookie_name: "judgify_access"
+  csrf_cookie_name: "judgify_csrf"
+  pre_session_cookie_name: "judgify_pre_session"
+  pre_session_ttl: "30m"
+  oauth_login_ticket_cookie_name: "judgify_oauth_login"
+  oauth_login_ticket_cookie_path: "/auth/oauth/login"
+  oauth_link_ticket_cookie_name: "judgify_oauth_link"
+  oauth_link_ticket_cookie_path: "/auth/oauth/link"
+  oauth_completion_url: "http://localhost:3000/auth/oauth/complete"
+  browser_origins:
+    - "http://localhost:3000"
+  maximum_credential_bytes: 4096
+  maximum_user_agent_bytes: 512
+  trait_offer_ttl: "10m"
+
+google:
+  client_id: "${GOOGLE_CLIENT_ID}"
+  client_secret: "${GOOGLE_CLIENT_SECRET}"
+  redirect_url: "http://localhost:8000/auth/oauth/google/callback"
+
+github:
+  client_id: "${GITHUB_CLIENT_ID}"
+  client_secret: "${GITHUB_CLIENT_SECRET}"
+  redirect_url: "http://localhost:8000/auth/oauth/github/callback"
+
+resend:
+  api_key: "${RESEND_API_KEY}"
+  from_email: "${RESEND_FROM_EMAIL}"
+  from_name: "Judgify"
+  reset_url: "http://localhost:3000/reset-password"
+  verification_url: "http://localhost:3000/verify-recovery-contact"
+  invitation_url: "http://localhost:3000/accept-invitation"
+
+security_email:
+  owner_prefix: "judgify-api"
+  poll_interval: "500ms"
+  claim_timeout: "2s"
+  delivery_timeout: "10s"
+  finalize_timeout: "3s"
+  lease_duration: "30s"
+  batch_size: 4
+  concurrency: 4
+  maximum_attempts: 5
+  retry_initial: "1s"
+  retry_maximum: "5m"
+  retry_multiplier: 2
+  maximum_ciphertext_bytes: 4096
+
 judge:
-  docker_image: "judgify/sandbox:latest"
+  release_id: "judge-release.development"
+  # Local API authoring uses code-owned runtime/checker metadata only. It has
+  # no executable image identity or worker capability. Production is forced
+  # to approved_release by configuration validation.
+  api_authoring_catalog_mode: "code_owned_development"
+  release_manifest_path: ""
+  # A local worker still requires explicit digest-pinned image, approved
+  # manifest, and isolated rootless daemon overrides before it can start.
+  docker_socket_path: "/run/docker.sock"
+  staging_root: "/tmp/judgify/staging"
+  maximum_active_submissions_per_user: 8
+  maximum_ready_backlog: 10000
+  maximum_oldest_ready_age: "30m"
+  minimum_free_disk_bytes: 536870912
+  admission_disk_path: "/tmp"
+  worker_heartbeat_freshness: "30s"
+  docker_image: "judgify/sandbox:development"
   pool_size: 3
   worker_count: 3
   compile_timeout_ms: 10000
+  maximum_test_input_bytes: 1048576
+  maximum_output_bytes: 1048576
+  maximum_diagnostic_bytes: 16384
   network_disabled: true
+  container_memory_mb: 1024
+  sandbox_tmpfs_size_mb: 64
+  worker_identity_prefix: "judgify-judge"
+  lease_duration: "30s"
+  lease_heartbeat: "5s"
+  lease_retry_floor: "100ms"
+  maximum_attempts: 5
+
+forge:
+  data_dir: "storages/forge"
+  topic: "solve-reward-transitions"
+  consumer_group: "solve-reward-projector"
+  max_message_bytes: 524288
+  max_segment_bytes: 67108864
+  max_storage_bytes: 536870912
+  retention_bytes: 402653184
+  retention_time: "24h"
+  retention_interval: "1m"
+
+outbox:
+  name: "integration-outbox"
+  owner_prefix: "judgify-local"
+  concurrency: 4
+  claim_limit: 4
+  max_message_bytes: 262144
+  max_attempts: 20
+  lease_duration: "30s"
+  publish_timeout: "5s"
+  store_timeout: "3s"
+  finalize_timeout: "3s"
+  poll_interval: "250ms"
+  retry_initial: "250ms"
+  retry_maximum: "30s"
+  retry_multiplier: 2
+  reconcile_interval: "30s"
+  reconcile_batch: 256
+  max_reconcile_batches: 32
+
+operation:
+  owner_prefix: "judgify-api"
+  lease_duration: "45s"
+  batch_timeout: "30s"
+  idle_wait: "250ms"
+  retry_initial: "500ms"
+  retry_maximum: "30s"
+  maximum_attempts: 8
+
+admin_command:
+  confirmation_ttl: "5m"
+  recent_authentication_ttl: "10m"
+
+notification_campaign:
+  maximum_recipients: 50000
+  batch_size: 100
+  confirmation_ttl: "5m"
+  recent_authentication_ttl: "10m"
 
 logger:
   log_level: debug

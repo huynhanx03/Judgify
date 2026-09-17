@@ -14,50 +14,218 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// ActivatedJudgeCapability is the client for interacting with the ActivatedJudgeCapability builders.
+	ActivatedJudgeCapability *ActivatedJudgeCapabilityClient
 	// AttributeDefinition is the client for interacting with the AttributeDefinition builders.
 	AttributeDefinition *AttributeDefinitionClient
+	// AttributeDefinitionRevision is the client for interacting with the AttributeDefinitionRevision builders.
+	AttributeDefinitionRevision *AttributeDefinitionRevisionClient
+	// AuditLog is the client for interacting with the AuditLog builders.
+	AuditLog *AuditLogClient
+	// AuthRefreshReceipt is the client for interacting with the AuthRefreshReceipt builders.
+	AuthRefreshReceipt *AuthRefreshReceiptClient
+	// AuthRefreshToken is the client for interacting with the AuthRefreshToken builders.
+	AuthRefreshToken *AuthRefreshTokenClient
+	// AuthSession is the client for interacting with the AuthSession builders.
+	AuthSession *AuthSessionClient
+	// AuthSessionCommandReceipt is the client for interacting with the AuthSessionCommandReceipt builders.
+	AuthSessionCommandReceipt *AuthSessionCommandReceiptClient
+	// AuthSessionIssuanceReceipt is the client for interacting with the AuthSessionIssuanceReceipt builders.
+	AuthSessionIssuanceReceipt *AuthSessionIssuanceReceiptClient
+	// AuthorizationAction is the client for interacting with the AuthorizationAction builders.
+	AuthorizationAction *AuthorizationActionClient
+	// AuthorizationResource is the client for interacting with the AuthorizationResource builders.
+	AuthorizationResource *AuthorizationResourceClient
+	// AuthorizationState is the client for interacting with the AuthorizationState builders.
+	AuthorizationState *AuthorizationStateClient
+	// CasbinRule is the client for interacting with the CasbinRule builders.
+	CasbinRule *CasbinRuleClient
+	// CheckerProfile is the client for interacting with the CheckerProfile builders.
+	CheckerProfile *CheckerProfileClient
+	// ContentRenderArtifact is the client for interacting with the ContentRenderArtifact builders.
+	ContentRenderArtifact *ContentRenderArtifactClient
+	// ContentRenderSource is the client for interacting with the ContentRenderSource builders.
+	ContentRenderSource *ContentRenderSourceClient
 	// Contest is the client for interacting with the Contest builders.
 	Contest *ContestClient
+	// ContestAnnouncement is the client for interacting with the ContestAnnouncement builders.
+	ContestAnnouncement *ContestAnnouncementClient
+	// ContestClarification is the client for interacting with the ContestClarification builders.
+	ContestClarification *ContestClarificationClient
+	// ContestContentCommand is the client for interacting with the ContestContentCommand builders.
+	ContestContentCommand *ContestContentCommandClient
+	// ContestContentRevision is the client for interacting with the ContestContentRevision builders.
+	ContestContentRevision *ContestContentRevisionClient
+	// ContestDraftProblem is the client for interacting with the ContestDraftProblem builders.
+	ContestDraftProblem *ContestDraftProblemClient
+	// ContestProblem is the client for interacting with the ContestProblem builders.
+	ContestProblem *ContestProblemClient
+	// ContestProblemResult is the client for interacting with the ContestProblemResult builders.
+	ContestProblemResult *ContestProblemResultClient
+	// ContestRatingResult is the client for interacting with the ContestRatingResult builders.
+	ContestRatingResult *ContestRatingResultClient
+	// ContestRatingRun is the client for interacting with the ContestRatingRun builders.
+	ContestRatingRun *ContestRatingRunClient
 	// ContestRegistration is the client for interacting with the ContestRegistration builders.
 	ContestRegistration *ContestRegistrationClient
+	// ContestRegistrationTransition is the client for interacting with the ContestRegistrationTransition builders.
+	ContestRegistrationTransition *ContestRegistrationTransitionClient
+	// ContestScoringAttempt is the client for interacting with the ContestScoringAttempt builders.
+	ContestScoringAttempt *ContestScoringAttemptClient
 	// ContestStanding is the client for interacting with the ContestStanding builders.
 	ContestStanding *ContestStandingClient
+	// ContestTransition is the client for interacting with the ContestTransition builders.
+	ContestTransition *ContestTransitionClient
+	// ContestUserRating is the client for interacting with the ContestUserRating builders.
+	ContestUserRating *ContestUserRatingClient
 	// Credential is the client for interacting with the Credential builders.
 	Credential *CredentialClient
+	// CultivationCatalogRevision is the client for interacting with the CultivationCatalogRevision builders.
+	CultivationCatalogRevision *CultivationCatalogRevisionClient
+	// CultivationRankingPrivacyChange is the client for interacting with the CultivationRankingPrivacyChange builders.
+	CultivationRankingPrivacyChange *CultivationRankingPrivacyChangeClient
+	// CultivationRankingProjection is the client for interacting with the CultivationRankingProjection builders.
+	CultivationRankingProjection *CultivationRankingProjectionClient
+	// CultivationRankingState is the client for interacting with the CultivationRankingState builders.
+	CultivationRankingState *CultivationRankingStateClient
 	// Difficulty is the client for interacting with the Difficulty builders.
 	Difficulty *DifficultyClient
+	// DifficultyRevision is the client for interacting with the DifficultyRevision builders.
+	DifficultyRevision *DifficultyRevisionClient
 	// Element is the client for interacting with the Element builders.
 	Element *ElementClient
+	// ElementRevision is the client for interacting with the ElementRevision builders.
+	ElementRevision *ElementRevisionClient
 	// FederatedIdentity is the client for interacting with the FederatedIdentity builders.
 	FederatedIdentity *FederatedIdentityClient
+	// JudgeAttempt is the client for interacting with the JudgeAttempt builders.
+	JudgeAttempt *JudgeAttemptClient
+	// JudgeJob is the client for interacting with the JudgeJob builders.
+	JudgeJob *JudgeJobClient
+	// JudgeSpec is the client for interacting with the JudgeSpec builders.
+	JudgeSpec *JudgeSpecClient
+	// JudgeTestResult is the client for interacting with the JudgeTestResult builders.
+	JudgeTestResult *JudgeTestResultClient
+	// JudgeWorkerCapability is the client for interacting with the JudgeWorkerCapability builders.
+	JudgeWorkerCapability *JudgeWorkerCapabilityClient
+	// JudgeWorkerInstance is the client for interacting with the JudgeWorkerInstance builders.
+	JudgeWorkerInstance *JudgeWorkerInstanceClient
+	// Judgement is the client for interacting with the Judgement builders.
+	Judgement *JudgementClient
 	// Level is the client for interacting with the Level builders.
 	Level *LevelClient
 	// Material is the client for interacting with the Material builders.
 	Material *MaterialClient
 	// MaterialCategory is the client for interacting with the MaterialCategory builders.
 	MaterialCategory *MaterialCategoryClient
-	// Permission is the client for interacting with the Permission builders.
-	Permission *PermissionClient
+	// MaterialRevision is the client for interacting with the MaterialRevision builders.
+	MaterialRevision *MaterialRevisionClient
+	// MaterialRevisionTag is the client for interacting with the MaterialRevisionTag builders.
+	MaterialRevisionTag *MaterialRevisionTagClient
+	// MaterialSlug is the client for interacting with the MaterialSlug builders.
+	MaterialSlug *MaterialSlugClient
+	// MaterialViewDaily is the client for interacting with the MaterialViewDaily builders.
+	MaterialViewDaily *MaterialViewDailyClient
+	// Notification is the client for interacting with the Notification builders.
+	Notification *NotificationClient
+	// NotificationCampaign is the client for interacting with the NotificationCampaign builders.
+	NotificationCampaign *NotificationCampaignClient
+	// NotificationCampaignConfirmation is the client for interacting with the NotificationCampaignConfirmation builders.
+	NotificationCampaignConfirmation *NotificationCampaignConfirmationClient
+	// NotificationCampaignExplicitUser is the client for interacting with the NotificationCampaignExplicitUser builders.
+	NotificationCampaignExplicitUser *NotificationCampaignExplicitUserClient
+	// NotificationCampaignRecipient is the client for interacting with the NotificationCampaignRecipient builders.
+	NotificationCampaignRecipient *NotificationCampaignRecipientClient
+	// NotificationCampaignRevision is the client for interacting with the NotificationCampaignRevision builders.
+	NotificationCampaignRevision *NotificationCampaignRevisionClient
+	// NotificationInboxState is the client for interacting with the NotificationInboxState builders.
+	NotificationInboxState *NotificationInboxStateClient
+	// NotificationPreference is the client for interacting with the NotificationPreference builders.
+	NotificationPreference *NotificationPreferenceClient
+	// OAuthCompletionTicket is the client for interacting with the OAuthCompletionTicket builders.
+	OAuthCompletionTicket *OAuthCompletionTicketClient
+	// OAuthFlow is the client for interacting with the OAuthFlow builders.
+	OAuthFlow *OAuthFlowClient
+	// OnboardingTraitOffer is the client for interacting with the OnboardingTraitOffer builders.
+	OnboardingTraitOffer *OnboardingTraitOfferClient
+	// OnboardingTraitOfferTalent is the client for interacting with the OnboardingTraitOfferTalent builders.
+	OnboardingTraitOfferTalent *OnboardingTraitOfferTalentClient
+	// Operation is the client for interacting with the Operation builders.
+	Operation *OperationClient
+	// OperationBatch is the client for interacting with the OperationBatch builders.
+	OperationBatch *OperationBatchClient
+	// OperationControlReceipt is the client for interacting with the OperationControlReceipt builders.
+	OperationControlReceipt *OperationControlReceiptClient
+	// OutboxEvent is the client for interacting with the OutboxEvent builders.
+	OutboxEvent *OutboxEventClient
+	// PasswordResetToken is the client for interacting with the PasswordResetToken builders.
+	PasswordResetToken *PasswordResetTokenClient
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
+	// ProblemRevision is the client for interacting with the ProblemRevision builders.
+	ProblemRevision *ProblemRevisionClient
+	// ProfileSchemaState is the client for interacting with the ProfileSchemaState builders.
+	ProfileSchemaState *ProfileSchemaStateClient
+	// ProgressionLedgerEntry is the client for interacting with the ProgressionLedgerEntry builders.
+	ProgressionLedgerEntry *ProgressionLedgerEntryClient
 	// Rank is the client for interacting with the Rank builders.
 	Rank *RankClient
 	// Rarity is the client for interacting with the Rarity builders.
 	Rarity *RarityClient
 	// RatingHistory is the client for interacting with the RatingHistory builders.
 	RatingHistory *RatingHistoryClient
-	// Resource is the client for interacting with the Resource builders.
-	Resource *ResourceClient
+	// RatingProjectionGeneration is the client for interacting with the RatingProjectionGeneration builders.
+	RatingProjectionGeneration *RatingProjectionGenerationClient
+	// RatingRunChain is the client for interacting with the RatingRunChain builders.
+	RatingRunChain *RatingRunChainClient
+	// RatingRunChainEntry is the client for interacting with the RatingRunChainEntry builders.
+	RatingRunChainEntry *RatingRunChainEntryClient
+	// RatingSequenceSlot is the client for interacting with the RatingSequenceSlot builders.
+	RatingSequenceSlot *RatingSequenceSlotClient
+	// RatingState is the client for interacting with the RatingState builders.
+	RatingState *RatingStateClient
+	// RealtimeCursorState is the client for interacting with the RealtimeCursorState builders.
+	RealtimeCursorState *RealtimeCursorStateClient
+	// RealtimeEvent is the client for interacting with the RealtimeEvent builders.
+	RealtimeEvent *RealtimeEventClient
+	// RecoveryContactCommandReceipt is the client for interacting with the RecoveryContactCommandReceipt builders.
+	RecoveryContactCommandReceipt *RecoveryContactCommandReceiptClient
+	// RecoveryContactVerificationToken is the client for interacting with the RecoveryContactVerificationToken builders.
+	RecoveryContactVerificationToken *RecoveryContactVerificationTokenClient
+	// RewardRuleRevision is the client for interacting with the RewardRuleRevision builders.
+	RewardRuleRevision *RewardRuleRevisionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// RuntimeProfile is the client for interacting with the RuntimeProfile builders.
+	RuntimeProfile *RuntimeProfileClient
+	// SecurityEmailDelivery is the client for interacting with the SecurityEmailDelivery builders.
+	SecurityEmailDelivery *SecurityEmailDeliveryClient
+	// SolveRewardCursor is the client for interacting with the SolveRewardCursor builders.
+	SolveRewardCursor *SolveRewardCursorClient
+	// SolveRewardProcessedTransition is the client for interacting with the SolveRewardProcessedTransition builders.
+	SolveRewardProcessedTransition *SolveRewardProcessedTransitionClient
 	// Submission is the client for interacting with the Submission builders.
 	Submission *SubmissionClient
 	// Tag is the client for interacting with the Tag builders.
 	Tag *TagClient
+	// TagRevision is the client for interacting with the TagRevision builders.
+	TagRevision *TagRevisionClient
+	// TagRevisionElement is the client for interacting with the TagRevisionElement builders.
+	TagRevisionElement *TagRevisionElementClient
+	// TestAsset is the client for interacting with the TestAsset builders.
+	TestAsset *TestAssetClient
 	// TestCase is the client for interacting with the TestCase builders.
 	TestCase *TestCaseClient
+	// TestcaseGroup is the client for interacting with the TestcaseGroup builders.
+	TestcaseGroup *TestcaseGroupClient
+	// TestcaseRevision is the client for interacting with the TestcaseRevision builders.
+	TestcaseRevision *TestcaseRevisionClient
+	// TestsetRevision is the client for interacting with the TestsetRevision builders.
+	TestsetRevision *TestsetRevisionClient
 	// Trait is the client for interacting with the Trait builders.
 	Trait *TraitClient
+	// TraitEffectRevision is the client for interacting with the TraitEffectRevision builders.
+	TraitEffectRevision *TraitEffectRevisionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserAttributeValue is the client for interacting with the UserAttributeValue builders.
@@ -66,6 +234,16 @@ type Tx struct {
 	UserDifficultyStats *UserDifficultyStatsClient
 	// UserElementExp is the client for interacting with the UserElementExp builders.
 	UserElementExp *UserElementExpClient
+	// UserProblemSolve is the client for interacting with the UserProblemSolve builders.
+	UserProblemSolve *UserProblemSolveClient
+	// UserProblemSolveTransition is the client for interacting with the UserProblemSolveTransition builders.
+	UserProblemSolveTransition *UserProblemSolveTransitionClient
+	// UserRecoveryContact is the client for interacting with the UserRecoveryContact builders.
+	UserRecoveryContact *UserRecoveryContactClient
+	// UserRewardProfileRevision is the client for interacting with the UserRewardProfileRevision builders.
+	UserRewardProfileRevision *UserRewardProfileRevisionClient
+	// UserRewardProfileTrait is the client for interacting with the UserRewardProfileTrait builders.
+	UserRewardProfileTrait *UserRewardProfileTraitClient
 	// UserSolvedProblem is the client for interacting with the UserSolvedProblem builders.
 	UserSolvedProblem *UserSolvedProblemClient
 	// UserStats is the client for interacting with the UserStats builders.
@@ -205,32 +383,121 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.ActivatedJudgeCapability = NewActivatedJudgeCapabilityClient(tx.config)
 	tx.AttributeDefinition = NewAttributeDefinitionClient(tx.config)
+	tx.AttributeDefinitionRevision = NewAttributeDefinitionRevisionClient(tx.config)
+	tx.AuditLog = NewAuditLogClient(tx.config)
+	tx.AuthRefreshReceipt = NewAuthRefreshReceiptClient(tx.config)
+	tx.AuthRefreshToken = NewAuthRefreshTokenClient(tx.config)
+	tx.AuthSession = NewAuthSessionClient(tx.config)
+	tx.AuthSessionCommandReceipt = NewAuthSessionCommandReceiptClient(tx.config)
+	tx.AuthSessionIssuanceReceipt = NewAuthSessionIssuanceReceiptClient(tx.config)
+	tx.AuthorizationAction = NewAuthorizationActionClient(tx.config)
+	tx.AuthorizationResource = NewAuthorizationResourceClient(tx.config)
+	tx.AuthorizationState = NewAuthorizationStateClient(tx.config)
+	tx.CasbinRule = NewCasbinRuleClient(tx.config)
+	tx.CheckerProfile = NewCheckerProfileClient(tx.config)
+	tx.ContentRenderArtifact = NewContentRenderArtifactClient(tx.config)
+	tx.ContentRenderSource = NewContentRenderSourceClient(tx.config)
 	tx.Contest = NewContestClient(tx.config)
+	tx.ContestAnnouncement = NewContestAnnouncementClient(tx.config)
+	tx.ContestClarification = NewContestClarificationClient(tx.config)
+	tx.ContestContentCommand = NewContestContentCommandClient(tx.config)
+	tx.ContestContentRevision = NewContestContentRevisionClient(tx.config)
+	tx.ContestDraftProblem = NewContestDraftProblemClient(tx.config)
+	tx.ContestProblem = NewContestProblemClient(tx.config)
+	tx.ContestProblemResult = NewContestProblemResultClient(tx.config)
+	tx.ContestRatingResult = NewContestRatingResultClient(tx.config)
+	tx.ContestRatingRun = NewContestRatingRunClient(tx.config)
 	tx.ContestRegistration = NewContestRegistrationClient(tx.config)
+	tx.ContestRegistrationTransition = NewContestRegistrationTransitionClient(tx.config)
+	tx.ContestScoringAttempt = NewContestScoringAttemptClient(tx.config)
 	tx.ContestStanding = NewContestStandingClient(tx.config)
+	tx.ContestTransition = NewContestTransitionClient(tx.config)
+	tx.ContestUserRating = NewContestUserRatingClient(tx.config)
 	tx.Credential = NewCredentialClient(tx.config)
+	tx.CultivationCatalogRevision = NewCultivationCatalogRevisionClient(tx.config)
+	tx.CultivationRankingPrivacyChange = NewCultivationRankingPrivacyChangeClient(tx.config)
+	tx.CultivationRankingProjection = NewCultivationRankingProjectionClient(tx.config)
+	tx.CultivationRankingState = NewCultivationRankingStateClient(tx.config)
 	tx.Difficulty = NewDifficultyClient(tx.config)
+	tx.DifficultyRevision = NewDifficultyRevisionClient(tx.config)
 	tx.Element = NewElementClient(tx.config)
+	tx.ElementRevision = NewElementRevisionClient(tx.config)
 	tx.FederatedIdentity = NewFederatedIdentityClient(tx.config)
+	tx.JudgeAttempt = NewJudgeAttemptClient(tx.config)
+	tx.JudgeJob = NewJudgeJobClient(tx.config)
+	tx.JudgeSpec = NewJudgeSpecClient(tx.config)
+	tx.JudgeTestResult = NewJudgeTestResultClient(tx.config)
+	tx.JudgeWorkerCapability = NewJudgeWorkerCapabilityClient(tx.config)
+	tx.JudgeWorkerInstance = NewJudgeWorkerInstanceClient(tx.config)
+	tx.Judgement = NewJudgementClient(tx.config)
 	tx.Level = NewLevelClient(tx.config)
 	tx.Material = NewMaterialClient(tx.config)
 	tx.MaterialCategory = NewMaterialCategoryClient(tx.config)
-	tx.Permission = NewPermissionClient(tx.config)
+	tx.MaterialRevision = NewMaterialRevisionClient(tx.config)
+	tx.MaterialRevisionTag = NewMaterialRevisionTagClient(tx.config)
+	tx.MaterialSlug = NewMaterialSlugClient(tx.config)
+	tx.MaterialViewDaily = NewMaterialViewDailyClient(tx.config)
+	tx.Notification = NewNotificationClient(tx.config)
+	tx.NotificationCampaign = NewNotificationCampaignClient(tx.config)
+	tx.NotificationCampaignConfirmation = NewNotificationCampaignConfirmationClient(tx.config)
+	tx.NotificationCampaignExplicitUser = NewNotificationCampaignExplicitUserClient(tx.config)
+	tx.NotificationCampaignRecipient = NewNotificationCampaignRecipientClient(tx.config)
+	tx.NotificationCampaignRevision = NewNotificationCampaignRevisionClient(tx.config)
+	tx.NotificationInboxState = NewNotificationInboxStateClient(tx.config)
+	tx.NotificationPreference = NewNotificationPreferenceClient(tx.config)
+	tx.OAuthCompletionTicket = NewOAuthCompletionTicketClient(tx.config)
+	tx.OAuthFlow = NewOAuthFlowClient(tx.config)
+	tx.OnboardingTraitOffer = NewOnboardingTraitOfferClient(tx.config)
+	tx.OnboardingTraitOfferTalent = NewOnboardingTraitOfferTalentClient(tx.config)
+	tx.Operation = NewOperationClient(tx.config)
+	tx.OperationBatch = NewOperationBatchClient(tx.config)
+	tx.OperationControlReceipt = NewOperationControlReceiptClient(tx.config)
+	tx.OutboxEvent = NewOutboxEventClient(tx.config)
+	tx.PasswordResetToken = NewPasswordResetTokenClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)
+	tx.ProblemRevision = NewProblemRevisionClient(tx.config)
+	tx.ProfileSchemaState = NewProfileSchemaStateClient(tx.config)
+	tx.ProgressionLedgerEntry = NewProgressionLedgerEntryClient(tx.config)
 	tx.Rank = NewRankClient(tx.config)
 	tx.Rarity = NewRarityClient(tx.config)
 	tx.RatingHistory = NewRatingHistoryClient(tx.config)
-	tx.Resource = NewResourceClient(tx.config)
+	tx.RatingProjectionGeneration = NewRatingProjectionGenerationClient(tx.config)
+	tx.RatingRunChain = NewRatingRunChainClient(tx.config)
+	tx.RatingRunChainEntry = NewRatingRunChainEntryClient(tx.config)
+	tx.RatingSequenceSlot = NewRatingSequenceSlotClient(tx.config)
+	tx.RatingState = NewRatingStateClient(tx.config)
+	tx.RealtimeCursorState = NewRealtimeCursorStateClient(tx.config)
+	tx.RealtimeEvent = NewRealtimeEventClient(tx.config)
+	tx.RecoveryContactCommandReceipt = NewRecoveryContactCommandReceiptClient(tx.config)
+	tx.RecoveryContactVerificationToken = NewRecoveryContactVerificationTokenClient(tx.config)
+	tx.RewardRuleRevision = NewRewardRuleRevisionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.RuntimeProfile = NewRuntimeProfileClient(tx.config)
+	tx.SecurityEmailDelivery = NewSecurityEmailDeliveryClient(tx.config)
+	tx.SolveRewardCursor = NewSolveRewardCursorClient(tx.config)
+	tx.SolveRewardProcessedTransition = NewSolveRewardProcessedTransitionClient(tx.config)
 	tx.Submission = NewSubmissionClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)
+	tx.TagRevision = NewTagRevisionClient(tx.config)
+	tx.TagRevisionElement = NewTagRevisionElementClient(tx.config)
+	tx.TestAsset = NewTestAssetClient(tx.config)
 	tx.TestCase = NewTestCaseClient(tx.config)
+	tx.TestcaseGroup = NewTestcaseGroupClient(tx.config)
+	tx.TestcaseRevision = NewTestcaseRevisionClient(tx.config)
+	tx.TestsetRevision = NewTestsetRevisionClient(tx.config)
 	tx.Trait = NewTraitClient(tx.config)
+	tx.TraitEffectRevision = NewTraitEffectRevisionClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserAttributeValue = NewUserAttributeValueClient(tx.config)
 	tx.UserDifficultyStats = NewUserDifficultyStatsClient(tx.config)
 	tx.UserElementExp = NewUserElementExpClient(tx.config)
+	tx.UserProblemSolve = NewUserProblemSolveClient(tx.config)
+	tx.UserProblemSolveTransition = NewUserProblemSolveTransitionClient(tx.config)
+	tx.UserRecoveryContact = NewUserRecoveryContactClient(tx.config)
+	tx.UserRewardProfileRevision = NewUserRewardProfileRevisionClient(tx.config)
+	tx.UserRewardProfileTrait = NewUserRewardProfileTraitClient(tx.config)
 	tx.UserSolvedProblem = NewUserSolvedProblemClient(tx.config)
 	tx.UserStats = NewUserStatsClient(tx.config)
 	tx.UserTagStats = NewUserTagStatsClient(tx.config)
@@ -244,7 +511,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: AttributeDefinition.QueryXXX(), the query will be executed
+// applies a query, for example: ActivatedJudgeCapability.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

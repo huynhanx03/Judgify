@@ -1,16 +1,20 @@
 package schema
 
 import (
+	"github.com/google/uuid"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
-// UserTrait holds the schema definition for the UserTrait entity (gacha result).
+// UserTrait holds one root-bone or talent assignment selected from a durable
+// onboarding offer or changed through an audited administration command.
 type UserTrait struct {
 	ent.Schema
 }
@@ -18,6 +22,7 @@ type UserTrait struct {
 // Mixin of the UserTrait.
 func (UserTrait) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -26,8 +31,8 @@ func (UserTrait) Mixin() []ent.Mixin {
 // Fields of the UserTrait.
 func (UserTrait) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("user_id"),
-		field.Int("trait_id"),
+		field.UUID("user_id", uuid.UUID{}),
+		field.UUID("trait_id", uuid.UUID{}),
 	}
 }
 

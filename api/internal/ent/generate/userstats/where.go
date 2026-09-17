@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.UserStats {
+func ID(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.UserStats {
+func IDEQ(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.UserStats {
+func IDNEQ(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.UserStats {
+func IDIn(ids ...uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.UserStats {
+func IDNotIn(ids ...uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.UserStats {
+func IDGT(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.UserStats {
+func IDGTE(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.UserStats {
+func IDLT(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.UserStats {
+func IDLTE(id uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,12 +72,12 @@ func DeletedAt(v time.Time) predicate.UserStats {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.UserStats {
+func DeletedBy(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.UserStats {
+func UserID(v uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldUserID, v))
 }
 
@@ -98,6 +99,26 @@ func TotalSubmissions(v int) predicate.UserStats {
 // AcceptedCount applies equality check predicate on the "accepted_count" field. It's identical to AcceptedCountEQ.
 func AcceptedCount(v int) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldAcceptedCount, v))
+}
+
+// ProgressionVersion applies equality check predicate on the "progression_version" field. It's identical to ProgressionVersionEQ.
+func ProgressionVersion(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldProgressionVersion, v))
+}
+
+// RatingVersion applies equality check predicate on the "rating_version" field. It's identical to RatingVersionEQ.
+func RatingVersion(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldRatingVersion, v))
+}
+
+// ProgressionUpdatedAt applies equality check predicate on the "progression_updated_at" field. It's identical to ProgressionUpdatedAtEQ.
+func ProgressionUpdatedAt(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldProgressionUpdatedAt, v))
+}
+
+// RatingUpdatedAt applies equality check predicate on the "rating_updated_at" field. It's identical to RatingUpdatedAtEQ.
+func RatingUpdatedAt(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldRatingUpdatedAt, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -231,43 +252,58 @@ func DeletedAtNotNil() predicate.UserStats {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.UserStats {
+func DeletedByEQ(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.UserStats {
+func DeletedByNEQ(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.UserStats {
+func DeletedByIn(vs ...string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.UserStats {
+func DeletedByNotIn(vs ...string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.UserStats {
+func DeletedByGT(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.UserStats {
+func DeletedByGTE(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.UserStats {
+func DeletedByLT(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.UserStats {
+func DeletedByLTE(v string) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.UserStats {
+	return predicate.UserStats(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.UserStats {
+	return predicate.UserStats(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.UserStats {
+	return predicate.UserStats(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -280,23 +316,33 @@ func DeletedByNotNil() predicate.UserStats {
 	return predicate.UserStats(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.UserStats {
+	return predicate.UserStats(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.UserStats {
+func UserIDEQ(v uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.UserStats {
+func UserIDNEQ(v uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.UserStats {
+func UserIDIn(vs ...uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.UserStats {
+func UserIDNotIn(vs ...uuid.UUID) predicate.UserStats {
 	return predicate.UserStats(sql.FieldNotIn(FieldUserID, vs...))
 }
 
@@ -458,6 +504,186 @@ func AcceptedCountLT(v int) predicate.UserStats {
 // AcceptedCountLTE applies the LTE predicate on the "accepted_count" field.
 func AcceptedCountLTE(v int) predicate.UserStats {
 	return predicate.UserStats(sql.FieldLTE(FieldAcceptedCount, v))
+}
+
+// ProgressionVersionEQ applies the EQ predicate on the "progression_version" field.
+func ProgressionVersionEQ(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldProgressionVersion, v))
+}
+
+// ProgressionVersionNEQ applies the NEQ predicate on the "progression_version" field.
+func ProgressionVersionNEQ(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNEQ(FieldProgressionVersion, v))
+}
+
+// ProgressionVersionIn applies the In predicate on the "progression_version" field.
+func ProgressionVersionIn(vs ...int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldIn(FieldProgressionVersion, vs...))
+}
+
+// ProgressionVersionNotIn applies the NotIn predicate on the "progression_version" field.
+func ProgressionVersionNotIn(vs ...int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotIn(FieldProgressionVersion, vs...))
+}
+
+// ProgressionVersionGT applies the GT predicate on the "progression_version" field.
+func ProgressionVersionGT(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGT(FieldProgressionVersion, v))
+}
+
+// ProgressionVersionGTE applies the GTE predicate on the "progression_version" field.
+func ProgressionVersionGTE(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGTE(FieldProgressionVersion, v))
+}
+
+// ProgressionVersionLT applies the LT predicate on the "progression_version" field.
+func ProgressionVersionLT(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLT(FieldProgressionVersion, v))
+}
+
+// ProgressionVersionLTE applies the LTE predicate on the "progression_version" field.
+func ProgressionVersionLTE(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLTE(FieldProgressionVersion, v))
+}
+
+// RatingVersionEQ applies the EQ predicate on the "rating_version" field.
+func RatingVersionEQ(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldRatingVersion, v))
+}
+
+// RatingVersionNEQ applies the NEQ predicate on the "rating_version" field.
+func RatingVersionNEQ(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNEQ(FieldRatingVersion, v))
+}
+
+// RatingVersionIn applies the In predicate on the "rating_version" field.
+func RatingVersionIn(vs ...int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldIn(FieldRatingVersion, vs...))
+}
+
+// RatingVersionNotIn applies the NotIn predicate on the "rating_version" field.
+func RatingVersionNotIn(vs ...int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotIn(FieldRatingVersion, vs...))
+}
+
+// RatingVersionGT applies the GT predicate on the "rating_version" field.
+func RatingVersionGT(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGT(FieldRatingVersion, v))
+}
+
+// RatingVersionGTE applies the GTE predicate on the "rating_version" field.
+func RatingVersionGTE(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGTE(FieldRatingVersion, v))
+}
+
+// RatingVersionLT applies the LT predicate on the "rating_version" field.
+func RatingVersionLT(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLT(FieldRatingVersion, v))
+}
+
+// RatingVersionLTE applies the LTE predicate on the "rating_version" field.
+func RatingVersionLTE(v int64) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLTE(FieldRatingVersion, v))
+}
+
+// ProgressionUpdatedAtEQ applies the EQ predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtEQ(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldProgressionUpdatedAt, v))
+}
+
+// ProgressionUpdatedAtNEQ applies the NEQ predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtNEQ(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNEQ(FieldProgressionUpdatedAt, v))
+}
+
+// ProgressionUpdatedAtIn applies the In predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtIn(vs ...time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldIn(FieldProgressionUpdatedAt, vs...))
+}
+
+// ProgressionUpdatedAtNotIn applies the NotIn predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtNotIn(vs ...time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotIn(FieldProgressionUpdatedAt, vs...))
+}
+
+// ProgressionUpdatedAtGT applies the GT predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtGT(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGT(FieldProgressionUpdatedAt, v))
+}
+
+// ProgressionUpdatedAtGTE applies the GTE predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtGTE(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGTE(FieldProgressionUpdatedAt, v))
+}
+
+// ProgressionUpdatedAtLT applies the LT predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtLT(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLT(FieldProgressionUpdatedAt, v))
+}
+
+// ProgressionUpdatedAtLTE applies the LTE predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtLTE(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLTE(FieldProgressionUpdatedAt, v))
+}
+
+// ProgressionUpdatedAtIsNil applies the IsNil predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtIsNil() predicate.UserStats {
+	return predicate.UserStats(sql.FieldIsNull(FieldProgressionUpdatedAt))
+}
+
+// ProgressionUpdatedAtNotNil applies the NotNil predicate on the "progression_updated_at" field.
+func ProgressionUpdatedAtNotNil() predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotNull(FieldProgressionUpdatedAt))
+}
+
+// RatingUpdatedAtEQ applies the EQ predicate on the "rating_updated_at" field.
+func RatingUpdatedAtEQ(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldEQ(FieldRatingUpdatedAt, v))
+}
+
+// RatingUpdatedAtNEQ applies the NEQ predicate on the "rating_updated_at" field.
+func RatingUpdatedAtNEQ(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNEQ(FieldRatingUpdatedAt, v))
+}
+
+// RatingUpdatedAtIn applies the In predicate on the "rating_updated_at" field.
+func RatingUpdatedAtIn(vs ...time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldIn(FieldRatingUpdatedAt, vs...))
+}
+
+// RatingUpdatedAtNotIn applies the NotIn predicate on the "rating_updated_at" field.
+func RatingUpdatedAtNotIn(vs ...time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotIn(FieldRatingUpdatedAt, vs...))
+}
+
+// RatingUpdatedAtGT applies the GT predicate on the "rating_updated_at" field.
+func RatingUpdatedAtGT(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGT(FieldRatingUpdatedAt, v))
+}
+
+// RatingUpdatedAtGTE applies the GTE predicate on the "rating_updated_at" field.
+func RatingUpdatedAtGTE(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldGTE(FieldRatingUpdatedAt, v))
+}
+
+// RatingUpdatedAtLT applies the LT predicate on the "rating_updated_at" field.
+func RatingUpdatedAtLT(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLT(FieldRatingUpdatedAt, v))
+}
+
+// RatingUpdatedAtLTE applies the LTE predicate on the "rating_updated_at" field.
+func RatingUpdatedAtLTE(v time.Time) predicate.UserStats {
+	return predicate.UserStats(sql.FieldLTE(FieldRatingUpdatedAt, v))
+}
+
+// RatingUpdatedAtIsNil applies the IsNil predicate on the "rating_updated_at" field.
+func RatingUpdatedAtIsNil() predicate.UserStats {
+	return predicate.UserStats(sql.FieldIsNull(FieldRatingUpdatedAt))
+}
+
+// RatingUpdatedAtNotNil applies the NotNil predicate on the "rating_updated_at" field.
+func RatingUpdatedAtNotNil() predicate.UserStats {
+	return predicate.UserStats(sql.FieldNotNull(FieldRatingUpdatedAt))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

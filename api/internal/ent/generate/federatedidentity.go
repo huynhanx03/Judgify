@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -17,7 +18,7 @@ import (
 type FederatedIdentity struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,13 +26,19 @@ type FederatedIdentity struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
-	// google, facebook, github, etc.
+	UserID uuid.UUID `json:"user_id,omitempty"`
+	// Stable provider key from the configured OAuth registry
 	Provider string `json:"provider,omitempty"`
-	// User ID from external provider
-	ExternalID string `json:"external_id,omitempty"`
+	// Immutable subject asserted by the provider
+	ProviderSubject string `json:"-"`
+	// DisplayName holds the value of the "display_name" field.
+	DisplayName *string `json:"-"`
+	// AvatarURL holds the value of the "avatar_url" field.
+	AvatarURL *string `json:"-"`
+	// LastAuthenticatedAt holds the value of the "last_authenticated_at" field.
+	LastAuthenticatedAt *time.Time `json:"last_authenticated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FederatedIdentityQuery when eager-loading is set.
 	Edges        FederatedIdentityEdges `json:"edges"`
@@ -63,12 +70,12 @@ func (*FederatedIdentity) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case federatedidentity.FieldID, federatedidentity.FieldDeletedBy, federatedidentity.FieldUserID:
-			values[i] = new(sql.NullInt64)
-		case federatedidentity.FieldProvider, federatedidentity.FieldExternalID:
+		case federatedidentity.FieldDeletedBy, federatedidentity.FieldProvider, federatedidentity.FieldProviderSubject, federatedidentity.FieldDisplayName, federatedidentity.FieldAvatarURL:
 			values[i] = new(sql.NullString)
-		case federatedidentity.FieldCreatedAt, federatedidentity.FieldUpdatedAt, federatedidentity.FieldDeletedAt:
+		case federatedidentity.FieldCreatedAt, federatedidentity.FieldUpdatedAt, federatedidentity.FieldDeletedAt, federatedidentity.FieldLastAuthenticatedAt:
 			values[i] = new(sql.NullTime)
+		case federatedidentity.FieldID, federatedidentity.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -85,11 +92,11 @@ func (_m *FederatedIdentity) assignValues(columns []string, values []any) error 
 	for i := range columns {
 		switch columns[i] {
 		case federatedidentity.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case federatedidentity.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -110,17 +117,17 @@ func (_m *FederatedIdentity) assignValues(columns []string, values []any) error 
 				*_m.DeletedAt = value.Time
 			}
 		case federatedidentity.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case federatedidentity.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case federatedidentity.FieldProvider:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -128,11 +135,32 @@ func (_m *FederatedIdentity) assignValues(columns []string, values []any) error 
 			} else if value.Valid {
 				_m.Provider = value.String
 			}
-		case federatedidentity.FieldExternalID:
+		case federatedidentity.FieldProviderSubject:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field external_id", values[i])
+				return fmt.Errorf("unexpected type %T for field provider_subject", values[i])
 			} else if value.Valid {
-				_m.ExternalID = value.String
+				_m.ProviderSubject = value.String
+			}
+		case federatedidentity.FieldDisplayName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field display_name", values[i])
+			} else if value.Valid {
+				_m.DisplayName = new(string)
+				*_m.DisplayName = value.String
+			}
+		case federatedidentity.FieldAvatarURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field avatar_url", values[i])
+			} else if value.Valid {
+				_m.AvatarURL = new(string)
+				*_m.AvatarURL = value.String
+			}
+		case federatedidentity.FieldLastAuthenticatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_authenticated_at", values[i])
+			} else if value.Valid {
+				_m.LastAuthenticatedAt = new(time.Time)
+				*_m.LastAuthenticatedAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -188,7 +216,7 @@ func (_m *FederatedIdentity) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
@@ -197,18 +225,18 @@ func (_m *FederatedIdentity) String() string {
 	builder.WriteString("provider=")
 	builder.WriteString(_m.Provider)
 	builder.WriteString(", ")
-	builder.WriteString("external_id=")
-	builder.WriteString(_m.ExternalID)
+	builder.WriteString("provider_subject=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("display_name=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("avatar_url=<sensitive>")
+	builder.WriteString(", ")
+	if v := _m.LastAuthenticatedAt; v != nil {
+		builder.WriteString("last_authenticated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *FederatedIdentity) GetID() int {
-	return _m.ID
-}
-
-func (_m *FederatedIdentity) SetID(id int) {
-	_m.ID = id
 }
 
 // FederatedIdentities is a parsable slice of FederatedIdentity.

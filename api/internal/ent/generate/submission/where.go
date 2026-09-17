@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Submission {
+func ID(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Submission {
+func IDEQ(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Submission {
+func IDNEQ(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Submission {
+func IDIn(ids ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Submission {
+func IDNotIn(ids ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Submission {
+func IDGT(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Submission {
+func IDGTE(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Submission {
+func IDLT(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Submission {
+func IDLTE(id uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,23 +72,118 @@ func DeletedAt(v time.Time) predicate.Submission {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Submission {
+func DeletedBy(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // ProblemID applies equality check predicate on the "problem_id" field. It's identical to ProblemIDEQ.
-func ProblemID(v int) predicate.Submission {
+func ProblemID(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldProblemID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.Submission {
+func UserID(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldUserID, v))
+}
+
+// ContestProblemID applies equality check predicate on the "contest_problem_id" field. It's identical to ContestProblemIDEQ.
+func ContestProblemID(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestProblemID, v))
+}
+
+// ContestScoringPolicyVersion applies equality check predicate on the "contest_scoring_policy_version" field. It's identical to ContestScoringPolicyVersionEQ.
+func ContestScoringPolicyVersion(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestScoringPolicyVersion, v))
+}
+
+// SubmittedAt applies equality check predicate on the "submitted_at" field. It's identical to SubmittedAtEQ.
+func SubmittedAt(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldSubmittedAt, v))
+}
+
+// ContestElapsedMs applies equality check predicate on the "contest_elapsed_ms" field. It's identical to ContestElapsedMsEQ.
+func ContestElapsedMs(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestElapsedMs, v))
+}
+
+// ContestSubmissionSequence applies equality check predicate on the "contest_submission_sequence" field. It's identical to ContestSubmissionSequenceEQ.
+func ContestSubmissionSequence(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestSubmissionSequence, v))
+}
+
+// RuntimeKey applies equality check predicate on the "runtime_key" field. It's identical to RuntimeKeyEQ.
+func RuntimeKey(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldRuntimeKey, v))
 }
 
 // SourceCode applies equality check predicate on the "source_code" field. It's identical to SourceCodeEQ.
 func SourceCode(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldSourceCode, v))
+}
+
+// SourceSha256 applies equality check predicate on the "source_sha256" field. It's identical to SourceSha256EQ.
+func SourceSha256(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldSourceSha256, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldVersion, v))
+}
+
+// LatestGeneration applies equality check predicate on the "latest_generation" field. It's identical to LatestGenerationEQ.
+func LatestGeneration(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGeneration, v))
+}
+
+// ActiveJudgementID applies equality check predicate on the "active_judgement_id" field. It's identical to ActiveJudgementIDEQ.
+func ActiveJudgementID(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementGeneration applies equality check predicate on the "active_judgement_generation" field. It's identical to ActiveJudgementGenerationEQ.
+func ActiveJudgementGeneration(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldActiveJudgementGeneration, v))
+}
+
+// IdempotencyKey applies equality check predicate on the "idempotency_key" field. It's identical to IdempotencyKeyEQ.
+func IdempotencyKey(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldIdempotencyKey, v))
+}
+
+// RequestHash applies equality check predicate on the "request_hash" field. It's identical to RequestHashEQ.
+func RequestHash(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldRequestHash, v))
+}
+
+// OriginCid applies equality check predicate on the "origin_cid" field. It's identical to OriginCidEQ.
+func OriginCid(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldOriginCid, v))
+}
+
+// LatestGenerationQueuedAt applies equality check predicate on the "latest_generation_queued_at" field. It's identical to LatestGenerationQueuedAtEQ.
+func LatestGenerationQueuedAt(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationStartedAt applies equality check predicate on the "latest_generation_started_at" field. It's identical to LatestGenerationStartedAtEQ.
+func LatestGenerationStartedAt(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationCompletedAt applies equality check predicate on the "latest_generation_completed_at" field. It's identical to LatestGenerationCompletedAtEQ.
+func LatestGenerationCompletedAt(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationCompletedAt, v))
+}
+
+// JudgedAt applies equality check predicate on the "judged_at" field. It's identical to JudgedAtEQ.
+func JudgedAt(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldJudgedAt, v))
+}
+
+// VerdictVersion applies equality check predicate on the "verdict_version" field. It's identical to VerdictVersionEQ.
+func VerdictVersion(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldVerdictVersion, v))
 }
 
 // PassedCount applies equality check predicate on the "passed_count" field. It's identical to PassedCountEQ.
@@ -116,7 +212,7 @@ func ErrorMessage(v string) predicate.Submission {
 }
 
 // ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
-func ContestID(v int) predicate.Submission {
+func ContestID(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldContestID, v))
 }
 
@@ -251,43 +347,58 @@ func DeletedAtNotNil() predicate.Submission {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Submission {
+func DeletedByEQ(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Submission {
+func DeletedByNEQ(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Submission {
+func DeletedByIn(vs ...string) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Submission {
+func DeletedByNotIn(vs ...string) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Submission {
+func DeletedByGT(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Submission {
+func DeletedByGTE(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Submission {
+func DeletedByLT(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Submission {
+func DeletedByLTE(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -300,44 +411,294 @@ func DeletedByNotNil() predicate.Submission {
 	return predicate.Submission(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // ProblemIDEQ applies the EQ predicate on the "problem_id" field.
-func ProblemIDEQ(v int) predicate.Submission {
+func ProblemIDEQ(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldProblemID, v))
 }
 
 // ProblemIDNEQ applies the NEQ predicate on the "problem_id" field.
-func ProblemIDNEQ(v int) predicate.Submission {
+func ProblemIDNEQ(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldProblemID, v))
 }
 
 // ProblemIDIn applies the In predicate on the "problem_id" field.
-func ProblemIDIn(vs ...int) predicate.Submission {
+func ProblemIDIn(vs ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldProblemID, vs...))
 }
 
 // ProblemIDNotIn applies the NotIn predicate on the "problem_id" field.
-func ProblemIDNotIn(vs ...int) predicate.Submission {
+func ProblemIDNotIn(vs ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldProblemID, vs...))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.Submission {
+func UserIDEQ(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.Submission {
+func UserIDNEQ(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.Submission {
+func UserIDIn(vs ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.Submission {
+func UserIDNotIn(vs ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// ContestProblemIDEQ applies the EQ predicate on the "contest_problem_id" field.
+func ContestProblemIDEQ(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestProblemID, v))
+}
+
+// ContestProblemIDNEQ applies the NEQ predicate on the "contest_problem_id" field.
+func ContestProblemIDNEQ(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldContestProblemID, v))
+}
+
+// ContestProblemIDIn applies the In predicate on the "contest_problem_id" field.
+func ContestProblemIDIn(vs ...uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldContestProblemID, vs...))
+}
+
+// ContestProblemIDNotIn applies the NotIn predicate on the "contest_problem_id" field.
+func ContestProblemIDNotIn(vs ...uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldContestProblemID, vs...))
+}
+
+// ContestProblemIDGT applies the GT predicate on the "contest_problem_id" field.
+func ContestProblemIDGT(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldContestProblemID, v))
+}
+
+// ContestProblemIDGTE applies the GTE predicate on the "contest_problem_id" field.
+func ContestProblemIDGTE(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldContestProblemID, v))
+}
+
+// ContestProblemIDLT applies the LT predicate on the "contest_problem_id" field.
+func ContestProblemIDLT(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldContestProblemID, v))
+}
+
+// ContestProblemIDLTE applies the LTE predicate on the "contest_problem_id" field.
+func ContestProblemIDLTE(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldContestProblemID, v))
+}
+
+// ContestProblemIDIsNil applies the IsNil predicate on the "contest_problem_id" field.
+func ContestProblemIDIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldContestProblemID))
+}
+
+// ContestProblemIDNotNil applies the NotNil predicate on the "contest_problem_id" field.
+func ContestProblemIDNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldContestProblemID))
+}
+
+// ContestScoringPolicyVersionEQ applies the EQ predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestScoringPolicyVersion, v))
+}
+
+// ContestScoringPolicyVersionNEQ applies the NEQ predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldContestScoringPolicyVersion, v))
+}
+
+// ContestScoringPolicyVersionIn applies the In predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldContestScoringPolicyVersion, vs...))
+}
+
+// ContestScoringPolicyVersionNotIn applies the NotIn predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldContestScoringPolicyVersion, vs...))
+}
+
+// ContestScoringPolicyVersionGT applies the GT predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldContestScoringPolicyVersion, v))
+}
+
+// ContestScoringPolicyVersionGTE applies the GTE predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldContestScoringPolicyVersion, v))
+}
+
+// ContestScoringPolicyVersionLT applies the LT predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldContestScoringPolicyVersion, v))
+}
+
+// ContestScoringPolicyVersionLTE applies the LTE predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldContestScoringPolicyVersion, v))
+}
+
+// ContestScoringPolicyVersionIsNil applies the IsNil predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldContestScoringPolicyVersion))
+}
+
+// ContestScoringPolicyVersionNotNil applies the NotNil predicate on the "contest_scoring_policy_version" field.
+func ContestScoringPolicyVersionNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldContestScoringPolicyVersion))
+}
+
+// SubmittedAtEQ applies the EQ predicate on the "submitted_at" field.
+func SubmittedAtEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldSubmittedAt, v))
+}
+
+// SubmittedAtNEQ applies the NEQ predicate on the "submitted_at" field.
+func SubmittedAtNEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldSubmittedAt, v))
+}
+
+// SubmittedAtIn applies the In predicate on the "submitted_at" field.
+func SubmittedAtIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldSubmittedAt, vs...))
+}
+
+// SubmittedAtNotIn applies the NotIn predicate on the "submitted_at" field.
+func SubmittedAtNotIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldSubmittedAt, vs...))
+}
+
+// SubmittedAtGT applies the GT predicate on the "submitted_at" field.
+func SubmittedAtGT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldSubmittedAt, v))
+}
+
+// SubmittedAtGTE applies the GTE predicate on the "submitted_at" field.
+func SubmittedAtGTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldSubmittedAt, v))
+}
+
+// SubmittedAtLT applies the LT predicate on the "submitted_at" field.
+func SubmittedAtLT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldSubmittedAt, v))
+}
+
+// SubmittedAtLTE applies the LTE predicate on the "submitted_at" field.
+func SubmittedAtLTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldSubmittedAt, v))
+}
+
+// ContestElapsedMsEQ applies the EQ predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestElapsedMs, v))
+}
+
+// ContestElapsedMsNEQ applies the NEQ predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldContestElapsedMs, v))
+}
+
+// ContestElapsedMsIn applies the In predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldContestElapsedMs, vs...))
+}
+
+// ContestElapsedMsNotIn applies the NotIn predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldContestElapsedMs, vs...))
+}
+
+// ContestElapsedMsGT applies the GT predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldContestElapsedMs, v))
+}
+
+// ContestElapsedMsGTE applies the GTE predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldContestElapsedMs, v))
+}
+
+// ContestElapsedMsLT applies the LT predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldContestElapsedMs, v))
+}
+
+// ContestElapsedMsLTE applies the LTE predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldContestElapsedMs, v))
+}
+
+// ContestElapsedMsIsNil applies the IsNil predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldContestElapsedMs))
+}
+
+// ContestElapsedMsNotNil applies the NotNil predicate on the "contest_elapsed_ms" field.
+func ContestElapsedMsNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldContestElapsedMs))
+}
+
+// ContestSubmissionSequenceEQ applies the EQ predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldContestSubmissionSequence, v))
+}
+
+// ContestSubmissionSequenceNEQ applies the NEQ predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldContestSubmissionSequence, v))
+}
+
+// ContestSubmissionSequenceIn applies the In predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldContestSubmissionSequence, vs...))
+}
+
+// ContestSubmissionSequenceNotIn applies the NotIn predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldContestSubmissionSequence, vs...))
+}
+
+// ContestSubmissionSequenceGT applies the GT predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldContestSubmissionSequence, v))
+}
+
+// ContestSubmissionSequenceGTE applies the GTE predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldContestSubmissionSequence, v))
+}
+
+// ContestSubmissionSequenceLT applies the LT predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldContestSubmissionSequence, v))
+}
+
+// ContestSubmissionSequenceLTE applies the LTE predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldContestSubmissionSequence, v))
+}
+
+// ContestSubmissionSequenceIsNil applies the IsNil predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldContestSubmissionSequence))
+}
+
+// ContestSubmissionSequenceNotNil applies the NotNil predicate on the "contest_submission_sequence" field.
+func ContestSubmissionSequenceNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldContestSubmissionSequence))
 }
 
 // LanguageEQ applies the EQ predicate on the "language" field.
@@ -358,6 +719,71 @@ func LanguageIn(vs ...Language) predicate.Submission {
 // LanguageNotIn applies the NotIn predicate on the "language" field.
 func LanguageNotIn(vs ...Language) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldLanguage, vs...))
+}
+
+// RuntimeKeyEQ applies the EQ predicate on the "runtime_key" field.
+func RuntimeKeyEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyNEQ applies the NEQ predicate on the "runtime_key" field.
+func RuntimeKeyNEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyIn applies the In predicate on the "runtime_key" field.
+func RuntimeKeyIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldRuntimeKey, vs...))
+}
+
+// RuntimeKeyNotIn applies the NotIn predicate on the "runtime_key" field.
+func RuntimeKeyNotIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldRuntimeKey, vs...))
+}
+
+// RuntimeKeyGT applies the GT predicate on the "runtime_key" field.
+func RuntimeKeyGT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyGTE applies the GTE predicate on the "runtime_key" field.
+func RuntimeKeyGTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyLT applies the LT predicate on the "runtime_key" field.
+func RuntimeKeyLT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyLTE applies the LTE predicate on the "runtime_key" field.
+func RuntimeKeyLTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyContains applies the Contains predicate on the "runtime_key" field.
+func RuntimeKeyContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyHasPrefix applies the HasPrefix predicate on the "runtime_key" field.
+func RuntimeKeyHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyHasSuffix applies the HasSuffix predicate on the "runtime_key" field.
+func RuntimeKeyHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyEqualFold applies the EqualFold predicate on the "runtime_key" field.
+func RuntimeKeyEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldRuntimeKey, v))
+}
+
+// RuntimeKeyContainsFold applies the ContainsFold predicate on the "runtime_key" field.
+func RuntimeKeyContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldRuntimeKey, v))
 }
 
 // SourceCodeEQ applies the EQ predicate on the "source_code" field.
@@ -425,6 +851,616 @@ func SourceCodeContainsFold(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldContainsFold(FieldSourceCode, v))
 }
 
+// SourceSha256EQ applies the EQ predicate on the "source_sha256" field.
+func SourceSha256EQ(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldSourceSha256, v))
+}
+
+// SourceSha256NEQ applies the NEQ predicate on the "source_sha256" field.
+func SourceSha256NEQ(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldSourceSha256, v))
+}
+
+// SourceSha256In applies the In predicate on the "source_sha256" field.
+func SourceSha256In(vs ...[]byte) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldSourceSha256, vs...))
+}
+
+// SourceSha256NotIn applies the NotIn predicate on the "source_sha256" field.
+func SourceSha256NotIn(vs ...[]byte) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldSourceSha256, vs...))
+}
+
+// SourceSha256GT applies the GT predicate on the "source_sha256" field.
+func SourceSha256GT(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldSourceSha256, v))
+}
+
+// SourceSha256GTE applies the GTE predicate on the "source_sha256" field.
+func SourceSha256GTE(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldSourceSha256, v))
+}
+
+// SourceSha256LT applies the LT predicate on the "source_sha256" field.
+func SourceSha256LT(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldSourceSha256, v))
+}
+
+// SourceSha256LTE applies the LTE predicate on the "source_sha256" field.
+func SourceSha256LTE(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldSourceSha256, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldVersion, v))
+}
+
+// LatestGenerationEQ applies the EQ predicate on the "latest_generation" field.
+func LatestGenerationEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGeneration, v))
+}
+
+// LatestGenerationNEQ applies the NEQ predicate on the "latest_generation" field.
+func LatestGenerationNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldLatestGeneration, v))
+}
+
+// LatestGenerationIn applies the In predicate on the "latest_generation" field.
+func LatestGenerationIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldLatestGeneration, vs...))
+}
+
+// LatestGenerationNotIn applies the NotIn predicate on the "latest_generation" field.
+func LatestGenerationNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldLatestGeneration, vs...))
+}
+
+// LatestGenerationGT applies the GT predicate on the "latest_generation" field.
+func LatestGenerationGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldLatestGeneration, v))
+}
+
+// LatestGenerationGTE applies the GTE predicate on the "latest_generation" field.
+func LatestGenerationGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldLatestGeneration, v))
+}
+
+// LatestGenerationLT applies the LT predicate on the "latest_generation" field.
+func LatestGenerationLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldLatestGeneration, v))
+}
+
+// LatestGenerationLTE applies the LTE predicate on the "latest_generation" field.
+func LatestGenerationLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldLatestGeneration, v))
+}
+
+// LatestGenerationPhaseEQ applies the EQ predicate on the "latest_generation_phase" field.
+func LatestGenerationPhaseEQ(v LatestGenerationPhase) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationPhase, v))
+}
+
+// LatestGenerationPhaseNEQ applies the NEQ predicate on the "latest_generation_phase" field.
+func LatestGenerationPhaseNEQ(v LatestGenerationPhase) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldLatestGenerationPhase, v))
+}
+
+// LatestGenerationPhaseIn applies the In predicate on the "latest_generation_phase" field.
+func LatestGenerationPhaseIn(vs ...LatestGenerationPhase) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldLatestGenerationPhase, vs...))
+}
+
+// LatestGenerationPhaseNotIn applies the NotIn predicate on the "latest_generation_phase" field.
+func LatestGenerationPhaseNotIn(vs ...LatestGenerationPhase) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldLatestGenerationPhase, vs...))
+}
+
+// LatestGenerationOutcomeEQ applies the EQ predicate on the "latest_generation_outcome" field.
+func LatestGenerationOutcomeEQ(v LatestGenerationOutcome) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationOutcome, v))
+}
+
+// LatestGenerationOutcomeNEQ applies the NEQ predicate on the "latest_generation_outcome" field.
+func LatestGenerationOutcomeNEQ(v LatestGenerationOutcome) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldLatestGenerationOutcome, v))
+}
+
+// LatestGenerationOutcomeIn applies the In predicate on the "latest_generation_outcome" field.
+func LatestGenerationOutcomeIn(vs ...LatestGenerationOutcome) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldLatestGenerationOutcome, vs...))
+}
+
+// LatestGenerationOutcomeNotIn applies the NotIn predicate on the "latest_generation_outcome" field.
+func LatestGenerationOutcomeNotIn(vs ...LatestGenerationOutcome) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldLatestGenerationOutcome, vs...))
+}
+
+// LatestGenerationOutcomeIsNil applies the IsNil predicate on the "latest_generation_outcome" field.
+func LatestGenerationOutcomeIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldLatestGenerationOutcome))
+}
+
+// LatestGenerationOutcomeNotNil applies the NotNil predicate on the "latest_generation_outcome" field.
+func LatestGenerationOutcomeNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldLatestGenerationOutcome))
+}
+
+// ActiveJudgementIDEQ applies the EQ predicate on the "active_judgement_id" field.
+func ActiveJudgementIDEQ(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementIDNEQ applies the NEQ predicate on the "active_judgement_id" field.
+func ActiveJudgementIDNEQ(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementIDIn applies the In predicate on the "active_judgement_id" field.
+func ActiveJudgementIDIn(vs ...uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldActiveJudgementID, vs...))
+}
+
+// ActiveJudgementIDNotIn applies the NotIn predicate on the "active_judgement_id" field.
+func ActiveJudgementIDNotIn(vs ...uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldActiveJudgementID, vs...))
+}
+
+// ActiveJudgementIDGT applies the GT predicate on the "active_judgement_id" field.
+func ActiveJudgementIDGT(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementIDGTE applies the GTE predicate on the "active_judgement_id" field.
+func ActiveJudgementIDGTE(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementIDLT applies the LT predicate on the "active_judgement_id" field.
+func ActiveJudgementIDLT(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementIDLTE applies the LTE predicate on the "active_judgement_id" field.
+func ActiveJudgementIDLTE(v uuid.UUID) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldActiveJudgementID, v))
+}
+
+// ActiveJudgementIDIsNil applies the IsNil predicate on the "active_judgement_id" field.
+func ActiveJudgementIDIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldActiveJudgementID))
+}
+
+// ActiveJudgementIDNotNil applies the NotNil predicate on the "active_judgement_id" field.
+func ActiveJudgementIDNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldActiveJudgementID))
+}
+
+// ActiveJudgementGenerationEQ applies the EQ predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldActiveJudgementGeneration, v))
+}
+
+// ActiveJudgementGenerationNEQ applies the NEQ predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldActiveJudgementGeneration, v))
+}
+
+// ActiveJudgementGenerationIn applies the In predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldActiveJudgementGeneration, vs...))
+}
+
+// ActiveJudgementGenerationNotIn applies the NotIn predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldActiveJudgementGeneration, vs...))
+}
+
+// ActiveJudgementGenerationGT applies the GT predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldActiveJudgementGeneration, v))
+}
+
+// ActiveJudgementGenerationGTE applies the GTE predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldActiveJudgementGeneration, v))
+}
+
+// ActiveJudgementGenerationLT applies the LT predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldActiveJudgementGeneration, v))
+}
+
+// ActiveJudgementGenerationLTE applies the LTE predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldActiveJudgementGeneration, v))
+}
+
+// ActiveJudgementGenerationIsNil applies the IsNil predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldActiveJudgementGeneration))
+}
+
+// ActiveJudgementGenerationNotNil applies the NotNil predicate on the "active_judgement_generation" field.
+func ActiveJudgementGenerationNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldActiveJudgementGeneration))
+}
+
+// ActiveVerdictEQ applies the EQ predicate on the "active_verdict" field.
+func ActiveVerdictEQ(v ActiveVerdict) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldActiveVerdict, v))
+}
+
+// ActiveVerdictNEQ applies the NEQ predicate on the "active_verdict" field.
+func ActiveVerdictNEQ(v ActiveVerdict) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldActiveVerdict, v))
+}
+
+// ActiveVerdictIn applies the In predicate on the "active_verdict" field.
+func ActiveVerdictIn(vs ...ActiveVerdict) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldActiveVerdict, vs...))
+}
+
+// ActiveVerdictNotIn applies the NotIn predicate on the "active_verdict" field.
+func ActiveVerdictNotIn(vs ...ActiveVerdict) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldActiveVerdict, vs...))
+}
+
+// ActiveVerdictIsNil applies the IsNil predicate on the "active_verdict" field.
+func ActiveVerdictIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldActiveVerdict))
+}
+
+// ActiveVerdictNotNil applies the NotNil predicate on the "active_verdict" field.
+func ActiveVerdictNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldActiveVerdict))
+}
+
+// IdempotencyKeyEQ applies the EQ predicate on the "idempotency_key" field.
+func IdempotencyKeyEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyNEQ applies the NEQ predicate on the "idempotency_key" field.
+func IdempotencyKeyNEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyIn applies the In predicate on the "idempotency_key" field.
+func IdempotencyKeyIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldIdempotencyKey, vs...))
+}
+
+// IdempotencyKeyNotIn applies the NotIn predicate on the "idempotency_key" field.
+func IdempotencyKeyNotIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldIdempotencyKey, vs...))
+}
+
+// IdempotencyKeyGT applies the GT predicate on the "idempotency_key" field.
+func IdempotencyKeyGT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyGTE applies the GTE predicate on the "idempotency_key" field.
+func IdempotencyKeyGTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyLT applies the LT predicate on the "idempotency_key" field.
+func IdempotencyKeyLT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyLTE applies the LTE predicate on the "idempotency_key" field.
+func IdempotencyKeyLTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyContains applies the Contains predicate on the "idempotency_key" field.
+func IdempotencyKeyContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyHasPrefix applies the HasPrefix predicate on the "idempotency_key" field.
+func IdempotencyKeyHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyHasSuffix applies the HasSuffix predicate on the "idempotency_key" field.
+func IdempotencyKeyHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyEqualFold applies the EqualFold predicate on the "idempotency_key" field.
+func IdempotencyKeyEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldIdempotencyKey, v))
+}
+
+// IdempotencyKeyContainsFold applies the ContainsFold predicate on the "idempotency_key" field.
+func IdempotencyKeyContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldIdempotencyKey, v))
+}
+
+// RequestHashEQ applies the EQ predicate on the "request_hash" field.
+func RequestHashEQ(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldRequestHash, v))
+}
+
+// RequestHashNEQ applies the NEQ predicate on the "request_hash" field.
+func RequestHashNEQ(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldRequestHash, v))
+}
+
+// RequestHashIn applies the In predicate on the "request_hash" field.
+func RequestHashIn(vs ...[]byte) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldRequestHash, vs...))
+}
+
+// RequestHashNotIn applies the NotIn predicate on the "request_hash" field.
+func RequestHashNotIn(vs ...[]byte) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldRequestHash, vs...))
+}
+
+// RequestHashGT applies the GT predicate on the "request_hash" field.
+func RequestHashGT(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldRequestHash, v))
+}
+
+// RequestHashGTE applies the GTE predicate on the "request_hash" field.
+func RequestHashGTE(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldRequestHash, v))
+}
+
+// RequestHashLT applies the LT predicate on the "request_hash" field.
+func RequestHashLT(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldRequestHash, v))
+}
+
+// RequestHashLTE applies the LTE predicate on the "request_hash" field.
+func RequestHashLTE(v []byte) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldRequestHash, v))
+}
+
+// OriginCidEQ applies the EQ predicate on the "origin_cid" field.
+func OriginCidEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldOriginCid, v))
+}
+
+// OriginCidNEQ applies the NEQ predicate on the "origin_cid" field.
+func OriginCidNEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldOriginCid, v))
+}
+
+// OriginCidIn applies the In predicate on the "origin_cid" field.
+func OriginCidIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldOriginCid, vs...))
+}
+
+// OriginCidNotIn applies the NotIn predicate on the "origin_cid" field.
+func OriginCidNotIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldOriginCid, vs...))
+}
+
+// OriginCidGT applies the GT predicate on the "origin_cid" field.
+func OriginCidGT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldOriginCid, v))
+}
+
+// OriginCidGTE applies the GTE predicate on the "origin_cid" field.
+func OriginCidGTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldOriginCid, v))
+}
+
+// OriginCidLT applies the LT predicate on the "origin_cid" field.
+func OriginCidLT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldOriginCid, v))
+}
+
+// OriginCidLTE applies the LTE predicate on the "origin_cid" field.
+func OriginCidLTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldOriginCid, v))
+}
+
+// OriginCidContains applies the Contains predicate on the "origin_cid" field.
+func OriginCidContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldOriginCid, v))
+}
+
+// OriginCidHasPrefix applies the HasPrefix predicate on the "origin_cid" field.
+func OriginCidHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldOriginCid, v))
+}
+
+// OriginCidHasSuffix applies the HasSuffix predicate on the "origin_cid" field.
+func OriginCidHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldOriginCid, v))
+}
+
+// OriginCidEqualFold applies the EqualFold predicate on the "origin_cid" field.
+func OriginCidEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldOriginCid, v))
+}
+
+// OriginCidContainsFold applies the ContainsFold predicate on the "origin_cid" field.
+func OriginCidContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldOriginCid, v))
+}
+
+// LatestGenerationQueuedAtEQ applies the EQ predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationQueuedAtNEQ applies the NEQ predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtNEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationQueuedAtIn applies the In predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldLatestGenerationQueuedAt, vs...))
+}
+
+// LatestGenerationQueuedAtNotIn applies the NotIn predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtNotIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldLatestGenerationQueuedAt, vs...))
+}
+
+// LatestGenerationQueuedAtGT applies the GT predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtGT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationQueuedAtGTE applies the GTE predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtGTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationQueuedAtLT applies the LT predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtLT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationQueuedAtLTE applies the LTE predicate on the "latest_generation_queued_at" field.
+func LatestGenerationQueuedAtLTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldLatestGenerationQueuedAt, v))
+}
+
+// LatestGenerationStartedAtEQ applies the EQ predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationStartedAtNEQ applies the NEQ predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtNEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationStartedAtIn applies the In predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldLatestGenerationStartedAt, vs...))
+}
+
+// LatestGenerationStartedAtNotIn applies the NotIn predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtNotIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldLatestGenerationStartedAt, vs...))
+}
+
+// LatestGenerationStartedAtGT applies the GT predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtGT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationStartedAtGTE applies the GTE predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtGTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationStartedAtLT applies the LT predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtLT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationStartedAtLTE applies the LTE predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtLTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldLatestGenerationStartedAt, v))
+}
+
+// LatestGenerationStartedAtIsNil applies the IsNil predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldLatestGenerationStartedAt))
+}
+
+// LatestGenerationStartedAtNotNil applies the NotNil predicate on the "latest_generation_started_at" field.
+func LatestGenerationStartedAtNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldLatestGenerationStartedAt))
+}
+
+// LatestGenerationCompletedAtEQ applies the EQ predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldLatestGenerationCompletedAt, v))
+}
+
+// LatestGenerationCompletedAtNEQ applies the NEQ predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtNEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldLatestGenerationCompletedAt, v))
+}
+
+// LatestGenerationCompletedAtIn applies the In predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldLatestGenerationCompletedAt, vs...))
+}
+
+// LatestGenerationCompletedAtNotIn applies the NotIn predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtNotIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldLatestGenerationCompletedAt, vs...))
+}
+
+// LatestGenerationCompletedAtGT applies the GT predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtGT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldLatestGenerationCompletedAt, v))
+}
+
+// LatestGenerationCompletedAtGTE applies the GTE predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtGTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldLatestGenerationCompletedAt, v))
+}
+
+// LatestGenerationCompletedAtLT applies the LT predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtLT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldLatestGenerationCompletedAt, v))
+}
+
+// LatestGenerationCompletedAtLTE applies the LTE predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtLTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldLatestGenerationCompletedAt, v))
+}
+
+// LatestGenerationCompletedAtIsNil applies the IsNil predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldLatestGenerationCompletedAt))
+}
+
+// LatestGenerationCompletedAtNotNil applies the NotNil predicate on the "latest_generation_completed_at" field.
+func LatestGenerationCompletedAtNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldLatestGenerationCompletedAt))
+}
+
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v Status) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldStatus, v))
@@ -443,6 +1479,96 @@ func StatusIn(vs ...Status) predicate.Submission {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// JudgedAtEQ applies the EQ predicate on the "judged_at" field.
+func JudgedAtEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldJudgedAt, v))
+}
+
+// JudgedAtNEQ applies the NEQ predicate on the "judged_at" field.
+func JudgedAtNEQ(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldJudgedAt, v))
+}
+
+// JudgedAtIn applies the In predicate on the "judged_at" field.
+func JudgedAtIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldJudgedAt, vs...))
+}
+
+// JudgedAtNotIn applies the NotIn predicate on the "judged_at" field.
+func JudgedAtNotIn(vs ...time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldJudgedAt, vs...))
+}
+
+// JudgedAtGT applies the GT predicate on the "judged_at" field.
+func JudgedAtGT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldJudgedAt, v))
+}
+
+// JudgedAtGTE applies the GTE predicate on the "judged_at" field.
+func JudgedAtGTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldJudgedAt, v))
+}
+
+// JudgedAtLT applies the LT predicate on the "judged_at" field.
+func JudgedAtLT(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldJudgedAt, v))
+}
+
+// JudgedAtLTE applies the LTE predicate on the "judged_at" field.
+func JudgedAtLTE(v time.Time) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldJudgedAt, v))
+}
+
+// JudgedAtIsNil applies the IsNil predicate on the "judged_at" field.
+func JudgedAtIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldJudgedAt))
+}
+
+// JudgedAtNotNil applies the NotNil predicate on the "judged_at" field.
+func JudgedAtNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldJudgedAt))
+}
+
+// VerdictVersionEQ applies the EQ predicate on the "verdict_version" field.
+func VerdictVersionEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldVerdictVersion, v))
+}
+
+// VerdictVersionNEQ applies the NEQ predicate on the "verdict_version" field.
+func VerdictVersionNEQ(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldVerdictVersion, v))
+}
+
+// VerdictVersionIn applies the In predicate on the "verdict_version" field.
+func VerdictVersionIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldVerdictVersion, vs...))
+}
+
+// VerdictVersionNotIn applies the NotIn predicate on the "verdict_version" field.
+func VerdictVersionNotIn(vs ...int64) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldVerdictVersion, vs...))
+}
+
+// VerdictVersionGT applies the GT predicate on the "verdict_version" field.
+func VerdictVersionGT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldVerdictVersion, v))
+}
+
+// VerdictVersionGTE applies the GTE predicate on the "verdict_version" field.
+func VerdictVersionGTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldVerdictVersion, v))
+}
+
+// VerdictVersionLT applies the LT predicate on the "verdict_version" field.
+func VerdictVersionLT(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldVerdictVersion, v))
+}
+
+// VerdictVersionLTE applies the LTE predicate on the "verdict_version" field.
+func VerdictVersionLTE(v int64) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldVerdictVersion, v))
 }
 
 // PassedCountEQ applies the EQ predicate on the "passed_count" field.
@@ -701,22 +1827,22 @@ func ErrorMessageContainsFold(v string) predicate.Submission {
 }
 
 // ContestIDEQ applies the EQ predicate on the "contest_id" field.
-func ContestIDEQ(v int) predicate.Submission {
+func ContestIDEQ(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldContestID, v))
 }
 
 // ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
-func ContestIDNEQ(v int) predicate.Submission {
+func ContestIDNEQ(v uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldContestID, v))
 }
 
 // ContestIDIn applies the In predicate on the "contest_id" field.
-func ContestIDIn(vs ...int) predicate.Submission {
+func ContestIDIn(vs ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldContestID, vs...))
 }
 
 // ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
-func ContestIDNotIn(vs ...int) predicate.Submission {
+func ContestIDNotIn(vs ...uuid.UUID) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldContestID, vs...))
 }
 
@@ -791,6 +1917,52 @@ func HasContest() predicate.Submission {
 func HasContestWith(preds ...predicate.Contest) predicate.Submission {
 	return predicate.Submission(func(s *sql.Selector) {
 		step := newContestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestScoringAttempt applies the HasEdge predicate on the "contest_scoring_attempt" edge.
+func HasContestScoringAttempt() predicate.Submission {
+	return predicate.Submission(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ContestScoringAttemptTable, ContestScoringAttemptColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestScoringAttemptWith applies the HasEdge predicate on the "contest_scoring_attempt" edge with a given conditions (other predicates).
+func HasContestScoringAttemptWith(preds ...predicate.ContestScoringAttempt) predicate.Submission {
+	return predicate.Submission(func(s *sql.Selector) {
+		step := newContestScoringAttemptStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasLastContestProblemResults applies the HasEdge predicate on the "last_contest_problem_results" edge.
+func HasLastContestProblemResults() predicate.Submission {
+	return predicate.Submission(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, LastContestProblemResultsTable, LastContestProblemResultsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasLastContestProblemResultsWith applies the HasEdge predicate on the "last_contest_problem_results" edge with a given conditions (other predicates).
+func HasLastContestProblemResultsWith(preds ...predicate.ContestProblemResult) predicate.Submission {
+	return predicate.Submission(func(s *sql.Selector) {
+		step := newLastContestProblemResultsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

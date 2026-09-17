@@ -1,25 +1,32 @@
 package di
 
 import (
-	contestDi "github.com/huynhanx03/judgify/internal/contest/di"
-	cultivationDi "github.com/huynhanx03/judgify/internal/cultivation/di"
-	identityDi "github.com/huynhanx03/judgify/internal/identity/di"
-	materialDi "github.com/huynhanx03/judgify/internal/material/di"
-	problemDi "github.com/huynhanx03/judgify/internal/problem/di"
-	submissionDi "github.com/huynhanx03/judgify/internal/submission/di"
-	"github.com/huynhanx03/judgify/pkg/mq/forge"
+	commonobservability "github.com/huynhanx03/go-common/pkg/common/observability"
+
+	debuglevel "github.com/huynhanx03/judgify/internal/application/workflow/debuglevel"
+	judgeOperations "github.com/huynhanx03/judgify/internal/judge/operations"
+	audithttp "github.com/huynhanx03/judgify/internal/platform/audit/adapters/driver/http"
+	"github.com/huynhanx03/judgify/internal/platform/operation"
+	operationhttp "github.com/huynhanx03/judgify/internal/platform/operation/adapters/driver/http"
+	realtimeDi "github.com/huynhanx03/judgify/internal/realtime/di"
 )
 
 // Container holds all domain-specific dependency containers.
 type Container struct {
-	Identity    *identityDi.IdentityContainer
-	Problem     *problemDi.ProblemContainer
-	Cultivation *cultivationDi.CultivationContainer
-	Submission  *submissionDi.SubmissionContainer
-	Contest     *contestDi.ContestContainer
-	Material    *materialDi.MaterialContainer
-	Broker      *forge.Broker
+	Audit                *audithttp.Handler
+	Identity             *IdentityContainer
+	Judge                *judgeOperations.HTTPHandler
+	Problem              *ProblemContainer
+	Cultivation          *CultivationContainer
+	Submission           *SubmissionContainer
+	Contest              *ContestContainer
+	Material             *MaterialContainer
+	Notification         *NotificationContainer
+	NotificationCampaign *CampaignContainer
+	Operation            *operation.Components
+	OperationHTTP        *operationhttp.Handler
+	OperationRunner      *operation.Runner
+	Realtime             *realtimeDi.RealtimeContainer
+	DebugLevel           *debuglevel.HTTPHandler
+	DebugWindow          *commonobservability.DebugWindow
 }
-
-// GlobalContainer is the global instance of Container.
-var GlobalContainer *Container

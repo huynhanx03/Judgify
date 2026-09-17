@@ -14,13 +14,13 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AuthSurface } from "@/modules/auth/auth-surface";
 import { IDENTITY_INPUT_LIMITS } from "@/constants/identity";
 import { APP_ROUTES } from "@/constants/routes";
 import { TEXT } from "@/constants/text";
@@ -118,7 +118,7 @@ export default function AcceptInvitationPage() {
     : TEXT.AUTH.SHOW_PASSWORD;
 
   return (
-    <Card className="mx-auto w-full max-w-lg overflow-hidden border-border/70 bg-background/90 shadow-2xl backdrop-blur-xl">
+    <AuthSurface className="mx-auto max-w-lg overflow-hidden">
       <CardHeader className="space-y-4 px-5 pb-5 pt-6 text-center sm:px-8 sm:pt-8">
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20 shadow-brand-soft">
           <ShieldCheck aria-hidden="true" className="size-7" />
@@ -356,6 +356,6 @@ export default function AcceptInvitationPage() {
           </form>
         )}
       </CardContent>
-    </Card>
+    </AuthSurface>
   );
 }

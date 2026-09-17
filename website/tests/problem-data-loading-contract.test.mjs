@@ -24,6 +24,50 @@ test("problem screens never turn request failures into empty data silently", asy
   assert.match(files.join("\n"), /\.retry/);
 });
 
+test("arena degrades optional filter catalogs without interrupting problem discovery", async () => {
+  const [arena, filterBar, collectionFeedback] = await Promise.all([
+    source("modules/arena/arena-page.tsx"),
+    source("modules/arena/components/arena-filter-bar.tsx"),
+    source("modules/shared/resource-feedback.tsx"),
+  ]);
+
+  assert.doesNotMatch(arena, /FILTERS_LOAD_ERROR_TITLE/);
+  assert.doesNotMatch(arena, /retryReferenceData/);
+  assert.match(arena, /difficultyFilterAvailable/);
+  assert.match(arena, /tagFilterAvailable/);
+  assert.match(filterBar, /difficultyFilterAvailable/);
+  assert.match(filterBar, /tagFilterAvailable/);
+  assert.match(
+    filterBar,
+    /tags\.find\(\(candidate\) => candidate\.id === id\)\?\.name[\s\S]*TEXT\.COMMON\.UNKNOWN/,
+  );
+  assert.match(arena, /ResourceCollectionFeedback/);
+  assert.match(collectionFeedback, /ResourceCollectionFeedback/);
+  assert.match(collectionFeedback, /role="alert"/);
+});
+
+test("admin catalog lists degrade optional filter resources without replacing their data view", async () => {
+  const [adminProblems, traits, tags, materials] = await Promise.all([
+    source("modules/admin/catalog/problems-page.tsx"),
+    source("modules/admin/catalog/traits-page.tsx"),
+    source("modules/admin/catalog/tags-page.tsx"),
+    source("modules/admin/materials/materials-page.tsx"),
+  ]);
+
+  assert.match(adminProblems, /difficultyCatalog\.status !== "error"/);
+  assert.doesNotMatch(adminProblems, /FILTER_DIFFICULTY_ERROR/);
+  assert.doesNotMatch(adminProblems, /FILTER_DIFFICULTY_RETRY/);
+  assert.match(traits, /rarityCatalog\.status !== "error"/);
+  assert.match(traits, /aria-label=\{ADMIN_TEXT\.TRAITS\.FILTER_TYPE_ALL\}/);
+  assert.match(traits, /aria-label=\{ADMIN_TEXT\.TRAITS\.FILTER_RARITY_ALL\}/);
+  assert.match(tags, /elementCatalog\.status !== "error"/);
+  assert.match(materials, /categoryCatalog\.status !== "error"/);
+  assert.match(materials, /difficultyCatalog\.status !== "error"/);
+  for (const file of [traits, tags, materials]) {
+    assert.doesNotMatch(file, /RELATED_DATA_LOAD_ERROR/);
+  }
+});
+
 test("problem detail keeps problem and public sample failures independent", async () => {
   const [detail, panel] = await Promise.all([
     source("modules/problem/problem-workspace-page.tsx"),

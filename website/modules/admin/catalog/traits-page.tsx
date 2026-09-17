@@ -103,12 +103,7 @@ export default function AdminTraitsPage() {
       searchValue={crud.search}
       onSearch={crud.onSearch}
       isLoading={crud.isLoading}
-      loadError={
-        crud.loadError ??
-        (rarityCatalog.status === "error"
-          ? ADMIN_TEXT.RELATED_DATA_LOAD_ERROR
-          : null)
-      }
+      loadError={crud.loadError}
       onRetryLoad={() => {
         crud.refresh();
         rarityCatalog.retry();
@@ -118,6 +113,7 @@ export default function AdminTraitsPage() {
         <>
           {/* Type filter */}
           <select
+            aria-label={ADMIN_TEXT.TRAITS.FILTER_TYPE_ALL}
             className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
             onChange={(e) => crud.setFilter("type", e.target.value || null, "exact")}
           >
@@ -126,16 +122,19 @@ export default function AdminTraitsPage() {
             <option value="talent">{ADMIN_TEXT.FIELDS.TYPE_TALENT}</option>
           </select>
           {/* Rarity filter */}
-          <select
-            className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-            onChange={(e) => crud.setFilter("rarity_id", e.target.value || null, "exact")}
-            disabled={!canReadRarities || rarityCatalog.status === "loading"}
-          >
-            <option value="">{ADMIN_TEXT.TRAITS.FILTER_RARITY_ALL}</option>
-            {rarities.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
+          {canReadRarities && rarityCatalog.status !== "error" ? (
+            <select
+              aria-label={ADMIN_TEXT.TRAITS.FILTER_RARITY_ALL}
+              className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              onChange={(e) => crud.setFilter("rarity_id", e.target.value || null, "exact")}
+              disabled={rarityCatalog.status === "loading"}
+            >
+              <option value="">{ADMIN_TEXT.TRAITS.FILTER_RARITY_ALL}</option>
+              {rarities.map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
+          ) : null}
         </>
       }
       table={

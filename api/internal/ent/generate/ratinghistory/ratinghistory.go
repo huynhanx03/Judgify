@@ -5,6 +5,7 @@ package ratinghistory
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -16,16 +17,34 @@ const (
 	FieldUserID = "user_id"
 	// FieldContestID holds the string denoting the contest_id field in the database.
 	FieldContestID = "contest_id"
+	// FieldRatingRunID holds the string denoting the rating_run_id field in the database.
+	FieldRatingRunID = "rating_run_id"
+	// FieldRatingSequence holds the string denoting the rating_sequence field in the database.
+	FieldRatingSequence = "rating_sequence"
+	// FieldRunVersion holds the string denoting the run_version field in the database.
+	FieldRunVersion = "run_version"
 	// FieldOldRating holds the string denoting the old_rating field in the database.
 	FieldOldRating = "old_rating"
 	// FieldNewRating holds the string denoting the new_rating field in the database.
 	FieldNewRating = "new_rating"
 	// FieldRankPosition holds the string denoting the rank_position field in the database.
 	FieldRankPosition = "rank_position"
+	// FieldPriorRatedContestCount holds the string denoting the prior_rated_contest_count field in the database.
+	FieldPriorRatedContestCount = "prior_rated_contest_count"
+	// FieldActualRank holds the string denoting the actual_rank field in the database.
+	FieldActualRank = "actual_rank"
+	// FieldExpectedRank holds the string denoting the expected_rank field in the database.
+	FieldExpectedRank = "expected_rank"
+	// FieldDelta holds the string denoting the delta field in the database.
+	FieldDelta = "delta"
+	// FieldAlgorithmVersion holds the string denoting the algorithm_version field in the database.
+	FieldAlgorithmVersion = "algorithm_version"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeContest holds the string denoting the contest edge name in mutations.
 	EdgeContest = "contest"
+	// EdgeRatingRun holds the string denoting the rating_run edge name in mutations.
+	EdgeRatingRun = "rating_run"
 	// Table holds the table name of the ratinghistory in the database.
 	Table = "rating_histories"
 	// UserTable is the table that holds the user relation/edge.
@@ -42,6 +61,13 @@ const (
 	ContestInverseTable = "contests"
 	// ContestColumn is the table column denoting the contest relation/edge.
 	ContestColumn = "contest_id"
+	// RatingRunTable is the table that holds the rating_run relation/edge.
+	RatingRunTable = "rating_histories"
+	// RatingRunInverseTable is the table name for the ContestRatingRun entity.
+	// It exists in this package in order to avoid circular dependency with the "contestratingrun" package.
+	RatingRunInverseTable = "contest_rating_runs"
+	// RatingRunColumn is the table column denoting the rating_run relation/edge.
+	RatingRunColumn = "rating_run_id"
 )
 
 // Columns holds all SQL columns for ratinghistory fields.
@@ -49,9 +75,17 @@ var Columns = []string{
 	FieldID,
 	FieldUserID,
 	FieldContestID,
+	FieldRatingRunID,
+	FieldRatingSequence,
+	FieldRunVersion,
 	FieldOldRating,
 	FieldNewRating,
 	FieldRankPosition,
+	FieldPriorRatedContestCount,
+	FieldActualRank,
+	FieldExpectedRank,
+	FieldDelta,
+	FieldAlgorithmVersion,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -65,12 +99,30 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// RatingSequenceValidator is a validator for the "rating_sequence" field. It is called by the builders before save.
+	RatingSequenceValidator func(int64) error
+	// RunVersionValidator is a validator for the "run_version" field. It is called by the builders before save.
+	RunVersionValidator func(int64) error
 	// DefaultOldRating holds the default value on creation for the "old_rating" field.
 	DefaultOldRating int
 	// DefaultNewRating holds the default value on creation for the "new_rating" field.
 	DefaultNewRating int
 	// DefaultRankPosition holds the default value on creation for the "rank_position" field.
 	DefaultRankPosition int
+	// DefaultPriorRatedContestCount holds the default value on creation for the "prior_rated_contest_count" field.
+	DefaultPriorRatedContestCount int
+	// PriorRatedContestCountValidator is a validator for the "prior_rated_contest_count" field. It is called by the builders before save.
+	PriorRatedContestCountValidator func(int) error
+	// ActualRankValidator is a validator for the "actual_rank" field. It is called by the builders before save.
+	ActualRankValidator func(float64) error
+	// ExpectedRankValidator is a validator for the "expected_rank" field. It is called by the builders before save.
+	ExpectedRankValidator func(float64) error
+	// DefaultDelta holds the default value on creation for the "delta" field.
+	DefaultDelta int
+	// AlgorithmVersionValidator is a validator for the "algorithm_version" field. It is called by the builders before save.
+	AlgorithmVersionValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the RatingHistory queries.
@@ -91,6 +143,21 @@ func ByContestID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContestID, opts...).ToFunc()
 }
 
+// ByRatingRunID orders the results by the rating_run_id field.
+func ByRatingRunID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingRunID, opts...).ToFunc()
+}
+
+// ByRatingSequence orders the results by the rating_sequence field.
+func ByRatingSequence(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingSequence, opts...).ToFunc()
+}
+
+// ByRunVersion orders the results by the run_version field.
+func ByRunVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRunVersion, opts...).ToFunc()
+}
+
 // ByOldRating orders the results by the old_rating field.
 func ByOldRating(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOldRating, opts...).ToFunc()
@@ -106,6 +173,31 @@ func ByRankPosition(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRankPosition, opts...).ToFunc()
 }
 
+// ByPriorRatedContestCount orders the results by the prior_rated_contest_count field.
+func ByPriorRatedContestCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPriorRatedContestCount, opts...).ToFunc()
+}
+
+// ByActualRank orders the results by the actual_rank field.
+func ByActualRank(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActualRank, opts...).ToFunc()
+}
+
+// ByExpectedRank orders the results by the expected_rank field.
+func ByExpectedRank(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExpectedRank, opts...).ToFunc()
+}
+
+// ByDelta orders the results by the delta field.
+func ByDelta(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDelta, opts...).ToFunc()
+}
+
+// ByAlgorithmVersion orders the results by the algorithm_version field.
+func ByAlgorithmVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAlgorithmVersion, opts...).ToFunc()
+}
+
 // ByUserField orders the results by user field.
 func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -117,6 +209,13 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 func ByContestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newContestStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByRatingRunField orders the results by rating_run field.
+func ByRatingRunField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRatingRunStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newUserStep() *sqlgraph.Step {
@@ -131,5 +230,12 @@ func newContestStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContestInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, ContestTable, ContestColumn),
+	)
+}
+func newRatingRunStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RatingRunInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, RatingRunTable, RatingRunColumn),
 	)
 }

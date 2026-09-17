@@ -8,10 +8,14 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -68,13 +72,13 @@ func (_c *SubmissionCreate) SetNillableDeletedAt(v *time.Time) *SubmissionCreate
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *SubmissionCreate) SetDeletedBy(v int) *SubmissionCreate {
+func (_c *SubmissionCreate) SetDeletedBy(v string) *SubmissionCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *SubmissionCreate) SetNillableDeletedBy(v *int) *SubmissionCreate {
+func (_c *SubmissionCreate) SetNillableDeletedBy(v *string) *SubmissionCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -82,14 +86,84 @@ func (_c *SubmissionCreate) SetNillableDeletedBy(v *int) *SubmissionCreate {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (_c *SubmissionCreate) SetProblemID(v int) *SubmissionCreate {
+func (_c *SubmissionCreate) SetProblemID(v uuid.UUID) *SubmissionCreate {
 	_c.mutation.SetProblemID(v)
 	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *SubmissionCreate) SetUserID(v int) *SubmissionCreate {
+func (_c *SubmissionCreate) SetUserID(v uuid.UUID) *SubmissionCreate {
 	_c.mutation.SetUserID(v)
+	return _c
+}
+
+// SetContestProblemID sets the "contest_problem_id" field.
+func (_c *SubmissionCreate) SetContestProblemID(v uuid.UUID) *SubmissionCreate {
+	_c.mutation.SetContestProblemID(v)
+	return _c
+}
+
+// SetNillableContestProblemID sets the "contest_problem_id" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableContestProblemID(v *uuid.UUID) *SubmissionCreate {
+	if v != nil {
+		_c.SetContestProblemID(*v)
+	}
+	return _c
+}
+
+// SetContestScoringPolicyVersion sets the "contest_scoring_policy_version" field.
+func (_c *SubmissionCreate) SetContestScoringPolicyVersion(v int64) *SubmissionCreate {
+	_c.mutation.SetContestScoringPolicyVersion(v)
+	return _c
+}
+
+// SetNillableContestScoringPolicyVersion sets the "contest_scoring_policy_version" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableContestScoringPolicyVersion(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetContestScoringPolicyVersion(*v)
+	}
+	return _c
+}
+
+// SetSubmittedAt sets the "submitted_at" field.
+func (_c *SubmissionCreate) SetSubmittedAt(v time.Time) *SubmissionCreate {
+	_c.mutation.SetSubmittedAt(v)
+	return _c
+}
+
+// SetNillableSubmittedAt sets the "submitted_at" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableSubmittedAt(v *time.Time) *SubmissionCreate {
+	if v != nil {
+		_c.SetSubmittedAt(*v)
+	}
+	return _c
+}
+
+// SetContestElapsedMs sets the "contest_elapsed_ms" field.
+func (_c *SubmissionCreate) SetContestElapsedMs(v int64) *SubmissionCreate {
+	_c.mutation.SetContestElapsedMs(v)
+	return _c
+}
+
+// SetNillableContestElapsedMs sets the "contest_elapsed_ms" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableContestElapsedMs(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetContestElapsedMs(*v)
+	}
+	return _c
+}
+
+// SetContestSubmissionSequence sets the "contest_submission_sequence" field.
+func (_c *SubmissionCreate) SetContestSubmissionSequence(v int64) *SubmissionCreate {
+	_c.mutation.SetContestSubmissionSequence(v)
+	return _c
+}
+
+// SetNillableContestSubmissionSequence sets the "contest_submission_sequence" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableContestSubmissionSequence(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetContestSubmissionSequence(*v)
+	}
 	return _c
 }
 
@@ -99,9 +173,179 @@ func (_c *SubmissionCreate) SetLanguage(v submission.Language) *SubmissionCreate
 	return _c
 }
 
+// SetRuntimeKey sets the "runtime_key" field.
+func (_c *SubmissionCreate) SetRuntimeKey(v string) *SubmissionCreate {
+	_c.mutation.SetRuntimeKey(v)
+	return _c
+}
+
 // SetSourceCode sets the "source_code" field.
 func (_c *SubmissionCreate) SetSourceCode(v string) *SubmissionCreate {
 	_c.mutation.SetSourceCode(v)
+	return _c
+}
+
+// SetSourceSha256 sets the "source_sha256" field.
+func (_c *SubmissionCreate) SetSourceSha256(v []byte) *SubmissionCreate {
+	_c.mutation.SetSourceSha256(v)
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *SubmissionCreate) SetVersion(v int64) *SubmissionCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableVersion(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetLatestGeneration sets the "latest_generation" field.
+func (_c *SubmissionCreate) SetLatestGeneration(v int64) *SubmissionCreate {
+	_c.mutation.SetLatestGeneration(v)
+	return _c
+}
+
+// SetNillableLatestGeneration sets the "latest_generation" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableLatestGeneration(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetLatestGeneration(*v)
+	}
+	return _c
+}
+
+// SetLatestGenerationPhase sets the "latest_generation_phase" field.
+func (_c *SubmissionCreate) SetLatestGenerationPhase(v submission.LatestGenerationPhase) *SubmissionCreate {
+	_c.mutation.SetLatestGenerationPhase(v)
+	return _c
+}
+
+// SetNillableLatestGenerationPhase sets the "latest_generation_phase" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableLatestGenerationPhase(v *submission.LatestGenerationPhase) *SubmissionCreate {
+	if v != nil {
+		_c.SetLatestGenerationPhase(*v)
+	}
+	return _c
+}
+
+// SetLatestGenerationOutcome sets the "latest_generation_outcome" field.
+func (_c *SubmissionCreate) SetLatestGenerationOutcome(v submission.LatestGenerationOutcome) *SubmissionCreate {
+	_c.mutation.SetLatestGenerationOutcome(v)
+	return _c
+}
+
+// SetNillableLatestGenerationOutcome sets the "latest_generation_outcome" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableLatestGenerationOutcome(v *submission.LatestGenerationOutcome) *SubmissionCreate {
+	if v != nil {
+		_c.SetLatestGenerationOutcome(*v)
+	}
+	return _c
+}
+
+// SetActiveJudgementID sets the "active_judgement_id" field.
+func (_c *SubmissionCreate) SetActiveJudgementID(v uuid.UUID) *SubmissionCreate {
+	_c.mutation.SetActiveJudgementID(v)
+	return _c
+}
+
+// SetNillableActiveJudgementID sets the "active_judgement_id" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableActiveJudgementID(v *uuid.UUID) *SubmissionCreate {
+	if v != nil {
+		_c.SetActiveJudgementID(*v)
+	}
+	return _c
+}
+
+// SetActiveJudgementGeneration sets the "active_judgement_generation" field.
+func (_c *SubmissionCreate) SetActiveJudgementGeneration(v int64) *SubmissionCreate {
+	_c.mutation.SetActiveJudgementGeneration(v)
+	return _c
+}
+
+// SetNillableActiveJudgementGeneration sets the "active_judgement_generation" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableActiveJudgementGeneration(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetActiveJudgementGeneration(*v)
+	}
+	return _c
+}
+
+// SetActiveVerdict sets the "active_verdict" field.
+func (_c *SubmissionCreate) SetActiveVerdict(v submission.ActiveVerdict) *SubmissionCreate {
+	_c.mutation.SetActiveVerdict(v)
+	return _c
+}
+
+// SetNillableActiveVerdict sets the "active_verdict" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableActiveVerdict(v *submission.ActiveVerdict) *SubmissionCreate {
+	if v != nil {
+		_c.SetActiveVerdict(*v)
+	}
+	return _c
+}
+
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (_c *SubmissionCreate) SetIdempotencyKey(v string) *SubmissionCreate {
+	_c.mutation.SetIdempotencyKey(v)
+	return _c
+}
+
+// SetRequestHash sets the "request_hash" field.
+func (_c *SubmissionCreate) SetRequestHash(v []byte) *SubmissionCreate {
+	_c.mutation.SetRequestHash(v)
+	return _c
+}
+
+// SetOriginCid sets the "origin_cid" field.
+func (_c *SubmissionCreate) SetOriginCid(v string) *SubmissionCreate {
+	_c.mutation.SetOriginCid(v)
+	return _c
+}
+
+// SetLatestGenerationQueuedAt sets the "latest_generation_queued_at" field.
+func (_c *SubmissionCreate) SetLatestGenerationQueuedAt(v time.Time) *SubmissionCreate {
+	_c.mutation.SetLatestGenerationQueuedAt(v)
+	return _c
+}
+
+// SetNillableLatestGenerationQueuedAt sets the "latest_generation_queued_at" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableLatestGenerationQueuedAt(v *time.Time) *SubmissionCreate {
+	if v != nil {
+		_c.SetLatestGenerationQueuedAt(*v)
+	}
+	return _c
+}
+
+// SetLatestGenerationStartedAt sets the "latest_generation_started_at" field.
+func (_c *SubmissionCreate) SetLatestGenerationStartedAt(v time.Time) *SubmissionCreate {
+	_c.mutation.SetLatestGenerationStartedAt(v)
+	return _c
+}
+
+// SetNillableLatestGenerationStartedAt sets the "latest_generation_started_at" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableLatestGenerationStartedAt(v *time.Time) *SubmissionCreate {
+	if v != nil {
+		_c.SetLatestGenerationStartedAt(*v)
+	}
+	return _c
+}
+
+// SetLatestGenerationCompletedAt sets the "latest_generation_completed_at" field.
+func (_c *SubmissionCreate) SetLatestGenerationCompletedAt(v time.Time) *SubmissionCreate {
+	_c.mutation.SetLatestGenerationCompletedAt(v)
+	return _c
+}
+
+// SetNillableLatestGenerationCompletedAt sets the "latest_generation_completed_at" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableLatestGenerationCompletedAt(v *time.Time) *SubmissionCreate {
+	if v != nil {
+		_c.SetLatestGenerationCompletedAt(*v)
+	}
 	return _c
 }
 
@@ -115,6 +359,34 @@ func (_c *SubmissionCreate) SetStatus(v submission.Status) *SubmissionCreate {
 func (_c *SubmissionCreate) SetNillableStatus(v *submission.Status) *SubmissionCreate {
 	if v != nil {
 		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetJudgedAt sets the "judged_at" field.
+func (_c *SubmissionCreate) SetJudgedAt(v time.Time) *SubmissionCreate {
+	_c.mutation.SetJudgedAt(v)
+	return _c
+}
+
+// SetNillableJudgedAt sets the "judged_at" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableJudgedAt(v *time.Time) *SubmissionCreate {
+	if v != nil {
+		_c.SetJudgedAt(*v)
+	}
+	return _c
+}
+
+// SetVerdictVersion sets the "verdict_version" field.
+func (_c *SubmissionCreate) SetVerdictVersion(v int64) *SubmissionCreate {
+	_c.mutation.SetVerdictVersion(v)
+	return _c
+}
+
+// SetNillableVerdictVersion sets the "verdict_version" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableVerdictVersion(v *int64) *SubmissionCreate {
+	if v != nil {
+		_c.SetVerdictVersion(*v)
 	}
 	return _c
 }
@@ -190,15 +462,29 @@ func (_c *SubmissionCreate) SetNillableErrorMessage(v *string) *SubmissionCreate
 }
 
 // SetContestID sets the "contest_id" field.
-func (_c *SubmissionCreate) SetContestID(v int) *SubmissionCreate {
+func (_c *SubmissionCreate) SetContestID(v uuid.UUID) *SubmissionCreate {
 	_c.mutation.SetContestID(v)
 	return _c
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_c *SubmissionCreate) SetNillableContestID(v *int) *SubmissionCreate {
+func (_c *SubmissionCreate) SetNillableContestID(v *uuid.UUID) *SubmissionCreate {
 	if v != nil {
 		_c.SetContestID(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *SubmissionCreate) SetID(v uuid.UUID) *SubmissionCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableID(v *uuid.UUID) *SubmissionCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -216,6 +502,40 @@ func (_c *SubmissionCreate) SetUser(v *User) *SubmissionCreate {
 // SetContest sets the "contest" edge to the Contest entity.
 func (_c *SubmissionCreate) SetContest(v *Contest) *SubmissionCreate {
 	return _c.SetContestID(v.ID)
+}
+
+// SetContestScoringAttemptID sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity by ID.
+func (_c *SubmissionCreate) SetContestScoringAttemptID(id uuid.UUID) *SubmissionCreate {
+	_c.mutation.SetContestScoringAttemptID(id)
+	return _c
+}
+
+// SetNillableContestScoringAttemptID sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity by ID if the given value is not nil.
+func (_c *SubmissionCreate) SetNillableContestScoringAttemptID(id *uuid.UUID) *SubmissionCreate {
+	if id != nil {
+		_c = _c.SetContestScoringAttemptID(*id)
+	}
+	return _c
+}
+
+// SetContestScoringAttempt sets the "contest_scoring_attempt" edge to the ContestScoringAttempt entity.
+func (_c *SubmissionCreate) SetContestScoringAttempt(v *ContestScoringAttempt) *SubmissionCreate {
+	return _c.SetContestScoringAttemptID(v.ID)
+}
+
+// AddLastContestProblemResultIDs adds the "last_contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_c *SubmissionCreate) AddLastContestProblemResultIDs(ids ...uuid.UUID) *SubmissionCreate {
+	_c.mutation.AddLastContestProblemResultIDs(ids...)
+	return _c
+}
+
+// AddLastContestProblemResults adds the "last_contest_problem_results" edges to the ContestProblemResult entity.
+func (_c *SubmissionCreate) AddLastContestProblemResults(v ...*ContestProblemResult) *SubmissionCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddLastContestProblemResultIDs(ids...)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -269,9 +589,39 @@ func (_c *SubmissionCreate) defaults() error {
 		v := submission.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.SubmittedAt(); !ok {
+		if submission.DefaultSubmittedAt == nil {
+			return fmt.Errorf("generate: uninitialized submission.DefaultSubmittedAt (forgotten import generate/runtime?)")
+		}
+		v := submission.DefaultSubmittedAt()
+		_c.mutation.SetSubmittedAt(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := submission.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.LatestGeneration(); !ok {
+		v := submission.DefaultLatestGeneration
+		_c.mutation.SetLatestGeneration(v)
+	}
+	if _, ok := _c.mutation.LatestGenerationPhase(); !ok {
+		v := submission.DefaultLatestGenerationPhase
+		_c.mutation.SetLatestGenerationPhase(v)
+	}
+	if _, ok := _c.mutation.LatestGenerationQueuedAt(); !ok {
+		if submission.DefaultLatestGenerationQueuedAt == nil {
+			return fmt.Errorf("generate: uninitialized submission.DefaultLatestGenerationQueuedAt (forgotten import generate/runtime?)")
+		}
+		v := submission.DefaultLatestGenerationQueuedAt()
+		_c.mutation.SetLatestGenerationQueuedAt(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := submission.DefaultStatus
 		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.VerdictVersion(); !ok {
+		v := submission.DefaultVerdictVersion
+		_c.mutation.SetVerdictVersion(v)
 	}
 	if _, ok := _c.mutation.PassedCount(); !ok {
 		v := submission.DefaultPassedCount
@@ -280,6 +630,13 @@ func (_c *SubmissionCreate) defaults() error {
 	if _, ok := _c.mutation.TotalCount(); !ok {
 		v := submission.DefaultTotalCount
 		_c.mutation.SetTotalCount(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if submission.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized submission.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := submission.DefaultID()
+		_c.mutation.SetID(v)
 	}
 	return nil
 }
@@ -298,12 +655,38 @@ func (_c *SubmissionCreate) check() error {
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "Submission.user_id"`)}
 	}
+	if v, ok := _c.mutation.ContestScoringPolicyVersion(); ok {
+		if err := submission.ContestScoringPolicyVersionValidator(v); err != nil {
+			return &ValidationError{Name: "contest_scoring_policy_version", err: fmt.Errorf(`generate: validator failed for field "Submission.contest_scoring_policy_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SubmittedAt(); !ok {
+		return &ValidationError{Name: "submitted_at", err: errors.New(`generate: missing required field "Submission.submitted_at"`)}
+	}
+	if v, ok := _c.mutation.ContestElapsedMs(); ok {
+		if err := submission.ContestElapsedMsValidator(v); err != nil {
+			return &ValidationError{Name: "contest_elapsed_ms", err: fmt.Errorf(`generate: validator failed for field "Submission.contest_elapsed_ms": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.ContestSubmissionSequence(); ok {
+		if err := submission.ContestSubmissionSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "contest_submission_sequence", err: fmt.Errorf(`generate: validator failed for field "Submission.contest_submission_sequence": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Language(); !ok {
 		return &ValidationError{Name: "language", err: errors.New(`generate: missing required field "Submission.language"`)}
 	}
 	if v, ok := _c.mutation.Language(); ok {
 		if err := submission.LanguageValidator(v); err != nil {
 			return &ValidationError{Name: "language", err: fmt.Errorf(`generate: validator failed for field "Submission.language": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.RuntimeKey(); !ok {
+		return &ValidationError{Name: "runtime_key", err: errors.New(`generate: missing required field "Submission.runtime_key"`)}
+	}
+	if v, ok := _c.mutation.RuntimeKey(); ok {
+		if err := submission.RuntimeKeyValidator(v); err != nil {
+			return &ValidationError{Name: "runtime_key", err: fmt.Errorf(`generate: validator failed for field "Submission.runtime_key": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.SourceCode(); !ok {
@@ -314,12 +697,94 @@ func (_c *SubmissionCreate) check() error {
 			return &ValidationError{Name: "source_code", err: fmt.Errorf(`generate: validator failed for field "Submission.source_code": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.SourceSha256(); !ok {
+		return &ValidationError{Name: "source_sha256", err: errors.New(`generate: missing required field "Submission.source_sha256"`)}
+	}
+	if v, ok := _c.mutation.SourceSha256(); ok {
+		if err := submission.SourceSha256Validator(v); err != nil {
+			return &ValidationError{Name: "source_sha256", err: fmt.Errorf(`generate: validator failed for field "Submission.source_sha256": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Submission.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := submission.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Submission.version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.LatestGeneration(); !ok {
+		return &ValidationError{Name: "latest_generation", err: errors.New(`generate: missing required field "Submission.latest_generation"`)}
+	}
+	if v, ok := _c.mutation.LatestGeneration(); ok {
+		if err := submission.LatestGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.LatestGenerationPhase(); !ok {
+		return &ValidationError{Name: "latest_generation_phase", err: errors.New(`generate: missing required field "Submission.latest_generation_phase"`)}
+	}
+	if v, ok := _c.mutation.LatestGenerationPhase(); ok {
+		if err := submission.LatestGenerationPhaseValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation_phase", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation_phase": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.LatestGenerationOutcome(); ok {
+		if err := submission.LatestGenerationOutcomeValidator(v); err != nil {
+			return &ValidationError{Name: "latest_generation_outcome", err: fmt.Errorf(`generate: validator failed for field "Submission.latest_generation_outcome": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.ActiveJudgementGeneration(); ok {
+		if err := submission.ActiveJudgementGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "active_judgement_generation", err: fmt.Errorf(`generate: validator failed for field "Submission.active_judgement_generation": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.ActiveVerdict(); ok {
+		if err := submission.ActiveVerdictValidator(v); err != nil {
+			return &ValidationError{Name: "active_verdict", err: fmt.Errorf(`generate: validator failed for field "Submission.active_verdict": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.IdempotencyKey(); !ok {
+		return &ValidationError{Name: "idempotency_key", err: errors.New(`generate: missing required field "Submission.idempotency_key"`)}
+	}
+	if v, ok := _c.mutation.IdempotencyKey(); ok {
+		if err := submission.IdempotencyKeyValidator(v); err != nil {
+			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`generate: validator failed for field "Submission.idempotency_key": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.RequestHash(); !ok {
+		return &ValidationError{Name: "request_hash", err: errors.New(`generate: missing required field "Submission.request_hash"`)}
+	}
+	if v, ok := _c.mutation.RequestHash(); ok {
+		if err := submission.RequestHashValidator(v); err != nil {
+			return &ValidationError{Name: "request_hash", err: fmt.Errorf(`generate: validator failed for field "Submission.request_hash": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.OriginCid(); !ok {
+		return &ValidationError{Name: "origin_cid", err: errors.New(`generate: missing required field "Submission.origin_cid"`)}
+	}
+	if v, ok := _c.mutation.OriginCid(); ok {
+		if err := submission.OriginCidValidator(v); err != nil {
+			return &ValidationError{Name: "origin_cid", err: fmt.Errorf(`generate: validator failed for field "Submission.origin_cid": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.LatestGenerationQueuedAt(); !ok {
+		return &ValidationError{Name: "latest_generation_queued_at", err: errors.New(`generate: missing required field "Submission.latest_generation_queued_at"`)}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "Submission.status"`)}
 	}
 	if v, ok := _c.mutation.Status(); ok {
 		if err := submission.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Submission.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.VerdictVersion(); !ok {
+		return &ValidationError{Name: "verdict_version", err: errors.New(`generate: missing required field "Submission.verdict_version"`)}
+	}
+	if v, ok := _c.mutation.VerdictVersion(); ok {
+		if err := submission.VerdictVersionValidator(v); err != nil {
+			return &ValidationError{Name: "verdict_version", err: fmt.Errorf(`generate: validator failed for field "Submission.verdict_version": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.PassedCount(); !ok {
@@ -348,8 +813,13 @@ func (_c *SubmissionCreate) sqlSave(ctx context.Context) (*Submission, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -358,9 +828,13 @@ func (_c *SubmissionCreate) sqlSave(ctx context.Context) (*Submission, error) {
 func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Submission{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(submission.Table, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(submission.Table, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(submission.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -374,20 +848,108 @@ func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(submission.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(submission.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.ContestProblemID(); ok {
+		_spec.SetField(submission.FieldContestProblemID, field.TypeUUID, value)
+		_node.ContestProblemID = &value
+	}
+	if value, ok := _c.mutation.ContestScoringPolicyVersion(); ok {
+		_spec.SetField(submission.FieldContestScoringPolicyVersion, field.TypeInt64, value)
+		_node.ContestScoringPolicyVersion = &value
+	}
+	if value, ok := _c.mutation.SubmittedAt(); ok {
+		_spec.SetField(submission.FieldSubmittedAt, field.TypeTime, value)
+		_node.SubmittedAt = value
+	}
+	if value, ok := _c.mutation.ContestElapsedMs(); ok {
+		_spec.SetField(submission.FieldContestElapsedMs, field.TypeInt64, value)
+		_node.ContestElapsedMs = &value
+	}
+	if value, ok := _c.mutation.ContestSubmissionSequence(); ok {
+		_spec.SetField(submission.FieldContestSubmissionSequence, field.TypeInt64, value)
+		_node.ContestSubmissionSequence = &value
 	}
 	if value, ok := _c.mutation.Language(); ok {
 		_spec.SetField(submission.FieldLanguage, field.TypeEnum, value)
 		_node.Language = value
 	}
+	if value, ok := _c.mutation.RuntimeKey(); ok {
+		_spec.SetField(submission.FieldRuntimeKey, field.TypeString, value)
+		_node.RuntimeKey = value
+	}
 	if value, ok := _c.mutation.SourceCode(); ok {
 		_spec.SetField(submission.FieldSourceCode, field.TypeString, value)
 		_node.SourceCode = value
 	}
+	if value, ok := _c.mutation.SourceSha256(); ok {
+		_spec.SetField(submission.FieldSourceSha256, field.TypeBytes, value)
+		_node.SourceSha256 = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(submission.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.LatestGeneration(); ok {
+		_spec.SetField(submission.FieldLatestGeneration, field.TypeInt64, value)
+		_node.LatestGeneration = value
+	}
+	if value, ok := _c.mutation.LatestGenerationPhase(); ok {
+		_spec.SetField(submission.FieldLatestGenerationPhase, field.TypeEnum, value)
+		_node.LatestGenerationPhase = value
+	}
+	if value, ok := _c.mutation.LatestGenerationOutcome(); ok {
+		_spec.SetField(submission.FieldLatestGenerationOutcome, field.TypeEnum, value)
+		_node.LatestGenerationOutcome = &value
+	}
+	if value, ok := _c.mutation.ActiveJudgementID(); ok {
+		_spec.SetField(submission.FieldActiveJudgementID, field.TypeUUID, value)
+		_node.ActiveJudgementID = &value
+	}
+	if value, ok := _c.mutation.ActiveJudgementGeneration(); ok {
+		_spec.SetField(submission.FieldActiveJudgementGeneration, field.TypeInt64, value)
+		_node.ActiveJudgementGeneration = &value
+	}
+	if value, ok := _c.mutation.ActiveVerdict(); ok {
+		_spec.SetField(submission.FieldActiveVerdict, field.TypeEnum, value)
+		_node.ActiveVerdict = &value
+	}
+	if value, ok := _c.mutation.IdempotencyKey(); ok {
+		_spec.SetField(submission.FieldIdempotencyKey, field.TypeString, value)
+		_node.IdempotencyKey = value
+	}
+	if value, ok := _c.mutation.RequestHash(); ok {
+		_spec.SetField(submission.FieldRequestHash, field.TypeBytes, value)
+		_node.RequestHash = value
+	}
+	if value, ok := _c.mutation.OriginCid(); ok {
+		_spec.SetField(submission.FieldOriginCid, field.TypeString, value)
+		_node.OriginCid = value
+	}
+	if value, ok := _c.mutation.LatestGenerationQueuedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationQueuedAt, field.TypeTime, value)
+		_node.LatestGenerationQueuedAt = value
+	}
+	if value, ok := _c.mutation.LatestGenerationStartedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationStartedAt, field.TypeTime, value)
+		_node.LatestGenerationStartedAt = &value
+	}
+	if value, ok := _c.mutation.LatestGenerationCompletedAt(); ok {
+		_spec.SetField(submission.FieldLatestGenerationCompletedAt, field.TypeTime, value)
+		_node.LatestGenerationCompletedAt = &value
+	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(submission.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := _c.mutation.JudgedAt(); ok {
+		_spec.SetField(submission.FieldJudgedAt, field.TypeTime, value)
+		_node.JudgedAt = &value
+	}
+	if value, ok := _c.mutation.VerdictVersion(); ok {
+		_spec.SetField(submission.FieldVerdictVersion, field.TypeInt64, value)
+		_node.VerdictVersion = value
 	}
 	if value, ok := _c.mutation.PassedCount(); ok {
 		_spec.SetField(submission.FieldPassedCount, field.TypeInt, value)
@@ -417,7 +979,7 @@ func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 			Columns: []string{submission.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -434,7 +996,7 @@ func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 			Columns: []string{submission.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -451,13 +1013,45 @@ func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 			Columns: []string{submission.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ContestID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ContestScoringAttemptIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   submission.ContestScoringAttemptTable,
+			Columns: []string{submission.ContestScoringAttemptColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.LastContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submission.LastContestProblemResultsTable,
+			Columns: []string{submission.LastContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -543,7 +1137,7 @@ func (u *SubmissionUpsert) ClearDeletedAt() *SubmissionUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *SubmissionUpsert) SetDeletedBy(v int) *SubmissionUpsert {
+func (u *SubmissionUpsert) SetDeletedBy(v string) *SubmissionUpsert {
 	u.Set(submission.FieldDeletedBy, v)
 	return u
 }
@@ -554,63 +1148,183 @@ func (u *SubmissionUpsert) UpdateDeletedBy() *SubmissionUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *SubmissionUpsert) AddDeletedBy(v int) *SubmissionUpsert {
-	u.Add(submission.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *SubmissionUpsert) ClearDeletedBy() *SubmissionUpsert {
 	u.SetNull(submission.FieldDeletedBy)
 	return u
 }
 
-// SetProblemID sets the "problem_id" field.
-func (u *SubmissionUpsert) SetProblemID(v int) *SubmissionUpsert {
-	u.Set(submission.FieldProblemID, v)
+// SetVersion sets the "version" field.
+func (u *SubmissionUpsert) SetVersion(v int64) *SubmissionUpsert {
+	u.Set(submission.FieldVersion, v)
 	return u
 }
 
-// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateProblemID() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldProblemID)
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateVersion() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldVersion)
 	return u
 }
 
-// SetUserID sets the "user_id" field.
-func (u *SubmissionUpsert) SetUserID(v int) *SubmissionUpsert {
-	u.Set(submission.FieldUserID, v)
+// AddVersion adds v to the "version" field.
+func (u *SubmissionUpsert) AddVersion(v int64) *SubmissionUpsert {
+	u.Add(submission.FieldVersion, v)
 	return u
 }
 
-// UpdateUserID sets the "user_id" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateUserID() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldUserID)
+// SetLatestGeneration sets the "latest_generation" field.
+func (u *SubmissionUpsert) SetLatestGeneration(v int64) *SubmissionUpsert {
+	u.Set(submission.FieldLatestGeneration, v)
 	return u
 }
 
-// SetLanguage sets the "language" field.
-func (u *SubmissionUpsert) SetLanguage(v submission.Language) *SubmissionUpsert {
-	u.Set(submission.FieldLanguage, v)
+// UpdateLatestGeneration sets the "latest_generation" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLatestGeneration() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLatestGeneration)
 	return u
 }
 
-// UpdateLanguage sets the "language" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateLanguage() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldLanguage)
+// AddLatestGeneration adds v to the "latest_generation" field.
+func (u *SubmissionUpsert) AddLatestGeneration(v int64) *SubmissionUpsert {
+	u.Add(submission.FieldLatestGeneration, v)
 	return u
 }
 
-// SetSourceCode sets the "source_code" field.
-func (u *SubmissionUpsert) SetSourceCode(v string) *SubmissionUpsert {
-	u.Set(submission.FieldSourceCode, v)
+// SetLatestGenerationPhase sets the "latest_generation_phase" field.
+func (u *SubmissionUpsert) SetLatestGenerationPhase(v submission.LatestGenerationPhase) *SubmissionUpsert {
+	u.Set(submission.FieldLatestGenerationPhase, v)
 	return u
 }
 
-// UpdateSourceCode sets the "source_code" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateSourceCode() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldSourceCode)
+// UpdateLatestGenerationPhase sets the "latest_generation_phase" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLatestGenerationPhase() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLatestGenerationPhase)
+	return u
+}
+
+// SetLatestGenerationOutcome sets the "latest_generation_outcome" field.
+func (u *SubmissionUpsert) SetLatestGenerationOutcome(v submission.LatestGenerationOutcome) *SubmissionUpsert {
+	u.Set(submission.FieldLatestGenerationOutcome, v)
+	return u
+}
+
+// UpdateLatestGenerationOutcome sets the "latest_generation_outcome" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLatestGenerationOutcome() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLatestGenerationOutcome)
+	return u
+}
+
+// ClearLatestGenerationOutcome clears the value of the "latest_generation_outcome" field.
+func (u *SubmissionUpsert) ClearLatestGenerationOutcome() *SubmissionUpsert {
+	u.SetNull(submission.FieldLatestGenerationOutcome)
+	return u
+}
+
+// SetActiveJudgementID sets the "active_judgement_id" field.
+func (u *SubmissionUpsert) SetActiveJudgementID(v uuid.UUID) *SubmissionUpsert {
+	u.Set(submission.FieldActiveJudgementID, v)
+	return u
+}
+
+// UpdateActiveJudgementID sets the "active_judgement_id" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateActiveJudgementID() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldActiveJudgementID)
+	return u
+}
+
+// ClearActiveJudgementID clears the value of the "active_judgement_id" field.
+func (u *SubmissionUpsert) ClearActiveJudgementID() *SubmissionUpsert {
+	u.SetNull(submission.FieldActiveJudgementID)
+	return u
+}
+
+// SetActiveJudgementGeneration sets the "active_judgement_generation" field.
+func (u *SubmissionUpsert) SetActiveJudgementGeneration(v int64) *SubmissionUpsert {
+	u.Set(submission.FieldActiveJudgementGeneration, v)
+	return u
+}
+
+// UpdateActiveJudgementGeneration sets the "active_judgement_generation" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateActiveJudgementGeneration() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldActiveJudgementGeneration)
+	return u
+}
+
+// AddActiveJudgementGeneration adds v to the "active_judgement_generation" field.
+func (u *SubmissionUpsert) AddActiveJudgementGeneration(v int64) *SubmissionUpsert {
+	u.Add(submission.FieldActiveJudgementGeneration, v)
+	return u
+}
+
+// ClearActiveJudgementGeneration clears the value of the "active_judgement_generation" field.
+func (u *SubmissionUpsert) ClearActiveJudgementGeneration() *SubmissionUpsert {
+	u.SetNull(submission.FieldActiveJudgementGeneration)
+	return u
+}
+
+// SetActiveVerdict sets the "active_verdict" field.
+func (u *SubmissionUpsert) SetActiveVerdict(v submission.ActiveVerdict) *SubmissionUpsert {
+	u.Set(submission.FieldActiveVerdict, v)
+	return u
+}
+
+// UpdateActiveVerdict sets the "active_verdict" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateActiveVerdict() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldActiveVerdict)
+	return u
+}
+
+// ClearActiveVerdict clears the value of the "active_verdict" field.
+func (u *SubmissionUpsert) ClearActiveVerdict() *SubmissionUpsert {
+	u.SetNull(submission.FieldActiveVerdict)
+	return u
+}
+
+// SetLatestGenerationQueuedAt sets the "latest_generation_queued_at" field.
+func (u *SubmissionUpsert) SetLatestGenerationQueuedAt(v time.Time) *SubmissionUpsert {
+	u.Set(submission.FieldLatestGenerationQueuedAt, v)
+	return u
+}
+
+// UpdateLatestGenerationQueuedAt sets the "latest_generation_queued_at" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLatestGenerationQueuedAt() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLatestGenerationQueuedAt)
+	return u
+}
+
+// SetLatestGenerationStartedAt sets the "latest_generation_started_at" field.
+func (u *SubmissionUpsert) SetLatestGenerationStartedAt(v time.Time) *SubmissionUpsert {
+	u.Set(submission.FieldLatestGenerationStartedAt, v)
+	return u
+}
+
+// UpdateLatestGenerationStartedAt sets the "latest_generation_started_at" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLatestGenerationStartedAt() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLatestGenerationStartedAt)
+	return u
+}
+
+// ClearLatestGenerationStartedAt clears the value of the "latest_generation_started_at" field.
+func (u *SubmissionUpsert) ClearLatestGenerationStartedAt() *SubmissionUpsert {
+	u.SetNull(submission.FieldLatestGenerationStartedAt)
+	return u
+}
+
+// SetLatestGenerationCompletedAt sets the "latest_generation_completed_at" field.
+func (u *SubmissionUpsert) SetLatestGenerationCompletedAt(v time.Time) *SubmissionUpsert {
+	u.Set(submission.FieldLatestGenerationCompletedAt, v)
+	return u
+}
+
+// UpdateLatestGenerationCompletedAt sets the "latest_generation_completed_at" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLatestGenerationCompletedAt() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLatestGenerationCompletedAt)
+	return u
+}
+
+// ClearLatestGenerationCompletedAt clears the value of the "latest_generation_completed_at" field.
+func (u *SubmissionUpsert) ClearLatestGenerationCompletedAt() *SubmissionUpsert {
+	u.SetNull(submission.FieldLatestGenerationCompletedAt)
 	return u
 }
 
@@ -623,6 +1337,42 @@ func (u *SubmissionUpsert) SetStatus(v submission.Status) *SubmissionUpsert {
 // UpdateStatus sets the "status" field to the value that was provided on create.
 func (u *SubmissionUpsert) UpdateStatus() *SubmissionUpsert {
 	u.SetExcluded(submission.FieldStatus)
+	return u
+}
+
+// SetJudgedAt sets the "judged_at" field.
+func (u *SubmissionUpsert) SetJudgedAt(v time.Time) *SubmissionUpsert {
+	u.Set(submission.FieldJudgedAt, v)
+	return u
+}
+
+// UpdateJudgedAt sets the "judged_at" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateJudgedAt() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldJudgedAt)
+	return u
+}
+
+// ClearJudgedAt clears the value of the "judged_at" field.
+func (u *SubmissionUpsert) ClearJudgedAt() *SubmissionUpsert {
+	u.SetNull(submission.FieldJudgedAt)
+	return u
+}
+
+// SetVerdictVersion sets the "verdict_version" field.
+func (u *SubmissionUpsert) SetVerdictVersion(v int64) *SubmissionUpsert {
+	u.Set(submission.FieldVerdictVersion, v)
+	return u
+}
+
+// UpdateVerdictVersion sets the "verdict_version" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateVerdictVersion() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldVerdictVersion)
+	return u
+}
+
+// AddVerdictVersion adds v to the "verdict_version" field.
+func (u *SubmissionUpsert) AddVerdictVersion(v int64) *SubmissionUpsert {
+	u.Add(submission.FieldVerdictVersion, v)
 	return u
 }
 
@@ -728,37 +1478,70 @@ func (u *SubmissionUpsert) ClearErrorMessage() *SubmissionUpsert {
 	return u
 }
 
-// SetContestID sets the "contest_id" field.
-func (u *SubmissionUpsert) SetContestID(v int) *SubmissionUpsert {
-	u.Set(submission.FieldContestID, v)
-	return u
-}
-
-// UpdateContestID sets the "contest_id" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateContestID() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldContestID)
-	return u
-}
-
-// ClearContestID clears the value of the "contest_id" field.
-func (u *SubmissionUpsert) ClearContestID() *SubmissionUpsert {
-	u.SetNull(submission.FieldContestID)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Submission.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(submission.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *SubmissionUpsertOne) UpdateNewValues() *SubmissionUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(submission.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(submission.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.ProblemID(); exists {
+			s.SetIgnore(submission.FieldProblemID)
+		}
+		if _, exists := u.create.mutation.UserID(); exists {
+			s.SetIgnore(submission.FieldUserID)
+		}
+		if _, exists := u.create.mutation.ContestProblemID(); exists {
+			s.SetIgnore(submission.FieldContestProblemID)
+		}
+		if _, exists := u.create.mutation.ContestScoringPolicyVersion(); exists {
+			s.SetIgnore(submission.FieldContestScoringPolicyVersion)
+		}
+		if _, exists := u.create.mutation.SubmittedAt(); exists {
+			s.SetIgnore(submission.FieldSubmittedAt)
+		}
+		if _, exists := u.create.mutation.ContestElapsedMs(); exists {
+			s.SetIgnore(submission.FieldContestElapsedMs)
+		}
+		if _, exists := u.create.mutation.ContestSubmissionSequence(); exists {
+			s.SetIgnore(submission.FieldContestSubmissionSequence)
+		}
+		if _, exists := u.create.mutation.Language(); exists {
+			s.SetIgnore(submission.FieldLanguage)
+		}
+		if _, exists := u.create.mutation.RuntimeKey(); exists {
+			s.SetIgnore(submission.FieldRuntimeKey)
+		}
+		if _, exists := u.create.mutation.SourceCode(); exists {
+			s.SetIgnore(submission.FieldSourceCode)
+		}
+		if _, exists := u.create.mutation.SourceSha256(); exists {
+			s.SetIgnore(submission.FieldSourceSha256)
+		}
+		if _, exists := u.create.mutation.IdempotencyKey(); exists {
+			s.SetIgnore(submission.FieldIdempotencyKey)
+		}
+		if _, exists := u.create.mutation.RequestHash(); exists {
+			s.SetIgnore(submission.FieldRequestHash)
+		}
+		if _, exists := u.create.mutation.OriginCid(); exists {
+			s.SetIgnore(submission.FieldOriginCid)
+		}
+		if _, exists := u.create.mutation.ContestID(); exists {
+			s.SetIgnore(submission.FieldContestID)
 		}
 	}))
 	return u
@@ -827,16 +1610,9 @@ func (u *SubmissionUpsertOne) ClearDeletedAt() *SubmissionUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *SubmissionUpsertOne) SetDeletedBy(v int) *SubmissionUpsertOne {
+func (u *SubmissionUpsertOne) SetDeletedBy(v string) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *SubmissionUpsertOne) AddDeletedBy(v int) *SubmissionUpsertOne {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -854,59 +1630,206 @@ func (u *SubmissionUpsertOne) ClearDeletedBy() *SubmissionUpsertOne {
 	})
 }
 
-// SetProblemID sets the "problem_id" field.
-func (u *SubmissionUpsertOne) SetProblemID(v int) *SubmissionUpsertOne {
+// SetVersion sets the "version" field.
+func (u *SubmissionUpsertOne) SetVersion(v int64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetProblemID(v)
+		s.SetVersion(v)
 	})
 }
 
-// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateProblemID() *SubmissionUpsertOne {
+// AddVersion adds v to the "version" field.
+func (u *SubmissionUpsertOne) AddVersion(v int64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateProblemID()
+		s.AddVersion(v)
 	})
 }
 
-// SetUserID sets the "user_id" field.
-func (u *SubmissionUpsertOne) SetUserID(v int) *SubmissionUpsertOne {
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateVersion() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetUserID(v)
+		s.UpdateVersion()
 	})
 }
 
-// UpdateUserID sets the "user_id" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateUserID() *SubmissionUpsertOne {
+// SetLatestGeneration sets the "latest_generation" field.
+func (u *SubmissionUpsertOne) SetLatestGeneration(v int64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateUserID()
+		s.SetLatestGeneration(v)
 	})
 }
 
-// SetLanguage sets the "language" field.
-func (u *SubmissionUpsertOne) SetLanguage(v submission.Language) *SubmissionUpsertOne {
+// AddLatestGeneration adds v to the "latest_generation" field.
+func (u *SubmissionUpsertOne) AddLatestGeneration(v int64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetLanguage(v)
+		s.AddLatestGeneration(v)
 	})
 }
 
-// UpdateLanguage sets the "language" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateLanguage() *SubmissionUpsertOne {
+// UpdateLatestGeneration sets the "latest_generation" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLatestGeneration() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateLanguage()
+		s.UpdateLatestGeneration()
 	})
 }
 
-// SetSourceCode sets the "source_code" field.
-func (u *SubmissionUpsertOne) SetSourceCode(v string) *SubmissionUpsertOne {
+// SetLatestGenerationPhase sets the "latest_generation_phase" field.
+func (u *SubmissionUpsertOne) SetLatestGenerationPhase(v submission.LatestGenerationPhase) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetSourceCode(v)
+		s.SetLatestGenerationPhase(v)
 	})
 }
 
-// UpdateSourceCode sets the "source_code" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateSourceCode() *SubmissionUpsertOne {
+// UpdateLatestGenerationPhase sets the "latest_generation_phase" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLatestGenerationPhase() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateSourceCode()
+		s.UpdateLatestGenerationPhase()
+	})
+}
+
+// SetLatestGenerationOutcome sets the "latest_generation_outcome" field.
+func (u *SubmissionUpsertOne) SetLatestGenerationOutcome(v submission.LatestGenerationOutcome) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationOutcome(v)
+	})
+}
+
+// UpdateLatestGenerationOutcome sets the "latest_generation_outcome" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLatestGenerationOutcome() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationOutcome()
+	})
+}
+
+// ClearLatestGenerationOutcome clears the value of the "latest_generation_outcome" field.
+func (u *SubmissionUpsertOne) ClearLatestGenerationOutcome() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearLatestGenerationOutcome()
+	})
+}
+
+// SetActiveJudgementID sets the "active_judgement_id" field.
+func (u *SubmissionUpsertOne) SetActiveJudgementID(v uuid.UUID) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetActiveJudgementID(v)
+	})
+}
+
+// UpdateActiveJudgementID sets the "active_judgement_id" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateActiveJudgementID() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateActiveJudgementID()
+	})
+}
+
+// ClearActiveJudgementID clears the value of the "active_judgement_id" field.
+func (u *SubmissionUpsertOne) ClearActiveJudgementID() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearActiveJudgementID()
+	})
+}
+
+// SetActiveJudgementGeneration sets the "active_judgement_generation" field.
+func (u *SubmissionUpsertOne) SetActiveJudgementGeneration(v int64) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetActiveJudgementGeneration(v)
+	})
+}
+
+// AddActiveJudgementGeneration adds v to the "active_judgement_generation" field.
+func (u *SubmissionUpsertOne) AddActiveJudgementGeneration(v int64) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddActiveJudgementGeneration(v)
+	})
+}
+
+// UpdateActiveJudgementGeneration sets the "active_judgement_generation" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateActiveJudgementGeneration() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateActiveJudgementGeneration()
+	})
+}
+
+// ClearActiveJudgementGeneration clears the value of the "active_judgement_generation" field.
+func (u *SubmissionUpsertOne) ClearActiveJudgementGeneration() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearActiveJudgementGeneration()
+	})
+}
+
+// SetActiveVerdict sets the "active_verdict" field.
+func (u *SubmissionUpsertOne) SetActiveVerdict(v submission.ActiveVerdict) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetActiveVerdict(v)
+	})
+}
+
+// UpdateActiveVerdict sets the "active_verdict" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateActiveVerdict() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateActiveVerdict()
+	})
+}
+
+// ClearActiveVerdict clears the value of the "active_verdict" field.
+func (u *SubmissionUpsertOne) ClearActiveVerdict() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearActiveVerdict()
+	})
+}
+
+// SetLatestGenerationQueuedAt sets the "latest_generation_queued_at" field.
+func (u *SubmissionUpsertOne) SetLatestGenerationQueuedAt(v time.Time) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationQueuedAt(v)
+	})
+}
+
+// UpdateLatestGenerationQueuedAt sets the "latest_generation_queued_at" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLatestGenerationQueuedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationQueuedAt()
+	})
+}
+
+// SetLatestGenerationStartedAt sets the "latest_generation_started_at" field.
+func (u *SubmissionUpsertOne) SetLatestGenerationStartedAt(v time.Time) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationStartedAt(v)
+	})
+}
+
+// UpdateLatestGenerationStartedAt sets the "latest_generation_started_at" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLatestGenerationStartedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationStartedAt()
+	})
+}
+
+// ClearLatestGenerationStartedAt clears the value of the "latest_generation_started_at" field.
+func (u *SubmissionUpsertOne) ClearLatestGenerationStartedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearLatestGenerationStartedAt()
+	})
+}
+
+// SetLatestGenerationCompletedAt sets the "latest_generation_completed_at" field.
+func (u *SubmissionUpsertOne) SetLatestGenerationCompletedAt(v time.Time) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationCompletedAt(v)
+	})
+}
+
+// UpdateLatestGenerationCompletedAt sets the "latest_generation_completed_at" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLatestGenerationCompletedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationCompletedAt()
+	})
+}
+
+// ClearLatestGenerationCompletedAt clears the value of the "latest_generation_completed_at" field.
+func (u *SubmissionUpsertOne) ClearLatestGenerationCompletedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearLatestGenerationCompletedAt()
 	})
 }
 
@@ -921,6 +1844,48 @@ func (u *SubmissionUpsertOne) SetStatus(v submission.Status) *SubmissionUpsertOn
 func (u *SubmissionUpsertOne) UpdateStatus() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetJudgedAt sets the "judged_at" field.
+func (u *SubmissionUpsertOne) SetJudgedAt(v time.Time) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetJudgedAt(v)
+	})
+}
+
+// UpdateJudgedAt sets the "judged_at" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateJudgedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateJudgedAt()
+	})
+}
+
+// ClearJudgedAt clears the value of the "judged_at" field.
+func (u *SubmissionUpsertOne) ClearJudgedAt() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearJudgedAt()
+	})
+}
+
+// SetVerdictVersion sets the "verdict_version" field.
+func (u *SubmissionUpsertOne) SetVerdictVersion(v int64) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetVerdictVersion(v)
+	})
+}
+
+// AddVerdictVersion adds v to the "verdict_version" field.
+func (u *SubmissionUpsertOne) AddVerdictVersion(v int64) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddVerdictVersion(v)
+	})
+}
+
+// UpdateVerdictVersion sets the "verdict_version" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateVerdictVersion() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateVerdictVersion()
 	})
 }
 
@@ -1043,27 +2008,6 @@ func (u *SubmissionUpsertOne) ClearErrorMessage() *SubmissionUpsertOne {
 	})
 }
 
-// SetContestID sets the "contest_id" field.
-func (u *SubmissionUpsertOne) SetContestID(v int) *SubmissionUpsertOne {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.SetContestID(v)
-	})
-}
-
-// UpdateContestID sets the "contest_id" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateContestID() *SubmissionUpsertOne {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateContestID()
-	})
-}
-
-// ClearContestID clears the value of the "contest_id" field.
-func (u *SubmissionUpsertOne) ClearContestID() *SubmissionUpsertOne {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.ClearContestID()
-	})
-}
-
 // Exec executes the query.
 func (u *SubmissionUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -1080,7 +2024,12 @@ func (u *SubmissionUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *SubmissionUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *SubmissionUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: SubmissionUpsertOne.ID is not supported by MySQL driver. Use SubmissionUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1089,17 +2038,12 @@ func (u *SubmissionUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *SubmissionUpsertOne) IDX(ctx context.Context) int {
+func (u *SubmissionUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *SubmissionCreate) SetID(id int) *SubmissionCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // SubmissionCreateBulk is the builder for creating many Submission entities in bulk.
@@ -1149,10 +2093,6 @@ func (_c *SubmissionCreateBulk) Save(ctx context.Context) ([]*Submission, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1239,14 +2179,65 @@ type SubmissionUpsertBulk struct {
 //	client.Submission.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(submission.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *SubmissionUpsertBulk) UpdateNewValues() *SubmissionUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(submission.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(submission.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.ProblemID(); exists {
+				s.SetIgnore(submission.FieldProblemID)
+			}
+			if _, exists := b.mutation.UserID(); exists {
+				s.SetIgnore(submission.FieldUserID)
+			}
+			if _, exists := b.mutation.ContestProblemID(); exists {
+				s.SetIgnore(submission.FieldContestProblemID)
+			}
+			if _, exists := b.mutation.ContestScoringPolicyVersion(); exists {
+				s.SetIgnore(submission.FieldContestScoringPolicyVersion)
+			}
+			if _, exists := b.mutation.SubmittedAt(); exists {
+				s.SetIgnore(submission.FieldSubmittedAt)
+			}
+			if _, exists := b.mutation.ContestElapsedMs(); exists {
+				s.SetIgnore(submission.FieldContestElapsedMs)
+			}
+			if _, exists := b.mutation.ContestSubmissionSequence(); exists {
+				s.SetIgnore(submission.FieldContestSubmissionSequence)
+			}
+			if _, exists := b.mutation.Language(); exists {
+				s.SetIgnore(submission.FieldLanguage)
+			}
+			if _, exists := b.mutation.RuntimeKey(); exists {
+				s.SetIgnore(submission.FieldRuntimeKey)
+			}
+			if _, exists := b.mutation.SourceCode(); exists {
+				s.SetIgnore(submission.FieldSourceCode)
+			}
+			if _, exists := b.mutation.SourceSha256(); exists {
+				s.SetIgnore(submission.FieldSourceSha256)
+			}
+			if _, exists := b.mutation.IdempotencyKey(); exists {
+				s.SetIgnore(submission.FieldIdempotencyKey)
+			}
+			if _, exists := b.mutation.RequestHash(); exists {
+				s.SetIgnore(submission.FieldRequestHash)
+			}
+			if _, exists := b.mutation.OriginCid(); exists {
+				s.SetIgnore(submission.FieldOriginCid)
+			}
+			if _, exists := b.mutation.ContestID(); exists {
+				s.SetIgnore(submission.FieldContestID)
 			}
 		}
 	}))
@@ -1316,16 +2307,9 @@ func (u *SubmissionUpsertBulk) ClearDeletedAt() *SubmissionUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *SubmissionUpsertBulk) SetDeletedBy(v int) *SubmissionUpsertBulk {
+func (u *SubmissionUpsertBulk) SetDeletedBy(v string) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *SubmissionUpsertBulk) AddDeletedBy(v int) *SubmissionUpsertBulk {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1343,59 +2327,206 @@ func (u *SubmissionUpsertBulk) ClearDeletedBy() *SubmissionUpsertBulk {
 	})
 }
 
-// SetProblemID sets the "problem_id" field.
-func (u *SubmissionUpsertBulk) SetProblemID(v int) *SubmissionUpsertBulk {
+// SetVersion sets the "version" field.
+func (u *SubmissionUpsertBulk) SetVersion(v int64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetProblemID(v)
+		s.SetVersion(v)
 	})
 }
 
-// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateProblemID() *SubmissionUpsertBulk {
+// AddVersion adds v to the "version" field.
+func (u *SubmissionUpsertBulk) AddVersion(v int64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateProblemID()
+		s.AddVersion(v)
 	})
 }
 
-// SetUserID sets the "user_id" field.
-func (u *SubmissionUpsertBulk) SetUserID(v int) *SubmissionUpsertBulk {
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateVersion() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetUserID(v)
+		s.UpdateVersion()
 	})
 }
 
-// UpdateUserID sets the "user_id" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateUserID() *SubmissionUpsertBulk {
+// SetLatestGeneration sets the "latest_generation" field.
+func (u *SubmissionUpsertBulk) SetLatestGeneration(v int64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateUserID()
+		s.SetLatestGeneration(v)
 	})
 }
 
-// SetLanguage sets the "language" field.
-func (u *SubmissionUpsertBulk) SetLanguage(v submission.Language) *SubmissionUpsertBulk {
+// AddLatestGeneration adds v to the "latest_generation" field.
+func (u *SubmissionUpsertBulk) AddLatestGeneration(v int64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetLanguage(v)
+		s.AddLatestGeneration(v)
 	})
 }
 
-// UpdateLanguage sets the "language" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateLanguage() *SubmissionUpsertBulk {
+// UpdateLatestGeneration sets the "latest_generation" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLatestGeneration() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateLanguage()
+		s.UpdateLatestGeneration()
 	})
 }
 
-// SetSourceCode sets the "source_code" field.
-func (u *SubmissionUpsertBulk) SetSourceCode(v string) *SubmissionUpsertBulk {
+// SetLatestGenerationPhase sets the "latest_generation_phase" field.
+func (u *SubmissionUpsertBulk) SetLatestGenerationPhase(v submission.LatestGenerationPhase) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetSourceCode(v)
+		s.SetLatestGenerationPhase(v)
 	})
 }
 
-// UpdateSourceCode sets the "source_code" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateSourceCode() *SubmissionUpsertBulk {
+// UpdateLatestGenerationPhase sets the "latest_generation_phase" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLatestGenerationPhase() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateSourceCode()
+		s.UpdateLatestGenerationPhase()
+	})
+}
+
+// SetLatestGenerationOutcome sets the "latest_generation_outcome" field.
+func (u *SubmissionUpsertBulk) SetLatestGenerationOutcome(v submission.LatestGenerationOutcome) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationOutcome(v)
+	})
+}
+
+// UpdateLatestGenerationOutcome sets the "latest_generation_outcome" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLatestGenerationOutcome() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationOutcome()
+	})
+}
+
+// ClearLatestGenerationOutcome clears the value of the "latest_generation_outcome" field.
+func (u *SubmissionUpsertBulk) ClearLatestGenerationOutcome() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearLatestGenerationOutcome()
+	})
+}
+
+// SetActiveJudgementID sets the "active_judgement_id" field.
+func (u *SubmissionUpsertBulk) SetActiveJudgementID(v uuid.UUID) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetActiveJudgementID(v)
+	})
+}
+
+// UpdateActiveJudgementID sets the "active_judgement_id" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateActiveJudgementID() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateActiveJudgementID()
+	})
+}
+
+// ClearActiveJudgementID clears the value of the "active_judgement_id" field.
+func (u *SubmissionUpsertBulk) ClearActiveJudgementID() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearActiveJudgementID()
+	})
+}
+
+// SetActiveJudgementGeneration sets the "active_judgement_generation" field.
+func (u *SubmissionUpsertBulk) SetActiveJudgementGeneration(v int64) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetActiveJudgementGeneration(v)
+	})
+}
+
+// AddActiveJudgementGeneration adds v to the "active_judgement_generation" field.
+func (u *SubmissionUpsertBulk) AddActiveJudgementGeneration(v int64) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddActiveJudgementGeneration(v)
+	})
+}
+
+// UpdateActiveJudgementGeneration sets the "active_judgement_generation" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateActiveJudgementGeneration() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateActiveJudgementGeneration()
+	})
+}
+
+// ClearActiveJudgementGeneration clears the value of the "active_judgement_generation" field.
+func (u *SubmissionUpsertBulk) ClearActiveJudgementGeneration() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearActiveJudgementGeneration()
+	})
+}
+
+// SetActiveVerdict sets the "active_verdict" field.
+func (u *SubmissionUpsertBulk) SetActiveVerdict(v submission.ActiveVerdict) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetActiveVerdict(v)
+	})
+}
+
+// UpdateActiveVerdict sets the "active_verdict" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateActiveVerdict() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateActiveVerdict()
+	})
+}
+
+// ClearActiveVerdict clears the value of the "active_verdict" field.
+func (u *SubmissionUpsertBulk) ClearActiveVerdict() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearActiveVerdict()
+	})
+}
+
+// SetLatestGenerationQueuedAt sets the "latest_generation_queued_at" field.
+func (u *SubmissionUpsertBulk) SetLatestGenerationQueuedAt(v time.Time) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationQueuedAt(v)
+	})
+}
+
+// UpdateLatestGenerationQueuedAt sets the "latest_generation_queued_at" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLatestGenerationQueuedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationQueuedAt()
+	})
+}
+
+// SetLatestGenerationStartedAt sets the "latest_generation_started_at" field.
+func (u *SubmissionUpsertBulk) SetLatestGenerationStartedAt(v time.Time) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationStartedAt(v)
+	})
+}
+
+// UpdateLatestGenerationStartedAt sets the "latest_generation_started_at" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLatestGenerationStartedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationStartedAt()
+	})
+}
+
+// ClearLatestGenerationStartedAt clears the value of the "latest_generation_started_at" field.
+func (u *SubmissionUpsertBulk) ClearLatestGenerationStartedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearLatestGenerationStartedAt()
+	})
+}
+
+// SetLatestGenerationCompletedAt sets the "latest_generation_completed_at" field.
+func (u *SubmissionUpsertBulk) SetLatestGenerationCompletedAt(v time.Time) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLatestGenerationCompletedAt(v)
+	})
+}
+
+// UpdateLatestGenerationCompletedAt sets the "latest_generation_completed_at" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLatestGenerationCompletedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLatestGenerationCompletedAt()
+	})
+}
+
+// ClearLatestGenerationCompletedAt clears the value of the "latest_generation_completed_at" field.
+func (u *SubmissionUpsertBulk) ClearLatestGenerationCompletedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearLatestGenerationCompletedAt()
 	})
 }
 
@@ -1410,6 +2541,48 @@ func (u *SubmissionUpsertBulk) SetStatus(v submission.Status) *SubmissionUpsertB
 func (u *SubmissionUpsertBulk) UpdateStatus() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetJudgedAt sets the "judged_at" field.
+func (u *SubmissionUpsertBulk) SetJudgedAt(v time.Time) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetJudgedAt(v)
+	})
+}
+
+// UpdateJudgedAt sets the "judged_at" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateJudgedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateJudgedAt()
+	})
+}
+
+// ClearJudgedAt clears the value of the "judged_at" field.
+func (u *SubmissionUpsertBulk) ClearJudgedAt() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearJudgedAt()
+	})
+}
+
+// SetVerdictVersion sets the "verdict_version" field.
+func (u *SubmissionUpsertBulk) SetVerdictVersion(v int64) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetVerdictVersion(v)
+	})
+}
+
+// AddVerdictVersion adds v to the "verdict_version" field.
+func (u *SubmissionUpsertBulk) AddVerdictVersion(v int64) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddVerdictVersion(v)
+	})
+}
+
+// UpdateVerdictVersion sets the "verdict_version" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateVerdictVersion() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateVerdictVersion()
 	})
 }
 
@@ -1529,27 +2702,6 @@ func (u *SubmissionUpsertBulk) UpdateErrorMessage() *SubmissionUpsertBulk {
 func (u *SubmissionUpsertBulk) ClearErrorMessage() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.ClearErrorMessage()
-	})
-}
-
-// SetContestID sets the "contest_id" field.
-func (u *SubmissionUpsertBulk) SetContestID(v int) *SubmissionUpsertBulk {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.SetContestID(v)
-	})
-}
-
-// UpdateContestID sets the "contest_id" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateContestID() *SubmissionUpsertBulk {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateContestID()
-	})
-}
-
-// ClearContestID clears the value of the "contest_id" field.
-func (u *SubmissionUpsertBulk) ClearContestID() *SubmissionUpsertBulk {
-	return u.Update(func(s *SubmissionUpsert) {
-		s.ClearContestID()
 	})
 }
 

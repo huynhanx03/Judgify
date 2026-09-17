@@ -13,12 +13,19 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/problemrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testsetrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 )
@@ -26,18 +33,23 @@ import (
 // ProblemQuery is the builder for querying Problem entities.
 type ProblemQuery struct {
 	config
-	ctx             *QueryContext
-	order           []problem.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Problem
-	withAuthor      *UserQuery
-	withDifficulty  *DifficultyQuery
-	withTestCases   *TestCaseQuery
-	withSubmissions *SubmissionQuery
-	withTags        *TagQuery
-	withSolvers     *UserSolvedProblemQuery
-	withFKs         bool
-	modifiers       []func(*sql.Selector)
+	ctx                         *QueryContext
+	order                       []problem.OrderOption
+	inters                      []Interceptor
+	predicates                  []predicate.Problem
+	withAuthor                  *UserQuery
+	withDifficulty              *DifficultyQuery
+	withTestCases               *TestCaseQuery
+	withRevisions               *ProblemRevisionQuery
+	withTestsetRevisions        *TestsetRevisionQuery
+	withContestDraftMemberships *ContestDraftProblemQuery
+	withContestProblemSnapshots *ContestProblemQuery
+	withSubmissions             *SubmissionQuery
+	withContestScoringAttempts  *ContestScoringAttemptQuery
+	withContestProblemResults   *ContestProblemResultQuery
+	withTags                    *TagQuery
+	withSolvers                 *UserSolvedProblemQuery
+	modifiers                   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -140,6 +152,94 @@ func (_q *ProblemQuery) QueryTestCases() *TestCaseQuery {
 	return query
 }
 
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *ProblemQuery) QueryRevisions() *ProblemRevisionQuery {
+	query := (&ProblemRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(problemrevision.Table, problemrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.RevisionsTable, problem.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTestsetRevisions chains the current query on the "testset_revisions" edge.
+func (_q *ProblemQuery) QueryTestsetRevisions() *TestsetRevisionQuery {
+	query := (&TestsetRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(testsetrevision.Table, testsetrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.TestsetRevisionsTable, problem.TestsetRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestDraftMemberships chains the current query on the "contest_draft_memberships" edge.
+func (_q *ProblemQuery) QueryContestDraftMemberships() *ContestDraftProblemQuery {
+	query := (&ContestDraftProblemClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(contestdraftproblem.Table, contestdraftproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.ContestDraftMembershipsTable, problem.ContestDraftMembershipsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestProblemSnapshots chains the current query on the "contest_problem_snapshots" edge.
+func (_q *ProblemQuery) QueryContestProblemSnapshots() *ContestProblemQuery {
+	query := (&ContestProblemClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(contestproblem.Table, contestproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.ContestProblemSnapshotsTable, problem.ContestProblemSnapshotsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QuerySubmissions chains the current query on the "submissions" edge.
 func (_q *ProblemQuery) QuerySubmissions() *SubmissionQuery {
 	query := (&SubmissionClient{config: _q.config}).Query()
@@ -155,6 +255,50 @@ func (_q *ProblemQuery) QuerySubmissions() *SubmissionQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(submission.Table, submission.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionsTable, problem.SubmissionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestScoringAttempts chains the current query on the "contest_scoring_attempts" edge.
+func (_q *ProblemQuery) QueryContestScoringAttempts() *ContestScoringAttemptQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(contestscoringattempt.Table, contestscoringattempt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.ContestScoringAttemptsTable, problem.ContestScoringAttemptsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestProblemResults chains the current query on the "contest_problem_results" edge.
+func (_q *ProblemQuery) QueryContestProblemResults() *ContestProblemResultQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(contestproblemresult.Table, contestproblemresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.ContestProblemResultsTable, problem.ContestProblemResultsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -230,8 +374,8 @@ func (_q *ProblemQuery) FirstX(ctx context.Context) *Problem {
 
 // FirstID returns the first Problem ID from the query.
 // Returns a *NotFoundError when no Problem ID was found.
-func (_q *ProblemQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ProblemQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -243,7 +387,7 @@ func (_q *ProblemQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ProblemQuery) FirstIDX(ctx context.Context) int {
+func (_q *ProblemQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -281,8 +425,8 @@ func (_q *ProblemQuery) OnlyX(ctx context.Context) *Problem {
 // OnlyID is like Only, but returns the only Problem ID in the query.
 // Returns a *NotSingularError when more than one Problem ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ProblemQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ProblemQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -298,7 +442,7 @@ func (_q *ProblemQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ProblemQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ProblemQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -326,7 +470,7 @@ func (_q *ProblemQuery) AllX(ctx context.Context) []*Problem {
 }
 
 // IDs executes the query and returns a list of Problem IDs.
-func (_q *ProblemQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *ProblemQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -338,7 +482,7 @@ func (_q *ProblemQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ProblemQuery) IDsX(ctx context.Context) []int {
+func (_q *ProblemQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -393,17 +537,23 @@ func (_q *ProblemQuery) Clone() *ProblemQuery {
 		return nil
 	}
 	return &ProblemQuery{
-		config:          _q.config,
-		ctx:             _q.ctx.Clone(),
-		order:           append([]problem.OrderOption{}, _q.order...),
-		inters:          append([]Interceptor{}, _q.inters...),
-		predicates:      append([]predicate.Problem{}, _q.predicates...),
-		withAuthor:      _q.withAuthor.Clone(),
-		withDifficulty:  _q.withDifficulty.Clone(),
-		withTestCases:   _q.withTestCases.Clone(),
-		withSubmissions: _q.withSubmissions.Clone(),
-		withTags:        _q.withTags.Clone(),
-		withSolvers:     _q.withSolvers.Clone(),
+		config:                      _q.config,
+		ctx:                         _q.ctx.Clone(),
+		order:                       append([]problem.OrderOption{}, _q.order...),
+		inters:                      append([]Interceptor{}, _q.inters...),
+		predicates:                  append([]predicate.Problem{}, _q.predicates...),
+		withAuthor:                  _q.withAuthor.Clone(),
+		withDifficulty:              _q.withDifficulty.Clone(),
+		withTestCases:               _q.withTestCases.Clone(),
+		withRevisions:               _q.withRevisions.Clone(),
+		withTestsetRevisions:        _q.withTestsetRevisions.Clone(),
+		withContestDraftMemberships: _q.withContestDraftMemberships.Clone(),
+		withContestProblemSnapshots: _q.withContestProblemSnapshots.Clone(),
+		withSubmissions:             _q.withSubmissions.Clone(),
+		withContestScoringAttempts:  _q.withContestScoringAttempts.Clone(),
+		withContestProblemResults:   _q.withContestProblemResults.Clone(),
+		withTags:                    _q.withTags.Clone(),
+		withSolvers:                 _q.withSolvers.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -444,6 +594,50 @@ func (_q *ProblemQuery) WithTestCases(opts ...func(*TestCaseQuery)) *ProblemQuer
 	return _q
 }
 
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithRevisions(opts ...func(*ProblemRevisionQuery)) *ProblemQuery {
+	query := (&ProblemRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
+}
+
+// WithTestsetRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "testset_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithTestsetRevisions(opts ...func(*TestsetRevisionQuery)) *ProblemQuery {
+	query := (&TestsetRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTestsetRevisions = query
+	return _q
+}
+
+// WithContestDraftMemberships tells the query-builder to eager-load the nodes that are connected to
+// the "contest_draft_memberships" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithContestDraftMemberships(opts ...func(*ContestDraftProblemQuery)) *ProblemQuery {
+	query := (&ContestDraftProblemClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestDraftMemberships = query
+	return _q
+}
+
+// WithContestProblemSnapshots tells the query-builder to eager-load the nodes that are connected to
+// the "contest_problem_snapshots" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithContestProblemSnapshots(opts ...func(*ContestProblemQuery)) *ProblemQuery {
+	query := (&ContestProblemClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestProblemSnapshots = query
+	return _q
+}
+
 // WithSubmissions tells the query-builder to eager-load the nodes that are connected to
 // the "submissions" edge. The optional arguments are used to configure the query builder of the edge.
 func (_q *ProblemQuery) WithSubmissions(opts ...func(*SubmissionQuery)) *ProblemQuery {
@@ -452,6 +646,28 @@ func (_q *ProblemQuery) WithSubmissions(opts ...func(*SubmissionQuery)) *Problem
 		opt(query)
 	}
 	_q.withSubmissions = query
+	return _q
+}
+
+// WithContestScoringAttempts tells the query-builder to eager-load the nodes that are connected to
+// the "contest_scoring_attempts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithContestScoringAttempts(opts ...func(*ContestScoringAttemptQuery)) *ProblemQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestScoringAttempts = query
+	return _q
+}
+
+// WithContestProblemResults tells the query-builder to eager-load the nodes that are connected to
+// the "contest_problem_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProblemQuery) WithContestProblemResults(opts ...func(*ContestProblemResultQuery)) *ProblemQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestProblemResults = query
 	return _q
 }
 
@@ -554,20 +770,22 @@ func (_q *ProblemQuery) prepareQuery(ctx context.Context) error {
 func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Problem, error) {
 	var (
 		nodes       = []*Problem{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [12]bool{
 			_q.withAuthor != nil,
 			_q.withDifficulty != nil,
 			_q.withTestCases != nil,
+			_q.withRevisions != nil,
+			_q.withTestsetRevisions != nil,
+			_q.withContestDraftMemberships != nil,
+			_q.withContestProblemSnapshots != nil,
 			_q.withSubmissions != nil,
+			_q.withContestScoringAttempts != nil,
+			_q.withContestProblemResults != nil,
 			_q.withTags != nil,
 			_q.withSolvers != nil,
 		}
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, problem.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Problem).scanValues(nil, columns)
 	}
@@ -613,12 +831,84 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			return nil, err
 		}
 	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Revisions = []*ProblemRevision{} },
+			func(n *Problem, e *ProblemRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTestsetRevisions; query != nil {
+		if err := _q.loadTestsetRevisions(ctx, query, nodes,
+			func(n *Problem) { n.Edges.TestsetRevisions = []*TestsetRevision{} },
+			func(n *Problem, e *TestsetRevision) {
+				n.Edges.TestsetRevisions = append(n.Edges.TestsetRevisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestDraftMemberships; query != nil {
+		if err := _q.loadContestDraftMemberships(ctx, query, nodes,
+			func(n *Problem) { n.Edges.ContestDraftMemberships = []*ContestDraftProblem{} },
+			func(n *Problem, e *ContestDraftProblem) {
+				n.Edges.ContestDraftMemberships = append(n.Edges.ContestDraftMemberships, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestProblemSnapshots; query != nil {
+		if err := _q.loadContestProblemSnapshots(ctx, query, nodes,
+			func(n *Problem) { n.Edges.ContestProblemSnapshots = []*ContestProblem{} },
+			func(n *Problem, e *ContestProblem) {
+				n.Edges.ContestProblemSnapshots = append(n.Edges.ContestProblemSnapshots, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withSubmissions; query != nil {
 		if err := _q.loadSubmissions(ctx, query, nodes,
 			func(n *Problem) { n.Edges.Submissions = []*Submission{} },
 			func(n *Problem, e *Submission) {
 				n.Edges.Submissions = append(n.Edges.Submissions, e)
 				if !e.Edges.loadedTypes[0] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestScoringAttempts; query != nil {
+		if err := _q.loadContestScoringAttempts(ctx, query, nodes,
+			func(n *Problem) { n.Edges.ContestScoringAttempts = []*ContestScoringAttempt{} },
+			func(n *Problem, e *ContestScoringAttempt) {
+				n.Edges.ContestScoringAttempts = append(n.Edges.ContestScoringAttempts, e)
+				if !e.Edges.loadedTypes[2] {
+					e.Edges.Problem = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestProblemResults; query != nil {
+		if err := _q.loadContestProblemResults(ctx, query, nodes,
+			func(n *Problem) { n.Edges.ContestProblemResults = []*ContestProblemResult{} },
+			func(n *Problem, e *ContestProblemResult) {
+				n.Edges.ContestProblemResults = append(n.Edges.ContestProblemResults, e)
+				if !e.Edges.loadedTypes[2] {
 					e.Edges.Problem = n
 				}
 			}); err != nil {
@@ -648,8 +938,8 @@ func (_q *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 }
 
 func (_q *ProblemQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Problem)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Problem)
 	for i := range nodes {
 		fk := nodes[i].AuthorID
 		if _, ok := nodeids[fk]; !ok {
@@ -677,8 +967,8 @@ func (_q *ProblemQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes 
 	return nil
 }
 func (_q *ProblemQuery) loadDifficulty(ctx context.Context, query *DifficultyQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Difficulty)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Problem)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Problem)
 	for i := range nodes {
 		fk := nodes[i].DifficultyID
 		if _, ok := nodeids[fk]; !ok {
@@ -707,7 +997,7 @@ func (_q *ProblemQuery) loadDifficulty(ctx context.Context, query *DifficultyQue
 }
 func (_q *ProblemQuery) loadTestCases(ctx context.Context, query *TestCaseQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *TestCase)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Problem)
+	nodeids := make(map[uuid.UUID]*Problem)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -735,9 +1025,129 @@ func (_q *ProblemQuery) loadTestCases(ctx context.Context, query *TestCaseQuery,
 	}
 	return nil
 }
+func (_q *ProblemQuery) loadRevisions(ctx context.Context, query *ProblemRevisionQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ProblemRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(problemrevision.FieldProblemID)
+	}
+	query.Where(predicate.ProblemRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ProblemQuery) loadTestsetRevisions(ctx context.Context, query *TestsetRevisionQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *TestsetRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(testsetrevision.FieldProblemID)
+	}
+	query.Where(predicate.TestsetRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.TestsetRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ProblemQuery) loadContestDraftMemberships(ctx context.Context, query *ContestDraftProblemQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ContestDraftProblem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestdraftproblem.FieldProblemID)
+	}
+	query.Where(predicate.ContestDraftProblem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.ContestDraftMembershipsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ProblemQuery) loadContestProblemSnapshots(ctx context.Context, query *ContestProblemQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ContestProblem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestproblem.FieldProblemID)
+	}
+	query.Where(predicate.ContestProblem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.ContestProblemSnapshotsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *ProblemQuery) loadSubmissions(ctx context.Context, query *SubmissionQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Submission)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Problem)
+	nodeids := make(map[uuid.UUID]*Problem)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -765,10 +1175,70 @@ func (_q *ProblemQuery) loadSubmissions(ctx context.Context, query *SubmissionQu
 	}
 	return nil
 }
+func (_q *ProblemQuery) loadContestScoringAttempts(ctx context.Context, query *ContestScoringAttemptQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ContestScoringAttempt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestscoringattempt.FieldProblemID)
+	}
+	query.Where(predicate.ContestScoringAttempt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.ContestScoringAttemptsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ProblemQuery) loadContestProblemResults(ctx context.Context, query *ContestProblemResultQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ContestProblemResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestproblemresult.FieldProblemID)
+	}
+	query.Where(predicate.ContestProblemResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problem.ContestProblemResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *ProblemQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Tag)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Problem)
-	nids := make(map[int]map[*Problem]struct{})
+	byID := make(map[uuid.UUID]*Problem)
+	nids := make(map[uuid.UUID]map[*Problem]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -797,11 +1267,11 @@ func (_q *ProblemQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Problem]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -828,7 +1298,7 @@ func (_q *ProblemQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*
 }
 func (_q *ProblemQuery) loadSolvers(ctx context.Context, query *UserSolvedProblemQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *UserSolvedProblem)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Problem)
+	nodeids := make(map[uuid.UUID]*Problem)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -870,7 +1340,7 @@ func (_q *ProblemQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *ProblemQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

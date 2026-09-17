@@ -4,16 +4,36 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+interface TableProps extends React.ComponentProps<"table"> {
+  /** Names the horizontal scroll boundary when keyboard access is needed. */
+  containerLabel?: string
+  containerClassName?: string
+}
+
+function Table({
+  className,
+  containerClassName,
+  containerLabel,
+  ...props
+}: TableProps) {
+  const viewportLabel = containerLabel ?? props["aria-label"]
+
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className={cn(
+        "relative w-full overflow-x-auto overscroll-x-contain outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+        containerClassName,
+      )}
+      role={viewportLabel ? "region" : undefined}
+      aria-label={viewportLabel}
+      tabIndex={viewportLabel ? 0 : undefined}
     >
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
+        aria-label={viewportLabel}
       />
     </div>
   )

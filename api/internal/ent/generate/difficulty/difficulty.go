@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -31,14 +32,27 @@ const (
 	FieldExpReward = "exp_reward"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
 	// EdgeUserDifficultyStats holds the string denoting the user_difficulty_stats edge name in mutations.
 	EdgeUserDifficultyStats = "user_difficulty_stats"
 	// EdgeMaterials holds the string denoting the materials edge name in mutations.
 	EdgeMaterials = "materials"
+	// EdgeMaterialRevisions holds the string denoting the material_revisions edge name in mutations.
+	EdgeMaterialRevisions = "material_revisions"
 	// Table holds the table name of the difficulty in the database.
 	Table = "difficulties"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "difficulty_revisions"
+	// RevisionsInverseTable is the table name for the DifficultyRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "difficultyrevision" package.
+	RevisionsInverseTable = "difficulty_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "difficulty_id"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "problems"
 	// ProblemsInverseTable is the table name for the Problem entity.
@@ -60,6 +74,13 @@ const (
 	MaterialsInverseTable = "materials"
 	// MaterialsColumn is the table column denoting the materials relation/edge.
 	MaterialsColumn = "difficulty_id"
+	// MaterialRevisionsTable is the table that holds the material_revisions relation/edge.
+	MaterialRevisionsTable = "material_revisions"
+	// MaterialRevisionsInverseTable is the table name for the MaterialRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "materialrevision" package.
+	MaterialRevisionsInverseTable = "material_revisions"
+	// MaterialRevisionsColumn is the table column denoting the material_revisions relation/edge.
+	MaterialRevisionsColumn = "difficulty_id"
 )
 
 // Columns holds all SQL columns for difficulty fields.
@@ -73,6 +94,7 @@ var Columns = []string{
 	FieldLevel,
 	FieldExpReward,
 	FieldDescription,
+	FieldVersion,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -109,6 +131,12 @@ var (
 	ExpRewardValidator func(int64) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the Difficulty queries.
@@ -159,6 +187,25 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByProblemsCount orders the results by problems count.
 func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -200,6 +247,27 @@ func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMaterialRevisionsCount orders the results by material_revisions count.
+func ByMaterialRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMaterialRevisionsStep(), opts...)
+	}
+}
+
+// ByMaterialRevisions orders the results by material_revisions terms.
+func ByMaterialRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMaterialRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -219,5 +287,12 @@ func newMaterialsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MaterialsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
+	)
+}
+func newMaterialRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MaterialRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MaterialRevisionsTable, MaterialRevisionsColumn),
 	)
 }

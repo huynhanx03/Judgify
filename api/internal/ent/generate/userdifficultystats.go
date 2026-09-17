@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -17,11 +18,11 @@ import (
 type UserDifficultyStats struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// DifficultyID holds the value of the "difficulty_id" field.
-	DifficultyID int `json:"difficulty_id,omitempty"`
+	DifficultyID uuid.UUID `json:"difficulty_id,omitempty"`
 	// SolvedCount holds the value of the "solved_count" field.
 	SolvedCount int `json:"solved_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -68,8 +69,10 @@ func (*UserDifficultyStats) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case userdifficultystats.FieldID, userdifficultystats.FieldUserID, userdifficultystats.FieldDifficultyID, userdifficultystats.FieldSolvedCount:
+		case userdifficultystats.FieldSolvedCount:
 			values[i] = new(sql.NullInt64)
+		case userdifficultystats.FieldID, userdifficultystats.FieldUserID, userdifficultystats.FieldDifficultyID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -86,22 +89,22 @@ func (_m *UserDifficultyStats) assignValues(columns []string, values []any) erro
 	for i := range columns {
 		switch columns[i] {
 		case userdifficultystats.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case userdifficultystats.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case userdifficultystats.FieldDifficultyID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field difficulty_id", values[i])
-			} else if value.Valid {
-				_m.DifficultyID = int(value.Int64)
+			} else if value != nil {
+				_m.DifficultyID = *value
 			}
 		case userdifficultystats.FieldSolvedCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -165,14 +168,6 @@ func (_m *UserDifficultyStats) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.SolvedCount))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *UserDifficultyStats) GetID() int {
-	return _m.ID
-}
-
-func (_m *UserDifficultyStats) SetID(id int) {
-	_m.ID = id
 }
 
 // UserDifficultyStatsSlice is a parsable slice of UserDifficultyStats.

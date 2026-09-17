@@ -7,14 +7,14 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { LogIn, UserPlus, Menu } from "lucide-react";
+import { LogIn, Menu, UserPlus } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { MAIN_NAV_ITEMS } from "@/constants/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { APP_ROUTES } from "@/constants/routes";
 import { text } from "@/i18n/text";
@@ -23,9 +23,7 @@ const MOBILE_NAV_TRIGGER_ID = "mobile-nav-trigger";
 
 const MobileNavPanel = dynamic(
   () =>
-    import("@/modules/layout/mobile-nav-panel").then(
-      (m) => m.MobileNavPanel,
-    ),
+    import("@/modules/layout/mobile-nav-panel").then((m) => m.MobileNavPanel),
   { ssr: false },
 );
 
@@ -50,33 +48,22 @@ export function Header() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
-    <div className="sticky top-0 z-40 flex w-full justify-center border-b border-border bg-surface/95 px-2 backdrop-blur-lg sm:px-6 lg:px-8">
-      <header className="flex min-h-16 w-full max-w-[1400px] items-center gap-2 px-1 sm:px-2">
+    <div className="sticky top-0 z-40 flex w-full justify-center border-b border-border bg-surface/95 backdrop-blur-lg">
+      <header className="flex min-h-16 w-full max-w-[1400px] items-center gap-3 px-4 sm:px-6 lg:px-8">
         {/* Left: Logo & Main Navigation */}
-        <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-10">
+        <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-9">
           <Link
             href={APP_ROUTES.ARENA}
-            className="group flex min-h-11 shrink-0 items-center gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="group flex min-h-11 shrink-0 items-center gap-2.5 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            <div className="relative size-8 overflow-hidden rounded-lg border border-border-strong">
-              <Image
-                src="/images/logo.png"
-                alt={text("APP_NAME")}
-                width={32}
-                height={32}
-                priority
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <span className="hidden text-lg font-bold tracking-tight text-foreground transition-colors duration-150 group-hover:text-primary sm:block">
+            <BrandMark className="size-8" priority />
+            <span className="hidden text-lg font-semibold tracking-tight text-foreground transition-colors duration-150 group-hover:text-primary sm:block">
               {text("APP_NAME")}
             </span>
           </Link>
 
-          <div className="h-6 w-px bg-border/60 hidden md:block"></div>
-
           <nav
-            className="no-scrollbar mask-edges hidden min-w-0 flex-1 items-center gap-2 overflow-x-auto md:flex"
+            className="no-scrollbar mask-edges hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex"
             aria-label={text("NAV.PRIMARY_LABEL")}
           >
             {MAIN_NAV_ITEMS.map((item) => {
@@ -86,10 +73,10 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "group relative flex min-h-11 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    "group relative flex min-h-11 items-center px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -106,16 +93,14 @@ export function Header() {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
-          <ThemeToggle />
-
-          {!isLoading && (
-            isAuthenticated ? (
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          {!isLoading &&
+            (isAuthenticated ? (
               <AuthenticatedActions />
             ) : (
               <GuestActions onPointerEnter={preloadAuthenticatedActions} />
-            )
-          )}
+            ))}
+          <ThemeToggle />
         </div>
       </header>
     </div>
@@ -165,33 +150,27 @@ function MobileNavigation({ pathname }: { pathname: string }) {
 }
 
 /** Login + Register buttons for guests. */
-function GuestActions({
-  onPointerEnter,
-}: {
-  onPointerEnter?: () => void;
-}) {
+function GuestActions({ onPointerEnter }: { onPointerEnter?: () => void }) {
   return (
     <>
-      <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block"></div>
-
       <Link
         href={APP_ROUTES.LOGIN}
         className={cn(
           buttonVariants({ variant: "ghost", size: "sm" }),
-          "text-muted-foreground hover:text-foreground gap-1.5",
+          "text-muted-foreground hover:text-foreground",
         )}
         onPointerEnter={onPointerEnter}
       >
-        <LogIn className="h-4 w-4" />
-        <span className="hidden sm:inline">{text("AUTH.LOGIN")}</span>
+        <LogIn className="size-4" aria-hidden="true" />
+        <span>{text("AUTH.LOGIN")}</span>
       </Link>
 
       <Link
         href={APP_ROUTES.REGISTER}
-        className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
+        className={buttonVariants({ size: "sm" })}
       >
-        <UserPlus className="h-4 w-4" />
-        <span className="hidden sm:inline">{text("AUTH.REGISTER")}</span>
+        <UserPlus className="size-4" aria-hidden="true" />
+        <span>{text("AUTH.REGISTER")}</span>
       </Link>
     </>
   );

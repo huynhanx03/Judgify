@@ -18,6 +18,19 @@ docker:
           - "docker/**"
           - "docker-compose.yml"
 
+operations:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "deploy/**"
+          - "ops/**"
+          - "scripts/backup/**"
+          - "scripts/deploy/**"
+          - "scripts/restore/**"
+          - "scripts/verify/**"
+          - "test/chaos/**"
+          - "test/load/**"
+          - "test/operations/**"
+
 ci:
   - changed-files:
       - any-glob-to-any-file: ".github/**"

@@ -64,12 +64,6 @@ export default function AdminMaterialsPage() {
   const categories = categoryCatalog.data;
   const difficulties = difficultyCatalog.data;
   const allTags = tagCatalog.data;
-  const catalogLoadFailed = [
-    categoryCatalog.status,
-    difficultyCatalog.status,
-    tagCatalog.status,
-  ].includes("error");
-
   const service = useMemo(() => ({
     find: materialService.findAdmin.bind(materialService),
     create: materialService.create.bind(materialService),
@@ -165,10 +159,7 @@ export default function AdminMaterialsPage() {
       onCreateClick={crud.openCreate}
       searchValue={crud.search}
       onSearch={crud.onSearch}
-      loadError={
-        crud.loadError ??
-        (catalogLoadFailed ? ADMIN_TEXT.RELATED_DATA_LOAD_ERROR : null)
-      }
+      loadError={crud.loadError}
       onRetryLoad={() => {
         crud.refresh();
         categoryCatalog.retry();
@@ -178,12 +169,11 @@ export default function AdminMaterialsPage() {
       searchPlaceholder={ADMIN_TEXT.MATERIALS.SEARCH_PLACEHOLDER}
       extraFilters={
         <div className="grid w-full gap-2 sm:grid-cols-2 lg:w-auto lg:grid-cols-3">
+          {canReadCategories && categoryCatalog.status !== "error" ? (
           <select
             aria-label={ADMIN_TEXT.MATERIALS.FILTER_CATEGORY_ALL}
             className="h-11 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-            disabled={
-              !canReadCategories || categoryCatalog.status === "loading"
-            }
+            disabled={categoryCatalog.status === "loading"}
             onChange={(e) => {
               const v = e.target.value;
               if (v) crud.setFilter("category_id", v, "exact");
@@ -195,12 +185,12 @@ export default function AdminMaterialsPage() {
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
+          ) : null}
+          {canReadDifficulties && difficultyCatalog.status !== "error" ? (
           <select
             aria-label={ADMIN_TEXT.MATERIALS.FILTER_DIFFICULTY_ALL}
             className="h-11 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-            disabled={
-              !canReadDifficulties || difficultyCatalog.status === "loading"
-            }
+            disabled={difficultyCatalog.status === "loading"}
             onChange={(e) => {
               const v = e.target.value;
               if (v) crud.setFilter("difficulty_id", v, "exact");
@@ -212,6 +202,7 @@ export default function AdminMaterialsPage() {
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
+          ) : null}
           <select
             aria-label={ADMIN_TEXT.MATERIALS.FILTER_STATUS_ALL}
             className="h-11 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"

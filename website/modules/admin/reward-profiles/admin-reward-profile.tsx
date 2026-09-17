@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -228,21 +229,11 @@ export function AdminRewardProfile() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <ShieldCheck className="size-5" aria-hidden="true" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {ADMIN_TEXT.USER_TRAITS.TITLE}
-            </h1>
-            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              {ADMIN_TEXT.USER_TRAITS.SUBTITLE}
-            </p>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        icon={ShieldCheck}
+        title={ADMIN_TEXT.USER_TRAITS.TITLE}
+        description={ADMIN_TEXT.USER_TRAITS.SUBTITLE}
+      />
 
       <Card>
         <CardHeader>

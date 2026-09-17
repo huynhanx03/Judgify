@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -27,17 +28,26 @@ const (
 	FieldName = "name"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// EdgeMaterials holds the string denoting the materials edge name in mutations.
-	EdgeMaterials = "materials"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
+	// EdgeLegacyMaterials holds the string denoting the legacy_materials edge name in mutations.
+	EdgeLegacyMaterials = "legacy_materials"
 	// Table holds the table name of the materialcategory in the database.
 	Table = "material_categories"
-	// MaterialsTable is the table that holds the materials relation/edge.
-	MaterialsTable = "materials"
-	// MaterialsInverseTable is the table name for the Material entity.
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "material_revisions"
+	// RevisionsInverseTable is the table name for the MaterialRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "materialrevision" package.
+	RevisionsInverseTable = "material_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "category_id"
+	// LegacyMaterialsTable is the table that holds the legacy_materials relation/edge.
+	LegacyMaterialsTable = "materials"
+	// LegacyMaterialsInverseTable is the table name for the Material entity.
 	// It exists in this package in order to avoid circular dependency with the "material" package.
-	MaterialsInverseTable = "materials"
-	// MaterialsColumn is the table column denoting the materials relation/edge.
-	MaterialsColumn = "category_id"
+	LegacyMaterialsInverseTable = "materials"
+	// LegacyMaterialsColumn is the table column denoting the legacy_materials relation/edge.
+	LegacyMaterialsColumn = "category_id"
 )
 
 // Columns holds all SQL columns for materialcategory fields.
@@ -79,6 +89,8 @@ var (
 	NameValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the MaterialCategory queries.
@@ -119,23 +131,44 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByMaterialsCount orders the results by materials count.
-func ByMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMaterialsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
 	}
 }
 
-// ByMaterials orders the results by materials terms.
-func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newMaterialsStep() *sqlgraph.Step {
+
+// ByLegacyMaterialsCount orders the results by legacy_materials count.
+func ByLegacyMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newLegacyMaterialsStep(), opts...)
+	}
+}
+
+// ByLegacyMaterials orders the results by legacy_materials terms.
+func ByLegacyMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLegacyMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newRevisionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(MaterialsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
+}
+func newLegacyMaterialsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LegacyMaterialsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, LegacyMaterialsTable, LegacyMaterialsColumn),
 	)
 }

@@ -4,6 +4,7 @@ import { Monitor, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -65,23 +66,25 @@ export function ThemeTogglePanel({
         <ActiveIcon className="size-5" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>{text("THEME.LABEL")}</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          value={preference}
-          onValueChange={(value) => {
-            if (isThemePreference(value)) onValueChange(value);
-          }}
-        >
-          {THEME_OPTIONS.map((option) => {
-            const Icon = option.icon;
-            return (
-              <DropdownMenuRadioItem key={option.value} value={option.value}>
-                <Icon className="size-4" aria-hidden="true" />
-                {text(option.label)}
-              </DropdownMenuRadioItem>
-            );
-          })}
-        </DropdownMenuRadioGroup>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{text("THEME.LABEL")}</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={preference}
+            onValueChange={(value) => {
+              if (isThemePreference(value)) onValueChange(value);
+            }}
+          >
+            {THEME_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              return (
+                <DropdownMenuRadioItem key={option.value} value={option.value}>
+                  <Icon className="size-4" aria-hidden="true" />
+                  {text(option.label)}
+                </DropdownMenuRadioItem>
+              );
+            })}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

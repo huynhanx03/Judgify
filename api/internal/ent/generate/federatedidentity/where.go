@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.FederatedIdentity {
+func ID(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.FederatedIdentity {
+func IDEQ(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.FederatedIdentity {
+func IDNEQ(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.FederatedIdentity {
+func IDIn(ids ...uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.FederatedIdentity {
+func IDNotIn(ids ...uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.FederatedIdentity {
+func IDGT(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.FederatedIdentity {
+func IDGTE(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.FederatedIdentity {
+func IDLT(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.FederatedIdentity {
+func IDLTE(id uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,12 +72,12 @@ func DeletedAt(v time.Time) predicate.FederatedIdentity {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.FederatedIdentity {
+func DeletedBy(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.FederatedIdentity {
+func UserID(v uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldUserID, v))
 }
 
@@ -85,9 +86,24 @@ func Provider(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldProvider, v))
 }
 
-// ExternalID applies equality check predicate on the "external_id" field. It's identical to ExternalIDEQ.
-func ExternalID(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldEQ(FieldExternalID, v))
+// ProviderSubject applies equality check predicate on the "provider_subject" field. It's identical to ProviderSubjectEQ.
+func ProviderSubject(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldProviderSubject, v))
+}
+
+// DisplayName applies equality check predicate on the "display_name" field. It's identical to DisplayNameEQ.
+func DisplayName(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldDisplayName, v))
+}
+
+// AvatarURL applies equality check predicate on the "avatar_url" field. It's identical to AvatarURLEQ.
+func AvatarURL(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldAvatarURL, v))
+}
+
+// LastAuthenticatedAt applies equality check predicate on the "last_authenticated_at" field. It's identical to LastAuthenticatedAtEQ.
+func LastAuthenticatedAt(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldLastAuthenticatedAt, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -221,43 +237,58 @@ func DeletedAtNotNil() predicate.FederatedIdentity {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.FederatedIdentity {
+func DeletedByEQ(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.FederatedIdentity {
+func DeletedByNEQ(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.FederatedIdentity {
+func DeletedByIn(vs ...string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.FederatedIdentity {
+func DeletedByNotIn(vs ...string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.FederatedIdentity {
+func DeletedByGT(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.FederatedIdentity {
+func DeletedByGTE(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.FederatedIdentity {
+func DeletedByLT(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.FederatedIdentity {
+func DeletedByLTE(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -270,23 +301,33 @@ func DeletedByNotNil() predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.FederatedIdentity {
+func UserIDEQ(v uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.FederatedIdentity {
+func UserIDNEQ(v uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.FederatedIdentity {
+func UserIDIn(vs ...uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.FederatedIdentity {
+func UserIDNotIn(vs ...uuid.UUID) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldNotIn(FieldUserID, vs...))
 }
 
@@ -355,69 +396,269 @@ func ProviderContainsFold(v string) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.FieldContainsFold(FieldProvider, v))
 }
 
-// ExternalIDEQ applies the EQ predicate on the "external_id" field.
-func ExternalIDEQ(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldEQ(FieldExternalID, v))
+// ProviderSubjectEQ applies the EQ predicate on the "provider_subject" field.
+func ProviderSubjectEQ(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldProviderSubject, v))
 }
 
-// ExternalIDNEQ applies the NEQ predicate on the "external_id" field.
-func ExternalIDNEQ(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldNEQ(FieldExternalID, v))
+// ProviderSubjectNEQ applies the NEQ predicate on the "provider_subject" field.
+func ProviderSubjectNEQ(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNEQ(FieldProviderSubject, v))
 }
 
-// ExternalIDIn applies the In predicate on the "external_id" field.
-func ExternalIDIn(vs ...string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldIn(FieldExternalID, vs...))
+// ProviderSubjectIn applies the In predicate on the "provider_subject" field.
+func ProviderSubjectIn(vs ...string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIn(FieldProviderSubject, vs...))
 }
 
-// ExternalIDNotIn applies the NotIn predicate on the "external_id" field.
-func ExternalIDNotIn(vs ...string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldNotIn(FieldExternalID, vs...))
+// ProviderSubjectNotIn applies the NotIn predicate on the "provider_subject" field.
+func ProviderSubjectNotIn(vs ...string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotIn(FieldProviderSubject, vs...))
 }
 
-// ExternalIDGT applies the GT predicate on the "external_id" field.
-func ExternalIDGT(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldGT(FieldExternalID, v))
+// ProviderSubjectGT applies the GT predicate on the "provider_subject" field.
+func ProviderSubjectGT(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGT(FieldProviderSubject, v))
 }
 
-// ExternalIDGTE applies the GTE predicate on the "external_id" field.
-func ExternalIDGTE(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldGTE(FieldExternalID, v))
+// ProviderSubjectGTE applies the GTE predicate on the "provider_subject" field.
+func ProviderSubjectGTE(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGTE(FieldProviderSubject, v))
 }
 
-// ExternalIDLT applies the LT predicate on the "external_id" field.
-func ExternalIDLT(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldLT(FieldExternalID, v))
+// ProviderSubjectLT applies the LT predicate on the "provider_subject" field.
+func ProviderSubjectLT(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLT(FieldProviderSubject, v))
 }
 
-// ExternalIDLTE applies the LTE predicate on the "external_id" field.
-func ExternalIDLTE(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldLTE(FieldExternalID, v))
+// ProviderSubjectLTE applies the LTE predicate on the "provider_subject" field.
+func ProviderSubjectLTE(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLTE(FieldProviderSubject, v))
 }
 
-// ExternalIDContains applies the Contains predicate on the "external_id" field.
-func ExternalIDContains(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldContains(FieldExternalID, v))
+// ProviderSubjectContains applies the Contains predicate on the "provider_subject" field.
+func ProviderSubjectContains(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContains(FieldProviderSubject, v))
 }
 
-// ExternalIDHasPrefix applies the HasPrefix predicate on the "external_id" field.
-func ExternalIDHasPrefix(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldHasPrefix(FieldExternalID, v))
+// ProviderSubjectHasPrefix applies the HasPrefix predicate on the "provider_subject" field.
+func ProviderSubjectHasPrefix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasPrefix(FieldProviderSubject, v))
 }
 
-// ExternalIDHasSuffix applies the HasSuffix predicate on the "external_id" field.
-func ExternalIDHasSuffix(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldHasSuffix(FieldExternalID, v))
+// ProviderSubjectHasSuffix applies the HasSuffix predicate on the "provider_subject" field.
+func ProviderSubjectHasSuffix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasSuffix(FieldProviderSubject, v))
 }
 
-// ExternalIDEqualFold applies the EqualFold predicate on the "external_id" field.
-func ExternalIDEqualFold(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldEqualFold(FieldExternalID, v))
+// ProviderSubjectEqualFold applies the EqualFold predicate on the "provider_subject" field.
+func ProviderSubjectEqualFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEqualFold(FieldProviderSubject, v))
 }
 
-// ExternalIDContainsFold applies the ContainsFold predicate on the "external_id" field.
-func ExternalIDContainsFold(v string) predicate.FederatedIdentity {
-	return predicate.FederatedIdentity(sql.FieldContainsFold(FieldExternalID, v))
+// ProviderSubjectContainsFold applies the ContainsFold predicate on the "provider_subject" field.
+func ProviderSubjectContainsFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContainsFold(FieldProviderSubject, v))
+}
+
+// DisplayNameEQ applies the EQ predicate on the "display_name" field.
+func DisplayNameEQ(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldDisplayName, v))
+}
+
+// DisplayNameNEQ applies the NEQ predicate on the "display_name" field.
+func DisplayNameNEQ(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNEQ(FieldDisplayName, v))
+}
+
+// DisplayNameIn applies the In predicate on the "display_name" field.
+func DisplayNameIn(vs ...string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIn(FieldDisplayName, vs...))
+}
+
+// DisplayNameNotIn applies the NotIn predicate on the "display_name" field.
+func DisplayNameNotIn(vs ...string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotIn(FieldDisplayName, vs...))
+}
+
+// DisplayNameGT applies the GT predicate on the "display_name" field.
+func DisplayNameGT(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGT(FieldDisplayName, v))
+}
+
+// DisplayNameGTE applies the GTE predicate on the "display_name" field.
+func DisplayNameGTE(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGTE(FieldDisplayName, v))
+}
+
+// DisplayNameLT applies the LT predicate on the "display_name" field.
+func DisplayNameLT(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLT(FieldDisplayName, v))
+}
+
+// DisplayNameLTE applies the LTE predicate on the "display_name" field.
+func DisplayNameLTE(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLTE(FieldDisplayName, v))
+}
+
+// DisplayNameContains applies the Contains predicate on the "display_name" field.
+func DisplayNameContains(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContains(FieldDisplayName, v))
+}
+
+// DisplayNameHasPrefix applies the HasPrefix predicate on the "display_name" field.
+func DisplayNameHasPrefix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasPrefix(FieldDisplayName, v))
+}
+
+// DisplayNameHasSuffix applies the HasSuffix predicate on the "display_name" field.
+func DisplayNameHasSuffix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasSuffix(FieldDisplayName, v))
+}
+
+// DisplayNameIsNil applies the IsNil predicate on the "display_name" field.
+func DisplayNameIsNil() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIsNull(FieldDisplayName))
+}
+
+// DisplayNameNotNil applies the NotNil predicate on the "display_name" field.
+func DisplayNameNotNil() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotNull(FieldDisplayName))
+}
+
+// DisplayNameEqualFold applies the EqualFold predicate on the "display_name" field.
+func DisplayNameEqualFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEqualFold(FieldDisplayName, v))
+}
+
+// DisplayNameContainsFold applies the ContainsFold predicate on the "display_name" field.
+func DisplayNameContainsFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContainsFold(FieldDisplayName, v))
+}
+
+// AvatarURLEQ applies the EQ predicate on the "avatar_url" field.
+func AvatarURLEQ(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldAvatarURL, v))
+}
+
+// AvatarURLNEQ applies the NEQ predicate on the "avatar_url" field.
+func AvatarURLNEQ(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNEQ(FieldAvatarURL, v))
+}
+
+// AvatarURLIn applies the In predicate on the "avatar_url" field.
+func AvatarURLIn(vs ...string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIn(FieldAvatarURL, vs...))
+}
+
+// AvatarURLNotIn applies the NotIn predicate on the "avatar_url" field.
+func AvatarURLNotIn(vs ...string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotIn(FieldAvatarURL, vs...))
+}
+
+// AvatarURLGT applies the GT predicate on the "avatar_url" field.
+func AvatarURLGT(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGT(FieldAvatarURL, v))
+}
+
+// AvatarURLGTE applies the GTE predicate on the "avatar_url" field.
+func AvatarURLGTE(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGTE(FieldAvatarURL, v))
+}
+
+// AvatarURLLT applies the LT predicate on the "avatar_url" field.
+func AvatarURLLT(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLT(FieldAvatarURL, v))
+}
+
+// AvatarURLLTE applies the LTE predicate on the "avatar_url" field.
+func AvatarURLLTE(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLTE(FieldAvatarURL, v))
+}
+
+// AvatarURLContains applies the Contains predicate on the "avatar_url" field.
+func AvatarURLContains(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContains(FieldAvatarURL, v))
+}
+
+// AvatarURLHasPrefix applies the HasPrefix predicate on the "avatar_url" field.
+func AvatarURLHasPrefix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasPrefix(FieldAvatarURL, v))
+}
+
+// AvatarURLHasSuffix applies the HasSuffix predicate on the "avatar_url" field.
+func AvatarURLHasSuffix(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldHasSuffix(FieldAvatarURL, v))
+}
+
+// AvatarURLIsNil applies the IsNil predicate on the "avatar_url" field.
+func AvatarURLIsNil() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIsNull(FieldAvatarURL))
+}
+
+// AvatarURLNotNil applies the NotNil predicate on the "avatar_url" field.
+func AvatarURLNotNil() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotNull(FieldAvatarURL))
+}
+
+// AvatarURLEqualFold applies the EqualFold predicate on the "avatar_url" field.
+func AvatarURLEqualFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEqualFold(FieldAvatarURL, v))
+}
+
+// AvatarURLContainsFold applies the ContainsFold predicate on the "avatar_url" field.
+func AvatarURLContainsFold(v string) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldContainsFold(FieldAvatarURL, v))
+}
+
+// LastAuthenticatedAtEQ applies the EQ predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtEQ(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldEQ(FieldLastAuthenticatedAt, v))
+}
+
+// LastAuthenticatedAtNEQ applies the NEQ predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtNEQ(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNEQ(FieldLastAuthenticatedAt, v))
+}
+
+// LastAuthenticatedAtIn applies the In predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtIn(vs ...time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIn(FieldLastAuthenticatedAt, vs...))
+}
+
+// LastAuthenticatedAtNotIn applies the NotIn predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtNotIn(vs ...time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotIn(FieldLastAuthenticatedAt, vs...))
+}
+
+// LastAuthenticatedAtGT applies the GT predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtGT(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGT(FieldLastAuthenticatedAt, v))
+}
+
+// LastAuthenticatedAtGTE applies the GTE predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtGTE(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldGTE(FieldLastAuthenticatedAt, v))
+}
+
+// LastAuthenticatedAtLT applies the LT predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtLT(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLT(FieldLastAuthenticatedAt, v))
+}
+
+// LastAuthenticatedAtLTE applies the LTE predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtLTE(v time.Time) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldLTE(FieldLastAuthenticatedAt, v))
+}
+
+// LastAuthenticatedAtIsNil applies the IsNil predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtIsNil() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldIsNull(FieldLastAuthenticatedAt))
+}
+
+// LastAuthenticatedAtNotNil applies the NotNil predicate on the "last_authenticated_at" field.
+func LastAuthenticatedAtNotNil() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(sql.FieldNotNull(FieldLastAuthenticatedAt))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

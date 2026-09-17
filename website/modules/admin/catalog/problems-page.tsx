@@ -22,7 +22,6 @@ import { ADMIN_TEXT } from "@/constants/admin-text";
 import { APP_ROUTES } from "@/constants/routes";
 import { formatDuration, formatMemory } from "@/lib/format";
 import { useRetryableResource } from "@/hooks/use-retryable-resource";
-import { DataLoadFeedback } from "@/modules/problem/data-load-feedback";
 import type { Problem } from "@/types/problem";
 import type { DifficultyResponse } from "@/types/difficulty";
 
@@ -105,15 +104,8 @@ export default function AdminProblemsPage() {
       loadError={crud.loadError}
       onRetryLoad={crud.refresh}
       searchPlaceholder={ADMIN_TEXT.PROBLEMS.SEARCH_PLACEHOLDER}
-      extraFilters={canReadDifficulties ? (
-        difficultyCatalog.status === "error" ? (
-          <DataLoadFeedback
-            compact
-            title={ADMIN_TEXT.PROBLEMS.FILTER_DIFFICULTY_ERROR}
-            retryLabel={ADMIN_TEXT.PROBLEMS.FILTER_DIFFICULTY_RETRY}
-            onRetry={difficultyCatalog.retry}
-          />
-        ) : (
+      extraFilters={
+        canReadDifficulties && difficultyCatalog.status !== "error" ? (
           <select
             aria-label={ADMIN_TEXT.PROBLEMS.FILTER_DIFFICULTY_LABEL}
             disabled={difficultyCatalog.status === "loading"}
@@ -137,8 +129,8 @@ export default function AdminProblemsPage() {
               </option>
             ))}
           </select>
-        )
-      ) : null}
+        ) : null
+      }
       table={
         <AdminDataTable
           columns={columns}

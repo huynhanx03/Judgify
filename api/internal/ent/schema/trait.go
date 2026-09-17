@@ -1,12 +1,14 @@
 package schema
 
 import (
+	"github.com/google/uuid"
+
 	"entgo.io/ent"
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -18,6 +20,7 @@ type Trait struct {
 // Mixin of the Trait.
 func (Trait) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -26,23 +29,30 @@ func (Trait) Mixin() []ent.Mixin {
 // Fields of the Trait.
 func (Trait) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("code").
+			Unique().
+			NotEmpty().
+			MaxLen(64).
+			Immutable(),
 		field.Enum("type").
 			Values("root_bone", "talent").
-			Comment("ROOT_BONE = 1 unique slot, TALENT = gacha pool"),
+			Comment("ROOT_BONE = one offered slot; TALENT = weighted offer pool"),
 		field.String("name").
 			Unique().
 			NotEmpty().
 			MaxLen(100),
-		field.Int("rarity_id"),
+		field.UUID("rarity_id", uuid.UUID{}),
 		field.String("description").
 			Optional().
 			MaxLen(500),
-		field.JSON("metadata", map[string]interface{}{}).
-			Optional().
-			SchemaType(map[string]string{
-				dialect.Postgres: "jsonb",
-			}).
-			Comment("Buff config: {type, value, target_scope, target_elements, daily_limit}"),
+		field.Int("display_order").
+			Default(0).
+			NonNegative(),
+		field.Bool("active").
+			Default(true),
+		field.Int64("version").
+			Default(1).
+			Min(1),
 	}
 }
 
@@ -51,5 +61,8 @@ func (Trait) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("rarity", Rarity.Type).Ref("traits").Field("rarity_id").Unique().Required(),
 		edge.To("user_traits", UserTrait.Type),
+		edge.To("onboarding_offer_talents", OnboardingTraitOfferTalent.Type),
+		edge.To("effect_revisions", TraitEffectRevision.Type),
+		edge.To("reward_profile_traits", UserRewardProfileTrait.Type),
 	}
 }

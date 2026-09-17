@@ -1,0 +1,194 @@
+name: Integration evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_resilience:
+        description: Run full load, chaos, and optional soak proof against the isolated test deployment
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: judgify-integration
+  cancel-in-progress: false
+
+env:
+  VERIFY_POSTGRES_IMAGE: postgres:16.14-alpine3.23@sha256:42b8b8b29c8a4e933d88943e5b03001a78794905cf786e6e7634e9f2abd5a0d3
+
+jobs:
+  database:
+    name: Database replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+    env:
+      JUDGIFY_VERIFY_POSTGRES_IMAGE: ${{ env.VERIFY_POSTGRES_IMAGE }}
+      EVIDENCE_DIR: ${{ runner.temp }}/judgify-database-evidence-${{ github.run_id }}
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          if [[ ! "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Set GO_COMMON_REF to an immutable 40-character go-common commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout go-common
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: source/Judgify/api/go.sum
+
+      - name: Install pinned Atlas CLI
+        run: go install ariga.io/atlas/cmd/atlas@v1.0.0
+
+      - name: Prepare evidence and verifier image
+        run: |
+          install -d -m 700 "$EVIDENCE_DIR"
+          docker pull "$JUDGIFY_VERIFY_POSTGRES_IMAGE"
+
+      - name: Verify migration replay and database contracts
+        run: scripts/verify/migrations.sh --integration 2>&1 | tee "$EVIDENCE_DIR/database.log"
+
+      - name: Retain database evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: database-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/judgify-database-evidence-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 14
+
+  backup_restore:
+    name: Encrypted backup and blank restore
+    runs-on: [self-hosted, linux, x64, judgify-integration]
+    environment: judgify-integration
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+    env:
+      EVIDENCE_DIR: ${{ runner.temp }}/judgify-restore-evidence-${{ github.run_id }}
+      JUDGIFY_BACKUP_RESTORE_DRIVER: ${{ vars.JUDGIFY_BACKUP_RESTORE_DRIVER }}
+      JUDGIFY_TEST_SOURCE_PGSERVICE: ${{ vars.JUDGIFY_TEST_SOURCE_PGSERVICE }}
+      JUDGIFY_TEST_TARGET_PGSERVICE: ${{ vars.JUDGIFY_TEST_TARGET_PGSERVICE }}
+      JUDGIFY_TEST_SOURCE_DATABASE: source_judgify_restore_test
+      JUDGIFY_TEST_TARGET_DATABASE: target_judgify_restore_test
+      JUDGIFY_BACKUP_RESTORE_TEST_ACK: DESTROY_ONLY_JUDGIFY_RESTORE_TEST_DATABASES
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+          clean: true
+
+      - name: Prepare private evidence directory
+        run: install -d -m 700 "$EVIDENCE_DIR"
+
+      - name: Prove encrypted backup and blank restore
+        run: test/operations/backup_restore_test.sh 2>&1 | tee "$EVIDENCE_DIR/backup-restore.log"
+
+      - name: Retain restore evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: restore-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/judgify-restore-evidence-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 30
+
+  resilience:
+    name: Isolated load and resilience proof
+    if: inputs.run_resilience
+    runs-on: [self-hosted, linux, x64, judgify-integration]
+    environment: judgify-integration
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+    env:
+      JUDGIFY_LOAD_ACK: LOAD_ONLY_JUDGIFY_TEST
+      JUDGIFY_LOAD_BASE_URL: ${{ vars.JUDGIFY_LOAD_BASE_URL }}
+      JUDGIFY_LOAD_METRICS_URL: ${{ vars.JUDGIFY_LOAD_METRICS_URL }}
+      JUDGIFY_RESILIENCE_ASSERTION_DRIVER: ${{ vars.JUDGIFY_RESILIENCE_ASSERTION_DRIVER }}
+      JUDGIFY_RESILIENCE_EVIDENCE_DIR: ${{ runner.temp }}/judgify-resilience-evidence-${{ github.run_id }}
+      JUDGIFY_RUN_SOAK: ${{ vars.JUDGIFY_RUN_SOAK }}
+      JUDGIFY_CHAOS_ACK: CHAOS_ONLY_JUDGIFY_TEST
+      JUDGIFY_TEST_ENVIRONMENT: judgify-resilience-test
+      JUDGIFY_CHAOS_DRIVER: ${{ vars.JUDGIFY_CHAOS_DRIVER }}
+      JUDGIFY_CHAOS_MARKER_FILE: ${{ vars.JUDGIFY_CHAOS_MARKER_FILE }}
+      JUDGIFY_CHAOS_VOLUME: ${{ vars.JUDGIFY_CHAOS_VOLUME }}
+      JUDGIFY_WS_UNREAD_TOPIC: ${{ vars.JUDGIFY_WS_UNREAD_TOPIC }}
+
+    steps:
+      - name: Checkout Judgify
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+          clean: true
+
+      - name: Prepare private evidence directory
+        run: install -d -m 700 "$JUDGIFY_RESILIENCE_EVIDENCE_DIR"
+
+      - name: Run isolated resilience scenarios
+        run: scripts/verify/resilience.sh --run
+
+      - name: Retain resilience evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: resilience-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/judgify-resilience-evidence-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 30
+
+  gate:
+    name: Integration gate
+    runs-on: ubuntu-latest
+    needs: [database, backup_restore, resilience]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Require selected integration jobs to pass
+        env:
+          DATABASE_RESULT: ${{ needs.database.result }}
+          RESTORE_RESULT: ${{ needs.backup_restore.result }}
+          RESILIENCE_RESULT: ${{ needs.resilience.result }}
+          RUN_RESILIENCE: ${{ inputs.run_resilience }}
+        run: |
+          [[ "$DATABASE_RESULT" == success ]] || exit 1
+          [[ "$RESTORE_RESULT" == success ]] || exit 1
+          if [[ "$RUN_RESILIENCE" == true ]]; then
+            [[ "$RESILIENCE_RESULT" == success ]] || exit 1
+          else
+            [[ "$RESILIENCE_RESULT" == skipped ]] || exit 1
+          fi

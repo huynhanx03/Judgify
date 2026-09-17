@@ -30,6 +30,7 @@ import {
 import { APP_ROUTES } from "@/constants/routes";
 import { TEXT } from "@/constants/text";
 import { formatNumber } from "@/lib/format";
+import { DataViewport } from "@/modules/shared/resource-feedback";
 import type { Problem } from "@/types/problem";
 import { DifficultyBadge } from "./difficulty-badge";
 
@@ -146,7 +147,7 @@ export function ProblemTable({
 }: ProblemTableProps) {
   if (problems.length === 0) {
     return (
-      <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/75 px-6 py-12 text-center motion-safe:animate-in motion-safe:fade-in">
+      <div className="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center motion-safe:animate-in motion-safe:fade-in md:min-h-0 md:flex-1">
         <span className="mb-4 flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
           <SearchX className="size-6" aria-hidden="true" />
         </span>
@@ -223,7 +224,10 @@ export function ProblemTable({
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm motion-safe:animate-in motion-safe:fade-in md:block">
+      <DataViewport
+        label={TEXT.ARENA.TABLE_LABEL}
+        className="hidden rounded-2xl border border-border bg-card shadow-sm motion-safe:animate-in motion-safe:fade-in md:block md:min-h-0 md:flex-1"
+      >
         <Table className="table-fixed">
           <TableCaption className="sr-only">
             {TEXT.ARENA.TABLE_LABEL}
@@ -307,7 +311,7 @@ export function ProblemTable({
             ))}
           </TableBody>
         </Table>
-      </div>
+      </DataViewport>
     </>
   );
 }

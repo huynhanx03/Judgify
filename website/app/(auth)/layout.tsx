@@ -3,6 +3,7 @@
  */
 
 import type { Metadata } from "next";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   referrer: "no-referrer",
@@ -22,13 +23,16 @@ export default function AuthLayout({
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center opacity-[0.08] grayscale dark:opacity-[0.12]"
         style={{
-          backgroundImage: "url('/images/auth_bg.png')",
+          backgroundImage: "url('/images/auth-bg.png')",
         }}
       />
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background/96 to-cultivation/8"
       />
+      <div className="absolute right-4 top-4 z-20 flex items-center gap-1 sm:right-6 sm:top-6">
+        <ThemeToggle />
+      </div>
       <div className="relative z-10 w-full max-w-6xl px-4 py-8 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200 sm:px-8">
         {children}
       </div>

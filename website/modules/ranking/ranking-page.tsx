@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import { TEXT } from "@/constants/text";
-import type { AsyncResourceStatus } from "@/hooks/use-retryable-resource";
-import { RankingHeroSection } from "@/modules/ranking/ranking-hero-section";
+import { PublicPageLead } from "@/components/public-page-lead";
+import { useCursorFeed } from "@/hooks/use-cursor-feed";
 import { RankingTopList } from "@/modules/ranking/ranking-top-list";
 import { rankingService } from "@/services/ranking.service";
 import type { Cultivator, RankingPage } from "@/types/ranking";
@@ -20,53 +20,22 @@ function fetchRankingPage(
     : rankingService.pageByExperience(RANKING_PAGE_SIZE, cursor, signal);
 }
 
+const rankingEntryKey = (entry: Cultivator) => entry.id;
+
 function useRankingPage(kind: "rating" | "experience") {
-  const [entries, setEntries] = useState<Cultivator[]>([]);
-  const [nextCursor, setNextCursor] = useState<string>();
-  const [status, setStatus] = useState<AsyncResourceStatus>("idle");
-  const requestRef = useRef<AbortController | null>(null);
-
-  const load = useCallback(async (cursor?: string) => {
-    requestRef.current?.abort();
-    const controller = new AbortController();
-    requestRef.current = controller;
-    setStatus("loading");
-    try {
-      const page = await fetchRankingPage(kind, cursor, controller.signal);
-      if (controller.signal.aborted) return;
-      setEntries((current) => cursor ? [...current, ...page.entries] : page.entries);
-      setNextCursor(page.nextCursor);
-      setStatus("ready");
-    } catch {
-      if (!controller.signal.aborted) setStatus("error");
-    }
-  }, [kind]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    requestRef.current = controller;
-    void fetchRankingPage(kind, undefined, controller.signal)
-      .then((page) => {
-        if (controller.signal.aborted) return;
-        setEntries(page.entries);
-        setNextCursor(page.nextCursor);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setStatus("error");
-      });
-    return () => controller.abort();
-  }, [kind]);
-
-  return {
-    entries,
-    status,
-    hasMore: Boolean(nextCursor),
-    retry: () => void load(),
-    loadMore: () => {
-      if (nextCursor && status !== "loading") void load(nextCursor);
+  const load = useCallback(
+    async (cursor: string | undefined, signal: AbortSignal) => {
+      const page = await fetchRankingPage(kind, cursor, signal);
+      return { items: page.entries, next_cursor: page.nextCursor };
     },
-  };
+    [kind],
+  );
+
+  return useCursorFeed({
+    resetKey: kind,
+    load,
+    keyOf: rankingEntryKey,
+  });
 }
 
 export default function RankingPage() {
@@ -74,33 +43,38 @@ export default function RankingPage() {
   const cultivation = useRankingPage("experience");
 
   return (
-    <div className="space-y-12 pb-24">
-      <RankingHeroSection />
+    <div className="space-y-10 pb-16 sm:space-y-12 sm:pb-20">
+      <PublicPageLead
+        art="ranking"
+        eyebrow={TEXT.RANKING.HERO_BADGE}
+        title={TEXT.NAV.RANKING}
+        description={TEXT.RANKING.HERO_DESC}
+      />
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-6 px-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <RankingTopList
           title={TEXT.RANKING.RATING_SECTION}
           subtitle={TEXT.RANKING.RATING_SECTION_SUBTITLE}
           icon="crown"
           accentColor="amber"
-          data={rating.entries}
+          data={rating.items}
           mode="rating"
           status={rating.status}
           hasMore={rating.hasMore}
           onLoadMore={rating.loadMore}
-          onRetry={rating.retry}
+          onRetry={rating.reload}
         />
         <RankingTopList
           title={TEXT.RANKING.CULTIVATION_SECTION}
           subtitle={TEXT.RANKING.CULTIVATION_SECTION_SUBTITLE}
           icon="flame"
           accentColor="emerald"
-          data={cultivation.entries}
+          data={cultivation.items}
           mode="level"
           status={cultivation.status}
           hasMore={cultivation.hasMore}
           onLoadMore={cultivation.loadMore}
-          onRetry={cultivation.retry}
+          onRetry={cultivation.reload}
         />
       </div>
     </div>

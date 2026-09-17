@@ -1,24 +1,30 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16.14-alpine3.23@sha256:42b8b8b29c8a4e933d88943e5b03001a78794905cf786e6e7634e9f2abd5a0d3
     container_name: judgify-postgres
-    restart: always
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: judgify
+      POSTGRES_USER: ${POSTGRES_USER:-judgify_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD for local development}
+      POSTGRES_DB: ${POSTGRES_DB:-judgify}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   sandbox:
     build:
-      context: ./docker/sandbox
-      dockerfile: Dockerfile
-    image: judgify/sandbox:latest
+      context: .
+      dockerfile: docker/sandbox/Dockerfile
+    image: judgify/sandbox:dev
     profiles:
       - build
+
+volumes:
+  postgres_data:

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -248,21 +249,12 @@ export function AdminAuditExplorer() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-sm shadow-primary/5">
-            <ScrollText className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              {ADMIN_TEXT.AUDIT.TITLE}
-            </h1>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-              {ADMIN_TEXT.AUDIT.SUBTITLE}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+      <PageHeader
+        className="xl:items-start"
+        icon={ScrollText}
+        title={ADMIN_TEXT.AUDIT.TITLE}
+        description={ADMIN_TEXT.AUDIT.SUBTITLE}
+        actions={<div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           {lastUpdatedAt ? (
             <span className="text-xs tabular-nums text-muted-foreground">
               {ADMIN_TEXT.AUDIT.UPDATED_AT(formatDateTime(lastUpdatedAt))}
@@ -283,8 +275,8 @@ export function AdminAuditExplorer() {
               ? ADMIN_TEXT.AUDIT.REFRESHING
               : ADMIN_TEXT.AUDIT.REFRESH}
           </Button>
-        </div>
-      </header>
+        </div>}
+      />
 
       <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
@@ -626,7 +618,7 @@ export function AdminAuditExplorer() {
               </div>
 
               <div className="hidden md:block">
-                <Table>
+                <Table containerLabel={ADMIN_TEXT.AUDIT.TABLE_LABEL}>
                   <TableCaption className="sr-only">
                     {ADMIN_TEXT.AUDIT.TABLE_LABEL}
                   </TableCaption>

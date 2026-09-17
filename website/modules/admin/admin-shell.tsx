@@ -28,10 +28,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       <AdminSidebar />
 
-      <Sheet
-        open={mobileOpen}
-        onOpenChange={(open) => setMobileOpen(open)}
-      >
+      <Sheet open={mobileOpen} onOpenChange={(open) => setMobileOpen(open)}>
         <SheetContent
           side="left"
           showCloseButton
@@ -57,7 +54,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto w-full max-w-[1600px] p-4 outline-none sm:p-6 lg:p-8"
+          className="mx-auto w-full max-w-[1400px] p-4 outline-none sm:p-6 lg:p-8"
         >
           {children}
         </main>

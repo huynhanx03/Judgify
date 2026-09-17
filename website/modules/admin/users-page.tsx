@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/page-header";
 import { AdminDataTable, type AdminColumn } from "@/modules/admin/admin-data-table";
 import { EditRoleDialog } from "@/modules/admin/dialogs/edit-role-dialog";
 import {
@@ -1060,12 +1061,10 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{ADMIN_TEXT.USERS_TITLE}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{ADMIN_TEXT.USERS_SUBTITLE}</p>
-        </div>
-        {canCreateUser ? (
+      <PageHeader
+        title={ADMIN_TEXT.USERS_TITLE}
+        description={ADMIN_TEXT.USERS_SUBTITLE}
+        actions={canCreateUser ? (
           <Button
             className="min-h-11 gap-2 cursor-pointer"
             onClick={() => setCreateOpen(true)}
@@ -1074,8 +1073,8 @@ export default function AdminUsersPage() {
             <Plus className="h-4 w-4" aria-hidden="true" />
             {ADMIN_TEXT.USERS_CREATE}
           </Button>
-        ) : null}
-      </div>
+        ) : undefined}
+      />
 
       {canManageUsers && rolesResource.status !== "ready" ? (
         <div

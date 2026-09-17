@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 )
@@ -57,23 +59,16 @@ func (_u *AttributeDefinitionUpdate) ClearDeletedAt() *AttributeDefinitionUpdate
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *AttributeDefinitionUpdate) SetDeletedBy(v int) *AttributeDefinitionUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *AttributeDefinitionUpdate) SetDeletedBy(v string) *AttributeDefinitionUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdate) SetNillableDeletedBy(v *int) *AttributeDefinitionUpdate {
+func (_u *AttributeDefinitionUpdate) SetNillableDeletedBy(v *string) *AttributeDefinitionUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *AttributeDefinitionUpdate) AddDeletedBy(v int) *AttributeDefinitionUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -83,67 +78,133 @@ func (_u *AttributeDefinitionUpdate) ClearDeletedBy() *AttributeDefinitionUpdate
 	return _u
 }
 
-// SetKey sets the "key" field.
-func (_u *AttributeDefinitionUpdate) SetKey(v string) *AttributeDefinitionUpdate {
-	_u.mutation.SetKey(v)
+// SetRequiredOnOnboarding sets the "required_on_onboarding" field.
+func (_u *AttributeDefinitionUpdate) SetRequiredOnOnboarding(v bool) *AttributeDefinitionUpdate {
+	_u.mutation.SetRequiredOnOnboarding(v)
 	return _u
 }
 
-// SetNillableKey sets the "key" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdate) SetNillableKey(v *string) *AttributeDefinitionUpdate {
+// SetNillableRequiredOnOnboarding sets the "required_on_onboarding" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdate) SetNillableRequiredOnOnboarding(v *bool) *AttributeDefinitionUpdate {
 	if v != nil {
-		_u.SetKey(*v)
+		_u.SetRequiredOnOnboarding(*v)
 	}
 	return _u
 }
 
-// SetDataType sets the "data_type" field.
-func (_u *AttributeDefinitionUpdate) SetDataType(v string) *AttributeDefinitionUpdate {
-	_u.mutation.SetDataType(v)
+// SetStatus sets the "status" field.
+func (_u *AttributeDefinitionUpdate) SetStatus(v attributedefinition.Status) *AttributeDefinitionUpdate {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetNillableDataType sets the "data_type" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdate) SetNillableDataType(v *string) *AttributeDefinitionUpdate {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdate) SetNillableStatus(v *attributedefinition.Status) *AttributeDefinitionUpdate {
 	if v != nil {
-		_u.SetDataType(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
 }
 
-// SetDescription sets the "description" field.
-func (_u *AttributeDefinitionUpdate) SetDescription(v string) *AttributeDefinitionUpdate {
-	_u.mutation.SetDescription(v)
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (_u *AttributeDefinitionUpdate) SetDraftRevisionID(v uuid.UUID) *AttributeDefinitionUpdate {
+	_u.mutation.SetDraftRevisionID(v)
 	return _u
 }
 
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdate) SetNillableDescription(v *string) *AttributeDefinitionUpdate {
+// SetNillableDraftRevisionID sets the "draft_revision_id" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdate) SetNillableDraftRevisionID(v *uuid.UUID) *AttributeDefinitionUpdate {
 	if v != nil {
-		_u.SetDescription(*v)
+		_u.SetDraftRevisionID(*v)
 	}
 	return _u
 }
 
-// ClearDescription clears the value of the "description" field.
-func (_u *AttributeDefinitionUpdate) ClearDescription() *AttributeDefinitionUpdate {
-	_u.mutation.ClearDescription()
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (_u *AttributeDefinitionUpdate) ClearDraftRevisionID() *AttributeDefinitionUpdate {
+	_u.mutation.ClearDraftRevisionID()
+	return _u
+}
+
+// SetActiveRevisionID sets the "active_revision_id" field.
+func (_u *AttributeDefinitionUpdate) SetActiveRevisionID(v uuid.UUID) *AttributeDefinitionUpdate {
+	_u.mutation.SetActiveRevisionID(v)
+	return _u
+}
+
+// SetNillableActiveRevisionID sets the "active_revision_id" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdate) SetNillableActiveRevisionID(v *uuid.UUID) *AttributeDefinitionUpdate {
+	if v != nil {
+		_u.SetActiveRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearActiveRevisionID clears the value of the "active_revision_id" field.
+func (_u *AttributeDefinitionUpdate) ClearActiveRevisionID() *AttributeDefinitionUpdate {
+	_u.mutation.ClearActiveRevisionID()
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *AttributeDefinitionUpdate) SetVersion(v int64) *AttributeDefinitionUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdate) SetNillableVersion(v *int64) *AttributeDefinitionUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *AttributeDefinitionUpdate) AddVersion(v int64) *AttributeDefinitionUpdate {
+	_u.mutation.AddVersion(v)
 	return _u
 }
 
 // AddValueIDs adds the "values" edge to the UserAttributeValue entity by IDs.
-func (_u *AttributeDefinitionUpdate) AddValueIDs(ids ...int) *AttributeDefinitionUpdate {
+func (_u *AttributeDefinitionUpdate) AddValueIDs(ids ...uuid.UUID) *AttributeDefinitionUpdate {
 	_u.mutation.AddValueIDs(ids...)
 	return _u
 }
 
 // AddValues adds the "values" edges to the UserAttributeValue entity.
 func (_u *AttributeDefinitionUpdate) AddValues(v ...*UserAttributeValue) *AttributeDefinitionUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddValueIDs(ids...)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the AttributeDefinitionRevision entity by IDs.
+func (_u *AttributeDefinitionUpdate) AddRevisionIDs(ids ...uuid.UUID) *AttributeDefinitionUpdate {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdate) AddRevisions(v ...*AttributeDefinitionRevision) *AttributeDefinitionUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
+// SetDraftRevision sets the "draft_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdate) SetDraftRevision(v *AttributeDefinitionRevision) *AttributeDefinitionUpdate {
+	return _u.SetDraftRevisionID(v.ID)
+}
+
+// SetActiveRevision sets the "active_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdate) SetActiveRevision(v *AttributeDefinitionRevision) *AttributeDefinitionUpdate {
+	return _u.SetActiveRevisionID(v.ID)
 }
 
 // Mutation returns the AttributeDefinitionMutation object of the builder.
@@ -158,18 +219,51 @@ func (_u *AttributeDefinitionUpdate) ClearValues() *AttributeDefinitionUpdate {
 }
 
 // RemoveValueIDs removes the "values" edge to UserAttributeValue entities by IDs.
-func (_u *AttributeDefinitionUpdate) RemoveValueIDs(ids ...int) *AttributeDefinitionUpdate {
+func (_u *AttributeDefinitionUpdate) RemoveValueIDs(ids ...uuid.UUID) *AttributeDefinitionUpdate {
 	_u.mutation.RemoveValueIDs(ids...)
 	return _u
 }
 
 // RemoveValues removes "values" edges to UserAttributeValue entities.
 func (_u *AttributeDefinitionUpdate) RemoveValues(v ...*UserAttributeValue) *AttributeDefinitionUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveValueIDs(ids...)
+}
+
+// ClearRevisions clears all "revisions" edges to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdate) ClearRevisions() *AttributeDefinitionUpdate {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to AttributeDefinitionRevision entities by IDs.
+func (_u *AttributeDefinitionUpdate) RemoveRevisionIDs(ids ...uuid.UUID) *AttributeDefinitionUpdate {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to AttributeDefinitionRevision entities.
+func (_u *AttributeDefinitionUpdate) RemoveRevisions(v ...*AttributeDefinitionRevision) *AttributeDefinitionUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearDraftRevision clears the "draft_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdate) ClearDraftRevision() *AttributeDefinitionUpdate {
+	_u.mutation.ClearDraftRevision()
+	return _u
+}
+
+// ClearActiveRevision clears the "active_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdate) ClearActiveRevision() *AttributeDefinitionUpdate {
+	_u.mutation.ClearActiveRevision()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -216,9 +310,14 @@ func (_u *AttributeDefinitionUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *AttributeDefinitionUpdate) check() error {
-	if v, ok := _u.mutation.Key(); ok {
-		if err := attributedefinition.KeyValidator(v); err != nil {
-			return &ValidationError{Name: "key", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.key": %w`, err)}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := attributedefinition.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := attributedefinition.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.version": %w`, err)}
 		}
 	}
 	return nil
@@ -234,7 +333,7 @@ func (_u *AttributeDefinitionUpdate) sqlSave(ctx context.Context) (_node int, er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(attributedefinition.Table, attributedefinition.Columns, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(attributedefinition.Table, attributedefinition.Columns, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -252,25 +351,22 @@ func (_u *AttributeDefinitionUpdate) sqlSave(ctx context.Context) (_node int, er
 		_spec.ClearField(attributedefinition.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(attributedefinition.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(attributedefinition.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(attributedefinition.FieldDeletedBy, field.TypeString)
 	}
-	if value, ok := _u.mutation.Key(); ok {
-		_spec.SetField(attributedefinition.FieldKey, field.TypeString, value)
+	if value, ok := _u.mutation.RequiredOnOnboarding(); ok {
+		_spec.SetField(attributedefinition.FieldRequiredOnOnboarding, field.TypeBool, value)
 	}
-	if value, ok := _u.mutation.DataType(); ok {
-		_spec.SetField(attributedefinition.FieldDataType, field.TypeString, value)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(attributedefinition.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.Description(); ok {
-		_spec.SetField(attributedefinition.FieldDescription, field.TypeString, value)
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(attributedefinition.FieldVersion, field.TypeInt64, value)
 	}
-	if _u.mutation.DescriptionCleared() {
-		_spec.ClearField(attributedefinition.FieldDescription, field.TypeString)
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(attributedefinition.FieldVersion, field.TypeInt64, value)
 	}
 	if _u.mutation.ValuesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -280,7 +376,7 @@ func (_u *AttributeDefinitionUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -293,7 +389,7 @@ func (_u *AttributeDefinitionUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -309,7 +405,110 @@ func (_u *AttributeDefinitionUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DraftRevisionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.DraftRevisionTable,
+			Columns: []string{attributedefinition.DraftRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DraftRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.DraftRevisionTable,
+			Columns: []string{attributedefinition.DraftRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ActiveRevisionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.ActiveRevisionTable,
+			Columns: []string{attributedefinition.ActiveRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ActiveRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.ActiveRevisionTable,
+			Columns: []string{attributedefinition.ActiveRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -366,23 +565,16 @@ func (_u *AttributeDefinitionUpdateOne) ClearDeletedAt() *AttributeDefinitionUpd
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *AttributeDefinitionUpdateOne) SetDeletedBy(v int) *AttributeDefinitionUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *AttributeDefinitionUpdateOne) SetDeletedBy(v string) *AttributeDefinitionUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdateOne) SetNillableDeletedBy(v *int) *AttributeDefinitionUpdateOne {
+func (_u *AttributeDefinitionUpdateOne) SetNillableDeletedBy(v *string) *AttributeDefinitionUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *AttributeDefinitionUpdateOne) AddDeletedBy(v int) *AttributeDefinitionUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -392,67 +584,133 @@ func (_u *AttributeDefinitionUpdateOne) ClearDeletedBy() *AttributeDefinitionUpd
 	return _u
 }
 
-// SetKey sets the "key" field.
-func (_u *AttributeDefinitionUpdateOne) SetKey(v string) *AttributeDefinitionUpdateOne {
-	_u.mutation.SetKey(v)
+// SetRequiredOnOnboarding sets the "required_on_onboarding" field.
+func (_u *AttributeDefinitionUpdateOne) SetRequiredOnOnboarding(v bool) *AttributeDefinitionUpdateOne {
+	_u.mutation.SetRequiredOnOnboarding(v)
 	return _u
 }
 
-// SetNillableKey sets the "key" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdateOne) SetNillableKey(v *string) *AttributeDefinitionUpdateOne {
+// SetNillableRequiredOnOnboarding sets the "required_on_onboarding" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdateOne) SetNillableRequiredOnOnboarding(v *bool) *AttributeDefinitionUpdateOne {
 	if v != nil {
-		_u.SetKey(*v)
+		_u.SetRequiredOnOnboarding(*v)
 	}
 	return _u
 }
 
-// SetDataType sets the "data_type" field.
-func (_u *AttributeDefinitionUpdateOne) SetDataType(v string) *AttributeDefinitionUpdateOne {
-	_u.mutation.SetDataType(v)
+// SetStatus sets the "status" field.
+func (_u *AttributeDefinitionUpdateOne) SetStatus(v attributedefinition.Status) *AttributeDefinitionUpdateOne {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetNillableDataType sets the "data_type" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdateOne) SetNillableDataType(v *string) *AttributeDefinitionUpdateOne {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdateOne) SetNillableStatus(v *attributedefinition.Status) *AttributeDefinitionUpdateOne {
 	if v != nil {
-		_u.SetDataType(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
 }
 
-// SetDescription sets the "description" field.
-func (_u *AttributeDefinitionUpdateOne) SetDescription(v string) *AttributeDefinitionUpdateOne {
-	_u.mutation.SetDescription(v)
+// SetDraftRevisionID sets the "draft_revision_id" field.
+func (_u *AttributeDefinitionUpdateOne) SetDraftRevisionID(v uuid.UUID) *AttributeDefinitionUpdateOne {
+	_u.mutation.SetDraftRevisionID(v)
 	return _u
 }
 
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (_u *AttributeDefinitionUpdateOne) SetNillableDescription(v *string) *AttributeDefinitionUpdateOne {
+// SetNillableDraftRevisionID sets the "draft_revision_id" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdateOne) SetNillableDraftRevisionID(v *uuid.UUID) *AttributeDefinitionUpdateOne {
 	if v != nil {
-		_u.SetDescription(*v)
+		_u.SetDraftRevisionID(*v)
 	}
 	return _u
 }
 
-// ClearDescription clears the value of the "description" field.
-func (_u *AttributeDefinitionUpdateOne) ClearDescription() *AttributeDefinitionUpdateOne {
-	_u.mutation.ClearDescription()
+// ClearDraftRevisionID clears the value of the "draft_revision_id" field.
+func (_u *AttributeDefinitionUpdateOne) ClearDraftRevisionID() *AttributeDefinitionUpdateOne {
+	_u.mutation.ClearDraftRevisionID()
+	return _u
+}
+
+// SetActiveRevisionID sets the "active_revision_id" field.
+func (_u *AttributeDefinitionUpdateOne) SetActiveRevisionID(v uuid.UUID) *AttributeDefinitionUpdateOne {
+	_u.mutation.SetActiveRevisionID(v)
+	return _u
+}
+
+// SetNillableActiveRevisionID sets the "active_revision_id" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdateOne) SetNillableActiveRevisionID(v *uuid.UUID) *AttributeDefinitionUpdateOne {
+	if v != nil {
+		_u.SetActiveRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearActiveRevisionID clears the value of the "active_revision_id" field.
+func (_u *AttributeDefinitionUpdateOne) ClearActiveRevisionID() *AttributeDefinitionUpdateOne {
+	_u.mutation.ClearActiveRevisionID()
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *AttributeDefinitionUpdateOne) SetVersion(v int64) *AttributeDefinitionUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *AttributeDefinitionUpdateOne) SetNillableVersion(v *int64) *AttributeDefinitionUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *AttributeDefinitionUpdateOne) AddVersion(v int64) *AttributeDefinitionUpdateOne {
+	_u.mutation.AddVersion(v)
 	return _u
 }
 
 // AddValueIDs adds the "values" edge to the UserAttributeValue entity by IDs.
-func (_u *AttributeDefinitionUpdateOne) AddValueIDs(ids ...int) *AttributeDefinitionUpdateOne {
+func (_u *AttributeDefinitionUpdateOne) AddValueIDs(ids ...uuid.UUID) *AttributeDefinitionUpdateOne {
 	_u.mutation.AddValueIDs(ids...)
 	return _u
 }
 
 // AddValues adds the "values" edges to the UserAttributeValue entity.
 func (_u *AttributeDefinitionUpdateOne) AddValues(v ...*UserAttributeValue) *AttributeDefinitionUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddValueIDs(ids...)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the AttributeDefinitionRevision entity by IDs.
+func (_u *AttributeDefinitionUpdateOne) AddRevisionIDs(ids ...uuid.UUID) *AttributeDefinitionUpdateOne {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdateOne) AddRevisions(v ...*AttributeDefinitionRevision) *AttributeDefinitionUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
+// SetDraftRevision sets the "draft_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdateOne) SetDraftRevision(v *AttributeDefinitionRevision) *AttributeDefinitionUpdateOne {
+	return _u.SetDraftRevisionID(v.ID)
+}
+
+// SetActiveRevision sets the "active_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdateOne) SetActiveRevision(v *AttributeDefinitionRevision) *AttributeDefinitionUpdateOne {
+	return _u.SetActiveRevisionID(v.ID)
 }
 
 // Mutation returns the AttributeDefinitionMutation object of the builder.
@@ -467,18 +725,51 @@ func (_u *AttributeDefinitionUpdateOne) ClearValues() *AttributeDefinitionUpdate
 }
 
 // RemoveValueIDs removes the "values" edge to UserAttributeValue entities by IDs.
-func (_u *AttributeDefinitionUpdateOne) RemoveValueIDs(ids ...int) *AttributeDefinitionUpdateOne {
+func (_u *AttributeDefinitionUpdateOne) RemoveValueIDs(ids ...uuid.UUID) *AttributeDefinitionUpdateOne {
 	_u.mutation.RemoveValueIDs(ids...)
 	return _u
 }
 
 // RemoveValues removes "values" edges to UserAttributeValue entities.
 func (_u *AttributeDefinitionUpdateOne) RemoveValues(v ...*UserAttributeValue) *AttributeDefinitionUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveValueIDs(ids...)
+}
+
+// ClearRevisions clears all "revisions" edges to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdateOne) ClearRevisions() *AttributeDefinitionUpdateOne {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to AttributeDefinitionRevision entities by IDs.
+func (_u *AttributeDefinitionUpdateOne) RemoveRevisionIDs(ids ...uuid.UUID) *AttributeDefinitionUpdateOne {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to AttributeDefinitionRevision entities.
+func (_u *AttributeDefinitionUpdateOne) RemoveRevisions(v ...*AttributeDefinitionRevision) *AttributeDefinitionUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearDraftRevision clears the "draft_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdateOne) ClearDraftRevision() *AttributeDefinitionUpdateOne {
+	_u.mutation.ClearDraftRevision()
+	return _u
+}
+
+// ClearActiveRevision clears the "active_revision" edge to the AttributeDefinitionRevision entity.
+func (_u *AttributeDefinitionUpdateOne) ClearActiveRevision() *AttributeDefinitionUpdateOne {
+	_u.mutation.ClearActiveRevision()
+	return _u
 }
 
 // Where appends a list predicates to the AttributeDefinitionUpdate builder.
@@ -538,9 +829,14 @@ func (_u *AttributeDefinitionUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *AttributeDefinitionUpdateOne) check() error {
-	if v, ok := _u.mutation.Key(); ok {
-		if err := attributedefinition.KeyValidator(v); err != nil {
-			return &ValidationError{Name: "key", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.key": %w`, err)}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := attributedefinition.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := attributedefinition.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "AttributeDefinition.version": %w`, err)}
 		}
 	}
 	return nil
@@ -556,7 +852,7 @@ func (_u *AttributeDefinitionUpdateOne) sqlSave(ctx context.Context) (_node *Att
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(attributedefinition.Table, attributedefinition.Columns, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(attributedefinition.Table, attributedefinition.Columns, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "AttributeDefinition.id" for update`)}
@@ -591,25 +887,22 @@ func (_u *AttributeDefinitionUpdateOne) sqlSave(ctx context.Context) (_node *Att
 		_spec.ClearField(attributedefinition.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(attributedefinition.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(attributedefinition.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(attributedefinition.FieldDeletedBy, field.TypeString)
 	}
-	if value, ok := _u.mutation.Key(); ok {
-		_spec.SetField(attributedefinition.FieldKey, field.TypeString, value)
+	if value, ok := _u.mutation.RequiredOnOnboarding(); ok {
+		_spec.SetField(attributedefinition.FieldRequiredOnOnboarding, field.TypeBool, value)
 	}
-	if value, ok := _u.mutation.DataType(); ok {
-		_spec.SetField(attributedefinition.FieldDataType, field.TypeString, value)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(attributedefinition.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.Description(); ok {
-		_spec.SetField(attributedefinition.FieldDescription, field.TypeString, value)
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(attributedefinition.FieldVersion, field.TypeInt64, value)
 	}
-	if _u.mutation.DescriptionCleared() {
-		_spec.ClearField(attributedefinition.FieldDescription, field.TypeString)
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(attributedefinition.FieldVersion, field.TypeInt64, value)
 	}
 	if _u.mutation.ValuesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -619,7 +912,7 @@ func (_u *AttributeDefinitionUpdateOne) sqlSave(ctx context.Context) (_node *Att
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -632,7 +925,7 @@ func (_u *AttributeDefinitionUpdateOne) sqlSave(ctx context.Context) (_node *Att
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -648,7 +941,110 @@ func (_u *AttributeDefinitionUpdateOne) sqlSave(ctx context.Context) (_node *Att
 			Columns: []string{attributedefinition.ValuesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   attributedefinition.RevisionsTable,
+			Columns: []string{attributedefinition.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DraftRevisionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.DraftRevisionTable,
+			Columns: []string{attributedefinition.DraftRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DraftRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.DraftRevisionTable,
+			Columns: []string{attributedefinition.DraftRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ActiveRevisionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.ActiveRevisionTable,
+			Columns: []string{attributedefinition.ActiveRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ActiveRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   attributedefinition.ActiveRevisionTable,
+			Columns: []string{attributedefinition.ActiveRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

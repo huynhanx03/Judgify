@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useState } from "react"
+import Link from "next/link";
+import { useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -12,50 +12,47 @@ import {
   Loader2,
   RefreshCw,
   ShieldCheck,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { APP_ROUTES } from "@/constants/routes"
-import { TEXT } from "@/constants/text"
-import { useRetryableResource } from "@/hooks/use-retryable-resource"
-import { ApiError } from "@/lib/api/error"
-import { formatDateTimeMinute } from "@/lib/format"
-import { cn } from "@/lib/utils"
-import { publicProfileService } from "@/services/public-profile.service"
-import type { EntityID } from "@/types/api"
-import type {
-  ProfilePrivacy,
-  ProfileVisibility,
-} from "@/types/public-profile"
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { APP_ROUTES } from "@/constants/routes";
+import { TEXT } from "@/constants/text";
+import { useRetryableResource } from "@/hooks/use-retryable-resource";
+import { ApiError } from "@/lib/api/error";
+import { formatDateTimeMinute } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { publicProfileService } from "@/services/public-profile.service";
+import type { EntityID } from "@/types/api";
+import type { ProfilePrivacy, ProfileVisibility } from "@/types/public-profile";
 
 interface ProfilePrivacyCardProps {
-  userID: EntityID
-  username: string
+  userID: EntityID;
+  username: string;
 }
 
 interface LocalPrivacySnapshot {
-  userID: EntityID
-  state: ProfilePrivacy
+  userID: EntityID;
+  state: ProfilePrivacy;
 }
 
 interface PrivacyFeedback {
-  userID: EntityID
-  tone: "error" | "success"
-  message: string
+  userID: EntityID;
+  tone: "error" | "success";
+  message: string;
 }
 
 interface PendingPrivacyMutation {
-  userID: EntityID
-  visibility: ProfileVisibility
+  userID: EntityID;
+  visibility: ProfileVisibility;
 }
 
 export function ProfilePrivacyCard({
@@ -63,38 +60,38 @@ export function ProfilePrivacyCard({
   username,
 }: ProfilePrivacyCardProps) {
   const [localSnapshot, setLocalSnapshot] =
-    useState<LocalPrivacySnapshot | null>(null)
-  const [feedback, setFeedback] = useState<PrivacyFeedback | null>(null)
-  const [pending, setPending] = useState<PendingPrivacyMutation | null>(null)
+    useState<LocalPrivacySnapshot | null>(null);
+  const [feedback, setFeedback] = useState<PrivacyFeedback | null>(null);
+  const [pending, setPending] = useState<PendingPrivacyMutation | null>(null);
   const privacyResource = useRetryableResource<ProfilePrivacy | null>({
     resetKey: userID,
     enabled: Boolean(userID),
     initialData: null,
     load: (signal) => publicProfileService.privacy(signal),
-  })
-  const serverState = privacyResource.data
+  });
+  const serverState = privacyResource.data;
   const privacy =
     localSnapshot?.userID === userID &&
     (!serverState || localSnapshot.state.version >= serverState.version)
       ? localSnapshot.state
-      : serverState
-  const currentFeedback = feedback?.userID === userID ? feedback : null
-  const currentPending = pending?.userID === userID ? pending : null
-  const isPublic = privacy?.visibility === "public"
+      : serverState;
+  const currentFeedback = feedback?.userID === userID ? feedback : null;
+  const currentPending = pending?.userID === userID ? pending : null;
+  const isPublic = privacy?.visibility === "public";
 
   async function updateVisibility(checked: boolean) {
-    if (!privacy || currentPending) return
-    const visibility: ProfileVisibility = checked ? "public" : "private"
-    if (visibility === privacy.visibility) return
+    if (!privacy || currentPending) return;
+    const visibility: ProfileVisibility = checked ? "public" : "private";
+    if (visibility === privacy.visibility) return;
 
-    setFeedback(null)
-    setPending({ userID, visibility })
+    setFeedback(null);
+    setPending({ userID, visibility });
     try {
       const receipt = await publicProfileService.updatePrivacy(userID, {
         visibility,
         expected_version: privacy.version,
-      })
-      setLocalSnapshot({ userID, state: receipt.state })
+      });
+      setLocalSnapshot({ userID, state: receipt.state });
       setFeedback({
         userID,
         tone: "success",
@@ -102,34 +99,34 @@ export function ProfilePrivacyCard({
           visibility === "public"
             ? TEXT.PROFILE.PRIVACY.PUBLIC_SUCCESS
             : TEXT.PROFILE.PRIVACY.PRIVATE_SUCCESS,
-      })
+      });
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        setLocalSnapshot(null)
-        privacyResource.retry()
+        setLocalSnapshot(null);
+        privacyResource.retry();
         setFeedback({
           userID,
           tone: "error",
           message: TEXT.PROFILE.PRIVACY.CONFLICT,
-        })
+        });
       } else {
         setFeedback({
           userID,
           tone: "error",
           message: TEXT.PROFILE.PRIVACY.UPDATE_ERROR,
-        })
+        });
       }
     } finally {
       setPending((current) =>
         current?.userID === userID && current.visibility === visibility
           ? null
           : current,
-      )
+      );
     }
   }
 
   return (
-    <Card className="glass-card overflow-hidden border-border/40">
+    <Card className="overflow-hidden border-border/60 bg-card">
       <CardHeader className="gap-3 border-b border-border/60 bg-muted/15 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -257,7 +254,7 @@ export function ProfilePrivacyCard({
                   <Switch
                     checked={isPublic}
                     onCheckedChange={(checked) => {
-                      void updateVisibility(checked)
+                      void updateVisibility(checked);
                     }}
                     aria-label={
                       isPublic
@@ -289,5 +286,5 @@ export function ProfilePrivacyCard({
         ) : null}
       </CardContent>
     </Card>
-  )
+  );
 }

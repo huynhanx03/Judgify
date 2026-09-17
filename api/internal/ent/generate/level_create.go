@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 )
 
@@ -65,13 +67,13 @@ func (_c *LevelCreate) SetNillableDeletedAt(v *time.Time) *LevelCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *LevelCreate) SetDeletedBy(v int) *LevelCreate {
+func (_c *LevelCreate) SetDeletedBy(v string) *LevelCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *LevelCreate) SetNillableDeletedBy(v *int) *LevelCreate {
+func (_c *LevelCreate) SetNillableDeletedBy(v *string) *LevelCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -108,6 +110,20 @@ func (_c *LevelCreate) SetDescription(v string) *LevelCreate {
 func (_c *LevelCreate) SetNillableDescription(v *string) *LevelCreate {
 	if v != nil {
 		_c.SetDescription(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *LevelCreate) SetID(v uuid.UUID) *LevelCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *LevelCreate) SetNillableID(v *uuid.UUID) *LevelCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -167,6 +183,13 @@ func (_c *LevelCreate) defaults() error {
 		v := level.DefaultMinExp
 		_c.mutation.SetMinExp(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if level.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized level.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := level.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -213,8 +236,13 @@ func (_c *LevelCreate) sqlSave(ctx context.Context) (*Level, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -223,9 +251,13 @@ func (_c *LevelCreate) sqlSave(ctx context.Context) (*Level, error) {
 func (_c *LevelCreate) createSpec() (*Level, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Level{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(level.Table, sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(level.Table, sqlgraph.NewFieldSpec(level.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(level.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -239,7 +271,7 @@ func (_c *LevelCreate) createSpec() (*Level, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(level.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(level.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
@@ -337,7 +369,7 @@ func (u *LevelUpsert) ClearDeletedAt() *LevelUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *LevelUpsert) SetDeletedBy(v int) *LevelUpsert {
+func (u *LevelUpsert) SetDeletedBy(v string) *LevelUpsert {
 	u.Set(level.FieldDeletedBy, v)
 	return u
 }
@@ -345,12 +377,6 @@ func (u *LevelUpsert) SetDeletedBy(v int) *LevelUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *LevelUpsert) UpdateDeletedBy() *LevelUpsert {
 	u.SetExcluded(level.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *LevelUpsert) AddDeletedBy(v int) *LevelUpsert {
-	u.Add(level.FieldDeletedBy, v)
 	return u
 }
 
@@ -408,17 +434,23 @@ func (u *LevelUpsert) ClearDescription() *LevelUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Level.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(level.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *LevelUpsertOne) UpdateNewValues() *LevelUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(level.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(level.FieldCreatedAt)
 		}
@@ -489,16 +521,9 @@ func (u *LevelUpsertOne) ClearDeletedAt() *LevelUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *LevelUpsertOne) SetDeletedBy(v int) *LevelUpsertOne {
+func (u *LevelUpsertOne) SetDeletedBy(v string) *LevelUpsertOne {
 	return u.Update(func(s *LevelUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *LevelUpsertOne) AddDeletedBy(v int) *LevelUpsertOne {
-	return u.Update(func(s *LevelUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -588,7 +613,12 @@ func (u *LevelUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *LevelUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *LevelUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: LevelUpsertOne.ID is not supported by MySQL driver. Use LevelUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -597,17 +627,12 @@ func (u *LevelUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *LevelUpsertOne) IDX(ctx context.Context) int {
+func (u *LevelUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *LevelCreate) SetID(id int) *LevelCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // LevelCreateBulk is the builder for creating many Level entities in bulk.
@@ -657,10 +682,6 @@ func (_c *LevelCreateBulk) Save(ctx context.Context) ([]*Level, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -747,12 +768,18 @@ type LevelUpsertBulk struct {
 //	client.Level.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(level.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *LevelUpsertBulk) UpdateNewValues() *LevelUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(level.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(level.FieldCreatedAt)
 			}
@@ -824,16 +851,9 @@ func (u *LevelUpsertBulk) ClearDeletedAt() *LevelUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *LevelUpsertBulk) SetDeletedBy(v int) *LevelUpsertBulk {
+func (u *LevelUpsertBulk) SetDeletedBy(v string) *LevelUpsertBulk {
 	return u.Update(func(s *LevelUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *LevelUpsertBulk) AddDeletedBy(v int) *LevelUpsertBulk {
-	return u.Update(func(s *LevelUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 

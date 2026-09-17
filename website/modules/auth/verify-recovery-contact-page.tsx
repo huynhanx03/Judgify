@@ -12,12 +12,12 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
 import { RECOVERY_CONTACT_VERIFICATION_STATUS } from "@/constants/identity";
+import { AuthSurface } from "@/modules/auth/auth-surface";
 import { APP_ROUTES } from "@/constants/routes";
 import { TEXT } from "@/constants/text";
 import { ApiError } from "@/lib/api/error";
@@ -83,7 +83,7 @@ export default function VerifyRecoveryContactPage() {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-lg overflow-hidden border-border/70 bg-background/85 shadow-2xl backdrop-blur-xl">
+    <AuthSurface className="mx-auto max-w-lg overflow-hidden">
       <CardHeader className="space-y-4 pb-6 text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20">
           <ShieldCheck aria-hidden="true" className="size-7" />
@@ -182,6 +182,6 @@ export default function VerifyRecoveryContactPage() {
           </div>
         )}
       </CardContent>
-    </Card>
+    </AuthSurface>
   );
 }

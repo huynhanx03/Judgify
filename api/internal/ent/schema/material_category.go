@@ -5,7 +5,8 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -17,6 +18,7 @@ type MaterialCategory struct {
 // Mixin of the MaterialCategory.
 func (MaterialCategory) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -38,6 +40,7 @@ func (MaterialCategory) Fields() []ent.Field {
 // Edges of the MaterialCategory.
 func (MaterialCategory) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("materials", Material.Type),
+		edge.To("revisions", MaterialRevision.Type),
+		edge.To("legacy_materials", Material.Type),
 	}
 }

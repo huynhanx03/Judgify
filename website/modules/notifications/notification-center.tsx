@@ -6,16 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Bell,
   CheckCheck,
-  CircleAlert,
   Loader2,
-  LogIn,
-  RefreshCw,
   Settings2,
   Wifi,
   WifiOff,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { PublicPageLead } from "@/components/public-page-lead";
 import {
   Card,
   CardContent,
@@ -33,6 +31,7 @@ import { useRealtime } from "@/contexts/realtime-context";
 import { notificationCategoryCopy } from "@/lib/notifications/presentation";
 import { notify } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import { ResourceCollectionFeedback } from "@/modules/shared/resource-feedback";
 import {
   NotificationCategoryIcon,
   NotificationItem,
@@ -48,13 +47,14 @@ export function NotificationCenter() {
   const realtime = useRealtime();
   const notifications = useNotifications();
   const activeTab =
-    searchParams.get("tab") === TAB_PREFERENCES
-      ? TAB_PREFERENCES
-      : TAB_INBOX;
+    searchParams.get("tab") === TAB_PREFERENCES ? TAB_PREFERENCES : TAB_INBOX;
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[50dvh] items-center justify-center" role="status">
+      <div
+        className="flex min-h-[50dvh] items-center justify-center"
+        role="status"
+      >
         <Loader2 className="size-7 animate-spin text-primary motion-reduce:animate-none" />
         <span className="sr-only">{TEXT.COMMON.LOADING}</span>
       </div>
@@ -65,7 +65,7 @@ export function NotificationCenter() {
     return (
       <Card className="mx-auto mt-12 max-w-xl border-border/70 bg-card/90 shadow-xl">
         <CardContent className="flex flex-col items-center px-6 py-12 text-center sm:px-10">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Bell className="size-7" aria-hidden="true" />
           </div>
           <h1 className="mt-6 text-2xl font-bold tracking-tight">
@@ -78,7 +78,6 @@ export function NotificationCenter() {
             href={APP_ROUTES.LOGIN}
             className={cn(buttonVariants(), "mt-7")}
           >
-            <LogIn className="size-4" aria-hidden="true" />
             {TEXT.AUTH.LOGIN}
           </Link>
         </CardContent>
@@ -87,40 +86,32 @@ export function NotificationCenter() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-5xl" aria-labelledby="notification-title">
-      <div className="flex flex-col gap-5 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm backdrop-blur-sm sm:p-7 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
-            <Bell className="size-5" aria-hidden="true" />
+    <section className="w-full" aria-label={TEXT.NOTIFICATION.TITLE}>
+      <PublicPageLead
+        eyebrow={TEXT.NOTIFICATION.EYEBROW}
+        title={TEXT.NOTIFICATION.TITLE}
+        description={TEXT.NOTIFICATION.DESCRIPTION}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="min-h-8 gap-1.5 px-3">
+              {realtime.state === "open" ? (
+                <Wifi className="size-3.5 text-success" aria-hidden="true" />
+              ) : (
+                <WifiOff
+                  className="size-3.5 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              )}
+              {realtime.state === "open"
+                ? TEXT.NOTIFICATION.LIVE
+                : TEXT.NOTIFICATION.RECONNECTING}
+            </Badge>
+            <Badge className="min-h-8 px-3" aria-live="polite">
+              {TEXT.NOTIFICATION.UNREAD_SHORT(notifications.unreadCount)}
+            </Badge>
           </div>
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-              {TEXT.NOTIFICATION.EYEBROW}
-            </p>
-            <h1 id="notification-title" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
-              {TEXT.NOTIFICATION.TITLE}
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-              {TEXT.NOTIFICATION.DESCRIPTION}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="min-h-8 gap-1.5 px-3">
-            {realtime.state === "open" ? (
-              <Wifi className="size-3.5 text-success" aria-hidden="true" />
-            ) : (
-              <WifiOff className="size-3.5 text-muted-foreground" aria-hidden="true" />
-            )}
-            {realtime.state === "open"
-              ? TEXT.NOTIFICATION.LIVE
-              : TEXT.NOTIFICATION.RECONNECTING}
-          </Badge>
-          <Badge className="min-h-8 px-3" aria-live="polite">
-            {TEXT.NOTIFICATION.UNREAD_SHORT(notifications.unreadCount)}
-          </Badge>
-        </div>
-      </div>
+        }
+      />
 
       <Tabs
         value={activeTab}
@@ -131,7 +122,7 @@ export function NotificationCenter() {
               : APP_ROUTES.NOTIFICATIONS;
           router.replace(destination, { scroll: false });
         }}
-        className="mt-6"
+        className="mt-8"
       >
         <TabsList className="grid w-full grid-cols-2 sm:w-auto">
           <TabsTrigger value={TAB_INBOX}>
@@ -192,7 +183,10 @@ function InboxPanel() {
           className="mt-3 w-full sm:mt-0 sm:w-auto"
         >
           {isMarkingAllRead ? (
-            <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+            <Loader2
+              className="size-4 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
           ) : (
             <CheckCheck className="size-4" aria-hidden="true" />
           )}
@@ -218,10 +212,12 @@ function InboxPanel() {
         ) : null}
         {status === "ready" && items.length === 0 ? (
           <div className="flex flex-col items-center px-5 py-14 text-center">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Bell className="size-6" aria-hidden="true" />
             </div>
-            <h2 className="mt-5 text-lg font-bold">{TEXT.NOTIFICATION.EMPTY_TITLE}</h2>
+            <h2 className="mt-5 text-lg font-bold">
+              {TEXT.NOTIFICATION.EMPTY_TITLE}
+            </h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               {TEXT.NOTIFICATION.EMPTY_DESCRIPTION}
             </p>
@@ -254,7 +250,10 @@ function InboxPanel() {
               className="w-full sm:w-auto"
             >
               {isLoadingMore ? (
-                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                <Loader2
+                  className="size-4 animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
               ) : null}
               {isLoadingMore
                 ? TEXT.NOTIFICATION.LOADING_MORE
@@ -269,19 +268,13 @@ function InboxPanel() {
 
 function ResourceError({ onRetry }: { onRetry(): Promise<void> }) {
   return (
-    <div className="flex flex-col items-center px-5 py-14 text-center" role="alert">
-      <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive ring-8 ring-destructive/5">
-        <CircleAlert className="size-6" aria-hidden="true" />
-      </div>
-      <h2 className="mt-5 text-lg font-bold">{TEXT.NOTIFICATION.ERROR_TITLE}</h2>
-      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-        {TEXT.NOTIFICATION.ERROR_DESCRIPTION}
-      </p>
-      <Button type="button" onClick={() => void onRetry()} className="mt-5">
-        <RefreshCw className="size-4" aria-hidden="true" />
-        {TEXT.NOTIFICATION.RETRY}
-      </Button>
-    </div>
+    <ResourceCollectionFeedback
+      className="min-h-64"
+      title={TEXT.NOTIFICATION.ERROR_TITLE}
+      description={TEXT.NOTIFICATION.ERROR_DESCRIPTION}
+      retryLabel={TEXT.NOTIFICATION.RETRY}
+      onRetry={() => void onRetry()}
+    />
   );
 }
 
@@ -315,34 +308,27 @@ function PreferencePanel() {
                 className="h-24 animate-pulse rounded-xl bg-muted motion-reduce:animate-none"
               />
             ))}
-            <span className="sr-only">{TEXT.NOTIFICATION.PREFERENCES.LOADING}</span>
+            <span className="sr-only">
+              {TEXT.NOTIFICATION.PREFERENCES.LOADING}
+            </span>
           </div>
         ) : null}
         {preferenceStatus === "error" && preferences.length === 0 ? (
-          <div className="rounded-xl border border-destructive/20 bg-destructive/[0.04] p-5 text-center" role="alert">
-            <CircleAlert className="mx-auto size-6 text-destructive" aria-hidden="true" />
-            <h2 className="mt-3 font-semibold">
-              {TEXT.NOTIFICATION.PREFERENCES.ERROR_TITLE}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {TEXT.NOTIFICATION.PREFERENCES.ERROR_DESCRIPTION}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void loadPreferences({ force: true })}
-              className="mt-4"
-            >
-              <RefreshCw className="size-4" aria-hidden="true" />
-              {TEXT.NOTIFICATION.PREFERENCES.RETRY}
-            </Button>
-          </div>
+          <ResourceCollectionFeedback
+            className="min-h-64"
+            title={TEXT.NOTIFICATION.PREFERENCES.ERROR_TITLE}
+            description={TEXT.NOTIFICATION.PREFERENCES.ERROR_DESCRIPTION}
+            retryLabel={TEXT.NOTIFICATION.PREFERENCES.RETRY}
+            onRetry={() => void loadPreferences({ force: true })}
+          />
         ) : null}
         {preferences.length > 0 ? (
           <div className="space-y-3">
             {preferences.map((preference) => {
               const copy = notificationCategoryCopy(preference.category);
-              const pending = pendingPreferenceCategories.has(preference.category);
+              const pending = pendingPreferenceCategories.has(
+                preference.category,
+              );
               return (
                 <div
                   key={preference.category}
@@ -369,14 +355,22 @@ function PreferencePanel() {
                       {TEXT.NOTIFICATION.PREFERENCES.CHANNEL}
                     </span>
                     {pending ? (
-                      <Loader2 className="mr-2 size-4 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
+                      <Loader2
+                        className="mr-2 size-4 animate-spin text-muted-foreground motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
                     ) : (
                       <Switch
                         checked={preference.in_app}
                         disabled={preference.required}
                         onCheckedChange={(checked) => {
-                          void updatePreference(preference.category, checked).catch(() =>
-                            notify.error(TEXT.NOTIFICATION.PREFERENCE_ACTION_ERROR),
+                          void updatePreference(
+                            preference.category,
+                            checked,
+                          ).catch(() =>
+                            notify.error(
+                              TEXT.NOTIFICATION.PREFERENCE_ACTION_ERROR,
+                            ),
                           );
                         }}
                         aria-label={

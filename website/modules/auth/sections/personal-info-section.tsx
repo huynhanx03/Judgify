@@ -46,7 +46,7 @@ export function PersonalInfoSection({
     !isRecoveryEmailValid(form.recovery_email);
 
   return (
-    <Card className="space-y-4 border-border/70 bg-card/70 p-5 backdrop-blur-sm">
+    <Card className="space-y-4 border-border/70 bg-surface-raised p-5">
       <h3 className="border-b border-border/70 pb-2 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
         {TEXT.AUTH.STEP_INFO}
       </h3>

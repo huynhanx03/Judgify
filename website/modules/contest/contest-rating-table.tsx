@@ -8,6 +8,15 @@ import { TrendingUp } from "lucide-react";
 import { TEXT } from "@/constants/text";
 import type { RatingChange } from "@/types/contest";
 import { RankIndicator } from "@/components/rank-indicator";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface ContestRatingTableProps {
   ratingChanges: RatingChange[];
@@ -25,42 +34,40 @@ export function ContestRatingTable({ ratingChanges }: ContestRatingTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <caption className="sr-only">{TEXT.CONTEST.RATING_CHANGES}</caption>
-        <thead>
-          <tr className="border-b border-border/40">
-            <th scope="col" className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
-            <th scope="col" className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
-            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_OLD}</th>
-            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_NEW}</th>
-            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.RATING_DELTA}</th>
-          </tr>
-        </thead>
-        <tbody>
+    <Table containerLabel={TEXT.CONTEST.RATING_CHANGES}>
+        <TableCaption className="sr-only">{TEXT.CONTEST.RATING_CHANGES}</TableCaption>
+        <TableHeader>
+          <TableRow className="border-border/40">
+            <TableHead className="w-16 px-4 py-3 text-left text-sm font-bold">{TEXT.CONTEST.RANK}</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-bold">{TEXT.CONTEST.USER}</TableHead>
+            <TableHead className="w-24 px-4 py-3 text-center text-sm font-bold">{TEXT.CONTEST.RATING_OLD}</TableHead>
+            <TableHead className="w-24 px-4 py-3 text-center text-sm font-bold">{TEXT.CONTEST.RATING_NEW}</TableHead>
+            <TableHead className="w-24 px-4 py-3 text-center text-sm font-bold">{TEXT.CONTEST.RATING_DELTA}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {ratingChanges.map((rc) => (
-            <tr key={rc.user_id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-              <td className="py-3 px-4">
+            <TableRow key={rc.user_id} className="border-border/20 hover:bg-muted/20">
+              <TableCell className="px-4 py-3">
                 <RankIndicator rank={rc.rank} />
-              </td>
-              <td className="py-3 px-4">
+              </TableCell>
+              <TableCell className="px-4 py-3">
                 <span className="font-medium">{rc.username}</span>
-              </td>
-              <td className="py-3 px-4 text-center">
+              </TableCell>
+              <TableCell className="px-4 py-3 text-center">
                 <span className="font-mono text-muted-foreground">{rc.old_rating}</span>
-              </td>
-              <td className="py-3 px-4 text-center">
+              </TableCell>
+              <TableCell className="px-4 py-3 text-center">
                 <span className="font-mono font-bold">{rc.new_rating}</span>
-              </td>
-              <td className="py-3 px-4 text-center">
+              </TableCell>
+              <TableCell className="px-4 py-3 text-center">
                 <span className={`font-mono font-bold ${rc.delta > 0 ? "text-success" : rc.delta < 0 ? "text-danger" : "text-muted-foreground"}`}>
                   {rc.delta > 0 ? `+${rc.delta}` : rc.delta}
                 </span>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+    </Table>
   );
 }

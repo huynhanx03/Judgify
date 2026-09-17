@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Loader2, RefreshCw, RotateCcw, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -243,14 +244,12 @@ export default function AdminProgressionPage() {
 
 	return (
 		<div className="space-y-6">
-			<header className="flex flex-col gap-2">
-				<div className="flex items-center gap-2 text-primary">
-					<ShieldCheck className="size-5" aria-hidden="true" />
-					<span className="text-xs font-semibold uppercase tracking-[0.18em]">{ADMIN_TEXT.PROGRESSION.EYEBROW}</span>
-				</div>
-				<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{ADMIN_TEXT.PROGRESSION.TITLE}</h1>
-				<p className="max-w-3xl text-sm leading-6 text-muted-foreground">{ADMIN_TEXT.PROGRESSION.SUBTITLE}</p>
-			</header>
+			<PageHeader
+				icon={ShieldCheck}
+				eyebrow={ADMIN_TEXT.PROGRESSION.EYEBROW}
+				title={ADMIN_TEXT.PROGRESSION.TITLE}
+				description={ADMIN_TEXT.PROGRESSION.SUBTITLE}
+			/>
 
 			<Tabs defaultValue={defaultTab}>
 				<TabsList aria-label={ADMIN_TEXT.PROGRESSION.TABS_LABEL}>

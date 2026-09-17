@@ -322,7 +322,7 @@ function RecipientList({
               />
             ))}
           </div>
-          <div className="hidden overflow-x-auto rounded-xl border border-border lg:block">
+          <div className="hidden rounded-xl border border-border lg:block">
             <Table
               aria-label={
                 ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.RECIPIENT.TABLE_LABEL

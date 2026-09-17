@@ -6,29 +6,152 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// ActivatedJudgeCapability is the predicate function for activatedjudgecapability builders.
+type ActivatedJudgeCapability func(*sql.Selector)
+
 // AttributeDefinition is the predicate function for attributedefinition builders.
 type AttributeDefinition func(*sql.Selector)
+
+// AttributeDefinitionRevision is the predicate function for attributedefinitionrevision builders.
+type AttributeDefinitionRevision func(*sql.Selector)
+
+// AuditLog is the predicate function for auditlog builders.
+type AuditLog func(*sql.Selector)
+
+// AuthRefreshReceipt is the predicate function for authrefreshreceipt builders.
+type AuthRefreshReceipt func(*sql.Selector)
+
+// AuthRefreshToken is the predicate function for authrefreshtoken builders.
+type AuthRefreshToken func(*sql.Selector)
+
+// AuthSession is the predicate function for authsession builders.
+type AuthSession func(*sql.Selector)
+
+// AuthSessionCommandReceipt is the predicate function for authsessioncommandreceipt builders.
+type AuthSessionCommandReceipt func(*sql.Selector)
+
+// AuthSessionIssuanceReceipt is the predicate function for authsessionissuancereceipt builders.
+type AuthSessionIssuanceReceipt func(*sql.Selector)
+
+// AuthorizationAction is the predicate function for authorizationaction builders.
+type AuthorizationAction func(*sql.Selector)
+
+// AuthorizationResource is the predicate function for authorizationresource builders.
+type AuthorizationResource func(*sql.Selector)
+
+// AuthorizationState is the predicate function for authorizationstate builders.
+type AuthorizationState func(*sql.Selector)
+
+// CasbinRule is the predicate function for casbinrule builders.
+type CasbinRule func(*sql.Selector)
+
+// CheckerProfile is the predicate function for checkerprofile builders.
+type CheckerProfile func(*sql.Selector)
+
+// ContentRenderArtifact is the predicate function for contentrenderartifact builders.
+type ContentRenderArtifact func(*sql.Selector)
+
+// ContentRenderSource is the predicate function for contentrendersource builders.
+type ContentRenderSource func(*sql.Selector)
 
 // Contest is the predicate function for contest builders.
 type Contest func(*sql.Selector)
 
+// ContestAnnouncement is the predicate function for contestannouncement builders.
+type ContestAnnouncement func(*sql.Selector)
+
+// ContestClarification is the predicate function for contestclarification builders.
+type ContestClarification func(*sql.Selector)
+
+// ContestContentCommand is the predicate function for contestcontentcommand builders.
+type ContestContentCommand func(*sql.Selector)
+
+// ContestContentRevision is the predicate function for contestcontentrevision builders.
+type ContestContentRevision func(*sql.Selector)
+
+// ContestDraftProblem is the predicate function for contestdraftproblem builders.
+type ContestDraftProblem func(*sql.Selector)
+
+// ContestProblem is the predicate function for contestproblem builders.
+type ContestProblem func(*sql.Selector)
+
+// ContestProblemResult is the predicate function for contestproblemresult builders.
+type ContestProblemResult func(*sql.Selector)
+
+// ContestRatingResult is the predicate function for contestratingresult builders.
+type ContestRatingResult func(*sql.Selector)
+
+// ContestRatingRun is the predicate function for contestratingrun builders.
+type ContestRatingRun func(*sql.Selector)
+
 // ContestRegistration is the predicate function for contestregistration builders.
 type ContestRegistration func(*sql.Selector)
+
+// ContestRegistrationTransition is the predicate function for contestregistrationtransition builders.
+type ContestRegistrationTransition func(*sql.Selector)
+
+// ContestScoringAttempt is the predicate function for contestscoringattempt builders.
+type ContestScoringAttempt func(*sql.Selector)
 
 // ContestStanding is the predicate function for conteststanding builders.
 type ContestStanding func(*sql.Selector)
 
+// ContestTransition is the predicate function for contesttransition builders.
+type ContestTransition func(*sql.Selector)
+
+// ContestUserRating is the predicate function for contestuserrating builders.
+type ContestUserRating func(*sql.Selector)
+
 // Credential is the predicate function for credential builders.
 type Credential func(*sql.Selector)
+
+// CultivationCatalogRevision is the predicate function for cultivationcatalogrevision builders.
+type CultivationCatalogRevision func(*sql.Selector)
+
+// CultivationRankingPrivacyChange is the predicate function for cultivationrankingprivacychange builders.
+type CultivationRankingPrivacyChange func(*sql.Selector)
+
+// CultivationRankingProjection is the predicate function for cultivationrankingprojection builders.
+type CultivationRankingProjection func(*sql.Selector)
+
+// CultivationRankingState is the predicate function for cultivationrankingstate builders.
+type CultivationRankingState func(*sql.Selector)
 
 // Difficulty is the predicate function for difficulty builders.
 type Difficulty func(*sql.Selector)
 
+// DifficultyRevision is the predicate function for difficultyrevision builders.
+type DifficultyRevision func(*sql.Selector)
+
 // Element is the predicate function for element builders.
 type Element func(*sql.Selector)
 
+// ElementRevision is the predicate function for elementrevision builders.
+type ElementRevision func(*sql.Selector)
+
 // FederatedIdentity is the predicate function for federatedidentity builders.
 type FederatedIdentity func(*sql.Selector)
+
+// JudgeAttempt is the predicate function for judgeattempt builders.
+type JudgeAttempt func(*sql.Selector)
+
+// JudgeJob is the predicate function for judgejob builders.
+type JudgeJob func(*sql.Selector)
+
+// JudgeSpec is the predicate function for judgespec builders.
+type JudgeSpec func(*sql.Selector)
+
+// JudgeTestResult is the predicate function for judgetestresult builders.
+type JudgeTestResult func(*sql.Selector)
+
+// JudgeWorkerCapability is the predicate function for judgeworkercapability builders.
+type JudgeWorkerCapability func(*sql.Selector)
+
+// JudgeWorkerInstance is the predicate function for judgeworkerinstance builders.
+type JudgeWorkerInstance func(*sql.Selector)
+
+// Judgement is the predicate function for judgement builders.
+type Judgement func(*sql.Selector)
 
 // Level is the predicate function for level builders.
 type Level func(*sql.Selector)
@@ -39,11 +162,80 @@ type Material func(*sql.Selector)
 // MaterialCategory is the predicate function for materialcategory builders.
 type MaterialCategory func(*sql.Selector)
 
-// Permission is the predicate function for permission builders.
-type Permission func(*sql.Selector)
+// MaterialRevision is the predicate function for materialrevision builders.
+type MaterialRevision func(*sql.Selector)
+
+// MaterialRevisionTag is the predicate function for materialrevisiontag builders.
+type MaterialRevisionTag func(*sql.Selector)
+
+// MaterialSlug is the predicate function for materialslug builders.
+type MaterialSlug func(*sql.Selector)
+
+// MaterialViewDaily is the predicate function for materialviewdaily builders.
+type MaterialViewDaily func(*sql.Selector)
+
+// Notification is the predicate function for notification builders.
+type Notification func(*sql.Selector)
+
+// NotificationCampaign is the predicate function for notificationcampaign builders.
+type NotificationCampaign func(*sql.Selector)
+
+// NotificationCampaignConfirmation is the predicate function for notificationcampaignconfirmation builders.
+type NotificationCampaignConfirmation func(*sql.Selector)
+
+// NotificationCampaignExplicitUser is the predicate function for notificationcampaignexplicituser builders.
+type NotificationCampaignExplicitUser func(*sql.Selector)
+
+// NotificationCampaignRecipient is the predicate function for notificationcampaignrecipient builders.
+type NotificationCampaignRecipient func(*sql.Selector)
+
+// NotificationCampaignRevision is the predicate function for notificationcampaignrevision builders.
+type NotificationCampaignRevision func(*sql.Selector)
+
+// NotificationInboxState is the predicate function for notificationinboxstate builders.
+type NotificationInboxState func(*sql.Selector)
+
+// NotificationPreference is the predicate function for notificationpreference builders.
+type NotificationPreference func(*sql.Selector)
+
+// OAuthCompletionTicket is the predicate function for oauthcompletionticket builders.
+type OAuthCompletionTicket func(*sql.Selector)
+
+// OAuthFlow is the predicate function for oauthflow builders.
+type OAuthFlow func(*sql.Selector)
+
+// OnboardingTraitOffer is the predicate function for onboardingtraitoffer builders.
+type OnboardingTraitOffer func(*sql.Selector)
+
+// OnboardingTraitOfferTalent is the predicate function for onboardingtraitoffertalent builders.
+type OnboardingTraitOfferTalent func(*sql.Selector)
+
+// Operation is the predicate function for operation builders.
+type Operation func(*sql.Selector)
+
+// OperationBatch is the predicate function for operationbatch builders.
+type OperationBatch func(*sql.Selector)
+
+// OperationControlReceipt is the predicate function for operationcontrolreceipt builders.
+type OperationControlReceipt func(*sql.Selector)
+
+// OutboxEvent is the predicate function for outboxevent builders.
+type OutboxEvent func(*sql.Selector)
+
+// PasswordResetToken is the predicate function for passwordresettoken builders.
+type PasswordResetToken func(*sql.Selector)
 
 // Problem is the predicate function for problem builders.
 type Problem func(*sql.Selector)
+
+// ProblemRevision is the predicate function for problemrevision builders.
+type ProblemRevision func(*sql.Selector)
+
+// ProfileSchemaState is the predicate function for profileschemastate builders.
+type ProfileSchemaState func(*sql.Selector)
+
+// ProgressionLedgerEntry is the predicate function for progressionledgerentry builders.
+type ProgressionLedgerEntry func(*sql.Selector)
 
 // Rank is the predicate function for rank builders.
 type Rank func(*sql.Selector)
@@ -54,11 +246,50 @@ type Rarity func(*sql.Selector)
 // RatingHistory is the predicate function for ratinghistory builders.
 type RatingHistory func(*sql.Selector)
 
-// Resource is the predicate function for resource builders.
-type Resource func(*sql.Selector)
+// RatingProjectionGeneration is the predicate function for ratingprojectiongeneration builders.
+type RatingProjectionGeneration func(*sql.Selector)
+
+// RatingRunChain is the predicate function for ratingrunchain builders.
+type RatingRunChain func(*sql.Selector)
+
+// RatingRunChainEntry is the predicate function for ratingrunchainentry builders.
+type RatingRunChainEntry func(*sql.Selector)
+
+// RatingSequenceSlot is the predicate function for ratingsequenceslot builders.
+type RatingSequenceSlot func(*sql.Selector)
+
+// RatingState is the predicate function for ratingstate builders.
+type RatingState func(*sql.Selector)
+
+// RealtimeCursorState is the predicate function for realtimecursorstate builders.
+type RealtimeCursorState func(*sql.Selector)
+
+// RealtimeEvent is the predicate function for realtimeevent builders.
+type RealtimeEvent func(*sql.Selector)
+
+// RecoveryContactCommandReceipt is the predicate function for recoverycontactcommandreceipt builders.
+type RecoveryContactCommandReceipt func(*sql.Selector)
+
+// RecoveryContactVerificationToken is the predicate function for recoverycontactverificationtoken builders.
+type RecoveryContactVerificationToken func(*sql.Selector)
+
+// RewardRuleRevision is the predicate function for rewardrulerevision builders.
+type RewardRuleRevision func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
+
+// RuntimeProfile is the predicate function for runtimeprofile builders.
+type RuntimeProfile func(*sql.Selector)
+
+// SecurityEmailDelivery is the predicate function for securityemaildelivery builders.
+type SecurityEmailDelivery func(*sql.Selector)
+
+// SolveRewardCursor is the predicate function for solverewardcursor builders.
+type SolveRewardCursor func(*sql.Selector)
+
+// SolveRewardProcessedTransition is the predicate function for solverewardprocessedtransition builders.
+type SolveRewardProcessedTransition func(*sql.Selector)
 
 // Submission is the predicate function for submission builders.
 type Submission func(*sql.Selector)
@@ -66,11 +297,32 @@ type Submission func(*sql.Selector)
 // Tag is the predicate function for tag builders.
 type Tag func(*sql.Selector)
 
+// TagRevision is the predicate function for tagrevision builders.
+type TagRevision func(*sql.Selector)
+
+// TagRevisionElement is the predicate function for tagrevisionelement builders.
+type TagRevisionElement func(*sql.Selector)
+
+// TestAsset is the predicate function for testasset builders.
+type TestAsset func(*sql.Selector)
+
 // TestCase is the predicate function for testcase builders.
 type TestCase func(*sql.Selector)
 
+// TestcaseGroup is the predicate function for testcasegroup builders.
+type TestcaseGroup func(*sql.Selector)
+
+// TestcaseRevision is the predicate function for testcaserevision builders.
+type TestcaseRevision func(*sql.Selector)
+
+// TestsetRevision is the predicate function for testsetrevision builders.
+type TestsetRevision func(*sql.Selector)
+
 // Trait is the predicate function for trait builders.
 type Trait func(*sql.Selector)
+
+// TraitEffectRevision is the predicate function for traiteffectrevision builders.
+type TraitEffectRevision func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
@@ -83,6 +335,21 @@ type UserDifficultyStats func(*sql.Selector)
 
 // UserElementExp is the predicate function for userelementexp builders.
 type UserElementExp func(*sql.Selector)
+
+// UserProblemSolve is the predicate function for userproblemsolve builders.
+type UserProblemSolve func(*sql.Selector)
+
+// UserProblemSolveTransition is the predicate function for userproblemsolvetransition builders.
+type UserProblemSolveTransition func(*sql.Selector)
+
+// UserRecoveryContact is the predicate function for userrecoverycontact builders.
+type UserRecoveryContact func(*sql.Selector)
+
+// UserRewardProfileRevision is the predicate function for userrewardprofilerevision builders.
+type UserRewardProfileRevision func(*sql.Selector)
+
+// UserRewardProfileTrait is the predicate function for userrewardprofiletrait builders.
+type UserRewardProfileTrait func(*sql.Selector)
 
 // UserSolvedProblem is the predicate function for usersolvedproblem builders.
 type UserSolvedProblem func(*sql.Selector)

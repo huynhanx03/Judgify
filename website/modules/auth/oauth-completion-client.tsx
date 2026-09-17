@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CircleAlert, Loader2, ShieldCheck } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { TEXT } from "@/constants/text";
 import { APP_ROUTES } from "@/constants/routes";
@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { isoDateTimeSchema } from "@/lib/api/contracts";
 import { notify } from "@/lib/toast";
 import { TraitCodexModal } from "@/modules/cultivation/trait-codex-modal";
+import { AuthSurface } from "@/modules/auth/auth-surface";
 import { TraitSelectionSection } from "@/modules/auth/sections/trait-selection-section";
 import { OnboardingProfileFields } from "@/modules/auth/onboarding-profile-fields";
 import { useOnboardingProfileForm } from "@/modules/auth/hooks/use-onboarding-profile-form";
@@ -312,7 +313,7 @@ export function OAuthCompletionClient({
   if (onboardingRequired && !failed) {
     return (
       <>
-        <Card className="mx-auto w-full max-w-2xl border-border/70 bg-background/90 shadow-2xl backdrop-blur-xl">
+        <AuthSurface className="mx-auto max-w-2xl">
           <CardContent className="px-5 py-7 sm:px-8">
             <div className="text-center">
               <h1 className="text-xl font-bold tracking-tight">
@@ -380,7 +381,7 @@ export function OAuthCompletionClient({
                 : TEXT.AUTH.OAUTH_ONBOARDING_COMPLETE}
             </Button>
           </CardContent>
-        </Card>
+        </AuthSurface>
         <TraitCodexModal
           open={showCodex}
           onClose={() => setShowCodex(false)}
@@ -397,11 +398,11 @@ export function OAuthCompletionClient({
     : TEXT.AUTH.OAUTH_CALLBACK_DESCRIPTION;
 
   return (
-    <Card className="mx-auto w-full max-w-md overflow-hidden border-border/70 bg-background/90 shadow-2xl backdrop-blur-xl">
+    <AuthSurface className="mx-auto max-w-md overflow-hidden">
       <CardContent className="flex min-h-80 flex-col items-center justify-center px-6 py-10 text-center sm:px-10">
         {!failed ? (
           <div className="flex flex-col items-center" role="status" aria-live="polite">
-            <div className="relative mb-6 flex size-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary ring-8 ring-primary/5">
+            <div className="relative mb-6 flex size-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
               <ShieldCheck className="size-7" aria-hidden="true" />
               <Loader2 className="absolute -right-1 -top-1 size-5 animate-spin rounded-full bg-background motion-reduce:animate-none" aria-hidden="true" />
             </div>
@@ -414,7 +415,7 @@ export function OAuthCompletionClient({
           </div>
         ) : (
           <div className="flex flex-col items-center" role="alert">
-            <div className="mb-6 flex size-16 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive ring-8 ring-destructive/5">
+            <div className="mb-6 flex size-16 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive">
               <CircleAlert className="size-7" aria-hidden="true" />
             </div>
             <h1 className="text-xl font-bold tracking-tight">
@@ -438,6 +439,6 @@ export function OAuthCompletionClient({
           </div>
         )}
       </CardContent>
-    </Card>
+    </AuthSurface>
   );
 }

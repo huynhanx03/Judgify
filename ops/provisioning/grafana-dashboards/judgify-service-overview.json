@@ -1,0 +1,16 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "panels": [
+    {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []}, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}, "id": 1, "targets": [{"expr": "sum(rate(judgify_http_requests_total[5m]))", "refId": "A"}], "title": "API request rate", "type": "timeseries"},
+    {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}, "id": 2, "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(judgify_http_request_duration_seconds_bucket[5m])))", "refId": "A"}], "title": "API latency p95", "type": "timeseries"},
+    {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []}, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}, "id": 3, "targets": [{"expr": "max by (state) (judgify_judge_jobs)", "refId": "A"}], "title": "Judge queue depth", "type": "timeseries"},
+    {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}, "id": 4, "targets": [{"expr": "max(judgify_judge_oldest_ready_job_seconds)", "refId": "A"}], "title": "Oldest ready judge job", "type": "timeseries"}
+  ],
+  "schemaVersion": 41,
+  "tags": ["judgify", "service"],
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "Judgify / Service Overview",
+  "uid": "judgify-service-overview",
+  "version": 1
+}

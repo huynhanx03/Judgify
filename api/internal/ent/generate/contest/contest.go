@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -34,14 +35,50 @@ const (
 	FieldEndTime = "end_time"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
 	// FieldAuthorID holds the string denoting the author_id field in the database.
 	FieldAuthorID = "author_id"
+	// FieldRegistrationMode holds the string denoting the registration_mode field in the database.
+	FieldRegistrationMode = "registration_mode"
+	// FieldRegistrationOpensAt holds the string denoting the registration_opens_at field in the database.
+	FieldRegistrationOpensAt = "registration_opens_at"
+	// FieldRegistrationClosesAt holds the string denoting the registration_closes_at field in the database.
+	FieldRegistrationClosesAt = "registration_closes_at"
 	// FieldMaxParticipants holds the string denoting the max_participants field in the database.
 	FieldMaxParticipants = "max_participants"
+	// FieldNextSubmissionSequence holds the string denoting the next_submission_sequence field in the database.
+	FieldNextSubmissionSequence = "next_submission_sequence"
+	// FieldScoringPolicy holds the string denoting the scoring_policy field in the database.
+	FieldScoringPolicy = "scoring_policy"
+	// FieldScoringPolicyVersion holds the string denoting the scoring_policy_version field in the database.
+	FieldScoringPolicyVersion = "scoring_policy_version"
+	// FieldStandingsProjectionVersion holds the string denoting the standings_projection_version field in the database.
+	FieldStandingsProjectionVersion = "standings_projection_version"
+	// FieldFreezeStandingsAt holds the string denoting the freeze_standings_at field in the database.
+	FieldFreezeStandingsAt = "freeze_standings_at"
+	// FieldRated holds the string denoting the rated field in the database.
+	FieldRated = "rated"
+	// FieldRatingAlgorithmVersion holds the string denoting the rating_algorithm_version field in the database.
+	FieldRatingAlgorithmVersion = "rating_algorithm_version"
+	// FieldPublishedAt holds the string denoting the published_at field in the database.
+	FieldPublishedAt = "published_at"
+	// FieldStartedAt holds the string denoting the started_at field in the database.
+	FieldStartedAt = "started_at"
+	// FieldEndedAt holds the string denoting the ended_at field in the database.
+	FieldEndedAt = "ended_at"
+	// FieldCancelledAt holds the string denoting the cancelled_at field in the database.
+	FieldCancelledAt = "cancelled_at"
+	// FieldRatingCompletedAt holds the string denoting the rating_completed_at field in the database.
+	FieldRatingCompletedAt = "rating_completed_at"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
-	// EdgeProblems holds the string denoting the problems edge name in mutations.
-	EdgeProblems = "problems"
+	// EdgeDraftProblems holds the string denoting the draft_problems edge name in mutations.
+	EdgeDraftProblems = "draft_problems"
+	// EdgeContestProblems holds the string denoting the contest_problems edge name in mutations.
+	EdgeContestProblems = "contest_problems"
+	// EdgeTransitions holds the string denoting the transitions edge name in mutations.
+	EdgeTransitions = "transitions"
 	// EdgeRegistrations holds the string denoting the registrations edge name in mutations.
 	EdgeRegistrations = "registrations"
 	// EdgeStandings holds the string denoting the standings edge name in mutations.
@@ -50,6 +87,20 @@ const (
 	EdgeSubmissions = "submissions"
 	// EdgeRatingHistories holds the string denoting the rating_histories edge name in mutations.
 	EdgeRatingHistories = "rating_histories"
+	// EdgeRatingSequenceSlots holds the string denoting the rating_sequence_slots edge name in mutations.
+	EdgeRatingSequenceSlots = "rating_sequence_slots"
+	// EdgeRatingRuns holds the string denoting the rating_runs edge name in mutations.
+	EdgeRatingRuns = "rating_runs"
+	// EdgeAnnouncements holds the string denoting the announcements edge name in mutations.
+	EdgeAnnouncements = "announcements"
+	// EdgeClarifications holds the string denoting the clarifications edge name in mutations.
+	EdgeClarifications = "clarifications"
+	// EdgeContentCommands holds the string denoting the content_commands edge name in mutations.
+	EdgeContentCommands = "content_commands"
+	// EdgeScoringAttempts holds the string denoting the scoring_attempts edge name in mutations.
+	EdgeScoringAttempts = "scoring_attempts"
+	// EdgeProblemResults holds the string denoting the problem_results edge name in mutations.
+	EdgeProblemResults = "problem_results"
 	// Table holds the table name of the contest in the database.
 	Table = "contests"
 	// AuthorTable is the table that holds the author relation/edge.
@@ -59,13 +110,27 @@ const (
 	AuthorInverseTable = "users"
 	// AuthorColumn is the table column denoting the author relation/edge.
 	AuthorColumn = "author_id"
-	// ProblemsTable is the table that holds the problems relation/edge.
-	ProblemsTable = "problems"
-	// ProblemsInverseTable is the table name for the Problem entity.
-	// It exists in this package in order to avoid circular dependency with the "problem" package.
-	ProblemsInverseTable = "problems"
-	// ProblemsColumn is the table column denoting the problems relation/edge.
-	ProblemsColumn = "contest_problems"
+	// DraftProblemsTable is the table that holds the draft_problems relation/edge.
+	DraftProblemsTable = "contest_draft_problems"
+	// DraftProblemsInverseTable is the table name for the ContestDraftProblem entity.
+	// It exists in this package in order to avoid circular dependency with the "contestdraftproblem" package.
+	DraftProblemsInverseTable = "contest_draft_problems"
+	// DraftProblemsColumn is the table column denoting the draft_problems relation/edge.
+	DraftProblemsColumn = "contest_id"
+	// ContestProblemsTable is the table that holds the contest_problems relation/edge.
+	ContestProblemsTable = "contest_problems"
+	// ContestProblemsInverseTable is the table name for the ContestProblem entity.
+	// It exists in this package in order to avoid circular dependency with the "contestproblem" package.
+	ContestProblemsInverseTable = "contest_problems"
+	// ContestProblemsColumn is the table column denoting the contest_problems relation/edge.
+	ContestProblemsColumn = "contest_id"
+	// TransitionsTable is the table that holds the transitions relation/edge.
+	TransitionsTable = "contest_transitions"
+	// TransitionsInverseTable is the table name for the ContestTransition entity.
+	// It exists in this package in order to avoid circular dependency with the "contesttransition" package.
+	TransitionsInverseTable = "contest_transitions"
+	// TransitionsColumn is the table column denoting the transitions relation/edge.
+	TransitionsColumn = "contest_id"
 	// RegistrationsTable is the table that holds the registrations relation/edge.
 	RegistrationsTable = "contest_registrations"
 	// RegistrationsInverseTable is the table name for the ContestRegistration entity.
@@ -94,6 +159,55 @@ const (
 	RatingHistoriesInverseTable = "rating_histories"
 	// RatingHistoriesColumn is the table column denoting the rating_histories relation/edge.
 	RatingHistoriesColumn = "contest_id"
+	// RatingSequenceSlotsTable is the table that holds the rating_sequence_slots relation/edge.
+	RatingSequenceSlotsTable = "rating_sequence_slots"
+	// RatingSequenceSlotsInverseTable is the table name for the RatingSequenceSlot entity.
+	// It exists in this package in order to avoid circular dependency with the "ratingsequenceslot" package.
+	RatingSequenceSlotsInverseTable = "rating_sequence_slots"
+	// RatingSequenceSlotsColumn is the table column denoting the rating_sequence_slots relation/edge.
+	RatingSequenceSlotsColumn = "contest_id"
+	// RatingRunsTable is the table that holds the rating_runs relation/edge.
+	RatingRunsTable = "contest_rating_runs"
+	// RatingRunsInverseTable is the table name for the ContestRatingRun entity.
+	// It exists in this package in order to avoid circular dependency with the "contestratingrun" package.
+	RatingRunsInverseTable = "contest_rating_runs"
+	// RatingRunsColumn is the table column denoting the rating_runs relation/edge.
+	RatingRunsColumn = "contest_id"
+	// AnnouncementsTable is the table that holds the announcements relation/edge.
+	AnnouncementsTable = "contest_announcements"
+	// AnnouncementsInverseTable is the table name for the ContestAnnouncement entity.
+	// It exists in this package in order to avoid circular dependency with the "contestannouncement" package.
+	AnnouncementsInverseTable = "contest_announcements"
+	// AnnouncementsColumn is the table column denoting the announcements relation/edge.
+	AnnouncementsColumn = "contest_id"
+	// ClarificationsTable is the table that holds the clarifications relation/edge.
+	ClarificationsTable = "contest_clarifications"
+	// ClarificationsInverseTable is the table name for the ContestClarification entity.
+	// It exists in this package in order to avoid circular dependency with the "contestclarification" package.
+	ClarificationsInverseTable = "contest_clarifications"
+	// ClarificationsColumn is the table column denoting the clarifications relation/edge.
+	ClarificationsColumn = "contest_id"
+	// ContentCommandsTable is the table that holds the content_commands relation/edge.
+	ContentCommandsTable = "contest_content_commands"
+	// ContentCommandsInverseTable is the table name for the ContestContentCommand entity.
+	// It exists in this package in order to avoid circular dependency with the "contestcontentcommand" package.
+	ContentCommandsInverseTable = "contest_content_commands"
+	// ContentCommandsColumn is the table column denoting the content_commands relation/edge.
+	ContentCommandsColumn = "contest_id"
+	// ScoringAttemptsTable is the table that holds the scoring_attempts relation/edge.
+	ScoringAttemptsTable = "contest_scoring_attempts"
+	// ScoringAttemptsInverseTable is the table name for the ContestScoringAttempt entity.
+	// It exists in this package in order to avoid circular dependency with the "contestscoringattempt" package.
+	ScoringAttemptsInverseTable = "contest_scoring_attempts"
+	// ScoringAttemptsColumn is the table column denoting the scoring_attempts relation/edge.
+	ScoringAttemptsColumn = "contest_id"
+	// ProblemResultsTable is the table that holds the problem_results relation/edge.
+	ProblemResultsTable = "contest_problem_results"
+	// ProblemResultsInverseTable is the table name for the ContestProblemResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestproblemresult" package.
+	ProblemResultsInverseTable = "contest_problem_results"
+	// ProblemResultsColumn is the table column denoting the problem_results relation/edge.
+	ProblemResultsColumn = "contest_id"
 )
 
 // Columns holds all SQL columns for contest fields.
@@ -108,8 +222,24 @@ var Columns = []string{
 	FieldStartTime,
 	FieldEndTime,
 	FieldStatus,
+	FieldVersion,
 	FieldAuthorID,
+	FieldRegistrationMode,
+	FieldRegistrationOpensAt,
+	FieldRegistrationClosesAt,
 	FieldMaxParticipants,
+	FieldNextSubmissionSequence,
+	FieldScoringPolicy,
+	FieldScoringPolicyVersion,
+	FieldStandingsProjectionVersion,
+	FieldFreezeStandingsAt,
+	FieldRated,
+	FieldRatingAlgorithmVersion,
+	FieldPublishedAt,
+	FieldStartedAt,
+	FieldEndedAt,
+	FieldCancelledAt,
+	FieldRatingCompletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -138,8 +268,32 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
-	// DefaultMaxParticipants holds the default value on creation for the "max_participants" field.
-	DefaultMaxParticipants int
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// MaxParticipantsValidator is a validator for the "max_participants" field. It is called by the builders before save.
+	MaxParticipantsValidator func(int) error
+	// DefaultNextSubmissionSequence holds the default value on creation for the "next_submission_sequence" field.
+	DefaultNextSubmissionSequence int64
+	// NextSubmissionSequenceValidator is a validator for the "next_submission_sequence" field. It is called by the builders before save.
+	NextSubmissionSequenceValidator func(int64) error
+	// DefaultScoringPolicyVersion holds the default value on creation for the "scoring_policy_version" field.
+	DefaultScoringPolicyVersion int64
+	// ScoringPolicyVersionValidator is a validator for the "scoring_policy_version" field. It is called by the builders before save.
+	ScoringPolicyVersionValidator func(int64) error
+	// DefaultStandingsProjectionVersion holds the default value on creation for the "standings_projection_version" field.
+	DefaultStandingsProjectionVersion int64
+	// StandingsProjectionVersionValidator is a validator for the "standings_projection_version" field. It is called by the builders before save.
+	StandingsProjectionVersionValidator func(int64) error
+	// DefaultRated holds the default value on creation for the "rated" field.
+	DefaultRated bool
+	// DefaultRatingAlgorithmVersion holds the default value on creation for the "rating_algorithm_version" field.
+	DefaultRatingAlgorithmVersion string
+	// RatingAlgorithmVersionValidator is a validator for the "rating_algorithm_version" field. It is called by the builders before save.
+	RatingAlgorithmVersionValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // Status defines the type for the "status" enum field.
@@ -150,10 +304,11 @@ const DefaultStatus = StatusDraft
 
 // Status values.
 const (
-	StatusDraft    Status = "draft"
-	StatusUpcoming Status = "upcoming"
-	StatusRunning  Status = "running"
-	StatusEnded    Status = "ended"
+	StatusDraft     Status = "draft"
+	StatusUpcoming  Status = "upcoming"
+	StatusRunning   Status = "running"
+	StatusEnded     Status = "ended"
+	StatusCancelled Status = "cancelled"
 )
 
 func (s Status) String() string {
@@ -163,10 +318,61 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusDraft, StatusUpcoming, StatusRunning, StatusEnded:
+	case StatusDraft, StatusUpcoming, StatusRunning, StatusEnded, StatusCancelled:
 		return nil
 	default:
 		return fmt.Errorf("contest: invalid enum value for status field: %q", s)
+	}
+}
+
+// RegistrationMode defines the type for the "registration_mode" enum field.
+type RegistrationMode string
+
+// RegistrationModeRegistered is the default value of the RegistrationMode enum.
+const DefaultRegistrationMode = RegistrationModeRegistered
+
+// RegistrationMode values.
+const (
+	RegistrationModeRegistered RegistrationMode = "registered"
+	RegistrationModeOpen       RegistrationMode = "open"
+)
+
+func (rm RegistrationMode) String() string {
+	return string(rm)
+}
+
+// RegistrationModeValidator is a validator for the "registration_mode" field enum values. It is called by the builders before save.
+func RegistrationModeValidator(rm RegistrationMode) error {
+	switch rm {
+	case RegistrationModeRegistered, RegistrationModeOpen:
+		return nil
+	default:
+		return fmt.Errorf("contest: invalid enum value for registration_mode field: %q", rm)
+	}
+}
+
+// ScoringPolicy defines the type for the "scoring_policy" enum field.
+type ScoringPolicy string
+
+// ScoringPolicyIcpc is the default value of the ScoringPolicy enum.
+const DefaultScoringPolicy = ScoringPolicyIcpc
+
+// ScoringPolicy values.
+const (
+	ScoringPolicyIcpc ScoringPolicy = "icpc"
+)
+
+func (sp ScoringPolicy) String() string {
+	return string(sp)
+}
+
+// ScoringPolicyValidator is a validator for the "scoring_policy" field enum values. It is called by the builders before save.
+func ScoringPolicyValidator(sp ScoringPolicy) error {
+	switch sp {
+	case ScoringPolicyIcpc:
+		return nil
+	default:
+		return fmt.Errorf("contest: invalid enum value for scoring_policy field: %q", sp)
 	}
 }
 
@@ -223,14 +429,94 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
 // ByAuthorID orders the results by the author_id field.
 func ByAuthorID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAuthorID, opts...).ToFunc()
 }
 
+// ByRegistrationMode orders the results by the registration_mode field.
+func ByRegistrationMode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegistrationMode, opts...).ToFunc()
+}
+
+// ByRegistrationOpensAt orders the results by the registration_opens_at field.
+func ByRegistrationOpensAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegistrationOpensAt, opts...).ToFunc()
+}
+
+// ByRegistrationClosesAt orders the results by the registration_closes_at field.
+func ByRegistrationClosesAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegistrationClosesAt, opts...).ToFunc()
+}
+
 // ByMaxParticipants orders the results by the max_participants field.
 func ByMaxParticipants(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMaxParticipants, opts...).ToFunc()
+}
+
+// ByNextSubmissionSequence orders the results by the next_submission_sequence field.
+func ByNextSubmissionSequence(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNextSubmissionSequence, opts...).ToFunc()
+}
+
+// ByScoringPolicy orders the results by the scoring_policy field.
+func ByScoringPolicy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScoringPolicy, opts...).ToFunc()
+}
+
+// ByScoringPolicyVersion orders the results by the scoring_policy_version field.
+func ByScoringPolicyVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScoringPolicyVersion, opts...).ToFunc()
+}
+
+// ByStandingsProjectionVersion orders the results by the standings_projection_version field.
+func ByStandingsProjectionVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStandingsProjectionVersion, opts...).ToFunc()
+}
+
+// ByFreezeStandingsAt orders the results by the freeze_standings_at field.
+func ByFreezeStandingsAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFreezeStandingsAt, opts...).ToFunc()
+}
+
+// ByRated orders the results by the rated field.
+func ByRated(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRated, opts...).ToFunc()
+}
+
+// ByRatingAlgorithmVersion orders the results by the rating_algorithm_version field.
+func ByRatingAlgorithmVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingAlgorithmVersion, opts...).ToFunc()
+}
+
+// ByPublishedAt orders the results by the published_at field.
+func ByPublishedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedAt, opts...).ToFunc()
+}
+
+// ByStartedAt orders the results by the started_at field.
+func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartedAt, opts...).ToFunc()
+}
+
+// ByEndedAt orders the results by the ended_at field.
+func ByEndedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEndedAt, opts...).ToFunc()
+}
+
+// ByCancelledAt orders the results by the cancelled_at field.
+func ByCancelledAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCancelledAt, opts...).ToFunc()
+}
+
+// ByRatingCompletedAt orders the results by the rating_completed_at field.
+func ByRatingCompletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingCompletedAt, opts...).ToFunc()
 }
 
 // ByAuthorField orders the results by author field.
@@ -240,17 +526,45 @@ func ByAuthorField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByProblemsCount orders the results by problems count.
-func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByDraftProblemsCount orders the results by draft_problems count.
+func ByDraftProblemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newProblemsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newDraftProblemsStep(), opts...)
 	}
 }
 
-// ByProblems orders the results by problems terms.
-func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByDraftProblems orders the results by draft_problems terms.
+func ByDraftProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newDraftProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestProblemsCount orders the results by contest_problems count.
+func ByContestProblemsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestProblemsStep(), opts...)
+	}
+}
+
+// ByContestProblems orders the results by contest_problems terms.
+func ByContestProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTransitionsCount orders the results by transitions count.
+func ByTransitionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTransitionsStep(), opts...)
+	}
+}
+
+// ByTransitions orders the results by transitions terms.
+func ByTransitions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTransitionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -309,6 +623,104 @@ func ByRatingHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRatingHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByRatingSequenceSlotsCount orders the results by rating_sequence_slots count.
+func ByRatingSequenceSlotsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRatingSequenceSlotsStep(), opts...)
+	}
+}
+
+// ByRatingSequenceSlots orders the results by rating_sequence_slots terms.
+func ByRatingSequenceSlots(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRatingSequenceSlotsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRatingRunsCount orders the results by rating_runs count.
+func ByRatingRunsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRatingRunsStep(), opts...)
+	}
+}
+
+// ByRatingRuns orders the results by rating_runs terms.
+func ByRatingRuns(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRatingRunsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAnnouncementsCount orders the results by announcements count.
+func ByAnnouncementsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAnnouncementsStep(), opts...)
+	}
+}
+
+// ByAnnouncements orders the results by announcements terms.
+func ByAnnouncements(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAnnouncementsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByClarificationsCount orders the results by clarifications count.
+func ByClarificationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newClarificationsStep(), opts...)
+	}
+}
+
+// ByClarifications orders the results by clarifications terms.
+func ByClarifications(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newClarificationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContentCommandsCount orders the results by content_commands count.
+func ByContentCommandsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContentCommandsStep(), opts...)
+	}
+}
+
+// ByContentCommands orders the results by content_commands terms.
+func ByContentCommands(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContentCommandsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByScoringAttemptsCount orders the results by scoring_attempts count.
+func ByScoringAttemptsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newScoringAttemptsStep(), opts...)
+	}
+}
+
+// ByScoringAttempts orders the results by scoring_attempts terms.
+func ByScoringAttempts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScoringAttemptsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByProblemResultsCount orders the results by problem_results count.
+func ByProblemResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProblemResultsStep(), opts...)
+	}
+}
+
+// ByProblemResults orders the results by problem_results terms.
+func ByProblemResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProblemResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newAuthorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -316,11 +728,25 @@ func newAuthorStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, AuthorTable, AuthorColumn),
 	)
 }
-func newProblemsStep() *sqlgraph.Step {
+func newDraftProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+		sqlgraph.To(DraftProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DraftProblemsTable, DraftProblemsColumn),
+	)
+}
+func newContestProblemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemsTable, ContestProblemsColumn),
+	)
+}
+func newTransitionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TransitionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TransitionsTable, TransitionsColumn),
 	)
 }
 func newRegistrationsStep() *sqlgraph.Step {
@@ -349,5 +775,54 @@ func newRatingHistoriesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RatingHistoriesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RatingHistoriesTable, RatingHistoriesColumn),
+	)
+}
+func newRatingSequenceSlotsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RatingSequenceSlotsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RatingSequenceSlotsTable, RatingSequenceSlotsColumn),
+	)
+}
+func newRatingRunsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RatingRunsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RatingRunsTable, RatingRunsColumn),
+	)
+}
+func newAnnouncementsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AnnouncementsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AnnouncementsTable, AnnouncementsColumn),
+	)
+}
+func newClarificationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ClarificationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ClarificationsTable, ClarificationsColumn),
+	)
+}
+func newContentCommandsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContentCommandsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContentCommandsTable, ContentCommandsColumn),
+	)
+}
+func newScoringAttemptsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScoringAttemptsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ScoringAttemptsTable, ScoringAttemptsColumn),
+	)
+}
+func newProblemResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProblemResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProblemResultsTable, ProblemResultsColumn),
 	)
 }

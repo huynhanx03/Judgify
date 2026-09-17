@@ -239,6 +239,7 @@ export const admin = {
     PERMISSIONS: {
       RESOURCE: "Tài Nguyên",
       ACTIONS: "Hành Động Được Phép",
+      TABLE_LABEL: "Ma trận quyền theo tài nguyên",
       CATALOG_REVISION: (revision: number) => `Phiên bản danh mục: ${revision}`,
       EMPTY_TITLE: "Danh mục quyền đang trống",
       EMPTY_DESCRIPTION:

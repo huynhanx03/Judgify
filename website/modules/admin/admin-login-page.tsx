@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BrandMark } from "@/components/brand-mark";
 import { useAuth } from "@/contexts/auth-context";
-import { Loader2, Shield } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { TEXT } from "@/constants/text";
 import { APP_ROUTES } from "@/constants/routes";
 
@@ -47,9 +48,7 @@ export default function AdminLoginPage() {
       <div className="z-10 w-full max-w-sm px-4">
         <Card className="border-border shadow-xl">
           <CardHeader className="text-center space-y-3 pb-4">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Shield className="h-6 w-6" aria-hidden="true" />
-            </div>
+            <BrandMark className="mx-auto size-12" priority />
             <div className="space-y-1">
               <h1 className="text-xl font-bold tracking-tight">
                 {TEXT.AUTH.ADMIN_TITLE}
@@ -81,7 +80,7 @@ export default function AdminLoginPage() {
                   required
                   disabled={isLoading}
                   autoComplete="username"
-                  className="h-10"
+                  className="h-11"
                 />
               </div>
 
@@ -98,13 +97,13 @@ export default function AdminLoginPage() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="h-10"
+                  className="h-11"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-10 font-semibold cursor-pointer"
+                className="w-full font-semibold"
                 disabled={isLoading}
               >
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : null}

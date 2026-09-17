@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Material {
+func ID(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Material {
+func IDEQ(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Material {
+func IDNEQ(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Material {
+func IDIn(ids ...uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Material {
+func IDNotIn(ids ...uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Material {
+func IDGT(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Material {
+func IDGTE(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Material {
+func IDLT(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Material {
+func IDLTE(id uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Material {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Material {
+func DeletedBy(v string) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -91,17 +92,12 @@ func Content(v string) predicate.Material {
 }
 
 // DifficultyID applies equality check predicate on the "difficulty_id" field. It's identical to DifficultyIDEQ.
-func DifficultyID(v int) predicate.Material {
+func DifficultyID(v uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldDifficultyID, v))
 }
 
-// AuthorID applies equality check predicate on the "author_id" field. It's identical to AuthorIDEQ.
-func AuthorID(v int) predicate.Material {
-	return predicate.Material(sql.FieldEQ(FieldAuthorID, v))
-}
-
 // CategoryID applies equality check predicate on the "category_id" field. It's identical to CategoryIDEQ.
-func CategoryID(v int) predicate.Material {
+func CategoryID(v uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldCategoryID, v))
 }
 
@@ -110,14 +106,64 @@ func GroupID(v int) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldGroupID, v))
 }
 
-// ViewCount applies equality check predicate on the "view_count" field. It's identical to ViewCountEQ.
-func ViewCount(v int) predicate.Material {
-	return predicate.Material(sql.FieldEQ(FieldViewCount, v))
-}
-
 // EstimatedReadTime applies equality check predicate on the "estimated_read_time" field. It's identical to EstimatedReadTimeEQ.
 func EstimatedReadTime(v int) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldEstimatedReadTime, v))
+}
+
+// CurrentSlugID applies equality check predicate on the "current_slug_id" field. It's identical to CurrentSlugIDEQ.
+func CurrentSlugID(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldCurrentSlugID, v))
+}
+
+// AuthorID applies equality check predicate on the "author_id" field. It's identical to AuthorIDEQ.
+func AuthorID(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldAuthorID, v))
+}
+
+// CurrentDraftRevisionID applies equality check predicate on the "current_draft_revision_id" field. It's identical to CurrentDraftRevisionIDEQ.
+func CurrentDraftRevisionID(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldCurrentDraftRevisionID, v))
+}
+
+// PublishedRevisionID applies equality check predicate on the "published_revision_id" field. It's identical to PublishedRevisionIDEQ.
+func PublishedRevisionID(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRevisionID, v))
+}
+
+// PublishedRenderSourceID applies equality check predicate on the "published_render_source_id" field. It's identical to PublishedRenderSourceIDEQ.
+func PublishedRenderSourceID(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderArtifactID applies equality check predicate on the "published_render_artifact_id" field. It's identical to PublishedRenderArtifactIDEQ.
+func PublishedRenderArtifactID(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedSourceChecksum applies equality check predicate on the "published_source_checksum" field. It's identical to PublishedSourceChecksumEQ.
+func PublishedSourceChecksum(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedAt applies equality check predicate on the "published_at" field. It's identical to PublishedAtEQ.
+func PublishedAt(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedAt, v))
+}
+
+// ArchivedAt applies equality check predicate on the "archived_at" field. It's identical to ArchivedAtEQ.
+func ArchivedAt(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldArchivedAt, v))
+}
+
+// ViewCount applies equality check predicate on the "view_count" field. It's identical to ViewCountEQ.
+func ViewCount(v int64) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldViewCount, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldVersion, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -251,43 +297,58 @@ func DeletedAtNotNil() predicate.Material {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Material {
+func DeletedByEQ(v string) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Material {
+func DeletedByNEQ(v string) predicate.Material {
 	return predicate.Material(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Material {
+func DeletedByIn(vs ...string) predicate.Material {
 	return predicate.Material(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Material {
+func DeletedByNotIn(vs ...string) predicate.Material {
 	return predicate.Material(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Material {
+func DeletedByGT(v string) predicate.Material {
 	return predicate.Material(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Material {
+func DeletedByGTE(v string) predicate.Material {
 	return predicate.Material(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Material {
+func DeletedByLT(v string) predicate.Material {
 	return predicate.Material(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Material {
+func DeletedByLTE(v string) predicate.Material {
 	return predicate.Material(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Material {
+	return predicate.Material(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Material {
+	return predicate.Material(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Material {
+	return predicate.Material(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -298,6 +359,16 @@ func DeletedByIsNil() predicate.Material {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Material {
 	return predicate.Material(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Material {
+	return predicate.Material(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Material {
+	return predicate.Material(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -353,6 +424,16 @@ func TitleHasPrefix(v string) predicate.Material {
 // TitleHasSuffix applies the HasSuffix predicate on the "title" field.
 func TitleHasSuffix(v string) predicate.Material {
 	return predicate.Material(sql.FieldHasSuffix(FieldTitle, v))
+}
+
+// TitleIsNil applies the IsNil predicate on the "title" field.
+func TitleIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldTitle))
+}
+
+// TitleNotNil applies the NotNil predicate on the "title" field.
+func TitleNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldTitle))
 }
 
 // TitleEqualFold applies the EqualFold predicate on the "title" field.
@@ -516,103 +597,63 @@ func ContentContainsFold(v string) predicate.Material {
 }
 
 // DifficultyIDEQ applies the EQ predicate on the "difficulty_id" field.
-func DifficultyIDEQ(v int) predicate.Material {
+func DifficultyIDEQ(v uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldDifficultyID, v))
 }
 
 // DifficultyIDNEQ applies the NEQ predicate on the "difficulty_id" field.
-func DifficultyIDNEQ(v int) predicate.Material {
+func DifficultyIDNEQ(v uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldNEQ(FieldDifficultyID, v))
 }
 
 // DifficultyIDIn applies the In predicate on the "difficulty_id" field.
-func DifficultyIDIn(vs ...int) predicate.Material {
+func DifficultyIDIn(vs ...uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldIn(FieldDifficultyID, vs...))
 }
 
 // DifficultyIDNotIn applies the NotIn predicate on the "difficulty_id" field.
-func DifficultyIDNotIn(vs ...int) predicate.Material {
+func DifficultyIDNotIn(vs ...uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldNotIn(FieldDifficultyID, vs...))
 }
 
-// AuthorIDEQ applies the EQ predicate on the "author_id" field.
-func AuthorIDEQ(v int) predicate.Material {
-	return predicate.Material(sql.FieldEQ(FieldAuthorID, v))
+// DifficultyIDIsNil applies the IsNil predicate on the "difficulty_id" field.
+func DifficultyIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldDifficultyID))
 }
 
-// AuthorIDNEQ applies the NEQ predicate on the "author_id" field.
-func AuthorIDNEQ(v int) predicate.Material {
-	return predicate.Material(sql.FieldNEQ(FieldAuthorID, v))
-}
-
-// AuthorIDIn applies the In predicate on the "author_id" field.
-func AuthorIDIn(vs ...int) predicate.Material {
-	return predicate.Material(sql.FieldIn(FieldAuthorID, vs...))
-}
-
-// AuthorIDNotIn applies the NotIn predicate on the "author_id" field.
-func AuthorIDNotIn(vs ...int) predicate.Material {
-	return predicate.Material(sql.FieldNotIn(FieldAuthorID, vs...))
+// DifficultyIDNotNil applies the NotNil predicate on the "difficulty_id" field.
+func DifficultyIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldDifficultyID))
 }
 
 // CategoryIDEQ applies the EQ predicate on the "category_id" field.
-func CategoryIDEQ(v int) predicate.Material {
+func CategoryIDEQ(v uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldCategoryID, v))
 }
 
 // CategoryIDNEQ applies the NEQ predicate on the "category_id" field.
-func CategoryIDNEQ(v int) predicate.Material {
+func CategoryIDNEQ(v uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldNEQ(FieldCategoryID, v))
 }
 
 // CategoryIDIn applies the In predicate on the "category_id" field.
-func CategoryIDIn(vs ...int) predicate.Material {
+func CategoryIDIn(vs ...uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldIn(FieldCategoryID, vs...))
 }
 
 // CategoryIDNotIn applies the NotIn predicate on the "category_id" field.
-func CategoryIDNotIn(vs ...int) predicate.Material {
+func CategoryIDNotIn(vs ...uuid.UUID) predicate.Material {
 	return predicate.Material(sql.FieldNotIn(FieldCategoryID, vs...))
 }
 
-// StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v Status) predicate.Material {
-	return predicate.Material(sql.FieldEQ(FieldStatus, v))
+// CategoryIDIsNil applies the IsNil predicate on the "category_id" field.
+func CategoryIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldCategoryID))
 }
 
-// StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v Status) predicate.Material {
-	return predicate.Material(sql.FieldNEQ(FieldStatus, v))
-}
-
-// StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...Status) predicate.Material {
-	return predicate.Material(sql.FieldIn(FieldStatus, vs...))
-}
-
-// StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...Status) predicate.Material {
-	return predicate.Material(sql.FieldNotIn(FieldStatus, vs...))
-}
-
-// VisibilityEQ applies the EQ predicate on the "visibility" field.
-func VisibilityEQ(v Visibility) predicate.Material {
-	return predicate.Material(sql.FieldEQ(FieldVisibility, v))
-}
-
-// VisibilityNEQ applies the NEQ predicate on the "visibility" field.
-func VisibilityNEQ(v Visibility) predicate.Material {
-	return predicate.Material(sql.FieldNEQ(FieldVisibility, v))
-}
-
-// VisibilityIn applies the In predicate on the "visibility" field.
-func VisibilityIn(vs ...Visibility) predicate.Material {
-	return predicate.Material(sql.FieldIn(FieldVisibility, vs...))
-}
-
-// VisibilityNotIn applies the NotIn predicate on the "visibility" field.
-func VisibilityNotIn(vs ...Visibility) predicate.Material {
-	return predicate.Material(sql.FieldNotIn(FieldVisibility, vs...))
+// CategoryIDNotNil applies the NotNil predicate on the "category_id" field.
+func CategoryIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldCategoryID))
 }
 
 // GroupIDEQ applies the EQ predicate on the "group_id" field.
@@ -665,46 +706,6 @@ func GroupIDNotNil() predicate.Material {
 	return predicate.Material(sql.FieldNotNull(FieldGroupID))
 }
 
-// ViewCountEQ applies the EQ predicate on the "view_count" field.
-func ViewCountEQ(v int) predicate.Material {
-	return predicate.Material(sql.FieldEQ(FieldViewCount, v))
-}
-
-// ViewCountNEQ applies the NEQ predicate on the "view_count" field.
-func ViewCountNEQ(v int) predicate.Material {
-	return predicate.Material(sql.FieldNEQ(FieldViewCount, v))
-}
-
-// ViewCountIn applies the In predicate on the "view_count" field.
-func ViewCountIn(vs ...int) predicate.Material {
-	return predicate.Material(sql.FieldIn(FieldViewCount, vs...))
-}
-
-// ViewCountNotIn applies the NotIn predicate on the "view_count" field.
-func ViewCountNotIn(vs ...int) predicate.Material {
-	return predicate.Material(sql.FieldNotIn(FieldViewCount, vs...))
-}
-
-// ViewCountGT applies the GT predicate on the "view_count" field.
-func ViewCountGT(v int) predicate.Material {
-	return predicate.Material(sql.FieldGT(FieldViewCount, v))
-}
-
-// ViewCountGTE applies the GTE predicate on the "view_count" field.
-func ViewCountGTE(v int) predicate.Material {
-	return predicate.Material(sql.FieldGTE(FieldViewCount, v))
-}
-
-// ViewCountLT applies the LT predicate on the "view_count" field.
-func ViewCountLT(v int) predicate.Material {
-	return predicate.Material(sql.FieldLT(FieldViewCount, v))
-}
-
-// ViewCountLTE applies the LTE predicate on the "view_count" field.
-func ViewCountLTE(v int) predicate.Material {
-	return predicate.Material(sql.FieldLTE(FieldViewCount, v))
-}
-
 // EstimatedReadTimeEQ applies the EQ predicate on the "estimated_read_time" field.
 func EstimatedReadTimeEQ(v int) predicate.Material {
 	return predicate.Material(sql.FieldEQ(FieldEstimatedReadTime, v))
@@ -745,27 +746,594 @@ func EstimatedReadTimeLTE(v int) predicate.Material {
 	return predicate.Material(sql.FieldLTE(FieldEstimatedReadTime, v))
 }
 
-// HasCategory applies the HasEdge predicate on the "category" edge.
-func HasCategory() predicate.Material {
-	return predicate.Material(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, CategoryTable, CategoryColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// CurrentSlugIDEQ applies the EQ predicate on the "current_slug_id" field.
+func CurrentSlugIDEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldCurrentSlugID, v))
 }
 
-// HasCategoryWith applies the HasEdge predicate on the "category" edge with a given conditions (other predicates).
-func HasCategoryWith(preds ...predicate.MaterialCategory) predicate.Material {
-	return predicate.Material(func(s *sql.Selector) {
-		step := newCategoryStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// CurrentSlugIDNEQ applies the NEQ predicate on the "current_slug_id" field.
+func CurrentSlugIDNEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldCurrentSlugID, v))
+}
+
+// CurrentSlugIDIn applies the In predicate on the "current_slug_id" field.
+func CurrentSlugIDIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldCurrentSlugID, vs...))
+}
+
+// CurrentSlugIDNotIn applies the NotIn predicate on the "current_slug_id" field.
+func CurrentSlugIDNotIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldCurrentSlugID, vs...))
+}
+
+// CurrentSlugIDGT applies the GT predicate on the "current_slug_id" field.
+func CurrentSlugIDGT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldCurrentSlugID, v))
+}
+
+// CurrentSlugIDGTE applies the GTE predicate on the "current_slug_id" field.
+func CurrentSlugIDGTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldCurrentSlugID, v))
+}
+
+// CurrentSlugIDLT applies the LT predicate on the "current_slug_id" field.
+func CurrentSlugIDLT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldCurrentSlugID, v))
+}
+
+// CurrentSlugIDLTE applies the LTE predicate on the "current_slug_id" field.
+func CurrentSlugIDLTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldCurrentSlugID, v))
+}
+
+// CurrentSlugIDIsNil applies the IsNil predicate on the "current_slug_id" field.
+func CurrentSlugIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldCurrentSlugID))
+}
+
+// CurrentSlugIDNotNil applies the NotNil predicate on the "current_slug_id" field.
+func CurrentSlugIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldCurrentSlugID))
+}
+
+// CurrentSlugStateEQ applies the EQ predicate on the "current_slug_state" field.
+func CurrentSlugStateEQ(v CurrentSlugState) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldCurrentSlugState, v))
+}
+
+// CurrentSlugStateNEQ applies the NEQ predicate on the "current_slug_state" field.
+func CurrentSlugStateNEQ(v CurrentSlugState) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldCurrentSlugState, v))
+}
+
+// CurrentSlugStateIn applies the In predicate on the "current_slug_state" field.
+func CurrentSlugStateIn(vs ...CurrentSlugState) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldCurrentSlugState, vs...))
+}
+
+// CurrentSlugStateNotIn applies the NotIn predicate on the "current_slug_state" field.
+func CurrentSlugStateNotIn(vs ...CurrentSlugState) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldCurrentSlugState, vs...))
+}
+
+// AuthorIDEQ applies the EQ predicate on the "author_id" field.
+func AuthorIDEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldAuthorID, v))
+}
+
+// AuthorIDNEQ applies the NEQ predicate on the "author_id" field.
+func AuthorIDNEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldAuthorID, v))
+}
+
+// AuthorIDIn applies the In predicate on the "author_id" field.
+func AuthorIDIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldAuthorID, vs...))
+}
+
+// AuthorIDNotIn applies the NotIn predicate on the "author_id" field.
+func AuthorIDNotIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldAuthorID, vs...))
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// VisibilityEQ applies the EQ predicate on the "visibility" field.
+func VisibilityEQ(v Visibility) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldVisibility, v))
+}
+
+// VisibilityNEQ applies the NEQ predicate on the "visibility" field.
+func VisibilityNEQ(v Visibility) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldVisibility, v))
+}
+
+// VisibilityIn applies the In predicate on the "visibility" field.
+func VisibilityIn(vs ...Visibility) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldVisibility, vs...))
+}
+
+// VisibilityNotIn applies the NotIn predicate on the "visibility" field.
+func VisibilityNotIn(vs ...Visibility) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldVisibility, vs...))
+}
+
+// CurrentDraftRevisionIDEQ applies the EQ predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldCurrentDraftRevisionID, v))
+}
+
+// CurrentDraftRevisionIDNEQ applies the NEQ predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDNEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldCurrentDraftRevisionID, v))
+}
+
+// CurrentDraftRevisionIDIn applies the In predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldCurrentDraftRevisionID, vs...))
+}
+
+// CurrentDraftRevisionIDNotIn applies the NotIn predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDNotIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldCurrentDraftRevisionID, vs...))
+}
+
+// CurrentDraftRevisionIDGT applies the GT predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDGT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldCurrentDraftRevisionID, v))
+}
+
+// CurrentDraftRevisionIDGTE applies the GTE predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDGTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldCurrentDraftRevisionID, v))
+}
+
+// CurrentDraftRevisionIDLT applies the LT predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDLT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldCurrentDraftRevisionID, v))
+}
+
+// CurrentDraftRevisionIDLTE applies the LTE predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDLTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldCurrentDraftRevisionID, v))
+}
+
+// CurrentDraftRevisionIDIsNil applies the IsNil predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldCurrentDraftRevisionID))
+}
+
+// CurrentDraftRevisionIDNotNil applies the NotNil predicate on the "current_draft_revision_id" field.
+func CurrentDraftRevisionIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldCurrentDraftRevisionID))
+}
+
+// PublishedRevisionIDEQ applies the EQ predicate on the "published_revision_id" field.
+func PublishedRevisionIDEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDNEQ applies the NEQ predicate on the "published_revision_id" field.
+func PublishedRevisionIDNEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDIn applies the In predicate on the "published_revision_id" field.
+func PublishedRevisionIDIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldPublishedRevisionID, vs...))
+}
+
+// PublishedRevisionIDNotIn applies the NotIn predicate on the "published_revision_id" field.
+func PublishedRevisionIDNotIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldPublishedRevisionID, vs...))
+}
+
+// PublishedRevisionIDGT applies the GT predicate on the "published_revision_id" field.
+func PublishedRevisionIDGT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDGTE applies the GTE predicate on the "published_revision_id" field.
+func PublishedRevisionIDGTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDLT applies the LT predicate on the "published_revision_id" field.
+func PublishedRevisionIDLT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDLTE applies the LTE predicate on the "published_revision_id" field.
+func PublishedRevisionIDLTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldPublishedRevisionID, v))
+}
+
+// PublishedRevisionIDIsNil applies the IsNil predicate on the "published_revision_id" field.
+func PublishedRevisionIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldPublishedRevisionID))
+}
+
+// PublishedRevisionIDNotNil applies the NotNil predicate on the "published_revision_id" field.
+func PublishedRevisionIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldPublishedRevisionID))
+}
+
+// PublishedRenderSourceIDEQ applies the EQ predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDNEQ applies the NEQ predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDNEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDIn applies the In predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldPublishedRenderSourceID, vs...))
+}
+
+// PublishedRenderSourceIDNotIn applies the NotIn predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDNotIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldPublishedRenderSourceID, vs...))
+}
+
+// PublishedRenderSourceIDGT applies the GT predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDGT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDGTE applies the GTE predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDGTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDLT applies the LT predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDLT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDLTE applies the LTE predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDLTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldPublishedRenderSourceID, v))
+}
+
+// PublishedRenderSourceIDIsNil applies the IsNil predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldPublishedRenderSourceID))
+}
+
+// PublishedRenderSourceIDNotNil applies the NotNil predicate on the "published_render_source_id" field.
+func PublishedRenderSourceIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldPublishedRenderSourceID))
+}
+
+// PublishedRenderArtifactIDEQ applies the EQ predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDNEQ applies the NEQ predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDNEQ(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDIn applies the In predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldPublishedRenderArtifactID, vs...))
+}
+
+// PublishedRenderArtifactIDNotIn applies the NotIn predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDNotIn(vs ...uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldPublishedRenderArtifactID, vs...))
+}
+
+// PublishedRenderArtifactIDGT applies the GT predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDGT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDGTE applies the GTE predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDGTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDLT applies the LT predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDLT(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDLTE applies the LTE predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDLTE(v uuid.UUID) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldPublishedRenderArtifactID, v))
+}
+
+// PublishedRenderArtifactIDIsNil applies the IsNil predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldPublishedRenderArtifactID))
+}
+
+// PublishedRenderArtifactIDNotNil applies the NotNil predicate on the "published_render_artifact_id" field.
+func PublishedRenderArtifactIDNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldPublishedRenderArtifactID))
+}
+
+// PublishedRenderSourceKindEQ applies the EQ predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindEQ(v PublishedRenderSourceKind) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedRenderSourceKind, v))
+}
+
+// PublishedRenderSourceKindNEQ applies the NEQ predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindNEQ(v PublishedRenderSourceKind) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldPublishedRenderSourceKind, v))
+}
+
+// PublishedRenderSourceKindIn applies the In predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindIn(vs ...PublishedRenderSourceKind) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldPublishedRenderSourceKind, vs...))
+}
+
+// PublishedRenderSourceKindNotIn applies the NotIn predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindNotIn(vs ...PublishedRenderSourceKind) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldPublishedRenderSourceKind, vs...))
+}
+
+// PublishedRenderSourceKindIsNil applies the IsNil predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldPublishedRenderSourceKind))
+}
+
+// PublishedRenderSourceKindNotNil applies the NotNil predicate on the "published_render_source_kind" field.
+func PublishedRenderSourceKindNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldPublishedRenderSourceKind))
+}
+
+// PublishedSourceChecksumEQ applies the EQ predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumEQ(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedSourceChecksumNEQ applies the NEQ predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumNEQ(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedSourceChecksumIn applies the In predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumIn(vs ...[]byte) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldPublishedSourceChecksum, vs...))
+}
+
+// PublishedSourceChecksumNotIn applies the NotIn predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumNotIn(vs ...[]byte) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldPublishedSourceChecksum, vs...))
+}
+
+// PublishedSourceChecksumGT applies the GT predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumGT(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedSourceChecksumGTE applies the GTE predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumGTE(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedSourceChecksumLT applies the LT predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumLT(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedSourceChecksumLTE applies the LTE predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumLTE(v []byte) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldPublishedSourceChecksum, v))
+}
+
+// PublishedSourceChecksumIsNil applies the IsNil predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldPublishedSourceChecksum))
+}
+
+// PublishedSourceChecksumNotNil applies the NotNil predicate on the "published_source_checksum" field.
+func PublishedSourceChecksumNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldPublishedSourceChecksum))
+}
+
+// PublishedAtEQ applies the EQ predicate on the "published_at" field.
+func PublishedAtEQ(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldPublishedAt, v))
+}
+
+// PublishedAtNEQ applies the NEQ predicate on the "published_at" field.
+func PublishedAtNEQ(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldPublishedAt, v))
+}
+
+// PublishedAtIn applies the In predicate on the "published_at" field.
+func PublishedAtIn(vs ...time.Time) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldPublishedAt, vs...))
+}
+
+// PublishedAtNotIn applies the NotIn predicate on the "published_at" field.
+func PublishedAtNotIn(vs ...time.Time) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldPublishedAt, vs...))
+}
+
+// PublishedAtGT applies the GT predicate on the "published_at" field.
+func PublishedAtGT(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldPublishedAt, v))
+}
+
+// PublishedAtGTE applies the GTE predicate on the "published_at" field.
+func PublishedAtGTE(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldPublishedAt, v))
+}
+
+// PublishedAtLT applies the LT predicate on the "published_at" field.
+func PublishedAtLT(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldPublishedAt, v))
+}
+
+// PublishedAtLTE applies the LTE predicate on the "published_at" field.
+func PublishedAtLTE(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldPublishedAt, v))
+}
+
+// PublishedAtIsNil applies the IsNil predicate on the "published_at" field.
+func PublishedAtIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldPublishedAt))
+}
+
+// PublishedAtNotNil applies the NotNil predicate on the "published_at" field.
+func PublishedAtNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldPublishedAt))
+}
+
+// ArchivedAtEQ applies the EQ predicate on the "archived_at" field.
+func ArchivedAtEQ(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldArchivedAt, v))
+}
+
+// ArchivedAtNEQ applies the NEQ predicate on the "archived_at" field.
+func ArchivedAtNEQ(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldArchivedAt, v))
+}
+
+// ArchivedAtIn applies the In predicate on the "archived_at" field.
+func ArchivedAtIn(vs ...time.Time) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldArchivedAt, vs...))
+}
+
+// ArchivedAtNotIn applies the NotIn predicate on the "archived_at" field.
+func ArchivedAtNotIn(vs ...time.Time) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldArchivedAt, vs...))
+}
+
+// ArchivedAtGT applies the GT predicate on the "archived_at" field.
+func ArchivedAtGT(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldArchivedAt, v))
+}
+
+// ArchivedAtGTE applies the GTE predicate on the "archived_at" field.
+func ArchivedAtGTE(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldArchivedAt, v))
+}
+
+// ArchivedAtLT applies the LT predicate on the "archived_at" field.
+func ArchivedAtLT(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldArchivedAt, v))
+}
+
+// ArchivedAtLTE applies the LTE predicate on the "archived_at" field.
+func ArchivedAtLTE(v time.Time) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldArchivedAt, v))
+}
+
+// ArchivedAtIsNil applies the IsNil predicate on the "archived_at" field.
+func ArchivedAtIsNil() predicate.Material {
+	return predicate.Material(sql.FieldIsNull(FieldArchivedAt))
+}
+
+// ArchivedAtNotNil applies the NotNil predicate on the "archived_at" field.
+func ArchivedAtNotNil() predicate.Material {
+	return predicate.Material(sql.FieldNotNull(FieldArchivedAt))
+}
+
+// ViewCountEQ applies the EQ predicate on the "view_count" field.
+func ViewCountEQ(v int64) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldViewCount, v))
+}
+
+// ViewCountNEQ applies the NEQ predicate on the "view_count" field.
+func ViewCountNEQ(v int64) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldViewCount, v))
+}
+
+// ViewCountIn applies the In predicate on the "view_count" field.
+func ViewCountIn(vs ...int64) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldViewCount, vs...))
+}
+
+// ViewCountNotIn applies the NotIn predicate on the "view_count" field.
+func ViewCountNotIn(vs ...int64) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldViewCount, vs...))
+}
+
+// ViewCountGT applies the GT predicate on the "view_count" field.
+func ViewCountGT(v int64) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldViewCount, v))
+}
+
+// ViewCountGTE applies the GTE predicate on the "view_count" field.
+func ViewCountGTE(v int64) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldViewCount, v))
+}
+
+// ViewCountLT applies the LT predicate on the "view_count" field.
+func ViewCountLT(v int64) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldViewCount, v))
+}
+
+// ViewCountLTE applies the LTE predicate on the "view_count" field.
+func ViewCountLTE(v int64) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldViewCount, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Material {
+	return predicate.Material(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Material {
+	return predicate.Material(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Material {
+	return predicate.Material(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Material {
+	return predicate.Material(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Material {
+	return predicate.Material(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Material {
+	return predicate.Material(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Material {
+	return predicate.Material(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Material {
+	return predicate.Material(sql.FieldLTE(FieldVersion, v))
 }
 
 // HasAuthor applies the HasEdge predicate on the "author" edge.
@@ -783,6 +1351,29 @@ func HasAuthor() predicate.Material {
 func HasAuthorWith(preds ...predicate.User) predicate.Material {
 	return predicate.Material(func(s *sql.Selector) {
 		step := newAuthorStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCategory applies the HasEdge predicate on the "category" edge.
+func HasCategory() predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CategoryTable, CategoryColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCategoryWith applies the HasEdge predicate on the "category" edge with a given conditions (other predicates).
+func HasCategoryWith(preds ...predicate.MaterialCategory) predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := newCategoryStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -829,6 +1420,75 @@ func HasTags() predicate.Material {
 func HasTagsWith(preds ...predicate.Tag) predicate.Material {
 	return predicate.Material(func(s *sql.Selector) {
 		step := newTagsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.MaterialRevision) predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := newRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSlugs applies the HasEdge predicate on the "slugs" edge.
+func HasSlugs() predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SlugsTable, SlugsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSlugsWith applies the HasEdge predicate on the "slugs" edge with a given conditions (other predicates).
+func HasSlugsWith(preds ...predicate.MaterialSlug) predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := newSlugsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDailyViews applies the HasEdge predicate on the "daily_views" edge.
+func HasDailyViews() predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DailyViewsTable, DailyViewsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDailyViewsWith applies the HasEdge predicate on the "daily_views" edge with a given conditions (other predicates).
+func HasDailyViewsWith(preds ...predicate.MaterialViewDaily) predicate.Material {
+	return predicate.Material(func(s *sql.Selector) {
+		step := newDailyViewsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

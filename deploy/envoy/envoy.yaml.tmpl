@@ -1,0 +1,251 @@
+static_resources:
+  listeners:
+    - name: public_https
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 8443 }
+      filter_chains:
+        - transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_certificates:
+                  - certificate_chain: { filename: /run/secrets/tls_certificate }
+                    private_key: { filename: /run/secrets/tls_private_key }
+                tls_params:
+                  tls_minimum_protocol_version: TLSv1_2
+          filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: public_https
+                generate_request_id: true
+                preserve_external_request_id: false
+                request_id_extension:
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.request_id.uuid.v3.UuidRequestIdConfig
+                    pack_trace_reason: false
+                tracing:
+                  provider:
+                    name: envoy.tracers.opentelemetry
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.config.trace.v3.OpenTelemetryConfig
+                      service_name: judgify-envoy
+                      grpc_service:
+                        envoy_grpc: { cluster_name: otel }
+                        timeout: 0.5s
+                use_remote_address: true
+                xff_num_trusted_hops: 0
+                internal_address_config:
+                  cidr_ranges:
+                    - address_prefix: 127.0.0.0
+                      prefix_len: 8
+                    - address_prefix: "::1"
+                      prefix_len: 128
+                normalize_path: true
+                merge_slashes: true
+                common_http_protocol_options:
+                  headers_with_underscores_action: REJECT_REQUEST
+                access_log:
+                  - name: envoy.access_loggers.stdout
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+                      log_format:
+                        json_format:
+                          timestamp: "%START_TIME%"
+                          level: "info"
+                          message: "http.completed"
+                          request_id: "%REQ(X-REQUEST-ID)%"
+                          correlation_id: "%REQ(X-REQUEST-ID)%"
+                          method: "%REQ(:METHOD)%"
+                          route: "%ROUTE_NAME%"
+                          status: "%RESPONSE_CODE%"
+                          duration_ms: "%DURATION%"
+                          upstream_cluster: "%UPSTREAM_CLUSTER%"
+                          response_flags: "%RESPONSE_FLAGS%"
+                          response_code_details: "%RESPONSE_CODE_DETAILS%"
+                          bytes_in: "%BYTES_RECEIVED%"
+                          bytes_out: "%BYTES_SENT%"
+                route_config:
+                  name: public_routes
+                  virtual_hosts:
+                    - name: judgify
+                      domains: ["__JUDGIFY_PUBLIC_HOST__"]
+                      request_headers_to_remove:
+                        - x-correlation-id
+                        - x-forwarded-for
+                        - x-forwarded-host
+                        - x-forwarded-proto
+                        - x-real-ip
+                        - traceparent
+                        - tracestate
+                        - x-judgify-admission
+                      request_headers_to_add:
+                        - header: { key: x-correlation-id, value: "%REQ(X-REQUEST-ID)%" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: x-forwarded-proto, value: https }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                      response_headers_to_add:
+                        - header: { key: strict-transport-security, value: "max-age=31536000; includeSubDomains" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: x-content-type-options, value: nosniff }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: x-frame-options, value: DENY }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: referrer-policy, value: strict-origin-when-cross-origin }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: permissions-policy, value: "camera=(), microphone=(), geolocation=()" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: x-request-id, value: "%REQ(X-REQUEST-ID)%" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        - header: { key: x-correlation-id, value: "%REQ(X-REQUEST-ID)%" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                      routes:
+                        - match: { path: /api/live }
+                          name: api_live_hidden
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          direct_response: { status: 404 }
+                        - match: { path: /api/ready }
+                          name: api_ready_hidden
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          direct_response: { status: 404 }
+                        - match: { path: /api/ping }
+                          name: api_ping_hidden
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          direct_response: { status: 404 }
+                        - match: { path: /api/metrics }
+                          name: api_metrics_hidden
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          direct_response: { status: 404 }
+                        - match: { path: /api }
+                          name: api_redirect
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          redirect: { path_redirect: /api/, response_code: PERMANENT_REDIRECT }
+                        - match: { path: /ws }
+                          name: websocket
+                          route: { cluster: api, timeout: 0s }
+                        - match: { prefix: /api/ }
+                          name: api
+                          route:
+                            cluster: api
+                            prefix_rewrite: /
+                            timeout: 30s
+                            retry_policy: { retry_on: "", num_retries: 0 }
+                        - match: { prefix: /_next/static/ }
+                          name: next_static
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          route: { cluster: website, timeout: 30s }
+                        - match: { prefix: / }
+                          name: website
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          route: { cluster: website, timeout: 30s }
+                http_filters:
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      transport_api_version: V3
+                      failure_mode_allow: false
+                      status_on_error: { code: ServiceUnavailable }
+                      grpc_service:
+                        envoy_grpc: { cluster_name: authz }
+                        timeout: 0.5s
+                      validate_mutations: true
+                      allowed_headers:
+                        patterns:
+                          - exact: authorization
+                          - exact: cookie
+                          - exact: x-request-id
+                          - exact: x-correlation-id
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  clusters:
+    - name: api
+      connect_timeout: 3s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: api
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: api, port_value: 8000 }
+    - name: website
+      connect_timeout: 3s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: website
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: website, port_value: 3000 }
+    - name: authz
+      connect_timeout: 1s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          sni: api
+          common_tls_context:
+            tls_certificates:
+              - certificate_chain: { filename: /run/secrets/authz_client_certificate }
+                private_key: { filename: /run/secrets/authz_client_private_key }
+            validation_context:
+              trusted_ca: { filename: /run/secrets/authz_server_ca_certificate }
+      load_assignment:
+        cluster_name: authz
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: api, port_value: 9000 }
+    - name: otel
+      connect_timeout: 1s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      load_assignment:
+        cluster_name: otel
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: host.docker.internal, port_value: 4317 }
+admin:
+  address:
+    socket_address: { address: 127.0.0.1, port_value: 9901 }

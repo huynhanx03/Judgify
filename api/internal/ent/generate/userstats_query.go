@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
@@ -108,8 +109,8 @@ func (_q *UserStatsQuery) FirstX(ctx context.Context) *UserStats {
 
 // FirstID returns the first UserStats ID from the query.
 // Returns a *NotFoundError when no UserStats ID was found.
-func (_q *UserStatsQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserStatsQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +122,7 @@ func (_q *UserStatsQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserStatsQuery) FirstIDX(ctx context.Context) int {
+func (_q *UserStatsQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +160,8 @@ func (_q *UserStatsQuery) OnlyX(ctx context.Context) *UserStats {
 // OnlyID is like Only, but returns the only UserStats ID in the query.
 // Returns a *NotSingularError when more than one UserStats ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserStatsQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserStatsQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +177,7 @@ func (_q *UserStatsQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserStatsQuery) OnlyIDX(ctx context.Context) int {
+func (_q *UserStatsQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +205,7 @@ func (_q *UserStatsQuery) AllX(ctx context.Context) []*UserStats {
 }
 
 // IDs executes the query and returns a list of UserStats IDs.
-func (_q *UserStatsQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *UserStatsQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -216,7 +217,7 @@ func (_q *UserStatsQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserStatsQuery) IDsX(ctx context.Context) []int {
+func (_q *UserStatsQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -408,8 +409,8 @@ func (_q *UserStatsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Us
 }
 
 func (_q *UserStatsQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserStats, init func(*UserStats), assign func(*UserStats, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserStats)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserStats)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -450,7 +451,7 @@ func (_q *UserStatsQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *UserStatsQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(userstats.Table, userstats.Columns, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(userstats.Table, userstats.Columns, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

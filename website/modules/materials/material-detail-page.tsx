@@ -15,9 +15,9 @@ import type { MaterialArticle, MaterialSlugResponse } from "@/types/material";
 import { DIFFICULTY_SLUG } from "@/types/difficulty";
 import { MaterialsArticleCard } from "@/modules/materials/materials-article-card";
 import {
-  MaterialsLoadFeedback,
-  MaterialsLoadingFeedback,
-} from "@/modules/materials/materials-resource-feedback";
+  ResourceErrorFeedback,
+  ResourceLoadingFeedback,
+} from "@/modules/shared/resource-feedback";
 import { TEXT } from "@/constants/text";
 import { APP_ROUTES } from "@/constants/routes";
 import { ApiError } from "@/lib/api/error";
@@ -46,8 +46,7 @@ export default function MaterialDetailPage() {
         : Promise.resolve(null),
   });
   const article = articleResource.data?.material ?? null;
-  const canonicalSlug =
-    articleResource.data?.canonical_slug ?? requestedSlug;
+  const canonicalSlug = articleResource.data?.canonical_slug ?? requestedSlug;
   const relatedResource = useRetryableResource<MaterialArticle[]>({
     resetKey: article?.id ?? "unresolved-material",
     enabled: article !== null,
@@ -83,8 +82,8 @@ export default function MaterialDetailPage() {
 
   if (articleResource.status === "error" && !articleNotFound) {
     return (
-      <div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 sm:px-6">
-        <MaterialsLoadFeedback
+      <div className="flex min-h-[60vh] max-w-2xl items-center">
+        <ResourceErrorFeedback
           title={TEXT.MATERIALS.ARTICLE_LOAD_ERROR_TITLE}
           description={TEXT.MATERIALS.ARTICLE_LOAD_ERROR_DESCRIPTION}
           retryLabel={TEXT.MATERIALS.RETRY}
@@ -99,7 +98,7 @@ export default function MaterialDetailPage() {
   const slug = DIFFICULTY_SLUG[article.difficulty.level] ?? "medium";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
+    <div className="space-y-8 pb-16 sm:space-y-10 sm:pb-20">
       <Link
         href={APP_ROUTES.MATERIALS}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
@@ -108,7 +107,7 @@ export default function MaterialDetailPage() {
         {TEXT.MATERIALS.LIBRARY}
       </Link>
 
-      <Card className="glass-card border-border/40">
+      <Card className="border-border/60 bg-card">
         <CardContent className="space-y-6 p-6 sm:p-8">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -132,7 +131,9 @@ export default function MaterialDetailPage() {
               </span>
             </div>
 
-            <h1 className="text-2xl font-bold text-foreground">{article.title}</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              {article.title}
+            </h1>
 
             <div className="flex flex-wrap items-center gap-2">
               <Badge
@@ -151,7 +152,9 @@ export default function MaterialDetailPage() {
               ))}
             </div>
 
-            <p className="text-sm text-muted-foreground">{article.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {article.description}
+            </p>
           </div>
 
           <div className="h-px bg-border/40" />
@@ -173,11 +176,12 @@ export default function MaterialDetailPage() {
           {TEXT.MATERIALS.RELATED_TITLE}
         </h2>
         {relatedResource.status === "loading" ? (
-          <MaterialsLoadingFeedback
+          <ResourceLoadingFeedback
+            className="min-h-52"
             label={TEXT.MATERIALS.RELATED_LOADING}
           />
         ) : relatedResource.status === "error" ? (
-          <MaterialsLoadFeedback
+          <ResourceErrorFeedback
             compact
             title={TEXT.MATERIALS.RELATED_LOAD_ERROR_TITLE}
             description={TEXT.MATERIALS.RELATED_LOAD_ERROR_DESCRIPTION}
@@ -202,9 +206,17 @@ export default function MaterialDetailPage() {
 
 function MaterialNotFound() {
   return (
-    <div className="flex h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <p className="text-muted-foreground">{TEXT.MATERIALS.NOT_FOUND}</p>
-      <Link href={APP_ROUTES.MATERIALS} className="text-sm text-primary hover:underline">
+    <div className="flex min-h-[60dvh] max-w-lg flex-col items-center justify-center gap-4 text-center">
+      <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground">
+        {TEXT.MATERIALS.NOT_FOUND}
+      </h1>
+      <p className="max-w-md text-sm leading-6 text-muted-foreground">
+        {TEXT.MATERIALS.NOT_FOUND_DESCRIPTION}
+      </p>
+      <Link
+        href={APP_ROUTES.MATERIALS}
+        className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
         {TEXT.MATERIALS.BACK_TO_LIBRARY}
       </Link>
     </div>

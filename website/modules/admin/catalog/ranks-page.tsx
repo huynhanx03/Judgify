@@ -38,7 +38,7 @@ export default function AdminRanksPage() {
     { key: "name", label: ADMIN_TEXT.RANKS.COL_NAME,
       render: (r) => <span className="font-medium">{r.name}</span> },
     { key: "min_rating", label: ADMIN_TEXT.RANKS.COL_MIN_RATING, className: "w-36",
-      render: (r) => <span className="text-sm font-mono text-blue-400">{formatNumber(r.min_rating)}</span> },
+      render: (r) => <span className="text-sm font-mono text-info">{formatNumber(r.min_rating)}</span> },
     { key: "description", label: ADMIN_TEXT.RANKS.COL_DESC,
       render: (r) => <span className="text-sm text-muted-foreground">{r.description ?? TEXT.COMMON.NOT_AVAILABLE}</span> },
     { key: "actions", label: "", className: "w-20",

@@ -9,7 +9,7 @@ async function source(relativePath) {
   return readFile(path.join(ROOT, relativePath), "utf8");
 }
 
-test("materials filters fail and recover independently", async () => {
+test("materials filters degrade independently without interrupting article discovery", async () => {
   const page = await source("modules/materials/materials-page.tsx");
 
   assert.match(page, /categoryResource = useRetryableResource<MaterialCategory\[\]>/);
@@ -17,8 +17,18 @@ test("materials filters fail and recover independently", async () => {
     page,
     /difficultyResource = useRetryableResource<DifficultyResponse\[\]>/,
   );
-  assert.match(page, /onRetry=\{categoryResource\.retry\}/);
-  assert.match(page, /onRetry=\{difficultyResource\.retry\}/);
+  assert.match(
+    page,
+    /categoryResource\.status !== "error" \|\| categories\.length > 0/,
+  );
+  assert.match(
+    page,
+    /difficultyResource\.status !== "error" \|\| difficulties\.length > 0/,
+  );
+  assert.match(page, /available=\{difficultyFilterAvailable\}/);
+  assert.doesNotMatch(page, /onRetry=\{categoryResource\.retry\}/);
+  assert.doesNotMatch(page, /onRetry=\{difficultyResource\.retry\}/);
+  assert.match(page, /onRetry=\{articlesFeed\.reload\}/);
   assert.doesNotMatch(page, /Promise\.all\(/);
   assert.doesNotMatch(page, /filterCatalogResource/);
 });

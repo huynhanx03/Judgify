@@ -1,64 +1,103 @@
-# Contributing
+# Contributing to Judgify
 
-Thanks for your interest in contributing! This guide will help you get started.
+Judgify is security-sensitive infrastructure: it authenticates users, makes
+authorization decisions, stores contest state, and executes untrusted code.
+Changes should preserve the documented boundaries even during local-only
+development.
 
 ## Prerequisites
 
-- **Go** 1.25+
-- **Node.js** 22+
-- **Docker** & Docker Compose
-- **Make** (build tool)
+- Go 1.27.1
+- Node.js 22.22.0 with npm lockfile installs
+- Docker Engine with Compose and Buildx
+- Atlas 1.0.0 for schema authoring/verification
+- `golangci-lint`, `govulncheck`, and Make for the complete release gate
+- a sibling `../go-common` checkout during local multi-module development
 
-## Local Setup
+## Local setup
 
-1. **Fork & clone** the repository
-2. **Start infrastructure**:
-   ```bash
-   make docker-up
-   ```
-3. **Prepare database**:
-   ```bash
-   make migrate-apply
-   make seed
-   ```
-4. **Run backend**:
-   ```bash
-   make run-api
-   ```
-5. **Run frontend** (in another terminal):
-   ```bash
-   make run-website
-   ```
+```sh
+export POSTGRES_USER=judgify_dev
+export POSTGRES_PASSWORD='local-development-only'
+export POSTGRES_DB=judgify
+export DATABASE_USERNAME="$POSTGRES_USER"
+export DATABASE_PASSWORD="$POSTGRES_PASSWORD"
+export DATABASE_DATABASE="$POSTGRES_DB"
+make docker-up
+make migrate-apply
+make run-api
+```
 
-## Development
+Run `make run-website` in another terminal. `make seed` is optional local
+fixture setup and must not be used as an application-startup dependency.
 
-### Backend (Go)
+## Architecture rules
 
-- Format code: `cd api && gofmt -w .`
-- Lint: `cd api && golangci-lint run`
-- Test: `cd api && go test ./...`
-- Keep deps clean: `cd api && go mod tidy`
+- Keep business policy inside its domain; add reusable infrastructure only to
+  domain-neutral `go-common` packages.
+- PostgreSQL is canonical. Forge/outbox work must be idempotent and replayable;
+  an acknowledged submission cannot depend on process memory.
+- Schema changes are authored through Ent/Atlas and checked in as SQL. Runtime
+  processes never call automatic schema creation.
+- Every protected route has a named resource/action policy and is enforced on
+  the server. UI capability checks improve UX but never replace authorization.
+- Propagate `context.Context` and correlation IDs through HTTP, WebSocket,
+  transactions, queue records, workers, and outbound calls. Logs must use
+  bounded fields and must not contain secrets, source code, test data, SQL
+  arguments, or raw external error bodies.
+- Frontend feature code uses the canonical API/realtime clients, strict schema
+  decoders, centralized API route builders, and the typed `i18n/` catalog (via
+  `text()` or its stable `constants/text.ts` compatibility export). Do not add
+  fake fallback data, browser token storage, SSE, or network polling.
+- Preserve light/dark/system tokens, keyboard operation, visible focus,
+  reduced-motion behavior, responsive layouts, and semantic labels.
 
-### Frontend (Next.js)
+See [`docs/BACKEND_GUIDE.md`](docs/BACKEND_GUIDE.md) and
+[`docs/FRONTEND_GUIDE.md`](docs/FRONTEND_GUIDE.md) before introducing a new
+pattern.
 
-- Lint: `cd website && npx eslint .`
-- Type check: `cd website && npx tsc --noEmit`
-- Build: `cd website && npm run build`
+## Development checks
 
-## Pull Request Process
+Use narrow tests while implementing, then run the canonical gates before
+requesting review:
 
-1. Create a branch from `main`
-2. Make your changes
-3. Ensure CI checks pass (automated on PR)
-4. Fill in the PR template
-5. Wait for CodeRabbit AI review and address feedback
+```sh
+make verify-go
+make verify-frontend
+make verify-contracts
+make verify-supply-chain
+```
 
-## Code Style
+`make verify` combines the ordinary source gates. A pull request is displayed
+in four CI groups: `API / Gate`, `Website / Gate`, `Cross-stack / Gate`, and
+`PR / Final gate`. The final gate is the branch-protection check and fails when
+any required track fails. API checks cover Go static analysis, race tests,
+coverage, `govulncheck`, and migration replay. Website checks cover lint,
+type checks, unit coverage, `npm audit`, production build headers, and bundle
+rules. Cross-stack checks cover contracts, browser E2E, production image
+builds, SBOM generation, Grype vulnerability scans, and Gitleaks.
 
-- **Go**: Follow standard Go conventions, run `gofmt`
-- **TypeScript/React**: Follow existing patterns in the codebase, ESLint rules enforced
-- **Commits**: Use conventional commit format (`feat:`, `fix:`, `chore:`, etc.)
+The scheduled/manual integration workflow covers encrypted backup/restore,
+load, chaos, and resilience evidence. The release workflow additionally
+requires a clean immutable source tree, digest-pinned image inventory, and
+unsigned release evidence. Neither workflow publishes or deploys artifacts.
+Destructive database, backup/restore, load, chaos, and release-evidence checks
+require an isolated test environment and explicit acknowledgement variables;
+never point them at production or a shared developer database.
 
-## Need Help?
+Generated Ent and mock output must match its source. Do not manually repair
+generated files; update schemas/interfaces and run the repository generation
+targets, then inspect the diff.
 
-Open a [Discussion](https://github.com/huynhanx03/Judgify/discussions) or create an issue.
+## Pull requests
+
+1. Branch from `main` and keep the change focused.
+2. Document behavior, migration, compatibility, and operational impact.
+3. Add failure/concurrency/security cases in addition to the happy path.
+4. Run the relevant canonical gates and record any intentionally deferred
+   environment-only evidence.
+5. Fill in the pull-request template. Never include credentials, private logs,
+   contestant source, hidden tests, or production data in an issue or PR.
+
+Use conventional commit prefixes when the repository owner asks for commits.
+Security findings follow [`SECURITY.md`](SECURITY.md), not public issues.

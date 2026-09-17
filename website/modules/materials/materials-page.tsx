@@ -5,6 +5,7 @@
 import { useMemo, useState } from "react";
 import { Loader2, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PublicPageLead } from "@/components/public-page-lead";
 import {
   Sheet,
   SheetContent,
@@ -24,15 +25,15 @@ import type {
 } from "@/types/material";
 import type { DifficultyResponse } from "@/types/difficulty";
 import type { EntityID } from "@/types/api";
-import { MaterialsHeroSection } from "@/modules/materials/materials-hero-section";
 import { MaterialsCategorySidebar } from "@/modules/materials/materials-category-sidebar";
 import { MaterialsSearchBar } from "@/modules/materials/materials-search-bar";
 import { MaterialsDifficultyFilter } from "@/modules/materials/materials-difficulty-filter";
 import { MaterialsArticleCard } from "@/modules/materials/materials-article-card";
 import {
-  MaterialsLoadFeedback,
-  MaterialsLoadingFeedback,
-} from "@/modules/materials/materials-resource-feedback";
+  ResourceCollectionFeedback,
+  ResourceErrorFeedback,
+  ResourceLoadingFeedback,
+} from "@/modules/shared/resource-feedback";
 import { TEXT } from "@/constants/text";
 import { MATERIAL_DISCOVERY } from "@/constants/material";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -69,8 +70,7 @@ export default function MaterialsPage() {
     load: (signal) => difficultyService.getAll(signal),
     onSuccess: (difficulties) => {
       setActiveDifficulty((current) =>
-        current &&
-        !difficulties.some((difficulty) => difficulty.id === current)
+        current && !difficulties.some((difficulty) => difficulty.id === current)
           ? null
           : current,
       );
@@ -118,6 +118,10 @@ export default function MaterialsPage() {
   const activeCategoryName = activeCategory
     ? categories.find((category) => category.id === activeCategory)?.name
     : null;
+  const categoryFilterAvailable =
+    categoryResource.status !== "error" || categories.length > 0;
+  const difficultyFilterAvailable =
+    difficultyResource.status !== "error" || difficulties.length > 0;
 
   const selectCategory = (id: EntityID | null) => {
     setActiveCategory(id);
@@ -126,19 +130,26 @@ export default function MaterialsPage() {
   const selectDifficulty = (id: EntityID | null) => setActiveDifficulty(id);
 
   return (
-    <div className="min-h-screen">
-      <MaterialsHeroSection />
+    <div className="space-y-10 pb-16 motion-safe:animate-in motion-safe:fade-in sm:space-y-12 sm:pb-20">
+      <PublicPageLead
+        art="materials"
+        eyebrow={TEXT.MATERIALS.EYEBROW}
+        title={TEXT.NAV.MATERIALS}
+        description={TEXT.MATERIALS.HERO_DESCRIPTION}
+      />
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <div>
         <div className="flex gap-8">
-          <aside className="hidden w-56 shrink-0 lg:block">
-            <MaterialsCategorySidebar
-              categories={categories}
-              activeCategory={activeCategory}
-              onSelectCategory={selectCategory}
-              loading={categoryResource.status === "loading"}
-            />
-          </aside>
+          {categoryFilterAvailable ? (
+            <aside className="hidden w-56 shrink-0 lg:block">
+              <MaterialsCategorySidebar
+                categories={categories}
+                activeCategory={activeCategory}
+                onSelectCategory={selectCategory}
+                loading={categoryResource.status === "loading"}
+              />
+            </aside>
+          ) : null}
 
           <section
             className="min-w-0 flex-1 space-y-5"
@@ -146,55 +157,61 @@ export default function MaterialsPage() {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
-                <h2 id="materials-results-heading" className="text-lg font-bold text-foreground">
+                <h2
+                  id="materials-results-heading"
+                  className="text-lg font-bold text-foreground"
+                >
                   {activeCategoryName ?? TEXT.MATERIALS.ALL_ARTICLES}
                 </h2>
                 {activeCategoryName ? (
                   <p className="text-xs text-muted-foreground">
                     {
-                      categories.find((category) => category.id === activeCategory)
-                        ?.description
+                      categories.find(
+                        (category) => category.id === activeCategory,
+                      )?.description
                     }
                   </p>
                 ) : null}
               </div>
 
-              <Sheet
-                open={isCategoryMenuOpen}
-                onOpenChange={setIsCategoryMenuOpen}
-              >
-                <SheetTrigger
-                  render={
-                    <button
-                      type="button"
-                      className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted lg:hidden"
-                      aria-label={TEXT.MATERIALS.TOGGLE_CATEGORIES}
-                    />
-                  }
+              {categoryFilterAvailable ? (
+                <Sheet
+                  open={isCategoryMenuOpen}
+                  onOpenChange={setIsCategoryMenuOpen}
                 >
-                  <Menu className="size-4" aria-hidden="true" />
-                  <span>{TEXT.MATERIALS.CATEGORY_TITLE}</span>
-                </SheetTrigger>
-                <SheetContent
-                  side="left"
-                  className="w-[86vw] max-w-sm gap-0 border-border bg-background p-0"
-                >
-                  <SheetHeader className="border-b border-border p-5 pr-14">
-                    <SheetTitle>{TEXT.MATERIALS.CATEGORY_MENU}</SheetTitle>
-                    <SheetDescription className="sr-only">
-                      {TEXT.MATERIALS.TOGGLE_CATEGORIES}
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="flex-1 overflow-y-auto p-4">
-                    <MaterialsCategorySidebar
-                      categories={categories}
-                      activeCategory={activeCategory}
-                      onSelectCategory={selectCategory}
-                      loading={categoryResource.status === "loading"}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  <SheetTrigger
+                    render={
+                      <button
+                        type="button"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted lg:hidden"
+                        aria-label={TEXT.MATERIALS.TOGGLE_CATEGORIES}
+                      />
+                    }
+                  >
+                    <Menu className="size-4" aria-hidden="true" />
+                    <span>{TEXT.MATERIALS.CATEGORY_TITLE}</span>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="left"
+                    className="w-[86vw] max-w-sm gap-0 border-border bg-background p-0"
+                  >
+                    <SheetHeader className="border-b border-border p-5 pr-14">
+                      <SheetTitle>{TEXT.MATERIALS.CATEGORY_MENU}</SheetTitle>
+                      <SheetDescription className="sr-only">
+                        {TEXT.MATERIALS.TOGGLE_CATEGORIES}
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto p-4">
+                      <MaterialsCategorySidebar
+                        categories={categories}
+                        activeCategory={activeCategory}
+                        onSelectCategory={selectCategory}
+                        loading={categoryResource.status === "loading"}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              ) : null}
             </div>
 
             <div className="space-y-3">
@@ -215,36 +232,9 @@ export default function MaterialsPage() {
                 active={activeDifficulty}
                 onChange={selectDifficulty}
                 loading={difficultyResource.status === "loading"}
+                available={difficultyFilterAvailable}
               />
             </div>
-
-            {categoryResource.status === "error" ||
-            difficultyResource.status === "error" ? (
-              <div className="grid gap-3 md:grid-cols-2">
-                {categoryResource.status === "error" ? (
-                  <MaterialsLoadFeedback
-                    compact
-                    title={TEXT.MATERIALS.CATEGORIES_LOAD_ERROR_TITLE}
-                    description={
-                      TEXT.MATERIALS.CATEGORIES_LOAD_ERROR_DESCRIPTION
-                    }
-                    retryLabel={TEXT.MATERIALS.RETRY}
-                    onRetry={categoryResource.retry}
-                  />
-                ) : null}
-                {difficultyResource.status === "error" ? (
-                  <MaterialsLoadFeedback
-                    compact
-                    title={TEXT.MATERIALS.DIFFICULTIES_LOAD_ERROR_TITLE}
-                    description={
-                      TEXT.MATERIALS.DIFFICULTIES_LOAD_ERROR_DESCRIPTION
-                    }
-                    retryLabel={TEXT.MATERIALS.RETRY}
-                    onRetry={difficultyResource.retry}
-                  />
-                ) : null}
-              </div>
-            ) : null}
 
             <section
               className="space-y-3"
@@ -272,9 +262,13 @@ export default function MaterialsPage() {
               ) : null}
 
               {feedStatus === "loading" ? (
-                <MaterialsLoadingFeedback label={TEXT.MATERIALS.ARTICLES_LOADING} />
+                <ResourceLoadingFeedback
+                  bare
+                  className="min-h-52"
+                  label={TEXT.MATERIALS.ARTICLES_LOADING}
+                />
               ) : feedStatus === "error" && articles.length === 0 ? (
-                <MaterialsLoadFeedback
+                <ResourceCollectionFeedback
                   title={TEXT.MATERIALS.ARTICLES_LOAD_ERROR_TITLE}
                   description={TEXT.MATERIALS.ARTICLES_LOAD_ERROR_DESCRIPTION}
                   retryLabel={TEXT.MATERIALS.RETRY}
@@ -283,10 +277,12 @@ export default function MaterialsPage() {
               ) : (
                 <>
                   {feedStatus === "error" ? (
-                    <MaterialsLoadFeedback
+                    <ResourceErrorFeedback
                       compact
                       title={TEXT.MATERIALS.ARTICLES_LOAD_ERROR_TITLE}
-                      description={TEXT.MATERIALS.ARTICLES_LOAD_ERROR_DESCRIPTION}
+                      description={
+                        TEXT.MATERIALS.ARTICLES_LOAD_ERROR_DESCRIPTION
+                      }
                       retryLabel={TEXT.MATERIALS.RETRY}
                       onRetry={
                         hasMore
@@ -298,7 +294,10 @@ export default function MaterialsPage() {
 
                   {articles.length > 0 ? (
                     articles.map((article) => (
-                      <MaterialsArticleCard key={article.id} article={article} />
+                      <MaterialsArticleCard
+                        key={article.id}
+                        article={article}
+                      />
                     ))
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-center">

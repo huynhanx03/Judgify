@@ -11,21 +11,46 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationstate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsession"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessioncommandreceipt"
+	"github.com/huynhanx03/judgify/internal/ent/generate/authsessionissuancereceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingresult"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestuserrating"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
+	"github.com/huynhanx03/judgify/internal/ent/generate/cultivationrankingprojection"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaign"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignexplicituser"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrecipient"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationcampaignrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/notificationpreference"
+	"github.com/huynhanx03/judgify/internal/ent/generate/oauthcompletionticket"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffer"
+	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
-	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofilerevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usersolvedproblem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -73,23 +98,16 @@ func (_u *UserUpdate) ClearDeletedAt() *UserUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserUpdate) SetDeletedBy(v int) *UserUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserUpdate) SetDeletedBy(v string) *UserUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableDeletedBy(v *int) *UserUpdate {
+func (_u *UserUpdate) SetNillableDeletedBy(v *string) *UserUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserUpdate) AddDeletedBy(v int) *UserUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -113,34 +131,139 @@ func (_u *UserUpdate) SetNillableUsername(v *string) *UserUpdate {
 	return _u
 }
 
-// SetRoleID sets the "role_id" field.
-func (_u *UserUpdate) SetRoleID(v int) *UserUpdate {
-	_u.mutation.SetRoleID(v)
+// SetStatus sets the "status" field.
+func (_u *UserUpdate) SetStatus(v user.Status) *UserUpdate {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetNillableRoleID sets the "role_id" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableRoleID(v *int) *UserUpdate {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableStatus(v *user.Status) *UserUpdate {
 	if v != nil {
-		_u.SetRoleID(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
 }
 
-// SetRole sets the "role" edge to the Role entity.
-func (_u *UserUpdate) SetRole(v *Role) *UserUpdate {
-	return _u.SetRoleID(v.ID)
+// SetSecurityVersion sets the "security_version" field.
+func (_u *UserUpdate) SetSecurityVersion(v int64) *UserUpdate {
+	_u.mutation.ResetSecurityVersion()
+	_u.mutation.SetSecurityVersion(v)
+	return _u
+}
+
+// SetNillableSecurityVersion sets the "security_version" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableSecurityVersion(v *int64) *UserUpdate {
+	if v != nil {
+		_u.SetSecurityVersion(*v)
+	}
+	return _u
+}
+
+// AddSecurityVersion adds value to the "security_version" field.
+func (_u *UserUpdate) AddSecurityVersion(v int64) *UserUpdate {
+	_u.mutation.AddSecurityVersion(v)
+	return _u
+}
+
+// SetProfileVisibility sets the "profile_visibility" field.
+func (_u *UserUpdate) SetProfileVisibility(v user.ProfileVisibility) *UserUpdate {
+	_u.mutation.SetProfileVisibility(v)
+	return _u
+}
+
+// SetNillableProfileVisibility sets the "profile_visibility" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableProfileVisibility(v *user.ProfileVisibility) *UserUpdate {
+	if v != nil {
+		_u.SetProfileVisibility(*v)
+	}
+	return _u
+}
+
+// SetProfileVisibilityVersion sets the "profile_visibility_version" field.
+func (_u *UserUpdate) SetProfileVisibilityVersion(v int64) *UserUpdate {
+	_u.mutation.ResetProfileVisibilityVersion()
+	_u.mutation.SetProfileVisibilityVersion(v)
+	return _u
+}
+
+// SetNillableProfileVisibilityVersion sets the "profile_visibility_version" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableProfileVisibilityVersion(v *int64) *UserUpdate {
+	if v != nil {
+		_u.SetProfileVisibilityVersion(*v)
+	}
+	return _u
+}
+
+// AddProfileVisibilityVersion adds value to the "profile_visibility_version" field.
+func (_u *UserUpdate) AddProfileVisibilityVersion(v int64) *UserUpdate {
+	_u.mutation.AddProfileVisibilityVersion(v)
+	return _u
+}
+
+// SetProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field.
+func (_u *UserUpdate) SetProfileVisibilityUpdatedAt(v time.Time) *UserUpdate {
+	_u.mutation.SetProfileVisibilityUpdatedAt(v)
+	return _u
+}
+
+// SetNillableProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableProfileVisibilityUpdatedAt(v *time.Time) *UserUpdate {
+	if v != nil {
+		_u.SetProfileVisibilityUpdatedAt(*v)
+	}
+	return _u
+}
+
+// SetSuspendedAt sets the "suspended_at" field.
+func (_u *UserUpdate) SetSuspendedAt(v time.Time) *UserUpdate {
+	_u.mutation.SetSuspendedAt(v)
+	return _u
+}
+
+// SetNillableSuspendedAt sets the "suspended_at" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableSuspendedAt(v *time.Time) *UserUpdate {
+	if v != nil {
+		_u.SetSuspendedAt(*v)
+	}
+	return _u
+}
+
+// ClearSuspendedAt clears the value of the "suspended_at" field.
+func (_u *UserUpdate) ClearSuspendedAt() *UserUpdate {
+	_u.mutation.ClearSuspendedAt()
+	return _u
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (_u *UserUpdate) SetSuspensionReason(v string) *UserUpdate {
+	_u.mutation.SetSuspensionReason(v)
+	return _u
+}
+
+// SetNillableSuspensionReason sets the "suspension_reason" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableSuspensionReason(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetSuspensionReason(*v)
+	}
+	return _u
+}
+
+// ClearSuspensionReason clears the value of the "suspension_reason" field.
+func (_u *UserUpdate) ClearSuspensionReason() *UserUpdate {
+	_u.mutation.ClearSuspensionReason()
+	return _u
 }
 
 // AddCredentialIDs adds the "credentials" edge to the Credential entity by IDs.
-func (_u *UserUpdate) AddCredentialIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddCredentialIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddCredentialIDs(ids...)
 	return _u
 }
 
 // AddCredentials adds the "credentials" edges to the Credential entity.
 func (_u *UserUpdate) AddCredentials(v ...*Credential) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -148,14 +271,14 @@ func (_u *UserUpdate) AddCredentials(v ...*Credential) *UserUpdate {
 }
 
 // AddAttributeIDs adds the "attributes" edge to the UserAttributeValue entity by IDs.
-func (_u *UserUpdate) AddAttributeIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddAttributeIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddAttributeIDs(ids...)
 	return _u
 }
 
 // AddAttributes adds the "attributes" edges to the UserAttributeValue entity.
 func (_u *UserUpdate) AddAttributes(v ...*UserAttributeValue) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -163,29 +286,164 @@ func (_u *UserUpdate) AddAttributes(v ...*UserAttributeValue) *UserUpdate {
 }
 
 // AddFederatedIdentityIDs adds the "federated_identities" edge to the FederatedIdentity entity by IDs.
-func (_u *UserUpdate) AddFederatedIdentityIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddFederatedIdentityIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddFederatedIdentityIDs(ids...)
 	return _u
 }
 
 // AddFederatedIdentities adds the "federated_identities" edges to the FederatedIdentity entity.
 func (_u *UserUpdate) AddFederatedIdentities(v ...*FederatedIdentity) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddFederatedIdentityIDs(ids...)
 }
 
+// AddAuthSessionIDs adds the "auth_sessions" edge to the AuthSession entity by IDs.
+func (_u *UserUpdate) AddAuthSessionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddAuthSessionIDs(ids...)
+	return _u
+}
+
+// AddAuthSessions adds the "auth_sessions" edges to the AuthSession entity.
+func (_u *UserUpdate) AddAuthSessions(v ...*AuthSession) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAuthSessionIDs(ids...)
+}
+
+// AddRecoveryContactIDs adds the "recovery_contacts" edge to the UserRecoveryContact entity by IDs.
+func (_u *UserUpdate) AddRecoveryContactIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddRecoveryContactIDs(ids...)
+	return _u
+}
+
+// AddRecoveryContacts adds the "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *UserUpdate) AddRecoveryContacts(v ...*UserRecoveryContact) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRecoveryContactIDs(ids...)
+}
+
+// AddRecoveryContactCommandIDs adds the "recovery_contact_commands" edge to the RecoveryContactCommandReceipt entity by IDs.
+func (_u *UserUpdate) AddRecoveryContactCommandIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddRecoveryContactCommandIDs(ids...)
+	return _u
+}
+
+// AddRecoveryContactCommands adds the "recovery_contact_commands" edges to the RecoveryContactCommandReceipt entity.
+func (_u *UserUpdate) AddRecoveryContactCommands(v ...*RecoveryContactCommandReceipt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRecoveryContactCommandIDs(ids...)
+}
+
+// AddPasswordResetTokenIDs adds the "password_reset_tokens" edge to the PasswordResetToken entity by IDs.
+func (_u *UserUpdate) AddPasswordResetTokenIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddPasswordResetTokenIDs(ids...)
+	return _u
+}
+
+// AddPasswordResetTokens adds the "password_reset_tokens" edges to the PasswordResetToken entity.
+func (_u *UserUpdate) AddPasswordResetTokens(v ...*PasswordResetToken) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPasswordResetTokenIDs(ids...)
+}
+
+// AddSessionIssuanceReceiptIDs adds the "session_issuance_receipts" edge to the AuthSessionIssuanceReceipt entity by IDs.
+func (_u *UserUpdate) AddSessionIssuanceReceiptIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddSessionIssuanceReceiptIDs(ids...)
+	return _u
+}
+
+// AddSessionIssuanceReceipts adds the "session_issuance_receipts" edges to the AuthSessionIssuanceReceipt entity.
+func (_u *UserUpdate) AddSessionIssuanceReceipts(v ...*AuthSessionIssuanceReceipt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSessionIssuanceReceiptIDs(ids...)
+}
+
+// AddConsumedTraitOfferIDs adds the "consumed_trait_offers" edge to the OnboardingTraitOffer entity by IDs.
+func (_u *UserUpdate) AddConsumedTraitOfferIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddConsumedTraitOfferIDs(ids...)
+	return _u
+}
+
+// AddConsumedTraitOffers adds the "consumed_trait_offers" edges to the OnboardingTraitOffer entity.
+func (_u *UserUpdate) AddConsumedTraitOffers(v ...*OnboardingTraitOffer) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddConsumedTraitOfferIDs(ids...)
+}
+
+// AddSessionCommandIDs adds the "session_commands" edge to the AuthSessionCommandReceipt entity by IDs.
+func (_u *UserUpdate) AddSessionCommandIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddSessionCommandIDs(ids...)
+	return _u
+}
+
+// AddSessionCommands adds the "session_commands" edges to the AuthSessionCommandReceipt entity.
+func (_u *UserUpdate) AddSessionCommands(v ...*AuthSessionCommandReceipt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSessionCommandIDs(ids...)
+}
+
+// AddOauthCompletionTicketIDs adds the "oauth_completion_tickets" edge to the OAuthCompletionTicket entity by IDs.
+func (_u *UserUpdate) AddOauthCompletionTicketIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddOauthCompletionTicketIDs(ids...)
+	return _u
+}
+
+// AddOauthCompletionTickets adds the "oauth_completion_tickets" edges to the OAuthCompletionTicket entity.
+func (_u *UserUpdate) AddOauthCompletionTickets(v ...*OAuthCompletionTicket) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOauthCompletionTicketIDs(ids...)
+}
+
+// AddAuthorizationUpdateIDs adds the "authorization_updates" edge to the AuthorizationState entity by IDs.
+func (_u *UserUpdate) AddAuthorizationUpdateIDs(ids ...string) *UserUpdate {
+	_u.mutation.AddAuthorizationUpdateIDs(ids...)
+	return _u
+}
+
+// AddAuthorizationUpdates adds the "authorization_updates" edges to the AuthorizationState entity.
+func (_u *UserUpdate) AddAuthorizationUpdates(v ...*AuthorizationState) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAuthorizationUpdateIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_u *UserUpdate) AddProblemIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddProblemIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddProblemIDs(ids...)
 	return _u
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_u *UserUpdate) AddProblems(v ...*Problem) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -193,14 +451,14 @@ func (_u *UserUpdate) AddProblems(v ...*Problem) *UserUpdate {
 }
 
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_u *UserUpdate) AddSubmissionIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddSubmissionIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddSubmissionIDs(ids...)
 	return _u
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_u *UserUpdate) AddSubmissions(v ...*Submission) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -208,29 +466,44 @@ func (_u *UserUpdate) AddSubmissions(v ...*Submission) *UserUpdate {
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
-func (_u *UserUpdate) AddUserTraitIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddUserTraitIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddUserTraitIDs(ids...)
 	return _u
 }
 
 // AddUserTraits adds the "user_traits" edges to the UserTrait entity.
 func (_u *UserUpdate) AddUserTraits(v ...*UserTrait) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserTraitIDs(ids...)
 }
 
+// AddRewardProfileRevisionIDs adds the "reward_profile_revisions" edge to the UserRewardProfileRevision entity by IDs.
+func (_u *UserUpdate) AddRewardProfileRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddRewardProfileRevisionIDs(ids...)
+	return _u
+}
+
+// AddRewardProfileRevisions adds the "reward_profile_revisions" edges to the UserRewardProfileRevision entity.
+func (_u *UserUpdate) AddRewardProfileRevisions(v ...*UserRewardProfileRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRewardProfileRevisionIDs(ids...)
+}
+
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
-func (_u *UserUpdate) AddUserElementExpIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddUserElementExpIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddUserElementExpIDs(ids...)
 	return _u
 }
 
 // AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
 func (_u *UserUpdate) AddUserElementExps(v ...*UserElementExp) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -238,29 +511,44 @@ func (_u *UserUpdate) AddUserElementExps(v ...*UserElementExp) *UserUpdate {
 }
 
 // AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
-func (_u *UserUpdate) AddUserStatIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddUserStatIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddUserStatIDs(ids...)
 	return _u
 }
 
 // AddUserStats adds the "user_stats" edges to the UserStats entity.
 func (_u *UserUpdate) AddUserStats(v ...*UserStats) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserStatIDs(ids...)
 }
 
+// AddCultivationRankingProjectionIDs adds the "cultivation_ranking_projection" edge to the CultivationRankingProjection entity by IDs.
+func (_u *UserUpdate) AddCultivationRankingProjectionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddCultivationRankingProjectionIDs(ids...)
+	return _u
+}
+
+// AddCultivationRankingProjection adds the "cultivation_ranking_projection" edges to the CultivationRankingProjection entity.
+func (_u *UserUpdate) AddCultivationRankingProjection(v ...*CultivationRankingProjection) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCultivationRankingProjectionIDs(ids...)
+}
+
 // AddSolvedProblemIDs adds the "solved_problems" edge to the UserSolvedProblem entity by IDs.
-func (_u *UserUpdate) AddSolvedProblemIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddSolvedProblemIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddSolvedProblemIDs(ids...)
 	return _u
 }
 
 // AddSolvedProblems adds the "solved_problems" edges to the UserSolvedProblem entity.
 func (_u *UserUpdate) AddSolvedProblems(v ...*UserSolvedProblem) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -268,14 +556,14 @@ func (_u *UserUpdate) AddSolvedProblems(v ...*UserSolvedProblem) *UserUpdate {
 }
 
 // AddDifficultyStatIDs adds the "difficulty_stats" edge to the UserDifficultyStats entity by IDs.
-func (_u *UserUpdate) AddDifficultyStatIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddDifficultyStatIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddDifficultyStatIDs(ids...)
 	return _u
 }
 
 // AddDifficultyStats adds the "difficulty_stats" edges to the UserDifficultyStats entity.
 func (_u *UserUpdate) AddDifficultyStats(v ...*UserDifficultyStats) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -283,14 +571,14 @@ func (_u *UserUpdate) AddDifficultyStats(v ...*UserDifficultyStats) *UserUpdate 
 }
 
 // AddTagStatIDs adds the "tag_stats" edge to the UserTagStats entity by IDs.
-func (_u *UserUpdate) AddTagStatIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddTagStatIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddTagStatIDs(ids...)
 	return _u
 }
 
 // AddTagStats adds the "tag_stats" edges to the UserTagStats entity.
 func (_u *UserUpdate) AddTagStats(v ...*UserTagStats) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -298,14 +586,14 @@ func (_u *UserUpdate) AddTagStats(v ...*UserTagStats) *UserUpdate {
 }
 
 // AddContestIDs adds the "contests" edge to the Contest entity by IDs.
-func (_u *UserUpdate) AddContestIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddContestIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddContestIDs(ids...)
 	return _u
 }
 
 // AddContests adds the "contests" edges to the Contest entity.
 func (_u *UserUpdate) AddContests(v ...*Contest) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -313,14 +601,14 @@ func (_u *UserUpdate) AddContests(v ...*Contest) *UserUpdate {
 }
 
 // AddContestRegistrationIDs adds the "contest_registrations" edge to the ContestRegistration entity by IDs.
-func (_u *UserUpdate) AddContestRegistrationIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddContestRegistrationIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddContestRegistrationIDs(ids...)
 	return _u
 }
 
 // AddContestRegistrations adds the "contest_registrations" edges to the ContestRegistration entity.
 func (_u *UserUpdate) AddContestRegistrations(v ...*ContestRegistration) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -328,14 +616,14 @@ func (_u *UserUpdate) AddContestRegistrations(v ...*ContestRegistration) *UserUp
 }
 
 // AddContestStandingIDs adds the "contest_standings" edge to the ContestStanding entity by IDs.
-func (_u *UserUpdate) AddContestStandingIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddContestStandingIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddContestStandingIDs(ids...)
 	return _u
 }
 
 // AddContestStandings adds the "contest_standings" edges to the ContestStanding entity.
 func (_u *UserUpdate) AddContestStandings(v ...*ContestStanding) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -343,44 +631,248 @@ func (_u *UserUpdate) AddContestStandings(v ...*ContestStanding) *UserUpdate {
 }
 
 // AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
-func (_u *UserUpdate) AddRatingHistoryIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddRatingHistoryIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddRatingHistoryIDs(ids...)
 	return _u
 }
 
 // AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
 func (_u *UserUpdate) AddRatingHistories(v ...*RatingHistory) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddRatingHistoryIDs(ids...)
 }
 
+// AddContestRatingResultIDs adds the "contest_rating_results" edge to the ContestRatingResult entity by IDs.
+func (_u *UserUpdate) AddContestRatingResultIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestRatingResultIDs(ids...)
+	return _u
+}
+
+// AddContestRatingResults adds the "contest_rating_results" edges to the ContestRatingResult entity.
+func (_u *UserUpdate) AddContestRatingResults(v ...*ContestRatingResult) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestRatingResultIDs(ids...)
+}
+
+// AddContestUserRatingIDs adds the "contest_user_ratings" edge to the ContestUserRating entity by IDs.
+func (_u *UserUpdate) AddContestUserRatingIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestUserRatingIDs(ids...)
+	return _u
+}
+
+// AddContestUserRatings adds the "contest_user_ratings" edges to the ContestUserRating entity.
+func (_u *UserUpdate) AddContestUserRatings(v ...*ContestUserRating) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestUserRatingIDs(ids...)
+}
+
+// AddContestScoringAttemptIDs adds the "contest_scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_u *UserUpdate) AddContestScoringAttemptIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// AddContestScoringAttempts adds the "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *UserUpdate) AddContestScoringAttempts(v ...*ContestScoringAttempt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestScoringAttemptIDs(ids...)
+}
+
+// AddContestProblemResultIDs adds the "contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *UserUpdate) AddContestProblemResultIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestProblemResultIDs(ids...)
+	return _u
+}
+
+// AddContestProblemResults adds the "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *UserUpdate) AddContestProblemResults(v ...*ContestProblemResult) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemResultIDs(ids...)
+}
+
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_u *UserUpdate) AddMaterialIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) AddMaterialIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.AddMaterialIDs(ids...)
 	return _u
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_u *UserUpdate) AddMaterials(v ...*Material) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddMaterialIDs(ids...)
 }
 
+// AddMaterialRevisionIDs adds the "material_revisions" edge to the MaterialRevision entity by IDs.
+func (_u *UserUpdate) AddMaterialRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddMaterialRevisionIDs(ids...)
+	return _u
+}
+
+// AddMaterialRevisions adds the "material_revisions" edges to the MaterialRevision entity.
+func (_u *UserUpdate) AddMaterialRevisions(v ...*MaterialRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialRevisionIDs(ids...)
+}
+
+// AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
+func (_u *UserUpdate) AddNotificationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddNotificationIDs(ids...)
+	return _u
+}
+
+// AddNotifications adds the "notifications" edges to the Notification entity.
+func (_u *UserUpdate) AddNotifications(v ...*Notification) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationIDs(ids...)
+}
+
+// AddNotificationPreferenceIDs adds the "notification_preferences" edge to the NotificationPreference entity by IDs.
+func (_u *UserUpdate) AddNotificationPreferenceIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddNotificationPreferenceIDs(ids...)
+	return _u
+}
+
+// AddNotificationPreferences adds the "notification_preferences" edges to the NotificationPreference entity.
+func (_u *UserUpdate) AddNotificationPreferences(v ...*NotificationPreference) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationPreferenceIDs(ids...)
+}
+
+// AddCreatedNotificationCampaignIDs adds the "created_notification_campaigns" edge to the NotificationCampaign entity by IDs.
+func (_u *UserUpdate) AddCreatedNotificationCampaignIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddCreatedNotificationCampaignIDs(ids...)
+	return _u
+}
+
+// AddCreatedNotificationCampaigns adds the "created_notification_campaigns" edges to the NotificationCampaign entity.
+func (_u *UserUpdate) AddCreatedNotificationCampaigns(v ...*NotificationCampaign) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCreatedNotificationCampaignIDs(ids...)
+}
+
+// AddNotificationCampaignRevisionIDs adds the "notification_campaign_revisions" edge to the NotificationCampaignRevision entity by IDs.
+func (_u *UserUpdate) AddNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// AddNotificationCampaignRevisions adds the "notification_campaign_revisions" edges to the NotificationCampaignRevision entity.
+func (_u *UserUpdate) AddNotificationCampaignRevisions(v ...*NotificationCampaignRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationCampaignRevisionIDs(ids...)
+}
+
+// AddExplicitNotificationCampaignRevisionIDs adds the "explicit_notification_campaign_revisions" edge to the NotificationCampaignExplicitUser entity by IDs.
+func (_u *UserUpdate) AddExplicitNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddExplicitNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// AddExplicitNotificationCampaignRevisions adds the "explicit_notification_campaign_revisions" edges to the NotificationCampaignExplicitUser entity.
+func (_u *UserUpdate) AddExplicitNotificationCampaignRevisions(v ...*NotificationCampaignExplicitUser) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddExplicitNotificationCampaignRevisionIDs(ids...)
+}
+
+// AddNotificationCampaignDeliveryIDs adds the "notification_campaign_deliveries" edge to the NotificationCampaignRecipient entity by IDs.
+func (_u *UserUpdate) AddNotificationCampaignDeliveryIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddNotificationCampaignDeliveryIDs(ids...)
+	return _u
+}
+
+// AddNotificationCampaignDeliveries adds the "notification_campaign_deliveries" edges to the NotificationCampaignRecipient entity.
+func (_u *UserUpdate) AddNotificationCampaignDeliveries(v ...*NotificationCampaignRecipient) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationCampaignDeliveryIDs(ids...)
+}
+
+// AddContestContentRevisionIDs adds the "contest_content_revisions" edge to the ContestContentRevision entity by IDs.
+func (_u *UserUpdate) AddContestContentRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestContentRevisionIDs(ids...)
+	return _u
+}
+
+// AddContestContentRevisions adds the "contest_content_revisions" edges to the ContestContentRevision entity.
+func (_u *UserUpdate) AddContestContentRevisions(v ...*ContestContentRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestContentRevisionIDs(ids...)
+}
+
+// AddContestClarificationIDs adds the "contest_clarifications" edge to the ContestClarification entity by IDs.
+func (_u *UserUpdate) AddContestClarificationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestClarificationIDs(ids...)
+	return _u
+}
+
+// AddContestClarifications adds the "contest_clarifications" edges to the ContestClarification entity.
+func (_u *UserUpdate) AddContestClarifications(v ...*ContestClarification) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestClarificationIDs(ids...)
+}
+
+// AddContestContentCommandIDs adds the "contest_content_commands" edge to the ContestContentCommand entity by IDs.
+func (_u *UserUpdate) AddContestContentCommandIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddContestContentCommandIDs(ids...)
+	return _u
+}
+
+// AddContestContentCommands adds the "contest_content_commands" edges to the ContestContentCommand entity.
+func (_u *UserUpdate) AddContestContentCommands(v ...*ContestContentCommand) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestContentCommandIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
-}
-
-// ClearRole clears the "role" edge to the Role entity.
-func (_u *UserUpdate) ClearRole() *UserUpdate {
-	_u.mutation.ClearRole()
-	return _u
 }
 
 // ClearCredentials clears all "credentials" edges to the Credential entity.
@@ -390,14 +882,14 @@ func (_u *UserUpdate) ClearCredentials() *UserUpdate {
 }
 
 // RemoveCredentialIDs removes the "credentials" edge to Credential entities by IDs.
-func (_u *UserUpdate) RemoveCredentialIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveCredentialIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveCredentialIDs(ids...)
 	return _u
 }
 
 // RemoveCredentials removes "credentials" edges to Credential entities.
 func (_u *UserUpdate) RemoveCredentials(v ...*Credential) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -411,14 +903,14 @@ func (_u *UserUpdate) ClearAttributes() *UserUpdate {
 }
 
 // RemoveAttributeIDs removes the "attributes" edge to UserAttributeValue entities by IDs.
-func (_u *UserUpdate) RemoveAttributeIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveAttributeIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveAttributeIDs(ids...)
 	return _u
 }
 
 // RemoveAttributes removes "attributes" edges to UserAttributeValue entities.
 func (_u *UserUpdate) RemoveAttributes(v ...*UserAttributeValue) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -432,18 +924,207 @@ func (_u *UserUpdate) ClearFederatedIdentities() *UserUpdate {
 }
 
 // RemoveFederatedIdentityIDs removes the "federated_identities" edge to FederatedIdentity entities by IDs.
-func (_u *UserUpdate) RemoveFederatedIdentityIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveFederatedIdentityIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveFederatedIdentityIDs(ids...)
 	return _u
 }
 
 // RemoveFederatedIdentities removes "federated_identities" edges to FederatedIdentity entities.
 func (_u *UserUpdate) RemoveFederatedIdentities(v ...*FederatedIdentity) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveFederatedIdentityIDs(ids...)
+}
+
+// ClearAuthSessions clears all "auth_sessions" edges to the AuthSession entity.
+func (_u *UserUpdate) ClearAuthSessions() *UserUpdate {
+	_u.mutation.ClearAuthSessions()
+	return _u
+}
+
+// RemoveAuthSessionIDs removes the "auth_sessions" edge to AuthSession entities by IDs.
+func (_u *UserUpdate) RemoveAuthSessionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveAuthSessionIDs(ids...)
+	return _u
+}
+
+// RemoveAuthSessions removes "auth_sessions" edges to AuthSession entities.
+func (_u *UserUpdate) RemoveAuthSessions(v ...*AuthSession) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAuthSessionIDs(ids...)
+}
+
+// ClearRecoveryContacts clears all "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *UserUpdate) ClearRecoveryContacts() *UserUpdate {
+	_u.mutation.ClearRecoveryContacts()
+	return _u
+}
+
+// RemoveRecoveryContactIDs removes the "recovery_contacts" edge to UserRecoveryContact entities by IDs.
+func (_u *UserUpdate) RemoveRecoveryContactIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveRecoveryContactIDs(ids...)
+	return _u
+}
+
+// RemoveRecoveryContacts removes "recovery_contacts" edges to UserRecoveryContact entities.
+func (_u *UserUpdate) RemoveRecoveryContacts(v ...*UserRecoveryContact) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRecoveryContactIDs(ids...)
+}
+
+// ClearRecoveryContactCommands clears all "recovery_contact_commands" edges to the RecoveryContactCommandReceipt entity.
+func (_u *UserUpdate) ClearRecoveryContactCommands() *UserUpdate {
+	_u.mutation.ClearRecoveryContactCommands()
+	return _u
+}
+
+// RemoveRecoveryContactCommandIDs removes the "recovery_contact_commands" edge to RecoveryContactCommandReceipt entities by IDs.
+func (_u *UserUpdate) RemoveRecoveryContactCommandIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveRecoveryContactCommandIDs(ids...)
+	return _u
+}
+
+// RemoveRecoveryContactCommands removes "recovery_contact_commands" edges to RecoveryContactCommandReceipt entities.
+func (_u *UserUpdate) RemoveRecoveryContactCommands(v ...*RecoveryContactCommandReceipt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRecoveryContactCommandIDs(ids...)
+}
+
+// ClearPasswordResetTokens clears all "password_reset_tokens" edges to the PasswordResetToken entity.
+func (_u *UserUpdate) ClearPasswordResetTokens() *UserUpdate {
+	_u.mutation.ClearPasswordResetTokens()
+	return _u
+}
+
+// RemovePasswordResetTokenIDs removes the "password_reset_tokens" edge to PasswordResetToken entities by IDs.
+func (_u *UserUpdate) RemovePasswordResetTokenIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemovePasswordResetTokenIDs(ids...)
+	return _u
+}
+
+// RemovePasswordResetTokens removes "password_reset_tokens" edges to PasswordResetToken entities.
+func (_u *UserUpdate) RemovePasswordResetTokens(v ...*PasswordResetToken) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePasswordResetTokenIDs(ids...)
+}
+
+// ClearSessionIssuanceReceipts clears all "session_issuance_receipts" edges to the AuthSessionIssuanceReceipt entity.
+func (_u *UserUpdate) ClearSessionIssuanceReceipts() *UserUpdate {
+	_u.mutation.ClearSessionIssuanceReceipts()
+	return _u
+}
+
+// RemoveSessionIssuanceReceiptIDs removes the "session_issuance_receipts" edge to AuthSessionIssuanceReceipt entities by IDs.
+func (_u *UserUpdate) RemoveSessionIssuanceReceiptIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveSessionIssuanceReceiptIDs(ids...)
+	return _u
+}
+
+// RemoveSessionIssuanceReceipts removes "session_issuance_receipts" edges to AuthSessionIssuanceReceipt entities.
+func (_u *UserUpdate) RemoveSessionIssuanceReceipts(v ...*AuthSessionIssuanceReceipt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSessionIssuanceReceiptIDs(ids...)
+}
+
+// ClearConsumedTraitOffers clears all "consumed_trait_offers" edges to the OnboardingTraitOffer entity.
+func (_u *UserUpdate) ClearConsumedTraitOffers() *UserUpdate {
+	_u.mutation.ClearConsumedTraitOffers()
+	return _u
+}
+
+// RemoveConsumedTraitOfferIDs removes the "consumed_trait_offers" edge to OnboardingTraitOffer entities by IDs.
+func (_u *UserUpdate) RemoveConsumedTraitOfferIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveConsumedTraitOfferIDs(ids...)
+	return _u
+}
+
+// RemoveConsumedTraitOffers removes "consumed_trait_offers" edges to OnboardingTraitOffer entities.
+func (_u *UserUpdate) RemoveConsumedTraitOffers(v ...*OnboardingTraitOffer) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveConsumedTraitOfferIDs(ids...)
+}
+
+// ClearSessionCommands clears all "session_commands" edges to the AuthSessionCommandReceipt entity.
+func (_u *UserUpdate) ClearSessionCommands() *UserUpdate {
+	_u.mutation.ClearSessionCommands()
+	return _u
+}
+
+// RemoveSessionCommandIDs removes the "session_commands" edge to AuthSessionCommandReceipt entities by IDs.
+func (_u *UserUpdate) RemoveSessionCommandIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveSessionCommandIDs(ids...)
+	return _u
+}
+
+// RemoveSessionCommands removes "session_commands" edges to AuthSessionCommandReceipt entities.
+func (_u *UserUpdate) RemoveSessionCommands(v ...*AuthSessionCommandReceipt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSessionCommandIDs(ids...)
+}
+
+// ClearOauthCompletionTickets clears all "oauth_completion_tickets" edges to the OAuthCompletionTicket entity.
+func (_u *UserUpdate) ClearOauthCompletionTickets() *UserUpdate {
+	_u.mutation.ClearOauthCompletionTickets()
+	return _u
+}
+
+// RemoveOauthCompletionTicketIDs removes the "oauth_completion_tickets" edge to OAuthCompletionTicket entities by IDs.
+func (_u *UserUpdate) RemoveOauthCompletionTicketIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveOauthCompletionTicketIDs(ids...)
+	return _u
+}
+
+// RemoveOauthCompletionTickets removes "oauth_completion_tickets" edges to OAuthCompletionTicket entities.
+func (_u *UserUpdate) RemoveOauthCompletionTickets(v ...*OAuthCompletionTicket) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOauthCompletionTicketIDs(ids...)
+}
+
+// ClearAuthorizationUpdates clears all "authorization_updates" edges to the AuthorizationState entity.
+func (_u *UserUpdate) ClearAuthorizationUpdates() *UserUpdate {
+	_u.mutation.ClearAuthorizationUpdates()
+	return _u
+}
+
+// RemoveAuthorizationUpdateIDs removes the "authorization_updates" edge to AuthorizationState entities by IDs.
+func (_u *UserUpdate) RemoveAuthorizationUpdateIDs(ids ...string) *UserUpdate {
+	_u.mutation.RemoveAuthorizationUpdateIDs(ids...)
+	return _u
+}
+
+// RemoveAuthorizationUpdates removes "authorization_updates" edges to AuthorizationState entities.
+func (_u *UserUpdate) RemoveAuthorizationUpdates(v ...*AuthorizationState) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAuthorizationUpdateIDs(ids...)
 }
 
 // ClearProblems clears all "problems" edges to the Problem entity.
@@ -453,14 +1134,14 @@ func (_u *UserUpdate) ClearProblems() *UserUpdate {
 }
 
 // RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (_u *UserUpdate) RemoveProblemIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveProblemIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveProblemIDs(ids...)
 	return _u
 }
 
 // RemoveProblems removes "problems" edges to Problem entities.
 func (_u *UserUpdate) RemoveProblems(v ...*Problem) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -474,14 +1155,14 @@ func (_u *UserUpdate) ClearSubmissions() *UserUpdate {
 }
 
 // RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
-func (_u *UserUpdate) RemoveSubmissionIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveSubmissionIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveSubmissionIDs(ids...)
 	return _u
 }
 
 // RemoveSubmissions removes "submissions" edges to Submission entities.
 func (_u *UserUpdate) RemoveSubmissions(v ...*Submission) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -495,18 +1176,39 @@ func (_u *UserUpdate) ClearUserTraits() *UserUpdate {
 }
 
 // RemoveUserTraitIDs removes the "user_traits" edge to UserTrait entities by IDs.
-func (_u *UserUpdate) RemoveUserTraitIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveUserTraitIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveUserTraitIDs(ids...)
 	return _u
 }
 
 // RemoveUserTraits removes "user_traits" edges to UserTrait entities.
 func (_u *UserUpdate) RemoveUserTraits(v ...*UserTrait) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserTraitIDs(ids...)
+}
+
+// ClearRewardProfileRevisions clears all "reward_profile_revisions" edges to the UserRewardProfileRevision entity.
+func (_u *UserUpdate) ClearRewardProfileRevisions() *UserUpdate {
+	_u.mutation.ClearRewardProfileRevisions()
+	return _u
+}
+
+// RemoveRewardProfileRevisionIDs removes the "reward_profile_revisions" edge to UserRewardProfileRevision entities by IDs.
+func (_u *UserUpdate) RemoveRewardProfileRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveRewardProfileRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRewardProfileRevisions removes "reward_profile_revisions" edges to UserRewardProfileRevision entities.
+func (_u *UserUpdate) RemoveRewardProfileRevisions(v ...*UserRewardProfileRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRewardProfileRevisionIDs(ids...)
 }
 
 // ClearUserElementExps clears all "user_element_exps" edges to the UserElementExp entity.
@@ -516,14 +1218,14 @@ func (_u *UserUpdate) ClearUserElementExps() *UserUpdate {
 }
 
 // RemoveUserElementExpIDs removes the "user_element_exps" edge to UserElementExp entities by IDs.
-func (_u *UserUpdate) RemoveUserElementExpIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveUserElementExpIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveUserElementExpIDs(ids...)
 	return _u
 }
 
 // RemoveUserElementExps removes "user_element_exps" edges to UserElementExp entities.
 func (_u *UserUpdate) RemoveUserElementExps(v ...*UserElementExp) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -537,18 +1239,39 @@ func (_u *UserUpdate) ClearUserStats() *UserUpdate {
 }
 
 // RemoveUserStatIDs removes the "user_stats" edge to UserStats entities by IDs.
-func (_u *UserUpdate) RemoveUserStatIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveUserStatIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveUserStatIDs(ids...)
 	return _u
 }
 
 // RemoveUserStats removes "user_stats" edges to UserStats entities.
 func (_u *UserUpdate) RemoveUserStats(v ...*UserStats) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserStatIDs(ids...)
+}
+
+// ClearCultivationRankingProjection clears all "cultivation_ranking_projection" edges to the CultivationRankingProjection entity.
+func (_u *UserUpdate) ClearCultivationRankingProjection() *UserUpdate {
+	_u.mutation.ClearCultivationRankingProjection()
+	return _u
+}
+
+// RemoveCultivationRankingProjectionIDs removes the "cultivation_ranking_projection" edge to CultivationRankingProjection entities by IDs.
+func (_u *UserUpdate) RemoveCultivationRankingProjectionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveCultivationRankingProjectionIDs(ids...)
+	return _u
+}
+
+// RemoveCultivationRankingProjection removes "cultivation_ranking_projection" edges to CultivationRankingProjection entities.
+func (_u *UserUpdate) RemoveCultivationRankingProjection(v ...*CultivationRankingProjection) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCultivationRankingProjectionIDs(ids...)
 }
 
 // ClearSolvedProblems clears all "solved_problems" edges to the UserSolvedProblem entity.
@@ -558,14 +1281,14 @@ func (_u *UserUpdate) ClearSolvedProblems() *UserUpdate {
 }
 
 // RemoveSolvedProblemIDs removes the "solved_problems" edge to UserSolvedProblem entities by IDs.
-func (_u *UserUpdate) RemoveSolvedProblemIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveSolvedProblemIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveSolvedProblemIDs(ids...)
 	return _u
 }
 
 // RemoveSolvedProblems removes "solved_problems" edges to UserSolvedProblem entities.
 func (_u *UserUpdate) RemoveSolvedProblems(v ...*UserSolvedProblem) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -579,14 +1302,14 @@ func (_u *UserUpdate) ClearDifficultyStats() *UserUpdate {
 }
 
 // RemoveDifficultyStatIDs removes the "difficulty_stats" edge to UserDifficultyStats entities by IDs.
-func (_u *UserUpdate) RemoveDifficultyStatIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveDifficultyStatIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveDifficultyStatIDs(ids...)
 	return _u
 }
 
 // RemoveDifficultyStats removes "difficulty_stats" edges to UserDifficultyStats entities.
 func (_u *UserUpdate) RemoveDifficultyStats(v ...*UserDifficultyStats) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -600,14 +1323,14 @@ func (_u *UserUpdate) ClearTagStats() *UserUpdate {
 }
 
 // RemoveTagStatIDs removes the "tag_stats" edge to UserTagStats entities by IDs.
-func (_u *UserUpdate) RemoveTagStatIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveTagStatIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveTagStatIDs(ids...)
 	return _u
 }
 
 // RemoveTagStats removes "tag_stats" edges to UserTagStats entities.
 func (_u *UserUpdate) RemoveTagStats(v ...*UserTagStats) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -621,14 +1344,14 @@ func (_u *UserUpdate) ClearContests() *UserUpdate {
 }
 
 // RemoveContestIDs removes the "contests" edge to Contest entities by IDs.
-func (_u *UserUpdate) RemoveContestIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveContestIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveContestIDs(ids...)
 	return _u
 }
 
 // RemoveContests removes "contests" edges to Contest entities.
 func (_u *UserUpdate) RemoveContests(v ...*Contest) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -642,14 +1365,14 @@ func (_u *UserUpdate) ClearContestRegistrations() *UserUpdate {
 }
 
 // RemoveContestRegistrationIDs removes the "contest_registrations" edge to ContestRegistration entities by IDs.
-func (_u *UserUpdate) RemoveContestRegistrationIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveContestRegistrationIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveContestRegistrationIDs(ids...)
 	return _u
 }
 
 // RemoveContestRegistrations removes "contest_registrations" edges to ContestRegistration entities.
 func (_u *UserUpdate) RemoveContestRegistrations(v ...*ContestRegistration) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -663,14 +1386,14 @@ func (_u *UserUpdate) ClearContestStandings() *UserUpdate {
 }
 
 // RemoveContestStandingIDs removes the "contest_standings" edge to ContestStanding entities by IDs.
-func (_u *UserUpdate) RemoveContestStandingIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveContestStandingIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveContestStandingIDs(ids...)
 	return _u
 }
 
 // RemoveContestStandings removes "contest_standings" edges to ContestStanding entities.
 func (_u *UserUpdate) RemoveContestStandings(v ...*ContestStanding) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -684,18 +1407,102 @@ func (_u *UserUpdate) ClearRatingHistories() *UserUpdate {
 }
 
 // RemoveRatingHistoryIDs removes the "rating_histories" edge to RatingHistory entities by IDs.
-func (_u *UserUpdate) RemoveRatingHistoryIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveRatingHistoryIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveRatingHistoryIDs(ids...)
 	return _u
 }
 
 // RemoveRatingHistories removes "rating_histories" edges to RatingHistory entities.
 func (_u *UserUpdate) RemoveRatingHistories(v ...*RatingHistory) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRatingHistoryIDs(ids...)
+}
+
+// ClearContestRatingResults clears all "contest_rating_results" edges to the ContestRatingResult entity.
+func (_u *UserUpdate) ClearContestRatingResults() *UserUpdate {
+	_u.mutation.ClearContestRatingResults()
+	return _u
+}
+
+// RemoveContestRatingResultIDs removes the "contest_rating_results" edge to ContestRatingResult entities by IDs.
+func (_u *UserUpdate) RemoveContestRatingResultIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestRatingResultIDs(ids...)
+	return _u
+}
+
+// RemoveContestRatingResults removes "contest_rating_results" edges to ContestRatingResult entities.
+func (_u *UserUpdate) RemoveContestRatingResults(v ...*ContestRatingResult) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestRatingResultIDs(ids...)
+}
+
+// ClearContestUserRatings clears all "contest_user_ratings" edges to the ContestUserRating entity.
+func (_u *UserUpdate) ClearContestUserRatings() *UserUpdate {
+	_u.mutation.ClearContestUserRatings()
+	return _u
+}
+
+// RemoveContestUserRatingIDs removes the "contest_user_ratings" edge to ContestUserRating entities by IDs.
+func (_u *UserUpdate) RemoveContestUserRatingIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestUserRatingIDs(ids...)
+	return _u
+}
+
+// RemoveContestUserRatings removes "contest_user_ratings" edges to ContestUserRating entities.
+func (_u *UserUpdate) RemoveContestUserRatings(v ...*ContestUserRating) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestUserRatingIDs(ids...)
+}
+
+// ClearContestScoringAttempts clears all "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *UserUpdate) ClearContestScoringAttempts() *UserUpdate {
+	_u.mutation.ClearContestScoringAttempts()
+	return _u
+}
+
+// RemoveContestScoringAttemptIDs removes the "contest_scoring_attempts" edge to ContestScoringAttempt entities by IDs.
+func (_u *UserUpdate) RemoveContestScoringAttemptIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// RemoveContestScoringAttempts removes "contest_scoring_attempts" edges to ContestScoringAttempt entities.
+func (_u *UserUpdate) RemoveContestScoringAttempts(v ...*ContestScoringAttempt) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestScoringAttemptIDs(ids...)
+}
+
+// ClearContestProblemResults clears all "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *UserUpdate) ClearContestProblemResults() *UserUpdate {
+	_u.mutation.ClearContestProblemResults()
+	return _u
+}
+
+// RemoveContestProblemResultIDs removes the "contest_problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *UserUpdate) RemoveContestProblemResultIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestProblemResultIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblemResults removes "contest_problem_results" edges to ContestProblemResult entities.
+func (_u *UserUpdate) RemoveContestProblemResults(v ...*ContestProblemResult) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemResultIDs(ids...)
 }
 
 // ClearMaterials clears all "materials" edges to the Material entity.
@@ -705,18 +1512,228 @@ func (_u *UserUpdate) ClearMaterials() *UserUpdate {
 }
 
 // RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
-func (_u *UserUpdate) RemoveMaterialIDs(ids ...int) *UserUpdate {
+func (_u *UserUpdate) RemoveMaterialIDs(ids ...uuid.UUID) *UserUpdate {
 	_u.mutation.RemoveMaterialIDs(ids...)
 	return _u
 }
 
 // RemoveMaterials removes "materials" edges to Material entities.
 func (_u *UserUpdate) RemoveMaterials(v ...*Material) *UserUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveMaterialIDs(ids...)
+}
+
+// ClearMaterialRevisions clears all "material_revisions" edges to the MaterialRevision entity.
+func (_u *UserUpdate) ClearMaterialRevisions() *UserUpdate {
+	_u.mutation.ClearMaterialRevisions()
+	return _u
+}
+
+// RemoveMaterialRevisionIDs removes the "material_revisions" edge to MaterialRevision entities by IDs.
+func (_u *UserUpdate) RemoveMaterialRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveMaterialRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveMaterialRevisions removes "material_revisions" edges to MaterialRevision entities.
+func (_u *UserUpdate) RemoveMaterialRevisions(v ...*MaterialRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialRevisionIDs(ids...)
+}
+
+// ClearNotifications clears all "notifications" edges to the Notification entity.
+func (_u *UserUpdate) ClearNotifications() *UserUpdate {
+	_u.mutation.ClearNotifications()
+	return _u
+}
+
+// RemoveNotificationIDs removes the "notifications" edge to Notification entities by IDs.
+func (_u *UserUpdate) RemoveNotificationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveNotificationIDs(ids...)
+	return _u
+}
+
+// RemoveNotifications removes "notifications" edges to Notification entities.
+func (_u *UserUpdate) RemoveNotifications(v ...*Notification) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationIDs(ids...)
+}
+
+// ClearNotificationPreferences clears all "notification_preferences" edges to the NotificationPreference entity.
+func (_u *UserUpdate) ClearNotificationPreferences() *UserUpdate {
+	_u.mutation.ClearNotificationPreferences()
+	return _u
+}
+
+// RemoveNotificationPreferenceIDs removes the "notification_preferences" edge to NotificationPreference entities by IDs.
+func (_u *UserUpdate) RemoveNotificationPreferenceIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveNotificationPreferenceIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationPreferences removes "notification_preferences" edges to NotificationPreference entities.
+func (_u *UserUpdate) RemoveNotificationPreferences(v ...*NotificationPreference) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationPreferenceIDs(ids...)
+}
+
+// ClearCreatedNotificationCampaigns clears all "created_notification_campaigns" edges to the NotificationCampaign entity.
+func (_u *UserUpdate) ClearCreatedNotificationCampaigns() *UserUpdate {
+	_u.mutation.ClearCreatedNotificationCampaigns()
+	return _u
+}
+
+// RemoveCreatedNotificationCampaignIDs removes the "created_notification_campaigns" edge to NotificationCampaign entities by IDs.
+func (_u *UserUpdate) RemoveCreatedNotificationCampaignIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveCreatedNotificationCampaignIDs(ids...)
+	return _u
+}
+
+// RemoveCreatedNotificationCampaigns removes "created_notification_campaigns" edges to NotificationCampaign entities.
+func (_u *UserUpdate) RemoveCreatedNotificationCampaigns(v ...*NotificationCampaign) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCreatedNotificationCampaignIDs(ids...)
+}
+
+// ClearNotificationCampaignRevisions clears all "notification_campaign_revisions" edges to the NotificationCampaignRevision entity.
+func (_u *UserUpdate) ClearNotificationCampaignRevisions() *UserUpdate {
+	_u.mutation.ClearNotificationCampaignRevisions()
+	return _u
+}
+
+// RemoveNotificationCampaignRevisionIDs removes the "notification_campaign_revisions" edge to NotificationCampaignRevision entities by IDs.
+func (_u *UserUpdate) RemoveNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationCampaignRevisions removes "notification_campaign_revisions" edges to NotificationCampaignRevision entities.
+func (_u *UserUpdate) RemoveNotificationCampaignRevisions(v ...*NotificationCampaignRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationCampaignRevisionIDs(ids...)
+}
+
+// ClearExplicitNotificationCampaignRevisions clears all "explicit_notification_campaign_revisions" edges to the NotificationCampaignExplicitUser entity.
+func (_u *UserUpdate) ClearExplicitNotificationCampaignRevisions() *UserUpdate {
+	_u.mutation.ClearExplicitNotificationCampaignRevisions()
+	return _u
+}
+
+// RemoveExplicitNotificationCampaignRevisionIDs removes the "explicit_notification_campaign_revisions" edge to NotificationCampaignExplicitUser entities by IDs.
+func (_u *UserUpdate) RemoveExplicitNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveExplicitNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveExplicitNotificationCampaignRevisions removes "explicit_notification_campaign_revisions" edges to NotificationCampaignExplicitUser entities.
+func (_u *UserUpdate) RemoveExplicitNotificationCampaignRevisions(v ...*NotificationCampaignExplicitUser) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveExplicitNotificationCampaignRevisionIDs(ids...)
+}
+
+// ClearNotificationCampaignDeliveries clears all "notification_campaign_deliveries" edges to the NotificationCampaignRecipient entity.
+func (_u *UserUpdate) ClearNotificationCampaignDeliveries() *UserUpdate {
+	_u.mutation.ClearNotificationCampaignDeliveries()
+	return _u
+}
+
+// RemoveNotificationCampaignDeliveryIDs removes the "notification_campaign_deliveries" edge to NotificationCampaignRecipient entities by IDs.
+func (_u *UserUpdate) RemoveNotificationCampaignDeliveryIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveNotificationCampaignDeliveryIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationCampaignDeliveries removes "notification_campaign_deliveries" edges to NotificationCampaignRecipient entities.
+func (_u *UserUpdate) RemoveNotificationCampaignDeliveries(v ...*NotificationCampaignRecipient) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationCampaignDeliveryIDs(ids...)
+}
+
+// ClearContestContentRevisions clears all "contest_content_revisions" edges to the ContestContentRevision entity.
+func (_u *UserUpdate) ClearContestContentRevisions() *UserUpdate {
+	_u.mutation.ClearContestContentRevisions()
+	return _u
+}
+
+// RemoveContestContentRevisionIDs removes the "contest_content_revisions" edge to ContestContentRevision entities by IDs.
+func (_u *UserUpdate) RemoveContestContentRevisionIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestContentRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveContestContentRevisions removes "contest_content_revisions" edges to ContestContentRevision entities.
+func (_u *UserUpdate) RemoveContestContentRevisions(v ...*ContestContentRevision) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestContentRevisionIDs(ids...)
+}
+
+// ClearContestClarifications clears all "contest_clarifications" edges to the ContestClarification entity.
+func (_u *UserUpdate) ClearContestClarifications() *UserUpdate {
+	_u.mutation.ClearContestClarifications()
+	return _u
+}
+
+// RemoveContestClarificationIDs removes the "contest_clarifications" edge to ContestClarification entities by IDs.
+func (_u *UserUpdate) RemoveContestClarificationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestClarificationIDs(ids...)
+	return _u
+}
+
+// RemoveContestClarifications removes "contest_clarifications" edges to ContestClarification entities.
+func (_u *UserUpdate) RemoveContestClarifications(v ...*ContestClarification) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestClarificationIDs(ids...)
+}
+
+// ClearContestContentCommands clears all "contest_content_commands" edges to the ContestContentCommand entity.
+func (_u *UserUpdate) ClearContestContentCommands() *UserUpdate {
+	_u.mutation.ClearContestContentCommands()
+	return _u
+}
+
+// RemoveContestContentCommandIDs removes the "contest_content_commands" edge to ContestContentCommand entities by IDs.
+func (_u *UserUpdate) RemoveContestContentCommandIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveContestContentCommandIDs(ids...)
+	return _u
+}
+
+// RemoveContestContentCommands removes "contest_content_commands" edges to ContestContentCommand entities.
+func (_u *UserUpdate) RemoveContestContentCommands(v ...*ContestContentCommand) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestContentCommandIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -768,8 +1785,30 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`generate: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if _u.mutation.RoleCleared() && len(_u.mutation.RoleIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "User.role"`)
+	if v, ok := _u.mutation.Status(); ok {
+		if err := user.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "User.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SecurityVersion(); ok {
+		if err := user.SecurityVersionValidator(v); err != nil {
+			return &ValidationError{Name: "security_version", err: fmt.Errorf(`generate: validator failed for field "User.security_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ProfileVisibility(); ok {
+		if err := user.ProfileVisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "profile_visibility", err: fmt.Errorf(`generate: validator failed for field "User.profile_visibility": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ProfileVisibilityVersion(); ok {
+		if err := user.ProfileVisibilityVersionValidator(v); err != nil {
+			return &ValidationError{Name: "profile_visibility_version", err: fmt.Errorf(`generate: validator failed for field "User.profile_visibility_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SuspensionReason(); ok {
+		if err := user.SuspensionReasonValidator(v); err != nil {
+			return &ValidationError{Name: "suspension_reason", err: fmt.Errorf(`generate: validator failed for field "User.suspension_reason": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -784,7 +1823,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -802,45 +1841,46 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(user.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(user.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(user.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(user.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(user.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
-	if _u.mutation.RoleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(user.FieldStatus, field.TypeEnum, value)
 	}
-	if nodes := _u.mutation.RoleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := _u.mutation.SecurityVersion(); ok {
+		_spec.SetField(user.FieldSecurityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedSecurityVersion(); ok {
+		_spec.AddField(user.FieldSecurityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ProfileVisibility(); ok {
+		_spec.SetField(user.FieldProfileVisibility, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.ProfileVisibilityVersion(); ok {
+		_spec.SetField(user.FieldProfileVisibilityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedProfileVisibilityVersion(); ok {
+		_spec.AddField(user.FieldProfileVisibilityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ProfileVisibilityUpdatedAt(); ok {
+		_spec.SetField(user.FieldProfileVisibilityUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.SuspendedAt(); ok {
+		_spec.SetField(user.FieldSuspendedAt, field.TypeTime, value)
+	}
+	if _u.mutation.SuspendedAtCleared() {
+		_spec.ClearField(user.FieldSuspendedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.SuspensionReason(); ok {
+		_spec.SetField(user.FieldSuspensionReason, field.TypeString, value)
+	}
+	if _u.mutation.SuspensionReasonCleared() {
+		_spec.ClearField(user.FieldSuspensionReason, field.TypeString)
 	}
 	if _u.mutation.CredentialsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -850,7 +1890,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -863,7 +1903,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -879,7 +1919,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -895,7 +1935,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -908,7 +1948,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -924,7 +1964,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -940,7 +1980,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -953,7 +1993,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -969,7 +2009,412 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AuthSessionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAuthSessionsIDs(); len(nodes) > 0 && !_u.mutation.AuthSessionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AuthSessionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRecoveryContactsIDs(); len(nodes) > 0 && !_u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RecoveryContactsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RecoveryContactCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRecoveryContactCommandsIDs(); len(nodes) > 0 && !_u.mutation.RecoveryContactCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RecoveryContactCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PasswordResetTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPasswordResetTokensIDs(); len(nodes) > 0 && !_u.mutation.PasswordResetTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PasswordResetTokensIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SessionIssuanceReceiptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSessionIssuanceReceiptsIDs(); len(nodes) > 0 && !_u.mutation.SessionIssuanceReceiptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SessionIssuanceReceiptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ConsumedTraitOffersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedConsumedTraitOffersIDs(); len(nodes) > 0 && !_u.mutation.ConsumedTraitOffersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ConsumedTraitOffersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SessionCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSessionCommandsIDs(); len(nodes) > 0 && !_u.mutation.SessionCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SessionCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.OauthCompletionTicketsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedOauthCompletionTicketsIDs(); len(nodes) > 0 && !_u.mutation.OauthCompletionTicketsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OauthCompletionTicketsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AuthorizationUpdatesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAuthorizationUpdatesIDs(); len(nodes) > 0 && !_u.mutation.AuthorizationUpdatesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AuthorizationUpdatesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -985,7 +2430,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -998,7 +2443,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1014,7 +2459,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1030,7 +2475,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1043,7 +2488,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1059,7 +2504,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1075,7 +2520,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1088,7 +2533,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1104,7 +2549,52 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RewardProfileRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRewardProfileRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RewardProfileRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RewardProfileRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1120,7 +2610,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1133,7 +2623,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1149,7 +2639,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1165,7 +2655,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1178,7 +2668,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1194,7 +2684,52 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CultivationRankingProjectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCultivationRankingProjectionIDs(); len(nodes) > 0 && !_u.mutation.CultivationRankingProjectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CultivationRankingProjectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1210,7 +2745,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1223,7 +2758,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1239,7 +2774,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1255,7 +2790,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1268,7 +2803,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1284,7 +2819,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1300,7 +2835,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1313,7 +2848,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1329,7 +2864,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1345,7 +2880,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1358,7 +2893,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1374,7 +2909,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1390,7 +2925,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1403,7 +2938,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1419,7 +2954,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1435,7 +2970,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1448,7 +2983,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1464,7 +2999,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1480,7 +3015,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1493,7 +3028,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1509,7 +3044,187 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestRatingResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestRatingResultsIDs(); len(nodes) > 0 && !_u.mutation.ContestRatingResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestRatingResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestUserRatingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestUserRatingsIDs(); len(nodes) > 0 && !_u.mutation.ContestUserRatingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestUserRatingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestScoringAttemptsIDs(); len(nodes) > 0 && !_u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1525,7 +3240,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1538,7 +3253,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1554,7 +3269,457 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MaterialRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialRevisionsIDs(); len(nodes) > 0 && !_u.mutation.MaterialRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationsIDs(); len(nodes) > 0 && !_u.mutation.NotificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationPreferencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationPreferencesIDs(); len(nodes) > 0 && !_u.mutation.NotificationPreferencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationPreferencesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CreatedNotificationCampaignsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCreatedNotificationCampaignsIDs(); len(nodes) > 0 && !_u.mutation.CreatedNotificationCampaignsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CreatedNotificationCampaignsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationCampaignRevisionsIDs(); len(nodes) > 0 && !_u.mutation.NotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationCampaignRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ExplicitNotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedExplicitNotificationCampaignRevisionsIDs(); len(nodes) > 0 && !_u.mutation.ExplicitNotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ExplicitNotificationCampaignRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationCampaignDeliveriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationCampaignDeliveriesIDs(); len(nodes) > 0 && !_u.mutation.NotificationCampaignDeliveriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationCampaignDeliveriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestContentRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestContentRevisionsIDs(); len(nodes) > 0 && !_u.mutation.ContestContentRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestContentRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestClarificationsIDs(); len(nodes) > 0 && !_u.mutation.ContestClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestClarificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestContentCommandsIDs(); len(nodes) > 0 && !_u.mutation.ContestContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestContentCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1611,23 +3776,16 @@ func (_u *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserUpdateOne) SetDeletedBy(v int) *UserUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserUpdateOne) SetDeletedBy(v string) *UserUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableDeletedBy(v *int) *UserUpdateOne {
+func (_u *UserUpdateOne) SetNillableDeletedBy(v *string) *UserUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserUpdateOne) AddDeletedBy(v int) *UserUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -1651,34 +3809,139 @@ func (_u *UserUpdateOne) SetNillableUsername(v *string) *UserUpdateOne {
 	return _u
 }
 
-// SetRoleID sets the "role_id" field.
-func (_u *UserUpdateOne) SetRoleID(v int) *UserUpdateOne {
-	_u.mutation.SetRoleID(v)
+// SetStatus sets the "status" field.
+func (_u *UserUpdateOne) SetStatus(v user.Status) *UserUpdateOne {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetNillableRoleID sets the "role_id" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableRoleID(v *int) *UserUpdateOne {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableStatus(v *user.Status) *UserUpdateOne {
 	if v != nil {
-		_u.SetRoleID(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
 }
 
-// SetRole sets the "role" edge to the Role entity.
-func (_u *UserUpdateOne) SetRole(v *Role) *UserUpdateOne {
-	return _u.SetRoleID(v.ID)
+// SetSecurityVersion sets the "security_version" field.
+func (_u *UserUpdateOne) SetSecurityVersion(v int64) *UserUpdateOne {
+	_u.mutation.ResetSecurityVersion()
+	_u.mutation.SetSecurityVersion(v)
+	return _u
+}
+
+// SetNillableSecurityVersion sets the "security_version" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableSecurityVersion(v *int64) *UserUpdateOne {
+	if v != nil {
+		_u.SetSecurityVersion(*v)
+	}
+	return _u
+}
+
+// AddSecurityVersion adds value to the "security_version" field.
+func (_u *UserUpdateOne) AddSecurityVersion(v int64) *UserUpdateOne {
+	_u.mutation.AddSecurityVersion(v)
+	return _u
+}
+
+// SetProfileVisibility sets the "profile_visibility" field.
+func (_u *UserUpdateOne) SetProfileVisibility(v user.ProfileVisibility) *UserUpdateOne {
+	_u.mutation.SetProfileVisibility(v)
+	return _u
+}
+
+// SetNillableProfileVisibility sets the "profile_visibility" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableProfileVisibility(v *user.ProfileVisibility) *UserUpdateOne {
+	if v != nil {
+		_u.SetProfileVisibility(*v)
+	}
+	return _u
+}
+
+// SetProfileVisibilityVersion sets the "profile_visibility_version" field.
+func (_u *UserUpdateOne) SetProfileVisibilityVersion(v int64) *UserUpdateOne {
+	_u.mutation.ResetProfileVisibilityVersion()
+	_u.mutation.SetProfileVisibilityVersion(v)
+	return _u
+}
+
+// SetNillableProfileVisibilityVersion sets the "profile_visibility_version" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableProfileVisibilityVersion(v *int64) *UserUpdateOne {
+	if v != nil {
+		_u.SetProfileVisibilityVersion(*v)
+	}
+	return _u
+}
+
+// AddProfileVisibilityVersion adds value to the "profile_visibility_version" field.
+func (_u *UserUpdateOne) AddProfileVisibilityVersion(v int64) *UserUpdateOne {
+	_u.mutation.AddProfileVisibilityVersion(v)
+	return _u
+}
+
+// SetProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field.
+func (_u *UserUpdateOne) SetProfileVisibilityUpdatedAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetProfileVisibilityUpdatedAt(v)
+	return _u
+}
+
+// SetNillableProfileVisibilityUpdatedAt sets the "profile_visibility_updated_at" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableProfileVisibilityUpdatedAt(v *time.Time) *UserUpdateOne {
+	if v != nil {
+		_u.SetProfileVisibilityUpdatedAt(*v)
+	}
+	return _u
+}
+
+// SetSuspendedAt sets the "suspended_at" field.
+func (_u *UserUpdateOne) SetSuspendedAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetSuspendedAt(v)
+	return _u
+}
+
+// SetNillableSuspendedAt sets the "suspended_at" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableSuspendedAt(v *time.Time) *UserUpdateOne {
+	if v != nil {
+		_u.SetSuspendedAt(*v)
+	}
+	return _u
+}
+
+// ClearSuspendedAt clears the value of the "suspended_at" field.
+func (_u *UserUpdateOne) ClearSuspendedAt() *UserUpdateOne {
+	_u.mutation.ClearSuspendedAt()
+	return _u
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (_u *UserUpdateOne) SetSuspensionReason(v string) *UserUpdateOne {
+	_u.mutation.SetSuspensionReason(v)
+	return _u
+}
+
+// SetNillableSuspensionReason sets the "suspension_reason" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableSuspensionReason(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetSuspensionReason(*v)
+	}
+	return _u
+}
+
+// ClearSuspensionReason clears the value of the "suspension_reason" field.
+func (_u *UserUpdateOne) ClearSuspensionReason() *UserUpdateOne {
+	_u.mutation.ClearSuspensionReason()
+	return _u
 }
 
 // AddCredentialIDs adds the "credentials" edge to the Credential entity by IDs.
-func (_u *UserUpdateOne) AddCredentialIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddCredentialIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddCredentialIDs(ids...)
 	return _u
 }
 
 // AddCredentials adds the "credentials" edges to the Credential entity.
 func (_u *UserUpdateOne) AddCredentials(v ...*Credential) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1686,14 +3949,14 @@ func (_u *UserUpdateOne) AddCredentials(v ...*Credential) *UserUpdateOne {
 }
 
 // AddAttributeIDs adds the "attributes" edge to the UserAttributeValue entity by IDs.
-func (_u *UserUpdateOne) AddAttributeIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddAttributeIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddAttributeIDs(ids...)
 	return _u
 }
 
 // AddAttributes adds the "attributes" edges to the UserAttributeValue entity.
 func (_u *UserUpdateOne) AddAttributes(v ...*UserAttributeValue) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1701,29 +3964,164 @@ func (_u *UserUpdateOne) AddAttributes(v ...*UserAttributeValue) *UserUpdateOne 
 }
 
 // AddFederatedIdentityIDs adds the "federated_identities" edge to the FederatedIdentity entity by IDs.
-func (_u *UserUpdateOne) AddFederatedIdentityIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddFederatedIdentityIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddFederatedIdentityIDs(ids...)
 	return _u
 }
 
 // AddFederatedIdentities adds the "federated_identities" edges to the FederatedIdentity entity.
 func (_u *UserUpdateOne) AddFederatedIdentities(v ...*FederatedIdentity) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddFederatedIdentityIDs(ids...)
 }
 
+// AddAuthSessionIDs adds the "auth_sessions" edge to the AuthSession entity by IDs.
+func (_u *UserUpdateOne) AddAuthSessionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddAuthSessionIDs(ids...)
+	return _u
+}
+
+// AddAuthSessions adds the "auth_sessions" edges to the AuthSession entity.
+func (_u *UserUpdateOne) AddAuthSessions(v ...*AuthSession) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAuthSessionIDs(ids...)
+}
+
+// AddRecoveryContactIDs adds the "recovery_contacts" edge to the UserRecoveryContact entity by IDs.
+func (_u *UserUpdateOne) AddRecoveryContactIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddRecoveryContactIDs(ids...)
+	return _u
+}
+
+// AddRecoveryContacts adds the "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *UserUpdateOne) AddRecoveryContacts(v ...*UserRecoveryContact) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRecoveryContactIDs(ids...)
+}
+
+// AddRecoveryContactCommandIDs adds the "recovery_contact_commands" edge to the RecoveryContactCommandReceipt entity by IDs.
+func (_u *UserUpdateOne) AddRecoveryContactCommandIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddRecoveryContactCommandIDs(ids...)
+	return _u
+}
+
+// AddRecoveryContactCommands adds the "recovery_contact_commands" edges to the RecoveryContactCommandReceipt entity.
+func (_u *UserUpdateOne) AddRecoveryContactCommands(v ...*RecoveryContactCommandReceipt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRecoveryContactCommandIDs(ids...)
+}
+
+// AddPasswordResetTokenIDs adds the "password_reset_tokens" edge to the PasswordResetToken entity by IDs.
+func (_u *UserUpdateOne) AddPasswordResetTokenIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddPasswordResetTokenIDs(ids...)
+	return _u
+}
+
+// AddPasswordResetTokens adds the "password_reset_tokens" edges to the PasswordResetToken entity.
+func (_u *UserUpdateOne) AddPasswordResetTokens(v ...*PasswordResetToken) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPasswordResetTokenIDs(ids...)
+}
+
+// AddSessionIssuanceReceiptIDs adds the "session_issuance_receipts" edge to the AuthSessionIssuanceReceipt entity by IDs.
+func (_u *UserUpdateOne) AddSessionIssuanceReceiptIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddSessionIssuanceReceiptIDs(ids...)
+	return _u
+}
+
+// AddSessionIssuanceReceipts adds the "session_issuance_receipts" edges to the AuthSessionIssuanceReceipt entity.
+func (_u *UserUpdateOne) AddSessionIssuanceReceipts(v ...*AuthSessionIssuanceReceipt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSessionIssuanceReceiptIDs(ids...)
+}
+
+// AddConsumedTraitOfferIDs adds the "consumed_trait_offers" edge to the OnboardingTraitOffer entity by IDs.
+func (_u *UserUpdateOne) AddConsumedTraitOfferIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddConsumedTraitOfferIDs(ids...)
+	return _u
+}
+
+// AddConsumedTraitOffers adds the "consumed_trait_offers" edges to the OnboardingTraitOffer entity.
+func (_u *UserUpdateOne) AddConsumedTraitOffers(v ...*OnboardingTraitOffer) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddConsumedTraitOfferIDs(ids...)
+}
+
+// AddSessionCommandIDs adds the "session_commands" edge to the AuthSessionCommandReceipt entity by IDs.
+func (_u *UserUpdateOne) AddSessionCommandIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddSessionCommandIDs(ids...)
+	return _u
+}
+
+// AddSessionCommands adds the "session_commands" edges to the AuthSessionCommandReceipt entity.
+func (_u *UserUpdateOne) AddSessionCommands(v ...*AuthSessionCommandReceipt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSessionCommandIDs(ids...)
+}
+
+// AddOauthCompletionTicketIDs adds the "oauth_completion_tickets" edge to the OAuthCompletionTicket entity by IDs.
+func (_u *UserUpdateOne) AddOauthCompletionTicketIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddOauthCompletionTicketIDs(ids...)
+	return _u
+}
+
+// AddOauthCompletionTickets adds the "oauth_completion_tickets" edges to the OAuthCompletionTicket entity.
+func (_u *UserUpdateOne) AddOauthCompletionTickets(v ...*OAuthCompletionTicket) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOauthCompletionTicketIDs(ids...)
+}
+
+// AddAuthorizationUpdateIDs adds the "authorization_updates" edge to the AuthorizationState entity by IDs.
+func (_u *UserUpdateOne) AddAuthorizationUpdateIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.AddAuthorizationUpdateIDs(ids...)
+	return _u
+}
+
+// AddAuthorizationUpdates adds the "authorization_updates" edges to the AuthorizationState entity.
+func (_u *UserUpdateOne) AddAuthorizationUpdates(v ...*AuthorizationState) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAuthorizationUpdateIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_u *UserUpdateOne) AddProblemIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddProblemIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddProblemIDs(ids...)
 	return _u
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_u *UserUpdateOne) AddProblems(v ...*Problem) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1731,14 +4129,14 @@ func (_u *UserUpdateOne) AddProblems(v ...*Problem) *UserUpdateOne {
 }
 
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_u *UserUpdateOne) AddSubmissionIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddSubmissionIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddSubmissionIDs(ids...)
 	return _u
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_u *UserUpdateOne) AddSubmissions(v ...*Submission) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1746,29 +4144,44 @@ func (_u *UserUpdateOne) AddSubmissions(v ...*Submission) *UserUpdateOne {
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
-func (_u *UserUpdateOne) AddUserTraitIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddUserTraitIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddUserTraitIDs(ids...)
 	return _u
 }
 
 // AddUserTraits adds the "user_traits" edges to the UserTrait entity.
 func (_u *UserUpdateOne) AddUserTraits(v ...*UserTrait) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserTraitIDs(ids...)
 }
 
+// AddRewardProfileRevisionIDs adds the "reward_profile_revisions" edge to the UserRewardProfileRevision entity by IDs.
+func (_u *UserUpdateOne) AddRewardProfileRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddRewardProfileRevisionIDs(ids...)
+	return _u
+}
+
+// AddRewardProfileRevisions adds the "reward_profile_revisions" edges to the UserRewardProfileRevision entity.
+func (_u *UserUpdateOne) AddRewardProfileRevisions(v ...*UserRewardProfileRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRewardProfileRevisionIDs(ids...)
+}
+
 // AddUserElementExpIDs adds the "user_element_exps" edge to the UserElementExp entity by IDs.
-func (_u *UserUpdateOne) AddUserElementExpIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddUserElementExpIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddUserElementExpIDs(ids...)
 	return _u
 }
 
 // AddUserElementExps adds the "user_element_exps" edges to the UserElementExp entity.
 func (_u *UserUpdateOne) AddUserElementExps(v ...*UserElementExp) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1776,29 +4189,44 @@ func (_u *UserUpdateOne) AddUserElementExps(v ...*UserElementExp) *UserUpdateOne
 }
 
 // AddUserStatIDs adds the "user_stats" edge to the UserStats entity by IDs.
-func (_u *UserUpdateOne) AddUserStatIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddUserStatIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddUserStatIDs(ids...)
 	return _u
 }
 
 // AddUserStats adds the "user_stats" edges to the UserStats entity.
 func (_u *UserUpdateOne) AddUserStats(v ...*UserStats) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserStatIDs(ids...)
 }
 
+// AddCultivationRankingProjectionIDs adds the "cultivation_ranking_projection" edge to the CultivationRankingProjection entity by IDs.
+func (_u *UserUpdateOne) AddCultivationRankingProjectionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddCultivationRankingProjectionIDs(ids...)
+	return _u
+}
+
+// AddCultivationRankingProjection adds the "cultivation_ranking_projection" edges to the CultivationRankingProjection entity.
+func (_u *UserUpdateOne) AddCultivationRankingProjection(v ...*CultivationRankingProjection) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCultivationRankingProjectionIDs(ids...)
+}
+
 // AddSolvedProblemIDs adds the "solved_problems" edge to the UserSolvedProblem entity by IDs.
-func (_u *UserUpdateOne) AddSolvedProblemIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddSolvedProblemIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddSolvedProblemIDs(ids...)
 	return _u
 }
 
 // AddSolvedProblems adds the "solved_problems" edges to the UserSolvedProblem entity.
 func (_u *UserUpdateOne) AddSolvedProblems(v ...*UserSolvedProblem) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1806,14 +4234,14 @@ func (_u *UserUpdateOne) AddSolvedProblems(v ...*UserSolvedProblem) *UserUpdateO
 }
 
 // AddDifficultyStatIDs adds the "difficulty_stats" edge to the UserDifficultyStats entity by IDs.
-func (_u *UserUpdateOne) AddDifficultyStatIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddDifficultyStatIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddDifficultyStatIDs(ids...)
 	return _u
 }
 
 // AddDifficultyStats adds the "difficulty_stats" edges to the UserDifficultyStats entity.
 func (_u *UserUpdateOne) AddDifficultyStats(v ...*UserDifficultyStats) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1821,14 +4249,14 @@ func (_u *UserUpdateOne) AddDifficultyStats(v ...*UserDifficultyStats) *UserUpda
 }
 
 // AddTagStatIDs adds the "tag_stats" edge to the UserTagStats entity by IDs.
-func (_u *UserUpdateOne) AddTagStatIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddTagStatIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddTagStatIDs(ids...)
 	return _u
 }
 
 // AddTagStats adds the "tag_stats" edges to the UserTagStats entity.
 func (_u *UserUpdateOne) AddTagStats(v ...*UserTagStats) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1836,14 +4264,14 @@ func (_u *UserUpdateOne) AddTagStats(v ...*UserTagStats) *UserUpdateOne {
 }
 
 // AddContestIDs adds the "contests" edge to the Contest entity by IDs.
-func (_u *UserUpdateOne) AddContestIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddContestIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddContestIDs(ids...)
 	return _u
 }
 
 // AddContests adds the "contests" edges to the Contest entity.
 func (_u *UserUpdateOne) AddContests(v ...*Contest) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1851,14 +4279,14 @@ func (_u *UserUpdateOne) AddContests(v ...*Contest) *UserUpdateOne {
 }
 
 // AddContestRegistrationIDs adds the "contest_registrations" edge to the ContestRegistration entity by IDs.
-func (_u *UserUpdateOne) AddContestRegistrationIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddContestRegistrationIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddContestRegistrationIDs(ids...)
 	return _u
 }
 
 // AddContestRegistrations adds the "contest_registrations" edges to the ContestRegistration entity.
 func (_u *UserUpdateOne) AddContestRegistrations(v ...*ContestRegistration) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1866,14 +4294,14 @@ func (_u *UserUpdateOne) AddContestRegistrations(v ...*ContestRegistration) *Use
 }
 
 // AddContestStandingIDs adds the "contest_standings" edge to the ContestStanding entity by IDs.
-func (_u *UserUpdateOne) AddContestStandingIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddContestStandingIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddContestStandingIDs(ids...)
 	return _u
 }
 
 // AddContestStandings adds the "contest_standings" edges to the ContestStanding entity.
 func (_u *UserUpdateOne) AddContestStandings(v ...*ContestStanding) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1881,44 +4309,248 @@ func (_u *UserUpdateOne) AddContestStandings(v ...*ContestStanding) *UserUpdateO
 }
 
 // AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
-func (_u *UserUpdateOne) AddRatingHistoryIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddRatingHistoryIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddRatingHistoryIDs(ids...)
 	return _u
 }
 
 // AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
 func (_u *UserUpdateOne) AddRatingHistories(v ...*RatingHistory) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddRatingHistoryIDs(ids...)
 }
 
+// AddContestRatingResultIDs adds the "contest_rating_results" edge to the ContestRatingResult entity by IDs.
+func (_u *UserUpdateOne) AddContestRatingResultIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestRatingResultIDs(ids...)
+	return _u
+}
+
+// AddContestRatingResults adds the "contest_rating_results" edges to the ContestRatingResult entity.
+func (_u *UserUpdateOne) AddContestRatingResults(v ...*ContestRatingResult) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestRatingResultIDs(ids...)
+}
+
+// AddContestUserRatingIDs adds the "contest_user_ratings" edge to the ContestUserRating entity by IDs.
+func (_u *UserUpdateOne) AddContestUserRatingIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestUserRatingIDs(ids...)
+	return _u
+}
+
+// AddContestUserRatings adds the "contest_user_ratings" edges to the ContestUserRating entity.
+func (_u *UserUpdateOne) AddContestUserRatings(v ...*ContestUserRating) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestUserRatingIDs(ids...)
+}
+
+// AddContestScoringAttemptIDs adds the "contest_scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_u *UserUpdateOne) AddContestScoringAttemptIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// AddContestScoringAttempts adds the "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *UserUpdateOne) AddContestScoringAttempts(v ...*ContestScoringAttempt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestScoringAttemptIDs(ids...)
+}
+
+// AddContestProblemResultIDs adds the "contest_problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *UserUpdateOne) AddContestProblemResultIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestProblemResultIDs(ids...)
+	return _u
+}
+
+// AddContestProblemResults adds the "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *UserUpdateOne) AddContestProblemResults(v ...*ContestProblemResult) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemResultIDs(ids...)
+}
+
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_u *UserUpdateOne) AddMaterialIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) AddMaterialIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.AddMaterialIDs(ids...)
 	return _u
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_u *UserUpdateOne) AddMaterials(v ...*Material) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddMaterialIDs(ids...)
 }
 
+// AddMaterialRevisionIDs adds the "material_revisions" edge to the MaterialRevision entity by IDs.
+func (_u *UserUpdateOne) AddMaterialRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddMaterialRevisionIDs(ids...)
+	return _u
+}
+
+// AddMaterialRevisions adds the "material_revisions" edges to the MaterialRevision entity.
+func (_u *UserUpdateOne) AddMaterialRevisions(v ...*MaterialRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialRevisionIDs(ids...)
+}
+
+// AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
+func (_u *UserUpdateOne) AddNotificationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddNotificationIDs(ids...)
+	return _u
+}
+
+// AddNotifications adds the "notifications" edges to the Notification entity.
+func (_u *UserUpdateOne) AddNotifications(v ...*Notification) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationIDs(ids...)
+}
+
+// AddNotificationPreferenceIDs adds the "notification_preferences" edge to the NotificationPreference entity by IDs.
+func (_u *UserUpdateOne) AddNotificationPreferenceIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddNotificationPreferenceIDs(ids...)
+	return _u
+}
+
+// AddNotificationPreferences adds the "notification_preferences" edges to the NotificationPreference entity.
+func (_u *UserUpdateOne) AddNotificationPreferences(v ...*NotificationPreference) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationPreferenceIDs(ids...)
+}
+
+// AddCreatedNotificationCampaignIDs adds the "created_notification_campaigns" edge to the NotificationCampaign entity by IDs.
+func (_u *UserUpdateOne) AddCreatedNotificationCampaignIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddCreatedNotificationCampaignIDs(ids...)
+	return _u
+}
+
+// AddCreatedNotificationCampaigns adds the "created_notification_campaigns" edges to the NotificationCampaign entity.
+func (_u *UserUpdateOne) AddCreatedNotificationCampaigns(v ...*NotificationCampaign) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCreatedNotificationCampaignIDs(ids...)
+}
+
+// AddNotificationCampaignRevisionIDs adds the "notification_campaign_revisions" edge to the NotificationCampaignRevision entity by IDs.
+func (_u *UserUpdateOne) AddNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// AddNotificationCampaignRevisions adds the "notification_campaign_revisions" edges to the NotificationCampaignRevision entity.
+func (_u *UserUpdateOne) AddNotificationCampaignRevisions(v ...*NotificationCampaignRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationCampaignRevisionIDs(ids...)
+}
+
+// AddExplicitNotificationCampaignRevisionIDs adds the "explicit_notification_campaign_revisions" edge to the NotificationCampaignExplicitUser entity by IDs.
+func (_u *UserUpdateOne) AddExplicitNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddExplicitNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// AddExplicitNotificationCampaignRevisions adds the "explicit_notification_campaign_revisions" edges to the NotificationCampaignExplicitUser entity.
+func (_u *UserUpdateOne) AddExplicitNotificationCampaignRevisions(v ...*NotificationCampaignExplicitUser) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddExplicitNotificationCampaignRevisionIDs(ids...)
+}
+
+// AddNotificationCampaignDeliveryIDs adds the "notification_campaign_deliveries" edge to the NotificationCampaignRecipient entity by IDs.
+func (_u *UserUpdateOne) AddNotificationCampaignDeliveryIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddNotificationCampaignDeliveryIDs(ids...)
+	return _u
+}
+
+// AddNotificationCampaignDeliveries adds the "notification_campaign_deliveries" edges to the NotificationCampaignRecipient entity.
+func (_u *UserUpdateOne) AddNotificationCampaignDeliveries(v ...*NotificationCampaignRecipient) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationCampaignDeliveryIDs(ids...)
+}
+
+// AddContestContentRevisionIDs adds the "contest_content_revisions" edge to the ContestContentRevision entity by IDs.
+func (_u *UserUpdateOne) AddContestContentRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestContentRevisionIDs(ids...)
+	return _u
+}
+
+// AddContestContentRevisions adds the "contest_content_revisions" edges to the ContestContentRevision entity.
+func (_u *UserUpdateOne) AddContestContentRevisions(v ...*ContestContentRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestContentRevisionIDs(ids...)
+}
+
+// AddContestClarificationIDs adds the "contest_clarifications" edge to the ContestClarification entity by IDs.
+func (_u *UserUpdateOne) AddContestClarificationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestClarificationIDs(ids...)
+	return _u
+}
+
+// AddContestClarifications adds the "contest_clarifications" edges to the ContestClarification entity.
+func (_u *UserUpdateOne) AddContestClarifications(v ...*ContestClarification) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestClarificationIDs(ids...)
+}
+
+// AddContestContentCommandIDs adds the "contest_content_commands" edge to the ContestContentCommand entity by IDs.
+func (_u *UserUpdateOne) AddContestContentCommandIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddContestContentCommandIDs(ids...)
+	return _u
+}
+
+// AddContestContentCommands adds the "contest_content_commands" edges to the ContestContentCommand entity.
+func (_u *UserUpdateOne) AddContestContentCommands(v ...*ContestContentCommand) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestContentCommandIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
-}
-
-// ClearRole clears the "role" edge to the Role entity.
-func (_u *UserUpdateOne) ClearRole() *UserUpdateOne {
-	_u.mutation.ClearRole()
-	return _u
 }
 
 // ClearCredentials clears all "credentials" edges to the Credential entity.
@@ -1928,14 +4560,14 @@ func (_u *UserUpdateOne) ClearCredentials() *UserUpdateOne {
 }
 
 // RemoveCredentialIDs removes the "credentials" edge to Credential entities by IDs.
-func (_u *UserUpdateOne) RemoveCredentialIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveCredentialIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveCredentialIDs(ids...)
 	return _u
 }
 
 // RemoveCredentials removes "credentials" edges to Credential entities.
 func (_u *UserUpdateOne) RemoveCredentials(v ...*Credential) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1949,14 +4581,14 @@ func (_u *UserUpdateOne) ClearAttributes() *UserUpdateOne {
 }
 
 // RemoveAttributeIDs removes the "attributes" edge to UserAttributeValue entities by IDs.
-func (_u *UserUpdateOne) RemoveAttributeIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveAttributeIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveAttributeIDs(ids...)
 	return _u
 }
 
 // RemoveAttributes removes "attributes" edges to UserAttributeValue entities.
 func (_u *UserUpdateOne) RemoveAttributes(v ...*UserAttributeValue) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1970,18 +4602,207 @@ func (_u *UserUpdateOne) ClearFederatedIdentities() *UserUpdateOne {
 }
 
 // RemoveFederatedIdentityIDs removes the "federated_identities" edge to FederatedIdentity entities by IDs.
-func (_u *UserUpdateOne) RemoveFederatedIdentityIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveFederatedIdentityIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveFederatedIdentityIDs(ids...)
 	return _u
 }
 
 // RemoveFederatedIdentities removes "federated_identities" edges to FederatedIdentity entities.
 func (_u *UserUpdateOne) RemoveFederatedIdentities(v ...*FederatedIdentity) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveFederatedIdentityIDs(ids...)
+}
+
+// ClearAuthSessions clears all "auth_sessions" edges to the AuthSession entity.
+func (_u *UserUpdateOne) ClearAuthSessions() *UserUpdateOne {
+	_u.mutation.ClearAuthSessions()
+	return _u
+}
+
+// RemoveAuthSessionIDs removes the "auth_sessions" edge to AuthSession entities by IDs.
+func (_u *UserUpdateOne) RemoveAuthSessionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveAuthSessionIDs(ids...)
+	return _u
+}
+
+// RemoveAuthSessions removes "auth_sessions" edges to AuthSession entities.
+func (_u *UserUpdateOne) RemoveAuthSessions(v ...*AuthSession) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAuthSessionIDs(ids...)
+}
+
+// ClearRecoveryContacts clears all "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *UserUpdateOne) ClearRecoveryContacts() *UserUpdateOne {
+	_u.mutation.ClearRecoveryContacts()
+	return _u
+}
+
+// RemoveRecoveryContactIDs removes the "recovery_contacts" edge to UserRecoveryContact entities by IDs.
+func (_u *UserUpdateOne) RemoveRecoveryContactIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveRecoveryContactIDs(ids...)
+	return _u
+}
+
+// RemoveRecoveryContacts removes "recovery_contacts" edges to UserRecoveryContact entities.
+func (_u *UserUpdateOne) RemoveRecoveryContacts(v ...*UserRecoveryContact) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRecoveryContactIDs(ids...)
+}
+
+// ClearRecoveryContactCommands clears all "recovery_contact_commands" edges to the RecoveryContactCommandReceipt entity.
+func (_u *UserUpdateOne) ClearRecoveryContactCommands() *UserUpdateOne {
+	_u.mutation.ClearRecoveryContactCommands()
+	return _u
+}
+
+// RemoveRecoveryContactCommandIDs removes the "recovery_contact_commands" edge to RecoveryContactCommandReceipt entities by IDs.
+func (_u *UserUpdateOne) RemoveRecoveryContactCommandIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveRecoveryContactCommandIDs(ids...)
+	return _u
+}
+
+// RemoveRecoveryContactCommands removes "recovery_contact_commands" edges to RecoveryContactCommandReceipt entities.
+func (_u *UserUpdateOne) RemoveRecoveryContactCommands(v ...*RecoveryContactCommandReceipt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRecoveryContactCommandIDs(ids...)
+}
+
+// ClearPasswordResetTokens clears all "password_reset_tokens" edges to the PasswordResetToken entity.
+func (_u *UserUpdateOne) ClearPasswordResetTokens() *UserUpdateOne {
+	_u.mutation.ClearPasswordResetTokens()
+	return _u
+}
+
+// RemovePasswordResetTokenIDs removes the "password_reset_tokens" edge to PasswordResetToken entities by IDs.
+func (_u *UserUpdateOne) RemovePasswordResetTokenIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemovePasswordResetTokenIDs(ids...)
+	return _u
+}
+
+// RemovePasswordResetTokens removes "password_reset_tokens" edges to PasswordResetToken entities.
+func (_u *UserUpdateOne) RemovePasswordResetTokens(v ...*PasswordResetToken) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePasswordResetTokenIDs(ids...)
+}
+
+// ClearSessionIssuanceReceipts clears all "session_issuance_receipts" edges to the AuthSessionIssuanceReceipt entity.
+func (_u *UserUpdateOne) ClearSessionIssuanceReceipts() *UserUpdateOne {
+	_u.mutation.ClearSessionIssuanceReceipts()
+	return _u
+}
+
+// RemoveSessionIssuanceReceiptIDs removes the "session_issuance_receipts" edge to AuthSessionIssuanceReceipt entities by IDs.
+func (_u *UserUpdateOne) RemoveSessionIssuanceReceiptIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveSessionIssuanceReceiptIDs(ids...)
+	return _u
+}
+
+// RemoveSessionIssuanceReceipts removes "session_issuance_receipts" edges to AuthSessionIssuanceReceipt entities.
+func (_u *UserUpdateOne) RemoveSessionIssuanceReceipts(v ...*AuthSessionIssuanceReceipt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSessionIssuanceReceiptIDs(ids...)
+}
+
+// ClearConsumedTraitOffers clears all "consumed_trait_offers" edges to the OnboardingTraitOffer entity.
+func (_u *UserUpdateOne) ClearConsumedTraitOffers() *UserUpdateOne {
+	_u.mutation.ClearConsumedTraitOffers()
+	return _u
+}
+
+// RemoveConsumedTraitOfferIDs removes the "consumed_trait_offers" edge to OnboardingTraitOffer entities by IDs.
+func (_u *UserUpdateOne) RemoveConsumedTraitOfferIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveConsumedTraitOfferIDs(ids...)
+	return _u
+}
+
+// RemoveConsumedTraitOffers removes "consumed_trait_offers" edges to OnboardingTraitOffer entities.
+func (_u *UserUpdateOne) RemoveConsumedTraitOffers(v ...*OnboardingTraitOffer) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveConsumedTraitOfferIDs(ids...)
+}
+
+// ClearSessionCommands clears all "session_commands" edges to the AuthSessionCommandReceipt entity.
+func (_u *UserUpdateOne) ClearSessionCommands() *UserUpdateOne {
+	_u.mutation.ClearSessionCommands()
+	return _u
+}
+
+// RemoveSessionCommandIDs removes the "session_commands" edge to AuthSessionCommandReceipt entities by IDs.
+func (_u *UserUpdateOne) RemoveSessionCommandIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveSessionCommandIDs(ids...)
+	return _u
+}
+
+// RemoveSessionCommands removes "session_commands" edges to AuthSessionCommandReceipt entities.
+func (_u *UserUpdateOne) RemoveSessionCommands(v ...*AuthSessionCommandReceipt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSessionCommandIDs(ids...)
+}
+
+// ClearOauthCompletionTickets clears all "oauth_completion_tickets" edges to the OAuthCompletionTicket entity.
+func (_u *UserUpdateOne) ClearOauthCompletionTickets() *UserUpdateOne {
+	_u.mutation.ClearOauthCompletionTickets()
+	return _u
+}
+
+// RemoveOauthCompletionTicketIDs removes the "oauth_completion_tickets" edge to OAuthCompletionTicket entities by IDs.
+func (_u *UserUpdateOne) RemoveOauthCompletionTicketIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveOauthCompletionTicketIDs(ids...)
+	return _u
+}
+
+// RemoveOauthCompletionTickets removes "oauth_completion_tickets" edges to OAuthCompletionTicket entities.
+func (_u *UserUpdateOne) RemoveOauthCompletionTickets(v ...*OAuthCompletionTicket) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOauthCompletionTicketIDs(ids...)
+}
+
+// ClearAuthorizationUpdates clears all "authorization_updates" edges to the AuthorizationState entity.
+func (_u *UserUpdateOne) ClearAuthorizationUpdates() *UserUpdateOne {
+	_u.mutation.ClearAuthorizationUpdates()
+	return _u
+}
+
+// RemoveAuthorizationUpdateIDs removes the "authorization_updates" edge to AuthorizationState entities by IDs.
+func (_u *UserUpdateOne) RemoveAuthorizationUpdateIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.RemoveAuthorizationUpdateIDs(ids...)
+	return _u
+}
+
+// RemoveAuthorizationUpdates removes "authorization_updates" edges to AuthorizationState entities.
+func (_u *UserUpdateOne) RemoveAuthorizationUpdates(v ...*AuthorizationState) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAuthorizationUpdateIDs(ids...)
 }
 
 // ClearProblems clears all "problems" edges to the Problem entity.
@@ -1991,14 +4812,14 @@ func (_u *UserUpdateOne) ClearProblems() *UserUpdateOne {
 }
 
 // RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (_u *UserUpdateOne) RemoveProblemIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveProblemIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveProblemIDs(ids...)
 	return _u
 }
 
 // RemoveProblems removes "problems" edges to Problem entities.
 func (_u *UserUpdateOne) RemoveProblems(v ...*Problem) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2012,14 +4833,14 @@ func (_u *UserUpdateOne) ClearSubmissions() *UserUpdateOne {
 }
 
 // RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
-func (_u *UserUpdateOne) RemoveSubmissionIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveSubmissionIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveSubmissionIDs(ids...)
 	return _u
 }
 
 // RemoveSubmissions removes "submissions" edges to Submission entities.
 func (_u *UserUpdateOne) RemoveSubmissions(v ...*Submission) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2033,18 +4854,39 @@ func (_u *UserUpdateOne) ClearUserTraits() *UserUpdateOne {
 }
 
 // RemoveUserTraitIDs removes the "user_traits" edge to UserTrait entities by IDs.
-func (_u *UserUpdateOne) RemoveUserTraitIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveUserTraitIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveUserTraitIDs(ids...)
 	return _u
 }
 
 // RemoveUserTraits removes "user_traits" edges to UserTrait entities.
 func (_u *UserUpdateOne) RemoveUserTraits(v ...*UserTrait) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserTraitIDs(ids...)
+}
+
+// ClearRewardProfileRevisions clears all "reward_profile_revisions" edges to the UserRewardProfileRevision entity.
+func (_u *UserUpdateOne) ClearRewardProfileRevisions() *UserUpdateOne {
+	_u.mutation.ClearRewardProfileRevisions()
+	return _u
+}
+
+// RemoveRewardProfileRevisionIDs removes the "reward_profile_revisions" edge to UserRewardProfileRevision entities by IDs.
+func (_u *UserUpdateOne) RemoveRewardProfileRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveRewardProfileRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRewardProfileRevisions removes "reward_profile_revisions" edges to UserRewardProfileRevision entities.
+func (_u *UserUpdateOne) RemoveRewardProfileRevisions(v ...*UserRewardProfileRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRewardProfileRevisionIDs(ids...)
 }
 
 // ClearUserElementExps clears all "user_element_exps" edges to the UserElementExp entity.
@@ -2054,14 +4896,14 @@ func (_u *UserUpdateOne) ClearUserElementExps() *UserUpdateOne {
 }
 
 // RemoveUserElementExpIDs removes the "user_element_exps" edge to UserElementExp entities by IDs.
-func (_u *UserUpdateOne) RemoveUserElementExpIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveUserElementExpIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveUserElementExpIDs(ids...)
 	return _u
 }
 
 // RemoveUserElementExps removes "user_element_exps" edges to UserElementExp entities.
 func (_u *UserUpdateOne) RemoveUserElementExps(v ...*UserElementExp) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2075,18 +4917,39 @@ func (_u *UserUpdateOne) ClearUserStats() *UserUpdateOne {
 }
 
 // RemoveUserStatIDs removes the "user_stats" edge to UserStats entities by IDs.
-func (_u *UserUpdateOne) RemoveUserStatIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveUserStatIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveUserStatIDs(ids...)
 	return _u
 }
 
 // RemoveUserStats removes "user_stats" edges to UserStats entities.
 func (_u *UserUpdateOne) RemoveUserStats(v ...*UserStats) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserStatIDs(ids...)
+}
+
+// ClearCultivationRankingProjection clears all "cultivation_ranking_projection" edges to the CultivationRankingProjection entity.
+func (_u *UserUpdateOne) ClearCultivationRankingProjection() *UserUpdateOne {
+	_u.mutation.ClearCultivationRankingProjection()
+	return _u
+}
+
+// RemoveCultivationRankingProjectionIDs removes the "cultivation_ranking_projection" edge to CultivationRankingProjection entities by IDs.
+func (_u *UserUpdateOne) RemoveCultivationRankingProjectionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveCultivationRankingProjectionIDs(ids...)
+	return _u
+}
+
+// RemoveCultivationRankingProjection removes "cultivation_ranking_projection" edges to CultivationRankingProjection entities.
+func (_u *UserUpdateOne) RemoveCultivationRankingProjection(v ...*CultivationRankingProjection) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCultivationRankingProjectionIDs(ids...)
 }
 
 // ClearSolvedProblems clears all "solved_problems" edges to the UserSolvedProblem entity.
@@ -2096,14 +4959,14 @@ func (_u *UserUpdateOne) ClearSolvedProblems() *UserUpdateOne {
 }
 
 // RemoveSolvedProblemIDs removes the "solved_problems" edge to UserSolvedProblem entities by IDs.
-func (_u *UserUpdateOne) RemoveSolvedProblemIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveSolvedProblemIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveSolvedProblemIDs(ids...)
 	return _u
 }
 
 // RemoveSolvedProblems removes "solved_problems" edges to UserSolvedProblem entities.
 func (_u *UserUpdateOne) RemoveSolvedProblems(v ...*UserSolvedProblem) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2117,14 +4980,14 @@ func (_u *UserUpdateOne) ClearDifficultyStats() *UserUpdateOne {
 }
 
 // RemoveDifficultyStatIDs removes the "difficulty_stats" edge to UserDifficultyStats entities by IDs.
-func (_u *UserUpdateOne) RemoveDifficultyStatIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveDifficultyStatIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveDifficultyStatIDs(ids...)
 	return _u
 }
 
 // RemoveDifficultyStats removes "difficulty_stats" edges to UserDifficultyStats entities.
 func (_u *UserUpdateOne) RemoveDifficultyStats(v ...*UserDifficultyStats) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2138,14 +5001,14 @@ func (_u *UserUpdateOne) ClearTagStats() *UserUpdateOne {
 }
 
 // RemoveTagStatIDs removes the "tag_stats" edge to UserTagStats entities by IDs.
-func (_u *UserUpdateOne) RemoveTagStatIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveTagStatIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveTagStatIDs(ids...)
 	return _u
 }
 
 // RemoveTagStats removes "tag_stats" edges to UserTagStats entities.
 func (_u *UserUpdateOne) RemoveTagStats(v ...*UserTagStats) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2159,14 +5022,14 @@ func (_u *UserUpdateOne) ClearContests() *UserUpdateOne {
 }
 
 // RemoveContestIDs removes the "contests" edge to Contest entities by IDs.
-func (_u *UserUpdateOne) RemoveContestIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveContestIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveContestIDs(ids...)
 	return _u
 }
 
 // RemoveContests removes "contests" edges to Contest entities.
 func (_u *UserUpdateOne) RemoveContests(v ...*Contest) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2180,14 +5043,14 @@ func (_u *UserUpdateOne) ClearContestRegistrations() *UserUpdateOne {
 }
 
 // RemoveContestRegistrationIDs removes the "contest_registrations" edge to ContestRegistration entities by IDs.
-func (_u *UserUpdateOne) RemoveContestRegistrationIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveContestRegistrationIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveContestRegistrationIDs(ids...)
 	return _u
 }
 
 // RemoveContestRegistrations removes "contest_registrations" edges to ContestRegistration entities.
 func (_u *UserUpdateOne) RemoveContestRegistrations(v ...*ContestRegistration) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2201,14 +5064,14 @@ func (_u *UserUpdateOne) ClearContestStandings() *UserUpdateOne {
 }
 
 // RemoveContestStandingIDs removes the "contest_standings" edge to ContestStanding entities by IDs.
-func (_u *UserUpdateOne) RemoveContestStandingIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveContestStandingIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveContestStandingIDs(ids...)
 	return _u
 }
 
 // RemoveContestStandings removes "contest_standings" edges to ContestStanding entities.
 func (_u *UserUpdateOne) RemoveContestStandings(v ...*ContestStanding) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -2222,18 +5085,102 @@ func (_u *UserUpdateOne) ClearRatingHistories() *UserUpdateOne {
 }
 
 // RemoveRatingHistoryIDs removes the "rating_histories" edge to RatingHistory entities by IDs.
-func (_u *UserUpdateOne) RemoveRatingHistoryIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveRatingHistoryIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveRatingHistoryIDs(ids...)
 	return _u
 }
 
 // RemoveRatingHistories removes "rating_histories" edges to RatingHistory entities.
 func (_u *UserUpdateOne) RemoveRatingHistories(v ...*RatingHistory) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRatingHistoryIDs(ids...)
+}
+
+// ClearContestRatingResults clears all "contest_rating_results" edges to the ContestRatingResult entity.
+func (_u *UserUpdateOne) ClearContestRatingResults() *UserUpdateOne {
+	_u.mutation.ClearContestRatingResults()
+	return _u
+}
+
+// RemoveContestRatingResultIDs removes the "contest_rating_results" edge to ContestRatingResult entities by IDs.
+func (_u *UserUpdateOne) RemoveContestRatingResultIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestRatingResultIDs(ids...)
+	return _u
+}
+
+// RemoveContestRatingResults removes "contest_rating_results" edges to ContestRatingResult entities.
+func (_u *UserUpdateOne) RemoveContestRatingResults(v ...*ContestRatingResult) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestRatingResultIDs(ids...)
+}
+
+// ClearContestUserRatings clears all "contest_user_ratings" edges to the ContestUserRating entity.
+func (_u *UserUpdateOne) ClearContestUserRatings() *UserUpdateOne {
+	_u.mutation.ClearContestUserRatings()
+	return _u
+}
+
+// RemoveContestUserRatingIDs removes the "contest_user_ratings" edge to ContestUserRating entities by IDs.
+func (_u *UserUpdateOne) RemoveContestUserRatingIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestUserRatingIDs(ids...)
+	return _u
+}
+
+// RemoveContestUserRatings removes "contest_user_ratings" edges to ContestUserRating entities.
+func (_u *UserUpdateOne) RemoveContestUserRatings(v ...*ContestUserRating) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestUserRatingIDs(ids...)
+}
+
+// ClearContestScoringAttempts clears all "contest_scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *UserUpdateOne) ClearContestScoringAttempts() *UserUpdateOne {
+	_u.mutation.ClearContestScoringAttempts()
+	return _u
+}
+
+// RemoveContestScoringAttemptIDs removes the "contest_scoring_attempts" edge to ContestScoringAttempt entities by IDs.
+func (_u *UserUpdateOne) RemoveContestScoringAttemptIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestScoringAttemptIDs(ids...)
+	return _u
+}
+
+// RemoveContestScoringAttempts removes "contest_scoring_attempts" edges to ContestScoringAttempt entities.
+func (_u *UserUpdateOne) RemoveContestScoringAttempts(v ...*ContestScoringAttempt) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestScoringAttemptIDs(ids...)
+}
+
+// ClearContestProblemResults clears all "contest_problem_results" edges to the ContestProblemResult entity.
+func (_u *UserUpdateOne) ClearContestProblemResults() *UserUpdateOne {
+	_u.mutation.ClearContestProblemResults()
+	return _u
+}
+
+// RemoveContestProblemResultIDs removes the "contest_problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *UserUpdateOne) RemoveContestProblemResultIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestProblemResultIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblemResults removes "contest_problem_results" edges to ContestProblemResult entities.
+func (_u *UserUpdateOne) RemoveContestProblemResults(v ...*ContestProblemResult) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemResultIDs(ids...)
 }
 
 // ClearMaterials clears all "materials" edges to the Material entity.
@@ -2243,18 +5190,228 @@ func (_u *UserUpdateOne) ClearMaterials() *UserUpdateOne {
 }
 
 // RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
-func (_u *UserUpdateOne) RemoveMaterialIDs(ids ...int) *UserUpdateOne {
+func (_u *UserUpdateOne) RemoveMaterialIDs(ids ...uuid.UUID) *UserUpdateOne {
 	_u.mutation.RemoveMaterialIDs(ids...)
 	return _u
 }
 
 // RemoveMaterials removes "materials" edges to Material entities.
 func (_u *UserUpdateOne) RemoveMaterials(v ...*Material) *UserUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveMaterialIDs(ids...)
+}
+
+// ClearMaterialRevisions clears all "material_revisions" edges to the MaterialRevision entity.
+func (_u *UserUpdateOne) ClearMaterialRevisions() *UserUpdateOne {
+	_u.mutation.ClearMaterialRevisions()
+	return _u
+}
+
+// RemoveMaterialRevisionIDs removes the "material_revisions" edge to MaterialRevision entities by IDs.
+func (_u *UserUpdateOne) RemoveMaterialRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveMaterialRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveMaterialRevisions removes "material_revisions" edges to MaterialRevision entities.
+func (_u *UserUpdateOne) RemoveMaterialRevisions(v ...*MaterialRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialRevisionIDs(ids...)
+}
+
+// ClearNotifications clears all "notifications" edges to the Notification entity.
+func (_u *UserUpdateOne) ClearNotifications() *UserUpdateOne {
+	_u.mutation.ClearNotifications()
+	return _u
+}
+
+// RemoveNotificationIDs removes the "notifications" edge to Notification entities by IDs.
+func (_u *UserUpdateOne) RemoveNotificationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveNotificationIDs(ids...)
+	return _u
+}
+
+// RemoveNotifications removes "notifications" edges to Notification entities.
+func (_u *UserUpdateOne) RemoveNotifications(v ...*Notification) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationIDs(ids...)
+}
+
+// ClearNotificationPreferences clears all "notification_preferences" edges to the NotificationPreference entity.
+func (_u *UserUpdateOne) ClearNotificationPreferences() *UserUpdateOne {
+	_u.mutation.ClearNotificationPreferences()
+	return _u
+}
+
+// RemoveNotificationPreferenceIDs removes the "notification_preferences" edge to NotificationPreference entities by IDs.
+func (_u *UserUpdateOne) RemoveNotificationPreferenceIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveNotificationPreferenceIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationPreferences removes "notification_preferences" edges to NotificationPreference entities.
+func (_u *UserUpdateOne) RemoveNotificationPreferences(v ...*NotificationPreference) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationPreferenceIDs(ids...)
+}
+
+// ClearCreatedNotificationCampaigns clears all "created_notification_campaigns" edges to the NotificationCampaign entity.
+func (_u *UserUpdateOne) ClearCreatedNotificationCampaigns() *UserUpdateOne {
+	_u.mutation.ClearCreatedNotificationCampaigns()
+	return _u
+}
+
+// RemoveCreatedNotificationCampaignIDs removes the "created_notification_campaigns" edge to NotificationCampaign entities by IDs.
+func (_u *UserUpdateOne) RemoveCreatedNotificationCampaignIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveCreatedNotificationCampaignIDs(ids...)
+	return _u
+}
+
+// RemoveCreatedNotificationCampaigns removes "created_notification_campaigns" edges to NotificationCampaign entities.
+func (_u *UserUpdateOne) RemoveCreatedNotificationCampaigns(v ...*NotificationCampaign) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCreatedNotificationCampaignIDs(ids...)
+}
+
+// ClearNotificationCampaignRevisions clears all "notification_campaign_revisions" edges to the NotificationCampaignRevision entity.
+func (_u *UserUpdateOne) ClearNotificationCampaignRevisions() *UserUpdateOne {
+	_u.mutation.ClearNotificationCampaignRevisions()
+	return _u
+}
+
+// RemoveNotificationCampaignRevisionIDs removes the "notification_campaign_revisions" edge to NotificationCampaignRevision entities by IDs.
+func (_u *UserUpdateOne) RemoveNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationCampaignRevisions removes "notification_campaign_revisions" edges to NotificationCampaignRevision entities.
+func (_u *UserUpdateOne) RemoveNotificationCampaignRevisions(v ...*NotificationCampaignRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationCampaignRevisionIDs(ids...)
+}
+
+// ClearExplicitNotificationCampaignRevisions clears all "explicit_notification_campaign_revisions" edges to the NotificationCampaignExplicitUser entity.
+func (_u *UserUpdateOne) ClearExplicitNotificationCampaignRevisions() *UserUpdateOne {
+	_u.mutation.ClearExplicitNotificationCampaignRevisions()
+	return _u
+}
+
+// RemoveExplicitNotificationCampaignRevisionIDs removes the "explicit_notification_campaign_revisions" edge to NotificationCampaignExplicitUser entities by IDs.
+func (_u *UserUpdateOne) RemoveExplicitNotificationCampaignRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveExplicitNotificationCampaignRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveExplicitNotificationCampaignRevisions removes "explicit_notification_campaign_revisions" edges to NotificationCampaignExplicitUser entities.
+func (_u *UserUpdateOne) RemoveExplicitNotificationCampaignRevisions(v ...*NotificationCampaignExplicitUser) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveExplicitNotificationCampaignRevisionIDs(ids...)
+}
+
+// ClearNotificationCampaignDeliveries clears all "notification_campaign_deliveries" edges to the NotificationCampaignRecipient entity.
+func (_u *UserUpdateOne) ClearNotificationCampaignDeliveries() *UserUpdateOne {
+	_u.mutation.ClearNotificationCampaignDeliveries()
+	return _u
+}
+
+// RemoveNotificationCampaignDeliveryIDs removes the "notification_campaign_deliveries" edge to NotificationCampaignRecipient entities by IDs.
+func (_u *UserUpdateOne) RemoveNotificationCampaignDeliveryIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveNotificationCampaignDeliveryIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationCampaignDeliveries removes "notification_campaign_deliveries" edges to NotificationCampaignRecipient entities.
+func (_u *UserUpdateOne) RemoveNotificationCampaignDeliveries(v ...*NotificationCampaignRecipient) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationCampaignDeliveryIDs(ids...)
+}
+
+// ClearContestContentRevisions clears all "contest_content_revisions" edges to the ContestContentRevision entity.
+func (_u *UserUpdateOne) ClearContestContentRevisions() *UserUpdateOne {
+	_u.mutation.ClearContestContentRevisions()
+	return _u
+}
+
+// RemoveContestContentRevisionIDs removes the "contest_content_revisions" edge to ContestContentRevision entities by IDs.
+func (_u *UserUpdateOne) RemoveContestContentRevisionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestContentRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveContestContentRevisions removes "contest_content_revisions" edges to ContestContentRevision entities.
+func (_u *UserUpdateOne) RemoveContestContentRevisions(v ...*ContestContentRevision) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestContentRevisionIDs(ids...)
+}
+
+// ClearContestClarifications clears all "contest_clarifications" edges to the ContestClarification entity.
+func (_u *UserUpdateOne) ClearContestClarifications() *UserUpdateOne {
+	_u.mutation.ClearContestClarifications()
+	return _u
+}
+
+// RemoveContestClarificationIDs removes the "contest_clarifications" edge to ContestClarification entities by IDs.
+func (_u *UserUpdateOne) RemoveContestClarificationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestClarificationIDs(ids...)
+	return _u
+}
+
+// RemoveContestClarifications removes "contest_clarifications" edges to ContestClarification entities.
+func (_u *UserUpdateOne) RemoveContestClarifications(v ...*ContestClarification) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestClarificationIDs(ids...)
+}
+
+// ClearContestContentCommands clears all "contest_content_commands" edges to the ContestContentCommand entity.
+func (_u *UserUpdateOne) ClearContestContentCommands() *UserUpdateOne {
+	_u.mutation.ClearContestContentCommands()
+	return _u
+}
+
+// RemoveContestContentCommandIDs removes the "contest_content_commands" edge to ContestContentCommand entities by IDs.
+func (_u *UserUpdateOne) RemoveContestContentCommandIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveContestContentCommandIDs(ids...)
+	return _u
+}
+
+// RemoveContestContentCommands removes "contest_content_commands" edges to ContestContentCommand entities.
+func (_u *UserUpdateOne) RemoveContestContentCommands(v ...*ContestContentCommand) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestContentCommandIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -2319,8 +5476,30 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`generate: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if _u.mutation.RoleCleared() && len(_u.mutation.RoleIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "User.role"`)
+	if v, ok := _u.mutation.Status(); ok {
+		if err := user.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "User.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SecurityVersion(); ok {
+		if err := user.SecurityVersionValidator(v); err != nil {
+			return &ValidationError{Name: "security_version", err: fmt.Errorf(`generate: validator failed for field "User.security_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ProfileVisibility(); ok {
+		if err := user.ProfileVisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "profile_visibility", err: fmt.Errorf(`generate: validator failed for field "User.profile_visibility": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ProfileVisibilityVersion(); ok {
+		if err := user.ProfileVisibilityVersionValidator(v); err != nil {
+			return &ValidationError{Name: "profile_visibility_version", err: fmt.Errorf(`generate: validator failed for field "User.profile_visibility_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SuspensionReason(); ok {
+		if err := user.SuspensionReasonValidator(v); err != nil {
+			return &ValidationError{Name: "suspension_reason", err: fmt.Errorf(`generate: validator failed for field "User.suspension_reason": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -2335,7 +5514,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "User.id" for update`)}
@@ -2370,45 +5549,46 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(user.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(user.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(user.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(user.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(user.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
-	if _u.mutation.RoleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(user.FieldStatus, field.TypeEnum, value)
 	}
-	if nodes := _u.mutation.RoleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.RoleTable,
-			Columns: []string{user.RoleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := _u.mutation.SecurityVersion(); ok {
+		_spec.SetField(user.FieldSecurityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedSecurityVersion(); ok {
+		_spec.AddField(user.FieldSecurityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ProfileVisibility(); ok {
+		_spec.SetField(user.FieldProfileVisibility, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.ProfileVisibilityVersion(); ok {
+		_spec.SetField(user.FieldProfileVisibilityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedProfileVisibilityVersion(); ok {
+		_spec.AddField(user.FieldProfileVisibilityVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ProfileVisibilityUpdatedAt(); ok {
+		_spec.SetField(user.FieldProfileVisibilityUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.SuspendedAt(); ok {
+		_spec.SetField(user.FieldSuspendedAt, field.TypeTime, value)
+	}
+	if _u.mutation.SuspendedAtCleared() {
+		_spec.ClearField(user.FieldSuspendedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.SuspensionReason(); ok {
+		_spec.SetField(user.FieldSuspensionReason, field.TypeString, value)
+	}
+	if _u.mutation.SuspensionReasonCleared() {
+		_spec.ClearField(user.FieldSuspensionReason, field.TypeString)
 	}
 	if _u.mutation.CredentialsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -2418,7 +5598,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2431,7 +5611,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2447,7 +5627,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.CredentialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2463,7 +5643,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2476,7 +5656,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2492,7 +5672,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.AttributesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2508,7 +5688,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2521,7 +5701,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2537,7 +5717,412 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.FederatedIdentitiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AuthSessionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAuthSessionsIDs(); len(nodes) > 0 && !_u.mutation.AuthSessionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AuthSessionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthSessionsTable,
+			Columns: []string{user.AuthSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRecoveryContactsIDs(); len(nodes) > 0 && !_u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RecoveryContactsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactsTable,
+			Columns: []string{user.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RecoveryContactCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRecoveryContactCommandsIDs(); len(nodes) > 0 && !_u.mutation.RecoveryContactCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RecoveryContactCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RecoveryContactCommandsTable,
+			Columns: []string{user.RecoveryContactCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(recoverycontactcommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PasswordResetTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPasswordResetTokensIDs(); len(nodes) > 0 && !_u.mutation.PasswordResetTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PasswordResetTokensIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PasswordResetTokensTable,
+			Columns: []string{user.PasswordResetTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SessionIssuanceReceiptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSessionIssuanceReceiptsIDs(); len(nodes) > 0 && !_u.mutation.SessionIssuanceReceiptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SessionIssuanceReceiptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionIssuanceReceiptsTable,
+			Columns: []string{user.SessionIssuanceReceiptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessionissuancereceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ConsumedTraitOffersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedConsumedTraitOffersIDs(); len(nodes) > 0 && !_u.mutation.ConsumedTraitOffersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ConsumedTraitOffersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ConsumedTraitOffersTable,
+			Columns: []string{user.ConsumedTraitOffersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SessionCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSessionCommandsIDs(); len(nodes) > 0 && !_u.mutation.SessionCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SessionCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SessionCommandsTable,
+			Columns: []string{user.SessionCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authsessioncommandreceipt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.OauthCompletionTicketsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedOauthCompletionTicketsIDs(); len(nodes) > 0 && !_u.mutation.OauthCompletionTicketsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OauthCompletionTicketsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OauthCompletionTicketsTable,
+			Columns: []string{user.OauthCompletionTicketsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(oauthcompletionticket.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AuthorizationUpdatesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAuthorizationUpdatesIDs(); len(nodes) > 0 && !_u.mutation.AuthorizationUpdatesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AuthorizationUpdatesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthorizationUpdatesTable,
+			Columns: []string{user.AuthorizationUpdatesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authorizationstate.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -2553,7 +6138,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2566,7 +6151,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2582,7 +6167,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2598,7 +6183,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2611,7 +6196,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2627,7 +6212,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2643,7 +6228,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2656,7 +6241,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2672,7 +6257,52 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RewardProfileRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRewardProfileRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RewardProfileRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RewardProfileRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RewardProfileRevisionsTable,
+			Columns: []string{user.RewardProfileRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofilerevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2688,7 +6318,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2701,7 +6331,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2717,7 +6347,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserElementExpsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userelementexp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2733,7 +6363,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2746,7 +6376,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2762,7 +6392,52 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.UserStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CultivationRankingProjectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCultivationRankingProjectionIDs(); len(nodes) > 0 && !_u.mutation.CultivationRankingProjectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CultivationRankingProjectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CultivationRankingProjectionTable,
+			Columns: []string{user.CultivationRankingProjectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cultivationrankingprojection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2778,7 +6453,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2791,7 +6466,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2807,7 +6482,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.SolvedProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2823,7 +6498,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2836,7 +6511,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2852,7 +6527,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.DifficultyStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(userdifficultystats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2868,7 +6543,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2881,7 +6556,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2897,7 +6572,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.TagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2913,7 +6588,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2926,7 +6601,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2942,7 +6617,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2958,7 +6633,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -2971,7 +6646,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -2987,7 +6662,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestRegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -3003,7 +6678,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -3016,7 +6691,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -3032,7 +6707,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.ContestStandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -3048,7 +6723,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -3061,7 +6736,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -3077,7 +6752,187 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestRatingResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestRatingResultsIDs(); len(nodes) > 0 && !_u.mutation.ContestRatingResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestRatingResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestRatingResultsTable,
+			Columns: []string{user.ContestRatingResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestUserRatingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestUserRatingsIDs(); len(nodes) > 0 && !_u.mutation.ContestUserRatingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestUserRatingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestUserRatingsTable,
+			Columns: []string{user.ContestUserRatingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestuserrating.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestScoringAttemptsIDs(); len(nodes) > 0 && !_u.mutation.ContestScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestScoringAttemptsTable,
+			Columns: []string{user.ContestScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestProblemResultsTable,
+			Columns: []string{user.ContestProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -3093,7 +6948,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -3106,7 +6961,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -3122,7 +6977,457 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.MaterialsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MaterialRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialRevisionsIDs(); len(nodes) > 0 && !_u.mutation.MaterialRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MaterialRevisionsTable,
+			Columns: []string{user.MaterialRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationsIDs(); len(nodes) > 0 && !_u.mutation.NotificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationsTable,
+			Columns: []string{user.NotificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationPreferencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationPreferencesIDs(); len(nodes) > 0 && !_u.mutation.NotificationPreferencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationPreferencesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationPreferencesTable,
+			Columns: []string{user.NotificationPreferencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationpreference.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CreatedNotificationCampaignsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCreatedNotificationCampaignsIDs(); len(nodes) > 0 && !_u.mutation.CreatedNotificationCampaignsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CreatedNotificationCampaignsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedNotificationCampaignsTable,
+			Columns: []string{user.CreatedNotificationCampaignsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaign.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationCampaignRevisionsIDs(); len(nodes) > 0 && !_u.mutation.NotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationCampaignRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignRevisionsTable,
+			Columns: []string{user.NotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ExplicitNotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedExplicitNotificationCampaignRevisionsIDs(); len(nodes) > 0 && !_u.mutation.ExplicitNotificationCampaignRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ExplicitNotificationCampaignRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ExplicitNotificationCampaignRevisionsTable,
+			Columns: []string{user.ExplicitNotificationCampaignRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignexplicituser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationCampaignDeliveriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationCampaignDeliveriesIDs(); len(nodes) > 0 && !_u.mutation.NotificationCampaignDeliveriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationCampaignDeliveriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationCampaignDeliveriesTable,
+			Columns: []string{user.NotificationCampaignDeliveriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationcampaignrecipient.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestContentRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestContentRevisionsIDs(); len(nodes) > 0 && !_u.mutation.ContestContentRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestContentRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentRevisionsTable,
+			Columns: []string{user.ContestContentRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestClarificationsIDs(); len(nodes) > 0 && !_u.mutation.ContestClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestClarificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestClarificationsTable,
+			Columns: []string{user.ContestClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestContentCommandsIDs(); len(nodes) > 0 && !_u.mutation.ContestContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestContentCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestContentCommandsTable,
+			Columns: []string{user.ContestContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

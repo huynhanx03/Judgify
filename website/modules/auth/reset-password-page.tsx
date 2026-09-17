@@ -14,13 +14,13 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AuthSurface } from "@/modules/auth/auth-surface";
 import { IDENTITY_INPUT_LIMITS } from "@/constants/identity";
 import { APP_ROUTES } from "@/constants/routes";
 import { TEXT } from "@/constants/text";
@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
     : TEXT.AUTH.SHOW_PASSWORD;
 
   return (
-    <Card className="border-border/70 bg-background/85 shadow-2xl backdrop-blur-xl">
+    <AuthSurface>
       <CardHeader className="space-y-4 pb-6 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-brand-soft">
           <ShieldCheck aria-hidden="true" className="h-7 w-7" />
@@ -282,6 +282,6 @@ export default function ResetPasswordPage() {
           </form>
         )}
       </CardContent>
-    </Card>
+    </AuthSurface>
   );
 }

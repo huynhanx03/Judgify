@@ -7,25 +7,22 @@
 
 import { useMemo, useState } from "react";
 import { TEXT } from "@/constants/text";
-import { Trophy, Search, Loader2 } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { PublicPageLead } from "@/components/public-page-lead";
 import { PaginationControls } from "@/components/pagination-controls";
 import { contestService } from "@/services/contest.service";
 import {
   CONTEST_DISCOVERY,
   CONTEST_LIFECYCLE,
-  CONTEST_LIST_ANCHOR_ID,
 } from "@/constants/contest";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useContestLifecycleResource } from "@/hooks/use-contest-lifecycle-resource";
 import { cn } from "@/lib/utils";
-import {
-  DataLoadFeedback,
-  DataLoadingFeedback,
-} from "@/modules/problem/data-load-feedback";
+import { DataLoadingFeedback } from "@/modules/problem/data-load-feedback";
+import { ResourceCollectionFeedback } from "@/modules/shared/resource-feedback";
 import type { Contest, ContestStatus } from "@/types/contest";
 import type { Paginated, QueryOptions, SearchFilter } from "@/types/api";
-import { ContestHeroSection } from "@/modules/contest/contest-hero-section";
 import { ContestCard } from "@/modules/contest/contest-card";
 
 type StatusFilter = ContestStatus | "all";
@@ -63,14 +60,16 @@ export default function ContestPage() {
     };
   }, [debouncedSearch, page, statusFilter]);
   const queryKey = useMemo(
-    () => `${CONTEST_LIFECYCLE.PUBLIC_LIST_RESOURCE_KEY}:${JSON.stringify(query)}`,
+    () =>
+      `${CONTEST_LIFECYCLE.PUBLIC_LIST_RESOURCE_KEY}:${JSON.stringify(query)}`,
     [query],
   );
-  const contestResource = useContestLifecycleResource<Paginated<Contest> | null>({
-    resourceKey: queryKey,
-    initialData: EMPTY_CONTESTS,
-    load: (signal) => contestService.find(query, signal),
-  });
+  const contestResource =
+    useContestLifecycleResource<Paginated<Contest> | null>({
+      resourceKey: queryKey,
+      initialData: EMPTY_CONTESTS,
+      load: (signal) => contestService.find(query, signal),
+    });
   const contests = contestResource.data?.records ?? [];
   const pagination = contestResource.data?.pagination;
   const isInitialLoading =
@@ -84,37 +83,20 @@ export default function ContestPage() {
     setPage(1);
   };
 
-  const focusContestList = (status: StatusFilter) => {
-    selectStatus(status);
-    window.requestAnimationFrame(() => {
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      document
-        .getElementById(CONTEST_LIST_ANCHOR_ID)
-        ?.scrollIntoView({
-          behavior: reduceMotion ? "auto" : "smooth",
-          block: "start",
-        });
-    });
-  };
-
   return (
-    <div className="space-y-12 pb-20">
-      <ContestHeroSection
-        onExplore={() => focusContestList("all")}
-        onShowUpcoming={() => focusContestList("upcoming")}
+    <div className="space-y-10 pb-16 sm:space-y-12 sm:pb-20">
+      <PublicPageLead
+        art="contest"
+        eyebrow={TEXT.CONTEST.HERO_BADGE}
+        title={TEXT.NAV.CONTEST}
+        description={TEXT.CONTEST.HERO_DESCRIPTION}
       />
 
-      <div
-        id={CONTEST_LIST_ANCHOR_ID}
-        className="mx-auto max-w-6xl scroll-mt-24 space-y-10 px-4"
-      >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-border/40 pb-6 gap-4">
-          <div className="flex items-center gap-3">
-            <Trophy className="h-8 w-8 text-cultivation" aria-hidden="true" />
-            <h2 className="text-3xl font-black tracking-tight">{TEXT.CONTEST.TITLE}</h2>
-          </div>
+      <div className="space-y-8 sm:space-y-10">
+        <div className="flex flex-col items-start justify-between gap-4 border-b border-border/40 pb-6 sm:flex-row sm:items-center">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            {TEXT.CONTEST.TITLE}
+          </h2>
           <div className="flex flex-wrap gap-2">
             {STATUS_FILTERS.map((f) => (
               <button
@@ -158,11 +140,12 @@ export default function ContestPage() {
 
         {isInitialLoading ? (
           <DataLoadingFeedback
+            bare
             label={TEXT.CONTEST.LIST_LOADING}
             className="min-h-64"
           />
         ) : contestResource.status === "error" ? (
-          <DataLoadFeedback
+          <ResourceCollectionFeedback
             title={TEXT.CONTEST.LOAD_ERROR_TITLE}
             description={TEXT.CONTEST.LOAD_ERROR_DESCRIPTION}
             retryLabel={TEXT.CONTEST.RETRY}
@@ -178,10 +161,7 @@ export default function ContestPage() {
           >
             <div className="grid grid-cols-1 gap-8">
               {contests.map((contest) => (
-                <ContestCard
-                  key={contest.id}
-                  contest={contest}
-                />
+                <ContestCard key={contest.id} contest={contest} />
               ))}
             </div>
             {pagination ? (

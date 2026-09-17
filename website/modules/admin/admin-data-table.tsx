@@ -29,6 +29,7 @@ interface AdminDataTableProps<T> {
   columns: AdminColumn<T>[];
   data: T[];
   keyExtractor: (item: T) => string | number;
+  tableLabel?: string;
   emptyMessage?: string;
   pagination?: PaginationMeta;
   onPageChange?: (page: number) => void;
@@ -38,15 +39,19 @@ export function AdminDataTable<T>({
   columns,
   data,
   keyExtractor,
+  tableLabel = TEXT.COMMON.DATA_TABLE,
   emptyMessage = TEXT.COMMON.NO_DATA,
   pagination,
   onPageChange,
 }: AdminDataTableProps<T>) {
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto rounded-xl border border-border">
-        <Table>
-          <TableHeader>
+      <div className="rounded-xl border border-border bg-card">
+        <Table
+          containerLabel={tableLabel}
+          containerClassName="max-h-[min(58dvh,48rem)] overflow-y-auto"
+        >
+          <TableHeader className="sticky top-0 z-10 bg-card">
             <TableRow className="bg-muted/30 hover:bg-muted/30">
               {columns.map((col) => (
                 <TableHead key={col.key} className={col.className}>

@@ -2,81 +2,81 @@ package http
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
-	"github.com/huynhanx03/judgify/internal/contest/core/dto"
-	"github.com/huynhanx03/judgify/internal/contest/ports"
-	"github.com/huynhanx03/judgify/internal/contest/store"
-	handlerCommon "github.com/huynhanx03/judgify/pkg/common/http/handler"
+	"github.com/huynhanx03/go-common/pkg/common/apperr"
+	handlerCommon "github.com/huynhanx03/go-common/pkg/common/http/handler"
+
+	"github.com/huynhanx03/judgify/internal/authctx"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 // StandingHandler defines the standing HTTP handler interface.
 type StandingHandler interface {
-	GetStandings(ctx context.Context, req *dto.GetStandingsRequest) ([]*dto.StandingResponse, error)
+	GetStandings(ctx context.Context, req *standingContestIDRequest) (*standingsResponse, error)
+	GetMyStanding(ctx context.Context, req *standingContestIDRequest) (*selfStandingResponse, error)
+	GetOfficialStandings(ctx context.Context, req *standingContestIDRequest) (*standingsResponse, error)
+}
+
+func (h *standingHandler) GetMyStanding(
+	ctx context.Context,
+	req *standingContestIDRequest,
+) (*selfStandingResponse, error) {
+	userID, ok := authctx.UserID(ctx)
+	if !ok {
+		return nil, apperr.New(apperr.CodeUnauthorized, "authentication required", nil)
+	}
+	id, err := parseStandingContestID(req)
+	if err != nil {
+		return nil, err
+	}
+	response, err := h.standingService.GetMyStanding(ctx, id, userID)
+	if err != nil {
+		return nil, err
+	}
+	return toSelfStandingResponse(response), nil
 }
 
 type standingHandler struct {
 	handlerCommon.BaseHandler
 	standingService ports.StandingService
-	hub             *store.LeaderboardHub
 }
 
 // NewStandingHandler creates a new standingHandler instance.
-func NewStandingHandler(standingService ports.StandingService, hub *store.LeaderboardHub) *standingHandler {
-	return &standingHandler{standingService: standingService, hub: hub}
+func NewStandingHandler(standingService ports.StandingService) *standingHandler {
+	return &standingHandler{standingService: standingService}
 }
 
-func (h *standingHandler) GetStandings(ctx context.Context, req *dto.GetStandingsRequest) ([]*dto.StandingResponse, error) {
-	return h.standingService.GetStandings(ctx, req.ContestID)
-}
-
-// StreamStandings is a Gin handler for SSE realtime standings.
-func (h *standingHandler) StreamStandings(c *gin.Context) {
-	contestIDStr := c.Param("id")
-	var contestID int
-	if _, err := fmt.Sscanf(contestIDStr, "%d", &contestID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid contest id"})
-		return
-	}
-
-	// Set SSE headers
-	c.Header("Content-Type", "text/event-stream")
-	c.Header("Cache-Control", "no-cache")
-	c.Header("Connection", "keep-alive")
-	c.Header("X-Accel-Buffering", "no")
-
-	// Send initial snapshot
-	standings, err := h.standingService.GetStandings(c.Request.Context(), contestID)
+func (h *standingHandler) GetStandings(ctx context.Context, req *standingContestIDRequest) (*standingsResponse, error) {
+	id, err := parseStandingContestID(req)
 	if err != nil {
-		c.SSEvent("error", gin.H{"message": "failed to load standings"})
-		return
+		return nil, err
 	}
-	snapshot, _ := json.Marshal(standings)
-	c.SSEvent("snapshot", string(snapshot))
-	c.Writer.Flush()
+	response, err := h.standingService.GetStandings(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return toStandingsResponse(response), nil
+}
 
-	// Subscribe to updates
-	ch := h.hub.Subscribe(contestID)
-	defer h.hub.Unsubscribe(contestID, ch)
+func (h *standingHandler) GetOfficialStandings(ctx context.Context, req *standingContestIDRequest) (*standingsResponse, error) {
+	id, err := parseStandingContestID(req)
+	if err != nil {
+		return nil, err
+	}
+	response, err := h.standingService.GetOfficialStandings(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return toStandingsResponse(response), nil
+}
 
-	// Stream updates
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data, ok := <-ch:
-			if !ok {
-				return false
-			}
-			c.SSEvent("update", string(data))
-			return true
-		case <-c.Request.Context().Done():
-			return false
-		case <-c.Done():
-			return false
-		}
-	})
+func parseStandingContestID(request *standingContestIDRequest) (uuid.UUID, error) {
+	id, err := uuid.Parse(request.ContestID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("parse contest id: %w", err)
+	}
+	return id, nil
 }

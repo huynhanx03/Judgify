@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
 )
 
@@ -16,7 +17,7 @@ import (
 type MaterialCategory struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,7 +25,7 @@ type MaterialCategory struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -37,20 +38,31 @@ type MaterialCategory struct {
 
 // MaterialCategoryEdges holds the relations/edges for other nodes in the graph.
 type MaterialCategoryEdges struct {
-	// Materials holds the value of the materials edge.
-	Materials []*Material `json:"materials,omitempty"`
+	// Revisions holds the value of the revisions edge.
+	Revisions []*MaterialRevision `json:"revisions,omitempty"`
+	// LegacyMaterials holds the value of the legacy_materials edge.
+	LegacyMaterials []*Material `json:"legacy_materials,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
-// MaterialsOrErr returns the Materials value or an error if the edge
+// RevisionsOrErr returns the Revisions value or an error if the edge
 // was not loaded in eager-loading.
-func (e MaterialCategoryEdges) MaterialsOrErr() ([]*Material, error) {
+func (e MaterialCategoryEdges) RevisionsOrErr() ([]*MaterialRevision, error) {
 	if e.loadedTypes[0] {
-		return e.Materials, nil
+		return e.Revisions, nil
 	}
-	return nil, &NotLoadedError{edge: "materials"}
+	return nil, &NotLoadedError{edge: "revisions"}
+}
+
+// LegacyMaterialsOrErr returns the LegacyMaterials value or an error if the edge
+// was not loaded in eager-loading.
+func (e MaterialCategoryEdges) LegacyMaterialsOrErr() ([]*Material, error) {
+	if e.loadedTypes[1] {
+		return e.LegacyMaterials, nil
+	}
+	return nil, &NotLoadedError{edge: "legacy_materials"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -58,12 +70,12 @@ func (*MaterialCategory) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case materialcategory.FieldID, materialcategory.FieldDeletedBy:
-			values[i] = new(sql.NullInt64)
-		case materialcategory.FieldName, materialcategory.FieldDescription:
+		case materialcategory.FieldDeletedBy, materialcategory.FieldName, materialcategory.FieldDescription:
 			values[i] = new(sql.NullString)
 		case materialcategory.FieldCreatedAt, materialcategory.FieldUpdatedAt, materialcategory.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case materialcategory.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -80,11 +92,11 @@ func (_m *MaterialCategory) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case materialcategory.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case materialcategory.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -105,11 +117,11 @@ func (_m *MaterialCategory) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case materialcategory.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case materialcategory.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -136,9 +148,14 @@ func (_m *MaterialCategory) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryMaterials queries the "materials" edge of the MaterialCategory entity.
-func (_m *MaterialCategory) QueryMaterials() *MaterialQuery {
-	return NewMaterialCategoryClient(_m.config).QueryMaterials(_m)
+// QueryRevisions queries the "revisions" edge of the MaterialCategory entity.
+func (_m *MaterialCategory) QueryRevisions() *MaterialRevisionQuery {
+	return NewMaterialCategoryClient(_m.config).QueryRevisions(_m)
+}
+
+// QueryLegacyMaterials queries the "legacy_materials" edge of the MaterialCategory entity.
+func (_m *MaterialCategory) QueryLegacyMaterials() *MaterialQuery {
+	return NewMaterialCategoryClient(_m.config).QueryLegacyMaterials(_m)
 }
 
 // Update returns a builder for updating this MaterialCategory.
@@ -177,7 +194,7 @@ func (_m *MaterialCategory) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
@@ -187,14 +204,6 @@ func (_m *MaterialCategory) String() string {
 	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *MaterialCategory) GetID() int {
-	return _m.ID
-}
-
-func (_m *MaterialCategory) SetID(id int) {
-	_m.ID = id
 }
 
 // MaterialCategories is a parsable slice of MaterialCategory.

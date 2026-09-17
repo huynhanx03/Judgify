@@ -3,13 +3,16 @@
 package generate
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 )
@@ -18,7 +21,7 @@ import (
 type UserAttributeValue struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -26,11 +29,21 @@ type UserAttributeValue struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// AttributeID holds the value of the "attribute_id" field.
-	AttributeID int `json:"attribute_id,omitempty"`
+	AttributeID uuid.UUID `json:"attribute_id,omitempty"`
+	// DefinitionRevisionID holds the value of the "definition_revision_id" field.
+	DefinitionRevisionID uuid.UUID `json:"definition_revision_id,omitempty"`
+	// SourceRevisionID holds the value of the "source_revision_id" field.
+	SourceRevisionID uuid.UUID `json:"source_revision_id,omitempty"`
+	// CanonicalValue holds the value of the "canonical_value" field.
+	CanonicalValue json.RawMessage `json:"canonical_value,omitempty"`
+	// SourceValueVersion holds the value of the "source_value_version" field.
+	SourceValueVersion int64 `json:"source_value_version,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Value holds the value of the "value" field.
 	Value string `json:"value,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -45,9 +58,13 @@ type UserAttributeValueEdges struct {
 	User *User `json:"user,omitempty"`
 	// Definition holds the value of the definition edge.
 	Definition *AttributeDefinition `json:"definition,omitempty"`
+	// DefinitionRevision holds the value of the definition_revision edge.
+	DefinitionRevision *AttributeDefinitionRevision `json:"definition_revision,omitempty"`
+	// SourceRevision holds the value of the source_revision edge.
+	SourceRevision *AttributeDefinitionRevision `json:"source_revision,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -72,17 +89,43 @@ func (e UserAttributeValueEdges) DefinitionOrErr() (*AttributeDefinition, error)
 	return nil, &NotLoadedError{edge: "definition"}
 }
 
+// DefinitionRevisionOrErr returns the DefinitionRevision value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserAttributeValueEdges) DefinitionRevisionOrErr() (*AttributeDefinitionRevision, error) {
+	if e.DefinitionRevision != nil {
+		return e.DefinitionRevision, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: attributedefinitionrevision.Label}
+	}
+	return nil, &NotLoadedError{edge: "definition_revision"}
+}
+
+// SourceRevisionOrErr returns the SourceRevision value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserAttributeValueEdges) SourceRevisionOrErr() (*AttributeDefinitionRevision, error) {
+	if e.SourceRevision != nil {
+		return e.SourceRevision, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: attributedefinitionrevision.Label}
+	}
+	return nil, &NotLoadedError{edge: "source_revision"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*UserAttributeValue) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case userattributevalue.FieldID, userattributevalue.FieldDeletedBy, userattributevalue.FieldUserID, userattributevalue.FieldAttributeID:
+		case userattributevalue.FieldCanonicalValue:
+			values[i] = new([]byte)
+		case userattributevalue.FieldSourceValueVersion, userattributevalue.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case userattributevalue.FieldValue:
+		case userattributevalue.FieldDeletedBy, userattributevalue.FieldValue:
 			values[i] = new(sql.NullString)
 		case userattributevalue.FieldCreatedAt, userattributevalue.FieldUpdatedAt, userattributevalue.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case userattributevalue.FieldID, userattributevalue.FieldUserID, userattributevalue.FieldAttributeID, userattributevalue.FieldDefinitionRevisionID, userattributevalue.FieldSourceRevisionID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -99,11 +142,11 @@ func (_m *UserAttributeValue) assignValues(columns []string, values []any) error
 	for i := range columns {
 		switch columns[i] {
 		case userattributevalue.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case userattributevalue.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -124,23 +167,55 @@ func (_m *UserAttributeValue) assignValues(columns []string, values []any) error
 				*_m.DeletedAt = value.Time
 			}
 		case userattributevalue.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case userattributevalue.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case userattributevalue.FieldAttributeID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field attribute_id", values[i])
+			} else if value != nil {
+				_m.AttributeID = *value
+			}
+		case userattributevalue.FieldDefinitionRevisionID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field definition_revision_id", values[i])
+			} else if value != nil {
+				_m.DefinitionRevisionID = *value
+			}
+		case userattributevalue.FieldSourceRevisionID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field source_revision_id", values[i])
+			} else if value != nil {
+				_m.SourceRevisionID = *value
+			}
+		case userattributevalue.FieldCanonicalValue:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field canonical_value", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.CanonicalValue); err != nil {
+					return fmt.Errorf("unmarshal field canonical_value: %w", err)
+				}
+			}
+		case userattributevalue.FieldSourceValueVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field source_value_version", values[i])
 			} else if value.Valid {
-				_m.AttributeID = int(value.Int64)
+				_m.SourceValueVersion = value.Int64
+			}
+		case userattributevalue.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
 			}
 		case userattributevalue.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -169,6 +244,16 @@ func (_m *UserAttributeValue) QueryUser() *UserQuery {
 // QueryDefinition queries the "definition" edge of the UserAttributeValue entity.
 func (_m *UserAttributeValue) QueryDefinition() *AttributeDefinitionQuery {
 	return NewUserAttributeValueClient(_m.config).QueryDefinition(_m)
+}
+
+// QueryDefinitionRevision queries the "definition_revision" edge of the UserAttributeValue entity.
+func (_m *UserAttributeValue) QueryDefinitionRevision() *AttributeDefinitionRevisionQuery {
+	return NewUserAttributeValueClient(_m.config).QueryDefinitionRevision(_m)
+}
+
+// QuerySourceRevision queries the "source_revision" edge of the UserAttributeValue entity.
+func (_m *UserAttributeValue) QuerySourceRevision() *AttributeDefinitionRevisionQuery {
+	return NewUserAttributeValueClient(_m.config).QuerySourceRevision(_m)
 }
 
 // Update returns a builder for updating this UserAttributeValue.
@@ -207,7 +292,7 @@ func (_m *UserAttributeValue) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
@@ -216,18 +301,25 @@ func (_m *UserAttributeValue) String() string {
 	builder.WriteString("attribute_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AttributeID))
 	builder.WriteString(", ")
+	builder.WriteString("definition_revision_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DefinitionRevisionID))
+	builder.WriteString(", ")
+	builder.WriteString("source_revision_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SourceRevisionID))
+	builder.WriteString(", ")
+	builder.WriteString("canonical_value=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CanonicalValue))
+	builder.WriteString(", ")
+	builder.WriteString("source_value_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SourceValueVersion))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
 	builder.WriteString("value=")
 	builder.WriteString(_m.Value)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *UserAttributeValue) GetID() int {
-	return _m.ID
-}
-
-func (_m *UserAttributeValue) SetID(id int) {
-	_m.ID = id
 }
 
 // UserAttributeValues is a parsable slice of UserAttributeValue.

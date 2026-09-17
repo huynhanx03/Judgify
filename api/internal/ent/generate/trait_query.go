@@ -13,22 +13,29 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffertalent"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
+	"github.com/huynhanx03/judgify/internal/ent/generate/traiteffectrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofiletrait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
 // TraitQuery is the builder for querying Trait entities.
 type TraitQuery struct {
 	config
-	ctx            *QueryContext
-	order          []trait.OrderOption
-	inters         []Interceptor
-	predicates     []predicate.Trait
-	withRarity     *RarityQuery
-	withUserTraits *UserTraitQuery
-	modifiers      []func(*sql.Selector)
+	ctx                        *QueryContext
+	order                      []trait.OrderOption
+	inters                     []Interceptor
+	predicates                 []predicate.Trait
+	withRarity                 *RarityQuery
+	withUserTraits             *UserTraitQuery
+	withOnboardingOfferTalents *OnboardingTraitOfferTalentQuery
+	withEffectRevisions        *TraitEffectRevisionQuery
+	withRewardProfileTraits    *UserRewardProfileTraitQuery
+	modifiers                  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -109,6 +116,72 @@ func (_q *TraitQuery) QueryUserTraits() *UserTraitQuery {
 	return query
 }
 
+// QueryOnboardingOfferTalents chains the current query on the "onboarding_offer_talents" edge.
+func (_q *TraitQuery) QueryOnboardingOfferTalents() *OnboardingTraitOfferTalentQuery {
+	query := (&OnboardingTraitOfferTalentClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trait.Table, trait.FieldID, selector),
+			sqlgraph.To(onboardingtraitoffertalent.Table, onboardingtraitoffertalent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trait.OnboardingOfferTalentsTable, trait.OnboardingOfferTalentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryEffectRevisions chains the current query on the "effect_revisions" edge.
+func (_q *TraitQuery) QueryEffectRevisions() *TraitEffectRevisionQuery {
+	query := (&TraitEffectRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trait.Table, trait.FieldID, selector),
+			sqlgraph.To(traiteffectrevision.Table, traiteffectrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trait.EffectRevisionsTable, trait.EffectRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRewardProfileTraits chains the current query on the "reward_profile_traits" edge.
+func (_q *TraitQuery) QueryRewardProfileTraits() *UserRewardProfileTraitQuery {
+	query := (&UserRewardProfileTraitClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trait.Table, trait.FieldID, selector),
+			sqlgraph.To(userrewardprofiletrait.Table, userrewardprofiletrait.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trait.RewardProfileTraitsTable, trait.RewardProfileTraitsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Trait entity from the query.
 // Returns a *NotFoundError when no Trait was found.
 func (_q *TraitQuery) First(ctx context.Context) (*Trait, error) {
@@ -133,8 +206,8 @@ func (_q *TraitQuery) FirstX(ctx context.Context) *Trait {
 
 // FirstID returns the first Trait ID from the query.
 // Returns a *NotFoundError when no Trait ID was found.
-func (_q *TraitQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TraitQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -146,7 +219,7 @@ func (_q *TraitQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TraitQuery) FirstIDX(ctx context.Context) int {
+func (_q *TraitQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -184,8 +257,8 @@ func (_q *TraitQuery) OnlyX(ctx context.Context) *Trait {
 // OnlyID is like Only, but returns the only Trait ID in the query.
 // Returns a *NotSingularError when more than one Trait ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TraitQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TraitQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -201,7 +274,7 @@ func (_q *TraitQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TraitQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TraitQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -229,7 +302,7 @@ func (_q *TraitQuery) AllX(ctx context.Context) []*Trait {
 }
 
 // IDs executes the query and returns a list of Trait IDs.
-func (_q *TraitQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *TraitQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -241,7 +314,7 @@ func (_q *TraitQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TraitQuery) IDsX(ctx context.Context) []int {
+func (_q *TraitQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -296,13 +369,16 @@ func (_q *TraitQuery) Clone() *TraitQuery {
 		return nil
 	}
 	return &TraitQuery{
-		config:         _q.config,
-		ctx:            _q.ctx.Clone(),
-		order:          append([]trait.OrderOption{}, _q.order...),
-		inters:         append([]Interceptor{}, _q.inters...),
-		predicates:     append([]predicate.Trait{}, _q.predicates...),
-		withRarity:     _q.withRarity.Clone(),
-		withUserTraits: _q.withUserTraits.Clone(),
+		config:                     _q.config,
+		ctx:                        _q.ctx.Clone(),
+		order:                      append([]trait.OrderOption{}, _q.order...),
+		inters:                     append([]Interceptor{}, _q.inters...),
+		predicates:                 append([]predicate.Trait{}, _q.predicates...),
+		withRarity:                 _q.withRarity.Clone(),
+		withUserTraits:             _q.withUserTraits.Clone(),
+		withOnboardingOfferTalents: _q.withOnboardingOfferTalents.Clone(),
+		withEffectRevisions:        _q.withEffectRevisions.Clone(),
+		withRewardProfileTraits:    _q.withRewardProfileTraits.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -329,6 +405,39 @@ func (_q *TraitQuery) WithUserTraits(opts ...func(*UserTraitQuery)) *TraitQuery 
 		opt(query)
 	}
 	_q.withUserTraits = query
+	return _q
+}
+
+// WithOnboardingOfferTalents tells the query-builder to eager-load the nodes that are connected to
+// the "onboarding_offer_talents" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TraitQuery) WithOnboardingOfferTalents(opts ...func(*OnboardingTraitOfferTalentQuery)) *TraitQuery {
+	query := (&OnboardingTraitOfferTalentClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withOnboardingOfferTalents = query
+	return _q
+}
+
+// WithEffectRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "effect_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TraitQuery) WithEffectRevisions(opts ...func(*TraitEffectRevisionQuery)) *TraitQuery {
+	query := (&TraitEffectRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEffectRevisions = query
+	return _q
+}
+
+// WithRewardProfileTraits tells the query-builder to eager-load the nodes that are connected to
+// the "reward_profile_traits" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TraitQuery) WithRewardProfileTraits(opts ...func(*UserRewardProfileTraitQuery)) *TraitQuery {
+	query := (&UserRewardProfileTraitClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRewardProfileTraits = query
 	return _q
 }
 
@@ -410,9 +519,12 @@ func (_q *TraitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trait,
 	var (
 		nodes       = []*Trait{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [5]bool{
 			_q.withRarity != nil,
 			_q.withUserTraits != nil,
+			_q.withOnboardingOfferTalents != nil,
+			_q.withEffectRevisions != nil,
+			_q.withRewardProfileTraits != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -454,12 +566,48 @@ func (_q *TraitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trait,
 			return nil, err
 		}
 	}
+	if query := _q.withOnboardingOfferTalents; query != nil {
+		if err := _q.loadOnboardingOfferTalents(ctx, query, nodes,
+			func(n *Trait) { n.Edges.OnboardingOfferTalents = []*OnboardingTraitOfferTalent{} },
+			func(n *Trait, e *OnboardingTraitOfferTalent) {
+				n.Edges.OnboardingOfferTalents = append(n.Edges.OnboardingOfferTalents, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Trait = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withEffectRevisions; query != nil {
+		if err := _q.loadEffectRevisions(ctx, query, nodes,
+			func(n *Trait) { n.Edges.EffectRevisions = []*TraitEffectRevision{} },
+			func(n *Trait, e *TraitEffectRevision) {
+				n.Edges.EffectRevisions = append(n.Edges.EffectRevisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Trait = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withRewardProfileTraits; query != nil {
+		if err := _q.loadRewardProfileTraits(ctx, query, nodes,
+			func(n *Trait) { n.Edges.RewardProfileTraits = []*UserRewardProfileTrait{} },
+			func(n *Trait, e *UserRewardProfileTrait) {
+				n.Edges.RewardProfileTraits = append(n.Edges.RewardProfileTraits, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Trait = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *TraitQuery) loadRarity(ctx context.Context, query *RarityQuery, nodes []*Trait, init func(*Trait), assign func(*Trait, *Rarity)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Trait)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Trait)
 	for i := range nodes {
 		fk := nodes[i].RarityID
 		if _, ok := nodeids[fk]; !ok {
@@ -488,7 +636,7 @@ func (_q *TraitQuery) loadRarity(ctx context.Context, query *RarityQuery, nodes 
 }
 func (_q *TraitQuery) loadUserTraits(ctx context.Context, query *UserTraitQuery, nodes []*Trait, init func(*Trait), assign func(*Trait, *UserTrait)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Trait)
+	nodeids := make(map[uuid.UUID]*Trait)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -501,6 +649,96 @@ func (_q *TraitQuery) loadUserTraits(ctx context.Context, query *UserTraitQuery,
 	}
 	query.Where(predicate.UserTrait(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(trait.UserTraitsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TraitID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "trait_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TraitQuery) loadOnboardingOfferTalents(ctx context.Context, query *OnboardingTraitOfferTalentQuery, nodes []*Trait, init func(*Trait), assign func(*Trait, *OnboardingTraitOfferTalent)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Trait)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(onboardingtraitoffertalent.FieldTraitID)
+	}
+	query.Where(predicate.OnboardingTraitOfferTalent(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(trait.OnboardingOfferTalentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TraitID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "trait_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TraitQuery) loadEffectRevisions(ctx context.Context, query *TraitEffectRevisionQuery, nodes []*Trait, init func(*Trait), assign func(*Trait, *TraitEffectRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Trait)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(traiteffectrevision.FieldTraitID)
+	}
+	query.Where(predicate.TraitEffectRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(trait.EffectRevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.TraitID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "trait_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *TraitQuery) loadRewardProfileTraits(ctx context.Context, query *UserRewardProfileTraitQuery, nodes []*Trait, init func(*Trait), assign func(*Trait, *UserRewardProfileTrait)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Trait)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userrewardprofiletrait.FieldTraitID)
+	}
+	query.Where(predicate.UserRewardProfileTrait(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(trait.RewardProfileTraitsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -530,7 +768,7 @@ func (_q *TraitQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *TraitQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(trait.Table, trait.Columns, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(trait.Table, trait.Columns, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -154,19 +155,12 @@ export function AdminObservability() {
 
   return (
     <div className="space-y-6 pb-8">
-      <header className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="max-w-3xl">
-          <div className="mb-3 flex size-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
-            <Bug className="size-5" aria-hidden="true" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {ADMIN_TEXT.OBSERVABILITY.TITLE}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {ADMIN_TEXT.OBSERVABILITY.SUBTITLE}
-          </p>
-        </div>
-        <Button
+      <PageHeader
+        className="border-b border-border pb-6 lg:items-end"
+        icon={Bug}
+        title={ADMIN_TEXT.OBSERVABILITY.TITLE}
+        description={ADMIN_TEXT.OBSERVABILITY.SUBTITLE}
+        actions={<Button
           type="button"
           variant="outline"
           disabled={refreshing}
@@ -183,8 +177,8 @@ export function AdminObservability() {
           {refreshing
             ? ADMIN_TEXT.OBSERVABILITY.REFRESHING
             : ADMIN_TEXT.OBSERVABILITY.REFRESH}
-        </Button>
-      </header>
+        </Button>}
+      />
 
       <div className="flex gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
         <ShieldCheck

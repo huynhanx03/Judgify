@@ -5,61 +5,62 @@ package usertagstats
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.UserTagStats {
+func ID(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.UserTagStats {
+func IDEQ(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.UserTagStats {
+func IDNEQ(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.UserTagStats {
+func IDIn(ids ...uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.UserTagStats {
+func IDNotIn(ids ...uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.UserTagStats {
+func IDGT(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.UserTagStats {
+func IDGTE(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.UserTagStats {
+func IDLT(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.UserTagStats {
+func IDLTE(id uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldLTE(FieldID, id))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.UserTagStats {
+func UserID(v uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldEQ(FieldUserID, v))
 }
 
 // TagID applies equality check predicate on the "tag_id" field. It's identical to TagIDEQ.
-func TagID(v int) predicate.UserTagStats {
+func TagID(v uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldEQ(FieldTagID, v))
 }
 
@@ -69,42 +70,42 @@ func SolvedCount(v int) predicate.UserTagStats {
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.UserTagStats {
+func UserIDEQ(v uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.UserTagStats {
+func UserIDNEQ(v uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.UserTagStats {
+func UserIDIn(vs ...uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.UserTagStats {
+func UserIDNotIn(vs ...uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // TagIDEQ applies the EQ predicate on the "tag_id" field.
-func TagIDEQ(v int) predicate.UserTagStats {
+func TagIDEQ(v uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldEQ(FieldTagID, v))
 }
 
 // TagIDNEQ applies the NEQ predicate on the "tag_id" field.
-func TagIDNEQ(v int) predicate.UserTagStats {
+func TagIDNEQ(v uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldNEQ(FieldTagID, v))
 }
 
 // TagIDIn applies the In predicate on the "tag_id" field.
-func TagIDIn(vs ...int) predicate.UserTagStats {
+func TagIDIn(vs ...uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldIn(FieldTagID, vs...))
 }
 
 // TagIDNotIn applies the NotIn predicate on the "tag_id" field.
-func TagIDNotIn(vs ...int) predicate.UserTagStats {
+func TagIDNotIn(vs ...uuid.UUID) predicate.UserTagStats {
 	return predicate.UserTagStats(sql.FieldNotIn(FieldTagID, vs...))
 }
 

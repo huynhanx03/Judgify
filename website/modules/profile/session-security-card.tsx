@@ -33,10 +33,7 @@ import { formatDateTime } from "@/lib/format";
 import { useRetryableResource } from "@/hooks/use-retryable-resource";
 import { useSession } from "@/contexts/session-context";
 import { ApiError } from "@/lib/api/error";
-import {
-  SESSION_PAGE_SIZE,
-  sessionService,
-} from "@/services/session.service";
+import { SESSION_PAGE_SIZE, sessionService } from "@/services/session.service";
 import type {
   AuthSession,
   AuthSessionListResponse,
@@ -52,7 +49,9 @@ const EMPTY_PAGE: AuthSessionListResponse = {
 
 function safeDate(value: string): string {
   const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? TEXT.COMMON.UNKNOWN : formatDateTime(value);
+  return Number.isNaN(parsed.getTime())
+    ? TEXT.COMMON.UNKNOWN
+    : formatDateTime(value);
 }
 
 function userAgentLabel(userAgent: string | undefined): string {
@@ -66,9 +65,9 @@ function userAgentLabel(userAgent: string | undefined): string {
         ? TEXT.PROFILE.SESSIONS.BROWSER_FIREFOX
         : value.includes("chrome/")
           ? TEXT.PROFILE.SESSIONS.BROWSER_CHROME
-        : value.includes("safari/")
-          ? TEXT.PROFILE.SESSIONS.BROWSER_SAFARI
-          : TEXT.PROFILE.SESSIONS.BROWSER_GENERIC;
+          : value.includes("safari/")
+            ? TEXT.PROFILE.SESSIONS.BROWSER_SAFARI
+            : TEXT.PROFILE.SESSIONS.BROWSER_GENERIC;
   const platform = value.includes("android")
     ? TEXT.PROFILE.SESSIONS.PLATFORM_ANDROID
     : value.includes("iphone") || value.includes("ipad")
@@ -135,9 +134,7 @@ function SessionRow({
 }) {
   const canRevoke = session.status === "active";
   return (
-    <li
-      className="group rounded-2xl border border-border/70 bg-background/70 p-4 transition-colors duration-200 hover:border-primary/35 hover:bg-muted/25 motion-reduce:transition-none"
-    >
+    <li className="group rounded-2xl border border-border/70 bg-background/70 p-4 transition-colors duration-200 hover:border-primary/35 hover:bg-muted/25 motion-reduce:transition-none">
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <DeviceIcon userAgent={session.user_agent} />
@@ -148,7 +145,10 @@ function SessionRow({
               {userAgentLabel(session.user_agent)}
             </p>
             {session.current ? (
-              <Badge variant="outline" className="border-primary/40 text-primary">
+              <Badge
+                variant="outline"
+                className="border-primary/40 text-primary"
+              >
                 <Check className="size-3" aria-hidden="true" />
                 {TEXT.PROFILE.SESSIONS.CURRENT}
               </Badge>
@@ -171,13 +171,17 @@ function SessionRow({
               </dd>
             </div>
             <div className="flex min-w-0 items-center gap-1.5">
-              <dt className="shrink-0">{TEXT.PROFILE.SESSIONS.REAUTHENTICATED}:</dt>
+              <dt className="shrink-0">
+                {TEXT.PROFILE.SESSIONS.REAUTHENTICATED}:
+              </dt>
               <dd className="truncate tabular-nums text-foreground/80">
                 {safeDate(session.last_reauthenticated_at)}
               </dd>
             </div>
             <div className="flex min-w-0 items-center gap-1.5 sm:col-span-2">
-              <dt className="shrink-0">{TEXT.PROFILE.SESSIONS.IDLE_EXPIRES}:</dt>
+              <dt className="shrink-0">
+                {TEXT.PROFILE.SESSIONS.IDLE_EXPIRES}:
+              </dt>
               <dd className="truncate tabular-nums text-foreground/80">
                 {safeDate(session.idle_expires_at)}
               </dd>
@@ -215,7 +219,9 @@ export function SessionSecurityCard() {
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
   const [action, setAction] = useState<SessionAction>(null);
-  const [selectedSession, setSelectedSession] = useState<AuthSession | null>(null);
+  const [selectedSession, setSelectedSession] = useState<AuthSession | null>(
+    null,
+  );
   const [logoutAllOpen, setLogoutAllOpen] = useState(false);
 
   const cursor = cursorStack.at(-1);
@@ -224,7 +230,9 @@ export function SessionSecurityCard() {
     resetKey: resourceKey,
     initialData: EMPTY_PAGE,
     load: (signal) => {
-    const query = cursor ? { limit: SESSION_PAGE_SIZE, cursor } : { limit: SESSION_PAGE_SIZE };
+      const query = cursor
+        ? { limit: SESSION_PAGE_SIZE, cursor }
+        : { limit: SESSION_PAGE_SIZE };
       return sessionService.list(query, signal);
     },
     onSuccess: () => setActionError(null),
@@ -285,14 +293,16 @@ export function SessionSecurityCard() {
 
   return (
     <>
-      <Card className="glass-card overflow-hidden border-border/40">
+      <Card className="overflow-hidden border-border/60 bg-card">
         <CardHeader className="gap-3 border-b border-border/60 bg-muted/15 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Shield className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle className="text-lg">{TEXT.PROFILE.SESSIONS.TITLE}</CardTitle>
+              <CardTitle className="text-lg">
+                {TEXT.PROFILE.SESSIONS.TITLE}
+              </CardTitle>
               <CardDescription className="mt-1 leading-5">
                 {TEXT.PROFILE.SESSIONS.DESCRIPTION}
               </CardDescription>
@@ -318,13 +328,21 @@ export function SessionSecurityCard() {
               className="flex items-start gap-2 rounded-xl border border-destructive/25 bg-destructive/10 p-3 text-sm text-destructive"
               role="alert"
             >
-              <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              <AlertTriangle
+                className="mt-0.5 size-4 shrink-0"
+                aria-hidden="true"
+              />
               <span>{actionError}</span>
             </div>
           ) : null}
 
           {status === "loading" ? (
-            <div className="space-y-3" role="status" aria-live="polite" aria-busy="true">
+            <div
+              className="space-y-3"
+              role="status"
+              aria-live="polite"
+              aria-busy="true"
+            >
               <span className="sr-only">{TEXT.PROFILE.SESSIONS.LOADING}</span>
               {[0, 1].map((item) => (
                 <div
@@ -334,8 +352,14 @@ export function SessionSecurityCard() {
               ))}
             </div>
           ) : status === "error" ? (
-            <div className="flex min-h-36 flex-col items-center justify-center text-center" role="alert">
-              <AlertTriangle className="size-5 text-destructive" aria-hidden="true" />
+            <div
+              className="flex min-h-36 flex-col items-center justify-center text-center"
+              role="alert"
+            >
+              <AlertTriangle
+                className="size-5 text-destructive"
+                aria-hidden="true"
+              />
               <p className="mt-3 max-w-sm text-sm text-muted-foreground">
                 {sessionsResource.error
                   ? loadErrorMessage(sessionsResource.error)
@@ -347,7 +371,9 @@ export function SessionSecurityCard() {
                     type="button"
                     variant="outline"
                     className="min-h-11"
-                    onClick={() => setCursorStack((stack) => stack.slice(0, -1))}
+                    onClick={() =>
+                      setCursorStack((stack) => stack.slice(0, -1))
+                    }
                   >
                     <ChevronLeft aria-hidden="true" />
                     {TEXT.PROFILE.SESSIONS.PREVIOUS}
@@ -366,12 +392,20 @@ export function SessionSecurityCard() {
             </div>
           ) : page.items.length === 0 ? (
             <div className="flex min-h-36 flex-col items-center justify-center text-center">
-              <Clock3 className="size-5 text-muted-foreground" aria-hidden="true" />
-              <p className="mt-3 text-sm text-muted-foreground">{TEXT.PROFILE.SESSIONS.EMPTY}</p>
+              <Clock3
+                className="size-5 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <p className="mt-3 text-sm text-muted-foreground">
+                {TEXT.PROFILE.SESSIONS.EMPTY}
+              </p>
             </div>
           ) : (
             <>
-              <ul className="space-y-3" aria-label={TEXT.PROFILE.SESSIONS.TITLE}>
+              <ul
+                className="space-y-3"
+                aria-label={TEXT.PROFILE.SESSIONS.TITLE}
+              >
                 {page.items.map((session) => (
                   <SessionRow
                     key={session.id}
@@ -395,11 +429,15 @@ export function SessionSecurityCard() {
                     size="sm"
                     className="min-h-10"
                     disabled={!hasPrevious || Boolean(action)}
-                    onClick={() => setCursorStack((stack) => stack.slice(0, -1))}
+                    onClick={() =>
+                      setCursorStack((stack) => stack.slice(0, -1))
+                    }
                     aria-label={TEXT.PROFILE.SESSIONS.PREVIOUS}
                   >
                     <ChevronLeft aria-hidden="true" />
-                    <span className="hidden sm:inline">{TEXT.PROFILE.SESSIONS.PREVIOUS}</span>
+                    <span className="hidden sm:inline">
+                      {TEXT.PROFILE.SESSIONS.PREVIOUS}
+                    </span>
                   </Button>
                   <Button
                     type="button"
@@ -409,10 +447,16 @@ export function SessionSecurityCard() {
                     disabled={!hasNext || Boolean(action)}
                     aria-label={TEXT.PROFILE.SESSIONS.NEXT}
                     onClick={() => {
-                      if (page.next_cursor) setCursorStack((stack) => [...stack, page.next_cursor!]);
+                      if (page.next_cursor)
+                        setCursorStack((stack) => [
+                          ...stack,
+                          page.next_cursor!,
+                        ]);
                     }}
                   >
-                    <span className="hidden sm:inline">{TEXT.PROFILE.SESSIONS.NEXT}</span>
+                    <span className="hidden sm:inline">
+                      {TEXT.PROFILE.SESSIONS.NEXT}
+                    </span>
                     <ChevronRight aria-hidden="true" />
                   </Button>
                 </nav>
@@ -455,7 +499,10 @@ export function SessionSecurityCard() {
       />
       {action ? (
         <span className="sr-only" role="status" aria-live="polite">
-          <Loader2 className="inline size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          <Loader2
+            className="inline size-4 animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
           {TEXT.COMMON.LOADING}
         </span>
       ) : null}

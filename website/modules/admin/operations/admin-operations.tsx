@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -496,19 +497,12 @@ export function AdminOperations() {
 
   return (
     <div className="space-y-6 pb-8">
-      <header className="flex flex-col gap-4 border-b border-border pb-6 xl:flex-row xl:items-end xl:justify-between">
-        <div className="max-w-3xl">
-          <div className="mb-3 flex size-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
-            <Workflow className="size-5" aria-hidden="true" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {ADMIN_TEXT.OPERATIONS.TITLE}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {ADMIN_TEXT.OPERATIONS.SUBTITLE}
-          </p>
-        </div>
-        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+      <PageHeader
+        className="border-b border-border pb-6 xl:items-end"
+        icon={Workflow}
+        title={ADMIN_TEXT.OPERATIONS.TITLE}
+        description={ADMIN_TEXT.OPERATIONS.SUBTITLE}
+        actions={<div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
           {lastUpdatedAt ? (
             <span
               className="text-xs tabular-nums text-muted-foreground"
@@ -537,8 +531,8 @@ export function AdminOperations() {
               ? ADMIN_TEXT.OPERATIONS.REFRESHING
               : ADMIN_TEXT.OPERATIONS.REFRESH}
           </Button>
-        </div>
-      </header>
+        </div>}
+      />
 
       <div className="flex gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
         <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />

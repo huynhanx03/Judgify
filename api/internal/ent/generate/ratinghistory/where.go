@@ -5,62 +5,78 @@ package ratinghistory
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.RatingHistory {
+func ID(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.RatingHistory {
+func IDEQ(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.RatingHistory {
+func IDNEQ(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.RatingHistory {
+func IDIn(ids ...uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.RatingHistory {
+func IDNotIn(ids ...uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.RatingHistory {
+func IDGT(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.RatingHistory {
+func IDGTE(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.RatingHistory {
+func IDLT(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.RatingHistory {
+func IDLTE(id uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldLTE(FieldID, id))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.RatingHistory {
+func UserID(v uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldUserID, v))
 }
 
 // ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
-func ContestID(v int) predicate.RatingHistory {
+func ContestID(v uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldContestID, v))
+}
+
+// RatingRunID applies equality check predicate on the "rating_run_id" field. It's identical to RatingRunIDEQ.
+func RatingRunID(v uuid.UUID) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldRatingRunID, v))
+}
+
+// RatingSequence applies equality check predicate on the "rating_sequence" field. It's identical to RatingSequenceEQ.
+func RatingSequence(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldRatingSequence, v))
+}
+
+// RunVersion applies equality check predicate on the "run_version" field. It's identical to RunVersionEQ.
+func RunVersion(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldRunVersion, v))
 }
 
 // OldRating applies equality check predicate on the "old_rating" field. It's identical to OldRatingEQ.
@@ -78,44 +94,199 @@ func RankPosition(v int) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldRankPosition, v))
 }
 
+// PriorRatedContestCount applies equality check predicate on the "prior_rated_contest_count" field. It's identical to PriorRatedContestCountEQ.
+func PriorRatedContestCount(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldPriorRatedContestCount, v))
+}
+
+// ActualRank applies equality check predicate on the "actual_rank" field. It's identical to ActualRankEQ.
+func ActualRank(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldActualRank, v))
+}
+
+// ExpectedRank applies equality check predicate on the "expected_rank" field. It's identical to ExpectedRankEQ.
+func ExpectedRank(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldExpectedRank, v))
+}
+
+// Delta applies equality check predicate on the "delta" field. It's identical to DeltaEQ.
+func Delta(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldDelta, v))
+}
+
+// AlgorithmVersion applies equality check predicate on the "algorithm_version" field. It's identical to AlgorithmVersionEQ.
+func AlgorithmVersion(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldAlgorithmVersion, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.RatingHistory {
+func UserIDEQ(v uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.RatingHistory {
+func UserIDNEQ(v uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.RatingHistory {
+func UserIDIn(vs ...uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.RatingHistory {
+func UserIDNotIn(vs ...uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // ContestIDEQ applies the EQ predicate on the "contest_id" field.
-func ContestIDEQ(v int) predicate.RatingHistory {
+func ContestIDEQ(v uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldEQ(FieldContestID, v))
 }
 
 // ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
-func ContestIDNEQ(v int) predicate.RatingHistory {
+func ContestIDNEQ(v uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldNEQ(FieldContestID, v))
 }
 
 // ContestIDIn applies the In predicate on the "contest_id" field.
-func ContestIDIn(vs ...int) predicate.RatingHistory {
+func ContestIDIn(vs ...uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldIn(FieldContestID, vs...))
 }
 
 // ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
-func ContestIDNotIn(vs ...int) predicate.RatingHistory {
+func ContestIDNotIn(vs ...uuid.UUID) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldNotIn(FieldContestID, vs...))
+}
+
+// RatingRunIDEQ applies the EQ predicate on the "rating_run_id" field.
+func RatingRunIDEQ(v uuid.UUID) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldRatingRunID, v))
+}
+
+// RatingRunIDNEQ applies the NEQ predicate on the "rating_run_id" field.
+func RatingRunIDNEQ(v uuid.UUID) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldRatingRunID, v))
+}
+
+// RatingRunIDIn applies the In predicate on the "rating_run_id" field.
+func RatingRunIDIn(vs ...uuid.UUID) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldRatingRunID, vs...))
+}
+
+// RatingRunIDNotIn applies the NotIn predicate on the "rating_run_id" field.
+func RatingRunIDNotIn(vs ...uuid.UUID) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldRatingRunID, vs...))
+}
+
+// RatingRunIDIsNil applies the IsNil predicate on the "rating_run_id" field.
+func RatingRunIDIsNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIsNull(FieldRatingRunID))
+}
+
+// RatingRunIDNotNil applies the NotNil predicate on the "rating_run_id" field.
+func RatingRunIDNotNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotNull(FieldRatingRunID))
+}
+
+// RatingSequenceEQ applies the EQ predicate on the "rating_sequence" field.
+func RatingSequenceEQ(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldRatingSequence, v))
+}
+
+// RatingSequenceNEQ applies the NEQ predicate on the "rating_sequence" field.
+func RatingSequenceNEQ(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldRatingSequence, v))
+}
+
+// RatingSequenceIn applies the In predicate on the "rating_sequence" field.
+func RatingSequenceIn(vs ...int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldRatingSequence, vs...))
+}
+
+// RatingSequenceNotIn applies the NotIn predicate on the "rating_sequence" field.
+func RatingSequenceNotIn(vs ...int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldRatingSequence, vs...))
+}
+
+// RatingSequenceGT applies the GT predicate on the "rating_sequence" field.
+func RatingSequenceGT(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldRatingSequence, v))
+}
+
+// RatingSequenceGTE applies the GTE predicate on the "rating_sequence" field.
+func RatingSequenceGTE(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldRatingSequence, v))
+}
+
+// RatingSequenceLT applies the LT predicate on the "rating_sequence" field.
+func RatingSequenceLT(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldRatingSequence, v))
+}
+
+// RatingSequenceLTE applies the LTE predicate on the "rating_sequence" field.
+func RatingSequenceLTE(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldRatingSequence, v))
+}
+
+// RatingSequenceIsNil applies the IsNil predicate on the "rating_sequence" field.
+func RatingSequenceIsNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIsNull(FieldRatingSequence))
+}
+
+// RatingSequenceNotNil applies the NotNil predicate on the "rating_sequence" field.
+func RatingSequenceNotNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotNull(FieldRatingSequence))
+}
+
+// RunVersionEQ applies the EQ predicate on the "run_version" field.
+func RunVersionEQ(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldRunVersion, v))
+}
+
+// RunVersionNEQ applies the NEQ predicate on the "run_version" field.
+func RunVersionNEQ(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldRunVersion, v))
+}
+
+// RunVersionIn applies the In predicate on the "run_version" field.
+func RunVersionIn(vs ...int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldRunVersion, vs...))
+}
+
+// RunVersionNotIn applies the NotIn predicate on the "run_version" field.
+func RunVersionNotIn(vs ...int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldRunVersion, vs...))
+}
+
+// RunVersionGT applies the GT predicate on the "run_version" field.
+func RunVersionGT(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldRunVersion, v))
+}
+
+// RunVersionGTE applies the GTE predicate on the "run_version" field.
+func RunVersionGTE(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldRunVersion, v))
+}
+
+// RunVersionLT applies the LT predicate on the "run_version" field.
+func RunVersionLT(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldRunVersion, v))
+}
+
+// RunVersionLTE applies the LTE predicate on the "run_version" field.
+func RunVersionLTE(v int64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldRunVersion, v))
+}
+
+// RunVersionIsNil applies the IsNil predicate on the "run_version" field.
+func RunVersionIsNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIsNull(FieldRunVersion))
+}
+
+// RunVersionNotNil applies the NotNil predicate on the "run_version" field.
+func RunVersionNotNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotNull(FieldRunVersion))
 }
 
 // OldRatingEQ applies the EQ predicate on the "old_rating" field.
@@ -238,6 +409,261 @@ func RankPositionLTE(v int) predicate.RatingHistory {
 	return predicate.RatingHistory(sql.FieldLTE(FieldRankPosition, v))
 }
 
+// PriorRatedContestCountEQ applies the EQ predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountEQ(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldPriorRatedContestCount, v))
+}
+
+// PriorRatedContestCountNEQ applies the NEQ predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountNEQ(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldPriorRatedContestCount, v))
+}
+
+// PriorRatedContestCountIn applies the In predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountIn(vs ...int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldPriorRatedContestCount, vs...))
+}
+
+// PriorRatedContestCountNotIn applies the NotIn predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountNotIn(vs ...int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldPriorRatedContestCount, vs...))
+}
+
+// PriorRatedContestCountGT applies the GT predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountGT(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldPriorRatedContestCount, v))
+}
+
+// PriorRatedContestCountGTE applies the GTE predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountGTE(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldPriorRatedContestCount, v))
+}
+
+// PriorRatedContestCountLT applies the LT predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountLT(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldPriorRatedContestCount, v))
+}
+
+// PriorRatedContestCountLTE applies the LTE predicate on the "prior_rated_contest_count" field.
+func PriorRatedContestCountLTE(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldPriorRatedContestCount, v))
+}
+
+// ActualRankEQ applies the EQ predicate on the "actual_rank" field.
+func ActualRankEQ(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldActualRank, v))
+}
+
+// ActualRankNEQ applies the NEQ predicate on the "actual_rank" field.
+func ActualRankNEQ(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldActualRank, v))
+}
+
+// ActualRankIn applies the In predicate on the "actual_rank" field.
+func ActualRankIn(vs ...float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldActualRank, vs...))
+}
+
+// ActualRankNotIn applies the NotIn predicate on the "actual_rank" field.
+func ActualRankNotIn(vs ...float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldActualRank, vs...))
+}
+
+// ActualRankGT applies the GT predicate on the "actual_rank" field.
+func ActualRankGT(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldActualRank, v))
+}
+
+// ActualRankGTE applies the GTE predicate on the "actual_rank" field.
+func ActualRankGTE(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldActualRank, v))
+}
+
+// ActualRankLT applies the LT predicate on the "actual_rank" field.
+func ActualRankLT(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldActualRank, v))
+}
+
+// ActualRankLTE applies the LTE predicate on the "actual_rank" field.
+func ActualRankLTE(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldActualRank, v))
+}
+
+// ActualRankIsNil applies the IsNil predicate on the "actual_rank" field.
+func ActualRankIsNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIsNull(FieldActualRank))
+}
+
+// ActualRankNotNil applies the NotNil predicate on the "actual_rank" field.
+func ActualRankNotNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotNull(FieldActualRank))
+}
+
+// ExpectedRankEQ applies the EQ predicate on the "expected_rank" field.
+func ExpectedRankEQ(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldExpectedRank, v))
+}
+
+// ExpectedRankNEQ applies the NEQ predicate on the "expected_rank" field.
+func ExpectedRankNEQ(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldExpectedRank, v))
+}
+
+// ExpectedRankIn applies the In predicate on the "expected_rank" field.
+func ExpectedRankIn(vs ...float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldExpectedRank, vs...))
+}
+
+// ExpectedRankNotIn applies the NotIn predicate on the "expected_rank" field.
+func ExpectedRankNotIn(vs ...float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldExpectedRank, vs...))
+}
+
+// ExpectedRankGT applies the GT predicate on the "expected_rank" field.
+func ExpectedRankGT(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldExpectedRank, v))
+}
+
+// ExpectedRankGTE applies the GTE predicate on the "expected_rank" field.
+func ExpectedRankGTE(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldExpectedRank, v))
+}
+
+// ExpectedRankLT applies the LT predicate on the "expected_rank" field.
+func ExpectedRankLT(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldExpectedRank, v))
+}
+
+// ExpectedRankLTE applies the LTE predicate on the "expected_rank" field.
+func ExpectedRankLTE(v float64) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldExpectedRank, v))
+}
+
+// ExpectedRankIsNil applies the IsNil predicate on the "expected_rank" field.
+func ExpectedRankIsNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIsNull(FieldExpectedRank))
+}
+
+// ExpectedRankNotNil applies the NotNil predicate on the "expected_rank" field.
+func ExpectedRankNotNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotNull(FieldExpectedRank))
+}
+
+// DeltaEQ applies the EQ predicate on the "delta" field.
+func DeltaEQ(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldDelta, v))
+}
+
+// DeltaNEQ applies the NEQ predicate on the "delta" field.
+func DeltaNEQ(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldDelta, v))
+}
+
+// DeltaIn applies the In predicate on the "delta" field.
+func DeltaIn(vs ...int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldDelta, vs...))
+}
+
+// DeltaNotIn applies the NotIn predicate on the "delta" field.
+func DeltaNotIn(vs ...int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldDelta, vs...))
+}
+
+// DeltaGT applies the GT predicate on the "delta" field.
+func DeltaGT(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldDelta, v))
+}
+
+// DeltaGTE applies the GTE predicate on the "delta" field.
+func DeltaGTE(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldDelta, v))
+}
+
+// DeltaLT applies the LT predicate on the "delta" field.
+func DeltaLT(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldDelta, v))
+}
+
+// DeltaLTE applies the LTE predicate on the "delta" field.
+func DeltaLTE(v int) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldDelta, v))
+}
+
+// AlgorithmVersionEQ applies the EQ predicate on the "algorithm_version" field.
+func AlgorithmVersionEQ(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEQ(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionNEQ applies the NEQ predicate on the "algorithm_version" field.
+func AlgorithmVersionNEQ(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNEQ(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionIn applies the In predicate on the "algorithm_version" field.
+func AlgorithmVersionIn(vs ...string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIn(FieldAlgorithmVersion, vs...))
+}
+
+// AlgorithmVersionNotIn applies the NotIn predicate on the "algorithm_version" field.
+func AlgorithmVersionNotIn(vs ...string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotIn(FieldAlgorithmVersion, vs...))
+}
+
+// AlgorithmVersionGT applies the GT predicate on the "algorithm_version" field.
+func AlgorithmVersionGT(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGT(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionGTE applies the GTE predicate on the "algorithm_version" field.
+func AlgorithmVersionGTE(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldGTE(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionLT applies the LT predicate on the "algorithm_version" field.
+func AlgorithmVersionLT(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLT(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionLTE applies the LTE predicate on the "algorithm_version" field.
+func AlgorithmVersionLTE(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldLTE(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionContains applies the Contains predicate on the "algorithm_version" field.
+func AlgorithmVersionContains(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldContains(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionHasPrefix applies the HasPrefix predicate on the "algorithm_version" field.
+func AlgorithmVersionHasPrefix(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldHasPrefix(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionHasSuffix applies the HasSuffix predicate on the "algorithm_version" field.
+func AlgorithmVersionHasSuffix(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldHasSuffix(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionIsNil applies the IsNil predicate on the "algorithm_version" field.
+func AlgorithmVersionIsNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldIsNull(FieldAlgorithmVersion))
+}
+
+// AlgorithmVersionNotNil applies the NotNil predicate on the "algorithm_version" field.
+func AlgorithmVersionNotNil() predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldNotNull(FieldAlgorithmVersion))
+}
+
+// AlgorithmVersionEqualFold applies the EqualFold predicate on the "algorithm_version" field.
+func AlgorithmVersionEqualFold(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldEqualFold(FieldAlgorithmVersion, v))
+}
+
+// AlgorithmVersionContainsFold applies the ContainsFold predicate on the "algorithm_version" field.
+func AlgorithmVersionContainsFold(v string) predicate.RatingHistory {
+	return predicate.RatingHistory(sql.FieldContainsFold(FieldAlgorithmVersion, v))
+}
+
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.RatingHistory {
 	return predicate.RatingHistory(func(s *sql.Selector) {
@@ -276,6 +702,29 @@ func HasContest() predicate.RatingHistory {
 func HasContestWith(preds ...predicate.Contest) predicate.RatingHistory {
 	return predicate.RatingHistory(func(s *sql.Selector) {
 		step := newContestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRatingRun applies the HasEdge predicate on the "rating_run" edge.
+func HasRatingRun() predicate.RatingHistory {
+	return predicate.RatingHistory(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, RatingRunTable, RatingRunColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRatingRunWith applies the HasEdge predicate on the "rating_run" edge with a given conditions (other predicates).
+func HasRatingRunWith(preds ...predicate.ContestRatingRun) predicate.RatingHistory {
+	return predicate.RatingHistory(func(s *sql.Selector) {
+		step := newRatingRunStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

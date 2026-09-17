@@ -1,0 +1,44 @@
+schema_version: 1
+environment_guard: LOAD_ONLY_JUDGIFY_TEST
+scenarios:
+  mixed_http:
+    generator: test/load/http.js
+    rate_per_second: 250
+    duration_seconds: 60
+    soak_duration_seconds: 14400
+    maximum_error_ratio: 0.005
+    maximum_p95_ms: 500
+  websocket:
+    generator: test/load/websocket.js
+    connections: 1000
+    opening_concurrency: 64
+    unread_raw_tcp_clients: 50
+    unread_transport: raw_tcp_paused_after_subscription
+    pressure_source: trusted_domain_assertion_driver
+    minimum_open_ratio: 0.995
+    minimum_unread_open_ratio: 0.99
+    maximum_abnormal_close_ratio: 0.01
+    required_invariants:
+      - bounded_connection_and_global_mailbox_bytes
+      - slow_client_drop_or_disconnect_matches_delivery_class
+      - healthy_clients_are_not_head_of_line_blocked
+      - authoritative_postgres_state_is_not_lost
+      - reconnect_and_rest_snapshot_converge
+  submissions:
+    generator: test/load/submissions.js
+    count: 500
+    rate_per_second: 50
+    duration_seconds: 10
+    maximum_acknowledgement_p99_ms: 1000
+    required_invariants:
+      - one_submission_per_idempotency_key
+      - one_terminal_finalization_per_generation
+      - no_lost_durable_job
+      - reward_rating_notification_projection_converges
+  soak:
+    duration_seconds: 14400
+    sample_interval_seconds: 15
+    required_budgets:
+      memory_growth_ratio: 1.20
+      goroutine_growth_ratio: 1.10
+      file_descriptor_growth_ratio: 1.10

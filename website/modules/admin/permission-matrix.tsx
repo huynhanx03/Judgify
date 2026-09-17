@@ -2,6 +2,15 @@
 
 import { Check, Minus } from "lucide-react";
 import { ADMIN_TEXT } from "@/constants/admin-text";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import type { AuthorizationResource, PolicyRule } from "@/types/admin";
 
@@ -44,28 +53,27 @@ export function PermissionMatrix({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card/70 shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] border-collapse text-sm">
-          <thead className="sticky top-0 z-10 bg-muted/80 backdrop-blur-xl">
-            <tr className="border-b border-border">
-              <th
-                scope="col"
-                className="min-w-64 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-              >
+    <div className="rounded-2xl border border-border bg-card/70 shadow-sm">
+        <Table
+          containerLabel={ADMIN_TEXT.PERMISSIONS.TABLE_LABEL}
+          className="min-w-[720px] border-collapse"
+        >
+          <TableCaption className="sr-only">
+            {ADMIN_TEXT.PERMISSIONS.TABLE_LABEL}
+          </TableCaption>
+          <TableHeader className="sticky top-0 z-10 bg-muted/80 backdrop-blur-xl">
+            <TableRow className="border-border">
+              <TableHead className="min-w-64 px-5 py-3 text-left uppercase">
                 {ADMIN_TEXT.PERMISSIONS.RESOURCE}
-              </th>
-              <th
-                scope="col"
-                className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-              >
+              </TableHead>
+              <TableHead className="px-5 py-3 text-left uppercase">
                 {ADMIN_TEXT.PERMISSIONS.ACTIONS}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/70">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-border/70">
             {resources.map((resource) => (
-              <tr key={resource.key} className="transition-colors hover:bg-muted/30">
+              <TableRow key={resource.key} className="hover:bg-muted/30">
                 <th scope="row" className="px-5 py-4 text-left align-top">
                   <span className="block font-semibold text-foreground">
                     {ADMIN_TEXT.PERMISSIONS.RESOURCE_LABEL(resource.key)}
@@ -79,7 +87,7 @@ export function PermissionMatrix({
                     </span>
                   ) : null}
                 </th>
-                <td className="px-5 py-4 align-top">
+                <TableCell className="whitespace-normal px-5 py-4 align-top">
                   <div className="flex flex-wrap gap-2">
                     {resource.actions.length > 0 ? (
                       resource.actions.map((action) => {
@@ -143,12 +151,11 @@ export function PermissionMatrix({
                       </span>
                     )}
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
     </div>
   );
 }

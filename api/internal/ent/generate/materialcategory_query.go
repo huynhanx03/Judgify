@@ -13,20 +13,23 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // MaterialCategoryQuery is the builder for querying MaterialCategory entities.
 type MaterialCategoryQuery struct {
 	config
-	ctx           *QueryContext
-	order         []materialcategory.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.MaterialCategory
-	withMaterials *MaterialQuery
-	modifiers     []func(*sql.Selector)
+	ctx                 *QueryContext
+	order               []materialcategory.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.MaterialCategory
+	withRevisions       *MaterialRevisionQuery
+	withLegacyMaterials *MaterialQuery
+	modifiers           []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,8 +66,30 @@ func (_q *MaterialCategoryQuery) Order(o ...materialcategory.OrderOption) *Mater
 	return _q
 }
 
-// QueryMaterials chains the current query on the "materials" edge.
-func (_q *MaterialCategoryQuery) QueryMaterials() *MaterialQuery {
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *MaterialCategoryQuery) QueryRevisions() *MaterialRevisionQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(materialcategory.Table, materialcategory.FieldID, selector),
+			sqlgraph.To(materialrevision.Table, materialrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, materialcategory.RevisionsTable, materialcategory.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryLegacyMaterials chains the current query on the "legacy_materials" edge.
+func (_q *MaterialCategoryQuery) QueryLegacyMaterials() *MaterialQuery {
 	query := (&MaterialClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -77,7 +102,7 @@ func (_q *MaterialCategoryQuery) QueryMaterials() *MaterialQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(materialcategory.Table, materialcategory.FieldID, selector),
 			sqlgraph.To(material.Table, material.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, materialcategory.MaterialsTable, materialcategory.MaterialsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, materialcategory.LegacyMaterialsTable, materialcategory.LegacyMaterialsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -109,8 +134,8 @@ func (_q *MaterialCategoryQuery) FirstX(ctx context.Context) *MaterialCategory {
 
 // FirstID returns the first MaterialCategory ID from the query.
 // Returns a *NotFoundError when no MaterialCategory ID was found.
-func (_q *MaterialCategoryQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *MaterialCategoryQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -122,7 +147,7 @@ func (_q *MaterialCategoryQuery) FirstID(ctx context.Context) (id int, err error
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *MaterialCategoryQuery) FirstIDX(ctx context.Context) int {
+func (_q *MaterialCategoryQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -160,8 +185,8 @@ func (_q *MaterialCategoryQuery) OnlyX(ctx context.Context) *MaterialCategory {
 // OnlyID is like Only, but returns the only MaterialCategory ID in the query.
 // Returns a *NotSingularError when more than one MaterialCategory ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *MaterialCategoryQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *MaterialCategoryQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -177,7 +202,7 @@ func (_q *MaterialCategoryQuery) OnlyID(ctx context.Context) (id int, err error)
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *MaterialCategoryQuery) OnlyIDX(ctx context.Context) int {
+func (_q *MaterialCategoryQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -205,7 +230,7 @@ func (_q *MaterialCategoryQuery) AllX(ctx context.Context) []*MaterialCategory {
 }
 
 // IDs executes the query and returns a list of MaterialCategory IDs.
-func (_q *MaterialCategoryQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *MaterialCategoryQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -217,7 +242,7 @@ func (_q *MaterialCategoryQuery) IDs(ctx context.Context) (ids []int, err error)
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *MaterialCategoryQuery) IDsX(ctx context.Context) []int {
+func (_q *MaterialCategoryQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -272,12 +297,13 @@ func (_q *MaterialCategoryQuery) Clone() *MaterialCategoryQuery {
 		return nil
 	}
 	return &MaterialCategoryQuery{
-		config:        _q.config,
-		ctx:           _q.ctx.Clone(),
-		order:         append([]materialcategory.OrderOption{}, _q.order...),
-		inters:        append([]Interceptor{}, _q.inters...),
-		predicates:    append([]predicate.MaterialCategory{}, _q.predicates...),
-		withMaterials: _q.withMaterials.Clone(),
+		config:              _q.config,
+		ctx:                 _q.ctx.Clone(),
+		order:               append([]materialcategory.OrderOption{}, _q.order...),
+		inters:              append([]Interceptor{}, _q.inters...),
+		predicates:          append([]predicate.MaterialCategory{}, _q.predicates...),
+		withRevisions:       _q.withRevisions.Clone(),
+		withLegacyMaterials: _q.withLegacyMaterials.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -285,14 +311,25 @@ func (_q *MaterialCategoryQuery) Clone() *MaterialCategoryQuery {
 	}
 }
 
-// WithMaterials tells the query-builder to eager-load the nodes that are connected to
-// the "materials" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *MaterialCategoryQuery) WithMaterials(opts ...func(*MaterialQuery)) *MaterialCategoryQuery {
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *MaterialCategoryQuery) WithRevisions(opts ...func(*MaterialRevisionQuery)) *MaterialCategoryQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
+}
+
+// WithLegacyMaterials tells the query-builder to eager-load the nodes that are connected to
+// the "legacy_materials" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *MaterialCategoryQuery) WithLegacyMaterials(opts ...func(*MaterialQuery)) *MaterialCategoryQuery {
 	query := (&MaterialClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withMaterials = query
+	_q.withLegacyMaterials = query
 	return _q
 }
 
@@ -374,8 +411,9 @@ func (_q *MaterialCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	var (
 		nodes       = []*MaterialCategory{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
-			_q.withMaterials != nil,
+		loadedTypes = [2]bool{
+			_q.withRevisions != nil,
+			_q.withLegacyMaterials != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -399,12 +437,24 @@ func (_q *MaterialCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withMaterials; query != nil {
-		if err := _q.loadMaterials(ctx, query, nodes,
-			func(n *MaterialCategory) { n.Edges.Materials = []*Material{} },
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *MaterialCategory) { n.Edges.Revisions = []*MaterialRevision{} },
+			func(n *MaterialCategory, e *MaterialRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Category = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withLegacyMaterials; query != nil {
+		if err := _q.loadLegacyMaterials(ctx, query, nodes,
+			func(n *MaterialCategory) { n.Edges.LegacyMaterials = []*Material{} },
 			func(n *MaterialCategory, e *Material) {
-				n.Edges.Materials = append(n.Edges.Materials, e)
-				if !e.Edges.loadedTypes[0] {
+				n.Edges.LegacyMaterials = append(n.Edges.LegacyMaterials, e)
+				if !e.Edges.loadedTypes[1] {
 					e.Edges.Category = n
 				}
 			}); err != nil {
@@ -414,9 +464,39 @@ func (_q *MaterialCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	return nodes, nil
 }
 
-func (_q *MaterialCategoryQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nodes []*MaterialCategory, init func(*MaterialCategory), assign func(*MaterialCategory, *Material)) error {
+func (_q *MaterialCategoryQuery) loadRevisions(ctx context.Context, query *MaterialRevisionQuery, nodes []*MaterialCategory, init func(*MaterialCategory), assign func(*MaterialCategory, *MaterialRevision)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*MaterialCategory)
+	nodeids := make(map[uuid.UUID]*MaterialCategory)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialrevision.FieldCategoryID)
+	}
+	query.Where(predicate.MaterialRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(materialcategory.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CategoryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *MaterialCategoryQuery) loadLegacyMaterials(ctx context.Context, query *MaterialQuery, nodes []*MaterialCategory, init func(*MaterialCategory), assign func(*MaterialCategory, *Material)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*MaterialCategory)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -428,7 +508,7 @@ func (_q *MaterialCategoryQuery) loadMaterials(ctx context.Context, query *Mater
 		query.ctx.AppendFieldOnce(material.FieldCategoryID)
 	}
 	query.Where(predicate.Material(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(materialcategory.MaterialsColumn), fks...))
+		s.Where(sql.InValues(s.C(materialcategory.LegacyMaterialsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -458,7 +538,7 @@ func (_q *MaterialCategoryQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *MaterialCategoryQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(materialcategory.Table, materialcategory.Columns, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(materialcategory.Table, materialcategory.Columns, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

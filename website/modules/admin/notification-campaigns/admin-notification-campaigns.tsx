@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -306,7 +307,7 @@ function CampaignTable({
   onCancel,
 }: CampaignCollectionProps) {
   return (
-    <div className="hidden overflow-x-auto lg:block">
+    <div className="hidden lg:block">
       <Table aria-label={ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.TABLE_LABEL}>
         <TableHeader>
           <TableRow>
@@ -662,36 +663,14 @@ export function AdminNotificationCampaigns() {
   return (
     <section
       className="mx-auto w-full max-w-[100rem] space-y-6"
-      aria-labelledby="notification-campaign-title"
+      aria-label={ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.TITLE}
     >
-      <div className="flex flex-col gap-5 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm backdrop-blur-sm sm:p-7 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
-            <Megaphone className="size-5" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
-              {ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.EYEBROW}
-            </p>
-            <h1
-              id="notification-campaign-title"
-              className="mt-1 text-2xl font-black tracking-tight sm:text-3xl"
-            >
-              {ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.TITLE}
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
-              {ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.SUBTITLE}
-            </p>
-            {updatedAt ? (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.UPDATED_AT(
-                  formatDateTime(updatedAt),
-                )}
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
+      <PageHeader
+        icon={Megaphone}
+        eyebrow={ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.EYEBROW}
+        title={ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.TITLE}
+        description={<>{ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.SUBTITLE}{updatedAt ? <span className="mt-2 block text-xs">{ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.UPDATED_AT(formatDateTime(updatedAt))}</span> : null}</>}
+        actions={<div className="flex flex-col gap-2 sm:flex-row">
           <Button
             type="button"
             variant="outline"
@@ -713,8 +692,8 @@ export function AdminNotificationCampaigns() {
             <Plus className="size-4" aria-hidden="true" />
             {ADMIN_TEXT.NOTIFICATION_CAMPAIGNS.CREATE}
           </Button>
-        </div>
-      </div>
+        </div>}
+      />
 
       <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/[0.045] p-4">
         <ShieldCheck

@@ -1,102 +1,54 @@
-import {
-  CircleAlert,
-  Crown,
-  Flame,
-  RefreshCw,
-  Trophy,
-} from "lucide-react";
+import { CircleAlert, Crown, Flame, RefreshCw } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  getPodiumPresentation,
+  type RankingAccent,
+} from "@/constants/ranking-presentation";
 import { TEXT } from "@/constants/text";
-import type { AsyncResourceStatus } from "@/hooks/use-retryable-resource";
+import type { CursorFeedStatus } from "@/hooks/use-cursor-feed";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/format";
+import { ResourceCollectionFeedback } from "@/modules/shared/resource-feedback";
 import type { Cultivator } from "@/types/ranking";
 
 interface RankingTopListProps {
   title: string;
   subtitle: string;
   icon: "crown" | "flame";
-  accentColor: "amber" | "emerald";
+  accentColor: RankingAccent;
   data: Cultivator[];
   mode: "rating" | "level";
-  status: AsyncResourceStatus;
+  status: CursorFeedStatus;
   onRetry: () => void;
-	hasMore: boolean;
-	onLoadMore: () => void;
+  hasMore: boolean;
+  onLoadMore: () => void;
 }
 
 const ACCENT = {
   amber: {
-    icon: "text-amber-600 dark:text-amber-400",
-    border: "border-amber-500/20",
-    headerBg: "bg-amber-500/5",
-    headerBorder: "border-amber-500/20",
+    icon: "text-primary",
+    border: "border-primary/20",
+    headerBg: "bg-primary/5",
+    headerBorder: "border-primary/20",
     firstGlow: "shadow-brand-strong",
-    firstBorder: "border-amber-500/60",
-    firstText: "text-amber-700 dark:text-amber-300",
-    firstBg: "bg-amber-500/10",
-    secondText: "text-slate-600 dark:text-slate-300",
-    secondBorder: "border-slate-400/40",
-    secondBg: "bg-slate-500/10",
-    thirdText: "text-orange-700 dark:text-orange-300",
-    thirdBorder: "border-orange-500/40",
-    thirdBg: "bg-orange-500/10",
-    hoverBg: "hover:bg-amber-500/[0.04]",
-    valueBg:
-      "border-amber-500/15 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-    firstValue:
-      "border-transparent bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950",
+    hoverBg: "hover:bg-primary/[0.04]",
+    valueBg: "border-primary/15 bg-primary/10 text-primary",
+    firstValue: "border-transparent bg-primary text-primary-foreground",
   },
   emerald: {
-    icon: "text-emerald-600 dark:text-emerald-400",
-    border: "border-emerald-500/20",
-    headerBg: "bg-emerald-500/5",
-    headerBorder: "border-emerald-500/20",
+    icon: "text-success",
+    border: "border-success/20",
+    headerBg: "bg-success/5",
+    headerBorder: "border-success/20",
     firstGlow: "shadow-success-soft",
-    firstBorder: "border-emerald-500/60",
-    firstText: "text-emerald-700 dark:text-emerald-300",
-    firstBg: "bg-emerald-500/10",
-    secondText: "text-slate-600 dark:text-slate-300",
-    secondBorder: "border-slate-400/40",
-    secondBg: "bg-slate-500/10",
-    thirdText: "text-teal-700 dark:text-teal-300",
-    thirdBorder: "border-teal-500/40",
-    thirdBg: "bg-teal-500/10",
-    hoverBg: "hover:bg-emerald-500/[0.04]",
-    valueBg:
-      "border-emerald-500/15 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-    firstValue:
-      "border-transparent bg-gradient-to-r from-emerald-400 to-emerald-500 text-emerald-950",
+    hoverBg: "hover:bg-success/[0.04]",
+    valueBg: "border-success/15 bg-success/10 text-success",
+    firstValue: "border-transparent bg-success text-success-foreground",
   },
 } as const;
 
 type Accent = (typeof ACCENT)[keyof typeof ACCENT];
-
-function podiumStyle(colors: Accent, index: number) {
-  if (index === 0) {
-    return {
-      border: colors.firstBorder,
-      background: colors.firstBg,
-      text: colors.firstText,
-      shadow: colors.firstGlow,
-    };
-  }
-  if (index === 1) {
-    return {
-      border: colors.secondBorder,
-      background: colors.secondBg,
-      text: colors.secondText,
-      shadow: "",
-    };
-  }
-  return {
-    border: colors.thirdBorder,
-    background: colors.thirdBg,
-    text: colors.thirdText,
-    shadow: "",
-  };
-}
 
 function RankingValue({
   user,
@@ -145,36 +97,35 @@ export function RankingTopList({
   mode,
   status,
   onRetry,
-	hasMore,
-	onLoadMore,
+  hasMore,
+  onLoadMore,
 }: RankingTopListProps) {
   const colors = ACCENT[accentColor];
   const Icon = icon === "crown" ? Crown : Flame;
   const isInitialLoading = status === "loading" && data.length === 0;
   const isUnavailable = status === "error" && data.length === 0;
-  const isRefreshing = status === "loading" && data.length > 0;
+  const isRefreshing = status === "refreshing";
+  const isLoadingMore = status === "loading_more";
   const isStale = status === "error" && data.length > 0;
 
   return (
     <section
       className={cn(
-        "flex min-h-[32rem] flex-col overflow-hidden rounded-2xl border bg-card/80 shadow-lg backdrop-blur-xl",
+        "flex min-h-[32rem] flex-col overflow-hidden rounded-xl border bg-card",
         colors.border,
       )}
-      aria-busy={isRefreshing}
+      aria-busy={isRefreshing || isLoadingMore}
     >
       <header
         className={cn(
-          "flex items-center gap-3 border-b px-6 py-4",
+          "flex items-center gap-3 border-b px-5 py-4",
           colors.headerBg,
           colors.headerBorder,
         )}
       >
         <Icon className={cn("size-5", colors.icon)} aria-hidden="true" />
         <div>
-          <h2 className="text-base font-black tracking-wider uppercase">
-            {title}
-          </h2>
+          <h2 className="text-base font-bold tracking-wide">{title}</h2>
           <p className="text-xs text-muted-foreground">{subtitle}</p>
         </div>
         {isRefreshing ? (
@@ -187,7 +138,7 @@ export function RankingTopList({
 
       {isStale ? (
         <div
-          className="flex items-center gap-2 border-b border-amber-500/20 bg-amber-500/5 px-5 py-3 text-xs text-amber-800 dark:text-amber-200"
+          className="flex items-center gap-2 border-b border-warning/20 bg-warning/5 px-5 py-3 text-xs text-foreground"
           role="status"
         >
           <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
@@ -222,35 +173,16 @@ export function RankingTopList({
           ))}
         </div>
       ) : isUnavailable ? (
-        <div
-          className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
-          role="alert"
-        >
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-            <CircleAlert className="size-5" aria-hidden="true" />
-          </div>
-          <h3 className="mt-4 font-semibold">
-            {TEXT.RANKING.LOAD_ERROR_TITLE}
-          </h3>
-          <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
-            {TEXT.RANKING.LOAD_ERROR_DESCRIPTION}
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-5 min-h-11"
-            onClick={onRetry}
-          >
-            <RefreshCw className="size-4" aria-hidden="true" />
-            {TEXT.COMMON.RETRY}
-          </Button>
-        </div>
+        <ResourceCollectionFeedback
+          className="flex-1"
+          title={TEXT.RANKING.LOAD_ERROR_TITLE}
+          description={TEXT.RANKING.LOAD_ERROR_DESCRIPTION}
+          retryLabel={TEXT.COMMON.RETRY}
+          onRetry={onRetry}
+        />
       ) : data.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-            <Trophy className="size-5" aria-hidden="true" />
-          </div>
-          <p className="mt-4 text-sm font-semibold text-foreground">
+          <p className="text-sm font-semibold text-foreground">
             {TEXT.RANKING.EMPTY_CULTIVATORS}
           </p>
           <p className="mt-1 max-w-sm text-xs leading-5 text-muted-foreground">
@@ -259,11 +191,11 @@ export function RankingTopList({
         </div>
       ) : (
         <div className="flex-1" role="list">
-		  {data.map((user) => {
-			const displayName = user.name || TEXT.RANKING.ANONYMOUS;
-			const isPodium = user.rank <= 3;
-			const isFirst = user.rank === 1;
-			const podium = podiumStyle(colors, user.rank - 1);
+          {data.map((user) => {
+            const displayName = user.name || TEXT.RANKING.ANONYMOUS;
+            const podium = getPodiumPresentation(user.rank, accentColor);
+            const isPodium = podium !== undefined;
+            const isFirst = user.rank === 1;
 
             return (
               <div
@@ -272,11 +204,10 @@ export function RankingTopList({
                 className={cn(
                   "flex items-center gap-3 border-b border-border/40 px-5 py-3 transition-colors last:border-b-0",
                   colors.hoverBg,
-                  isPodium &&
-                    "mx-4 mt-3 rounded-xl border px-4 first:mt-5",
+                  isPodium && "mx-4 mt-3 rounded-xl border px-4 first:mt-5",
                   isPodium && podium.border,
                   isPodium && podium.background,
-                  isPodium && podium.shadow,
+                  isFirst && colors.firstGlow,
                   isFirst && "gap-4 py-5",
                 )}
               >
@@ -297,8 +228,8 @@ export function RankingTopList({
                     isPodium && podium.border,
                   )}
                 >
-				  {user.avatar ? (
-					<AvatarImage src={user.avatar} alt={displayName} />
+                  {user.avatar ? (
+                    <AvatarImage src={user.avatar} alt={displayName} />
                   ) : null}
                   <AvatarFallback
                     className={cn(
@@ -308,7 +239,7 @@ export function RankingTopList({
                       isFirst && "text-lg",
                     )}
                   >
-					{displayName.charAt(0)}
+                    {displayName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
@@ -318,7 +249,7 @@ export function RankingTopList({
                       isFirst && "text-base font-black",
                     )}
                   >
-					{displayName}
+                    {displayName}
                   </p>
                   {user.realm ? (
                     <p className="truncate text-[11px] text-muted-foreground">
@@ -335,29 +266,36 @@ export function RankingTopList({
               </div>
             );
           })}
-		</div>
-	  )}
+        </div>
+      )}
 
-	  {data.length > 0 ? (
-		<footer className="border-t border-border/60 p-4">
-		  {hasMore ? (
-			<Button
-			  type="button"
-			  variant="outline"
-			  className="min-h-11 w-full"
-			  disabled={status === "loading"}
-			  onClick={onLoadMore}
-			>
-			  {status === "loading" ? (
-				<RefreshCw className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-			  ) : null}
-			  {status === "loading" ? TEXT.RANKING.LOADING_MORE : TEXT.RANKING.LOAD_MORE}
-			</Button>
-		  ) : (
-			<p className="text-center text-xs text-muted-foreground">{TEXT.RANKING.END_OF_LIST}</p>
-		  )}
-		</footer>
-	  ) : null}
-	</section>
+      {data.length > 0 ? (
+        <footer className="border-t border-border/60 p-4">
+          {hasMore ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 w-full"
+              disabled={isLoadingMore || isRefreshing}
+              onClick={onLoadMore}
+            >
+              {isLoadingMore ? (
+                <RefreshCw
+                  className="size-4 animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
+              ) : null}
+              {isLoadingMore
+                ? TEXT.RANKING.LOADING_MORE
+                : TEXT.RANKING.LOAD_MORE}
+            </Button>
+          ) : (
+            <p className="text-center text-xs text-muted-foreground">
+              {TEXT.RANKING.END_OF_LIST}
+            </p>
+          )}
+        </footer>
+      ) : null}
+    </section>
   );
 }

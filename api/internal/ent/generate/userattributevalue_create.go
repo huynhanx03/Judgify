@@ -4,14 +4,18 @@ package generate
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 )
@@ -67,13 +71,13 @@ func (_c *UserAttributeValueCreate) SetNillableDeletedAt(v *time.Time) *UserAttr
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *UserAttributeValueCreate) SetDeletedBy(v int) *UserAttributeValueCreate {
+func (_c *UserAttributeValueCreate) SetDeletedBy(v string) *UserAttributeValueCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *UserAttributeValueCreate) SetNillableDeletedBy(v *int) *UserAttributeValueCreate {
+func (_c *UserAttributeValueCreate) SetNillableDeletedBy(v *string) *UserAttributeValueCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -81,14 +85,60 @@ func (_c *UserAttributeValueCreate) SetNillableDeletedBy(v *int) *UserAttributeV
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *UserAttributeValueCreate) SetUserID(v int) *UserAttributeValueCreate {
+func (_c *UserAttributeValueCreate) SetUserID(v uuid.UUID) *UserAttributeValueCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetAttributeID sets the "attribute_id" field.
-func (_c *UserAttributeValueCreate) SetAttributeID(v int) *UserAttributeValueCreate {
+func (_c *UserAttributeValueCreate) SetAttributeID(v uuid.UUID) *UserAttributeValueCreate {
 	_c.mutation.SetAttributeID(v)
+	return _c
+}
+
+// SetDefinitionRevisionID sets the "definition_revision_id" field.
+func (_c *UserAttributeValueCreate) SetDefinitionRevisionID(v uuid.UUID) *UserAttributeValueCreate {
+	_c.mutation.SetDefinitionRevisionID(v)
+	return _c
+}
+
+// SetSourceRevisionID sets the "source_revision_id" field.
+func (_c *UserAttributeValueCreate) SetSourceRevisionID(v uuid.UUID) *UserAttributeValueCreate {
+	_c.mutation.SetSourceRevisionID(v)
+	return _c
+}
+
+// SetCanonicalValue sets the "canonical_value" field.
+func (_c *UserAttributeValueCreate) SetCanonicalValue(v json.RawMessage) *UserAttributeValueCreate {
+	_c.mutation.SetCanonicalValue(v)
+	return _c
+}
+
+// SetSourceValueVersion sets the "source_value_version" field.
+func (_c *UserAttributeValueCreate) SetSourceValueVersion(v int64) *UserAttributeValueCreate {
+	_c.mutation.SetSourceValueVersion(v)
+	return _c
+}
+
+// SetNillableSourceValueVersion sets the "source_value_version" field if the given value is not nil.
+func (_c *UserAttributeValueCreate) SetNillableSourceValueVersion(v *int64) *UserAttributeValueCreate {
+	if v != nil {
+		_c.SetSourceValueVersion(*v)
+	}
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *UserAttributeValueCreate) SetVersion(v int64) *UserAttributeValueCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *UserAttributeValueCreate) SetNillableVersion(v *int64) *UserAttributeValueCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
 	return _c
 }
 
@@ -98,13 +148,27 @@ func (_c *UserAttributeValueCreate) SetValue(v string) *UserAttributeValueCreate
 	return _c
 }
 
+// SetID sets the "id" field.
+func (_c *UserAttributeValueCreate) SetID(v uuid.UUID) *UserAttributeValueCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserAttributeValueCreate) SetNillableID(v *uuid.UUID) *UserAttributeValueCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_c *UserAttributeValueCreate) SetUser(v *User) *UserAttributeValueCreate {
 	return _c.SetUserID(v.ID)
 }
 
 // SetDefinitionID sets the "definition" edge to the AttributeDefinition entity by ID.
-func (_c *UserAttributeValueCreate) SetDefinitionID(id int) *UserAttributeValueCreate {
+func (_c *UserAttributeValueCreate) SetDefinitionID(id uuid.UUID) *UserAttributeValueCreate {
 	_c.mutation.SetDefinitionID(id)
 	return _c
 }
@@ -112,6 +176,16 @@ func (_c *UserAttributeValueCreate) SetDefinitionID(id int) *UserAttributeValueC
 // SetDefinition sets the "definition" edge to the AttributeDefinition entity.
 func (_c *UserAttributeValueCreate) SetDefinition(v *AttributeDefinition) *UserAttributeValueCreate {
 	return _c.SetDefinitionID(v.ID)
+}
+
+// SetDefinitionRevision sets the "definition_revision" edge to the AttributeDefinitionRevision entity.
+func (_c *UserAttributeValueCreate) SetDefinitionRevision(v *AttributeDefinitionRevision) *UserAttributeValueCreate {
+	return _c.SetDefinitionRevisionID(v.ID)
+}
+
+// SetSourceRevision sets the "source_revision" edge to the AttributeDefinitionRevision entity.
+func (_c *UserAttributeValueCreate) SetSourceRevision(v *AttributeDefinitionRevision) *UserAttributeValueCreate {
+	return _c.SetSourceRevisionID(v.ID)
 }
 
 // Mutation returns the UserAttributeValueMutation object of the builder.
@@ -165,6 +239,21 @@ func (_c *UserAttributeValueCreate) defaults() error {
 		v := userattributevalue.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.SourceValueVersion(); !ok {
+		v := userattributevalue.DefaultSourceValueVersion
+		_c.mutation.SetSourceValueVersion(v)
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := userattributevalue.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if userattributevalue.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized userattributevalue.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := userattributevalue.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -182,19 +271,45 @@ func (_c *UserAttributeValueCreate) check() error {
 	if _, ok := _c.mutation.AttributeID(); !ok {
 		return &ValidationError{Name: "attribute_id", err: errors.New(`generate: missing required field "UserAttributeValue.attribute_id"`)}
 	}
+	if _, ok := _c.mutation.DefinitionRevisionID(); !ok {
+		return &ValidationError{Name: "definition_revision_id", err: errors.New(`generate: missing required field "UserAttributeValue.definition_revision_id"`)}
+	}
+	if _, ok := _c.mutation.SourceRevisionID(); !ok {
+		return &ValidationError{Name: "source_revision_id", err: errors.New(`generate: missing required field "UserAttributeValue.source_revision_id"`)}
+	}
+	if _, ok := _c.mutation.CanonicalValue(); !ok {
+		return &ValidationError{Name: "canonical_value", err: errors.New(`generate: missing required field "UserAttributeValue.canonical_value"`)}
+	}
+	if _, ok := _c.mutation.SourceValueVersion(); !ok {
+		return &ValidationError{Name: "source_value_version", err: errors.New(`generate: missing required field "UserAttributeValue.source_value_version"`)}
+	}
+	if v, ok := _c.mutation.SourceValueVersion(); ok {
+		if err := userattributevalue.SourceValueVersionValidator(v); err != nil {
+			return &ValidationError{Name: "source_value_version", err: fmt.Errorf(`generate: validator failed for field "UserAttributeValue.source_value_version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "UserAttributeValue.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := userattributevalue.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "UserAttributeValue.version": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Value(); !ok {
 		return &ValidationError{Name: "value", err: errors.New(`generate: missing required field "UserAttributeValue.value"`)}
-	}
-	if v, ok := _c.mutation.Value(); ok {
-		if err := userattributevalue.ValueValidator(v); err != nil {
-			return &ValidationError{Name: "value", err: fmt.Errorf(`generate: validator failed for field "UserAttributeValue.value": %w`, err)}
-		}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`generate: missing required edge "UserAttributeValue.user"`)}
 	}
 	if len(_c.mutation.DefinitionIDs()) == 0 {
 		return &ValidationError{Name: "definition", err: errors.New(`generate: missing required edge "UserAttributeValue.definition"`)}
+	}
+	if len(_c.mutation.DefinitionRevisionIDs()) == 0 {
+		return &ValidationError{Name: "definition_revision", err: errors.New(`generate: missing required edge "UserAttributeValue.definition_revision"`)}
+	}
+	if len(_c.mutation.SourceRevisionIDs()) == 0 {
+		return &ValidationError{Name: "source_revision", err: errors.New(`generate: missing required edge "UserAttributeValue.source_revision"`)}
 	}
 	return nil
 }
@@ -210,8 +325,13 @@ func (_c *UserAttributeValueCreate) sqlSave(ctx context.Context) (*UserAttribute
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -220,9 +340,13 @@ func (_c *UserAttributeValueCreate) sqlSave(ctx context.Context) (*UserAttribute
 func (_c *UserAttributeValueCreate) createSpec() (*UserAttributeValue, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserAttributeValue{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(userattributevalue.Table, sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(userattributevalue.Table, sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(userattributevalue.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -236,8 +360,20 @@ func (_c *UserAttributeValueCreate) createSpec() (*UserAttributeValue, *sqlgraph
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(userattributevalue.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userattributevalue.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.CanonicalValue(); ok {
+		_spec.SetField(userattributevalue.FieldCanonicalValue, field.TypeJSON, value)
+		_node.CanonicalValue = value
+	}
+	if value, ok := _c.mutation.SourceValueVersion(); ok {
+		_spec.SetField(userattributevalue.FieldSourceValueVersion, field.TypeInt64, value)
+		_node.SourceValueVersion = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(userattributevalue.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
 	}
 	if value, ok := _c.mutation.Value(); ok {
 		_spec.SetField(userattributevalue.FieldValue, field.TypeString, value)
@@ -251,7 +387,7 @@ func (_c *UserAttributeValueCreate) createSpec() (*UserAttributeValue, *sqlgraph
 			Columns: []string{userattributevalue.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -268,13 +404,47 @@ func (_c *UserAttributeValueCreate) createSpec() (*UserAttributeValue, *sqlgraph
 			Columns: []string{userattributevalue.DefinitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AttributeID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DefinitionRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userattributevalue.DefinitionRevisionTable,
+			Columns: []string{userattributevalue.DefinitionRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DefinitionRevisionID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SourceRevisionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userattributevalue.SourceRevisionTable,
+			Columns: []string{userattributevalue.SourceRevisionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(attributedefinitionrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.SourceRevisionID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -360,7 +530,7 @@ func (u *UserAttributeValueUpsert) ClearDeletedAt() *UserAttributeValueUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserAttributeValueUpsert) SetDeletedBy(v int) *UserAttributeValueUpsert {
+func (u *UserAttributeValueUpsert) SetDeletedBy(v string) *UserAttributeValueUpsert {
 	u.Set(userattributevalue.FieldDeletedBy, v)
 	return u
 }
@@ -371,12 +541,6 @@ func (u *UserAttributeValueUpsert) UpdateDeletedBy() *UserAttributeValueUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserAttributeValueUpsert) AddDeletedBy(v int) *UserAttributeValueUpsert {
-	u.Add(userattributevalue.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *UserAttributeValueUpsert) ClearDeletedBy() *UserAttributeValueUpsert {
 	u.SetNull(userattributevalue.FieldDeletedBy)
@@ -384,7 +548,7 @@ func (u *UserAttributeValueUpsert) ClearDeletedBy() *UserAttributeValueUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserAttributeValueUpsert) SetUserID(v int) *UserAttributeValueUpsert {
+func (u *UserAttributeValueUpsert) SetUserID(v uuid.UUID) *UserAttributeValueUpsert {
 	u.Set(userattributevalue.FieldUserID, v)
 	return u
 }
@@ -396,7 +560,7 @@ func (u *UserAttributeValueUpsert) UpdateUserID() *UserAttributeValueUpsert {
 }
 
 // SetAttributeID sets the "attribute_id" field.
-func (u *UserAttributeValueUpsert) SetAttributeID(v int) *UserAttributeValueUpsert {
+func (u *UserAttributeValueUpsert) SetAttributeID(v uuid.UUID) *UserAttributeValueUpsert {
 	u.Set(userattributevalue.FieldAttributeID, v)
 	return u
 }
@@ -404,6 +568,78 @@ func (u *UserAttributeValueUpsert) SetAttributeID(v int) *UserAttributeValueUpse
 // UpdateAttributeID sets the "attribute_id" field to the value that was provided on create.
 func (u *UserAttributeValueUpsert) UpdateAttributeID() *UserAttributeValueUpsert {
 	u.SetExcluded(userattributevalue.FieldAttributeID)
+	return u
+}
+
+// SetDefinitionRevisionID sets the "definition_revision_id" field.
+func (u *UserAttributeValueUpsert) SetDefinitionRevisionID(v uuid.UUID) *UserAttributeValueUpsert {
+	u.Set(userattributevalue.FieldDefinitionRevisionID, v)
+	return u
+}
+
+// UpdateDefinitionRevisionID sets the "definition_revision_id" field to the value that was provided on create.
+func (u *UserAttributeValueUpsert) UpdateDefinitionRevisionID() *UserAttributeValueUpsert {
+	u.SetExcluded(userattributevalue.FieldDefinitionRevisionID)
+	return u
+}
+
+// SetSourceRevisionID sets the "source_revision_id" field.
+func (u *UserAttributeValueUpsert) SetSourceRevisionID(v uuid.UUID) *UserAttributeValueUpsert {
+	u.Set(userattributevalue.FieldSourceRevisionID, v)
+	return u
+}
+
+// UpdateSourceRevisionID sets the "source_revision_id" field to the value that was provided on create.
+func (u *UserAttributeValueUpsert) UpdateSourceRevisionID() *UserAttributeValueUpsert {
+	u.SetExcluded(userattributevalue.FieldSourceRevisionID)
+	return u
+}
+
+// SetCanonicalValue sets the "canonical_value" field.
+func (u *UserAttributeValueUpsert) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpsert {
+	u.Set(userattributevalue.FieldCanonicalValue, v)
+	return u
+}
+
+// UpdateCanonicalValue sets the "canonical_value" field to the value that was provided on create.
+func (u *UserAttributeValueUpsert) UpdateCanonicalValue() *UserAttributeValueUpsert {
+	u.SetExcluded(userattributevalue.FieldCanonicalValue)
+	return u
+}
+
+// SetSourceValueVersion sets the "source_value_version" field.
+func (u *UserAttributeValueUpsert) SetSourceValueVersion(v int64) *UserAttributeValueUpsert {
+	u.Set(userattributevalue.FieldSourceValueVersion, v)
+	return u
+}
+
+// UpdateSourceValueVersion sets the "source_value_version" field to the value that was provided on create.
+func (u *UserAttributeValueUpsert) UpdateSourceValueVersion() *UserAttributeValueUpsert {
+	u.SetExcluded(userattributevalue.FieldSourceValueVersion)
+	return u
+}
+
+// AddSourceValueVersion adds v to the "source_value_version" field.
+func (u *UserAttributeValueUpsert) AddSourceValueVersion(v int64) *UserAttributeValueUpsert {
+	u.Add(userattributevalue.FieldSourceValueVersion, v)
+	return u
+}
+
+// SetVersion sets the "version" field.
+func (u *UserAttributeValueUpsert) SetVersion(v int64) *UserAttributeValueUpsert {
+	u.Set(userattributevalue.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *UserAttributeValueUpsert) UpdateVersion() *UserAttributeValueUpsert {
+	u.SetExcluded(userattributevalue.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *UserAttributeValueUpsert) AddVersion(v int64) *UserAttributeValueUpsert {
+	u.Add(userattributevalue.FieldVersion, v)
 	return u
 }
 
@@ -419,17 +655,23 @@ func (u *UserAttributeValueUpsert) UpdateValue() *UserAttributeValueUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.UserAttributeValue.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userattributevalue.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserAttributeValueUpsertOne) UpdateNewValues() *UserAttributeValueUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(userattributevalue.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userattributevalue.FieldCreatedAt)
 		}
@@ -500,16 +742,9 @@ func (u *UserAttributeValueUpsertOne) ClearDeletedAt() *UserAttributeValueUpsert
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserAttributeValueUpsertOne) SetDeletedBy(v int) *UserAttributeValueUpsertOne {
+func (u *UserAttributeValueUpsertOne) SetDeletedBy(v string) *UserAttributeValueUpsertOne {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserAttributeValueUpsertOne) AddDeletedBy(v int) *UserAttributeValueUpsertOne {
-	return u.Update(func(s *UserAttributeValueUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -528,7 +763,7 @@ func (u *UserAttributeValueUpsertOne) ClearDeletedBy() *UserAttributeValueUpsert
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserAttributeValueUpsertOne) SetUserID(v int) *UserAttributeValueUpsertOne {
+func (u *UserAttributeValueUpsertOne) SetUserID(v uuid.UUID) *UserAttributeValueUpsertOne {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetUserID(v)
 	})
@@ -542,7 +777,7 @@ func (u *UserAttributeValueUpsertOne) UpdateUserID() *UserAttributeValueUpsertOn
 }
 
 // SetAttributeID sets the "attribute_id" field.
-func (u *UserAttributeValueUpsertOne) SetAttributeID(v int) *UserAttributeValueUpsertOne {
+func (u *UserAttributeValueUpsertOne) SetAttributeID(v uuid.UUID) *UserAttributeValueUpsertOne {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetAttributeID(v)
 	})
@@ -552,6 +787,90 @@ func (u *UserAttributeValueUpsertOne) SetAttributeID(v int) *UserAttributeValueU
 func (u *UserAttributeValueUpsertOne) UpdateAttributeID() *UserAttributeValueUpsertOne {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.UpdateAttributeID()
+	})
+}
+
+// SetDefinitionRevisionID sets the "definition_revision_id" field.
+func (u *UserAttributeValueUpsertOne) SetDefinitionRevisionID(v uuid.UUID) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetDefinitionRevisionID(v)
+	})
+}
+
+// UpdateDefinitionRevisionID sets the "definition_revision_id" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertOne) UpdateDefinitionRevisionID() *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateDefinitionRevisionID()
+	})
+}
+
+// SetSourceRevisionID sets the "source_revision_id" field.
+func (u *UserAttributeValueUpsertOne) SetSourceRevisionID(v uuid.UUID) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetSourceRevisionID(v)
+	})
+}
+
+// UpdateSourceRevisionID sets the "source_revision_id" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertOne) UpdateSourceRevisionID() *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateSourceRevisionID()
+	})
+}
+
+// SetCanonicalValue sets the "canonical_value" field.
+func (u *UserAttributeValueUpsertOne) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetCanonicalValue(v)
+	})
+}
+
+// UpdateCanonicalValue sets the "canonical_value" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertOne) UpdateCanonicalValue() *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateCanonicalValue()
+	})
+}
+
+// SetSourceValueVersion sets the "source_value_version" field.
+func (u *UserAttributeValueUpsertOne) SetSourceValueVersion(v int64) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetSourceValueVersion(v)
+	})
+}
+
+// AddSourceValueVersion adds v to the "source_value_version" field.
+func (u *UserAttributeValueUpsertOne) AddSourceValueVersion(v int64) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.AddSourceValueVersion(v)
+	})
+}
+
+// UpdateSourceValueVersion sets the "source_value_version" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertOne) UpdateSourceValueVersion() *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateSourceValueVersion()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *UserAttributeValueUpsertOne) SetVersion(v int64) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *UserAttributeValueUpsertOne) AddVersion(v int64) *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertOne) UpdateVersion() *UserAttributeValueUpsertOne {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateVersion()
 	})
 }
 
@@ -585,7 +904,12 @@ func (u *UserAttributeValueUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserAttributeValueUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserAttributeValueUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserAttributeValueUpsertOne.ID is not supported by MySQL driver. Use UserAttributeValueUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -594,17 +918,12 @@ func (u *UserAttributeValueUpsertOne) ID(ctx context.Context) (id int, err error
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserAttributeValueUpsertOne) IDX(ctx context.Context) int {
+func (u *UserAttributeValueUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserAttributeValueCreate) SetID(id int) *UserAttributeValueCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserAttributeValueCreateBulk is the builder for creating many UserAttributeValue entities in bulk.
@@ -654,10 +973,6 @@ func (_c *UserAttributeValueCreateBulk) Save(ctx context.Context) ([]*UserAttrib
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -744,12 +1059,18 @@ type UserAttributeValueUpsertBulk struct {
 //	client.UserAttributeValue.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(userattributevalue.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserAttributeValueUpsertBulk) UpdateNewValues() *UserAttributeValueUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(userattributevalue.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userattributevalue.FieldCreatedAt)
 			}
@@ -821,16 +1142,9 @@ func (u *UserAttributeValueUpsertBulk) ClearDeletedAt() *UserAttributeValueUpser
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserAttributeValueUpsertBulk) SetDeletedBy(v int) *UserAttributeValueUpsertBulk {
+func (u *UserAttributeValueUpsertBulk) SetDeletedBy(v string) *UserAttributeValueUpsertBulk {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserAttributeValueUpsertBulk) AddDeletedBy(v int) *UserAttributeValueUpsertBulk {
-	return u.Update(func(s *UserAttributeValueUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -849,7 +1163,7 @@ func (u *UserAttributeValueUpsertBulk) ClearDeletedBy() *UserAttributeValueUpser
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserAttributeValueUpsertBulk) SetUserID(v int) *UserAttributeValueUpsertBulk {
+func (u *UserAttributeValueUpsertBulk) SetUserID(v uuid.UUID) *UserAttributeValueUpsertBulk {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetUserID(v)
 	})
@@ -863,7 +1177,7 @@ func (u *UserAttributeValueUpsertBulk) UpdateUserID() *UserAttributeValueUpsertB
 }
 
 // SetAttributeID sets the "attribute_id" field.
-func (u *UserAttributeValueUpsertBulk) SetAttributeID(v int) *UserAttributeValueUpsertBulk {
+func (u *UserAttributeValueUpsertBulk) SetAttributeID(v uuid.UUID) *UserAttributeValueUpsertBulk {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetAttributeID(v)
 	})
@@ -873,6 +1187,90 @@ func (u *UserAttributeValueUpsertBulk) SetAttributeID(v int) *UserAttributeValue
 func (u *UserAttributeValueUpsertBulk) UpdateAttributeID() *UserAttributeValueUpsertBulk {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.UpdateAttributeID()
+	})
+}
+
+// SetDefinitionRevisionID sets the "definition_revision_id" field.
+func (u *UserAttributeValueUpsertBulk) SetDefinitionRevisionID(v uuid.UUID) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetDefinitionRevisionID(v)
+	})
+}
+
+// UpdateDefinitionRevisionID sets the "definition_revision_id" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertBulk) UpdateDefinitionRevisionID() *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateDefinitionRevisionID()
+	})
+}
+
+// SetSourceRevisionID sets the "source_revision_id" field.
+func (u *UserAttributeValueUpsertBulk) SetSourceRevisionID(v uuid.UUID) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetSourceRevisionID(v)
+	})
+}
+
+// UpdateSourceRevisionID sets the "source_revision_id" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertBulk) UpdateSourceRevisionID() *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateSourceRevisionID()
+	})
+}
+
+// SetCanonicalValue sets the "canonical_value" field.
+func (u *UserAttributeValueUpsertBulk) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetCanonicalValue(v)
+	})
+}
+
+// UpdateCanonicalValue sets the "canonical_value" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertBulk) UpdateCanonicalValue() *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateCanonicalValue()
+	})
+}
+
+// SetSourceValueVersion sets the "source_value_version" field.
+func (u *UserAttributeValueUpsertBulk) SetSourceValueVersion(v int64) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetSourceValueVersion(v)
+	})
+}
+
+// AddSourceValueVersion adds v to the "source_value_version" field.
+func (u *UserAttributeValueUpsertBulk) AddSourceValueVersion(v int64) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.AddSourceValueVersion(v)
+	})
+}
+
+// UpdateSourceValueVersion sets the "source_value_version" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertBulk) UpdateSourceValueVersion() *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateSourceValueVersion()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *UserAttributeValueUpsertBulk) SetVersion(v int64) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *UserAttributeValueUpsertBulk) AddVersion(v int64) *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *UserAttributeValueUpsertBulk) UpdateVersion() *UserAttributeValueUpsertBulk {
+	return u.Update(func(s *UserAttributeValueUpsert) {
+		s.UpdateVersion()
 	})
 }
 

@@ -26,7 +26,7 @@ export function AuthenticatedActions() {
         className="flex min-h-11 items-center gap-2 rounded-lg px-1 outline-none transition-colors duration-150 hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <Avatar className="h-8 w-8 border border-primary/30 cursor-pointer">
-          <AvatarImage src="/images/default_avatar.png" alt={displayName} />
+          <AvatarImage src="/images/default-avatar.png" alt={displayName} />
           <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
             {initials}
           </AvatarFallback>

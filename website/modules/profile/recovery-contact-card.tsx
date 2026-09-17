@@ -73,8 +73,10 @@ function purposeDescription(purpose: RecoveryContactPurpose): string {
 
 function actionErrorMessage(error: unknown): string {
   const kind = classifyRecoveryContactError(error);
-  if (kind === "conflict") return TEXT.PROFILE.RECOVERY_CONTACT.VERSION_CONFLICT;
-  if (kind === "rate_limited") return TEXT.PROFILE.RECOVERY_CONTACT.RATE_LIMITED;
+  if (kind === "conflict")
+    return TEXT.PROFILE.RECOVERY_CONTACT.VERSION_CONFLICT;
+  if (kind === "rate_limited")
+    return TEXT.PROFILE.RECOVERY_CONTACT.RATE_LIMITED;
   if (kind === "reauthentication_required") {
     return TEXT.PROFILE.RECOVERY_CONTACT.REAUTH_REQUIRED;
   }
@@ -82,11 +84,15 @@ function actionErrorMessage(error: unknown): string {
 }
 
 export function RecoveryContactCard() {
-  const [projection, setProjection] = useState<RecoveryContactResponse | null>(null);
+  const [projection, setProjection] = useState<RecoveryContactResponse | null>(
+    null,
+  );
   const [now, setNow] = useState(() => Date.now());
   const [action, setAction] = useState<RecoveryAction>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [pendingIntent, setPendingIntent] = useState<SensitiveIntent | null>(null);
+  const [pendingIntent, setPendingIntent] = useState<SensitiveIntent | null>(
+    null,
+  );
   const [reauthOpen, setReauthOpen] = useState(false);
   const [reauthError, setReauthError] = useState<string | null>(null);
   const [replaceOpen, setReplaceOpen] = useState(false);
@@ -219,7 +225,8 @@ export function RecoveryContactCard() {
     setReauthError(null);
     let intentToContinue: SensitiveIntent | null = null;
     try {
-      const response = await authService.reauthenticateRecoveryContact(password);
+      const response =
+        await authService.reauthenticateRecoveryContact(password);
       if (
         response.status !==
         RECOVERY_CONTACT_REAUTHENTICATION_STATUS.REAUTHENTICATED
@@ -293,7 +300,7 @@ export function RecoveryContactCard() {
 
   if (resource.status === "loading" && !projection) {
     return (
-      <Card className="glass-card border-border/40" aria-busy="true">
+      <Card className="border-border/60 bg-card" aria-busy="true">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="size-11 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" />
@@ -313,9 +320,12 @@ export function RecoveryContactCard() {
 
   if (resource.status === "error" && !projection) {
     return (
-      <Card className="glass-card border-destructive/20">
-        <CardContent className="flex flex-col items-center px-6 py-10 text-center" role="alert">
-          <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive ring-8 ring-destructive/5">
+      <Card className="border-destructive/20 bg-card">
+        <CardContent
+          className="flex flex-col items-center px-6 py-10 text-center"
+          role="alert"
+        >
+          <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <CircleAlert className="size-5" aria-hidden="true" />
           </div>
           <h2 className="text-lg font-bold tracking-tight">
@@ -347,7 +357,7 @@ export function RecoveryContactCard() {
 
   return (
     <>
-      <Card className="glass-card border-border/40" aria-busy={isBusy}>
+      <Card className="border-border/60 bg-card" aria-busy={isBusy}>
         <CardHeader className="border-b border-border/40 pb-4">
           <div className="flex items-start gap-3">
             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary shadow-brand-subtle">
@@ -403,9 +413,15 @@ export function RecoveryContactCard() {
               </div>
             </section>
           ) : (
-            <div className="rounded-xl border border-status-warning/25 bg-status-warning/10 p-4" role="status">
+            <div
+              className="rounded-xl border border-status-warning/25 bg-status-warning/10 p-4"
+              role="status"
+            >
               <div className="flex items-start gap-3">
-                <ShieldAlert className="mt-0.5 size-5 shrink-0 text-status-warning" aria-hidden="true" />
+                <ShieldAlert
+                  className="mt-0.5 size-5 shrink-0 text-status-warning"
+                  aria-hidden="true"
+                />
                 <div>
                   <p className="font-semibold">
                     {TEXT.PROFILE.RECOVERY_CONTACT.NO_CURRENT}
@@ -472,11 +488,16 @@ export function RecoveryContactCard() {
                     disabled={isBusy || resendRemaining > 0}
                     className="min-h-11 cursor-pointer px-4"
                     aria-describedby={
-                      resendRemaining > 0 ? "recovery-resend-countdown" : undefined
+                      resendRemaining > 0
+                        ? "recovery-resend-countdown"
+                        : undefined
                     }
                   >
                     {action === "resend" ? (
-                      <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                      <Loader2
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
                     ) : (
                       <Send className="size-4" aria-hidden="true" />
                     )}
@@ -487,7 +508,11 @@ export function RecoveryContactCard() {
                       : TEXT.PROFILE.RECOVERY_CONTACT.RESEND}
                   </Button>
                   {resendRemaining > 0 ? (
-                    <span id="recovery-resend-countdown" className="sr-only" aria-live="polite">
+                    <span
+                      id="recovery-resend-countdown"
+                      className="sr-only"
+                      aria-live="polite"
+                    >
                       {TEXT.PROFILE.RECOVERY_CONTACT.RESEND_AFTER(
                         formatCountdown(resendRemaining),
                       )}
@@ -511,8 +536,14 @@ export function RecoveryContactCard() {
           ) : null}
 
           {hasRecentAuthentication && projection.reauthenticated_until ? (
-            <div className="flex items-start gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground" role="status">
-              <KeyRound className="mt-0.5 size-3.5 shrink-0 text-status-success" aria-hidden="true" />
+            <div
+              className="flex items-start gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground"
+              role="status"
+            >
+              <KeyRound
+                className="mt-0.5 size-3.5 shrink-0 text-status-success"
+                aria-hidden="true"
+              />
               <div>
                 <p className="font-semibold text-foreground">
                   {TEXT.PROFILE.RECOVERY_CONTACT.REAUTHENTICATED}

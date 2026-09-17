@@ -9,7 +9,7 @@
 
 1. **Dùng Shadcn/UI** cho tất cả UI primitive (button, input, dialog, sheet, badge, table, ...). Không tự viết lại.
 2. **Không hardcode class màu difficulty** — luôn dùng `getDifficultyStyle(level)` từ `constants/styles.ts`.
-3. **Không viết fetch trực tiếp** — mọi API call phải qua `apiClient` trong `lib/api-client.ts`.
+3. **Không viết fetch trực tiếp** — service gọi boundary `api(path, options)` trong `lib/api/client.ts`, dùng endpoint catalog, response schema và `AbortSignal` cho read request.
 4. **Không dùng `alert` / `toast` trực tiếp** — dùng `notify` từ `lib/toast.ts`.
 5. **Không hardcode string UI** — mọi text hiển thị lấy từ `TEXT` trong `constants/text.ts`.
 6. **Ghép class Tailwind** luôn dùng `cn()` từ `lib/utils.ts`.
@@ -131,15 +131,29 @@ const style = getDifficultyStyle(difficulty.level);
 
 ## 4. Utilities & Hooks (`lib/` · `hooks/`)
 
-### `lib/api-client.ts`
-API wrapper duy nhất. Tự động đính `Authorization` header, auto-refresh token khi 401.
+### `lib/api/client.ts`
+HTTP boundary duy nhất. Transport dùng cookie HttpOnly cùng origin, CSRF, CID,
+timeout/cancellation, response envelope đã kiểm tra và một luồng phục hồi 401 tập
+trung. Mỗi service phải truyền runtime schema; read request phải nhận và chuyển
+tiếp `AbortSignal` từ resource hook.
 
 ```ts
-import { apiClient, ApiError } from "@/lib/api-client";
+import { MY_API } from "@/constants/api";
+import { api } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/error";
+import { myResponseSchema } from "@/lib/my-domain/schema";
 
-// Sử dụng
-const data = await apiClient.get<MyType>("/endpoint");
-await apiClient.post("/endpoint", body);
+const data = await api<MyType, never>(MY_API.GET(id), {
+  method: "GET",
+  signal,
+  schema: myResponseSchema,
+});
+
+await api<MyType, MyInput>(MY_API.CREATE, {
+  method: "POST",
+  body,
+  schema: myResponseSchema,
+});
 
 // Catch lỗi
 try { ... } catch (err) {
@@ -196,7 +210,7 @@ const { user, isAuthenticated, isLoading, login, logout } = useAuth();
 |---|---|
 | `TEXT.COMMON` | LOADING, ERROR, SAVE, CANCEL, DELETE, EDIT, CREATE, SEARCH, FILTER, NO_DATA, PAGE, PREVIOUS, NEXT |
 | `TEXT.NAV` | ARENA, MATERIALS, CONTEST, RANKING, PROFILE, LOGOUT |
-| `TEXT.AUTH` | Toàn bộ login, register 2 bước, trait gacha, forgot/reset password |
+| `TEXT.AUTH` | Toàn bộ login, register 2 bước, trait offer, forgot/reset password |
 | `TEXT.ARENA` | Hero, table columns, filter panel, sort, empty state |
 | `TEXT.PROBLEM` | Problem detail tabs, submission form, history table, detail sheet |
 | `TEXT.PROFILE` | Profile sections, cultivation info, edit/save |
@@ -234,7 +248,7 @@ export const xxxService = {
 | Difficulty | `difficulty.service.ts` | getAll + admin CRUD |
 | Contest | `contest.service.ts` | public list/detail/register + admin CRUD |
 | Material | `material.service.ts` | public list/detail + admin CRUD + categories CRUD |
-| Cultivation | `cultivation.service.ts` | traits, gacha, user traits |
+| Cultivation | `cultivation.service.ts` | catalog traits, durable onboarding offers, user traits |
 | Element | `element.service.ts` | getAll + admin CRUD |
 | Level | `level.service.ts` | getAll + admin CRUD |
 | Rarity | `rarity.service.ts` | getAll + admin CRUD |
@@ -331,7 +345,7 @@ const columns: AdminColumn<MyEntity>[] = [
 |---|---|
 | `contest-hero-section.tsx` | Hero section trang contest list. |
 | `contest-card.tsx` | Card hiển thị 1 contest. |
-| `contest-standings-table.tsx` | Bảng xếp hạng ICPC realtime (SSE). Nhận `standings[]` + `isConnected`. |
+| `contest-standings-table.tsx` | Bảng xếp hạng ICPC realtime. REST là nguồn dữ liệu chuẩn; WebSocket chỉ báo invalidation và hook tự resync. Nhận `standings[]`. |
 | `contest-rating-table.tsx` | Bảng rating changes (old/new/delta). Nhận `ratingChanges[]`. |
 
 ### Auth (`modules/auth/`)
@@ -340,7 +354,7 @@ const columns: AdminColumn<MyEntity>[] = [
 |---|---|
 | `RegisterFlow.tsx` | Orchestrator đăng ký: giữ state + handlers, render 2 section bên dưới. |
 | `sections/personal-info-section.tsx` | Form thông tin cá nhân (username, password, tên, giới tính, ngày sinh). Nhận `form` + `updateField` từ parent. |
-| `sections/trait-selection-section.tsx` | Gacha chọn thiên phú (root bone + talents). Nhận toàn bộ trait state + handlers từ parent. |
+| `sections/trait-selection-section.tsx` | Chọn root bone và ba talent từ durable server offer; nhận state + handlers từ parent. |
 | `LoginForm.tsx` | Form đăng nhập. |
 | `AuthContainer.tsx` | Wrapper glassmorphism cho trang auth. |
 
@@ -382,7 +396,7 @@ const columns: AdminColumn<MyEntity>[] = [
 | `types/submission.ts` | `Submission`, `SubmissionStatus` (union), `Language` (union) |
 | `types/difficulty.ts` | `DifficultyResponse`, `DIFFICULTY_SLUG` map |
 | `types/tag.ts` | `Tag`, `TagElement` |
-| `types/cultivation.ts` | `TraitResponse`, `GachaRollResponse`, `RARITY_DISPLAY`, `ELEMENT_DISPLAY`, `getTierColors()` |
+| `types/cultivation.ts` | `TraitResponse`, `TraitOfferResponse`, và các contract cultivation an toàn cho UI |
 | `types/admin.ts` | `Role`, `Resource`, `Permission`, `AdminUser` |
 
 ---
@@ -392,7 +406,7 @@ const columns: AdminColumn<MyEntity>[] = [
 - [ ] String mới → thêm vào `constants/text.ts` trước
 - [ ] Màu difficulty → dùng `getDifficultyStyle`, không hardcode
 - [ ] Loading state → dùng `<LoadingSpinner />`, không copy `Loader2`
-- [ ] API call mới → thêm vào đúng service file (1 domain = 1 file), gọi qua `apiClient`
+- [ ] API call mới → thêm vào đúng service file, gọi `api(...)` với endpoint catalog + schema; read request chuyển tiếp `AbortSignal`
 - [ ] Toast → dùng `notify`, không dùng sonner trực tiếp
 - [ ] Admin entity mới → theo đúng pattern `usePaginatedCRUD + DataTableShell + AdminDataTable + Dialog`
 - [ ] Dialog có dropdown → dùng native `<select>` nếu nằm trong Shadcn `Dialog`

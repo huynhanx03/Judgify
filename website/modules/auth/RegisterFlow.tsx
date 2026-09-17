@@ -247,7 +247,7 @@ export default function RegisterFlow() {
     >
       {/* Header */}
       <div className="text-center space-y-1 mb-6">
-        <h1 className="text-2xl md:text-3xl font-black tracking-[0.15em] text-primary uppercase font-serif text-shadow-brand">
+        <h1 className="font-heading text-2xl font-black tracking-[0.12em] text-primary uppercase text-shadow-brand md:text-3xl">
           {TEXT.AUTH.REGISTER_TITLE}
         </h1>
         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
@@ -287,7 +287,8 @@ export default function RegisterFlow() {
       <div className="mt-6 space-y-4">
         <Button
           type="submit"
-          className="button-brand-elevation h-12 w-full bg-primary text-md font-bold uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 motion-reduce:transition-none"
+          size="lg"
+          className="button-brand-elevation w-full text-base font-bold uppercase tracking-[0.16em] motion-reduce:transition-none"
           disabled={
             isLoading ||
             profileForm.status !== "ready" ||

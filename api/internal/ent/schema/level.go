@@ -4,7 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -16,6 +17,7 @@ type Level struct {
 // Mixin of the Level.
 func (Level) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}

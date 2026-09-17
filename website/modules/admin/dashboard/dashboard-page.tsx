@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { AlertCircle, FileCode2, Loader2, Shield, Tags, Trophy, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/contexts/auth-context";
 import { filterAuthorizedItems, type CapabilityBoundItem } from "@/lib/auth/admin-policy";
 import {
@@ -150,14 +151,10 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {ADMIN_TEXT.DASHBOARD_TITLE}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {ADMIN_TEXT.DASHBOARD_SUBTITLE}
-        </p>
-      </div>
+      <PageHeader
+        title={ADMIN_TEXT.DASHBOARD_TITLE}
+        description={ADMIN_TEXT.DASHBOARD_SUBTITLE}
+      />
 
       {isLoading ? (
         <div className="flex min-h-40 items-center justify-center rounded-xl border border-border bg-card/50">

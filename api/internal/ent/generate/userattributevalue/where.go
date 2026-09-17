@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.UserAttributeValue {
+func ID(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.UserAttributeValue {
+func IDEQ(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.UserAttributeValue {
+func IDNEQ(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.UserAttributeValue {
+func IDIn(ids ...uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.UserAttributeValue {
+func IDNotIn(ids ...uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.UserAttributeValue {
+func IDGT(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.UserAttributeValue {
+func IDGTE(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.UserAttributeValue {
+func IDLT(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.UserAttributeValue {
+func IDLTE(id uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,18 +72,38 @@ func DeletedAt(v time.Time) predicate.UserAttributeValue {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.UserAttributeValue {
+func DeletedBy(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.UserAttributeValue {
+func UserID(v uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldUserID, v))
 }
 
 // AttributeID applies equality check predicate on the "attribute_id" field. It's identical to AttributeIDEQ.
-func AttributeID(v int) predicate.UserAttributeValue {
+func AttributeID(v uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldAttributeID, v))
+}
+
+// DefinitionRevisionID applies equality check predicate on the "definition_revision_id" field. It's identical to DefinitionRevisionIDEQ.
+func DefinitionRevisionID(v uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldDefinitionRevisionID, v))
+}
+
+// SourceRevisionID applies equality check predicate on the "source_revision_id" field. It's identical to SourceRevisionIDEQ.
+func SourceRevisionID(v uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldSourceRevisionID, v))
+}
+
+// SourceValueVersion applies equality check predicate on the "source_value_version" field. It's identical to SourceValueVersionEQ.
+func SourceValueVersion(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldSourceValueVersion, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldVersion, v))
 }
 
 // Value applies equality check predicate on the "value" field. It's identical to ValueEQ.
@@ -221,43 +242,58 @@ func DeletedAtNotNil() predicate.UserAttributeValue {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.UserAttributeValue {
+func DeletedByEQ(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.UserAttributeValue {
+func DeletedByNEQ(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.UserAttributeValue {
+func DeletedByIn(vs ...string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.UserAttributeValue {
+func DeletedByNotIn(vs ...string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.UserAttributeValue {
+func DeletedByGT(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.UserAttributeValue {
+func DeletedByGTE(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.UserAttributeValue {
+func DeletedByLT(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.UserAttributeValue {
+func DeletedByLTE(v string) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -270,44 +306,174 @@ func DeletedByNotNil() predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNotNull(FieldDeletedBy))
 }
 
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.UserAttributeValue {
+func UserIDEQ(v uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.UserAttributeValue {
+func UserIDNEQ(v uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.UserAttributeValue {
+func UserIDIn(vs ...uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.UserAttributeValue {
+func UserIDNotIn(vs ...uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // AttributeIDEQ applies the EQ predicate on the "attribute_id" field.
-func AttributeIDEQ(v int) predicate.UserAttributeValue {
+func AttributeIDEQ(v uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldEQ(FieldAttributeID, v))
 }
 
 // AttributeIDNEQ applies the NEQ predicate on the "attribute_id" field.
-func AttributeIDNEQ(v int) predicate.UserAttributeValue {
+func AttributeIDNEQ(v uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNEQ(FieldAttributeID, v))
 }
 
 // AttributeIDIn applies the In predicate on the "attribute_id" field.
-func AttributeIDIn(vs ...int) predicate.UserAttributeValue {
+func AttributeIDIn(vs ...uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldIn(FieldAttributeID, vs...))
 }
 
 // AttributeIDNotIn applies the NotIn predicate on the "attribute_id" field.
-func AttributeIDNotIn(vs ...int) predicate.UserAttributeValue {
+func AttributeIDNotIn(vs ...uuid.UUID) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(sql.FieldNotIn(FieldAttributeID, vs...))
+}
+
+// DefinitionRevisionIDEQ applies the EQ predicate on the "definition_revision_id" field.
+func DefinitionRevisionIDEQ(v uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldDefinitionRevisionID, v))
+}
+
+// DefinitionRevisionIDNEQ applies the NEQ predicate on the "definition_revision_id" field.
+func DefinitionRevisionIDNEQ(v uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNEQ(FieldDefinitionRevisionID, v))
+}
+
+// DefinitionRevisionIDIn applies the In predicate on the "definition_revision_id" field.
+func DefinitionRevisionIDIn(vs ...uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldIn(FieldDefinitionRevisionID, vs...))
+}
+
+// DefinitionRevisionIDNotIn applies the NotIn predicate on the "definition_revision_id" field.
+func DefinitionRevisionIDNotIn(vs ...uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNotIn(FieldDefinitionRevisionID, vs...))
+}
+
+// SourceRevisionIDEQ applies the EQ predicate on the "source_revision_id" field.
+func SourceRevisionIDEQ(v uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldSourceRevisionID, v))
+}
+
+// SourceRevisionIDNEQ applies the NEQ predicate on the "source_revision_id" field.
+func SourceRevisionIDNEQ(v uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNEQ(FieldSourceRevisionID, v))
+}
+
+// SourceRevisionIDIn applies the In predicate on the "source_revision_id" field.
+func SourceRevisionIDIn(vs ...uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldIn(FieldSourceRevisionID, vs...))
+}
+
+// SourceRevisionIDNotIn applies the NotIn predicate on the "source_revision_id" field.
+func SourceRevisionIDNotIn(vs ...uuid.UUID) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNotIn(FieldSourceRevisionID, vs...))
+}
+
+// SourceValueVersionEQ applies the EQ predicate on the "source_value_version" field.
+func SourceValueVersionEQ(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldSourceValueVersion, v))
+}
+
+// SourceValueVersionNEQ applies the NEQ predicate on the "source_value_version" field.
+func SourceValueVersionNEQ(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNEQ(FieldSourceValueVersion, v))
+}
+
+// SourceValueVersionIn applies the In predicate on the "source_value_version" field.
+func SourceValueVersionIn(vs ...int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldIn(FieldSourceValueVersion, vs...))
+}
+
+// SourceValueVersionNotIn applies the NotIn predicate on the "source_value_version" field.
+func SourceValueVersionNotIn(vs ...int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNotIn(FieldSourceValueVersion, vs...))
+}
+
+// SourceValueVersionGT applies the GT predicate on the "source_value_version" field.
+func SourceValueVersionGT(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldGT(FieldSourceValueVersion, v))
+}
+
+// SourceValueVersionGTE applies the GTE predicate on the "source_value_version" field.
+func SourceValueVersionGTE(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldGTE(FieldSourceValueVersion, v))
+}
+
+// SourceValueVersionLT applies the LT predicate on the "source_value_version" field.
+func SourceValueVersionLT(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldLT(FieldSourceValueVersion, v))
+}
+
+// SourceValueVersionLTE applies the LTE predicate on the "source_value_version" field.
+func SourceValueVersionLTE(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldLTE(FieldSourceValueVersion, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(sql.FieldLTE(FieldVersion, v))
 }
 
 // ValueEQ applies the EQ predicate on the "value" field.
@@ -413,6 +579,52 @@ func HasDefinition() predicate.UserAttributeValue {
 func HasDefinitionWith(preds ...predicate.AttributeDefinition) predicate.UserAttributeValue {
 	return predicate.UserAttributeValue(func(s *sql.Selector) {
 		step := newDefinitionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDefinitionRevision applies the HasEdge predicate on the "definition_revision" edge.
+func HasDefinitionRevision() predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, DefinitionRevisionTable, DefinitionRevisionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDefinitionRevisionWith applies the HasEdge predicate on the "definition_revision" edge with a given conditions (other predicates).
+func HasDefinitionRevisionWith(preds ...predicate.AttributeDefinitionRevision) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(func(s *sql.Selector) {
+		step := newDefinitionRevisionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSourceRevision applies the HasEdge predicate on the "source_revision" edge.
+func HasSourceRevision() predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, SourceRevisionTable, SourceRevisionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSourceRevisionWith applies the HasEdge predicate on the "source_revision" edge with a given conditions (other predicates).
+func HasSourceRevisionWith(preds ...predicate.AttributeDefinitionRevision) predicate.UserAttributeValue {
+	return predicate.UserAttributeValue(func(s *sql.Selector) {
+		step := newSourceRevisionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

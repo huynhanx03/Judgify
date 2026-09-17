@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { APP_ROUTES } from "@/constants/routes";
+import { BrandMark } from "@/components/brand-mark";
 import { adminText } from "@/i18n/admin-text";
 import { cn } from "@/lib/utils";
 
@@ -21,17 +21,7 @@ export function AdminBrand({ className, onNavigate }: AdminBrandProps) {
         className,
       )}
     >
-      <span className="relative size-9 shrink-0 overflow-hidden rounded-xl border border-border-strong bg-surface-raised shadow-sm">
-        <Image
-          src="/images/logo.png"
-          alt=""
-          width={36}
-          height={36}
-          priority
-          aria-hidden="true"
-          className="size-full object-cover"
-        />
-      </span>
+      <BrandMark className="size-9" priority />
       <span className="min-w-0">
         <span className="block truncate text-sm font-bold tracking-tight text-foreground transition-colors duration-150 group-hover:text-primary">
           {adminText("PRODUCT_NAME")}

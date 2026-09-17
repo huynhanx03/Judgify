@@ -154,8 +154,8 @@ export function AttributeLifecycleReviewDialog({
           ) : null}
 
           {preview?.requires_migration ? (
-            <div className="flex gap-3 rounded-2xl border border-amber-500/35 bg-amber-500/10 p-4 text-sm text-foreground">
-              <DatabaseZap className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+            <div className="flex gap-3 rounded-2xl border border-warning/35 bg-warning/10 p-4 text-sm text-foreground">
+              <DatabaseZap className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
               <div className="space-y-1">
                 <p className="font-medium">{ADMIN_TEXT.ATTRIBUTE_DEFINITIONS.MIGRATION_NOTICE_TITLE}</p>
                 <p className="leading-relaxed text-muted-foreground">

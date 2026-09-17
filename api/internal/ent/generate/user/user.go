@@ -3,11 +3,13 @@
 package user
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -25,26 +27,58 @@ const (
 	FieldDeletedBy = "deleted_by"
 	// FieldUsername holds the string denoting the username field in the database.
 	FieldUsername = "username"
-	// FieldRoleID holds the string denoting the role_id field in the database.
-	FieldRoleID = "role_id"
-	// EdgeRole holds the string denoting the role edge name in mutations.
-	EdgeRole = "role"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldSecurityVersion holds the string denoting the security_version field in the database.
+	FieldSecurityVersion = "security_version"
+	// FieldProfileVisibility holds the string denoting the profile_visibility field in the database.
+	FieldProfileVisibility = "profile_visibility"
+	// FieldProfileVisibilityVersion holds the string denoting the profile_visibility_version field in the database.
+	FieldProfileVisibilityVersion = "profile_visibility_version"
+	// FieldProfileVisibilityUpdatedAt holds the string denoting the profile_visibility_updated_at field in the database.
+	FieldProfileVisibilityUpdatedAt = "profile_visibility_updated_at"
+	// FieldSuspendedAt holds the string denoting the suspended_at field in the database.
+	FieldSuspendedAt = "suspended_at"
+	// FieldSuspensionReason holds the string denoting the suspension_reason field in the database.
+	FieldSuspensionReason = "suspension_reason"
 	// EdgeCredentials holds the string denoting the credentials edge name in mutations.
 	EdgeCredentials = "credentials"
 	// EdgeAttributes holds the string denoting the attributes edge name in mutations.
 	EdgeAttributes = "attributes"
 	// EdgeFederatedIdentities holds the string denoting the federated_identities edge name in mutations.
 	EdgeFederatedIdentities = "federated_identities"
+	// EdgeAuthSessions holds the string denoting the auth_sessions edge name in mutations.
+	EdgeAuthSessions = "auth_sessions"
+	// EdgeRecoveryContacts holds the string denoting the recovery_contacts edge name in mutations.
+	EdgeRecoveryContacts = "recovery_contacts"
+	// EdgeRecoveryContactCommands holds the string denoting the recovery_contact_commands edge name in mutations.
+	EdgeRecoveryContactCommands = "recovery_contact_commands"
+	// EdgePasswordResetTokens holds the string denoting the password_reset_tokens edge name in mutations.
+	EdgePasswordResetTokens = "password_reset_tokens"
+	// EdgeSessionIssuanceReceipts holds the string denoting the session_issuance_receipts edge name in mutations.
+	EdgeSessionIssuanceReceipts = "session_issuance_receipts"
+	// EdgeConsumedTraitOffers holds the string denoting the consumed_trait_offers edge name in mutations.
+	EdgeConsumedTraitOffers = "consumed_trait_offers"
+	// EdgeSessionCommands holds the string denoting the session_commands edge name in mutations.
+	EdgeSessionCommands = "session_commands"
+	// EdgeOauthCompletionTickets holds the string denoting the oauth_completion_tickets edge name in mutations.
+	EdgeOauthCompletionTickets = "oauth_completion_tickets"
+	// EdgeAuthorizationUpdates holds the string denoting the authorization_updates edge name in mutations.
+	EdgeAuthorizationUpdates = "authorization_updates"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
 	// EdgeSubmissions holds the string denoting the submissions edge name in mutations.
 	EdgeSubmissions = "submissions"
 	// EdgeUserTraits holds the string denoting the user_traits edge name in mutations.
 	EdgeUserTraits = "user_traits"
+	// EdgeRewardProfileRevisions holds the string denoting the reward_profile_revisions edge name in mutations.
+	EdgeRewardProfileRevisions = "reward_profile_revisions"
 	// EdgeUserElementExps holds the string denoting the user_element_exps edge name in mutations.
 	EdgeUserElementExps = "user_element_exps"
 	// EdgeUserStats holds the string denoting the user_stats edge name in mutations.
 	EdgeUserStats = "user_stats"
+	// EdgeCultivationRankingProjection holds the string denoting the cultivation_ranking_projection edge name in mutations.
+	EdgeCultivationRankingProjection = "cultivation_ranking_projection"
 	// EdgeSolvedProblems holds the string denoting the solved_problems edge name in mutations.
 	EdgeSolvedProblems = "solved_problems"
 	// EdgeDifficultyStats holds the string denoting the difficulty_stats edge name in mutations.
@@ -59,17 +93,38 @@ const (
 	EdgeContestStandings = "contest_standings"
 	// EdgeRatingHistories holds the string denoting the rating_histories edge name in mutations.
 	EdgeRatingHistories = "rating_histories"
+	// EdgeContestRatingResults holds the string denoting the contest_rating_results edge name in mutations.
+	EdgeContestRatingResults = "contest_rating_results"
+	// EdgeContestUserRatings holds the string denoting the contest_user_ratings edge name in mutations.
+	EdgeContestUserRatings = "contest_user_ratings"
+	// EdgeContestScoringAttempts holds the string denoting the contest_scoring_attempts edge name in mutations.
+	EdgeContestScoringAttempts = "contest_scoring_attempts"
+	// EdgeContestProblemResults holds the string denoting the contest_problem_results edge name in mutations.
+	EdgeContestProblemResults = "contest_problem_results"
 	// EdgeMaterials holds the string denoting the materials edge name in mutations.
 	EdgeMaterials = "materials"
+	// EdgeMaterialRevisions holds the string denoting the material_revisions edge name in mutations.
+	EdgeMaterialRevisions = "material_revisions"
+	// EdgeNotifications holds the string denoting the notifications edge name in mutations.
+	EdgeNotifications = "notifications"
+	// EdgeNotificationPreferences holds the string denoting the notification_preferences edge name in mutations.
+	EdgeNotificationPreferences = "notification_preferences"
+	// EdgeCreatedNotificationCampaigns holds the string denoting the created_notification_campaigns edge name in mutations.
+	EdgeCreatedNotificationCampaigns = "created_notification_campaigns"
+	// EdgeNotificationCampaignRevisions holds the string denoting the notification_campaign_revisions edge name in mutations.
+	EdgeNotificationCampaignRevisions = "notification_campaign_revisions"
+	// EdgeExplicitNotificationCampaignRevisions holds the string denoting the explicit_notification_campaign_revisions edge name in mutations.
+	EdgeExplicitNotificationCampaignRevisions = "explicit_notification_campaign_revisions"
+	// EdgeNotificationCampaignDeliveries holds the string denoting the notification_campaign_deliveries edge name in mutations.
+	EdgeNotificationCampaignDeliveries = "notification_campaign_deliveries"
+	// EdgeContestContentRevisions holds the string denoting the contest_content_revisions edge name in mutations.
+	EdgeContestContentRevisions = "contest_content_revisions"
+	// EdgeContestClarifications holds the string denoting the contest_clarifications edge name in mutations.
+	EdgeContestClarifications = "contest_clarifications"
+	// EdgeContestContentCommands holds the string denoting the contest_content_commands edge name in mutations.
+	EdgeContestContentCommands = "contest_content_commands"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// RoleTable is the table that holds the role relation/edge.
-	RoleTable = "users"
-	// RoleInverseTable is the table name for the Role entity.
-	// It exists in this package in order to avoid circular dependency with the "role" package.
-	RoleInverseTable = "roles"
-	// RoleColumn is the table column denoting the role relation/edge.
-	RoleColumn = "role_id"
 	// CredentialsTable is the table that holds the credentials relation/edge.
 	CredentialsTable = "credentials"
 	// CredentialsInverseTable is the table name for the Credential entity.
@@ -91,6 +146,69 @@ const (
 	FederatedIdentitiesInverseTable = "federated_identities"
 	// FederatedIdentitiesColumn is the table column denoting the federated_identities relation/edge.
 	FederatedIdentitiesColumn = "user_id"
+	// AuthSessionsTable is the table that holds the auth_sessions relation/edge.
+	AuthSessionsTable = "auth_sessions"
+	// AuthSessionsInverseTable is the table name for the AuthSession entity.
+	// It exists in this package in order to avoid circular dependency with the "authsession" package.
+	AuthSessionsInverseTable = "auth_sessions"
+	// AuthSessionsColumn is the table column denoting the auth_sessions relation/edge.
+	AuthSessionsColumn = "user_id"
+	// RecoveryContactsTable is the table that holds the recovery_contacts relation/edge.
+	RecoveryContactsTable = "user_recovery_contacts"
+	// RecoveryContactsInverseTable is the table name for the UserRecoveryContact entity.
+	// It exists in this package in order to avoid circular dependency with the "userrecoverycontact" package.
+	RecoveryContactsInverseTable = "user_recovery_contacts"
+	// RecoveryContactsColumn is the table column denoting the recovery_contacts relation/edge.
+	RecoveryContactsColumn = "user_id"
+	// RecoveryContactCommandsTable is the table that holds the recovery_contact_commands relation/edge.
+	RecoveryContactCommandsTable = "recovery_contact_command_receipts"
+	// RecoveryContactCommandsInverseTable is the table name for the RecoveryContactCommandReceipt entity.
+	// It exists in this package in order to avoid circular dependency with the "recoverycontactcommandreceipt" package.
+	RecoveryContactCommandsInverseTable = "recovery_contact_command_receipts"
+	// RecoveryContactCommandsColumn is the table column denoting the recovery_contact_commands relation/edge.
+	RecoveryContactCommandsColumn = "user_id"
+	// PasswordResetTokensTable is the table that holds the password_reset_tokens relation/edge.
+	PasswordResetTokensTable = "password_reset_tokens"
+	// PasswordResetTokensInverseTable is the table name for the PasswordResetToken entity.
+	// It exists in this package in order to avoid circular dependency with the "passwordresettoken" package.
+	PasswordResetTokensInverseTable = "password_reset_tokens"
+	// PasswordResetTokensColumn is the table column denoting the password_reset_tokens relation/edge.
+	PasswordResetTokensColumn = "user_id"
+	// SessionIssuanceReceiptsTable is the table that holds the session_issuance_receipts relation/edge.
+	SessionIssuanceReceiptsTable = "auth_session_issuance_receipts"
+	// SessionIssuanceReceiptsInverseTable is the table name for the AuthSessionIssuanceReceipt entity.
+	// It exists in this package in order to avoid circular dependency with the "authsessionissuancereceipt" package.
+	SessionIssuanceReceiptsInverseTable = "auth_session_issuance_receipts"
+	// SessionIssuanceReceiptsColumn is the table column denoting the session_issuance_receipts relation/edge.
+	SessionIssuanceReceiptsColumn = "user_id"
+	// ConsumedTraitOffersTable is the table that holds the consumed_trait_offers relation/edge.
+	ConsumedTraitOffersTable = "onboarding_trait_offers"
+	// ConsumedTraitOffersInverseTable is the table name for the OnboardingTraitOffer entity.
+	// It exists in this package in order to avoid circular dependency with the "onboardingtraitoffer" package.
+	ConsumedTraitOffersInverseTable = "onboarding_trait_offers"
+	// ConsumedTraitOffersColumn is the table column denoting the consumed_trait_offers relation/edge.
+	ConsumedTraitOffersColumn = "consumed_by_user_id"
+	// SessionCommandsTable is the table that holds the session_commands relation/edge.
+	SessionCommandsTable = "auth_session_command_receipts"
+	// SessionCommandsInverseTable is the table name for the AuthSessionCommandReceipt entity.
+	// It exists in this package in order to avoid circular dependency with the "authsessioncommandreceipt" package.
+	SessionCommandsInverseTable = "auth_session_command_receipts"
+	// SessionCommandsColumn is the table column denoting the session_commands relation/edge.
+	SessionCommandsColumn = "user_id"
+	// OauthCompletionTicketsTable is the table that holds the oauth_completion_tickets relation/edge.
+	OauthCompletionTicketsTable = "oauth_completion_tickets"
+	// OauthCompletionTicketsInverseTable is the table name for the OAuthCompletionTicket entity.
+	// It exists in this package in order to avoid circular dependency with the "oauthcompletionticket" package.
+	OauthCompletionTicketsInverseTable = "oauth_completion_tickets"
+	// OauthCompletionTicketsColumn is the table column denoting the oauth_completion_tickets relation/edge.
+	OauthCompletionTicketsColumn = "bound_user_id"
+	// AuthorizationUpdatesTable is the table that holds the authorization_updates relation/edge.
+	AuthorizationUpdatesTable = "authorization_states"
+	// AuthorizationUpdatesInverseTable is the table name for the AuthorizationState entity.
+	// It exists in this package in order to avoid circular dependency with the "authorizationstate" package.
+	AuthorizationUpdatesInverseTable = "authorization_states"
+	// AuthorizationUpdatesColumn is the table column denoting the authorization_updates relation/edge.
+	AuthorizationUpdatesColumn = "updated_by"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "problems"
 	// ProblemsInverseTable is the table name for the Problem entity.
@@ -112,6 +230,13 @@ const (
 	UserTraitsInverseTable = "user_traits"
 	// UserTraitsColumn is the table column denoting the user_traits relation/edge.
 	UserTraitsColumn = "user_id"
+	// RewardProfileRevisionsTable is the table that holds the reward_profile_revisions relation/edge.
+	RewardProfileRevisionsTable = "user_reward_profile_revisions"
+	// RewardProfileRevisionsInverseTable is the table name for the UserRewardProfileRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "userrewardprofilerevision" package.
+	RewardProfileRevisionsInverseTable = "user_reward_profile_revisions"
+	// RewardProfileRevisionsColumn is the table column denoting the reward_profile_revisions relation/edge.
+	RewardProfileRevisionsColumn = "user_id"
 	// UserElementExpsTable is the table that holds the user_element_exps relation/edge.
 	UserElementExpsTable = "user_element_exps"
 	// UserElementExpsInverseTable is the table name for the UserElementExp entity.
@@ -126,6 +251,13 @@ const (
 	UserStatsInverseTable = "user_stats"
 	// UserStatsColumn is the table column denoting the user_stats relation/edge.
 	UserStatsColumn = "user_id"
+	// CultivationRankingProjectionTable is the table that holds the cultivation_ranking_projection relation/edge.
+	CultivationRankingProjectionTable = "cultivation_ranking_projections"
+	// CultivationRankingProjectionInverseTable is the table name for the CultivationRankingProjection entity.
+	// It exists in this package in order to avoid circular dependency with the "cultivationrankingprojection" package.
+	CultivationRankingProjectionInverseTable = "cultivation_ranking_projections"
+	// CultivationRankingProjectionColumn is the table column denoting the cultivation_ranking_projection relation/edge.
+	CultivationRankingProjectionColumn = "user_id"
 	// SolvedProblemsTable is the table that holds the solved_problems relation/edge.
 	SolvedProblemsTable = "user_solved_problems"
 	// SolvedProblemsInverseTable is the table name for the UserSolvedProblem entity.
@@ -175,6 +307,34 @@ const (
 	RatingHistoriesInverseTable = "rating_histories"
 	// RatingHistoriesColumn is the table column denoting the rating_histories relation/edge.
 	RatingHistoriesColumn = "user_id"
+	// ContestRatingResultsTable is the table that holds the contest_rating_results relation/edge.
+	ContestRatingResultsTable = "contest_rating_results"
+	// ContestRatingResultsInverseTable is the table name for the ContestRatingResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestratingresult" package.
+	ContestRatingResultsInverseTable = "contest_rating_results"
+	// ContestRatingResultsColumn is the table column denoting the contest_rating_results relation/edge.
+	ContestRatingResultsColumn = "user_id"
+	// ContestUserRatingsTable is the table that holds the contest_user_ratings relation/edge.
+	ContestUserRatingsTable = "contest_user_ratings"
+	// ContestUserRatingsInverseTable is the table name for the ContestUserRating entity.
+	// It exists in this package in order to avoid circular dependency with the "contestuserrating" package.
+	ContestUserRatingsInverseTable = "contest_user_ratings"
+	// ContestUserRatingsColumn is the table column denoting the contest_user_ratings relation/edge.
+	ContestUserRatingsColumn = "user_id"
+	// ContestScoringAttemptsTable is the table that holds the contest_scoring_attempts relation/edge.
+	ContestScoringAttemptsTable = "contest_scoring_attempts"
+	// ContestScoringAttemptsInverseTable is the table name for the ContestScoringAttempt entity.
+	// It exists in this package in order to avoid circular dependency with the "contestscoringattempt" package.
+	ContestScoringAttemptsInverseTable = "contest_scoring_attempts"
+	// ContestScoringAttemptsColumn is the table column denoting the contest_scoring_attempts relation/edge.
+	ContestScoringAttemptsColumn = "user_id"
+	// ContestProblemResultsTable is the table that holds the contest_problem_results relation/edge.
+	ContestProblemResultsTable = "contest_problem_results"
+	// ContestProblemResultsInverseTable is the table name for the ContestProblemResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestproblemresult" package.
+	ContestProblemResultsInverseTable = "contest_problem_results"
+	// ContestProblemResultsColumn is the table column denoting the contest_problem_results relation/edge.
+	ContestProblemResultsColumn = "user_id"
 	// MaterialsTable is the table that holds the materials relation/edge.
 	MaterialsTable = "materials"
 	// MaterialsInverseTable is the table name for the Material entity.
@@ -182,6 +342,76 @@ const (
 	MaterialsInverseTable = "materials"
 	// MaterialsColumn is the table column denoting the materials relation/edge.
 	MaterialsColumn = "author_id"
+	// MaterialRevisionsTable is the table that holds the material_revisions relation/edge.
+	MaterialRevisionsTable = "material_revisions"
+	// MaterialRevisionsInverseTable is the table name for the MaterialRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "materialrevision" package.
+	MaterialRevisionsInverseTable = "material_revisions"
+	// MaterialRevisionsColumn is the table column denoting the material_revisions relation/edge.
+	MaterialRevisionsColumn = "author_id"
+	// NotificationsTable is the table that holds the notifications relation/edge.
+	NotificationsTable = "notifications"
+	// NotificationsInverseTable is the table name for the Notification entity.
+	// It exists in this package in order to avoid circular dependency with the "notification" package.
+	NotificationsInverseTable = "notifications"
+	// NotificationsColumn is the table column denoting the notifications relation/edge.
+	NotificationsColumn = "user_id"
+	// NotificationPreferencesTable is the table that holds the notification_preferences relation/edge.
+	NotificationPreferencesTable = "notification_preferences"
+	// NotificationPreferencesInverseTable is the table name for the NotificationPreference entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationpreference" package.
+	NotificationPreferencesInverseTable = "notification_preferences"
+	// NotificationPreferencesColumn is the table column denoting the notification_preferences relation/edge.
+	NotificationPreferencesColumn = "user_id"
+	// CreatedNotificationCampaignsTable is the table that holds the created_notification_campaigns relation/edge.
+	CreatedNotificationCampaignsTable = "notification_campaigns"
+	// CreatedNotificationCampaignsInverseTable is the table name for the NotificationCampaign entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationcampaign" package.
+	CreatedNotificationCampaignsInverseTable = "notification_campaigns"
+	// CreatedNotificationCampaignsColumn is the table column denoting the created_notification_campaigns relation/edge.
+	CreatedNotificationCampaignsColumn = "created_by"
+	// NotificationCampaignRevisionsTable is the table that holds the notification_campaign_revisions relation/edge.
+	NotificationCampaignRevisionsTable = "notification_campaign_revisions"
+	// NotificationCampaignRevisionsInverseTable is the table name for the NotificationCampaignRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationcampaignrevision" package.
+	NotificationCampaignRevisionsInverseTable = "notification_campaign_revisions"
+	// NotificationCampaignRevisionsColumn is the table column denoting the notification_campaign_revisions relation/edge.
+	NotificationCampaignRevisionsColumn = "author_id"
+	// ExplicitNotificationCampaignRevisionsTable is the table that holds the explicit_notification_campaign_revisions relation/edge.
+	ExplicitNotificationCampaignRevisionsTable = "notification_campaign_explicit_users"
+	// ExplicitNotificationCampaignRevisionsInverseTable is the table name for the NotificationCampaignExplicitUser entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationcampaignexplicituser" package.
+	ExplicitNotificationCampaignRevisionsInverseTable = "notification_campaign_explicit_users"
+	// ExplicitNotificationCampaignRevisionsColumn is the table column denoting the explicit_notification_campaign_revisions relation/edge.
+	ExplicitNotificationCampaignRevisionsColumn = "user_id"
+	// NotificationCampaignDeliveriesTable is the table that holds the notification_campaign_deliveries relation/edge.
+	NotificationCampaignDeliveriesTable = "notification_campaign_recipients"
+	// NotificationCampaignDeliveriesInverseTable is the table name for the NotificationCampaignRecipient entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationcampaignrecipient" package.
+	NotificationCampaignDeliveriesInverseTable = "notification_campaign_recipients"
+	// NotificationCampaignDeliveriesColumn is the table column denoting the notification_campaign_deliveries relation/edge.
+	NotificationCampaignDeliveriesColumn = "user_id"
+	// ContestContentRevisionsTable is the table that holds the contest_content_revisions relation/edge.
+	ContestContentRevisionsTable = "contest_content_revisions"
+	// ContestContentRevisionsInverseTable is the table name for the ContestContentRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "contestcontentrevision" package.
+	ContestContentRevisionsInverseTable = "contest_content_revisions"
+	// ContestContentRevisionsColumn is the table column denoting the contest_content_revisions relation/edge.
+	ContestContentRevisionsColumn = "author_id"
+	// ContestClarificationsTable is the table that holds the contest_clarifications relation/edge.
+	ContestClarificationsTable = "contest_clarifications"
+	// ContestClarificationsInverseTable is the table name for the ContestClarification entity.
+	// It exists in this package in order to avoid circular dependency with the "contestclarification" package.
+	ContestClarificationsInverseTable = "contest_clarifications"
+	// ContestClarificationsColumn is the table column denoting the contest_clarifications relation/edge.
+	ContestClarificationsColumn = "requester_id"
+	// ContestContentCommandsTable is the table that holds the contest_content_commands relation/edge.
+	ContestContentCommandsTable = "contest_content_commands"
+	// ContestContentCommandsInverseTable is the table name for the ContestContentCommand entity.
+	// It exists in this package in order to avoid circular dependency with the "contestcontentcommand" package.
+	ContestContentCommandsInverseTable = "contest_content_commands"
+	// ContestContentCommandsColumn is the table column denoting the contest_content_commands relation/edge.
+	ContestContentCommandsColumn = "actor_user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -192,7 +422,13 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldDeletedBy,
 	FieldUsername,
-	FieldRoleID,
+	FieldStatus,
+	FieldSecurityVersion,
+	FieldProfileVisibility,
+	FieldProfileVisibilityVersion,
+	FieldProfileVisibilityUpdatedAt,
+	FieldSuspendedAt,
+	FieldSuspensionReason,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -221,7 +457,75 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	UsernameValidator func(string) error
+	// DefaultSecurityVersion holds the default value on creation for the "security_version" field.
+	DefaultSecurityVersion int64
+	// SecurityVersionValidator is a validator for the "security_version" field. It is called by the builders before save.
+	SecurityVersionValidator func(int64) error
+	// DefaultProfileVisibilityVersion holds the default value on creation for the "profile_visibility_version" field.
+	DefaultProfileVisibilityVersion int64
+	// ProfileVisibilityVersionValidator is a validator for the "profile_visibility_version" field. It is called by the builders before save.
+	ProfileVisibilityVersionValidator func(int64) error
+	// DefaultProfileVisibilityUpdatedAt holds the default value on creation for the "profile_visibility_updated_at" field.
+	DefaultProfileVisibilityUpdatedAt func() time.Time
+	// SuspensionReasonValidator is a validator for the "suspension_reason" field. It is called by the builders before save.
+	SuspensionReasonValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusActive is the default value of the Status enum.
+const DefaultStatus = StatusActive
+
+// Status values.
+const (
+	StatusInvited   Status = "invited"
+	StatusActive    Status = "active"
+	StatusSuspended Status = "suspended"
+	StatusDeleted   Status = "deleted"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusInvited, StatusActive, StatusSuspended, StatusDeleted:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for status field: %q", s)
+	}
+}
+
+// ProfileVisibility defines the type for the "profile_visibility" enum field.
+type ProfileVisibility string
+
+// ProfileVisibilityPrivate is the default value of the ProfileVisibility enum.
+const DefaultProfileVisibility = ProfileVisibilityPrivate
+
+// ProfileVisibility values.
+const (
+	ProfileVisibilityPrivate ProfileVisibility = "private"
+	ProfileVisibilityPublic  ProfileVisibility = "public"
+)
+
+func (pv ProfileVisibility) String() string {
+	return string(pv)
+}
+
+// ProfileVisibilityValidator is a validator for the "profile_visibility" field enum values. It is called by the builders before save.
+func ProfileVisibilityValidator(pv ProfileVisibility) error {
+	switch pv {
+	case ProfileVisibilityPrivate, ProfileVisibilityPublic:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for profile_visibility field: %q", pv)
+	}
+}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -256,16 +560,39 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUsername, opts...).ToFunc()
 }
 
-// ByRoleID orders the results by the role_id field.
-func ByRoleID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRoleID, opts...).ToFunc()
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByRoleField orders the results by role field.
-func ByRoleField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRoleStep(), sql.OrderByField(field, opts...))
-	}
+// BySecurityVersion orders the results by the security_version field.
+func BySecurityVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSecurityVersion, opts...).ToFunc()
+}
+
+// ByProfileVisibility orders the results by the profile_visibility field.
+func ByProfileVisibility(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProfileVisibility, opts...).ToFunc()
+}
+
+// ByProfileVisibilityVersion orders the results by the profile_visibility_version field.
+func ByProfileVisibilityVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProfileVisibilityVersion, opts...).ToFunc()
+}
+
+// ByProfileVisibilityUpdatedAt orders the results by the profile_visibility_updated_at field.
+func ByProfileVisibilityUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProfileVisibilityUpdatedAt, opts...).ToFunc()
+}
+
+// BySuspendedAt orders the results by the suspended_at field.
+func BySuspendedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuspendedAt, opts...).ToFunc()
+}
+
+// BySuspensionReason orders the results by the suspension_reason field.
+func BySuspensionReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuspensionReason, opts...).ToFunc()
 }
 
 // ByCredentialsCount orders the results by credentials count.
@@ -307,6 +634,132 @@ func ByFederatedIdentitiesCount(opts ...sql.OrderTermOption) OrderOption {
 func ByFederatedIdentities(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newFederatedIdentitiesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAuthSessionsCount orders the results by auth_sessions count.
+func ByAuthSessionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuthSessionsStep(), opts...)
+	}
+}
+
+// ByAuthSessions orders the results by auth_sessions terms.
+func ByAuthSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuthSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRecoveryContactsCount orders the results by recovery_contacts count.
+func ByRecoveryContactsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRecoveryContactsStep(), opts...)
+	}
+}
+
+// ByRecoveryContacts orders the results by recovery_contacts terms.
+func ByRecoveryContacts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRecoveryContactsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByRecoveryContactCommandsCount orders the results by recovery_contact_commands count.
+func ByRecoveryContactCommandsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRecoveryContactCommandsStep(), opts...)
+	}
+}
+
+// ByRecoveryContactCommands orders the results by recovery_contact_commands terms.
+func ByRecoveryContactCommands(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRecoveryContactCommandsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByPasswordResetTokensCount orders the results by password_reset_tokens count.
+func ByPasswordResetTokensCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPasswordResetTokensStep(), opts...)
+	}
+}
+
+// ByPasswordResetTokens orders the results by password_reset_tokens terms.
+func ByPasswordResetTokens(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPasswordResetTokensStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySessionIssuanceReceiptsCount orders the results by session_issuance_receipts count.
+func BySessionIssuanceReceiptsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSessionIssuanceReceiptsStep(), opts...)
+	}
+}
+
+// BySessionIssuanceReceipts orders the results by session_issuance_receipts terms.
+func BySessionIssuanceReceipts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSessionIssuanceReceiptsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByConsumedTraitOffersCount orders the results by consumed_trait_offers count.
+func ByConsumedTraitOffersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newConsumedTraitOffersStep(), opts...)
+	}
+}
+
+// ByConsumedTraitOffers orders the results by consumed_trait_offers terms.
+func ByConsumedTraitOffers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newConsumedTraitOffersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySessionCommandsCount orders the results by session_commands count.
+func BySessionCommandsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSessionCommandsStep(), opts...)
+	}
+}
+
+// BySessionCommands orders the results by session_commands terms.
+func BySessionCommands(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSessionCommandsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByOauthCompletionTicketsCount orders the results by oauth_completion_tickets count.
+func ByOauthCompletionTicketsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOauthCompletionTicketsStep(), opts...)
+	}
+}
+
+// ByOauthCompletionTickets orders the results by oauth_completion_tickets terms.
+func ByOauthCompletionTickets(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOauthCompletionTicketsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAuthorizationUpdatesCount orders the results by authorization_updates count.
+func ByAuthorizationUpdatesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuthorizationUpdatesStep(), opts...)
+	}
+}
+
+// ByAuthorizationUpdates orders the results by authorization_updates terms.
+func ByAuthorizationUpdates(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuthorizationUpdatesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -352,6 +805,20 @@ func ByUserTraits(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByRewardProfileRevisionsCount orders the results by reward_profile_revisions count.
+func ByRewardProfileRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRewardProfileRevisionsStep(), opts...)
+	}
+}
+
+// ByRewardProfileRevisions orders the results by reward_profile_revisions terms.
+func ByRewardProfileRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRewardProfileRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByUserElementExpsCount orders the results by user_element_exps count.
 func ByUserElementExpsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -377,6 +844,20 @@ func ByUserStatsCount(opts ...sql.OrderTermOption) OrderOption {
 func ByUserStats(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newUserStatsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByCultivationRankingProjectionCount orders the results by cultivation_ranking_projection count.
+func ByCultivationRankingProjectionCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCultivationRankingProjectionStep(), opts...)
+	}
+}
+
+// ByCultivationRankingProjection orders the results by cultivation_ranking_projection terms.
+func ByCultivationRankingProjection(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCultivationRankingProjectionStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -478,6 +959,62 @@ func ByRatingHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByContestRatingResultsCount orders the results by contest_rating_results count.
+func ByContestRatingResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestRatingResultsStep(), opts...)
+	}
+}
+
+// ByContestRatingResults orders the results by contest_rating_results terms.
+func ByContestRatingResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestRatingResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestUserRatingsCount orders the results by contest_user_ratings count.
+func ByContestUserRatingsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestUserRatingsStep(), opts...)
+	}
+}
+
+// ByContestUserRatings orders the results by contest_user_ratings terms.
+func ByContestUserRatings(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestUserRatingsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestScoringAttemptsCount orders the results by contest_scoring_attempts count.
+func ByContestScoringAttemptsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestScoringAttemptsStep(), opts...)
+	}
+}
+
+// ByContestScoringAttempts orders the results by contest_scoring_attempts terms.
+func ByContestScoringAttempts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestScoringAttemptsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestProblemResultsCount orders the results by contest_problem_results count.
+func ByContestProblemResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestProblemResultsStep(), opts...)
+	}
+}
+
+// ByContestProblemResults orders the results by contest_problem_results terms.
+func ByContestProblemResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestProblemResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByMaterialsCount orders the results by materials count.
 func ByMaterialsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -491,12 +1028,145 @@ func ByMaterials(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMaterialsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newRoleStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RoleInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, RoleTable, RoleColumn),
-	)
+
+// ByMaterialRevisionsCount orders the results by material_revisions count.
+func ByMaterialRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMaterialRevisionsStep(), opts...)
+	}
+}
+
+// ByMaterialRevisions orders the results by material_revisions terms.
+func ByMaterialRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMaterialRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByNotificationsCount orders the results by notifications count.
+func ByNotificationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationsStep(), opts...)
+	}
+}
+
+// ByNotifications orders the results by notifications terms.
+func ByNotifications(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByNotificationPreferencesCount orders the results by notification_preferences count.
+func ByNotificationPreferencesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationPreferencesStep(), opts...)
+	}
+}
+
+// ByNotificationPreferences orders the results by notification_preferences terms.
+func ByNotificationPreferences(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationPreferencesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByCreatedNotificationCampaignsCount orders the results by created_notification_campaigns count.
+func ByCreatedNotificationCampaignsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCreatedNotificationCampaignsStep(), opts...)
+	}
+}
+
+// ByCreatedNotificationCampaigns orders the results by created_notification_campaigns terms.
+func ByCreatedNotificationCampaigns(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCreatedNotificationCampaignsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByNotificationCampaignRevisionsCount orders the results by notification_campaign_revisions count.
+func ByNotificationCampaignRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationCampaignRevisionsStep(), opts...)
+	}
+}
+
+// ByNotificationCampaignRevisions orders the results by notification_campaign_revisions terms.
+func ByNotificationCampaignRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationCampaignRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByExplicitNotificationCampaignRevisionsCount orders the results by explicit_notification_campaign_revisions count.
+func ByExplicitNotificationCampaignRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newExplicitNotificationCampaignRevisionsStep(), opts...)
+	}
+}
+
+// ByExplicitNotificationCampaignRevisions orders the results by explicit_notification_campaign_revisions terms.
+func ByExplicitNotificationCampaignRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newExplicitNotificationCampaignRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByNotificationCampaignDeliveriesCount orders the results by notification_campaign_deliveries count.
+func ByNotificationCampaignDeliveriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationCampaignDeliveriesStep(), opts...)
+	}
+}
+
+// ByNotificationCampaignDeliveries orders the results by notification_campaign_deliveries terms.
+func ByNotificationCampaignDeliveries(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationCampaignDeliveriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestContentRevisionsCount orders the results by contest_content_revisions count.
+func ByContestContentRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestContentRevisionsStep(), opts...)
+	}
+}
+
+// ByContestContentRevisions orders the results by contest_content_revisions terms.
+func ByContestContentRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestContentRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestClarificationsCount orders the results by contest_clarifications count.
+func ByContestClarificationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestClarificationsStep(), opts...)
+	}
+}
+
+// ByContestClarifications orders the results by contest_clarifications terms.
+func ByContestClarifications(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestClarificationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByContestContentCommandsCount orders the results by contest_content_commands count.
+func ByContestContentCommandsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestContentCommandsStep(), opts...)
+	}
+}
+
+// ByContestContentCommands orders the results by contest_content_commands terms.
+func ByContestContentCommands(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestContentCommandsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newCredentialsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -517,6 +1187,69 @@ func newFederatedIdentitiesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(FederatedIdentitiesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, FederatedIdentitiesTable, FederatedIdentitiesColumn),
+	)
+}
+func newAuthSessionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuthSessionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuthSessionsTable, AuthSessionsColumn),
+	)
+}
+func newRecoveryContactsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RecoveryContactsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RecoveryContactsTable, RecoveryContactsColumn),
+	)
+}
+func newRecoveryContactCommandsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RecoveryContactCommandsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RecoveryContactCommandsTable, RecoveryContactCommandsColumn),
+	)
+}
+func newPasswordResetTokensStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PasswordResetTokensInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PasswordResetTokensTable, PasswordResetTokensColumn),
+	)
+}
+func newSessionIssuanceReceiptsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SessionIssuanceReceiptsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SessionIssuanceReceiptsTable, SessionIssuanceReceiptsColumn),
+	)
+}
+func newConsumedTraitOffersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ConsumedTraitOffersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ConsumedTraitOffersTable, ConsumedTraitOffersColumn),
+	)
+}
+func newSessionCommandsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SessionCommandsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SessionCommandsTable, SessionCommandsColumn),
+	)
+}
+func newOauthCompletionTicketsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OauthCompletionTicketsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OauthCompletionTicketsTable, OauthCompletionTicketsColumn),
+	)
+}
+func newAuthorizationUpdatesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuthorizationUpdatesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuthorizationUpdatesTable, AuthorizationUpdatesColumn),
 	)
 }
 func newProblemsStep() *sqlgraph.Step {
@@ -540,6 +1273,13 @@ func newUserTraitsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, UserTraitsTable, UserTraitsColumn),
 	)
 }
+func newRewardProfileRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RewardProfileRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RewardProfileRevisionsTable, RewardProfileRevisionsColumn),
+	)
+}
 func newUserElementExpsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -552,6 +1292,13 @@ func newUserStatsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserStatsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserStatsTable, UserStatsColumn),
+	)
+}
+func newCultivationRankingProjectionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CultivationRankingProjectionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CultivationRankingProjectionTable, CultivationRankingProjectionColumn),
 	)
 }
 func newSolvedProblemsStep() *sqlgraph.Step {
@@ -603,10 +1350,108 @@ func newRatingHistoriesStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, RatingHistoriesTable, RatingHistoriesColumn),
 	)
 }
+func newContestRatingResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestRatingResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestRatingResultsTable, ContestRatingResultsColumn),
+	)
+}
+func newContestUserRatingsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestUserRatingsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestUserRatingsTable, ContestUserRatingsColumn),
+	)
+}
+func newContestScoringAttemptsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestScoringAttemptsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestScoringAttemptsTable, ContestScoringAttemptsColumn),
+	)
+}
+func newContestProblemResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestProblemResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestProblemResultsTable, ContestProblemResultsColumn),
+	)
+}
 func newMaterialsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MaterialsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, MaterialsTable, MaterialsColumn),
+	)
+}
+func newMaterialRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MaterialRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MaterialRevisionsTable, MaterialRevisionsColumn),
+	)
+}
+func newNotificationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationsTable, NotificationsColumn),
+	)
+}
+func newNotificationPreferencesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationPreferencesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationPreferencesTable, NotificationPreferencesColumn),
+	)
+}
+func newCreatedNotificationCampaignsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CreatedNotificationCampaignsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CreatedNotificationCampaignsTable, CreatedNotificationCampaignsColumn),
+	)
+}
+func newNotificationCampaignRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationCampaignRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationCampaignRevisionsTable, NotificationCampaignRevisionsColumn),
+	)
+}
+func newExplicitNotificationCampaignRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ExplicitNotificationCampaignRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ExplicitNotificationCampaignRevisionsTable, ExplicitNotificationCampaignRevisionsColumn),
+	)
+}
+func newNotificationCampaignDeliveriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationCampaignDeliveriesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationCampaignDeliveriesTable, NotificationCampaignDeliveriesColumn),
+	)
+}
+func newContestContentRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestContentRevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestContentRevisionsTable, ContestContentRevisionsColumn),
+	)
+}
+func newContestClarificationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestClarificationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestClarificationsTable, ContestClarificationsColumn),
+	)
+}
+func newContestContentCommandsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestContentCommandsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestContentCommandsTable, ContestContentCommandsColumn),
 	)
 }

@@ -1,12 +1,15 @@
 package schema
 
 import (
+	"github.com/google/uuid"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -18,6 +21,7 @@ type UserElementExp struct {
 // Mixin of the UserElementExp.
 func (UserElementExp) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -26,8 +30,8 @@ func (UserElementExp) Mixin() []ent.Mixin {
 // Fields of the UserElementExp.
 func (UserElementExp) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("user_id"),
-		field.Int("element_id"),
+		field.UUID("user_id", uuid.UUID{}),
+		field.UUID("element_id", uuid.UUID{}),
 		field.Int64("exp").
 			Default(0).
 			NonNegative().

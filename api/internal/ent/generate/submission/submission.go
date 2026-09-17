@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -28,12 +29,56 @@ const (
 	FieldProblemID = "problem_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldContestProblemID holds the string denoting the contest_problem_id field in the database.
+	FieldContestProblemID = "contest_problem_id"
+	// FieldContestScoringPolicyVersion holds the string denoting the contest_scoring_policy_version field in the database.
+	FieldContestScoringPolicyVersion = "contest_scoring_policy_version"
+	// FieldSubmittedAt holds the string denoting the submitted_at field in the database.
+	FieldSubmittedAt = "submitted_at"
+	// FieldContestElapsedMs holds the string denoting the contest_elapsed_ms field in the database.
+	FieldContestElapsedMs = "contest_elapsed_ms"
+	// FieldContestSubmissionSequence holds the string denoting the contest_submission_sequence field in the database.
+	FieldContestSubmissionSequence = "contest_submission_sequence"
 	// FieldLanguage holds the string denoting the language field in the database.
 	FieldLanguage = "language"
+	// FieldRuntimeKey holds the string denoting the runtime_key field in the database.
+	FieldRuntimeKey = "runtime_key"
 	// FieldSourceCode holds the string denoting the source_code field in the database.
 	FieldSourceCode = "source_code"
+	// FieldSourceSha256 holds the string denoting the source_sha256 field in the database.
+	FieldSourceSha256 = "source_sha256"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldLatestGeneration holds the string denoting the latest_generation field in the database.
+	FieldLatestGeneration = "latest_generation"
+	// FieldLatestGenerationPhase holds the string denoting the latest_generation_phase field in the database.
+	FieldLatestGenerationPhase = "latest_generation_phase"
+	// FieldLatestGenerationOutcome holds the string denoting the latest_generation_outcome field in the database.
+	FieldLatestGenerationOutcome = "latest_generation_outcome"
+	// FieldActiveJudgementID holds the string denoting the active_judgement_id field in the database.
+	FieldActiveJudgementID = "active_judgement_id"
+	// FieldActiveJudgementGeneration holds the string denoting the active_judgement_generation field in the database.
+	FieldActiveJudgementGeneration = "active_judgement_generation"
+	// FieldActiveVerdict holds the string denoting the active_verdict field in the database.
+	FieldActiveVerdict = "active_verdict"
+	// FieldIdempotencyKey holds the string denoting the idempotency_key field in the database.
+	FieldIdempotencyKey = "idempotency_key"
+	// FieldRequestHash holds the string denoting the request_hash field in the database.
+	FieldRequestHash = "request_hash"
+	// FieldOriginCid holds the string denoting the origin_cid field in the database.
+	FieldOriginCid = "origin_cid"
+	// FieldLatestGenerationQueuedAt holds the string denoting the latest_generation_queued_at field in the database.
+	FieldLatestGenerationQueuedAt = "latest_generation_queued_at"
+	// FieldLatestGenerationStartedAt holds the string denoting the latest_generation_started_at field in the database.
+	FieldLatestGenerationStartedAt = "latest_generation_started_at"
+	// FieldLatestGenerationCompletedAt holds the string denoting the latest_generation_completed_at field in the database.
+	FieldLatestGenerationCompletedAt = "latest_generation_completed_at"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldJudgedAt holds the string denoting the judged_at field in the database.
+	FieldJudgedAt = "judged_at"
+	// FieldVerdictVersion holds the string denoting the verdict_version field in the database.
+	FieldVerdictVersion = "verdict_version"
 	// FieldPassedCount holds the string denoting the passed_count field in the database.
 	FieldPassedCount = "passed_count"
 	// FieldTotalCount holds the string denoting the total_count field in the database.
@@ -52,6 +97,10 @@ const (
 	EdgeUser = "user"
 	// EdgeContest holds the string denoting the contest edge name in mutations.
 	EdgeContest = "contest"
+	// EdgeContestScoringAttempt holds the string denoting the contest_scoring_attempt edge name in mutations.
+	EdgeContestScoringAttempt = "contest_scoring_attempt"
+	// EdgeLastContestProblemResults holds the string denoting the last_contest_problem_results edge name in mutations.
+	EdgeLastContestProblemResults = "last_contest_problem_results"
 	// Table holds the table name of the submission in the database.
 	Table = "submissions"
 	// ProblemTable is the table that holds the problem relation/edge.
@@ -75,6 +124,20 @@ const (
 	ContestInverseTable = "contests"
 	// ContestColumn is the table column denoting the contest relation/edge.
 	ContestColumn = "contest_id"
+	// ContestScoringAttemptTable is the table that holds the contest_scoring_attempt relation/edge.
+	ContestScoringAttemptTable = "contest_scoring_attempts"
+	// ContestScoringAttemptInverseTable is the table name for the ContestScoringAttempt entity.
+	// It exists in this package in order to avoid circular dependency with the "contestscoringattempt" package.
+	ContestScoringAttemptInverseTable = "contest_scoring_attempts"
+	// ContestScoringAttemptColumn is the table column denoting the contest_scoring_attempt relation/edge.
+	ContestScoringAttemptColumn = "submission_id"
+	// LastContestProblemResultsTable is the table that holds the last_contest_problem_results relation/edge.
+	LastContestProblemResultsTable = "contest_problem_results"
+	// LastContestProblemResultsInverseTable is the table name for the ContestProblemResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestproblemresult" package.
+	LastContestProblemResultsInverseTable = "contest_problem_results"
+	// LastContestProblemResultsColumn is the table column denoting the last_contest_problem_results relation/edge.
+	LastContestProblemResultsColumn = "last_scoring_submission_id"
 )
 
 // Columns holds all SQL columns for submission fields.
@@ -86,9 +149,31 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldProblemID,
 	FieldUserID,
+	FieldContestProblemID,
+	FieldContestScoringPolicyVersion,
+	FieldSubmittedAt,
+	FieldContestElapsedMs,
+	FieldContestSubmissionSequence,
 	FieldLanguage,
+	FieldRuntimeKey,
 	FieldSourceCode,
+	FieldSourceSha256,
+	FieldVersion,
+	FieldLatestGeneration,
+	FieldLatestGenerationPhase,
+	FieldLatestGenerationOutcome,
+	FieldActiveJudgementID,
+	FieldActiveJudgementGeneration,
+	FieldActiveVerdict,
+	FieldIdempotencyKey,
+	FieldRequestHash,
+	FieldOriginCid,
+	FieldLatestGenerationQueuedAt,
+	FieldLatestGenerationStartedAt,
+	FieldLatestGenerationCompletedAt,
 	FieldStatus,
+	FieldJudgedAt,
+	FieldVerdictVersion,
 	FieldPassedCount,
 	FieldTotalCount,
 	FieldTimeMs,
@@ -121,12 +206,48 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// ContestScoringPolicyVersionValidator is a validator for the "contest_scoring_policy_version" field. It is called by the builders before save.
+	ContestScoringPolicyVersionValidator func(int64) error
+	// DefaultSubmittedAt holds the default value on creation for the "submitted_at" field.
+	DefaultSubmittedAt func() time.Time
+	// ContestElapsedMsValidator is a validator for the "contest_elapsed_ms" field. It is called by the builders before save.
+	ContestElapsedMsValidator func(int64) error
+	// ContestSubmissionSequenceValidator is a validator for the "contest_submission_sequence" field. It is called by the builders before save.
+	ContestSubmissionSequenceValidator func(int64) error
+	// RuntimeKeyValidator is a validator for the "runtime_key" field. It is called by the builders before save.
+	RuntimeKeyValidator func(string) error
 	// SourceCodeValidator is a validator for the "source_code" field. It is called by the builders before save.
 	SourceCodeValidator func(string) error
+	// SourceSha256Validator is a validator for the "source_sha256" field. It is called by the builders before save.
+	SourceSha256Validator func([]byte) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultLatestGeneration holds the default value on creation for the "latest_generation" field.
+	DefaultLatestGeneration int64
+	// LatestGenerationValidator is a validator for the "latest_generation" field. It is called by the builders before save.
+	LatestGenerationValidator func(int64) error
+	// ActiveJudgementGenerationValidator is a validator for the "active_judgement_generation" field. It is called by the builders before save.
+	ActiveJudgementGenerationValidator func(int64) error
+	// IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	IdempotencyKeyValidator func(string) error
+	// RequestHashValidator is a validator for the "request_hash" field. It is called by the builders before save.
+	RequestHashValidator func([]byte) error
+	// OriginCidValidator is a validator for the "origin_cid" field. It is called by the builders before save.
+	OriginCidValidator func(string) error
+	// DefaultLatestGenerationQueuedAt holds the default value on creation for the "latest_generation_queued_at" field.
+	DefaultLatestGenerationQueuedAt func() time.Time
+	// DefaultVerdictVersion holds the default value on creation for the "verdict_version" field.
+	DefaultVerdictVersion int64
+	// VerdictVersionValidator is a validator for the "verdict_version" field. It is called by the builders before save.
+	VerdictVersionValidator func(int64) error
 	// DefaultPassedCount holds the default value on creation for the "passed_count" field.
 	DefaultPassedCount int
 	// DefaultTotalCount holds the default value on creation for the "total_count" field.
 	DefaultTotalCount int
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // Language defines the type for the "language" enum field.
@@ -154,6 +275,97 @@ func LanguageValidator(l Language) error {
 	}
 }
 
+// LatestGenerationPhase defines the type for the "latest_generation_phase" enum field.
+type LatestGenerationPhase string
+
+// LatestGenerationPhaseQueued is the default value of the LatestGenerationPhase enum.
+const DefaultLatestGenerationPhase = LatestGenerationPhaseQueued
+
+// LatestGenerationPhase values.
+const (
+	LatestGenerationPhaseQueued     LatestGenerationPhase = "queued"
+	LatestGenerationPhaseClaimed    LatestGenerationPhase = "claimed"
+	LatestGenerationPhaseCompiling  LatestGenerationPhase = "compiling"
+	LatestGenerationPhaseRunning    LatestGenerationPhase = "running"
+	LatestGenerationPhaseFinalizing LatestGenerationPhase = "finalizing"
+	LatestGenerationPhaseTerminal   LatestGenerationPhase = "terminal"
+	LatestGenerationPhaseCancelled  LatestGenerationPhase = "cancelled"
+)
+
+func (lgp LatestGenerationPhase) String() string {
+	return string(lgp)
+}
+
+// LatestGenerationPhaseValidator is a validator for the "latest_generation_phase" field enum values. It is called by the builders before save.
+func LatestGenerationPhaseValidator(lgp LatestGenerationPhase) error {
+	switch lgp {
+	case LatestGenerationPhaseQueued, LatestGenerationPhaseClaimed, LatestGenerationPhaseCompiling, LatestGenerationPhaseRunning, LatestGenerationPhaseFinalizing, LatestGenerationPhaseTerminal, LatestGenerationPhaseCancelled:
+		return nil
+	default:
+		return fmt.Errorf("submission: invalid enum value for latest_generation_phase field: %q", lgp)
+	}
+}
+
+// LatestGenerationOutcome defines the type for the "latest_generation_outcome" enum field.
+type LatestGenerationOutcome string
+
+// LatestGenerationOutcome values.
+const (
+	LatestGenerationOutcomeAccepted             LatestGenerationOutcome = "accepted"
+	LatestGenerationOutcomeWrongAnswer          LatestGenerationOutcome = "wrong_answer"
+	LatestGenerationOutcomeCompileError         LatestGenerationOutcome = "compile_error"
+	LatestGenerationOutcomeRuntimeError         LatestGenerationOutcome = "runtime_error"
+	LatestGenerationOutcomeTimeLimitExceeded    LatestGenerationOutcome = "time_limit_exceeded"
+	LatestGenerationOutcomeMemoryLimitExceeded  LatestGenerationOutcome = "memory_limit_exceeded"
+	LatestGenerationOutcomeProcessLimitExceeded LatestGenerationOutcome = "process_limit_exceeded"
+	LatestGenerationOutcomeOutputLimitExceeded  LatestGenerationOutcome = "output_limit_exceeded"
+	LatestGenerationOutcomeSystemError          LatestGenerationOutcome = "system_error"
+	LatestGenerationOutcomeCancelled            LatestGenerationOutcome = "cancelled"
+)
+
+func (lgo LatestGenerationOutcome) String() string {
+	return string(lgo)
+}
+
+// LatestGenerationOutcomeValidator is a validator for the "latest_generation_outcome" field enum values. It is called by the builders before save.
+func LatestGenerationOutcomeValidator(lgo LatestGenerationOutcome) error {
+	switch lgo {
+	case LatestGenerationOutcomeAccepted, LatestGenerationOutcomeWrongAnswer, LatestGenerationOutcomeCompileError, LatestGenerationOutcomeRuntimeError, LatestGenerationOutcomeTimeLimitExceeded, LatestGenerationOutcomeMemoryLimitExceeded, LatestGenerationOutcomeProcessLimitExceeded, LatestGenerationOutcomeOutputLimitExceeded, LatestGenerationOutcomeSystemError, LatestGenerationOutcomeCancelled:
+		return nil
+	default:
+		return fmt.Errorf("submission: invalid enum value for latest_generation_outcome field: %q", lgo)
+	}
+}
+
+// ActiveVerdict defines the type for the "active_verdict" enum field.
+type ActiveVerdict string
+
+// ActiveVerdict values.
+const (
+	ActiveVerdictAccepted             ActiveVerdict = "accepted"
+	ActiveVerdictWrongAnswer          ActiveVerdict = "wrong_answer"
+	ActiveVerdictCompileError         ActiveVerdict = "compile_error"
+	ActiveVerdictRuntimeError         ActiveVerdict = "runtime_error"
+	ActiveVerdictTimeLimitExceeded    ActiveVerdict = "time_limit_exceeded"
+	ActiveVerdictMemoryLimitExceeded  ActiveVerdict = "memory_limit_exceeded"
+	ActiveVerdictProcessLimitExceeded ActiveVerdict = "process_limit_exceeded"
+	ActiveVerdictOutputLimitExceeded  ActiveVerdict = "output_limit_exceeded"
+)
+
+func (av ActiveVerdict) String() string {
+	return string(av)
+}
+
+// ActiveVerdictValidator is a validator for the "active_verdict" field enum values. It is called by the builders before save.
+func ActiveVerdictValidator(av ActiveVerdict) error {
+	switch av {
+	case ActiveVerdictAccepted, ActiveVerdictWrongAnswer, ActiveVerdictCompileError, ActiveVerdictRuntimeError, ActiveVerdictTimeLimitExceeded, ActiveVerdictMemoryLimitExceeded, ActiveVerdictProcessLimitExceeded, ActiveVerdictOutputLimitExceeded:
+		return nil
+	default:
+		return fmt.Errorf("submission: invalid enum value for active_verdict field: %q", av)
+	}
+}
+
 // Status defines the type for the "status" enum field.
 type Status string
 
@@ -162,14 +374,17 @@ const DefaultStatus = StatusPending
 
 // Status values.
 const (
-	StatusPending             Status = "pending"
-	StatusJudging             Status = "judging"
-	StatusAccepted            Status = "accepted"
-	StatusWrongAnswer         Status = "wrong_answer"
-	StatusTimeLimitExceeded   Status = "time_limit_exceeded"
-	StatusMemoryLimitExceeded Status = "memory_limit_exceeded"
-	StatusRuntimeError        Status = "runtime_error"
-	StatusCompileError        Status = "compile_error"
+	StatusPending              Status = "pending"
+	StatusJudging              Status = "judging"
+	StatusAccepted             Status = "accepted"
+	StatusWrongAnswer          Status = "wrong_answer"
+	StatusTimeLimitExceeded    Status = "time_limit_exceeded"
+	StatusMemoryLimitExceeded  Status = "memory_limit_exceeded"
+	StatusProcessLimitExceeded Status = "process_limit_exceeded"
+	StatusOutputLimitExceeded  Status = "output_limit_exceeded"
+	StatusRuntimeError         Status = "runtime_error"
+	StatusCompileError         Status = "compile_error"
+	StatusInternalError        Status = "internal_error"
 )
 
 func (s Status) String() string {
@@ -179,7 +394,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusPending, StatusJudging, StatusAccepted, StatusWrongAnswer, StatusTimeLimitExceeded, StatusMemoryLimitExceeded, StatusRuntimeError, StatusCompileError:
+	case StatusPending, StatusJudging, StatusAccepted, StatusWrongAnswer, StatusTimeLimitExceeded, StatusMemoryLimitExceeded, StatusProcessLimitExceeded, StatusOutputLimitExceeded, StatusRuntimeError, StatusCompileError, StatusInternalError:
 		return nil
 	default:
 		return fmt.Errorf("submission: invalid enum value for status field: %q", s)
@@ -224,9 +439,39 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
+// ByContestProblemID orders the results by the contest_problem_id field.
+func ByContestProblemID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContestProblemID, opts...).ToFunc()
+}
+
+// ByContestScoringPolicyVersion orders the results by the contest_scoring_policy_version field.
+func ByContestScoringPolicyVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContestScoringPolicyVersion, opts...).ToFunc()
+}
+
+// BySubmittedAt orders the results by the submitted_at field.
+func BySubmittedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubmittedAt, opts...).ToFunc()
+}
+
+// ByContestElapsedMs orders the results by the contest_elapsed_ms field.
+func ByContestElapsedMs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContestElapsedMs, opts...).ToFunc()
+}
+
+// ByContestSubmissionSequence orders the results by the contest_submission_sequence field.
+func ByContestSubmissionSequence(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContestSubmissionSequence, opts...).ToFunc()
+}
+
 // ByLanguage orders the results by the language field.
 func ByLanguage(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLanguage, opts...).ToFunc()
+}
+
+// ByRuntimeKey orders the results by the runtime_key field.
+func ByRuntimeKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRuntimeKey, opts...).ToFunc()
 }
 
 // BySourceCode orders the results by the source_code field.
@@ -234,9 +479,79 @@ func BySourceCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSourceCode, opts...).ToFunc()
 }
 
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByLatestGeneration orders the results by the latest_generation field.
+func ByLatestGeneration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatestGeneration, opts...).ToFunc()
+}
+
+// ByLatestGenerationPhase orders the results by the latest_generation_phase field.
+func ByLatestGenerationPhase(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatestGenerationPhase, opts...).ToFunc()
+}
+
+// ByLatestGenerationOutcome orders the results by the latest_generation_outcome field.
+func ByLatestGenerationOutcome(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatestGenerationOutcome, opts...).ToFunc()
+}
+
+// ByActiveJudgementID orders the results by the active_judgement_id field.
+func ByActiveJudgementID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActiveJudgementID, opts...).ToFunc()
+}
+
+// ByActiveJudgementGeneration orders the results by the active_judgement_generation field.
+func ByActiveJudgementGeneration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActiveJudgementGeneration, opts...).ToFunc()
+}
+
+// ByActiveVerdict orders the results by the active_verdict field.
+func ByActiveVerdict(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActiveVerdict, opts...).ToFunc()
+}
+
+// ByIdempotencyKey orders the results by the idempotency_key field.
+func ByIdempotencyKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIdempotencyKey, opts...).ToFunc()
+}
+
+// ByOriginCid orders the results by the origin_cid field.
+func ByOriginCid(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOriginCid, opts...).ToFunc()
+}
+
+// ByLatestGenerationQueuedAt orders the results by the latest_generation_queued_at field.
+func ByLatestGenerationQueuedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatestGenerationQueuedAt, opts...).ToFunc()
+}
+
+// ByLatestGenerationStartedAt orders the results by the latest_generation_started_at field.
+func ByLatestGenerationStartedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatestGenerationStartedAt, opts...).ToFunc()
+}
+
+// ByLatestGenerationCompletedAt orders the results by the latest_generation_completed_at field.
+func ByLatestGenerationCompletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatestGenerationCompletedAt, opts...).ToFunc()
+}
+
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByJudgedAt orders the results by the judged_at field.
+func ByJudgedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldJudgedAt, opts...).ToFunc()
+}
+
+// ByVerdictVersion orders the results by the verdict_version field.
+func ByVerdictVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVerdictVersion, opts...).ToFunc()
 }
 
 // ByPassedCount orders the results by the passed_count field.
@@ -289,6 +604,27 @@ func ByContestField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newContestStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByContestScoringAttemptField orders the results by contest_scoring_attempt field.
+func ByContestScoringAttemptField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestScoringAttemptStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByLastContestProblemResultsCount orders the results by last_contest_problem_results count.
+func ByLastContestProblemResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newLastContestProblemResultsStep(), opts...)
+	}
+}
+
+// ByLastContestProblemResults orders the results by last_contest_problem_results terms.
+func ByLastContestProblemResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLastContestProblemResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -308,5 +644,19 @@ func newContestStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContestInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, ContestTable, ContestColumn),
+	)
+}
+func newContestScoringAttemptStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestScoringAttemptInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, ContestScoringAttemptTable, ContestScoringAttemptColumn),
+	)
+}
+func newLastContestProblemResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LastContestProblemResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, LastContestProblemResultsTable, LastContestProblemResultsColumn),
 	)
 }

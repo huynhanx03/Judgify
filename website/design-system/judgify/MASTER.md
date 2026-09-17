@@ -14,9 +14,41 @@ roles without turning them into separate products:
 - Solving and submission surfaces feel like a focused developer workspace.
 - Administrator surfaces are compact, auditable, and operationally explicit.
 
-Use blue for navigation, selection, information, and data; amber for the single
-primary action or cultivation emphasis; jade for success. Decoration must never
+Use amber/copper for product identity, primary action, selection, and focus;
+use blue only for information and data context; jade means success. Navy and
+neutral surfaces provide the dense technical canvas. Decoration must never
 compete with code, problem statements, results, or operational state.
+
+## Brand identity and colour ownership
+
+The Judgify flame/code mark is copper/amber with clear space—not an icon inside
+a badge. It is an intentional counterpoint to the blue information system, not
+a second primary navigation colour. Every rendered product mark uses
+`components/brand-mark.tsx`; do not duplicate its image treatment, recolour the
+source asset, or put it inside route-specific borders, tiles, or glow effects.
+
+Colour has a single owner and a single job:
+
+- **Copper/amber** (`primary`, `cultivation`, and button tokens) identifies
+  Judgify, the one primary action in a local decision area, selected navigation,
+  and keyboard focus.
+- **Blue** (`info`) communicates external information, data context, and
+  developer-tool semantics. It must not compete with the brand action.
+- **Jade** (`success`) confirms positive or completed state; it is not a second
+  brand CTA colour.
+- **Red** (`danger`) is reserved for destructive or failed state.
+- Rarity, element, and podium colours carry domain meaning. They belong in a
+  named presentation contract under `constants/`, never as independently
+  invented colour strings inside a component.
+
+When a UI needs a colour, use a semantic token first. Add a new token or a
+centralized domain-presentation contract only when the colour itself conveys a
+stable product concept.
+
+The canonical primary pair is `amber-700` on light surfaces and `amber-400` on
+dark surfaces. Its foregrounds are respectively white and `amber-950`; this
+preserves readable primary actions across themes. Do not substitute arbitrary
+yellow utilities for these roles.
 
 ## Source-of-truth rules
 
@@ -36,16 +68,16 @@ Light, dark, and system preferences are equally supported. The system preference
 must follow the operating-system change without a reload; an explicit preference
 must remain stable across sessions.
 
-| Semantic role | Light intent | Dark intent |
-|---|---|---|
-| Background | cool neutral canvas | deep navy canvas |
-| Surface | white, low elevation | neutral navy, low elevation |
-| Raised surface | white | lighter neutral navy |
-| Primary | deep blue | readable bright blue |
-| Action | accessible amber | warm amber with dark foreground |
-| Success | deep jade | bright jade with dark foreground |
-| Border | subtle blue-neutral | neutral slate |
-| Focus | strong blue ring | light-blue ring |
+| Semantic role  | Light intent         | Dark intent                      |
+| -------------- | -------------------- | -------------------------------- |
+| Background     | cool neutral canvas  | deep navy canvas                 |
+| Surface        | white, low elevation | neutral navy, low elevation      |
+| Raised surface | white                | lighter neutral navy             |
+| Primary        | contrast-safe copper | readable bright amber            |
+| Action         | contrast-safe copper | warm amber with dark foreground  |
+| Success        | deep jade            | bright jade with dark foreground |
+| Border         | subtle blue-neutral  | neutral slate                    |
+| Focus          | copper ring          | bright amber ring                |
 
 The semantic tokens own exact values. Status meaning must never be conveyed by
 color alone: pair it with an icon, label, shape, or text. Code/editor surfaces
@@ -71,6 +103,53 @@ may be 36–40px only when every target remains keyboard accessible and at least
 admin content uses the available viewport with deliberate column priority.
 
 ## Layout families
+
+## Global page grammar
+
+Every route belongs to one of the layout families below, but it always starts
+from the same product rail. This removes the accidental "one page is a landing
+page, another is an app" effect.
+
+- **Rail:** the public shell and the admin content area own the horizontal
+  gutters and maximum width. Feature modules must not add a second unrelated
+  `max-w-*`, `mx-auto`, or horizontal padding wrapper around their whole body.
+  A narrower measure is allowed only for prose, forms, or a deliberately
+  single-column decision.
+- **Vertical rhythm:** route sections use 40px on compact screens and 48px on
+  desktop. Internal section spacing uses 24px or 32px. Do not improvise a new
+  page rhythm from 20/36/48px values.
+- **Introduction:** each public destination opens with the shared text-first
+  `PublicPageLead`: the same heading scale, readable description measure, and
+  action placement, supported by a low-contrast, route-specific right-aligned
+  illustration. It is decorative, follows the header's natural content height,
+  and never owns a route's entry layout; content remains the primary focus.
+- **Content:** heading, filters, data region, and feedback share the same left
+  edge. Result controls sit directly above the result region; do not introduce
+  an arbitrary narrower container between them.
+- **Reading:** long-form editorial content may use a narrower text measure,
+  but its enclosing route frame still aligns to the rail.
+
+## Visual language
+
+Judgify is a focused technical-learning product with one restrained mythic
+note. The UI must read as modern and dependable first; fantasy illustration is
+context, not the interface.
+
+- Use the UI sans face for all navigation, page titles, controls, tables, and
+  application prose. A display serif is reserved for authored long-form
+  editorial excerpts, never for destination hero titles, navigation, or data.
+- Use a single Lucide outline icon language. Icons clarify a familiar action or
+  a compact status; they do not decorate every heading, button, filter, or
+  navigation item. Global navigation uses text labels. Textual login and
+  registration actions do not need redundant icons.
+- Product images share one treatment: dark, low-contrast contextual imagery,
+  a semantic overlay, responsive `sizes`, and no embedded UI copy. The page
+  supplies all readable copy in HTML. Do not mix glassmorphism, large glowing
+  badges, cinematic display type, and dense application controls in the same
+  page header.
+- Containers use border and contrast sparingly. The brand mark never sits
+  inside a box. Strong shadows, oversized rounded corners, glow, and floating
+  decorative shapes are exceptions for transient overlay state only.
 
 ### Public and learning
 
@@ -121,6 +200,15 @@ admin content uses the available viewport with deliberate column priority.
   nested actions must be separate and must not create invalid nested controls.
 - Use borders and surface contrast before shadows. Reserve strong elevation for
   dialogs, popovers, and drag state.
+
+### Loading and recovery
+
+- A failed collection replaces the collection slot with a centered, unboxed
+  recovery state; it must not create another card inside the page or table.
+- Optional reference data (for example filter catalogues) degrades silently:
+  hide only the unavailable control and keep the primary task usable.
+- Inline recoverable errors use a restrained destructive leading rule and a
+  named retry action, not a full red panel or decorative alert tile.
 
 ### Forms
 
@@ -194,11 +282,11 @@ Motion communicates continuity; it is not ornament.
 
 Design continuously, then explicitly verify:
 
-| Width | Required outcome |
-|---|---|
-| 375px | No document overflow; primary flows and dialogs fully usable |
-| 768px | Navigation transition and forms/tables remain coherent |
-| 1280px | Normal desktop client/admin density |
+| Width  | Required outcome                                                 |
+| ------ | ---------------------------------------------------------------- |
+| 375px  | No document overflow; primary flows and dialogs fully usable     |
+| 768px  | Navigation transition and forms/tables remain coherent           |
+| 1280px | Normal desktop client/admin density                              |
 | 1536px | Line lengths stay bounded; data surfaces use space intentionally |
 
 Account for browser zoom, long Vietnamese copy, long identifiers, empty values,

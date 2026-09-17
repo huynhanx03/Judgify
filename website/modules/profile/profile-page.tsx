@@ -1,54 +1,73 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Sparkles, CalendarDays, Cake, Settings, LogOut, Target, Tag, CircleAlert, RefreshCw, LogIn, Loader2 } from "lucide-react"
-import { LoadingSpinner } from "@/components/loading-spinner"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { userService } from "@/services/user.service"
-import { difficultyService } from "@/services/difficulty.service"
-import { rewardProfileService } from "@/services/reward-profile.service"
-import { useAuth } from "@/contexts/auth-context"
-import { TEXT } from "@/constants/text"
-import type { UserProfile, DiffStat } from "@/types/user"
-import type { DifficultyResponse } from "@/types/difficulty"
-import type { RewardProfileResponse } from "@/types/cultivation"
-import { getTierColors } from "@/constants/cultivation-presentation"
-import { CultivationPanel } from "@/modules/profile/cultivation-panel"
-import { StatsPanel } from "@/modules/profile/stats-panel"
-import { TagsPanel } from "@/modules/profile/tags-panel"
-import { RewardProfileSummary } from "@/modules/cultivation/reward-profile-summary"
-import { ProfileEditDialog } from "@/modules/profile/profile-edit-dialog"
-import { RecoveryContactCard } from "@/modules/profile/recovery-contact-card"
-import { SessionSecurityCard } from "@/modules/profile/session-security-card"
-import { ChangePasswordCard } from "@/modules/profile/change-password-card"
-import { OAuthAccountsCard } from "@/modules/profile/oauth-accounts-card"
-import { ProfilePrivacyCard } from "@/modules/profile/profile-privacy-card"
-import { AUTH_BOOTSTRAP_STATUS } from "@/constants/authorization"
-import { APP_ROUTES } from "@/constants/routes"
-import { useRetryableResource } from "@/hooks/use-retryable-resource"
-import { formatDateTimeMinute } from "@/lib/format"
-import { useLogoutAction } from "@/modules/auth/use-logout-action"
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sparkles,
+  CalendarDays,
+  Cake,
+  Settings,
+  LogOut,
+  Target,
+  Tag,
+  CircleAlert,
+  RefreshCw,
+  LogIn,
+  Loader2,
+} from "lucide-react";
+import { LoadingSpinner } from "@/components/loading-spinner";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { PublicPageLead } from "@/components/public-page-lead";
+import { userService } from "@/services/user.service";
+import { difficultyService } from "@/services/difficulty.service";
+import { rewardProfileService } from "@/services/reward-profile.service";
+import { useAuth } from "@/contexts/auth-context";
+import { TEXT } from "@/constants/text";
+import type { UserProfile, DiffStat } from "@/types/user";
+import type { DifficultyResponse } from "@/types/difficulty";
+import type { RewardProfileResponse } from "@/types/cultivation";
+import { getTierColors } from "@/constants/cultivation-presentation";
+import { CultivationPanel } from "@/modules/profile/cultivation-panel";
+import { StatsPanel } from "@/modules/profile/stats-panel";
+import { TagsPanel } from "@/modules/profile/tags-panel";
+import { RewardProfileSummary } from "@/modules/cultivation/reward-profile-summary";
+import { ProfileEditDialog } from "@/modules/profile/profile-edit-dialog";
+import { RecoveryContactCard } from "@/modules/profile/recovery-contact-card";
+import { SessionSecurityCard } from "@/modules/profile/session-security-card";
+import { ChangePasswordCard } from "@/modules/profile/change-password-card";
+import { OAuthAccountsCard } from "@/modules/profile/oauth-accounts-card";
+import { ProfilePrivacyCard } from "@/modules/profile/profile-privacy-card";
+import { AUTH_BOOTSTRAP_STATUS } from "@/constants/authorization";
+import { APP_ROUTES } from "@/constants/routes";
+import { useRetryableResource } from "@/hooks/use-retryable-resource";
+import { formatDateTimeMinute } from "@/lib/format";
+import { useLogoutAction } from "@/modules/auth/use-logout-action";
 
 function getInitials(profile: UserProfile): string {
   return (
-    (profile.first_name?.[0] ?? "") +
-    (profile.last_name?.[0] ?? "") ||
+    (profile.first_name?.[0] ?? "") + (profile.last_name?.[0] ?? "") ||
     profile.username[0] ||
     "?"
-  ).toUpperCase()
+  ).toUpperCase();
 }
 
 /** Merge all available difficulties with solved stats (fill 0 for unsolved). */
-function mergeDifficulties(all: DifficultyResponse[], solved: DiffStat[]): DiffStat[] {
-  const solvedMap = new Map(solved.map((s) => [s.level, s.solved_count]))
+function mergeDifficulties(
+  all: DifficultyResponse[],
+  solved: DiffStat[],
+): DiffStat[] {
+  const solvedMap = new Map(solved.map((s) => [s.level, s.solved_count]));
   return [...all]
     .sort((a, b) => a.level - b.level)
-    .map((d) => ({ name: d.name, level: d.level, solved_count: solvedMap.get(d.level) ?? 0 }))
+    .map((d) => ({
+      name: d.name,
+      level: d.level,
+      solved_count: solvedMap.get(d.level) ?? 0,
+    }));
 }
 
 function ProfileAccessFeedback({
@@ -57,10 +76,10 @@ function ProfileAccessFeedback({
   actionLabel,
   onAction,
 }: {
-  title: string
-  description: string
-  actionLabel: string
-  onAction: () => void
+  title: string;
+  description: string;
+  actionLabel: string;
+  onAction: () => void;
 }) {
   return (
     <Card className="mx-auto mt-12 max-w-lg border-destructive/20 bg-card/80 shadow-lg">
@@ -68,7 +87,7 @@ function ProfileAccessFeedback({
         className="flex flex-col items-center px-6 py-12 text-center"
         role="alert"
       >
-        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive ring-8 ring-destructive/5">
+        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
           <CircleAlert className="size-6" aria-hidden="true" />
         </div>
         <h1 className="text-xl font-bold tracking-tight">{title}</h1>
@@ -85,70 +104,71 @@ function ProfileAccessFeedback({
         </Button>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function ProfilePage() {
   const [savedProfile, setSavedProfile] = useState<{
-    userID: string
-    profile: UserProfile
-  } | null>(null)
-  const [isEditOpen, setIsEditOpen] = useState(false)
+    userID: string;
+    profile: UserProfile;
+  } | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const {
     bootstrapStatus,
     isAuthenticated,
     isLoading: isAuthLoading,
     retryBootstrap,
     user,
-  } = useAuth()
-  const { isLoggingOut, performLogout } = useLogoutAction()
-  const userID = user?.id ?? null
-  const resourceEnabled = isAuthenticated && userID !== null
+  } = useAuth();
+  const { isLoggingOut, performLogout } = useLogoutAction();
+  const userID = user?.id ?? null;
+  const resourceEnabled = isAuthenticated && userID !== null;
   const profileResource = useRetryableResource<UserProfile | null>({
     resetKey: userID,
     enabled: resourceEnabled,
     initialData: null,
     load: (signal) => userService.getProfile(signal),
-  })
+  });
   const activeProfile =
     savedProfile?.userID === userID
       ? savedProfile.profile
       : profileResource.data?.id === userID
         ? profileResource.data
-        : null
+        : null;
   const gameProfileReady =
-    resourceEnabled && activeProfile?.profile_state === "ready"
+    resourceEnabled && activeProfile?.profile_state === "ready";
   const difficultyResource = useRetryableResource<DifficultyResponse[]>({
     resetKey: userID,
     enabled: gameProfileReady,
     initialData: [],
     keepPreviousData: true,
     load: (signal) => difficultyService.getAll(signal),
-  })
-  const rewardProfileResource = useRetryableResource<RewardProfileResponse | null>({
-    resetKey: userID,
-    enabled: gameProfileReady,
-    initialData: null,
-    load: (signal) => rewardProfileService.current(signal),
-  })
+  });
+  const rewardProfileResource =
+    useRetryableResource<RewardProfileResponse | null>({
+      resetKey: userID,
+      enabled: gameProfileReady,
+      initialData: null,
+      load: (signal) => rewardProfileService.current(signal),
+    });
   const difficulties = useMemo(() => {
-    if (!activeProfile || activeProfile.profile_state !== "ready") return []
+    if (!activeProfile || activeProfile.profile_state !== "ready") return [];
     if (difficultyResource.data.length === 0) {
-      return activeProfile.problem_stats.by_difficulty
+      return activeProfile.problem_stats.by_difficulty;
     }
     return mergeDifficulties(
       difficultyResource.data,
       activeProfile.problem_stats.by_difficulty,
-    )
-  }, [activeProfile, difficultyResource.data])
+    );
+  }, [activeProfile, difficultyResource.data]);
 
   function handleProfileSaved(updatedProfile: UserProfile) {
-    if (!userID) return
-    setSavedProfile({ userID, profile: updatedProfile })
+    if (!userID) return;
+    setSavedProfile({ userID, profile: updatedProfile });
   }
 
   if (isAuthLoading || bootstrapStatus === AUTH_BOOTSTRAP_STATUS.LOADING) {
-    return <LoadingSpinner label={TEXT.PROFILE.AUTH_LOADING} />
+    return <LoadingSpinner label={TEXT.PROFILE.AUTH_LOADING} />;
   }
 
   if (bootstrapStatus === AUTH_BOOTSTRAP_STATUS.ERROR) {
@@ -159,14 +179,14 @@ export default function ProfilePage() {
         actionLabel={TEXT.PROFILE.AUTH_RETRY}
         onAction={retryBootstrap}
       />
-    )
+    );
   }
 
   if (!isAuthenticated || !userID) {
     return (
       <Card className="mx-auto mt-12 max-w-lg border-border/60 bg-card/80 shadow-lg">
         <CardContent className="flex flex-col items-center px-6 py-12 text-center">
-          <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
+          <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <LogIn className="size-6" aria-hidden="true" />
           </div>
           <h1 className="text-xl font-bold tracking-tight">
@@ -184,14 +204,14 @@ export default function ProfilePage() {
           </Link>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (
     profileResource.status === "loading" ||
     (!activeProfile && profileResource.status !== "error")
   ) {
-    return <LoadingSpinner label={TEXT.PROFILE.LOADING} />
+    return <LoadingSpinner label={TEXT.PROFILE.LOADING} />;
   }
 
   if (profileResource.status === "error" || !activeProfile) {
@@ -202,31 +222,24 @@ export default function ProfilePage() {
         actionLabel={TEXT.COMMON.RETRY}
         onAction={profileResource.retry}
       />
-    )
+    );
   }
 
   if (activeProfile.profile_state === "unprovisioned") {
-    const profile = activeProfile
+    const profile = activeProfile;
     return (
       <div className="space-y-8 animate-in fade-in duration-500 motion-reduce:animate-none">
-        <div>
-          <h1 className="heading-gaming text-3xl font-bold tracking-tight text-cultivation">
-            {TEXT.PROFILE.TITLE}
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            {TEXT.PROFILE.UNPROVISIONED_DESCRIPTION}
-          </p>
-        </div>
+        <PublicPageLead
+          title={TEXT.PROFILE.TITLE}
+          description={TEXT.PROFILE.UNPROVISIONED_DESCRIPTION}
+        />
 
         <div className="grid items-start gap-6 lg:grid-cols-3">
-          <Card className="glass-card overflow-hidden border-border/40 lg:sticky lg:top-6">
-            <div className="relative h-24 bg-gradient-to-br from-primary/80 via-cultivation/70 to-warning/70">
-              <div className="absolute inset-0 surface-grid-tight" />
-            </div>
-            <CardContent className="relative -mt-10 px-6 pb-6">
+          <Card className="border-border/60 bg-card lg:sticky lg:top-6">
+            <CardContent className="px-6 py-6">
               <div className="flex items-end justify-between gap-3">
-                <Avatar className="size-20 border-4 border-background shadow-xl">
-                  <AvatarFallback className="heading-gaming bg-gradient-to-br from-cultivation to-primary text-xl font-bold text-cultivation-foreground">
+                <Avatar className="size-16 border border-border">
+                  <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">
                     {getInitials(profile)}
                   </AvatarFallback>
                 </Avatar>
@@ -246,18 +259,32 @@ export default function ProfilePage() {
                     size="icon"
                     onClick={() => void performLogout()}
                     disabled={isLoggingOut}
-                    aria-label={isLoggingOut ? TEXT.NAV.LOGGING_OUT : TEXT.PROFILE.LOGOUT_TOOLTIP}
+                    aria-label={
+                      isLoggingOut
+                        ? TEXT.NAV.LOGGING_OUT
+                        : TEXT.PROFILE.LOGOUT_TOOLTIP
+                    }
                   >
-                    {isLoggingOut ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <LogOut className="size-4" aria-hidden="true" />}
+                    {isLoggingOut ? (
+                      <Loader2
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <LogOut className="size-4" aria-hidden="true" />
+                    )}
                   </Button>
                 </div>
               </div>
               <div className="mt-4 space-y-1">
                 <h2 className="text-xl font-bold">
-                  {[profile.first_name, profile.last_name].filter(Boolean).join(" ") ||
-                    profile.username}
+                  {[profile.first_name, profile.last_name]
+                    .filter(Boolean)
+                    .join(" ") || profile.username}
                 </h2>
-                <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                <p className="text-sm text-muted-foreground">
+                  @{profile.username}
+                </p>
               </div>
               <Badge variant="secondary" className="mt-3">
                 {TEXT.PROFILE.UNPROVISIONED_BADGE}
@@ -281,7 +308,10 @@ export default function ProfilePage() {
                 {TEXT.PROFILE.UNPROVISIONED_NOTE}
               </CardContent>
             </Card>
-            <ProfilePrivacyCard userID={profile.id} username={profile.username} />
+            <ProfilePrivacyCard
+              userID={profile.id}
+              username={profile.username}
+            />
             <RecoveryContactCard />
             <OAuthAccountsCard />
             <ChangePasswordCard />
@@ -298,73 +328,91 @@ export default function ProfilePage() {
           />
         ) : null}
       </div>
-    )
+    );
   }
 
-  const profile = activeProfile
-  const { cultivation } = profile
-  const rankColors = getTierColors(cultivation.rank.tier_index)
-  const levelColors = getTierColors(cultivation.level.tier_index)
+  const profile = activeProfile;
+  const { cultivation } = profile;
+  const rankColors = getTierColors(cultivation.rank.tier_index);
+  const levelColors = getTierColors(cultivation.level.tier_index);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 motion-reduce:animate-none">
-      {/* Page header */}
-      <div>
-        <h1 className="heading-gaming text-3xl font-bold tracking-tight text-cultivation">
-          {TEXT.PROFILE.TITLE}
-        </h1>
-        <p className="text-muted-foreground mt-1">{TEXT.PROFILE.SUBTITLE}</p>
-      </div>
+      <PublicPageLead
+        title={TEXT.PROFILE.TITLE}
+        description={TEXT.PROFILE.SUBTITLE}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* ====== LEFT COLUMN ====== */}
         <div className="lg:col-span-1 space-y-6">
-
           {/* Profile card */}
-          <Card className="glass-card border-border/40 overflow-hidden">
-            <div className="relative h-28 bg-gradient-to-br from-cultivation via-warning to-primary">
-              <div className="absolute inset-0 surface-grid-tight" />
-              <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
-              <Sparkles className="absolute right-6 top-4 h-5 w-5 text-cultivation-foreground/40" aria-hidden="true" />
-            </div>
-            <div className="px-6 pb-6 -mt-12 relative z-10">
+          <Card className="border-border/60 bg-card">
+            <div className="px-6 py-6">
               <div className="flex items-end justify-between">
-                <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
-                  <AvatarFallback className="heading-gaming bg-gradient-to-br from-cultivation to-primary text-2xl font-bold text-cultivation-foreground">
+                <Avatar className="size-20 border border-border">
+                  <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">
                     {getInitials(profile)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex gap-1.5">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="icon"
                     onClick={() => setIsEditOpen(true)}
-                    className="flex size-11 cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="border-border/60 bg-background/70 text-muted-foreground hover:bg-muted hover:text-foreground"
                     title={TEXT.PROFILE.EDIT_TOOLTIP}
                     aria-label={TEXT.PROFILE.EDIT_TOOLTIP}
                   >
                     <Settings className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="icon"
                     onClick={() => void performLogout()}
                     disabled={isLoggingOut}
-                    className="flex size-11 cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-background/70 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    title={isLoggingOut ? TEXT.NAV.LOGGING_OUT : TEXT.PROFILE.LOGOUT_TOOLTIP}
-                    aria-label={isLoggingOut ? TEXT.NAV.LOGGING_OUT : TEXT.PROFILE.LOGOUT_TOOLTIP}
+                    className="border-border/60 bg-background/70 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    title={
+                      isLoggingOut
+                        ? TEXT.NAV.LOGGING_OUT
+                        : TEXT.PROFILE.LOGOUT_TOOLTIP
+                    }
+                    aria-label={
+                      isLoggingOut
+                        ? TEXT.NAV.LOGGING_OUT
+                        : TEXT.PROFILE.LOGOUT_TOOLTIP
+                    }
                   >
-                    {isLoggingOut ? <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <LogOut className="h-4 w-4" aria-hidden="true" />}
-                  </button>
+                    {isLoggingOut ? (
+                      <Loader2
+                        className="h-4 w-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <LogOut className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </Button>
                 </div>
               </div>
               <div className="mt-3 space-y-1">
-                <h2 className="text-xl font-bold">{profile.first_name} {profile.last_name}</h2>
-                <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                <h2 className="text-xl font-bold">
+                  {profile.first_name} {profile.last_name}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  @{profile.username}
+                </p>
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
-                <Badge className={`border-0 font-bold text-xs shadow-md ${rankColors.badge}`}>
+                <Badge
+                  className={`border-0 font-bold text-xs shadow-md ${rankColors.badge}`}
+                >
                   {cultivation.rank.name || TEXT.COMMON.NOT_AVAILABLE}
                 </Badge>
-                <Badge className={`border-0 font-bold text-xs shadow-md ${levelColors.badge}`}>
+                <Badge
+                  className={`border-0 font-bold text-xs shadow-md ${levelColors.badge}`}
+                >
                   {cultivation.level.name || TEXT.COMMON.NOT_AVAILABLE}
                 </Badge>
               </div>
@@ -384,7 +432,9 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Cake className="h-4 w-4 shrink-0" />
                     <span>{TEXT.PROFILE.BIRTHDAY}:</span>
-                    <span className="font-medium text-foreground">{profile.birthday}</span>
+                    <span className="font-medium text-foreground">
+                      {profile.birthday}
+                    </span>
                   </div>
                 )}
               </div>
@@ -392,13 +442,15 @@ export default function ProfilePage() {
           </Card>
 
           {/* Stats card */}
-          <Card className="glass-card border-border/40">
+          <Card className="border-border/60 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
                 {TEXT.STATS.TITLE}
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">{TEXT.STATS.SUBTITLE}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {TEXT.STATS.SUBTITLE}
+              </p>
             </CardHeader>
             <CardContent>
               {difficultyResource.status === "error" ? (
@@ -422,54 +474,59 @@ export default function ProfilePage() {
                   className="mb-4 flex items-center gap-2 text-xs text-muted-foreground"
                   role="status"
                 >
-                  <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                  <Loader2
+                    className="size-3 animate-spin motion-reduce:animate-none"
+                    aria-hidden="true"
+                  />
                   {TEXT.PROFILE.DIFFICULTIES_LOADING}
                 </div>
               ) : null}
-              <StatsPanel stats={profile.problem_stats} difficulties={difficulties} />
+              <StatsPanel
+                stats={profile.problem_stats}
+                difficulties={difficulties}
+              />
             </CardContent>
           </Card>
 
           {/* Tags card */}
-          <Card className="glass-card border-border/40">
+          <Card className="border-border/60 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Tag className="h-5 w-5 text-primary" />
                 {TEXT.STATS.TAGS_TITLE}
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">{TEXT.STATS.TAGS_SUBTITLE}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {TEXT.STATS.TAGS_SUBTITLE}
+              </p>
             </CardHeader>
             <CardContent>
               <TagsPanel tags={profile.problem_stats.by_tag} />
             </CardContent>
           </Card>
-
         </div>
 
         {/* ====== RIGHT COLUMN ====== */}
         <div className="lg:col-span-2 space-y-6">
-
-          <ProfilePrivacyCard
-            userID={profile.id}
-            username={profile.username}
-          />
+          <ProfilePrivacyCard userID={profile.id} username={profile.username} />
 
           <RecoveryContactCard />
 
-		  <OAuthAccountsCard />
+          <OAuthAccountsCard />
 
           <ChangePasswordCard />
 
           <SessionSecurityCard />
 
           {/* Cultivation progress */}
-          <Card className="glass-card border-border/40">
+          <Card className="border-border/60 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 {TEXT.PROFILE.CULTIVATION_PROGRESS}
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">{TEXT.PROFILE.CULTIVATION_SUBTITLE}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {TEXT.PROFILE.CULTIVATION_SUBTITLE}
+              </p>
             </CardHeader>
             <CardContent>
               <CultivationPanel cultivation={cultivation} />
@@ -477,7 +534,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Immutable effective-dated reward profile */}
-          <Card className="glass-card border-border/40">
+          <Card className="border-border/60 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
@@ -506,7 +563,10 @@ export default function ProfilePage() {
                   className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-border px-6 text-center"
                   role="alert"
                 >
-                  <CircleAlert className="size-5 text-destructive" aria-hidden="true" />
+                  <CircleAlert
+                    className="size-5 text-destructive"
+                    aria-hidden="true"
+                  />
                   <p className="mt-3 font-semibold">
                     {TEXT.PROFILE.REWARD_PROFILE.LOAD_ERROR}
                   </p>
@@ -528,7 +588,6 @@ export default function ProfilePage() {
               )}
             </CardContent>
           </Card>
-
         </div>
       </div>
       {isEditOpen ? (
@@ -540,5 +599,5 @@ export default function ProfilePage() {
         />
       ) : null}
     </div>
-  )
+  );
 }

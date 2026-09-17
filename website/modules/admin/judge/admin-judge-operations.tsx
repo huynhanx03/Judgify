@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -346,17 +347,12 @@ export function AdminJudgeOperations() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-sm shadow-primary/5">
-            <ServerCog className="size-5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{ADMIN_TEXT.JUDGE.TITLE}</h1>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{ADMIN_TEXT.JUDGE.SUBTITLE}</p>
-          </div>
-        </div>
-        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+      <PageHeader
+        className="xl:items-start"
+        icon={ServerCog}
+        title={ADMIN_TEXT.JUDGE.TITLE}
+        description={ADMIN_TEXT.JUDGE.SUBTITLE}
+        actions={<div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           {overview ? (
             <span className="text-xs tabular-nums text-muted-foreground">{ADMIN_TEXT.JUDGE.UPDATED_AT(formatDateTime(overview.generated_at))}</span>
           ) : null}
@@ -370,8 +366,8 @@ export function AdminJudgeOperations() {
             <RefreshCw className={cn("size-4", refreshing && "animate-spin motion-reduce:animate-none")} aria-hidden="true" />
             {refreshing ? ADMIN_TEXT.JUDGE.REFRESHING : ADMIN_TEXT.JUDGE.REFRESH}
           </Button>
-        </div>
-      </header>
+        </div>}
+      />
 
       <div className="flex items-start gap-3 rounded-2xl border border-primary/15 bg-primary/[0.06] p-4">
         <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />

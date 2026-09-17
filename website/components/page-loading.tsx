@@ -62,7 +62,9 @@ export function PageLoading({
     <div
       className={cn(
         "mx-auto w-full space-y-6",
-        admin ? "max-w-[1600px] p-4 sm:p-6 lg:p-8" : "max-w-[1400px] p-4 py-8 sm:p-6 lg:p-8",
+        admin
+          ? "max-w-[1400px] p-4 sm:p-6 lg:p-8"
+          : "max-w-[1400px] p-4 py-8 sm:p-6 lg:p-8",
       )}
       aria-busy="true"
       aria-label={label}

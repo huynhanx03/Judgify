@@ -9,19 +9,12 @@ async function source(relativePath) {
   return readFile(path.join(ROOT, relativePath), "utf8");
 }
 
-test("contest hero actions drive the real discovery controls", async () => {
-  const [page, hero] = await Promise.all([
-    source("modules/contest/contest-page.tsx"),
-    source("modules/contest/contest-hero-section.tsx"),
-  ]);
+test("contest keeps the introduction informational and places discovery controls below it", async () => {
+  const page = await source("modules/contest/contest-page.tsx");
 
-  assert.match(page, /onExplore=\{\(\) => focusContestList\("all"\)\}/);
-  assert.match(page, /onShowUpcoming=\{\(\) => focusContestList\("upcoming"\)\}/);
-  assert.match(page, /scrollIntoView/);
-  assert.match(page, /CONTEST_LIST_ANCHOR_ID/);
-  assert.match(hero, /onExplore/);
-  assert.match(hero, /onShowUpcoming/);
-  assert.doesNotMatch(hero, /<button(?:\\s|>)(?![\\s\\S]*onClick)/);
+  assert.match(page, /PublicPageLead/);
+  assert.doesNotMatch(page, /actions=|HERO_REGISTER|HERO_SCHEDULE|scrollIntoView/);
+  assert.doesNotMatch(page, /ContestHeroSection|MediaHero|PublicHero/);
 });
 
 test("contest cards use canonical routes and shared date presentation", async () => {

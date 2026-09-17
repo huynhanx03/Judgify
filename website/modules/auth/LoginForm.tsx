@@ -59,7 +59,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5" aria-busy={isBusy}>
       <div className="text-center space-y-1 mb-2">
-        <h1 className="text-xl md:text-2xl font-black tracking-[0.15em] text-primary uppercase font-serif text-shadow-brand">
+        <h1 className="font-heading text-xl font-black tracking-[0.12em] text-primary uppercase text-shadow-brand md:text-2xl">
           {TEXT.AUTH.LOGIN_TITLE}
         </h1>
         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
@@ -80,7 +80,7 @@ export default function LoginForm() {
           required
           disabled={isBusy}
           autoComplete="username"
-          className="h-11 border-border bg-background/40 transition-colors focus-visible:bg-background/80 focus-visible:ring-primary"
+          className="h-11 border-border bg-surface-sunken transition-colors focus-visible:bg-surface focus-visible:ring-primary"
         />
       </div>
 
@@ -97,12 +97,12 @@ export default function LoginForm() {
           required
           disabled={isBusy}
           autoComplete="current-password"
-          className="h-11 border-border bg-background/40 transition-colors focus-visible:bg-background/80 focus-visible:ring-primary"
+          className="h-11 border-border bg-surface-sunken transition-colors focus-visible:bg-surface focus-visible:ring-primary"
         />
         <div className="flex justify-end">
           <Link
             href={APP_ROUTES.FORGOT_PASSWORD}
-            className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+            className="inline-flex min-h-11 items-center px-2 text-xs font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             {TEXT.AUTH.FORGOT_PASSWORD}
           </Link>
@@ -111,7 +111,8 @@ export default function LoginForm() {
 
       <Button
         type="submit"
-        className="button-brand-elevation h-12 w-full bg-primary font-bold tracking-wider text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+        size="lg"
+        className="button-brand-elevation w-full font-bold tracking-wider uppercase"
         disabled={isBusy}
       >
         {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : null}
@@ -136,7 +137,7 @@ export default function LoginForm() {
 						key={provider}
 						type="button"
 						variant="outline"
-						className="h-11 w-full cursor-pointer border-border bg-background/40 font-medium text-foreground transition-colors hover:bg-muted"
+						className="h-11 w-full border-border bg-surface font-medium text-foreground"
 						onClick={() => void handleOAuthLogin(provider)}
 						disabled={isBusy}
 					>
@@ -154,9 +155,12 @@ export default function LoginForm() {
 		</div>
 
       {/* Link to register */}
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="flex flex-wrap items-center justify-center text-center text-sm text-muted-foreground">
         {TEXT.AUTH.NO_ACCOUNT}{" "}
-        <Link href={APP_ROUTES.REGISTER} className="font-semibold text-primary hover:text-primary/80 transition-colors">
+        <Link
+          href={APP_ROUTES.REGISTER}
+          className="inline-flex min-h-11 items-center px-1 font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
           {TEXT.AUTH.TAB_REGISTER}
         </Link>
       </p>

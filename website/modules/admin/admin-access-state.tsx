@@ -41,7 +41,7 @@ export function AdminAccessState({
       <Card className="relative w-full max-w-lg overflow-hidden border-border/80 bg-card/90 shadow-xl">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
         <CardContent className="flex flex-col items-center px-6 py-12 text-center sm:px-12">
-          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary ring-8 ring-primary/5">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary">
             <Icon className="h-7 w-7" aria-hidden="true" />
           </div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">

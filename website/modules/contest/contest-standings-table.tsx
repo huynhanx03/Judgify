@@ -8,6 +8,15 @@ import { Clock3, Swords } from "lucide-react";
 import { TEXT } from "@/constants/text";
 import type { Standing } from "@/types/contest";
 import { RankIndicator } from "@/components/rank-indicator";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface ContestStandingsTableProps {
   standings: Standing[];
@@ -29,39 +38,38 @@ export function ContestStandingsTable({ standings }: ContestStandingsTableProps)
   );
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <caption className="sr-only">{TEXT.CONTEST.STANDINGS}</caption>
-        <thead>
-          <tr className="border-b border-border/40">
-            <th scope="col" className="text-left py-3 px-4 font-bold text-muted-foreground w-16">{TEXT.CONTEST.RANK}</th>
-            <th scope="col" className="text-left py-3 px-4 font-bold text-muted-foreground">{TEXT.CONTEST.USER}</th>
-            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-20">{TEXT.CONTEST.SOLVED}</th>
-            <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-24">{TEXT.CONTEST.PENALTY}</th>
+    <Table containerLabel={TEXT.CONTEST.STANDINGS}>
+        <TableCaption className="sr-only">{TEXT.CONTEST.STANDINGS}</TableCaption>
+        <TableHeader>
+          <TableRow className="border-border/40">
+            <TableHead className="w-16 px-4 py-3 text-left text-sm font-bold">{TEXT.CONTEST.RANK}</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-bold">{TEXT.CONTEST.USER}</TableHead>
+            <TableHead className="w-20 px-4 py-3 text-center text-sm font-bold">{TEXT.CONTEST.SOLVED}</TableHead>
+            <TableHead className="w-24 px-4 py-3 text-center text-sm font-bold">{TEXT.CONTEST.PENALTY}</TableHead>
             {hasPending ? (
-              <th scope="col" className="text-center py-3 px-4 font-bold text-muted-foreground w-28">
+              <TableHead className="w-28 px-4 py-3 text-center text-sm font-bold">
                 {TEXT.CONTEST.STANDINGS_PENDING}
-              </th>
+              </TableHead>
             ) : null}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {standings.map((s) => (
-            <tr key={s.user_id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-              <td className="py-3 px-4">
+            <TableRow key={s.user_id} className="border-border/20 hover:bg-muted/20">
+              <TableCell className="px-4 py-3">
                 <RankIndicator rank={s.rank} />
-              </td>
-              <td className="py-3 px-4">
+              </TableCell>
+              <TableCell className="px-4 py-3">
                 <span className="font-medium">{s.username}</span>
-              </td>
-              <td className="py-3 px-4 text-center">
+              </TableCell>
+              <TableCell className="px-4 py-3 text-center">
                 <span className="font-bold text-success">{s.solved_count}</span>
-              </td>
-              <td className="py-3 px-4 text-center">
+              </TableCell>
+              <TableCell className="px-4 py-3 text-center">
                 <span className="font-mono text-muted-foreground">{s.penalty}</span>
-              </td>
+              </TableCell>
               {hasPending ? (
-                <td className="py-3 px-4 text-center">
+                <TableCell className="px-4 py-3 text-center">
                   {s.pending_attempts > 0 ? (
                     <span
                       className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2 py-1 font-mono text-xs font-semibold text-warning"
@@ -75,12 +83,11 @@ export function ContestStandingsTable({ standings }: ContestStandingsTableProps)
                   ) : (
                     <span className="text-muted-foreground/50">—</span>
                   )}
-                </td>
+                </TableCell>
               ) : null}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+    </Table>
   );
 }

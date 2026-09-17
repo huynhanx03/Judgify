@@ -25,10 +25,12 @@ export default defineConfig({
         "contexts/session-context.tsx",
         "design/tokens.ts",
         "i18n/text.ts",
+        "hooks/{use-contest-lifecycle-resource,use-contest-rating-changes,use-contest-standings,use-cursor-feed,use-debounced-value,use-retryable-resource}.ts",
         "lib/api/{client,contracts,csrf,error,schema}.ts",
         "lib/audit/audit-schema.ts",
         "lib/auth/{profile-schema,refresh-coordinator,safe-navigation}.ts",
         "lib/cultivation/{catalog-schema,trait-schema}.ts",
+        "lib/contest/content-input.ts",
       ],
       thresholds: {
         branches: 75,

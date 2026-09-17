@@ -56,3 +56,24 @@ test("named interpolation returns markup-like values as plain text", () => {
 test("formatter leaves remain callable through the typed path accessor", () => {
   assert.equal(text("COMMON.GO_TO_PAGE", { args: [3] }), "Đi đến trang 3");
 });
+
+test("text resolver rejects unsafe, unknown, branch, and incomplete interpolation paths", () => {
+  const resolveUnchecked = text as (key: string, params?: unknown) => string;
+
+  assert.throws(
+    () => resolveUnchecked("__proto__.polluted"),
+    /Unknown text key: __proto__\.polluted/,
+  );
+  assert.throws(
+    () => resolveUnchecked("NAV.UNKNOWN"),
+    /Unknown text key: NAV\.UNKNOWN/,
+  );
+  assert.throws(
+    () => resolveUnchecked("NAV"),
+    /does not resolve to a leaf/,
+  );
+  assert.throws(
+    () => resolveUnchecked("COMMON.ITEM_COUNT", {}),
+    /Missing interpolation parameter "count"/,
+  );
+});

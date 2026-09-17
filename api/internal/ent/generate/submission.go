@@ -9,7 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -19,7 +21,7 @@ import (
 type Submission struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -27,17 +29,61 @@ type Submission struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
-	ProblemID int `json:"problem_id,omitempty"`
+	ProblemID uuid.UUID `json:"problem_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
+	// ContestProblemID holds the value of the "contest_problem_id" field.
+	ContestProblemID *uuid.UUID `json:"contest_problem_id,omitempty"`
+	// ContestScoringPolicyVersion holds the value of the "contest_scoring_policy_version" field.
+	ContestScoringPolicyVersion *int64 `json:"contest_scoring_policy_version,omitempty"`
+	// SubmittedAt holds the value of the "submitted_at" field.
+	SubmittedAt time.Time `json:"submitted_at,omitempty"`
+	// ContestElapsedMs holds the value of the "contest_elapsed_ms" field.
+	ContestElapsedMs *int64 `json:"contest_elapsed_ms,omitempty"`
+	// ContestSubmissionSequence holds the value of the "contest_submission_sequence" field.
+	ContestSubmissionSequence *int64 `json:"contest_submission_sequence,omitempty"`
 	// Language holds the value of the "language" field.
 	Language submission.Language `json:"language,omitempty"`
+	// RuntimeKey holds the value of the "runtime_key" field.
+	RuntimeKey string `json:"runtime_key,omitempty"`
 	// SourceCode holds the value of the "source_code" field.
 	SourceCode string `json:"source_code,omitempty"`
+	// SourceSha256 holds the value of the "source_sha256" field.
+	SourceSha256 []byte `json:"source_sha256,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
+	// LatestGeneration holds the value of the "latest_generation" field.
+	LatestGeneration int64 `json:"latest_generation,omitempty"`
+	// LatestGenerationPhase holds the value of the "latest_generation_phase" field.
+	LatestGenerationPhase submission.LatestGenerationPhase `json:"latest_generation_phase,omitempty"`
+	// LatestGenerationOutcome holds the value of the "latest_generation_outcome" field.
+	LatestGenerationOutcome *submission.LatestGenerationOutcome `json:"latest_generation_outcome,omitempty"`
+	// ActiveJudgementID holds the value of the "active_judgement_id" field.
+	ActiveJudgementID *uuid.UUID `json:"active_judgement_id,omitempty"`
+	// ActiveJudgementGeneration holds the value of the "active_judgement_generation" field.
+	ActiveJudgementGeneration *int64 `json:"active_judgement_generation,omitempty"`
+	// ActiveVerdict holds the value of the "active_verdict" field.
+	ActiveVerdict *submission.ActiveVerdict `json:"active_verdict,omitempty"`
+	// IdempotencyKey holds the value of the "idempotency_key" field.
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+	// RequestHash holds the value of the "request_hash" field.
+	RequestHash []byte `json:"request_hash,omitempty"`
+	// OriginCid holds the value of the "origin_cid" field.
+	OriginCid string `json:"origin_cid,omitempty"`
+	// LatestGenerationQueuedAt holds the value of the "latest_generation_queued_at" field.
+	LatestGenerationQueuedAt time.Time `json:"latest_generation_queued_at,omitempty"`
+	// LatestGenerationStartedAt holds the value of the "latest_generation_started_at" field.
+	LatestGenerationStartedAt *time.Time `json:"latest_generation_started_at,omitempty"`
+	// LatestGenerationCompletedAt holds the value of the "latest_generation_completed_at" field.
+	LatestGenerationCompletedAt *time.Time `json:"latest_generation_completed_at,omitempty"`
 	// Status holds the value of the "status" field.
 	Status submission.Status `json:"status,omitempty"`
+	// JudgedAt holds the value of the "judged_at" field.
+	JudgedAt *time.Time `json:"judged_at,omitempty"`
+	// VerdictVersion holds the value of the "verdict_version" field.
+	VerdictVersion int64 `json:"verdict_version,omitempty"`
 	// PassedCount holds the value of the "passed_count" field.
 	PassedCount int `json:"passed_count,omitempty"`
 	// TotalCount holds the value of the "total_count" field.
@@ -49,7 +95,7 @@ type Submission struct {
 	// ErrorMessage holds the value of the "error_message" field.
 	ErrorMessage *string `json:"error_message,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
-	ContestID *int `json:"contest_id,omitempty"`
+	ContestID *uuid.UUID `json:"contest_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmissionQuery when eager-loading is set.
 	Edges        SubmissionEdges `json:"edges"`
@@ -64,9 +110,13 @@ type SubmissionEdges struct {
 	User *User `json:"user,omitempty"`
 	// Contest holds the value of the contest edge.
 	Contest *Contest `json:"contest,omitempty"`
+	// ContestScoringAttempt holds the value of the contest_scoring_attempt edge.
+	ContestScoringAttempt *ContestScoringAttempt `json:"contest_scoring_attempt,omitempty"`
+	// LastContestProblemResults holds the value of the last_contest_problem_results edge.
+	LastContestProblemResults []*ContestProblemResult `json:"last_contest_problem_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [5]bool
 }
 
 // ProblemOrErr returns the Problem value or an error if the edge
@@ -102,17 +152,43 @@ func (e SubmissionEdges) ContestOrErr() (*Contest, error) {
 	return nil, &NotLoadedError{edge: "contest"}
 }
 
+// ContestScoringAttemptOrErr returns the ContestScoringAttempt value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SubmissionEdges) ContestScoringAttemptOrErr() (*ContestScoringAttempt, error) {
+	if e.ContestScoringAttempt != nil {
+		return e.ContestScoringAttempt, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: contestscoringattempt.Label}
+	}
+	return nil, &NotLoadedError{edge: "contest_scoring_attempt"}
+}
+
+// LastContestProblemResultsOrErr returns the LastContestProblemResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e SubmissionEdges) LastContestProblemResultsOrErr() ([]*ContestProblemResult, error) {
+	if e.loadedTypes[4] {
+		return e.LastContestProblemResults, nil
+	}
+	return nil, &NotLoadedError{edge: "last_contest_problem_results"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Submission) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submission.FieldID, submission.FieldDeletedBy, submission.FieldProblemID, submission.FieldUserID, submission.FieldPassedCount, submission.FieldTotalCount, submission.FieldTimeMs, submission.FieldMemoryKB, submission.FieldContestID:
+		case submission.FieldContestProblemID, submission.FieldActiveJudgementID, submission.FieldContestID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case submission.FieldSourceSha256, submission.FieldRequestHash:
+			values[i] = new([]byte)
+		case submission.FieldContestScoringPolicyVersion, submission.FieldContestElapsedMs, submission.FieldContestSubmissionSequence, submission.FieldVersion, submission.FieldLatestGeneration, submission.FieldActiveJudgementGeneration, submission.FieldVerdictVersion, submission.FieldPassedCount, submission.FieldTotalCount, submission.FieldTimeMs, submission.FieldMemoryKB:
 			values[i] = new(sql.NullInt64)
-		case submission.FieldLanguage, submission.FieldSourceCode, submission.FieldStatus, submission.FieldErrorMessage:
+		case submission.FieldDeletedBy, submission.FieldLanguage, submission.FieldRuntimeKey, submission.FieldSourceCode, submission.FieldLatestGenerationPhase, submission.FieldLatestGenerationOutcome, submission.FieldActiveVerdict, submission.FieldIdempotencyKey, submission.FieldOriginCid, submission.FieldStatus, submission.FieldErrorMessage:
 			values[i] = new(sql.NullString)
-		case submission.FieldCreatedAt, submission.FieldUpdatedAt, submission.FieldDeletedAt:
+		case submission.FieldCreatedAt, submission.FieldUpdatedAt, submission.FieldDeletedAt, submission.FieldSubmittedAt, submission.FieldLatestGenerationQueuedAt, submission.FieldLatestGenerationStartedAt, submission.FieldLatestGenerationCompletedAt, submission.FieldJudgedAt:
 			values[i] = new(sql.NullTime)
+		case submission.FieldID, submission.FieldProblemID, submission.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -129,11 +205,11 @@ func (_m *Submission) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case submission.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case submission.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -154,23 +230,57 @@ func (_m *Submission) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case submission.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case submission.FieldProblemID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
-			} else if value.Valid {
-				_m.ProblemID = int(value.Int64)
+			} else if value != nil {
+				_m.ProblemID = *value
 			}
 		case submission.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+			} else if value != nil {
+				_m.UserID = *value
+			}
+		case submission.FieldContestProblemID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_problem_id", values[i])
 			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+				_m.ContestProblemID = new(uuid.UUID)
+				*_m.ContestProblemID = *value.S.(*uuid.UUID)
+			}
+		case submission.FieldContestScoringPolicyVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_scoring_policy_version", values[i])
+			} else if value.Valid {
+				_m.ContestScoringPolicyVersion = new(int64)
+				*_m.ContestScoringPolicyVersion = value.Int64
+			}
+		case submission.FieldSubmittedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field submitted_at", values[i])
+			} else if value.Valid {
+				_m.SubmittedAt = value.Time
+			}
+		case submission.FieldContestElapsedMs:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_elapsed_ms", values[i])
+			} else if value.Valid {
+				_m.ContestElapsedMs = new(int64)
+				*_m.ContestElapsedMs = value.Int64
+			}
+		case submission.FieldContestSubmissionSequence:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_submission_sequence", values[i])
+			} else if value.Valid {
+				_m.ContestSubmissionSequence = new(int64)
+				*_m.ContestSubmissionSequence = value.Int64
 			}
 		case submission.FieldLanguage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -178,17 +288,126 @@ func (_m *Submission) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Language = submission.Language(value.String)
 			}
+		case submission.FieldRuntimeKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field runtime_key", values[i])
+			} else if value.Valid {
+				_m.RuntimeKey = value.String
+			}
 		case submission.FieldSourceCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source_code", values[i])
 			} else if value.Valid {
 				_m.SourceCode = value.String
 			}
+		case submission.FieldSourceSha256:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field source_sha256", values[i])
+			} else if value != nil {
+				_m.SourceSha256 = *value
+			}
+		case submission.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
+		case submission.FieldLatestGeneration:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field latest_generation", values[i])
+			} else if value.Valid {
+				_m.LatestGeneration = value.Int64
+			}
+		case submission.FieldLatestGenerationPhase:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field latest_generation_phase", values[i])
+			} else if value.Valid {
+				_m.LatestGenerationPhase = submission.LatestGenerationPhase(value.String)
+			}
+		case submission.FieldLatestGenerationOutcome:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field latest_generation_outcome", values[i])
+			} else if value.Valid {
+				_m.LatestGenerationOutcome = new(submission.LatestGenerationOutcome)
+				*_m.LatestGenerationOutcome = submission.LatestGenerationOutcome(value.String)
+			}
+		case submission.FieldActiveJudgementID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field active_judgement_id", values[i])
+			} else if value.Valid {
+				_m.ActiveJudgementID = new(uuid.UUID)
+				*_m.ActiveJudgementID = *value.S.(*uuid.UUID)
+			}
+		case submission.FieldActiveJudgementGeneration:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field active_judgement_generation", values[i])
+			} else if value.Valid {
+				_m.ActiveJudgementGeneration = new(int64)
+				*_m.ActiveJudgementGeneration = value.Int64
+			}
+		case submission.FieldActiveVerdict:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field active_verdict", values[i])
+			} else if value.Valid {
+				_m.ActiveVerdict = new(submission.ActiveVerdict)
+				*_m.ActiveVerdict = submission.ActiveVerdict(value.String)
+			}
+		case submission.FieldIdempotencyKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field idempotency_key", values[i])
+			} else if value.Valid {
+				_m.IdempotencyKey = value.String
+			}
+		case submission.FieldRequestHash:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field request_hash", values[i])
+			} else if value != nil {
+				_m.RequestHash = *value
+			}
+		case submission.FieldOriginCid:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field origin_cid", values[i])
+			} else if value.Valid {
+				_m.OriginCid = value.String
+			}
+		case submission.FieldLatestGenerationQueuedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field latest_generation_queued_at", values[i])
+			} else if value.Valid {
+				_m.LatestGenerationQueuedAt = value.Time
+			}
+		case submission.FieldLatestGenerationStartedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field latest_generation_started_at", values[i])
+			} else if value.Valid {
+				_m.LatestGenerationStartedAt = new(time.Time)
+				*_m.LatestGenerationStartedAt = value.Time
+			}
+		case submission.FieldLatestGenerationCompletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field latest_generation_completed_at", values[i])
+			} else if value.Valid {
+				_m.LatestGenerationCompletedAt = new(time.Time)
+				*_m.LatestGenerationCompletedAt = value.Time
+			}
 		case submission.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = submission.Status(value.String)
+			}
+		case submission.FieldJudgedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field judged_at", values[i])
+			} else if value.Valid {
+				_m.JudgedAt = new(time.Time)
+				*_m.JudgedAt = value.Time
+			}
+		case submission.FieldVerdictVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field verdict_version", values[i])
+			} else if value.Valid {
+				_m.VerdictVersion = value.Int64
 			}
 		case submission.FieldPassedCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -224,11 +443,11 @@ func (_m *Submission) assignValues(columns []string, values []any) error {
 				*_m.ErrorMessage = value.String
 			}
 		case submission.FieldContestID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
 			} else if value.Valid {
-				_m.ContestID = new(int)
-				*_m.ContestID = int(value.Int64)
+				_m.ContestID = new(uuid.UUID)
+				*_m.ContestID = *value.S.(*uuid.UUID)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -256,6 +475,16 @@ func (_m *Submission) QueryUser() *UserQuery {
 // QueryContest queries the "contest" edge of the Submission entity.
 func (_m *Submission) QueryContest() *ContestQuery {
 	return NewSubmissionClient(_m.config).QueryContest(_m)
+}
+
+// QueryContestScoringAttempt queries the "contest_scoring_attempt" edge of the Submission entity.
+func (_m *Submission) QueryContestScoringAttempt() *ContestScoringAttemptQuery {
+	return NewSubmissionClient(_m.config).QueryContestScoringAttempt(_m)
+}
+
+// QueryLastContestProblemResults queries the "last_contest_problem_results" edge of the Submission entity.
+func (_m *Submission) QueryLastContestProblemResults() *ContestProblemResultQuery {
+	return NewSubmissionClient(_m.config).QueryLastContestProblemResults(_m)
 }
 
 // Update returns a builder for updating this Submission.
@@ -294,7 +523,7 @@ func (_m *Submission) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("problem_id=")
@@ -303,14 +532,102 @@ func (_m *Submission) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
+	if v := _m.ContestProblemID; v != nil {
+		builder.WriteString("contest_problem_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ContestScoringPolicyVersion; v != nil {
+		builder.WriteString("contest_scoring_policy_version=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("submitted_at=")
+	builder.WriteString(_m.SubmittedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.ContestElapsedMs; v != nil {
+		builder.WriteString("contest_elapsed_ms=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ContestSubmissionSequence; v != nil {
+		builder.WriteString("contest_submission_sequence=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("language=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Language))
+	builder.WriteString(", ")
+	builder.WriteString("runtime_key=")
+	builder.WriteString(_m.RuntimeKey)
 	builder.WriteString(", ")
 	builder.WriteString("source_code=")
 	builder.WriteString(_m.SourceCode)
 	builder.WriteString(", ")
+	builder.WriteString("source_sha256=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SourceSha256))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
+	builder.WriteString("latest_generation=")
+	builder.WriteString(fmt.Sprintf("%v", _m.LatestGeneration))
+	builder.WriteString(", ")
+	builder.WriteString("latest_generation_phase=")
+	builder.WriteString(fmt.Sprintf("%v", _m.LatestGenerationPhase))
+	builder.WriteString(", ")
+	if v := _m.LatestGenerationOutcome; v != nil {
+		builder.WriteString("latest_generation_outcome=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ActiveJudgementID; v != nil {
+		builder.WriteString("active_judgement_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ActiveJudgementGeneration; v != nil {
+		builder.WriteString("active_judgement_generation=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ActiveVerdict; v != nil {
+		builder.WriteString("active_verdict=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("idempotency_key=")
+	builder.WriteString(_m.IdempotencyKey)
+	builder.WriteString(", ")
+	builder.WriteString("request_hash=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RequestHash))
+	builder.WriteString(", ")
+	builder.WriteString("origin_cid=")
+	builder.WriteString(_m.OriginCid)
+	builder.WriteString(", ")
+	builder.WriteString("latest_generation_queued_at=")
+	builder.WriteString(_m.LatestGenerationQueuedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.LatestGenerationStartedAt; v != nil {
+		builder.WriteString("latest_generation_started_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.LatestGenerationCompletedAt; v != nil {
+		builder.WriteString("latest_generation_completed_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	if v := _m.JudgedAt; v != nil {
+		builder.WriteString("judged_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("verdict_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.VerdictVersion))
 	builder.WriteString(", ")
 	builder.WriteString("passed_count=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PassedCount))
@@ -339,14 +656,6 @@ func (_m *Submission) String() string {
 	}
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Submission) GetID() int {
-	return _m.ID
-}
-
-func (_m *Submission) SetID(id int) {
-	_m.ID = id
 }
 
 // Submissions is a parsable slice of Submission.

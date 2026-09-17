@@ -23,7 +23,7 @@
     "check:user-role-contract": "node scripts/check-user-role-assignment-contract.mjs",
     "test:realtime": "npm run test:contracts",
     "check:architecture:inventory": "node scripts/check-frontend-architecture.mjs --print-inventory",
-    "verify": "npm run lint && npm run check:routes && npm run check:user-role-contract && npm run test:contracts && npm run test && npm run typecheck",
+    "verify": "npm run lint && npm run check:routes && npm run check:user-role-contract && npm run test:contracts && npm run test:coverage && npm run typecheck",
     "verify:release": "npm run verify && npm run build && npm run check:bundle && npm run test:e2e:release"
   },
   "dependencies": {
@@ -58,7 +58,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitest/coverage-v8": "4.1.10",
+    "@vitest/coverage-v8": "4.1.11",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
@@ -66,7 +66,7 @@
     "shadcn": "4.16.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "overrides": {
     "@hono/node-server": "2.0.12",
@@ -74,6 +74,6 @@
     "hono": "4.13.5",
     "nanoid": "3.3.18",
     "postcss": "8.5.25",
-    "sharp": "0.35.3"
+    "sharp": "0.35.4"
   }
 }

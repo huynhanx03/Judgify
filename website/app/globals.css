@@ -130,7 +130,10 @@
   --font-family-mono: "Fira Code", "SFMono-Regular", Consolas,
     "Liberation Mono", monospace;
 
-  /* Semantic layer: blue navigation/data, amber action, jade success. */
+  /*
+   * Semantic layer: amber is the Judgify flame and primary product identity.
+   * Navy/neutral owns canvas and data density; blue remains information only.
+   */
   --background: var(--primitive-neutral-50);
   --foreground: var(--primitive-neutral-900);
   --surface: var(--primitive-neutral-0);
@@ -140,18 +143,18 @@
   --card-foreground: var(--foreground);
   --popover: var(--surface-raised);
   --popover-foreground: var(--foreground);
-  --primary: var(--primitive-blue-800);
+  --primary: var(--primitive-amber-700);
   --primary-foreground: var(--primitive-neutral-0);
-  --secondary: var(--primitive-blue-50);
-  --secondary-foreground: var(--primitive-blue-900);
+  --secondary: var(--primitive-neutral-100);
+  --secondary-foreground: var(--primitive-neutral-800);
   --muted: var(--primitive-neutral-100);
   --muted-foreground: var(--primitive-neutral-600);
   --accent: var(--primitive-neutral-100);
   --accent-foreground: var(--primitive-neutral-900);
-  --border: var(--primitive-blue-100);
+  --border: var(--primitive-neutral-200);
   --border-strong: var(--primitive-neutral-500);
   --input: var(--primitive-neutral-300);
-  --focus-ring: var(--primitive-blue-800);
+  --focus-ring: var(--primary);
   --ring: var(--focus-ring);
   --success: var(--primitive-jade-700);
   --success-foreground: var(--primitive-neutral-0);
@@ -163,8 +166,8 @@
   --destructive-foreground: var(--danger-foreground);
   --info: var(--primitive-blue-700);
   --info-foreground: var(--primitive-neutral-0);
-  --cultivation: var(--primitive-amber-700);
-  --cultivation-foreground: var(--primitive-neutral-0);
+  --cultivation: var(--primary);
+  --cultivation-foreground: var(--primary-foreground);
   --code-background: var(--primitive-neutral-900);
   --editor-gutter: var(--primitive-neutral-800);
 
@@ -175,9 +178,9 @@
   --motion-duration-base: 200ms;
   --motion-duration-slow: 300ms;
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --button-background: var(--primitive-amber-600);
-  --button-background-hover: var(--primitive-amber-700);
-  --button-foreground: var(--primitive-neutral-0);
+  --button-background: var(--primary);
+  --button-background-hover: var(--primitive-amber-800);
+  --button-foreground: var(--primary-foreground);
   --input-background: var(--surface);
   --input-border: var(--input);
   --card-background: var(--surface);
@@ -247,8 +250,8 @@
   --card-foreground: var(--foreground);
   --popover: var(--surface-raised);
   --popover-foreground: var(--foreground);
-  --primary: var(--primitive-blue-400);
-  --primary-foreground: var(--primitive-blue-950);
+  --primary: var(--primitive-amber-400);
+  --primary-foreground: var(--primitive-amber-950);
   --secondary: var(--primitive-neutral-700);
   --secondary-foreground: var(--primitive-neutral-50);
   --muted: var(--primitive-neutral-800);
@@ -258,7 +261,7 @@
   --border: var(--primitive-neutral-700);
   --border-strong: var(--primitive-neutral-400);
   --input: var(--primitive-neutral-600);
-  --focus-ring: var(--primitive-blue-300);
+  --focus-ring: var(--primary);
   --ring: var(--focus-ring);
   --success: var(--primitive-jade-400);
   --success-foreground: var(--primitive-jade-950);
@@ -270,13 +273,13 @@
   --destructive-foreground: var(--danger-foreground);
   --info: var(--primitive-blue-400);
   --info-foreground: var(--primitive-blue-950);
-  --cultivation: var(--primitive-amber-400);
-  --cultivation-foreground: var(--primitive-amber-950);
+  --cultivation: var(--primary);
+  --cultivation-foreground: var(--primary-foreground);
   --code-background: #050b14;
   --editor-gutter: var(--primitive-neutral-900);
-  --button-background: var(--primitive-amber-400);
+  --button-background: var(--primary);
   --button-background-hover: var(--primitive-amber-300);
-  --button-foreground: var(--primitive-amber-950);
+  --button-foreground: var(--primary-foreground);
   --input-background: var(--surface-sunken);
   --dialog-overlay: color-mix(in srgb, #020617 68%, transparent);
   --tooltip-background: var(--primitive-neutral-50);
@@ -406,10 +409,16 @@
     box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 48%, transparent);
   }
   .button-brand-elevation {
-    box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 24%, transparent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--cultivation) 24%, transparent);
   }
   .button-brand-elevation:hover {
-    box-shadow: 0 0 28px color-mix(in srgb, var(--primary) 42%, transparent);
+    box-shadow: 0 0 28px color-mix(in srgb, var(--cultivation) 42%, transparent);
+  }
+  .brand-mark {
+    border: 1px solid color-mix(in srgb, var(--cultivation) 58%, var(--border));
+    background: var(--code-background);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--cultivation) 14%, transparent),
+      0 5px 16px color-mix(in srgb, var(--cultivation) 22%, transparent);
   }
   .surface-grid-tight {
     background-image:
@@ -488,10 +497,10 @@
     fill: var(--google-red);
   }
   .glass {
-    @apply bg-background/60 backdrop-blur-xl border border-border/50;
+    @apply border border-border/50 bg-surface;
   }
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-border;
+    @apply border border-border bg-card;
   }
   .heading-gaming {
     @apply font-heading uppercase tracking-wider;

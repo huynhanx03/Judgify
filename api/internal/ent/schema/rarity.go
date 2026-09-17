@@ -5,7 +5,8 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -17,6 +18,7 @@ type Rarity struct {
 // Mixin of the Rarity.
 func (Rarity) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -37,7 +39,7 @@ func (Rarity) Fields() []ent.Field {
 		field.Int("weight").
 			Default(100).
 			Positive().
-			Comment("Gacha weight, higher = more likely"),
+			Comment("Trait-offer weight; higher values increase draw probability"),
 		field.String("description").
 			Optional().
 			MaxLen(255),

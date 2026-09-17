@@ -8,7 +8,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -17,17 +19,33 @@ import (
 type RatingHistory struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
-	ContestID int `json:"contest_id,omitempty"`
+	ContestID uuid.UUID `json:"contest_id,omitempty"`
+	// RatingRunID holds the value of the "rating_run_id" field.
+	RatingRunID *uuid.UUID `json:"rating_run_id,omitempty"`
+	// RatingSequence holds the value of the "rating_sequence" field.
+	RatingSequence *int64 `json:"rating_sequence,omitempty"`
+	// RunVersion holds the value of the "run_version" field.
+	RunVersion *int64 `json:"run_version,omitempty"`
 	// OldRating holds the value of the "old_rating" field.
 	OldRating int `json:"old_rating,omitempty"`
 	// NewRating holds the value of the "new_rating" field.
 	NewRating int `json:"new_rating,omitempty"`
 	// RankPosition holds the value of the "rank_position" field.
 	RankPosition int `json:"rank_position,omitempty"`
+	// PriorRatedContestCount holds the value of the "prior_rated_contest_count" field.
+	PriorRatedContestCount int `json:"prior_rated_contest_count,omitempty"`
+	// ActualRank holds the value of the "actual_rank" field.
+	ActualRank *float64 `json:"actual_rank,omitempty"`
+	// ExpectedRank holds the value of the "expected_rank" field.
+	ExpectedRank *float64 `json:"expected_rank,omitempty"`
+	// Delta holds the value of the "delta" field.
+	Delta int `json:"delta,omitempty"`
+	// AlgorithmVersion holds the value of the "algorithm_version" field.
+	AlgorithmVersion *string `json:"algorithm_version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RatingHistoryQuery when eager-loading is set.
 	Edges        RatingHistoryEdges `json:"edges"`
@@ -40,9 +58,11 @@ type RatingHistoryEdges struct {
 	User *User `json:"user,omitempty"`
 	// Contest holds the value of the contest edge.
 	Contest *Contest `json:"contest,omitempty"`
+	// RatingRun holds the value of the rating_run edge.
+	RatingRun *ContestRatingRun `json:"rating_run,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -67,13 +87,32 @@ func (e RatingHistoryEdges) ContestOrErr() (*Contest, error) {
 	return nil, &NotLoadedError{edge: "contest"}
 }
 
+// RatingRunOrErr returns the RatingRun value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e RatingHistoryEdges) RatingRunOrErr() (*ContestRatingRun, error) {
+	if e.RatingRun != nil {
+		return e.RatingRun, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: contestratingrun.Label}
+	}
+	return nil, &NotLoadedError{edge: "rating_run"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*RatingHistory) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case ratinghistory.FieldID, ratinghistory.FieldUserID, ratinghistory.FieldContestID, ratinghistory.FieldOldRating, ratinghistory.FieldNewRating, ratinghistory.FieldRankPosition:
+		case ratinghistory.FieldRatingRunID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case ratinghistory.FieldActualRank, ratinghistory.FieldExpectedRank:
+			values[i] = new(sql.NullFloat64)
+		case ratinghistory.FieldRatingSequence, ratinghistory.FieldRunVersion, ratinghistory.FieldOldRating, ratinghistory.FieldNewRating, ratinghistory.FieldRankPosition, ratinghistory.FieldPriorRatedContestCount, ratinghistory.FieldDelta:
 			values[i] = new(sql.NullInt64)
+		case ratinghistory.FieldAlgorithmVersion:
+			values[i] = new(sql.NullString)
+		case ratinghistory.FieldID, ratinghistory.FieldUserID, ratinghistory.FieldContestID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -90,22 +129,43 @@ func (_m *RatingHistory) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case ratinghistory.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case ratinghistory.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = int(value.Int64)
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case ratinghistory.FieldContestID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
+			} else if value != nil {
+				_m.ContestID = *value
+			}
+		case ratinghistory.FieldRatingRunID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field rating_run_id", values[i])
 			} else if value.Valid {
-				_m.ContestID = int(value.Int64)
+				_m.RatingRunID = new(uuid.UUID)
+				*_m.RatingRunID = *value.S.(*uuid.UUID)
+			}
+		case ratinghistory.FieldRatingSequence:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field rating_sequence", values[i])
+			} else if value.Valid {
+				_m.RatingSequence = new(int64)
+				*_m.RatingSequence = value.Int64
+			}
+		case ratinghistory.FieldRunVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field run_version", values[i])
+			} else if value.Valid {
+				_m.RunVersion = new(int64)
+				*_m.RunVersion = value.Int64
 			}
 		case ratinghistory.FieldOldRating:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -124,6 +184,39 @@ func (_m *RatingHistory) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field rank_position", values[i])
 			} else if value.Valid {
 				_m.RankPosition = int(value.Int64)
+			}
+		case ratinghistory.FieldPriorRatedContestCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field prior_rated_contest_count", values[i])
+			} else if value.Valid {
+				_m.PriorRatedContestCount = int(value.Int64)
+			}
+		case ratinghistory.FieldActualRank:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field actual_rank", values[i])
+			} else if value.Valid {
+				_m.ActualRank = new(float64)
+				*_m.ActualRank = value.Float64
+			}
+		case ratinghistory.FieldExpectedRank:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field expected_rank", values[i])
+			} else if value.Valid {
+				_m.ExpectedRank = new(float64)
+				*_m.ExpectedRank = value.Float64
+			}
+		case ratinghistory.FieldDelta:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field delta", values[i])
+			} else if value.Valid {
+				_m.Delta = int(value.Int64)
+			}
+		case ratinghistory.FieldAlgorithmVersion:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field algorithm_version", values[i])
+			} else if value.Valid {
+				_m.AlgorithmVersion = new(string)
+				*_m.AlgorithmVersion = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -146,6 +239,11 @@ func (_m *RatingHistory) QueryUser() *UserQuery {
 // QueryContest queries the "contest" edge of the RatingHistory entity.
 func (_m *RatingHistory) QueryContest() *ContestQuery {
 	return NewRatingHistoryClient(_m.config).QueryContest(_m)
+}
+
+// QueryRatingRun queries the "rating_run" edge of the RatingHistory entity.
+func (_m *RatingHistory) QueryRatingRun() *ContestRatingRunQuery {
+	return NewRatingHistoryClient(_m.config).QueryRatingRun(_m)
 }
 
 // Update returns a builder for updating this RatingHistory.
@@ -177,6 +275,21 @@ func (_m *RatingHistory) String() string {
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ContestID))
 	builder.WriteString(", ")
+	if v := _m.RatingRunID; v != nil {
+		builder.WriteString("rating_run_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.RatingSequence; v != nil {
+		builder.WriteString("rating_sequence=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.RunVersion; v != nil {
+		builder.WriteString("run_version=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("old_rating=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OldRating))
 	builder.WriteString(", ")
@@ -185,16 +298,29 @@ func (_m *RatingHistory) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("rank_position=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RankPosition))
+	builder.WriteString(", ")
+	builder.WriteString("prior_rated_contest_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PriorRatedContestCount))
+	builder.WriteString(", ")
+	if v := _m.ActualRank; v != nil {
+		builder.WriteString("actual_rank=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ExpectedRank; v != nil {
+		builder.WriteString("expected_rank=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("delta=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Delta))
+	builder.WriteString(", ")
+	if v := _m.AlgorithmVersion; v != nil {
+		builder.WriteString("algorithm_version=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *RatingHistory) GetID() int {
-	return _m.ID
-}
-
-func (_m *RatingHistory) SetID(id int) {
-	_m.ID = id
 }
 
 // RatingHistories is a parsable slice of RatingHistory.

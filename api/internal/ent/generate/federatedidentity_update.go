@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -57,23 +58,16 @@ func (_u *FederatedIdentityUpdate) ClearDeletedAt() *FederatedIdentityUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *FederatedIdentityUpdate) SetDeletedBy(v int) *FederatedIdentityUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *FederatedIdentityUpdate) SetDeletedBy(v string) *FederatedIdentityUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *FederatedIdentityUpdate) SetNillableDeletedBy(v *int) *FederatedIdentityUpdate {
+func (_u *FederatedIdentityUpdate) SetNillableDeletedBy(v *string) *FederatedIdentityUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *FederatedIdentityUpdate) AddDeletedBy(v int) *FederatedIdentityUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -84,13 +78,13 @@ func (_u *FederatedIdentityUpdate) ClearDeletedBy() *FederatedIdentityUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *FederatedIdentityUpdate) SetUserID(v int) *FederatedIdentityUpdate {
+func (_u *FederatedIdentityUpdate) SetUserID(v uuid.UUID) *FederatedIdentityUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *FederatedIdentityUpdate) SetNillableUserID(v *int) *FederatedIdentityUpdate {
+func (_u *FederatedIdentityUpdate) SetNillableUserID(v *uuid.UUID) *FederatedIdentityUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -111,17 +105,77 @@ func (_u *FederatedIdentityUpdate) SetNillableProvider(v *string) *FederatedIden
 	return _u
 }
 
-// SetExternalID sets the "external_id" field.
-func (_u *FederatedIdentityUpdate) SetExternalID(v string) *FederatedIdentityUpdate {
-	_u.mutation.SetExternalID(v)
+// SetProviderSubject sets the "provider_subject" field.
+func (_u *FederatedIdentityUpdate) SetProviderSubject(v string) *FederatedIdentityUpdate {
+	_u.mutation.SetProviderSubject(v)
 	return _u
 }
 
-// SetNillableExternalID sets the "external_id" field if the given value is not nil.
-func (_u *FederatedIdentityUpdate) SetNillableExternalID(v *string) *FederatedIdentityUpdate {
+// SetNillableProviderSubject sets the "provider_subject" field if the given value is not nil.
+func (_u *FederatedIdentityUpdate) SetNillableProviderSubject(v *string) *FederatedIdentityUpdate {
 	if v != nil {
-		_u.SetExternalID(*v)
+		_u.SetProviderSubject(*v)
 	}
+	return _u
+}
+
+// SetDisplayName sets the "display_name" field.
+func (_u *FederatedIdentityUpdate) SetDisplayName(v string) *FederatedIdentityUpdate {
+	_u.mutation.SetDisplayName(v)
+	return _u
+}
+
+// SetNillableDisplayName sets the "display_name" field if the given value is not nil.
+func (_u *FederatedIdentityUpdate) SetNillableDisplayName(v *string) *FederatedIdentityUpdate {
+	if v != nil {
+		_u.SetDisplayName(*v)
+	}
+	return _u
+}
+
+// ClearDisplayName clears the value of the "display_name" field.
+func (_u *FederatedIdentityUpdate) ClearDisplayName() *FederatedIdentityUpdate {
+	_u.mutation.ClearDisplayName()
+	return _u
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (_u *FederatedIdentityUpdate) SetAvatarURL(v string) *FederatedIdentityUpdate {
+	_u.mutation.SetAvatarURL(v)
+	return _u
+}
+
+// SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
+func (_u *FederatedIdentityUpdate) SetNillableAvatarURL(v *string) *FederatedIdentityUpdate {
+	if v != nil {
+		_u.SetAvatarURL(*v)
+	}
+	return _u
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (_u *FederatedIdentityUpdate) ClearAvatarURL() *FederatedIdentityUpdate {
+	_u.mutation.ClearAvatarURL()
+	return _u
+}
+
+// SetLastAuthenticatedAt sets the "last_authenticated_at" field.
+func (_u *FederatedIdentityUpdate) SetLastAuthenticatedAt(v time.Time) *FederatedIdentityUpdate {
+	_u.mutation.SetLastAuthenticatedAt(v)
+	return _u
+}
+
+// SetNillableLastAuthenticatedAt sets the "last_authenticated_at" field if the given value is not nil.
+func (_u *FederatedIdentityUpdate) SetNillableLastAuthenticatedAt(v *time.Time) *FederatedIdentityUpdate {
+	if v != nil {
+		_u.SetLastAuthenticatedAt(*v)
+	}
+	return _u
+}
+
+// ClearLastAuthenticatedAt clears the value of the "last_authenticated_at" field.
+func (_u *FederatedIdentityUpdate) ClearLastAuthenticatedAt() *FederatedIdentityUpdate {
+	_u.mutation.ClearLastAuthenticatedAt()
 	return _u
 }
 
@@ -190,9 +244,19 @@ func (_u *FederatedIdentityUpdate) check() error {
 			return &ValidationError{Name: "provider", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.provider": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.ExternalID(); ok {
-		if err := federatedidentity.ExternalIDValidator(v); err != nil {
-			return &ValidationError{Name: "external_id", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.external_id": %w`, err)}
+	if v, ok := _u.mutation.ProviderSubject(); ok {
+		if err := federatedidentity.ProviderSubjectValidator(v); err != nil {
+			return &ValidationError{Name: "provider_subject", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.provider_subject": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DisplayName(); ok {
+		if err := federatedidentity.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.display_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AvatarURL(); ok {
+		if err := federatedidentity.AvatarURLValidator(v); err != nil {
+			return &ValidationError{Name: "avatar_url", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.avatar_url": %w`, err)}
 		}
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
@@ -211,7 +275,7 @@ func (_u *FederatedIdentityUpdate) sqlSave(ctx context.Context) (_node int, err 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(federatedidentity.Table, federatedidentity.Columns, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(federatedidentity.Table, federatedidentity.Columns, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -229,19 +293,34 @@ func (_u *FederatedIdentityUpdate) sqlSave(ctx context.Context) (_node int, err 
 		_spec.ClearField(federatedidentity.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(federatedidentity.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(federatedidentity.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(federatedidentity.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(federatedidentity.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(federatedidentity.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Provider(); ok {
 		_spec.SetField(federatedidentity.FieldProvider, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.ExternalID(); ok {
-		_spec.SetField(federatedidentity.FieldExternalID, field.TypeString, value)
+	if value, ok := _u.mutation.ProviderSubject(); ok {
+		_spec.SetField(federatedidentity.FieldProviderSubject, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DisplayName(); ok {
+		_spec.SetField(federatedidentity.FieldDisplayName, field.TypeString, value)
+	}
+	if _u.mutation.DisplayNameCleared() {
+		_spec.ClearField(federatedidentity.FieldDisplayName, field.TypeString)
+	}
+	if value, ok := _u.mutation.AvatarURL(); ok {
+		_spec.SetField(federatedidentity.FieldAvatarURL, field.TypeString, value)
+	}
+	if _u.mutation.AvatarURLCleared() {
+		_spec.ClearField(federatedidentity.FieldAvatarURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.LastAuthenticatedAt(); ok {
+		_spec.SetField(federatedidentity.FieldLastAuthenticatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastAuthenticatedAtCleared() {
+		_spec.ClearField(federatedidentity.FieldLastAuthenticatedAt, field.TypeTime)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -251,7 +330,7 @@ func (_u *FederatedIdentityUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Columns: []string{federatedidentity.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -264,7 +343,7 @@ func (_u *FederatedIdentityUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Columns: []string{federatedidentity.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -321,23 +400,16 @@ func (_u *FederatedIdentityUpdateOne) ClearDeletedAt() *FederatedIdentityUpdateO
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *FederatedIdentityUpdateOne) SetDeletedBy(v int) *FederatedIdentityUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *FederatedIdentityUpdateOne) SetDeletedBy(v string) *FederatedIdentityUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *FederatedIdentityUpdateOne) SetNillableDeletedBy(v *int) *FederatedIdentityUpdateOne {
+func (_u *FederatedIdentityUpdateOne) SetNillableDeletedBy(v *string) *FederatedIdentityUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *FederatedIdentityUpdateOne) AddDeletedBy(v int) *FederatedIdentityUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -348,13 +420,13 @@ func (_u *FederatedIdentityUpdateOne) ClearDeletedBy() *FederatedIdentityUpdateO
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *FederatedIdentityUpdateOne) SetUserID(v int) *FederatedIdentityUpdateOne {
+func (_u *FederatedIdentityUpdateOne) SetUserID(v uuid.UUID) *FederatedIdentityUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *FederatedIdentityUpdateOne) SetNillableUserID(v *int) *FederatedIdentityUpdateOne {
+func (_u *FederatedIdentityUpdateOne) SetNillableUserID(v *uuid.UUID) *FederatedIdentityUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -375,17 +447,77 @@ func (_u *FederatedIdentityUpdateOne) SetNillableProvider(v *string) *FederatedI
 	return _u
 }
 
-// SetExternalID sets the "external_id" field.
-func (_u *FederatedIdentityUpdateOne) SetExternalID(v string) *FederatedIdentityUpdateOne {
-	_u.mutation.SetExternalID(v)
+// SetProviderSubject sets the "provider_subject" field.
+func (_u *FederatedIdentityUpdateOne) SetProviderSubject(v string) *FederatedIdentityUpdateOne {
+	_u.mutation.SetProviderSubject(v)
 	return _u
 }
 
-// SetNillableExternalID sets the "external_id" field if the given value is not nil.
-func (_u *FederatedIdentityUpdateOne) SetNillableExternalID(v *string) *FederatedIdentityUpdateOne {
+// SetNillableProviderSubject sets the "provider_subject" field if the given value is not nil.
+func (_u *FederatedIdentityUpdateOne) SetNillableProviderSubject(v *string) *FederatedIdentityUpdateOne {
 	if v != nil {
-		_u.SetExternalID(*v)
+		_u.SetProviderSubject(*v)
 	}
+	return _u
+}
+
+// SetDisplayName sets the "display_name" field.
+func (_u *FederatedIdentityUpdateOne) SetDisplayName(v string) *FederatedIdentityUpdateOne {
+	_u.mutation.SetDisplayName(v)
+	return _u
+}
+
+// SetNillableDisplayName sets the "display_name" field if the given value is not nil.
+func (_u *FederatedIdentityUpdateOne) SetNillableDisplayName(v *string) *FederatedIdentityUpdateOne {
+	if v != nil {
+		_u.SetDisplayName(*v)
+	}
+	return _u
+}
+
+// ClearDisplayName clears the value of the "display_name" field.
+func (_u *FederatedIdentityUpdateOne) ClearDisplayName() *FederatedIdentityUpdateOne {
+	_u.mutation.ClearDisplayName()
+	return _u
+}
+
+// SetAvatarURL sets the "avatar_url" field.
+func (_u *FederatedIdentityUpdateOne) SetAvatarURL(v string) *FederatedIdentityUpdateOne {
+	_u.mutation.SetAvatarURL(v)
+	return _u
+}
+
+// SetNillableAvatarURL sets the "avatar_url" field if the given value is not nil.
+func (_u *FederatedIdentityUpdateOne) SetNillableAvatarURL(v *string) *FederatedIdentityUpdateOne {
+	if v != nil {
+		_u.SetAvatarURL(*v)
+	}
+	return _u
+}
+
+// ClearAvatarURL clears the value of the "avatar_url" field.
+func (_u *FederatedIdentityUpdateOne) ClearAvatarURL() *FederatedIdentityUpdateOne {
+	_u.mutation.ClearAvatarURL()
+	return _u
+}
+
+// SetLastAuthenticatedAt sets the "last_authenticated_at" field.
+func (_u *FederatedIdentityUpdateOne) SetLastAuthenticatedAt(v time.Time) *FederatedIdentityUpdateOne {
+	_u.mutation.SetLastAuthenticatedAt(v)
+	return _u
+}
+
+// SetNillableLastAuthenticatedAt sets the "last_authenticated_at" field if the given value is not nil.
+func (_u *FederatedIdentityUpdateOne) SetNillableLastAuthenticatedAt(v *time.Time) *FederatedIdentityUpdateOne {
+	if v != nil {
+		_u.SetLastAuthenticatedAt(*v)
+	}
+	return _u
+}
+
+// ClearLastAuthenticatedAt clears the value of the "last_authenticated_at" field.
+func (_u *FederatedIdentityUpdateOne) ClearLastAuthenticatedAt() *FederatedIdentityUpdateOne {
+	_u.mutation.ClearLastAuthenticatedAt()
 	return _u
 }
 
@@ -467,9 +599,19 @@ func (_u *FederatedIdentityUpdateOne) check() error {
 			return &ValidationError{Name: "provider", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.provider": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.ExternalID(); ok {
-		if err := federatedidentity.ExternalIDValidator(v); err != nil {
-			return &ValidationError{Name: "external_id", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.external_id": %w`, err)}
+	if v, ok := _u.mutation.ProviderSubject(); ok {
+		if err := federatedidentity.ProviderSubjectValidator(v); err != nil {
+			return &ValidationError{Name: "provider_subject", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.provider_subject": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DisplayName(); ok {
+		if err := federatedidentity.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.display_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AvatarURL(); ok {
+		if err := federatedidentity.AvatarURLValidator(v); err != nil {
+			return &ValidationError{Name: "avatar_url", err: fmt.Errorf(`generate: validator failed for field "FederatedIdentity.avatar_url": %w`, err)}
 		}
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
@@ -488,7 +630,7 @@ func (_u *FederatedIdentityUpdateOne) sqlSave(ctx context.Context) (_node *Feder
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(federatedidentity.Table, federatedidentity.Columns, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(federatedidentity.Table, federatedidentity.Columns, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "FederatedIdentity.id" for update`)}
@@ -523,19 +665,34 @@ func (_u *FederatedIdentityUpdateOne) sqlSave(ctx context.Context) (_node *Feder
 		_spec.ClearField(federatedidentity.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(federatedidentity.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(federatedidentity.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(federatedidentity.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(federatedidentity.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(federatedidentity.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Provider(); ok {
 		_spec.SetField(federatedidentity.FieldProvider, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.ExternalID(); ok {
-		_spec.SetField(federatedidentity.FieldExternalID, field.TypeString, value)
+	if value, ok := _u.mutation.ProviderSubject(); ok {
+		_spec.SetField(federatedidentity.FieldProviderSubject, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DisplayName(); ok {
+		_spec.SetField(federatedidentity.FieldDisplayName, field.TypeString, value)
+	}
+	if _u.mutation.DisplayNameCleared() {
+		_spec.ClearField(federatedidentity.FieldDisplayName, field.TypeString)
+	}
+	if value, ok := _u.mutation.AvatarURL(); ok {
+		_spec.SetField(federatedidentity.FieldAvatarURL, field.TypeString, value)
+	}
+	if _u.mutation.AvatarURLCleared() {
+		_spec.ClearField(federatedidentity.FieldAvatarURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.LastAuthenticatedAt(); ok {
+		_spec.SetField(federatedidentity.FieldLastAuthenticatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastAuthenticatedAtCleared() {
+		_spec.ClearField(federatedidentity.FieldLastAuthenticatedAt, field.TypeTime)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -545,7 +702,7 @@ func (_u *FederatedIdentityUpdateOne) sqlSave(ctx context.Context) (_node *Feder
 			Columns: []string{federatedidentity.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -558,7 +715,7 @@ func (_u *FederatedIdentityUpdateOne) sqlSave(ctx context.Context) (_node *Feder
 			Columns: []string{federatedidentity.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

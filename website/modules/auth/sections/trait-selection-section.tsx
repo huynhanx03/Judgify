@@ -61,7 +61,7 @@ export function TraitSelectionSection({
 
   return (
     <Card
-      className="mt-6 space-y-4 border-border bg-card/70 p-5 backdrop-blur-sm"
+      className="mt-6 space-y-4 border-border bg-surface-raised p-5"
       aria-busy={disabled || isRolling}
     >
       <div className="flex items-center justify-between border-b border-border pb-2">

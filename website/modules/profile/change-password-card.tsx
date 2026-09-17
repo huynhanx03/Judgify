@@ -70,7 +70,7 @@ export function ChangePasswordCard() {
   }
 
   return (
-    <Card className="glass-card border-border/40">
+    <Card className="border-border/60 bg-card">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <KeyRound className="size-5 text-primary" aria-hidden="true" />
@@ -86,9 +86,14 @@ export function ChangePasswordCard() {
               role="status"
               aria-live="polite"
             >
-              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+              <ShieldCheck
+                className="mt-0.5 size-5 shrink-0 text-primary"
+                aria-hidden="true"
+              />
               <div className="space-y-1 text-sm">
-                <p className="font-semibold text-foreground">{copy.SUCCESS_TITLE}</p>
+                <p className="font-semibold text-foreground">
+                  {copy.SUCCESS_TITLE}
+                </p>
                 <p className="leading-relaxed text-muted-foreground">
                   {copy.SUCCESS_DESCRIPTION}
                 </p>
@@ -103,9 +108,16 @@ export function ChangePasswordCard() {
             </Button>
           </div>
         ) : (
-          <form className="space-y-4" onSubmit={submit} aria-busy={status === "submitting"}>
+          <form
+            className="space-y-4"
+            onSubmit={submit}
+            aria-busy={status === "submitting"}
+          >
             {error ? (
-              <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+              <p
+                className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
                 {error}
               </p>
             ) : null}
@@ -136,9 +148,16 @@ export function ChangePasswordCard() {
               autoComplete="new-password"
               disabled={status === "submitting"}
             />
-            <Button type="submit" className="h-11 w-full" disabled={status === "submitting"}>
+            <Button
+              type="submit"
+              className="h-11 w-full"
+              disabled={status === "submitting"}
+            >
               {status === "submitting" ? (
-                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                <Loader2
+                  className="size-4 animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
               ) : null}
               {status === "submitting" ? copy.PROCESSING : copy.SUBMIT}
             </Button>

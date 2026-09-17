@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -18,7 +19,7 @@ import (
 type Problem struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -26,19 +27,53 @@ type Problem struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
+	// Slug holds the value of the "slug" field.
+	Slug string `json:"slug,omitempty"`
+	// Lifecycle holds the value of the "lifecycle" field.
+	Lifecycle problem.Lifecycle `json:"lifecycle,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
+	// TagMappingID holds the value of the "tag_mapping_id" field.
+	TagMappingID uuid.UUID `json:"tag_mapping_id,omitempty"`
+	// ElementMappingID holds the value of the "element_mapping_id" field.
+	ElementMappingID uuid.UUID `json:"element_mapping_id,omitempty"`
+	// DraftRevisionID holds the value of the "draft_revision_id" field.
+	DraftRevisionID *uuid.UUID `json:"draft_revision_id,omitempty"`
+	// DraftRenderSourceID holds the value of the "draft_render_source_id" field.
+	DraftRenderSourceID *uuid.UUID `json:"draft_render_source_id,omitempty"`
+	// DraftRenderSourceKind holds the value of the "draft_render_source_kind" field.
+	DraftRenderSourceKind *problem.DraftRenderSourceKind `json:"draft_render_source_kind,omitempty"`
+	// DraftRenderSourceChecksum holds the value of the "draft_render_source_checksum" field.
+	DraftRenderSourceChecksum *[]byte `json:"draft_render_source_checksum,omitempty"`
+	// DraftRenderArtifactID holds the value of the "draft_render_artifact_id" field.
+	DraftRenderArtifactID *uuid.UUID `json:"draft_render_artifact_id,omitempty"`
+	// PublishedRevisionID holds the value of the "published_revision_id" field.
+	PublishedRevisionID *uuid.UUID `json:"published_revision_id,omitempty"`
+	// PublishedRenderSourceID holds the value of the "published_render_source_id" field.
+	PublishedRenderSourceID *uuid.UUID `json:"published_render_source_id,omitempty"`
+	// PublishedRenderSourceKind holds the value of the "published_render_source_kind" field.
+	PublishedRenderSourceKind *problem.PublishedRenderSourceKind `json:"published_render_source_kind,omitempty"`
+	// PublishedRenderSourceChecksum holds the value of the "published_render_source_checksum" field.
+	PublishedRenderSourceChecksum *[]byte `json:"published_render_source_checksum,omitempty"`
+	// PublishedRenderArtifactID holds the value of the "published_render_artifact_id" field.
+	PublishedRenderArtifactID *uuid.UUID `json:"published_render_artifact_id,omitempty"`
+	// PublishedAt holds the value of the "published_at" field.
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+	// ArchivedAt holds the value of the "archived_at" field.
+	ArchivedAt *time.Time `json:"archived_at,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// DifficultyID holds the value of the "difficulty_id" field.
-	DifficultyID int `json:"difficulty_id,omitempty"`
+	DifficultyID uuid.UUID `json:"difficulty_id,omitempty"`
 	// TimeLimitMs holds the value of the "time_limit_ms" field.
 	TimeLimitMs int `json:"time_limit_ms,omitempty"`
 	// MemoryLimitKB holds the value of the "memory_limit_kb" field.
 	MemoryLimitKB int `json:"memory_limit_kb,omitempty"`
 	// AuthorID holds the value of the "author_id" field.
-	AuthorID int `json:"author_id,omitempty"`
+	AuthorID uuid.UUID `json:"author_id,omitempty"`
 	// IsPublished holds the value of the "is_published" field.
 	IsPublished bool `json:"is_published,omitempty"`
 	// Denormalized total submission count
@@ -47,9 +82,8 @@ type Problem struct {
 	AcceptedCount int `json:"accepted_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
-	Edges            ProblemEdges `json:"edges"`
-	contest_problems *int
-	selectValues     sql.SelectValues
+	Edges        ProblemEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // ProblemEdges holds the relations/edges for other nodes in the graph.
@@ -60,15 +94,27 @@ type ProblemEdges struct {
 	Difficulty *Difficulty `json:"difficulty,omitempty"`
 	// TestCases holds the value of the test_cases edge.
 	TestCases []*TestCase `json:"test_cases,omitempty"`
+	// Revisions holds the value of the revisions edge.
+	Revisions []*ProblemRevision `json:"revisions,omitempty"`
+	// TestsetRevisions holds the value of the testset_revisions edge.
+	TestsetRevisions []*TestsetRevision `json:"testset_revisions,omitempty"`
+	// ContestDraftMemberships holds the value of the contest_draft_memberships edge.
+	ContestDraftMemberships []*ContestDraftProblem `json:"contest_draft_memberships,omitempty"`
+	// ContestProblemSnapshots holds the value of the contest_problem_snapshots edge.
+	ContestProblemSnapshots []*ContestProblem `json:"contest_problem_snapshots,omitempty"`
 	// Submissions holds the value of the submissions edge.
 	Submissions []*Submission `json:"submissions,omitempty"`
+	// ContestScoringAttempts holds the value of the contest_scoring_attempts edge.
+	ContestScoringAttempts []*ContestScoringAttempt `json:"contest_scoring_attempts,omitempty"`
+	// ContestProblemResults holds the value of the contest_problem_results edge.
+	ContestProblemResults []*ContestProblemResult `json:"contest_problem_results,omitempty"`
 	// Tags holds the value of the tags edge.
 	Tags []*Tag `json:"tags,omitempty"`
 	// Solvers holds the value of the solvers edge.
 	Solvers []*UserSolvedProblem `json:"solvers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [12]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -102,19 +148,73 @@ func (e ProblemEdges) TestCasesOrErr() ([]*TestCase, error) {
 	return nil, &NotLoadedError{edge: "test_cases"}
 }
 
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) RevisionsOrErr() ([]*ProblemRevision, error) {
+	if e.loadedTypes[3] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
+}
+
+// TestsetRevisionsOrErr returns the TestsetRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) TestsetRevisionsOrErr() ([]*TestsetRevision, error) {
+	if e.loadedTypes[4] {
+		return e.TestsetRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "testset_revisions"}
+}
+
+// ContestDraftMembershipsOrErr returns the ContestDraftMemberships value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) ContestDraftMembershipsOrErr() ([]*ContestDraftProblem, error) {
+	if e.loadedTypes[5] {
+		return e.ContestDraftMemberships, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_draft_memberships"}
+}
+
+// ContestProblemSnapshotsOrErr returns the ContestProblemSnapshots value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) ContestProblemSnapshotsOrErr() ([]*ContestProblem, error) {
+	if e.loadedTypes[6] {
+		return e.ContestProblemSnapshots, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_problem_snapshots"}
+}
+
 // SubmissionsOrErr returns the Submissions value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) SubmissionsOrErr() ([]*Submission, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[7] {
 		return e.Submissions, nil
 	}
 	return nil, &NotLoadedError{edge: "submissions"}
 }
 
+// ContestScoringAttemptsOrErr returns the ContestScoringAttempts value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) ContestScoringAttemptsOrErr() ([]*ContestScoringAttempt, error) {
+	if e.loadedTypes[8] {
+		return e.ContestScoringAttempts, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_scoring_attempts"}
+}
+
+// ContestProblemResultsOrErr returns the ContestProblemResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) ContestProblemResultsOrErr() ([]*ContestProblemResult, error) {
+	if e.loadedTypes[9] {
+		return e.ContestProblemResults, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_problem_results"}
+}
+
 // TagsOrErr returns the Tags value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) TagsOrErr() ([]*Tag, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[10] {
 		return e.Tags, nil
 	}
 	return nil, &NotLoadedError{edge: "tags"}
@@ -123,7 +223,7 @@ func (e ProblemEdges) TagsOrErr() ([]*Tag, error) {
 // SolversOrErr returns the Solvers value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) SolversOrErr() ([]*UserSolvedProblem, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[11] {
 		return e.Solvers, nil
 	}
 	return nil, &NotLoadedError{edge: "solvers"}
@@ -134,16 +234,20 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case problem.FieldDraftRevisionID, problem.FieldDraftRenderSourceID, problem.FieldDraftRenderArtifactID, problem.FieldPublishedRevisionID, problem.FieldPublishedRenderSourceID, problem.FieldPublishedRenderArtifactID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case problem.FieldDraftRenderSourceChecksum, problem.FieldPublishedRenderSourceChecksum:
+			values[i] = new([]byte)
 		case problem.FieldIsPublished:
 			values[i] = new(sql.NullBool)
-		case problem.FieldID, problem.FieldDeletedBy, problem.FieldDifficultyID, problem.FieldTimeLimitMs, problem.FieldMemoryLimitKB, problem.FieldAuthorID, problem.FieldSubmissionCount, problem.FieldAcceptedCount:
+		case problem.FieldVersion, problem.FieldTimeLimitMs, problem.FieldMemoryLimitKB, problem.FieldSubmissionCount, problem.FieldAcceptedCount:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldTitle, problem.FieldDescription:
+		case problem.FieldDeletedBy, problem.FieldSlug, problem.FieldLifecycle, problem.FieldDraftRenderSourceKind, problem.FieldPublishedRenderSourceKind, problem.FieldTitle, problem.FieldDescription:
 			values[i] = new(sql.NullString)
-		case problem.FieldCreatedAt, problem.FieldUpdatedAt, problem.FieldDeletedAt:
+		case problem.FieldCreatedAt, problem.FieldUpdatedAt, problem.FieldDeletedAt, problem.FieldPublishedAt, problem.FieldArchivedAt:
 			values[i] = new(sql.NullTime)
-		case problem.ForeignKeys[0]: // contest_problems
-			values[i] = new(sql.NullInt64)
+		case problem.FieldID, problem.FieldTagMappingID, problem.FieldElementMappingID, problem.FieldDifficultyID, problem.FieldAuthorID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -160,11 +264,11 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case problem.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case problem.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -185,11 +289,123 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case problem.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
+			}
+		case problem.FieldSlug:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field slug", values[i])
+			} else if value.Valid {
+				_m.Slug = value.String
+			}
+		case problem.FieldLifecycle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field lifecycle", values[i])
+			} else if value.Valid {
+				_m.Lifecycle = problem.Lifecycle(value.String)
+			}
+		case problem.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
+		case problem.FieldTagMappingID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tag_mapping_id", values[i])
+			} else if value != nil {
+				_m.TagMappingID = *value
+			}
+		case problem.FieldElementMappingID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field element_mapping_id", values[i])
+			} else if value != nil {
+				_m.ElementMappingID = *value
+			}
+		case problem.FieldDraftRevisionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field draft_revision_id", values[i])
+			} else if value.Valid {
+				_m.DraftRevisionID = new(uuid.UUID)
+				*_m.DraftRevisionID = *value.S.(*uuid.UUID)
+			}
+		case problem.FieldDraftRenderSourceID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field draft_render_source_id", values[i])
+			} else if value.Valid {
+				_m.DraftRenderSourceID = new(uuid.UUID)
+				*_m.DraftRenderSourceID = *value.S.(*uuid.UUID)
+			}
+		case problem.FieldDraftRenderSourceKind:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field draft_render_source_kind", values[i])
+			} else if value.Valid {
+				_m.DraftRenderSourceKind = new(problem.DraftRenderSourceKind)
+				*_m.DraftRenderSourceKind = problem.DraftRenderSourceKind(value.String)
+			}
+		case problem.FieldDraftRenderSourceChecksum:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field draft_render_source_checksum", values[i])
+			} else if value != nil {
+				_m.DraftRenderSourceChecksum = value
+			}
+		case problem.FieldDraftRenderArtifactID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field draft_render_artifact_id", values[i])
+			} else if value.Valid {
+				_m.DraftRenderArtifactID = new(uuid.UUID)
+				*_m.DraftRenderArtifactID = *value.S.(*uuid.UUID)
+			}
+		case problem.FieldPublishedRevisionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field published_revision_id", values[i])
+			} else if value.Valid {
+				_m.PublishedRevisionID = new(uuid.UUID)
+				*_m.PublishedRevisionID = *value.S.(*uuid.UUID)
+			}
+		case problem.FieldPublishedRenderSourceID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_source_id", values[i])
+			} else if value.Valid {
+				_m.PublishedRenderSourceID = new(uuid.UUID)
+				*_m.PublishedRenderSourceID = *value.S.(*uuid.UUID)
+			}
+		case problem.FieldPublishedRenderSourceKind:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_source_kind", values[i])
+			} else if value.Valid {
+				_m.PublishedRenderSourceKind = new(problem.PublishedRenderSourceKind)
+				*_m.PublishedRenderSourceKind = problem.PublishedRenderSourceKind(value.String)
+			}
+		case problem.FieldPublishedRenderSourceChecksum:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_source_checksum", values[i])
+			} else if value != nil {
+				_m.PublishedRenderSourceChecksum = value
+			}
+		case problem.FieldPublishedRenderArtifactID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field published_render_artifact_id", values[i])
+			} else if value.Valid {
+				_m.PublishedRenderArtifactID = new(uuid.UUID)
+				*_m.PublishedRenderArtifactID = *value.S.(*uuid.UUID)
+			}
+		case problem.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field published_at", values[i])
+			} else if value.Valid {
+				_m.PublishedAt = new(time.Time)
+				*_m.PublishedAt = value.Time
+			}
+		case problem.FieldArchivedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field archived_at", values[i])
+			} else if value.Valid {
+				_m.ArchivedAt = new(time.Time)
+				*_m.ArchivedAt = value.Time
 			}
 		case problem.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -204,10 +420,10 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 				_m.Description = value.String
 			}
 		case problem.FieldDifficultyID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field difficulty_id", values[i])
-			} else if value.Valid {
-				_m.DifficultyID = int(value.Int64)
+			} else if value != nil {
+				_m.DifficultyID = *value
 			}
 		case problem.FieldTimeLimitMs:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -222,10 +438,10 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 				_m.MemoryLimitKB = int(value.Int64)
 			}
 		case problem.FieldAuthorID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field author_id", values[i])
-			} else if value.Valid {
-				_m.AuthorID = int(value.Int64)
+			} else if value != nil {
+				_m.AuthorID = *value
 			}
 		case problem.FieldIsPublished:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -244,13 +460,6 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field accepted_count", values[i])
 			} else if value.Valid {
 				_m.AcceptedCount = int(value.Int64)
-			}
-		case problem.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field contest_problems", value)
-			} else if value.Valid {
-				_m.contest_problems = new(int)
-				*_m.contest_problems = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -280,9 +489,39 @@ func (_m *Problem) QueryTestCases() *TestCaseQuery {
 	return NewProblemClient(_m.config).QueryTestCases(_m)
 }
 
+// QueryRevisions queries the "revisions" edge of the Problem entity.
+func (_m *Problem) QueryRevisions() *ProblemRevisionQuery {
+	return NewProblemClient(_m.config).QueryRevisions(_m)
+}
+
+// QueryTestsetRevisions queries the "testset_revisions" edge of the Problem entity.
+func (_m *Problem) QueryTestsetRevisions() *TestsetRevisionQuery {
+	return NewProblemClient(_m.config).QueryTestsetRevisions(_m)
+}
+
+// QueryContestDraftMemberships queries the "contest_draft_memberships" edge of the Problem entity.
+func (_m *Problem) QueryContestDraftMemberships() *ContestDraftProblemQuery {
+	return NewProblemClient(_m.config).QueryContestDraftMemberships(_m)
+}
+
+// QueryContestProblemSnapshots queries the "contest_problem_snapshots" edge of the Problem entity.
+func (_m *Problem) QueryContestProblemSnapshots() *ContestProblemQuery {
+	return NewProblemClient(_m.config).QueryContestProblemSnapshots(_m)
+}
+
 // QuerySubmissions queries the "submissions" edge of the Problem entity.
 func (_m *Problem) QuerySubmissions() *SubmissionQuery {
 	return NewProblemClient(_m.config).QuerySubmissions(_m)
+}
+
+// QueryContestScoringAttempts queries the "contest_scoring_attempts" edge of the Problem entity.
+func (_m *Problem) QueryContestScoringAttempts() *ContestScoringAttemptQuery {
+	return NewProblemClient(_m.config).QueryContestScoringAttempts(_m)
+}
+
+// QueryContestProblemResults queries the "contest_problem_results" edge of the Problem entity.
+func (_m *Problem) QueryContestProblemResults() *ContestProblemResultQuery {
+	return NewProblemClient(_m.config).QueryContestProblemResults(_m)
 }
 
 // QueryTags queries the "tags" edge of the Problem entity.
@@ -331,7 +570,82 @@ func (_m *Problem) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("slug=")
+	builder.WriteString(_m.Slug)
+	builder.WriteString(", ")
+	builder.WriteString("lifecycle=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Lifecycle))
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
+	builder.WriteString(", ")
+	builder.WriteString("tag_mapping_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TagMappingID))
+	builder.WriteString(", ")
+	builder.WriteString("element_mapping_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ElementMappingID))
+	builder.WriteString(", ")
+	if v := _m.DraftRevisionID; v != nil {
+		builder.WriteString("draft_revision_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DraftRenderSourceID; v != nil {
+		builder.WriteString("draft_render_source_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DraftRenderSourceKind; v != nil {
+		builder.WriteString("draft_render_source_kind=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DraftRenderSourceChecksum; v != nil {
+		builder.WriteString("draft_render_source_checksum=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DraftRenderArtifactID; v != nil {
+		builder.WriteString("draft_render_artifact_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRevisionID; v != nil {
+		builder.WriteString("published_revision_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderSourceID; v != nil {
+		builder.WriteString("published_render_source_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderSourceKind; v != nil {
+		builder.WriteString("published_render_source_kind=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderSourceChecksum; v != nil {
+		builder.WriteString("published_render_source_checksum=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedRenderArtifactID; v != nil {
+		builder.WriteString("published_render_artifact_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.PublishedAt; v != nil {
+		builder.WriteString("published_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.ArchivedAt; v != nil {
+		builder.WriteString("archived_at=")
+		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("title=")
@@ -362,14 +676,6 @@ func (_m *Problem) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.AcceptedCount))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Problem) GetID() int {
-	return _m.ID
-}
-
-func (_m *Problem) SetID(id int) {
-	_m.ID = id
 }
 
 // Problems is a parsable slice of Problem.

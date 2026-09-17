@@ -56,23 +56,16 @@ func (_u *RankUpdate) ClearDeletedAt() *RankUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *RankUpdate) SetDeletedBy(v int) *RankUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *RankUpdate) SetDeletedBy(v string) *RankUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *RankUpdate) SetNillableDeletedBy(v *int) *RankUpdate {
+func (_u *RankUpdate) SetNillableDeletedBy(v *string) *RankUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *RankUpdate) AddDeletedBy(v int) *RankUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -209,7 +202,7 @@ func (_u *RankUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(rank.Table, rank.Columns, sqlgraph.NewFieldSpec(rank.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(rank.Table, rank.Columns, sqlgraph.NewFieldSpec(rank.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -227,13 +220,10 @@ func (_u *RankUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(rank.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(rank.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(rank.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(rank.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(rank.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(rank.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(rank.FieldName, field.TypeString, value)
@@ -299,23 +289,16 @@ func (_u *RankUpdateOne) ClearDeletedAt() *RankUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *RankUpdateOne) SetDeletedBy(v int) *RankUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *RankUpdateOne) SetDeletedBy(v string) *RankUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *RankUpdateOne) SetNillableDeletedBy(v *int) *RankUpdateOne {
+func (_u *RankUpdateOne) SetNillableDeletedBy(v *string) *RankUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *RankUpdateOne) AddDeletedBy(v int) *RankUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -465,7 +448,7 @@ func (_u *RankUpdateOne) sqlSave(ctx context.Context) (_node *Rank, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(rank.Table, rank.Columns, sqlgraph.NewFieldSpec(rank.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(rank.Table, rank.Columns, sqlgraph.NewFieldSpec(rank.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Rank.id" for update`)}
@@ -500,13 +483,10 @@ func (_u *RankUpdateOne) sqlSave(ctx context.Context) (_node *Rank, err error) {
 		_spec.ClearField(rank.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(rank.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(rank.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(rank.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(rank.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(rank.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(rank.FieldName, field.TypeString, value)

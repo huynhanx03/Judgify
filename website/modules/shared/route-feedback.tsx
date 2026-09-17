@@ -36,14 +36,14 @@ export function RouteFeedback({
         className="pointer-events-none absolute -top-32 size-80 rounded-full bg-primary/10 blur-3xl"
         aria-hidden="true"
       />
-      <Card className="relative w-full max-w-xl overflow-hidden border-border/70 bg-card/90 shadow-xl backdrop-blur-sm">
+      <Card className="relative w-full max-w-xl overflow-hidden border-border/70 bg-card shadow-xl">
         <CardContent className="flex flex-col items-center px-6 py-12 text-center sm:px-10">
           <div
             className={cn(
-              "mb-6 flex size-16 items-center justify-center rounded-2xl ring-8",
+              "mb-6 flex size-16 items-center justify-center rounded-2xl",
               kind === "error"
-                ? "bg-destructive/10 text-destructive ring-destructive/5"
-                : "bg-primary/10 text-primary ring-primary/5",
+                ? "bg-destructive/10 text-destructive"
+                : "bg-primary/10 text-primary",
             )}
           >
             <Icon className="size-7" aria-hidden="true" />

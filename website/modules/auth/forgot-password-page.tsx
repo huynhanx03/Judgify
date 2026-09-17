@@ -9,13 +9,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AuthSurface } from "@/modules/auth/auth-surface";
 import { authService } from "@/services/auth.service";
 import { TEXT } from "@/constants/text";
 import { PASSWORD_RESET_REQUEST_STATUS } from "@/constants/identity";
@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="glass-card border-border/50 bg-background/80 shadow-2xl">
+    <AuthSurface>
       <CardHeader className="text-center space-y-4 pb-6">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-brand-soft">
           <KeyRound className="h-7 w-7" aria-hidden="true" />
@@ -124,6 +124,6 @@ export default function ForgotPasswordPage() {
           </form>
         )}
       </CardContent>
-    </Card>
+    </AuthSurface>
   );
 }

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { PageHeader } from "@/components/page-header";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -645,26 +646,11 @@ export default function AdminRolesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card/70 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <ShieldCheck className="size-5" />
-          </span>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {ADMIN_TEXT.ROLES_TITLE}
-            </h1>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              {ADMIN_TEXT.ROLES_SUBTITLE}
-            </p>
-            {catalog ? (
-              <p className="mt-2 text-xs font-medium text-muted-foreground">
-                {ADMIN_TEXT.PERMISSIONS.CATALOG_REVISION(catalog.revision)}
-              </p>
-            ) : null}
-          </div>
-        </div>
-        {canCreateRole ? (
+      <PageHeader
+        icon={ShieldCheck}
+        title={ADMIN_TEXT.ROLES_TITLE}
+        description={<>{ADMIN_TEXT.ROLES_SUBTITLE}{catalog ? <span className="mt-2 block text-xs font-medium">{ADMIN_TEXT.PERMISSIONS.CATALOG_REVISION(catalog.revision)}</span> : null}</>}
+        actions={canCreateRole ? (
           <Button
             className="min-h-11 cursor-pointer gap-2"
             onClick={() => {
@@ -675,8 +661,8 @@ export default function AdminRolesPage() {
             <Plus className="size-4" />
             {ADMIN_TEXT.ROLES_CREATE}
           </Button>
-        ) : null}
-      </section>
+        ) : undefined}
+      />
 
       {roles.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/40 px-6 py-14 text-center">

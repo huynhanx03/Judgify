@@ -26,7 +26,7 @@ export function MaterialsSearchBar({ value, onChange, resultCount }: MaterialsSe
           placeholder={TEXT.MATERIALS.SEARCH_PLACEHOLDER}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="pl-9 h-9"
+          className="h-11 rounded-xl border-border bg-surface-sunken/50 pl-9 pr-3 text-base shadow-none transition-colors focus-visible:bg-surface"
         />
       </div>
       <span

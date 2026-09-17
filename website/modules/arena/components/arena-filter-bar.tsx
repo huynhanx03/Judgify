@@ -35,6 +35,8 @@ interface ArenaFilterBarProps {
   tags: Tag[];
   difficulties: DifficultyResponse[];
   referenceDataLoading: boolean;
+  difficultyFilterAvailable: boolean;
+  tagFilterAvailable: boolean;
 }
 
 export function ArenaFilterBar({
@@ -42,6 +44,8 @@ export function ArenaFilterBar({
   tags,
   difficulties,
   referenceDataLoading,
+  difficultyFilterAvailable,
+  tagFilterAvailable,
 }: ArenaFilterBarProps) {
   const {
     searchTerm,
@@ -66,8 +70,11 @@ export function ArenaFilterBar({
     (sortField !== ARENA_SORT_FIELD.NONE ? 1 : 0);
 
   return (
-    <section className="flex flex-col gap-3" aria-label={TEXT.ARENA.FILTER_TITLE}>
-      <div className="flex items-center justify-between gap-2 rounded-2xl border border-border bg-card p-2 shadow-sm sm:gap-3">
+    <section
+      className="flex flex-col gap-3"
+      aria-label={TEXT.ARENA.FILTER_TITLE}
+    >
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
         <div className="group relative min-w-0 flex-1">
           <label htmlFor="arena-problem-search" className="sr-only">
             {TEXT.ARENA.SEARCH_LABEL}
@@ -94,19 +101,11 @@ export function ArenaFilterBar({
                 type="button"
                 variant="outline"
                 aria-label={TEXT.ARENA.FILTER_TITLE}
-                aria-busy={referenceDataLoading}
                 className="h-11 shrink-0 gap-2 rounded-xl px-3 sm:px-4"
               />
             }
           >
-            {referenceDataLoading ? (
-              <Loader2
-                className="size-4 animate-spin motion-reduce:animate-none"
-                aria-hidden="true"
-              />
-            ) : (
-              <SlidersHorizontal className="size-4" aria-hidden="true" />
-            )}
+            <SlidersHorizontal className="size-4" aria-hidden="true" />
             <span className="hidden font-medium sm:inline">
               {TEXT.ARENA.FILTER_TITLE}
             </span>
@@ -207,128 +206,133 @@ export function ArenaFilterBar({
                 </div>
               </fieldset>
 
-              <fieldset className="space-y-4" aria-busy={referenceDataLoading}>
-                <legend className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  {TEXT.ARENA.DIFFICULTY_TITLE}
-                </legend>
-                {referenceDataLoading && difficulties.length === 0 ? (
-                  <p
-                    className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground"
-                    role="status"
-                  >
-                    <Loader2
-                      className="size-4 animate-spin motion-reduce:animate-none"
-                      aria-hidden="true"
-                    />
-                    {TEXT.ARENA.FILTERS_LOADING}
-                  </p>
-                ) : difficulties.length === 0 ? (
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {TEXT.ARENA.NO_DIFFICULTIES}
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    {difficulties.map((difficulty) => {
-                      const active = difficultyFilter === difficulty.id;
-                      const style = getDifficultyStyle(difficulty.level);
-                      return (
-                        <button
-                          key={difficulty.id}
-                          type="button"
-                          onClick={() =>
-                            setDifficultyFilter(
-                              active ? null : difficulty.id,
-                            )
-                          }
-                          aria-pressed={active}
-                          className={`flex min-h-11 items-center justify-center rounded-xl border p-3 text-sm font-medium transition-colors ${
-                            active ? style.active : style.hover
-                          }`}
-                        >
-                          {difficulty.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </fieldset>
-
-              <div
-                className="space-y-4"
-                aria-busy={referenceDataLoading}
-                role="group"
-                aria-labelledby="arena-tags-filter-label"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h3
-                    id="arena-tags-filter-label"
-                    className="text-sm font-semibold uppercase tracking-wider text-muted-foreground"
-                  >
-                    {TEXT.ARENA.TAGS_TITLE}
-                  </h3>
-                  {tagFilters.length > 0 ? (
-                    <button
-                      type="button"
-                      onClick={clearTags}
-                      className="min-h-11 rounded-lg px-2 text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+              {difficultyFilterAvailable ? (
+                <fieldset
+                  className="space-y-4"
+                  aria-busy={referenceDataLoading}
+                >
+                  <legend className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                    {TEXT.ARENA.DIFFICULTY_TITLE}
+                  </legend>
+                  {referenceDataLoading && difficulties.length === 0 ? (
+                    <p
+                      className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground"
+                      role="status"
                     >
-                      {TEXT.ARENA.CLEAR_ALL}
-                    </button>
+                      <Loader2
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                      {TEXT.ARENA.FILTERS_LOADING}
+                    </p>
+                  ) : difficulties.length === 0 ? (
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      {TEXT.ARENA.NO_DIFFICULTIES}
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      {difficulties.map((difficulty) => {
+                        const active = difficultyFilter === difficulty.id;
+                        const style = getDifficultyStyle(difficulty.level);
+                        return (
+                          <button
+                            key={difficulty.id}
+                            type="button"
+                            onClick={() =>
+                              setDifficultyFilter(active ? null : difficulty.id)
+                            }
+                            aria-pressed={active}
+                            className={`flex min-h-11 items-center justify-center rounded-xl border p-3 text-sm font-medium transition-colors ${
+                              active ? style.active : style.hover
+                            }`}
+                          >
+                            {difficulty.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </fieldset>
+              ) : null}
+
+              {tagFilterAvailable ? (
+                <div
+                  className="space-y-4"
+                  aria-busy={referenceDataLoading}
+                  role="group"
+                  aria-labelledby="arena-tags-filter-label"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h3
+                      id="arena-tags-filter-label"
+                      className="text-sm font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
+                      {TEXT.ARENA.TAGS_TITLE}
+                    </h3>
+                    {tagFilters.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={clearTags}
+                        className="min-h-11 rounded-lg px-2 text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+                      >
+                        {TEXT.ARENA.CLEAR_ALL}
+                      </button>
+                    ) : null}
+                  </div>
+                  {referenceDataLoading && tags.length === 0 ? (
+                    <p
+                      className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground"
+                      role="status"
+                    >
+                      <Loader2
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                      {TEXT.ARENA.FILTERS_LOADING}
+                    </p>
+                  ) : tags.length === 0 ? (
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      {TEXT.ARENA.NO_TAGS}
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tag) => {
+                        const active = tagFilters.includes(tag.id);
+                        const disabled = tagLimitReached && !active;
+                        return (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => toggleTag(tag.id)}
+                            aria-pressed={active}
+                            aria-describedby={
+                              disabled ? "arena-tag-limit" : undefined
+                            }
+                            className={`flex min-h-11 items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
+                              active
+                                ? "border-primary/50 bg-primary/10 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/35 hover:text-foreground"
+                            }`}
+                          >
+                            {tag.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {tagLimitReached ? (
+                    <p
+                      id="arena-tag-limit"
+                      className="text-xs leading-5 text-status-warning"
+                    >
+                      {TEXT.ARENA.TAG_LIMIT_REACHED(
+                        ARENA_POLICY.MAXIMUM_TAG_FILTERS,
+                      )}
+                    </p>
                   ) : null}
                 </div>
-                {referenceDataLoading && tags.length === 0 ? (
-                  <p
-                    className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground"
-                    role="status"
-                  >
-                    <Loader2
-                      className="size-4 animate-spin motion-reduce:animate-none"
-                      aria-hidden="true"
-                    />
-                    {TEXT.ARENA.FILTERS_LOADING}
-                  </p>
-                ) : tags.length === 0 ? (
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {TEXT.ARENA.NO_TAGS}
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => {
-                      const active = tagFilters.includes(tag.id);
-                      const disabled = tagLimitReached && !active;
-                      return (
-                        <button
-                          key={tag.id}
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => toggleTag(tag.id)}
-                          aria-pressed={active}
-                          aria-describedby={
-                            disabled ? "arena-tag-limit" : undefined
-                          }
-                          className={`flex min-h-11 items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
-                            active
-                              ? "border-primary/50 bg-primary/10 text-primary"
-                              : "border-border bg-card text-muted-foreground hover:border-primary/35 hover:text-foreground"
-                          }`}
-                        >
-                          {tag.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                {tagLimitReached ? (
-                  <p
-                    id="arena-tag-limit"
-                    className="text-xs leading-5 text-status-warning"
-                  >
-                    {TEXT.ARENA.TAG_LIMIT_REACHED(
-                      ARENA_POLICY.MAXIMUM_TAG_FILTERS,
-                    )}
-                  </p>
-                ) : null}
-              </div>
+              ) : null}
             </div>
 
             <div className="border-t border-border bg-surface-sunken/50 p-5 sm:p-6">
@@ -367,8 +371,9 @@ export function ArenaFilterBar({
           ) : null}
 
           {tagFilters.map((id) => {
-            const tag = tags.find((candidate) => candidate.id === id);
-            if (!tag) return null;
+            const tagName =
+              tags.find((candidate) => candidate.id === id)?.name ??
+              TEXT.COMMON.UNKNOWN;
             return (
               <button
                 key={id}
@@ -376,7 +381,7 @@ export function ArenaFilterBar({
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-xs font-medium outline-none transition-colors hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive focus-visible:ring-3 focus-visible:ring-ring/50"
                 onClick={() => removeTag(id)}
               >
-                {tag.name}
+                {tagName}
                 <X className="size-3" aria-hidden="true" />
               </button>
             );
