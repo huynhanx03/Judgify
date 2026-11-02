@@ -3,8 +3,9 @@
  */
 
 import { redirect } from "next/navigation";
+import { APP_ROUTES } from "@/constants/routes";
 
 /** Redirects to the Arena page. */
 export default function HomePage() {
-  redirect("/arena");
+  redirect(APP_ROUTES.ARENA);
 }

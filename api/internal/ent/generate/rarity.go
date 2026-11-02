@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 )
 
@@ -16,7 +17,7 @@ import (
 type Rarity struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,12 +25,12 @@ type Rarity struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Unique code: mortal, earth, heaven, divine
 	Code string `json:"code,omitempty"`
-	// Gacha weight, higher = more likely
+	// Trait-offer weight; higher values increase draw probability
 	Weight int `json:"weight,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
@@ -62,12 +63,14 @@ func (*Rarity) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case rarity.FieldID, rarity.FieldDeletedBy, rarity.FieldWeight:
+		case rarity.FieldWeight:
 			values[i] = new(sql.NullInt64)
-		case rarity.FieldName, rarity.FieldCode, rarity.FieldDescription:
+		case rarity.FieldDeletedBy, rarity.FieldName, rarity.FieldCode, rarity.FieldDescription:
 			values[i] = new(sql.NullString)
 		case rarity.FieldCreatedAt, rarity.FieldUpdatedAt, rarity.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case rarity.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -84,11 +87,11 @@ func (_m *Rarity) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case rarity.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case rarity.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -109,11 +112,11 @@ func (_m *Rarity) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case rarity.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case rarity.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -193,7 +196,7 @@ func (_m *Rarity) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
@@ -209,14 +212,6 @@ func (_m *Rarity) String() string {
 	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Rarity) GetID() int {
-	return _m.ID
-}
-
-func (_m *Rarity) SetID(id int) {
-	_m.ID = id
 }
 
 // Rarities is a parsable slice of Rarity.

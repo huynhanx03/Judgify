@@ -5,7 +5,7 @@
  * Form fields: name (required), code (required), weight (required), description (optional).
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TEXT } from "@/constants/text";
+import { ADMIN_TEXT } from "@/constants/admin-text";
 import type { RarityResponse } from "@/types/cultivation";
 
 interface RarityDialogProps {
@@ -26,24 +27,10 @@ interface RarityDialogProps {
 }
 
 export function RarityDialog({ open, editing, onSave, onClose, isSaving }: RarityDialogProps) {
-  const [name, setName] = useState("");
-  const [code, setCode] = useState("");
-  const [weight, setWeight] = useState(100);
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    if (editing) {
-      setName(editing.name);
-      setCode(editing.code);
-      setWeight(editing.weight);
-      setDescription(editing.description ?? "");
-    } else {
-      setName("");
-      setCode("");
-      setWeight(100);
-      setDescription("");
-    }
-  }, [editing, open]);
+  const [name, setName] = useState(editing?.name ?? "");
+  const [code, setCode] = useState(editing?.code ?? "");
+  const [weight, setWeight] = useState(editing?.weight ?? 100);
+  const [description, setDescription] = useState(editing?.description ?? "");
 
   function handleSubmit() {
     if (!name.trim() || !code.trim()) return;
@@ -55,42 +42,43 @@ export function RarityDialog({ open, editing, onSave, onClose, isSaving }: Rarit
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editing ? TEXT.ADMIN.RARITIES.DIALOG_EDIT_TITLE : TEXT.ADMIN.RARITIES.DIALOG_CREATE_TITLE}
+            {editing ? ADMIN_TEXT.RARITIES.DIALOG_EDIT_TITLE : ADMIN_TEXT.RARITIES.DIALOG_CREATE_TITLE}
           </DialogTitle>
           <DialogDescription>
-            {editing ? TEXT.ADMIN.RARITIES.DIALOG_EDIT_DESC : TEXT.ADMIN.RARITIES.DIALOG_CREATE_DESC}
+            {editing ? ADMIN_TEXT.RARITIES.DIALOG_EDIT_DESC : ADMIN_TEXT.RARITIES.DIALOG_CREATE_DESC}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.NAME}</Label>
-            <Input placeholder="VD: Thiên Phẩm" value={name} onChange={(e) => setName(e.target.value)} />
+            <Label htmlFor="rarity-name">{ADMIN_TEXT.FIELDS.NAME}</Label>
+            <Input id="rarity-name" placeholder={ADMIN_TEXT.EXAMPLES.RARITY_NAME} value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.CODE}</Label>
-            <Input placeholder="VD: LEGENDARY" value={code} onChange={(e) => setCode(e.target.value)} />
+            <Label htmlFor="rarity-code">{ADMIN_TEXT.FIELDS.CODE}</Label>
+            <Input id="rarity-code" placeholder={ADMIN_TEXT.EXAMPLES.RARITY_CODE} value={code} onChange={(e) => setCode(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.WEIGHT}</Label>
-            <Input type="number" min={1} value={weight} onChange={(e) => setWeight(Number(e.target.value))} />
+            <Label htmlFor="rarity-weight">{ADMIN_TEXT.FIELDS.WEIGHT}</Label>
+            <Input id="rarity-weight" type="number" min={1} value={weight} onChange={(e) => setWeight(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.DESCRIPTION}</Label>
-            <Input placeholder={TEXT.ADMIN.FIELDS.DESCRIPTION_PLACEHOLDER} value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Label htmlFor="rarity-description">{ADMIN_TEXT.FIELDS.DESCRIPTION}</Label>
+            <Input id="rarity-description" placeholder={ADMIN_TEXT.FIELDS.DESCRIPTION_PLACEHOLDER} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" className="cursor-pointer" onClick={onClose} disabled={isSaving}>
+          <Button type="button" variant="outline" className="cursor-pointer" onClick={onClose} disabled={isSaving}>
             {TEXT.COMMON.CANCEL}
           </Button>
           <Button
+            type="button"
             className="cursor-pointer"
             disabled={!name.trim() || !code.trim() || isSaving}
             onClick={handleSubmit}
           >
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
             {editing ? TEXT.COMMON.SAVE : TEXT.COMMON.CREATE}
           </Button>
         </DialogFooter>

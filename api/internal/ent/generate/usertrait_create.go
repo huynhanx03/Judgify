@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
@@ -67,28 +69,48 @@ func (_c *UserTraitCreate) SetNillableDeletedAt(v *time.Time) *UserTraitCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *UserTraitCreate) SetDeletedBy(v int) *UserTraitCreate {
+func (_c *UserTraitCreate) SetDeletedBy(v string) *UserTraitCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *UserTraitCreate) SetNillableDeletedBy(v *int) *UserTraitCreate {
+func (_c *UserTraitCreate) SetNillableDeletedBy(v *string) *UserTraitCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserTraitCreate) SetTenantID(v uuid.UUID) *UserTraitCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
-func (_c *UserTraitCreate) SetUserID(v int) *UserTraitCreate {
+func (_c *UserTraitCreate) SetUserID(v uuid.UUID) *UserTraitCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetTraitID sets the "trait_id" field.
-func (_c *UserTraitCreate) SetTraitID(v int) *UserTraitCreate {
+func (_c *UserTraitCreate) SetTraitID(v uuid.UUID) *UserTraitCreate {
 	_c.mutation.SetTraitID(v)
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserTraitCreate) SetID(v uuid.UUID) *UserTraitCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserTraitCreate) SetNillableID(v *uuid.UUID) *UserTraitCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
 	return _c
 }
 
@@ -153,6 +175,13 @@ func (_c *UserTraitCreate) defaults() error {
 		v := usertrait.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if usertrait.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized usertrait.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := usertrait.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -163,6 +192,9 @@ func (_c *UserTraitCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "UserTrait.updated_at"`)}
+	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserTrait.tenant_id"`)}
 	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserTrait.user_id"`)}
@@ -190,8 +222,13 @@ func (_c *UserTraitCreate) sqlSave(ctx context.Context) (*UserTrait, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -200,9 +237,13 @@ func (_c *UserTraitCreate) sqlSave(ctx context.Context) (*UserTrait, error) {
 func (_c *UserTraitCreate) createSpec() (*UserTrait, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserTrait{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(usertrait.Table, sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(usertrait.Table, sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(usertrait.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -216,8 +257,12 @@ func (_c *UserTraitCreate) createSpec() (*UserTrait, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(usertrait.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(usertrait.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(usertrait.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -227,7 +272,7 @@ func (_c *UserTraitCreate) createSpec() (*UserTrait, *sqlgraph.CreateSpec) {
 			Columns: []string{usertrait.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -244,7 +289,7 @@ func (_c *UserTraitCreate) createSpec() (*UserTrait, *sqlgraph.CreateSpec) {
 			Columns: []string{usertrait.TraitColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -336,7 +381,7 @@ func (u *UserTraitUpsert) ClearDeletedAt() *UserTraitUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserTraitUpsert) SetDeletedBy(v int) *UserTraitUpsert {
+func (u *UserTraitUpsert) SetDeletedBy(v string) *UserTraitUpsert {
 	u.Set(usertrait.FieldDeletedBy, v)
 	return u
 }
@@ -347,12 +392,6 @@ func (u *UserTraitUpsert) UpdateDeletedBy() *UserTraitUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserTraitUpsert) AddDeletedBy(v int) *UserTraitUpsert {
-	u.Add(usertrait.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *UserTraitUpsert) ClearDeletedBy() *UserTraitUpsert {
 	u.SetNull(usertrait.FieldDeletedBy)
@@ -360,7 +399,7 @@ func (u *UserTraitUpsert) ClearDeletedBy() *UserTraitUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserTraitUpsert) SetUserID(v int) *UserTraitUpsert {
+func (u *UserTraitUpsert) SetUserID(v uuid.UUID) *UserTraitUpsert {
 	u.Set(usertrait.FieldUserID, v)
 	return u
 }
@@ -372,7 +411,7 @@ func (u *UserTraitUpsert) UpdateUserID() *UserTraitUpsert {
 }
 
 // SetTraitID sets the "trait_id" field.
-func (u *UserTraitUpsert) SetTraitID(v int) *UserTraitUpsert {
+func (u *UserTraitUpsert) SetTraitID(v uuid.UUID) *UserTraitUpsert {
 	u.Set(usertrait.FieldTraitID, v)
 	return u
 }
@@ -383,19 +422,28 @@ func (u *UserTraitUpsert) UpdateTraitID() *UserTraitUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.UserTrait.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(usertrait.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserTraitUpsertOne) UpdateNewValues() *UserTraitUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(usertrait.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(usertrait.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(usertrait.FieldTenantID)
 		}
 	}))
 	return u
@@ -464,16 +512,9 @@ func (u *UserTraitUpsertOne) ClearDeletedAt() *UserTraitUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserTraitUpsertOne) SetDeletedBy(v int) *UserTraitUpsertOne {
+func (u *UserTraitUpsertOne) SetDeletedBy(v string) *UserTraitUpsertOne {
 	return u.Update(func(s *UserTraitUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserTraitUpsertOne) AddDeletedBy(v int) *UserTraitUpsertOne {
-	return u.Update(func(s *UserTraitUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -492,7 +533,7 @@ func (u *UserTraitUpsertOne) ClearDeletedBy() *UserTraitUpsertOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserTraitUpsertOne) SetUserID(v int) *UserTraitUpsertOne {
+func (u *UserTraitUpsertOne) SetUserID(v uuid.UUID) *UserTraitUpsertOne {
 	return u.Update(func(s *UserTraitUpsert) {
 		s.SetUserID(v)
 	})
@@ -506,7 +547,7 @@ func (u *UserTraitUpsertOne) UpdateUserID() *UserTraitUpsertOne {
 }
 
 // SetTraitID sets the "trait_id" field.
-func (u *UserTraitUpsertOne) SetTraitID(v int) *UserTraitUpsertOne {
+func (u *UserTraitUpsertOne) SetTraitID(v uuid.UUID) *UserTraitUpsertOne {
 	return u.Update(func(s *UserTraitUpsert) {
 		s.SetTraitID(v)
 	})
@@ -535,7 +576,12 @@ func (u *UserTraitUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserTraitUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserTraitUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserTraitUpsertOne.ID is not supported by MySQL driver. Use UserTraitUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -544,17 +590,12 @@ func (u *UserTraitUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserTraitUpsertOne) IDX(ctx context.Context) int {
+func (u *UserTraitUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserTraitCreate) SetID(id int) *UserTraitCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserTraitCreateBulk is the builder for creating many UserTrait entities in bulk.
@@ -604,10 +645,6 @@ func (_c *UserTraitCreateBulk) Save(ctx context.Context) ([]*UserTrait, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -694,14 +731,23 @@ type UserTraitUpsertBulk struct {
 //	client.UserTrait.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(usertrait.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserTraitUpsertBulk) UpdateNewValues() *UserTraitUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(usertrait.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(usertrait.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(usertrait.FieldTenantID)
 			}
 		}
 	}))
@@ -771,16 +817,9 @@ func (u *UserTraitUpsertBulk) ClearDeletedAt() *UserTraitUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *UserTraitUpsertBulk) SetDeletedBy(v int) *UserTraitUpsertBulk {
+func (u *UserTraitUpsertBulk) SetDeletedBy(v string) *UserTraitUpsertBulk {
 	return u.Update(func(s *UserTraitUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *UserTraitUpsertBulk) AddDeletedBy(v int) *UserTraitUpsertBulk {
-	return u.Update(func(s *UserTraitUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -799,7 +838,7 @@ func (u *UserTraitUpsertBulk) ClearDeletedBy() *UserTraitUpsertBulk {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserTraitUpsertBulk) SetUserID(v int) *UserTraitUpsertBulk {
+func (u *UserTraitUpsertBulk) SetUserID(v uuid.UUID) *UserTraitUpsertBulk {
 	return u.Update(func(s *UserTraitUpsert) {
 		s.SetUserID(v)
 	})
@@ -813,7 +852,7 @@ func (u *UserTraitUpsertBulk) UpdateUserID() *UserTraitUpsertBulk {
 }
 
 // SetTraitID sets the "trait_id" field.
-func (u *UserTraitUpsertBulk) SetTraitID(v int) *UserTraitUpsertBulk {
+func (u *UserTraitUpsertBulk) SetTraitID(v uuid.UUID) *UserTraitUpsertBulk {
 	return u.Update(func(s *UserTraitUpsert) {
 		s.SetTraitID(v)
 	})

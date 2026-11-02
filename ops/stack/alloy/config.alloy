@@ -1,0 +1,69 @@
+logging {
+  level  = "info"
+  format = "json"
+}
+
+prometheus.exporter.self "alloy" {}
+
+loki.source.syslog "judgify" {
+  listener {
+    address  = "0.0.0.0:1514"
+    protocol = "tcp"
+    labels = {
+      environment = "production",
+    }
+  }
+  relabel_rules = loki.relabel.judgify.rules
+  forward_to    = [loki.write.default.receiver]
+}
+
+loki.relabel "judgify" {
+  forward_to = [loki.write.default.receiver]
+
+  rule {
+    action        = "keep"
+    source_labels = ["__syslog_message_app_name"]
+    regex         = "judgify-(envoy|api|website|worker)"
+  }
+  rule {
+    action        = "replace"
+    source_labels = ["__syslog_message_app_name"]
+    target_label  = "service"
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// Applications export OTLP to this collector on the private telemetry network.
+// The queue is bounded so a Tempo outage cannot grow exporter memory without limit.
+otelcol.receiver.otlp "judgify" {
+  grpc {}
+  http {}
+
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+  sending_queue {
+    enabled           = true
+    queue_size        = 256
+    num_consumers     = 2
+    block_on_overflow = false
+  }
+  retry_on_failure {
+    enabled          = true
+    max_elapsed_time = "2m"
+  }
+}

@@ -3,17 +3,17 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"entgo.io/ent/dialect/sql"
 
-	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
-	d "github.com/huynhanx03/judgify/pkg/dto"
+	commonEnt "github.com/huynhanx03/go-common/pkg/database/ent"
+	d "github.com/huynhanx03/go-common/pkg/dto"
 
+	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
-	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/builder"
-	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/mapper"
-	"github.com/huynhanx03/judgify/internal/cultivation/core/entity"
-	"github.com/huynhanx03/judgify/internal/cultivation/ports"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 const rarityRepoName = "Rarity"
@@ -28,23 +28,18 @@ func NewRarityRepository(client *dbEnt.EntClient) ports.RarityRepository {
 
 func (r *RarityRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Rarity], error) {
 	query := r.client.DB(ctx).Rarity.Query()
-	if opts != nil {
-		query.Where(func(s *sql.Selector) {
-			commonEnt.ApplyFilters(opts.Filters, s)
-		})
-	}
+	query.Where(func(s *sql.Selector) {
+		commonEnt.ApplyQueryFilters(opts, s, rarityQueryColumns...)
+	})
 
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, rarityRepoName)
 	}
 
-	if opts != nil {
-		query.Where(func(s *sql.Selector) {
-			commonEnt.ApplySort(opts.Sort, s)
-			commonEnt.ApplyPagination(opts.Pagination, s)
-		})
-	}
+	query.Where(func(s *sql.Selector) {
+		commonEnt.ApplyQueryWindow(opts, s, rarityQueryColumns...)
+	})
 
 	records, err := query.All(ctx)
 	if err != nil {
@@ -53,7 +48,7 @@ func (r *RarityRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.P
 
 	entities := make([]*entity.Rarity, len(records))
 	for i, rec := range records {
-		entities[i] = mapper.ToRarityEntity(rec)
+		entities[i] = ToRarityEntity(rec)
 	}
 
 	paginationOpts := &d.PaginationOptions{}
@@ -68,27 +63,27 @@ func (r *RarityRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.P
 	return &d.Paginated[*entity.Rarity]{Records: &entities, Pagination: meta}, nil
 }
 
-func (r *RarityRepository) Get(ctx context.Context, id int) (*entity.Rarity, error) {
+func (r *RarityRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Rarity, error) {
 	rec, err := r.client.DB(ctx).Rarity.Get(ctx, id)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, rarityRepoName)
 	}
-	return mapper.ToRarityEntity(rec), nil
+	return ToRarityEntity(rec), nil
 }
 
 func (r *RarityRepository) Create(ctx context.Context, e *entity.Rarity) error {
-	rec, err := builder.BuildCreateRarity(ctx, e).Save(ctx)
+	rec, err := BuildCreateRarity(r.client.DB(ctx), e).Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, rarityRepoName)
 	}
-	if created := mapper.ToRarityEntity(rec); created != nil {
+	if created := ToRarityEntity(rec); created != nil {
 		*e = *created
 	}
 	return nil
 }
 
 func (r *RarityRepository) Update(ctx context.Context, e *entity.Rarity) error {
-	rec, err := builder.BuildUpdateRarity(ctx, e).Save(ctx)
+	rec, err := BuildUpdateRarity(r.client.DB(ctx), e).Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, rarityRepoName)
 	}
@@ -96,14 +91,14 @@ func (r *RarityRepository) Update(ctx context.Context, e *entity.Rarity) error {
 	return nil
 }
 
-func (r *RarityRepository) Delete(ctx context.Context, id int) error {
+func (r *RarityRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := r.client.DB(ctx).Rarity.DeleteOneID(id).Exec(ctx); err != nil {
 		return commonEnt.MapEntError(err, rarityRepoName)
 	}
 	return nil
 }
 
-func (r *RarityRepository) Exists(ctx context.Context, id int) (bool, error) {
+func (r *RarityRepository) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
 	exists, err := r.client.DB(ctx).Rarity.Query().Where(rarity.ID(id)).Exist(ctx)
 	if err != nil {
 		return false, commonEnt.MapEntError(err, rarityRepoName)
@@ -118,7 +113,7 @@ func (r *RarityRepository) FindAll(ctx context.Context) ([]*entity.Rarity, error
 	}
 	entities := make([]*entity.Rarity, len(records))
 	for i, rec := range records {
-		entities[i] = mapper.ToRarityEntity(rec)
+		entities[i] = ToRarityEntity(rec)
 	}
 	return entities, nil
 }

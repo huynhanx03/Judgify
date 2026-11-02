@@ -1,0 +1,107 @@
+name: Unsigned release evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: judgify-release-evidence
+  cancel-in-progress: false
+
+env:
+  VERIFY_POSTGRES_IMAGE: postgres:16.14-alpine3.23@sha256:42b8b8b29c8a4e933d88943e5b03001a78794905cf786e6e7634e9f2abd5a0d3
+
+jobs:
+  evidence:
+    name: Verify tagged source and produce unsigned evidence
+    runs-on: [self-hosted, linux, x64, judgify-release]
+    environment: judgify-release-evidence
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+        working-directory: source/Judgify
+    env:
+      JUDGIFY_GO_COVERAGE_FLOOR_PERCENT: ${{ vars.JUDGIFY_GO_COVERAGE_FLOOR_PERCENT }}
+      JUDGIFY_RELEASE_EVIDENCE_ACK: GENERATE_UNSIGNED_RELEASE_EVIDENCE
+      JUDGIFY_RELEASE_EVIDENCE_DIR: ${{ runner.temp }}/judgify-release-evidence-${{ github.run_id }}
+      JUDGIFY_RELEASE_IMAGES_FILE: ${{ vars.JUDGIFY_RELEASE_IMAGES_FILE }}
+      JUDGIFY_VERIFY_POSTGRES_IMAGE: ${{ env.VERIFY_POSTGRES_IMAGE }}
+
+    steps:
+      - name: Require a version tag
+        working-directory: ${{ github.workspace }}
+        run: |
+          [[ "$GITHUB_REF_TYPE" == tag ]] || {
+            echo "::error::Release evidence must be dispatched from an immutable version tag."
+            exit 1
+          }
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+[.][0-9]+[.][0-9]+([+-][0-9A-Za-z.-]+)?$ ]] || {
+            echo "::error::Release tag must use the vMAJOR.MINOR.PATCH form."
+            exit 1
+          }
+
+      - name: Checkout tagged Judgify source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: source/Judgify
+          persist-credentials: false
+          clean: true
+
+      - name: Require immutable go-common revision
+        env:
+          GO_COMMON_REF: ${{ vars.GO_COMMON_REF }}
+        run: |
+          if [[ ! "$GO_COMMON_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Set GO_COMMON_REF to the immutable revision used by this release."
+            exit 1
+          fi
+
+      - name: Checkout release go-common source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: huynhanx03/go-common
+          ref: ${{ vars.GO_COMMON_REF }}
+          path: source/go-common
+          persist-credentials: false
+          clean: true
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: |
+            source/Judgify/api/go.sum
+            source/go-common/go.sum
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: source/Judgify/website/package-lock.json
+
+      - name: Install pinned release verification tools
+        run: |
+          go install ariga.io/atlas/cmd/atlas@v1.0.0
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2
+          go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+
+      - name: Prepare isolated evidence directory and database image
+        run: |
+          install -d -m 700 "$JUDGIFY_RELEASE_EVIDENCE_DIR"
+          docker pull "$JUDGIFY_VERIFY_POSTGRES_IMAGE"
+
+      - name: Verify release and generate unsigned evidence
+        run: make verify-release
+
+      - name: Retain unsigned release evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: unsigned-release-evidence-${{ github.ref_name }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/judgify-release-evidence-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 30

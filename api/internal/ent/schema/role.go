@@ -2,10 +2,12 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
+	"entgo.io/ent/dialect/entsql"
+	entschema "entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -17,6 +19,7 @@ type Role struct {
 // Mixin of the Role.
 func (Role) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -25,28 +28,36 @@ func (Role) Mixin() []ent.Mixin {
 // Fields of the Role.
 func (Role) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").
+		field.String("key").
 			Unique().
+			NotEmpty().
+			Comment("Stable authorization key used by Casbin, for example admin, teacher, student"),
+		field.String("name").
 			NotEmpty(),
-		field.Int("level").
-			Default(0).
-			Comment("Role hierarchy level, lower = more privileged"),
-		field.Int("parent_id").
-			Default(-1).
-			Comment("Parent role ID for hierarchy (root = -1)"),
-		field.Int("lft").
-			Default(0).
-			Comment("Nested Set left value for hierarchy"),
-		field.Int("rgt").
-			Default(0).
-			Comment("Nested Set right value for hierarchy"),
+		field.String("description").
+			Optional().
+			Nillable(),
+		field.Bool("is_system").
+			Default(false).
+			Comment("System roles are seeded and should not be deleted casually"),
+		field.Enum("status").
+			Values("active", "archived").
+			Default("active"),
+		field.Int64("version").
+			Min(1).
+			Default(1),
 	}
 }
 
 // Edges of the Role.
 func (Role) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("users", User.Type),
-		edge.To("permissions", Permission.Type),
+	return nil
+}
+
+func (Role) Annotations() []entschema.Annotation {
+	return []entschema.Annotation{
+		entsql.Checks(map[string]string{
+			"role_status_closed": "status IN ('active', 'archived')",
+		}),
 	}
 }

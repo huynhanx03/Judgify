@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16.14-alpine3.23@sha256:42b8b8b29c8a4e933d88943e5b03001a78794905cf786e6e7634e9f2abd5a0d3
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: judgify_bootstrap
+      POSTGRES_DB: judgify
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_bootstrap_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=peer
+    secrets:
+      - postgres_bootstrap_password
+      - postgres_api_password
+      - postgres_worker_password
+      - postgres_migrator_password
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./postgres/init-roles.sh
+        target: /docker-entrypoint-initdb.d/010-init-roles.sh
+        read_only: true
+      - type: bind
+        source: ../../scripts/init-roles.sql
+        target: /opt/judgify/init-roles.sql
+        read_only: true
+    tmpfs:
+      - /tmp:mode=1777
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username=$${POSTGRES_USER} --dbname=$${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 60s
+    shm_size: 256m
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2g
+          pids: 256
+
+volumes:
+  postgres_data:
+
+secrets:
+  postgres_bootstrap_password:
+    file: ${JUDGIFY_POSTGRES_BOOTSTRAP_PASSWORD_FILE:?set the PostgreSQL bootstrap password file}
+  postgres_api_password:
+    file: ${JUDGIFY_POSTGRES_API_PASSWORD_FILE:?set the PostgreSQL API password file}
+  postgres_worker_password:
+    file: ${JUDGIFY_POSTGRES_WORKER_PASSWORD_FILE:?set the PostgreSQL worker password file}
+  postgres_migrator_password:
+    file: ${JUDGIFY_POSTGRES_MIGRATOR_PASSWORD_FILE:?set the PostgreSQL migrator password file}

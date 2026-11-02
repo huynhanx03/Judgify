@@ -11,12 +11,22 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestannouncement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contesttransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingsequenceslot"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -62,23 +72,16 @@ func (_u *ContestUpdate) ClearDeletedAt() *ContestUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *ContestUpdate) SetDeletedBy(v int) *ContestUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *ContestUpdate) SetDeletedBy(v string) *ContestUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *ContestUpdate) SetNillableDeletedBy(v *int) *ContestUpdate {
+func (_u *ContestUpdate) SetNillableDeletedBy(v *string) *ContestUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *ContestUpdate) AddDeletedBy(v int) *ContestUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -164,17 +167,92 @@ func (_u *ContestUpdate) SetNillableStatus(v *contest.Status) *ContestUpdate {
 	return _u
 }
 
+// SetVersion sets the "version" field.
+func (_u *ContestUpdate) SetVersion(v int64) *ContestUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableVersion(v *int64) *ContestUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ContestUpdate) AddVersion(v int64) *ContestUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
 // SetAuthorID sets the "author_id" field.
-func (_u *ContestUpdate) SetAuthorID(v int) *ContestUpdate {
+func (_u *ContestUpdate) SetAuthorID(v uuid.UUID) *ContestUpdate {
 	_u.mutation.SetAuthorID(v)
 	return _u
 }
 
 // SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (_u *ContestUpdate) SetNillableAuthorID(v *int) *ContestUpdate {
+func (_u *ContestUpdate) SetNillableAuthorID(v *uuid.UUID) *ContestUpdate {
 	if v != nil {
 		_u.SetAuthorID(*v)
 	}
+	return _u
+}
+
+// SetRegistrationMode sets the "registration_mode" field.
+func (_u *ContestUpdate) SetRegistrationMode(v contest.RegistrationMode) *ContestUpdate {
+	_u.mutation.SetRegistrationMode(v)
+	return _u
+}
+
+// SetNillableRegistrationMode sets the "registration_mode" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableRegistrationMode(v *contest.RegistrationMode) *ContestUpdate {
+	if v != nil {
+		_u.SetRegistrationMode(*v)
+	}
+	return _u
+}
+
+// SetRegistrationOpensAt sets the "registration_opens_at" field.
+func (_u *ContestUpdate) SetRegistrationOpensAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetRegistrationOpensAt(v)
+	return _u
+}
+
+// SetNillableRegistrationOpensAt sets the "registration_opens_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableRegistrationOpensAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetRegistrationOpensAt(*v)
+	}
+	return _u
+}
+
+// ClearRegistrationOpensAt clears the value of the "registration_opens_at" field.
+func (_u *ContestUpdate) ClearRegistrationOpensAt() *ContestUpdate {
+	_u.mutation.ClearRegistrationOpensAt()
+	return _u
+}
+
+// SetRegistrationClosesAt sets the "registration_closes_at" field.
+func (_u *ContestUpdate) SetRegistrationClosesAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetRegistrationClosesAt(v)
+	return _u
+}
+
+// SetNillableRegistrationClosesAt sets the "registration_closes_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableRegistrationClosesAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetRegistrationClosesAt(*v)
+	}
+	return _u
+}
+
+// ClearRegistrationClosesAt clears the value of the "registration_closes_at" field.
+func (_u *ContestUpdate) ClearRegistrationClosesAt() *ContestUpdate {
+	_u.mutation.ClearRegistrationClosesAt()
 	return _u
 }
 
@@ -199,35 +277,296 @@ func (_u *ContestUpdate) AddMaxParticipants(v int) *ContestUpdate {
 	return _u
 }
 
+// ClearMaxParticipants clears the value of the "max_participants" field.
+func (_u *ContestUpdate) ClearMaxParticipants() *ContestUpdate {
+	_u.mutation.ClearMaxParticipants()
+	return _u
+}
+
+// SetNextSubmissionSequence sets the "next_submission_sequence" field.
+func (_u *ContestUpdate) SetNextSubmissionSequence(v int64) *ContestUpdate {
+	_u.mutation.ResetNextSubmissionSequence()
+	_u.mutation.SetNextSubmissionSequence(v)
+	return _u
+}
+
+// SetNillableNextSubmissionSequence sets the "next_submission_sequence" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableNextSubmissionSequence(v *int64) *ContestUpdate {
+	if v != nil {
+		_u.SetNextSubmissionSequence(*v)
+	}
+	return _u
+}
+
+// AddNextSubmissionSequence adds value to the "next_submission_sequence" field.
+func (_u *ContestUpdate) AddNextSubmissionSequence(v int64) *ContestUpdate {
+	_u.mutation.AddNextSubmissionSequence(v)
+	return _u
+}
+
+// SetScoringPolicy sets the "scoring_policy" field.
+func (_u *ContestUpdate) SetScoringPolicy(v contest.ScoringPolicy) *ContestUpdate {
+	_u.mutation.SetScoringPolicy(v)
+	return _u
+}
+
+// SetNillableScoringPolicy sets the "scoring_policy" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableScoringPolicy(v *contest.ScoringPolicy) *ContestUpdate {
+	if v != nil {
+		_u.SetScoringPolicy(*v)
+	}
+	return _u
+}
+
+// SetScoringPolicyVersion sets the "scoring_policy_version" field.
+func (_u *ContestUpdate) SetScoringPolicyVersion(v int64) *ContestUpdate {
+	_u.mutation.ResetScoringPolicyVersion()
+	_u.mutation.SetScoringPolicyVersion(v)
+	return _u
+}
+
+// SetNillableScoringPolicyVersion sets the "scoring_policy_version" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableScoringPolicyVersion(v *int64) *ContestUpdate {
+	if v != nil {
+		_u.SetScoringPolicyVersion(*v)
+	}
+	return _u
+}
+
+// AddScoringPolicyVersion adds value to the "scoring_policy_version" field.
+func (_u *ContestUpdate) AddScoringPolicyVersion(v int64) *ContestUpdate {
+	_u.mutation.AddScoringPolicyVersion(v)
+	return _u
+}
+
+// SetStandingsProjectionVersion sets the "standings_projection_version" field.
+func (_u *ContestUpdate) SetStandingsProjectionVersion(v int64) *ContestUpdate {
+	_u.mutation.ResetStandingsProjectionVersion()
+	_u.mutation.SetStandingsProjectionVersion(v)
+	return _u
+}
+
+// SetNillableStandingsProjectionVersion sets the "standings_projection_version" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableStandingsProjectionVersion(v *int64) *ContestUpdate {
+	if v != nil {
+		_u.SetStandingsProjectionVersion(*v)
+	}
+	return _u
+}
+
+// AddStandingsProjectionVersion adds value to the "standings_projection_version" field.
+func (_u *ContestUpdate) AddStandingsProjectionVersion(v int64) *ContestUpdate {
+	_u.mutation.AddStandingsProjectionVersion(v)
+	return _u
+}
+
+// SetFreezeStandingsAt sets the "freeze_standings_at" field.
+func (_u *ContestUpdate) SetFreezeStandingsAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetFreezeStandingsAt(v)
+	return _u
+}
+
+// SetNillableFreezeStandingsAt sets the "freeze_standings_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableFreezeStandingsAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetFreezeStandingsAt(*v)
+	}
+	return _u
+}
+
+// ClearFreezeStandingsAt clears the value of the "freeze_standings_at" field.
+func (_u *ContestUpdate) ClearFreezeStandingsAt() *ContestUpdate {
+	_u.mutation.ClearFreezeStandingsAt()
+	return _u
+}
+
+// SetRated sets the "rated" field.
+func (_u *ContestUpdate) SetRated(v bool) *ContestUpdate {
+	_u.mutation.SetRated(v)
+	return _u
+}
+
+// SetNillableRated sets the "rated" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableRated(v *bool) *ContestUpdate {
+	if v != nil {
+		_u.SetRated(*v)
+	}
+	return _u
+}
+
+// SetRatingAlgorithmVersion sets the "rating_algorithm_version" field.
+func (_u *ContestUpdate) SetRatingAlgorithmVersion(v string) *ContestUpdate {
+	_u.mutation.SetRatingAlgorithmVersion(v)
+	return _u
+}
+
+// SetNillableRatingAlgorithmVersion sets the "rating_algorithm_version" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableRatingAlgorithmVersion(v *string) *ContestUpdate {
+	if v != nil {
+		_u.SetRatingAlgorithmVersion(*v)
+	}
+	return _u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_u *ContestUpdate) SetPublishedAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillablePublishedAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *ContestUpdate) ClearPublishedAt() *ContestUpdate {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_u *ContestUpdate) SetStartedAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableStartedAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (_u *ContestUpdate) ClearStartedAt() *ContestUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (_u *ContestUpdate) SetEndedAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetEndedAt(v)
+	return _u
+}
+
+// SetNillableEndedAt sets the "ended_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableEndedAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetEndedAt(*v)
+	}
+	return _u
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (_u *ContestUpdate) ClearEndedAt() *ContestUpdate {
+	_u.mutation.ClearEndedAt()
+	return _u
+}
+
+// SetCancelledAt sets the "cancelled_at" field.
+func (_u *ContestUpdate) SetCancelledAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetCancelledAt(v)
+	return _u
+}
+
+// SetNillableCancelledAt sets the "cancelled_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableCancelledAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetCancelledAt(*v)
+	}
+	return _u
+}
+
+// ClearCancelledAt clears the value of the "cancelled_at" field.
+func (_u *ContestUpdate) ClearCancelledAt() *ContestUpdate {
+	_u.mutation.ClearCancelledAt()
+	return _u
+}
+
+// SetRatingCompletedAt sets the "rating_completed_at" field.
+func (_u *ContestUpdate) SetRatingCompletedAt(v time.Time) *ContestUpdate {
+	_u.mutation.SetRatingCompletedAt(v)
+	return _u
+}
+
+// SetNillableRatingCompletedAt sets the "rating_completed_at" field if the given value is not nil.
+func (_u *ContestUpdate) SetNillableRatingCompletedAt(v *time.Time) *ContestUpdate {
+	if v != nil {
+		_u.SetRatingCompletedAt(*v)
+	}
+	return _u
+}
+
+// ClearRatingCompletedAt clears the value of the "rating_completed_at" field.
+func (_u *ContestUpdate) ClearRatingCompletedAt() *ContestUpdate {
+	_u.mutation.ClearRatingCompletedAt()
+	return _u
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_u *ContestUpdate) SetAuthor(v *User) *ContestUpdate {
 	return _u.SetAuthorID(v.ID)
 }
 
-// AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_u *ContestUpdate) AddProblemIDs(ids ...int) *ContestUpdate {
-	_u.mutation.AddProblemIDs(ids...)
+// AddDraftProblemIDs adds the "draft_problems" edge to the ContestDraftProblem entity by IDs.
+func (_u *ContestUpdate) AddDraftProblemIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddDraftProblemIDs(ids...)
 	return _u
 }
 
-// AddProblems adds the "problems" edges to the Problem entity.
-func (_u *ContestUpdate) AddProblems(v ...*Problem) *ContestUpdate {
-	ids := make([]int, len(v))
+// AddDraftProblems adds the "draft_problems" edges to the ContestDraftProblem entity.
+func (_u *ContestUpdate) AddDraftProblems(v ...*ContestDraftProblem) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.AddProblemIDs(ids...)
+	return _u.AddDraftProblemIDs(ids...)
+}
+
+// AddContestProblemIDs adds the "contest_problems" edge to the ContestProblem entity by IDs.
+func (_u *ContestUpdate) AddContestProblemIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddContestProblemIDs(ids...)
+	return _u
+}
+
+// AddContestProblems adds the "contest_problems" edges to the ContestProblem entity.
+func (_u *ContestUpdate) AddContestProblems(v ...*ContestProblem) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemIDs(ids...)
+}
+
+// AddTransitionIDs adds the "transitions" edge to the ContestTransition entity by IDs.
+func (_u *ContestUpdate) AddTransitionIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddTransitionIDs(ids...)
+	return _u
+}
+
+// AddTransitions adds the "transitions" edges to the ContestTransition entity.
+func (_u *ContestUpdate) AddTransitions(v ...*ContestTransition) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTransitionIDs(ids...)
 }
 
 // AddRegistrationIDs adds the "registrations" edge to the ContestRegistration entity by IDs.
-func (_u *ContestUpdate) AddRegistrationIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) AddRegistrationIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.AddRegistrationIDs(ids...)
 	return _u
 }
 
 // AddRegistrations adds the "registrations" edges to the ContestRegistration entity.
 func (_u *ContestUpdate) AddRegistrations(v ...*ContestRegistration) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -235,14 +574,14 @@ func (_u *ContestUpdate) AddRegistrations(v ...*ContestRegistration) *ContestUpd
 }
 
 // AddStandingIDs adds the "standings" edge to the ContestStanding entity by IDs.
-func (_u *ContestUpdate) AddStandingIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) AddStandingIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.AddStandingIDs(ids...)
 	return _u
 }
 
 // AddStandings adds the "standings" edges to the ContestStanding entity.
 func (_u *ContestUpdate) AddStandings(v ...*ContestStanding) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -250,14 +589,14 @@ func (_u *ContestUpdate) AddStandings(v ...*ContestStanding) *ContestUpdate {
 }
 
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_u *ContestUpdate) AddSubmissionIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) AddSubmissionIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.AddSubmissionIDs(ids...)
 	return _u
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_u *ContestUpdate) AddSubmissions(v ...*Submission) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -265,18 +604,123 @@ func (_u *ContestUpdate) AddSubmissions(v ...*Submission) *ContestUpdate {
 }
 
 // AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
-func (_u *ContestUpdate) AddRatingHistoryIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) AddRatingHistoryIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.AddRatingHistoryIDs(ids...)
 	return _u
 }
 
 // AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
 func (_u *ContestUpdate) AddRatingHistories(v ...*RatingHistory) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddRatingHistoryIDs(ids...)
+}
+
+// AddRatingSequenceSlotIDs adds the "rating_sequence_slots" edge to the RatingSequenceSlot entity by IDs.
+func (_u *ContestUpdate) AddRatingSequenceSlotIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddRatingSequenceSlotIDs(ids...)
+	return _u
+}
+
+// AddRatingSequenceSlots adds the "rating_sequence_slots" edges to the RatingSequenceSlot entity.
+func (_u *ContestUpdate) AddRatingSequenceSlots(v ...*RatingSequenceSlot) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRatingSequenceSlotIDs(ids...)
+}
+
+// AddRatingRunIDs adds the "rating_runs" edge to the ContestRatingRun entity by IDs.
+func (_u *ContestUpdate) AddRatingRunIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddRatingRunIDs(ids...)
+	return _u
+}
+
+// AddRatingRuns adds the "rating_runs" edges to the ContestRatingRun entity.
+func (_u *ContestUpdate) AddRatingRuns(v ...*ContestRatingRun) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRatingRunIDs(ids...)
+}
+
+// AddAnnouncementIDs adds the "announcements" edge to the ContestAnnouncement entity by IDs.
+func (_u *ContestUpdate) AddAnnouncementIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddAnnouncementIDs(ids...)
+	return _u
+}
+
+// AddAnnouncements adds the "announcements" edges to the ContestAnnouncement entity.
+func (_u *ContestUpdate) AddAnnouncements(v ...*ContestAnnouncement) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAnnouncementIDs(ids...)
+}
+
+// AddClarificationIDs adds the "clarifications" edge to the ContestClarification entity by IDs.
+func (_u *ContestUpdate) AddClarificationIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddClarificationIDs(ids...)
+	return _u
+}
+
+// AddClarifications adds the "clarifications" edges to the ContestClarification entity.
+func (_u *ContestUpdate) AddClarifications(v ...*ContestClarification) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddClarificationIDs(ids...)
+}
+
+// AddContentCommandIDs adds the "content_commands" edge to the ContestContentCommand entity by IDs.
+func (_u *ContestUpdate) AddContentCommandIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddContentCommandIDs(ids...)
+	return _u
+}
+
+// AddContentCommands adds the "content_commands" edges to the ContestContentCommand entity.
+func (_u *ContestUpdate) AddContentCommands(v ...*ContestContentCommand) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContentCommandIDs(ids...)
+}
+
+// AddScoringAttemptIDs adds the "scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_u *ContestUpdate) AddScoringAttemptIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddScoringAttemptIDs(ids...)
+	return _u
+}
+
+// AddScoringAttempts adds the "scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ContestUpdate) AddScoringAttempts(v ...*ContestScoringAttempt) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoringAttemptIDs(ids...)
+}
+
+// AddProblemResultIDs adds the "problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *ContestUpdate) AddProblemResultIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.AddProblemResultIDs(ids...)
+	return _u
+}
+
+// AddProblemResults adds the "problem_results" edges to the ContestProblemResult entity.
+func (_u *ContestUpdate) AddProblemResults(v ...*ContestProblemResult) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProblemResultIDs(ids...)
 }
 
 // Mutation returns the ContestMutation object of the builder.
@@ -290,25 +734,67 @@ func (_u *ContestUpdate) ClearAuthor() *ContestUpdate {
 	return _u
 }
 
-// ClearProblems clears all "problems" edges to the Problem entity.
-func (_u *ContestUpdate) ClearProblems() *ContestUpdate {
-	_u.mutation.ClearProblems()
+// ClearDraftProblems clears all "draft_problems" edges to the ContestDraftProblem entity.
+func (_u *ContestUpdate) ClearDraftProblems() *ContestUpdate {
+	_u.mutation.ClearDraftProblems()
 	return _u
 }
 
-// RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (_u *ContestUpdate) RemoveProblemIDs(ids ...int) *ContestUpdate {
-	_u.mutation.RemoveProblemIDs(ids...)
+// RemoveDraftProblemIDs removes the "draft_problems" edge to ContestDraftProblem entities by IDs.
+func (_u *ContestUpdate) RemoveDraftProblemIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveDraftProblemIDs(ids...)
 	return _u
 }
 
-// RemoveProblems removes "problems" edges to Problem entities.
-func (_u *ContestUpdate) RemoveProblems(v ...*Problem) *ContestUpdate {
-	ids := make([]int, len(v))
+// RemoveDraftProblems removes "draft_problems" edges to ContestDraftProblem entities.
+func (_u *ContestUpdate) RemoveDraftProblems(v ...*ContestDraftProblem) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.RemoveProblemIDs(ids...)
+	return _u.RemoveDraftProblemIDs(ids...)
+}
+
+// ClearContestProblems clears all "contest_problems" edges to the ContestProblem entity.
+func (_u *ContestUpdate) ClearContestProblems() *ContestUpdate {
+	_u.mutation.ClearContestProblems()
+	return _u
+}
+
+// RemoveContestProblemIDs removes the "contest_problems" edge to ContestProblem entities by IDs.
+func (_u *ContestUpdate) RemoveContestProblemIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveContestProblemIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblems removes "contest_problems" edges to ContestProblem entities.
+func (_u *ContestUpdate) RemoveContestProblems(v ...*ContestProblem) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemIDs(ids...)
+}
+
+// ClearTransitions clears all "transitions" edges to the ContestTransition entity.
+func (_u *ContestUpdate) ClearTransitions() *ContestUpdate {
+	_u.mutation.ClearTransitions()
+	return _u
+}
+
+// RemoveTransitionIDs removes the "transitions" edge to ContestTransition entities by IDs.
+func (_u *ContestUpdate) RemoveTransitionIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveTransitionIDs(ids...)
+	return _u
+}
+
+// RemoveTransitions removes "transitions" edges to ContestTransition entities.
+func (_u *ContestUpdate) RemoveTransitions(v ...*ContestTransition) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTransitionIDs(ids...)
 }
 
 // ClearRegistrations clears all "registrations" edges to the ContestRegistration entity.
@@ -318,14 +804,14 @@ func (_u *ContestUpdate) ClearRegistrations() *ContestUpdate {
 }
 
 // RemoveRegistrationIDs removes the "registrations" edge to ContestRegistration entities by IDs.
-func (_u *ContestUpdate) RemoveRegistrationIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) RemoveRegistrationIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.RemoveRegistrationIDs(ids...)
 	return _u
 }
 
 // RemoveRegistrations removes "registrations" edges to ContestRegistration entities.
 func (_u *ContestUpdate) RemoveRegistrations(v ...*ContestRegistration) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -339,14 +825,14 @@ func (_u *ContestUpdate) ClearStandings() *ContestUpdate {
 }
 
 // RemoveStandingIDs removes the "standings" edge to ContestStanding entities by IDs.
-func (_u *ContestUpdate) RemoveStandingIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) RemoveStandingIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.RemoveStandingIDs(ids...)
 	return _u
 }
 
 // RemoveStandings removes "standings" edges to ContestStanding entities.
 func (_u *ContestUpdate) RemoveStandings(v ...*ContestStanding) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -360,14 +846,14 @@ func (_u *ContestUpdate) ClearSubmissions() *ContestUpdate {
 }
 
 // RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
-func (_u *ContestUpdate) RemoveSubmissionIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) RemoveSubmissionIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.RemoveSubmissionIDs(ids...)
 	return _u
 }
 
 // RemoveSubmissions removes "submissions" edges to Submission entities.
 func (_u *ContestUpdate) RemoveSubmissions(v ...*Submission) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -381,18 +867,165 @@ func (_u *ContestUpdate) ClearRatingHistories() *ContestUpdate {
 }
 
 // RemoveRatingHistoryIDs removes the "rating_histories" edge to RatingHistory entities by IDs.
-func (_u *ContestUpdate) RemoveRatingHistoryIDs(ids ...int) *ContestUpdate {
+func (_u *ContestUpdate) RemoveRatingHistoryIDs(ids ...uuid.UUID) *ContestUpdate {
 	_u.mutation.RemoveRatingHistoryIDs(ids...)
 	return _u
 }
 
 // RemoveRatingHistories removes "rating_histories" edges to RatingHistory entities.
 func (_u *ContestUpdate) RemoveRatingHistories(v ...*RatingHistory) *ContestUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRatingHistoryIDs(ids...)
+}
+
+// ClearRatingSequenceSlots clears all "rating_sequence_slots" edges to the RatingSequenceSlot entity.
+func (_u *ContestUpdate) ClearRatingSequenceSlots() *ContestUpdate {
+	_u.mutation.ClearRatingSequenceSlots()
+	return _u
+}
+
+// RemoveRatingSequenceSlotIDs removes the "rating_sequence_slots" edge to RatingSequenceSlot entities by IDs.
+func (_u *ContestUpdate) RemoveRatingSequenceSlotIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveRatingSequenceSlotIDs(ids...)
+	return _u
+}
+
+// RemoveRatingSequenceSlots removes "rating_sequence_slots" edges to RatingSequenceSlot entities.
+func (_u *ContestUpdate) RemoveRatingSequenceSlots(v ...*RatingSequenceSlot) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRatingSequenceSlotIDs(ids...)
+}
+
+// ClearRatingRuns clears all "rating_runs" edges to the ContestRatingRun entity.
+func (_u *ContestUpdate) ClearRatingRuns() *ContestUpdate {
+	_u.mutation.ClearRatingRuns()
+	return _u
+}
+
+// RemoveRatingRunIDs removes the "rating_runs" edge to ContestRatingRun entities by IDs.
+func (_u *ContestUpdate) RemoveRatingRunIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveRatingRunIDs(ids...)
+	return _u
+}
+
+// RemoveRatingRuns removes "rating_runs" edges to ContestRatingRun entities.
+func (_u *ContestUpdate) RemoveRatingRuns(v ...*ContestRatingRun) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRatingRunIDs(ids...)
+}
+
+// ClearAnnouncements clears all "announcements" edges to the ContestAnnouncement entity.
+func (_u *ContestUpdate) ClearAnnouncements() *ContestUpdate {
+	_u.mutation.ClearAnnouncements()
+	return _u
+}
+
+// RemoveAnnouncementIDs removes the "announcements" edge to ContestAnnouncement entities by IDs.
+func (_u *ContestUpdate) RemoveAnnouncementIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveAnnouncementIDs(ids...)
+	return _u
+}
+
+// RemoveAnnouncements removes "announcements" edges to ContestAnnouncement entities.
+func (_u *ContestUpdate) RemoveAnnouncements(v ...*ContestAnnouncement) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAnnouncementIDs(ids...)
+}
+
+// ClearClarifications clears all "clarifications" edges to the ContestClarification entity.
+func (_u *ContestUpdate) ClearClarifications() *ContestUpdate {
+	_u.mutation.ClearClarifications()
+	return _u
+}
+
+// RemoveClarificationIDs removes the "clarifications" edge to ContestClarification entities by IDs.
+func (_u *ContestUpdate) RemoveClarificationIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveClarificationIDs(ids...)
+	return _u
+}
+
+// RemoveClarifications removes "clarifications" edges to ContestClarification entities.
+func (_u *ContestUpdate) RemoveClarifications(v ...*ContestClarification) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveClarificationIDs(ids...)
+}
+
+// ClearContentCommands clears all "content_commands" edges to the ContestContentCommand entity.
+func (_u *ContestUpdate) ClearContentCommands() *ContestUpdate {
+	_u.mutation.ClearContentCommands()
+	return _u
+}
+
+// RemoveContentCommandIDs removes the "content_commands" edge to ContestContentCommand entities by IDs.
+func (_u *ContestUpdate) RemoveContentCommandIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveContentCommandIDs(ids...)
+	return _u
+}
+
+// RemoveContentCommands removes "content_commands" edges to ContestContentCommand entities.
+func (_u *ContestUpdate) RemoveContentCommands(v ...*ContestContentCommand) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContentCommandIDs(ids...)
+}
+
+// ClearScoringAttempts clears all "scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ContestUpdate) ClearScoringAttempts() *ContestUpdate {
+	_u.mutation.ClearScoringAttempts()
+	return _u
+}
+
+// RemoveScoringAttemptIDs removes the "scoring_attempts" edge to ContestScoringAttempt entities by IDs.
+func (_u *ContestUpdate) RemoveScoringAttemptIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveScoringAttemptIDs(ids...)
+	return _u
+}
+
+// RemoveScoringAttempts removes "scoring_attempts" edges to ContestScoringAttempt entities.
+func (_u *ContestUpdate) RemoveScoringAttempts(v ...*ContestScoringAttempt) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoringAttemptIDs(ids...)
+}
+
+// ClearProblemResults clears all "problem_results" edges to the ContestProblemResult entity.
+func (_u *ContestUpdate) ClearProblemResults() *ContestUpdate {
+	_u.mutation.ClearProblemResults()
+	return _u
+}
+
+// RemoveProblemResultIDs removes the "problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *ContestUpdate) RemoveProblemResultIDs(ids ...uuid.UUID) *ContestUpdate {
+	_u.mutation.RemoveProblemResultIDs(ids...)
+	return _u
+}
+
+// RemoveProblemResults removes "problem_results" edges to ContestProblemResult entities.
+func (_u *ContestUpdate) RemoveProblemResults(v ...*ContestProblemResult) *ContestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProblemResultIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -449,6 +1082,46 @@ func (_u *ContestUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Contest.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := contest.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Contest.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RegistrationMode(); ok {
+		if err := contest.RegistrationModeValidator(v); err != nil {
+			return &ValidationError{Name: "registration_mode", err: fmt.Errorf(`generate: validator failed for field "Contest.registration_mode": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.MaxParticipants(); ok {
+		if err := contest.MaxParticipantsValidator(v); err != nil {
+			return &ValidationError{Name: "max_participants", err: fmt.Errorf(`generate: validator failed for field "Contest.max_participants": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.NextSubmissionSequence(); ok {
+		if err := contest.NextSubmissionSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "next_submission_sequence", err: fmt.Errorf(`generate: validator failed for field "Contest.next_submission_sequence": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ScoringPolicy(); ok {
+		if err := contest.ScoringPolicyValidator(v); err != nil {
+			return &ValidationError{Name: "scoring_policy", err: fmt.Errorf(`generate: validator failed for field "Contest.scoring_policy": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ScoringPolicyVersion(); ok {
+		if err := contest.ScoringPolicyVersionValidator(v); err != nil {
+			return &ValidationError{Name: "scoring_policy_version", err: fmt.Errorf(`generate: validator failed for field "Contest.scoring_policy_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.StandingsProjectionVersion(); ok {
+		if err := contest.StandingsProjectionVersionValidator(v); err != nil {
+			return &ValidationError{Name: "standings_projection_version", err: fmt.Errorf(`generate: validator failed for field "Contest.standings_projection_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RatingAlgorithmVersion(); ok {
+		if err := contest.RatingAlgorithmVersionValidator(v); err != nil {
+			return &ValidationError{Name: "rating_algorithm_version", err: fmt.Errorf(`generate: validator failed for field "Contest.rating_algorithm_version": %w`, err)}
+		}
+	}
 	if _u.mutation.AuthorCleared() && len(_u.mutation.AuthorIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Contest.author"`)
 	}
@@ -465,7 +1138,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -483,13 +1156,10 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(contest.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(contest.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(contest.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(contest.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(contest.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(contest.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(contest.FieldTitle, field.TypeString, value)
@@ -509,11 +1179,98 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(contest.FieldStatus, field.TypeEnum, value)
 	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(contest.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(contest.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.RegistrationMode(); ok {
+		_spec.SetField(contest.FieldRegistrationMode, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.RegistrationOpensAt(); ok {
+		_spec.SetField(contest.FieldRegistrationOpensAt, field.TypeTime, value)
+	}
+	if _u.mutation.RegistrationOpensAtCleared() {
+		_spec.ClearField(contest.FieldRegistrationOpensAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RegistrationClosesAt(); ok {
+		_spec.SetField(contest.FieldRegistrationClosesAt, field.TypeTime, value)
+	}
+	if _u.mutation.RegistrationClosesAtCleared() {
+		_spec.ClearField(contest.FieldRegistrationClosesAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.MaxParticipants(); ok {
 		_spec.SetField(contest.FieldMaxParticipants, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AddedMaxParticipants(); ok {
 		_spec.AddField(contest.FieldMaxParticipants, field.TypeInt, value)
+	}
+	if _u.mutation.MaxParticipantsCleared() {
+		_spec.ClearField(contest.FieldMaxParticipants, field.TypeInt)
+	}
+	if value, ok := _u.mutation.NextSubmissionSequence(); ok {
+		_spec.SetField(contest.FieldNextSubmissionSequence, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedNextSubmissionSequence(); ok {
+		_spec.AddField(contest.FieldNextSubmissionSequence, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ScoringPolicy(); ok {
+		_spec.SetField(contest.FieldScoringPolicy, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.ScoringPolicyVersion(); ok {
+		_spec.SetField(contest.FieldScoringPolicyVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedScoringPolicyVersion(); ok {
+		_spec.AddField(contest.FieldScoringPolicyVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.StandingsProjectionVersion(); ok {
+		_spec.SetField(contest.FieldStandingsProjectionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedStandingsProjectionVersion(); ok {
+		_spec.AddField(contest.FieldStandingsProjectionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.FreezeStandingsAt(); ok {
+		_spec.SetField(contest.FieldFreezeStandingsAt, field.TypeTime, value)
+	}
+	if _u.mutation.FreezeStandingsAtCleared() {
+		_spec.ClearField(contest.FieldFreezeStandingsAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Rated(); ok {
+		_spec.SetField(contest.FieldRated, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.RatingAlgorithmVersion(); ok {
+		_spec.SetField(contest.FieldRatingAlgorithmVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(contest.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(contest.FieldPublishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartedAt(); ok {
+		_spec.SetField(contest.FieldStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartedAtCleared() {
+		_spec.ClearField(contest.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.EndedAt(); ok {
+		_spec.SetField(contest.FieldEndedAt, field.TypeTime, value)
+	}
+	if _u.mutation.EndedAtCleared() {
+		_spec.ClearField(contest.FieldEndedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CancelledAt(); ok {
+		_spec.SetField(contest.FieldCancelledAt, field.TypeTime, value)
+	}
+	if _u.mutation.CancelledAtCleared() {
+		_spec.ClearField(contest.FieldCancelledAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RatingCompletedAt(); ok {
+		_spec.SetField(contest.FieldRatingCompletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.RatingCompletedAtCleared() {
+		_spec.ClearField(contest.FieldRatingCompletedAt, field.TypeTime)
 	}
 	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -523,7 +1280,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -536,7 +1293,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -544,28 +1301,28 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.ProblemsCleared() {
+	if _u.mutation.DraftProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.RemovedProblemsIDs(); len(nodes) > 0 && !_u.mutation.ProblemsCleared() {
+	if nodes := _u.mutation.RemovedDraftProblemsIDs(); len(nodes) > 0 && !_u.mutation.DraftProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -573,15 +1330,105 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ProblemsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DraftProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTransitionsIDs(); len(nodes) > 0 && !_u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TransitionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -597,7 +1444,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -610,7 +1457,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -626,7 +1473,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -642,7 +1489,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -655,7 +1502,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -671,7 +1518,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -687,7 +1534,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -700,7 +1547,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -716,7 +1563,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -732,7 +1579,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -745,7 +1592,7 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -761,7 +1608,322 @@ func (_u *ContestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingSequenceSlotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRatingSequenceSlotsIDs(); len(nodes) > 0 && !_u.mutation.RatingSequenceSlotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingSequenceSlotsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingRunsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRatingRunsIDs(); len(nodes) > 0 && !_u.mutation.RatingRunsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingRunsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AnnouncementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAnnouncementsIDs(); len(nodes) > 0 && !_u.mutation.AnnouncementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AnnouncementsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedClarificationsIDs(); len(nodes) > 0 && !_u.mutation.ClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ClarificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContentCommandsIDs(); len(nodes) > 0 && !_u.mutation.ContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContentCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoringAttemptsIDs(); len(nodes) > 0 && !_u.mutation.ScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.ProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -818,23 +1980,16 @@ func (_u *ContestUpdateOne) ClearDeletedAt() *ContestUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *ContestUpdateOne) SetDeletedBy(v int) *ContestUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *ContestUpdateOne) SetDeletedBy(v string) *ContestUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *ContestUpdateOne) SetNillableDeletedBy(v *int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) SetNillableDeletedBy(v *string) *ContestUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *ContestUpdateOne) AddDeletedBy(v int) *ContestUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -920,17 +2075,92 @@ func (_u *ContestUpdateOne) SetNillableStatus(v *contest.Status) *ContestUpdateO
 	return _u
 }
 
+// SetVersion sets the "version" field.
+func (_u *ContestUpdateOne) SetVersion(v int64) *ContestUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableVersion(v *int64) *ContestUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ContestUpdateOne) AddVersion(v int64) *ContestUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
 // SetAuthorID sets the "author_id" field.
-func (_u *ContestUpdateOne) SetAuthorID(v int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) SetAuthorID(v uuid.UUID) *ContestUpdateOne {
 	_u.mutation.SetAuthorID(v)
 	return _u
 }
 
 // SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (_u *ContestUpdateOne) SetNillableAuthorID(v *int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) SetNillableAuthorID(v *uuid.UUID) *ContestUpdateOne {
 	if v != nil {
 		_u.SetAuthorID(*v)
 	}
+	return _u
+}
+
+// SetRegistrationMode sets the "registration_mode" field.
+func (_u *ContestUpdateOne) SetRegistrationMode(v contest.RegistrationMode) *ContestUpdateOne {
+	_u.mutation.SetRegistrationMode(v)
+	return _u
+}
+
+// SetNillableRegistrationMode sets the "registration_mode" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableRegistrationMode(v *contest.RegistrationMode) *ContestUpdateOne {
+	if v != nil {
+		_u.SetRegistrationMode(*v)
+	}
+	return _u
+}
+
+// SetRegistrationOpensAt sets the "registration_opens_at" field.
+func (_u *ContestUpdateOne) SetRegistrationOpensAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetRegistrationOpensAt(v)
+	return _u
+}
+
+// SetNillableRegistrationOpensAt sets the "registration_opens_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableRegistrationOpensAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetRegistrationOpensAt(*v)
+	}
+	return _u
+}
+
+// ClearRegistrationOpensAt clears the value of the "registration_opens_at" field.
+func (_u *ContestUpdateOne) ClearRegistrationOpensAt() *ContestUpdateOne {
+	_u.mutation.ClearRegistrationOpensAt()
+	return _u
+}
+
+// SetRegistrationClosesAt sets the "registration_closes_at" field.
+func (_u *ContestUpdateOne) SetRegistrationClosesAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetRegistrationClosesAt(v)
+	return _u
+}
+
+// SetNillableRegistrationClosesAt sets the "registration_closes_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableRegistrationClosesAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetRegistrationClosesAt(*v)
+	}
+	return _u
+}
+
+// ClearRegistrationClosesAt clears the value of the "registration_closes_at" field.
+func (_u *ContestUpdateOne) ClearRegistrationClosesAt() *ContestUpdateOne {
+	_u.mutation.ClearRegistrationClosesAt()
 	return _u
 }
 
@@ -955,35 +2185,296 @@ func (_u *ContestUpdateOne) AddMaxParticipants(v int) *ContestUpdateOne {
 	return _u
 }
 
+// ClearMaxParticipants clears the value of the "max_participants" field.
+func (_u *ContestUpdateOne) ClearMaxParticipants() *ContestUpdateOne {
+	_u.mutation.ClearMaxParticipants()
+	return _u
+}
+
+// SetNextSubmissionSequence sets the "next_submission_sequence" field.
+func (_u *ContestUpdateOne) SetNextSubmissionSequence(v int64) *ContestUpdateOne {
+	_u.mutation.ResetNextSubmissionSequence()
+	_u.mutation.SetNextSubmissionSequence(v)
+	return _u
+}
+
+// SetNillableNextSubmissionSequence sets the "next_submission_sequence" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableNextSubmissionSequence(v *int64) *ContestUpdateOne {
+	if v != nil {
+		_u.SetNextSubmissionSequence(*v)
+	}
+	return _u
+}
+
+// AddNextSubmissionSequence adds value to the "next_submission_sequence" field.
+func (_u *ContestUpdateOne) AddNextSubmissionSequence(v int64) *ContestUpdateOne {
+	_u.mutation.AddNextSubmissionSequence(v)
+	return _u
+}
+
+// SetScoringPolicy sets the "scoring_policy" field.
+func (_u *ContestUpdateOne) SetScoringPolicy(v contest.ScoringPolicy) *ContestUpdateOne {
+	_u.mutation.SetScoringPolicy(v)
+	return _u
+}
+
+// SetNillableScoringPolicy sets the "scoring_policy" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableScoringPolicy(v *contest.ScoringPolicy) *ContestUpdateOne {
+	if v != nil {
+		_u.SetScoringPolicy(*v)
+	}
+	return _u
+}
+
+// SetScoringPolicyVersion sets the "scoring_policy_version" field.
+func (_u *ContestUpdateOne) SetScoringPolicyVersion(v int64) *ContestUpdateOne {
+	_u.mutation.ResetScoringPolicyVersion()
+	_u.mutation.SetScoringPolicyVersion(v)
+	return _u
+}
+
+// SetNillableScoringPolicyVersion sets the "scoring_policy_version" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableScoringPolicyVersion(v *int64) *ContestUpdateOne {
+	if v != nil {
+		_u.SetScoringPolicyVersion(*v)
+	}
+	return _u
+}
+
+// AddScoringPolicyVersion adds value to the "scoring_policy_version" field.
+func (_u *ContestUpdateOne) AddScoringPolicyVersion(v int64) *ContestUpdateOne {
+	_u.mutation.AddScoringPolicyVersion(v)
+	return _u
+}
+
+// SetStandingsProjectionVersion sets the "standings_projection_version" field.
+func (_u *ContestUpdateOne) SetStandingsProjectionVersion(v int64) *ContestUpdateOne {
+	_u.mutation.ResetStandingsProjectionVersion()
+	_u.mutation.SetStandingsProjectionVersion(v)
+	return _u
+}
+
+// SetNillableStandingsProjectionVersion sets the "standings_projection_version" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableStandingsProjectionVersion(v *int64) *ContestUpdateOne {
+	if v != nil {
+		_u.SetStandingsProjectionVersion(*v)
+	}
+	return _u
+}
+
+// AddStandingsProjectionVersion adds value to the "standings_projection_version" field.
+func (_u *ContestUpdateOne) AddStandingsProjectionVersion(v int64) *ContestUpdateOne {
+	_u.mutation.AddStandingsProjectionVersion(v)
+	return _u
+}
+
+// SetFreezeStandingsAt sets the "freeze_standings_at" field.
+func (_u *ContestUpdateOne) SetFreezeStandingsAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetFreezeStandingsAt(v)
+	return _u
+}
+
+// SetNillableFreezeStandingsAt sets the "freeze_standings_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableFreezeStandingsAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetFreezeStandingsAt(*v)
+	}
+	return _u
+}
+
+// ClearFreezeStandingsAt clears the value of the "freeze_standings_at" field.
+func (_u *ContestUpdateOne) ClearFreezeStandingsAt() *ContestUpdateOne {
+	_u.mutation.ClearFreezeStandingsAt()
+	return _u
+}
+
+// SetRated sets the "rated" field.
+func (_u *ContestUpdateOne) SetRated(v bool) *ContestUpdateOne {
+	_u.mutation.SetRated(v)
+	return _u
+}
+
+// SetNillableRated sets the "rated" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableRated(v *bool) *ContestUpdateOne {
+	if v != nil {
+		_u.SetRated(*v)
+	}
+	return _u
+}
+
+// SetRatingAlgorithmVersion sets the "rating_algorithm_version" field.
+func (_u *ContestUpdateOne) SetRatingAlgorithmVersion(v string) *ContestUpdateOne {
+	_u.mutation.SetRatingAlgorithmVersion(v)
+	return _u
+}
+
+// SetNillableRatingAlgorithmVersion sets the "rating_algorithm_version" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableRatingAlgorithmVersion(v *string) *ContestUpdateOne {
+	if v != nil {
+		_u.SetRatingAlgorithmVersion(*v)
+	}
+	return _u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_u *ContestUpdateOne) SetPublishedAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillablePublishedAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *ContestUpdateOne) ClearPublishedAt() *ContestUpdateOne {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_u *ContestUpdateOne) SetStartedAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableStartedAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (_u *ContestUpdateOne) ClearStartedAt() *ContestUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (_u *ContestUpdateOne) SetEndedAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetEndedAt(v)
+	return _u
+}
+
+// SetNillableEndedAt sets the "ended_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableEndedAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetEndedAt(*v)
+	}
+	return _u
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (_u *ContestUpdateOne) ClearEndedAt() *ContestUpdateOne {
+	_u.mutation.ClearEndedAt()
+	return _u
+}
+
+// SetCancelledAt sets the "cancelled_at" field.
+func (_u *ContestUpdateOne) SetCancelledAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetCancelledAt(v)
+	return _u
+}
+
+// SetNillableCancelledAt sets the "cancelled_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableCancelledAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetCancelledAt(*v)
+	}
+	return _u
+}
+
+// ClearCancelledAt clears the value of the "cancelled_at" field.
+func (_u *ContestUpdateOne) ClearCancelledAt() *ContestUpdateOne {
+	_u.mutation.ClearCancelledAt()
+	return _u
+}
+
+// SetRatingCompletedAt sets the "rating_completed_at" field.
+func (_u *ContestUpdateOne) SetRatingCompletedAt(v time.Time) *ContestUpdateOne {
+	_u.mutation.SetRatingCompletedAt(v)
+	return _u
+}
+
+// SetNillableRatingCompletedAt sets the "rating_completed_at" field if the given value is not nil.
+func (_u *ContestUpdateOne) SetNillableRatingCompletedAt(v *time.Time) *ContestUpdateOne {
+	if v != nil {
+		_u.SetRatingCompletedAt(*v)
+	}
+	return _u
+}
+
+// ClearRatingCompletedAt clears the value of the "rating_completed_at" field.
+func (_u *ContestUpdateOne) ClearRatingCompletedAt() *ContestUpdateOne {
+	_u.mutation.ClearRatingCompletedAt()
+	return _u
+}
+
 // SetAuthor sets the "author" edge to the User entity.
 func (_u *ContestUpdateOne) SetAuthor(v *User) *ContestUpdateOne {
 	return _u.SetAuthorID(v.ID)
 }
 
-// AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_u *ContestUpdateOne) AddProblemIDs(ids ...int) *ContestUpdateOne {
-	_u.mutation.AddProblemIDs(ids...)
+// AddDraftProblemIDs adds the "draft_problems" edge to the ContestDraftProblem entity by IDs.
+func (_u *ContestUpdateOne) AddDraftProblemIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddDraftProblemIDs(ids...)
 	return _u
 }
 
-// AddProblems adds the "problems" edges to the Problem entity.
-func (_u *ContestUpdateOne) AddProblems(v ...*Problem) *ContestUpdateOne {
-	ids := make([]int, len(v))
+// AddDraftProblems adds the "draft_problems" edges to the ContestDraftProblem entity.
+func (_u *ContestUpdateOne) AddDraftProblems(v ...*ContestDraftProblem) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.AddProblemIDs(ids...)
+	return _u.AddDraftProblemIDs(ids...)
+}
+
+// AddContestProblemIDs adds the "contest_problems" edge to the ContestProblem entity by IDs.
+func (_u *ContestUpdateOne) AddContestProblemIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddContestProblemIDs(ids...)
+	return _u
+}
+
+// AddContestProblems adds the "contest_problems" edges to the ContestProblem entity.
+func (_u *ContestUpdateOne) AddContestProblems(v ...*ContestProblem) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContestProblemIDs(ids...)
+}
+
+// AddTransitionIDs adds the "transitions" edge to the ContestTransition entity by IDs.
+func (_u *ContestUpdateOne) AddTransitionIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddTransitionIDs(ids...)
+	return _u
+}
+
+// AddTransitions adds the "transitions" edges to the ContestTransition entity.
+func (_u *ContestUpdateOne) AddTransitions(v ...*ContestTransition) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTransitionIDs(ids...)
 }
 
 // AddRegistrationIDs adds the "registrations" edge to the ContestRegistration entity by IDs.
-func (_u *ContestUpdateOne) AddRegistrationIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) AddRegistrationIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.AddRegistrationIDs(ids...)
 	return _u
 }
 
 // AddRegistrations adds the "registrations" edges to the ContestRegistration entity.
 func (_u *ContestUpdateOne) AddRegistrations(v ...*ContestRegistration) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -991,14 +2482,14 @@ func (_u *ContestUpdateOne) AddRegistrations(v ...*ContestRegistration) *Contest
 }
 
 // AddStandingIDs adds the "standings" edge to the ContestStanding entity by IDs.
-func (_u *ContestUpdateOne) AddStandingIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) AddStandingIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.AddStandingIDs(ids...)
 	return _u
 }
 
 // AddStandings adds the "standings" edges to the ContestStanding entity.
 func (_u *ContestUpdateOne) AddStandings(v ...*ContestStanding) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1006,14 +2497,14 @@ func (_u *ContestUpdateOne) AddStandings(v ...*ContestStanding) *ContestUpdateOn
 }
 
 // AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
-func (_u *ContestUpdateOne) AddSubmissionIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) AddSubmissionIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.AddSubmissionIDs(ids...)
 	return _u
 }
 
 // AddSubmissions adds the "submissions" edges to the Submission entity.
 func (_u *ContestUpdateOne) AddSubmissions(v ...*Submission) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1021,18 +2512,123 @@ func (_u *ContestUpdateOne) AddSubmissions(v ...*Submission) *ContestUpdateOne {
 }
 
 // AddRatingHistoryIDs adds the "rating_histories" edge to the RatingHistory entity by IDs.
-func (_u *ContestUpdateOne) AddRatingHistoryIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) AddRatingHistoryIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.AddRatingHistoryIDs(ids...)
 	return _u
 }
 
 // AddRatingHistories adds the "rating_histories" edges to the RatingHistory entity.
 func (_u *ContestUpdateOne) AddRatingHistories(v ...*RatingHistory) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddRatingHistoryIDs(ids...)
+}
+
+// AddRatingSequenceSlotIDs adds the "rating_sequence_slots" edge to the RatingSequenceSlot entity by IDs.
+func (_u *ContestUpdateOne) AddRatingSequenceSlotIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddRatingSequenceSlotIDs(ids...)
+	return _u
+}
+
+// AddRatingSequenceSlots adds the "rating_sequence_slots" edges to the RatingSequenceSlot entity.
+func (_u *ContestUpdateOne) AddRatingSequenceSlots(v ...*RatingSequenceSlot) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRatingSequenceSlotIDs(ids...)
+}
+
+// AddRatingRunIDs adds the "rating_runs" edge to the ContestRatingRun entity by IDs.
+func (_u *ContestUpdateOne) AddRatingRunIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddRatingRunIDs(ids...)
+	return _u
+}
+
+// AddRatingRuns adds the "rating_runs" edges to the ContestRatingRun entity.
+func (_u *ContestUpdateOne) AddRatingRuns(v ...*ContestRatingRun) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRatingRunIDs(ids...)
+}
+
+// AddAnnouncementIDs adds the "announcements" edge to the ContestAnnouncement entity by IDs.
+func (_u *ContestUpdateOne) AddAnnouncementIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddAnnouncementIDs(ids...)
+	return _u
+}
+
+// AddAnnouncements adds the "announcements" edges to the ContestAnnouncement entity.
+func (_u *ContestUpdateOne) AddAnnouncements(v ...*ContestAnnouncement) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAnnouncementIDs(ids...)
+}
+
+// AddClarificationIDs adds the "clarifications" edge to the ContestClarification entity by IDs.
+func (_u *ContestUpdateOne) AddClarificationIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddClarificationIDs(ids...)
+	return _u
+}
+
+// AddClarifications adds the "clarifications" edges to the ContestClarification entity.
+func (_u *ContestUpdateOne) AddClarifications(v ...*ContestClarification) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddClarificationIDs(ids...)
+}
+
+// AddContentCommandIDs adds the "content_commands" edge to the ContestContentCommand entity by IDs.
+func (_u *ContestUpdateOne) AddContentCommandIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddContentCommandIDs(ids...)
+	return _u
+}
+
+// AddContentCommands adds the "content_commands" edges to the ContestContentCommand entity.
+func (_u *ContestUpdateOne) AddContentCommands(v ...*ContestContentCommand) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddContentCommandIDs(ids...)
+}
+
+// AddScoringAttemptIDs adds the "scoring_attempts" edge to the ContestScoringAttempt entity by IDs.
+func (_u *ContestUpdateOne) AddScoringAttemptIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddScoringAttemptIDs(ids...)
+	return _u
+}
+
+// AddScoringAttempts adds the "scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ContestUpdateOne) AddScoringAttempts(v ...*ContestScoringAttempt) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddScoringAttemptIDs(ids...)
+}
+
+// AddProblemResultIDs adds the "problem_results" edge to the ContestProblemResult entity by IDs.
+func (_u *ContestUpdateOne) AddProblemResultIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.AddProblemResultIDs(ids...)
+	return _u
+}
+
+// AddProblemResults adds the "problem_results" edges to the ContestProblemResult entity.
+func (_u *ContestUpdateOne) AddProblemResults(v ...*ContestProblemResult) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProblemResultIDs(ids...)
 }
 
 // Mutation returns the ContestMutation object of the builder.
@@ -1046,25 +2642,67 @@ func (_u *ContestUpdateOne) ClearAuthor() *ContestUpdateOne {
 	return _u
 }
 
-// ClearProblems clears all "problems" edges to the Problem entity.
-func (_u *ContestUpdateOne) ClearProblems() *ContestUpdateOne {
-	_u.mutation.ClearProblems()
+// ClearDraftProblems clears all "draft_problems" edges to the ContestDraftProblem entity.
+func (_u *ContestUpdateOne) ClearDraftProblems() *ContestUpdateOne {
+	_u.mutation.ClearDraftProblems()
 	return _u
 }
 
-// RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (_u *ContestUpdateOne) RemoveProblemIDs(ids ...int) *ContestUpdateOne {
-	_u.mutation.RemoveProblemIDs(ids...)
+// RemoveDraftProblemIDs removes the "draft_problems" edge to ContestDraftProblem entities by IDs.
+func (_u *ContestUpdateOne) RemoveDraftProblemIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveDraftProblemIDs(ids...)
 	return _u
 }
 
-// RemoveProblems removes "problems" edges to Problem entities.
-func (_u *ContestUpdateOne) RemoveProblems(v ...*Problem) *ContestUpdateOne {
-	ids := make([]int, len(v))
+// RemoveDraftProblems removes "draft_problems" edges to ContestDraftProblem entities.
+func (_u *ContestUpdateOne) RemoveDraftProblems(v ...*ContestDraftProblem) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.RemoveProblemIDs(ids...)
+	return _u.RemoveDraftProblemIDs(ids...)
+}
+
+// ClearContestProblems clears all "contest_problems" edges to the ContestProblem entity.
+func (_u *ContestUpdateOne) ClearContestProblems() *ContestUpdateOne {
+	_u.mutation.ClearContestProblems()
+	return _u
+}
+
+// RemoveContestProblemIDs removes the "contest_problems" edge to ContestProblem entities by IDs.
+func (_u *ContestUpdateOne) RemoveContestProblemIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveContestProblemIDs(ids...)
+	return _u
+}
+
+// RemoveContestProblems removes "contest_problems" edges to ContestProblem entities.
+func (_u *ContestUpdateOne) RemoveContestProblems(v ...*ContestProblem) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContestProblemIDs(ids...)
+}
+
+// ClearTransitions clears all "transitions" edges to the ContestTransition entity.
+func (_u *ContestUpdateOne) ClearTransitions() *ContestUpdateOne {
+	_u.mutation.ClearTransitions()
+	return _u
+}
+
+// RemoveTransitionIDs removes the "transitions" edge to ContestTransition entities by IDs.
+func (_u *ContestUpdateOne) RemoveTransitionIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveTransitionIDs(ids...)
+	return _u
+}
+
+// RemoveTransitions removes "transitions" edges to ContestTransition entities.
+func (_u *ContestUpdateOne) RemoveTransitions(v ...*ContestTransition) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTransitionIDs(ids...)
 }
 
 // ClearRegistrations clears all "registrations" edges to the ContestRegistration entity.
@@ -1074,14 +2712,14 @@ func (_u *ContestUpdateOne) ClearRegistrations() *ContestUpdateOne {
 }
 
 // RemoveRegistrationIDs removes the "registrations" edge to ContestRegistration entities by IDs.
-func (_u *ContestUpdateOne) RemoveRegistrationIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) RemoveRegistrationIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.RemoveRegistrationIDs(ids...)
 	return _u
 }
 
 // RemoveRegistrations removes "registrations" edges to ContestRegistration entities.
 func (_u *ContestUpdateOne) RemoveRegistrations(v ...*ContestRegistration) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1095,14 +2733,14 @@ func (_u *ContestUpdateOne) ClearStandings() *ContestUpdateOne {
 }
 
 // RemoveStandingIDs removes the "standings" edge to ContestStanding entities by IDs.
-func (_u *ContestUpdateOne) RemoveStandingIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) RemoveStandingIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.RemoveStandingIDs(ids...)
 	return _u
 }
 
 // RemoveStandings removes "standings" edges to ContestStanding entities.
 func (_u *ContestUpdateOne) RemoveStandings(v ...*ContestStanding) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1116,14 +2754,14 @@ func (_u *ContestUpdateOne) ClearSubmissions() *ContestUpdateOne {
 }
 
 // RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
-func (_u *ContestUpdateOne) RemoveSubmissionIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) RemoveSubmissionIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.RemoveSubmissionIDs(ids...)
 	return _u
 }
 
 // RemoveSubmissions removes "submissions" edges to Submission entities.
 func (_u *ContestUpdateOne) RemoveSubmissions(v ...*Submission) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1137,18 +2775,165 @@ func (_u *ContestUpdateOne) ClearRatingHistories() *ContestUpdateOne {
 }
 
 // RemoveRatingHistoryIDs removes the "rating_histories" edge to RatingHistory entities by IDs.
-func (_u *ContestUpdateOne) RemoveRatingHistoryIDs(ids ...int) *ContestUpdateOne {
+func (_u *ContestUpdateOne) RemoveRatingHistoryIDs(ids ...uuid.UUID) *ContestUpdateOne {
 	_u.mutation.RemoveRatingHistoryIDs(ids...)
 	return _u
 }
 
 // RemoveRatingHistories removes "rating_histories" edges to RatingHistory entities.
 func (_u *ContestUpdateOne) RemoveRatingHistories(v ...*RatingHistory) *ContestUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRatingHistoryIDs(ids...)
+}
+
+// ClearRatingSequenceSlots clears all "rating_sequence_slots" edges to the RatingSequenceSlot entity.
+func (_u *ContestUpdateOne) ClearRatingSequenceSlots() *ContestUpdateOne {
+	_u.mutation.ClearRatingSequenceSlots()
+	return _u
+}
+
+// RemoveRatingSequenceSlotIDs removes the "rating_sequence_slots" edge to RatingSequenceSlot entities by IDs.
+func (_u *ContestUpdateOne) RemoveRatingSequenceSlotIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveRatingSequenceSlotIDs(ids...)
+	return _u
+}
+
+// RemoveRatingSequenceSlots removes "rating_sequence_slots" edges to RatingSequenceSlot entities.
+func (_u *ContestUpdateOne) RemoveRatingSequenceSlots(v ...*RatingSequenceSlot) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRatingSequenceSlotIDs(ids...)
+}
+
+// ClearRatingRuns clears all "rating_runs" edges to the ContestRatingRun entity.
+func (_u *ContestUpdateOne) ClearRatingRuns() *ContestUpdateOne {
+	_u.mutation.ClearRatingRuns()
+	return _u
+}
+
+// RemoveRatingRunIDs removes the "rating_runs" edge to ContestRatingRun entities by IDs.
+func (_u *ContestUpdateOne) RemoveRatingRunIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveRatingRunIDs(ids...)
+	return _u
+}
+
+// RemoveRatingRuns removes "rating_runs" edges to ContestRatingRun entities.
+func (_u *ContestUpdateOne) RemoveRatingRuns(v ...*ContestRatingRun) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRatingRunIDs(ids...)
+}
+
+// ClearAnnouncements clears all "announcements" edges to the ContestAnnouncement entity.
+func (_u *ContestUpdateOne) ClearAnnouncements() *ContestUpdateOne {
+	_u.mutation.ClearAnnouncements()
+	return _u
+}
+
+// RemoveAnnouncementIDs removes the "announcements" edge to ContestAnnouncement entities by IDs.
+func (_u *ContestUpdateOne) RemoveAnnouncementIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveAnnouncementIDs(ids...)
+	return _u
+}
+
+// RemoveAnnouncements removes "announcements" edges to ContestAnnouncement entities.
+func (_u *ContestUpdateOne) RemoveAnnouncements(v ...*ContestAnnouncement) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAnnouncementIDs(ids...)
+}
+
+// ClearClarifications clears all "clarifications" edges to the ContestClarification entity.
+func (_u *ContestUpdateOne) ClearClarifications() *ContestUpdateOne {
+	_u.mutation.ClearClarifications()
+	return _u
+}
+
+// RemoveClarificationIDs removes the "clarifications" edge to ContestClarification entities by IDs.
+func (_u *ContestUpdateOne) RemoveClarificationIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveClarificationIDs(ids...)
+	return _u
+}
+
+// RemoveClarifications removes "clarifications" edges to ContestClarification entities.
+func (_u *ContestUpdateOne) RemoveClarifications(v ...*ContestClarification) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveClarificationIDs(ids...)
+}
+
+// ClearContentCommands clears all "content_commands" edges to the ContestContentCommand entity.
+func (_u *ContestUpdateOne) ClearContentCommands() *ContestUpdateOne {
+	_u.mutation.ClearContentCommands()
+	return _u
+}
+
+// RemoveContentCommandIDs removes the "content_commands" edge to ContestContentCommand entities by IDs.
+func (_u *ContestUpdateOne) RemoveContentCommandIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveContentCommandIDs(ids...)
+	return _u
+}
+
+// RemoveContentCommands removes "content_commands" edges to ContestContentCommand entities.
+func (_u *ContestUpdateOne) RemoveContentCommands(v ...*ContestContentCommand) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveContentCommandIDs(ids...)
+}
+
+// ClearScoringAttempts clears all "scoring_attempts" edges to the ContestScoringAttempt entity.
+func (_u *ContestUpdateOne) ClearScoringAttempts() *ContestUpdateOne {
+	_u.mutation.ClearScoringAttempts()
+	return _u
+}
+
+// RemoveScoringAttemptIDs removes the "scoring_attempts" edge to ContestScoringAttempt entities by IDs.
+func (_u *ContestUpdateOne) RemoveScoringAttemptIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveScoringAttemptIDs(ids...)
+	return _u
+}
+
+// RemoveScoringAttempts removes "scoring_attempts" edges to ContestScoringAttempt entities.
+func (_u *ContestUpdateOne) RemoveScoringAttempts(v ...*ContestScoringAttempt) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveScoringAttemptIDs(ids...)
+}
+
+// ClearProblemResults clears all "problem_results" edges to the ContestProblemResult entity.
+func (_u *ContestUpdateOne) ClearProblemResults() *ContestUpdateOne {
+	_u.mutation.ClearProblemResults()
+	return _u
+}
+
+// RemoveProblemResultIDs removes the "problem_results" edge to ContestProblemResult entities by IDs.
+func (_u *ContestUpdateOne) RemoveProblemResultIDs(ids ...uuid.UUID) *ContestUpdateOne {
+	_u.mutation.RemoveProblemResultIDs(ids...)
+	return _u
+}
+
+// RemoveProblemResults removes "problem_results" edges to ContestProblemResult entities.
+func (_u *ContestUpdateOne) RemoveProblemResults(v ...*ContestProblemResult) *ContestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProblemResultIDs(ids...)
 }
 
 // Where appends a list predicates to the ContestUpdate builder.
@@ -1218,6 +3003,46 @@ func (_u *ContestUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Contest.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := contest.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Contest.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RegistrationMode(); ok {
+		if err := contest.RegistrationModeValidator(v); err != nil {
+			return &ValidationError{Name: "registration_mode", err: fmt.Errorf(`generate: validator failed for field "Contest.registration_mode": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.MaxParticipants(); ok {
+		if err := contest.MaxParticipantsValidator(v); err != nil {
+			return &ValidationError{Name: "max_participants", err: fmt.Errorf(`generate: validator failed for field "Contest.max_participants": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.NextSubmissionSequence(); ok {
+		if err := contest.NextSubmissionSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "next_submission_sequence", err: fmt.Errorf(`generate: validator failed for field "Contest.next_submission_sequence": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ScoringPolicy(); ok {
+		if err := contest.ScoringPolicyValidator(v); err != nil {
+			return &ValidationError{Name: "scoring_policy", err: fmt.Errorf(`generate: validator failed for field "Contest.scoring_policy": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ScoringPolicyVersion(); ok {
+		if err := contest.ScoringPolicyVersionValidator(v); err != nil {
+			return &ValidationError{Name: "scoring_policy_version", err: fmt.Errorf(`generate: validator failed for field "Contest.scoring_policy_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.StandingsProjectionVersion(); ok {
+		if err := contest.StandingsProjectionVersionValidator(v); err != nil {
+			return &ValidationError{Name: "standings_projection_version", err: fmt.Errorf(`generate: validator failed for field "Contest.standings_projection_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RatingAlgorithmVersion(); ok {
+		if err := contest.RatingAlgorithmVersionValidator(v); err != nil {
+			return &ValidationError{Name: "rating_algorithm_version", err: fmt.Errorf(`generate: validator failed for field "Contest.rating_algorithm_version": %w`, err)}
+		}
+	}
 	if _u.mutation.AuthorCleared() && len(_u.mutation.AuthorIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Contest.author"`)
 	}
@@ -1234,7 +3059,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Contest.id" for update`)}
@@ -1269,13 +3094,10 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 		_spec.ClearField(contest.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(contest.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(contest.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(contest.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(contest.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(contest.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(contest.FieldTitle, field.TypeString, value)
@@ -1295,11 +3117,98 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(contest.FieldStatus, field.TypeEnum, value)
 	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(contest.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(contest.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.RegistrationMode(); ok {
+		_spec.SetField(contest.FieldRegistrationMode, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.RegistrationOpensAt(); ok {
+		_spec.SetField(contest.FieldRegistrationOpensAt, field.TypeTime, value)
+	}
+	if _u.mutation.RegistrationOpensAtCleared() {
+		_spec.ClearField(contest.FieldRegistrationOpensAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RegistrationClosesAt(); ok {
+		_spec.SetField(contest.FieldRegistrationClosesAt, field.TypeTime, value)
+	}
+	if _u.mutation.RegistrationClosesAtCleared() {
+		_spec.ClearField(contest.FieldRegistrationClosesAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.MaxParticipants(); ok {
 		_spec.SetField(contest.FieldMaxParticipants, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AddedMaxParticipants(); ok {
 		_spec.AddField(contest.FieldMaxParticipants, field.TypeInt, value)
+	}
+	if _u.mutation.MaxParticipantsCleared() {
+		_spec.ClearField(contest.FieldMaxParticipants, field.TypeInt)
+	}
+	if value, ok := _u.mutation.NextSubmissionSequence(); ok {
+		_spec.SetField(contest.FieldNextSubmissionSequence, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedNextSubmissionSequence(); ok {
+		_spec.AddField(contest.FieldNextSubmissionSequence, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ScoringPolicy(); ok {
+		_spec.SetField(contest.FieldScoringPolicy, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.ScoringPolicyVersion(); ok {
+		_spec.SetField(contest.FieldScoringPolicyVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedScoringPolicyVersion(); ok {
+		_spec.AddField(contest.FieldScoringPolicyVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.StandingsProjectionVersion(); ok {
+		_spec.SetField(contest.FieldStandingsProjectionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedStandingsProjectionVersion(); ok {
+		_spec.AddField(contest.FieldStandingsProjectionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.FreezeStandingsAt(); ok {
+		_spec.SetField(contest.FieldFreezeStandingsAt, field.TypeTime, value)
+	}
+	if _u.mutation.FreezeStandingsAtCleared() {
+		_spec.ClearField(contest.FieldFreezeStandingsAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Rated(); ok {
+		_spec.SetField(contest.FieldRated, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.RatingAlgorithmVersion(); ok {
+		_spec.SetField(contest.FieldRatingAlgorithmVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(contest.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(contest.FieldPublishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartedAt(); ok {
+		_spec.SetField(contest.FieldStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartedAtCleared() {
+		_spec.ClearField(contest.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.EndedAt(); ok {
+		_spec.SetField(contest.FieldEndedAt, field.TypeTime, value)
+	}
+	if _u.mutation.EndedAtCleared() {
+		_spec.ClearField(contest.FieldEndedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CancelledAt(); ok {
+		_spec.SetField(contest.FieldCancelledAt, field.TypeTime, value)
+	}
+	if _u.mutation.CancelledAtCleared() {
+		_spec.ClearField(contest.FieldCancelledAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RatingCompletedAt(); ok {
+		_spec.SetField(contest.FieldRatingCompletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.RatingCompletedAtCleared() {
+		_spec.ClearField(contest.FieldRatingCompletedAt, field.TypeTime)
 	}
 	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1309,7 +3218,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1322,7 +3231,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1330,28 +3239,28 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if _u.mutation.ProblemsCleared() {
+	if _u.mutation.DraftProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.RemovedProblemsIDs(); len(nodes) > 0 && !_u.mutation.ProblemsCleared() {
+	if nodes := _u.mutation.RemovedDraftProblemsIDs(); len(nodes) > 0 && !_u.mutation.DraftProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1359,15 +3268,105 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ProblemsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DraftProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Table:   contest.DraftProblemsTable,
+			Columns: []string{contest.DraftProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestdraftproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContestProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContestProblemsIDs(); len(nodes) > 0 && !_u.mutation.ContestProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContestProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestProblemsTable,
+			Columns: []string{contest.ContestProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblem.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTransitionsIDs(); len(nodes) > 0 && !_u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TransitionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.TransitionsTable,
+			Columns: []string{contest.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contesttransition.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1383,7 +3382,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1396,7 +3395,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1412,7 +3411,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.RegistrationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1428,7 +3427,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1441,7 +3440,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1457,7 +3456,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.StandingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(conteststanding.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1473,7 +3472,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1486,7 +3485,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1502,7 +3501,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.SubmissionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1518,7 +3517,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1531,7 +3530,7 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1547,7 +3546,322 @@ func (_u *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err er
 			Columns: []string{contest.RatingHistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingSequenceSlotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRatingSequenceSlotsIDs(); len(nodes) > 0 && !_u.mutation.RatingSequenceSlotsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingSequenceSlotsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingSequenceSlotsTable,
+			Columns: []string{contest.RatingSequenceSlotsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(ratingsequenceslot.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingRunsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRatingRunsIDs(); len(nodes) > 0 && !_u.mutation.RatingRunsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingRunsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.RatingRunsTable,
+			Columns: []string{contest.RatingRunsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AnnouncementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAnnouncementsIDs(); len(nodes) > 0 && !_u.mutation.AnnouncementsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AnnouncementsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.AnnouncementsTable,
+			Columns: []string{contest.AnnouncementsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestannouncement.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedClarificationsIDs(); len(nodes) > 0 && !_u.mutation.ClarificationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ClarificationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ClarificationsTable,
+			Columns: []string{contest.ClarificationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestclarification.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedContentCommandsIDs(); len(nodes) > 0 && !_u.mutation.ContentCommandsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ContentCommandsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContentCommandsTable,
+			Columns: []string{contest.ContentCommandsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedScoringAttemptsIDs(); len(nodes) > 0 && !_u.mutation.ScoringAttemptsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ScoringAttemptsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ScoringAttemptsTable,
+			Columns: []string{contest.ScoringAttemptsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestscoringattempt.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProblemResultsIDs(); len(nodes) > 0 && !_u.mutation.ProblemResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProblemResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemResultsTable,
+			Columns: []string{contest.ProblemResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestproblemresult.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

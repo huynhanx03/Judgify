@@ -4,8 +4,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -17,16 +19,17 @@ type MaterialCategory struct {
 // Mixin of the MaterialCategory.
 func (MaterialCategory) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the MaterialCategory.
 func (MaterialCategory) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(100),
 		field.String("description").
@@ -35,9 +38,14 @@ func (MaterialCategory) Fields() []ent.Field {
 	}
 }
 
+func (MaterialCategory) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("tenant_id", "name").Unique()}
+}
+
 // Edges of the MaterialCategory.
 func (MaterialCategory) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("materials", Material.Type),
+		edge.To("revisions", MaterialRevision.Type),
+		edge.To("legacy_materials", Material.Type),
 	}
 }

@@ -10,7 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -31,13 +33,13 @@ func (_u *RatingHistoryUpdate) Where(ps ...predicate.RatingHistory) *RatingHisto
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *RatingHistoryUpdate) SetUserID(v int) *RatingHistoryUpdate {
+func (_u *RatingHistoryUpdate) SetUserID(v uuid.UUID) *RatingHistoryUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *RatingHistoryUpdate) SetNillableUserID(v *int) *RatingHistoryUpdate {
+func (_u *RatingHistoryUpdate) SetNillableUserID(v *uuid.UUID) *RatingHistoryUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -45,16 +47,90 @@ func (_u *RatingHistoryUpdate) SetNillableUserID(v *int) *RatingHistoryUpdate {
 }
 
 // SetContestID sets the "contest_id" field.
-func (_u *RatingHistoryUpdate) SetContestID(v int) *RatingHistoryUpdate {
+func (_u *RatingHistoryUpdate) SetContestID(v uuid.UUID) *RatingHistoryUpdate {
 	_u.mutation.SetContestID(v)
 	return _u
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *RatingHistoryUpdate) SetNillableContestID(v *int) *RatingHistoryUpdate {
+func (_u *RatingHistoryUpdate) SetNillableContestID(v *uuid.UUID) *RatingHistoryUpdate {
 	if v != nil {
 		_u.SetContestID(*v)
 	}
+	return _u
+}
+
+// SetRatingRunID sets the "rating_run_id" field.
+func (_u *RatingHistoryUpdate) SetRatingRunID(v uuid.UUID) *RatingHistoryUpdate {
+	_u.mutation.SetRatingRunID(v)
+	return _u
+}
+
+// SetNillableRatingRunID sets the "rating_run_id" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableRatingRunID(v *uuid.UUID) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetRatingRunID(*v)
+	}
+	return _u
+}
+
+// ClearRatingRunID clears the value of the "rating_run_id" field.
+func (_u *RatingHistoryUpdate) ClearRatingRunID() *RatingHistoryUpdate {
+	_u.mutation.ClearRatingRunID()
+	return _u
+}
+
+// SetRatingSequence sets the "rating_sequence" field.
+func (_u *RatingHistoryUpdate) SetRatingSequence(v int64) *RatingHistoryUpdate {
+	_u.mutation.ResetRatingSequence()
+	_u.mutation.SetRatingSequence(v)
+	return _u
+}
+
+// SetNillableRatingSequence sets the "rating_sequence" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableRatingSequence(v *int64) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetRatingSequence(*v)
+	}
+	return _u
+}
+
+// AddRatingSequence adds value to the "rating_sequence" field.
+func (_u *RatingHistoryUpdate) AddRatingSequence(v int64) *RatingHistoryUpdate {
+	_u.mutation.AddRatingSequence(v)
+	return _u
+}
+
+// ClearRatingSequence clears the value of the "rating_sequence" field.
+func (_u *RatingHistoryUpdate) ClearRatingSequence() *RatingHistoryUpdate {
+	_u.mutation.ClearRatingSequence()
+	return _u
+}
+
+// SetRunVersion sets the "run_version" field.
+func (_u *RatingHistoryUpdate) SetRunVersion(v int64) *RatingHistoryUpdate {
+	_u.mutation.ResetRunVersion()
+	_u.mutation.SetRunVersion(v)
+	return _u
+}
+
+// SetNillableRunVersion sets the "run_version" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableRunVersion(v *int64) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetRunVersion(*v)
+	}
+	return _u
+}
+
+// AddRunVersion adds value to the "run_version" field.
+func (_u *RatingHistoryUpdate) AddRunVersion(v int64) *RatingHistoryUpdate {
+	_u.mutation.AddRunVersion(v)
+	return _u
+}
+
+// ClearRunVersion clears the value of the "run_version" field.
+func (_u *RatingHistoryUpdate) ClearRunVersion() *RatingHistoryUpdate {
+	_u.mutation.ClearRunVersion()
 	return _u
 }
 
@@ -121,6 +197,122 @@ func (_u *RatingHistoryUpdate) AddRankPosition(v int) *RatingHistoryUpdate {
 	return _u
 }
 
+// SetPriorRatedContestCount sets the "prior_rated_contest_count" field.
+func (_u *RatingHistoryUpdate) SetPriorRatedContestCount(v int) *RatingHistoryUpdate {
+	_u.mutation.ResetPriorRatedContestCount()
+	_u.mutation.SetPriorRatedContestCount(v)
+	return _u
+}
+
+// SetNillablePriorRatedContestCount sets the "prior_rated_contest_count" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillablePriorRatedContestCount(v *int) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetPriorRatedContestCount(*v)
+	}
+	return _u
+}
+
+// AddPriorRatedContestCount adds value to the "prior_rated_contest_count" field.
+func (_u *RatingHistoryUpdate) AddPriorRatedContestCount(v int) *RatingHistoryUpdate {
+	_u.mutation.AddPriorRatedContestCount(v)
+	return _u
+}
+
+// SetActualRank sets the "actual_rank" field.
+func (_u *RatingHistoryUpdate) SetActualRank(v float64) *RatingHistoryUpdate {
+	_u.mutation.ResetActualRank()
+	_u.mutation.SetActualRank(v)
+	return _u
+}
+
+// SetNillableActualRank sets the "actual_rank" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableActualRank(v *float64) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetActualRank(*v)
+	}
+	return _u
+}
+
+// AddActualRank adds value to the "actual_rank" field.
+func (_u *RatingHistoryUpdate) AddActualRank(v float64) *RatingHistoryUpdate {
+	_u.mutation.AddActualRank(v)
+	return _u
+}
+
+// ClearActualRank clears the value of the "actual_rank" field.
+func (_u *RatingHistoryUpdate) ClearActualRank() *RatingHistoryUpdate {
+	_u.mutation.ClearActualRank()
+	return _u
+}
+
+// SetExpectedRank sets the "expected_rank" field.
+func (_u *RatingHistoryUpdate) SetExpectedRank(v float64) *RatingHistoryUpdate {
+	_u.mutation.ResetExpectedRank()
+	_u.mutation.SetExpectedRank(v)
+	return _u
+}
+
+// SetNillableExpectedRank sets the "expected_rank" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableExpectedRank(v *float64) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetExpectedRank(*v)
+	}
+	return _u
+}
+
+// AddExpectedRank adds value to the "expected_rank" field.
+func (_u *RatingHistoryUpdate) AddExpectedRank(v float64) *RatingHistoryUpdate {
+	_u.mutation.AddExpectedRank(v)
+	return _u
+}
+
+// ClearExpectedRank clears the value of the "expected_rank" field.
+func (_u *RatingHistoryUpdate) ClearExpectedRank() *RatingHistoryUpdate {
+	_u.mutation.ClearExpectedRank()
+	return _u
+}
+
+// SetDelta sets the "delta" field.
+func (_u *RatingHistoryUpdate) SetDelta(v int) *RatingHistoryUpdate {
+	_u.mutation.ResetDelta()
+	_u.mutation.SetDelta(v)
+	return _u
+}
+
+// SetNillableDelta sets the "delta" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableDelta(v *int) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetDelta(*v)
+	}
+	return _u
+}
+
+// AddDelta adds value to the "delta" field.
+func (_u *RatingHistoryUpdate) AddDelta(v int) *RatingHistoryUpdate {
+	_u.mutation.AddDelta(v)
+	return _u
+}
+
+// SetAlgorithmVersion sets the "algorithm_version" field.
+func (_u *RatingHistoryUpdate) SetAlgorithmVersion(v string) *RatingHistoryUpdate {
+	_u.mutation.SetAlgorithmVersion(v)
+	return _u
+}
+
+// SetNillableAlgorithmVersion sets the "algorithm_version" field if the given value is not nil.
+func (_u *RatingHistoryUpdate) SetNillableAlgorithmVersion(v *string) *RatingHistoryUpdate {
+	if v != nil {
+		_u.SetAlgorithmVersion(*v)
+	}
+	return _u
+}
+
+// ClearAlgorithmVersion clears the value of the "algorithm_version" field.
+func (_u *RatingHistoryUpdate) ClearAlgorithmVersion() *RatingHistoryUpdate {
+	_u.mutation.ClearAlgorithmVersion()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *RatingHistoryUpdate) SetUser(v *User) *RatingHistoryUpdate {
 	return _u.SetUserID(v.ID)
@@ -129,6 +321,11 @@ func (_u *RatingHistoryUpdate) SetUser(v *User) *RatingHistoryUpdate {
 // SetContest sets the "contest" edge to the Contest entity.
 func (_u *RatingHistoryUpdate) SetContest(v *Contest) *RatingHistoryUpdate {
 	return _u.SetContestID(v.ID)
+}
+
+// SetRatingRun sets the "rating_run" edge to the ContestRatingRun entity.
+func (_u *RatingHistoryUpdate) SetRatingRun(v *ContestRatingRun) *RatingHistoryUpdate {
+	return _u.SetRatingRunID(v.ID)
 }
 
 // Mutation returns the RatingHistoryMutation object of the builder.
@@ -145,6 +342,12 @@ func (_u *RatingHistoryUpdate) ClearUser() *RatingHistoryUpdate {
 // ClearContest clears the "contest" edge to the Contest entity.
 func (_u *RatingHistoryUpdate) ClearContest() *RatingHistoryUpdate {
 	_u.mutation.ClearContest()
+	return _u
+}
+
+// ClearRatingRun clears the "rating_run" edge to the ContestRatingRun entity.
+func (_u *RatingHistoryUpdate) ClearRatingRun() *RatingHistoryUpdate {
+	_u.mutation.ClearRatingRun()
 	return _u
 }
 
@@ -177,6 +380,36 @@ func (_u *RatingHistoryUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RatingHistoryUpdate) check() error {
+	if v, ok := _u.mutation.RatingSequence(); ok {
+		if err := ratinghistory.RatingSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "rating_sequence", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.rating_sequence": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RunVersion(); ok {
+		if err := ratinghistory.RunVersionValidator(v); err != nil {
+			return &ValidationError{Name: "run_version", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.run_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PriorRatedContestCount(); ok {
+		if err := ratinghistory.PriorRatedContestCountValidator(v); err != nil {
+			return &ValidationError{Name: "prior_rated_contest_count", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.prior_rated_contest_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ActualRank(); ok {
+		if err := ratinghistory.ActualRankValidator(v); err != nil {
+			return &ValidationError{Name: "actual_rank", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.actual_rank": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ExpectedRank(); ok {
+		if err := ratinghistory.ExpectedRankValidator(v); err != nil {
+			return &ValidationError{Name: "expected_rank", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.expected_rank": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AlgorithmVersion(); ok {
+		if err := ratinghistory.AlgorithmVersionValidator(v); err != nil {
+			return &ValidationError{Name: "algorithm_version", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.algorithm_version": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "RatingHistory.user"`)
 	}
@@ -196,13 +429,31 @@ func (_u *RatingHistoryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(ratinghistory.Table, ratinghistory.Columns, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(ratinghistory.Table, ratinghistory.Columns, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.RatingSequence(); ok {
+		_spec.SetField(ratinghistory.FieldRatingSequence, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedRatingSequence(); ok {
+		_spec.AddField(ratinghistory.FieldRatingSequence, field.TypeInt64, value)
+	}
+	if _u.mutation.RatingSequenceCleared() {
+		_spec.ClearField(ratinghistory.FieldRatingSequence, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.RunVersion(); ok {
+		_spec.SetField(ratinghistory.FieldRunVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedRunVersion(); ok {
+		_spec.AddField(ratinghistory.FieldRunVersion, field.TypeInt64, value)
+	}
+	if _u.mutation.RunVersionCleared() {
+		_spec.ClearField(ratinghistory.FieldRunVersion, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.OldRating(); ok {
 		_spec.SetField(ratinghistory.FieldOldRating, field.TypeInt, value)
@@ -222,6 +473,42 @@ func (_u *RatingHistoryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.AddedRankPosition(); ok {
 		_spec.AddField(ratinghistory.FieldRankPosition, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.PriorRatedContestCount(); ok {
+		_spec.SetField(ratinghistory.FieldPriorRatedContestCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedPriorRatedContestCount(); ok {
+		_spec.AddField(ratinghistory.FieldPriorRatedContestCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.ActualRank(); ok {
+		_spec.SetField(ratinghistory.FieldActualRank, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedActualRank(); ok {
+		_spec.AddField(ratinghistory.FieldActualRank, field.TypeFloat64, value)
+	}
+	if _u.mutation.ActualRankCleared() {
+		_spec.ClearField(ratinghistory.FieldActualRank, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.ExpectedRank(); ok {
+		_spec.SetField(ratinghistory.FieldExpectedRank, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedExpectedRank(); ok {
+		_spec.AddField(ratinghistory.FieldExpectedRank, field.TypeFloat64, value)
+	}
+	if _u.mutation.ExpectedRankCleared() {
+		_spec.ClearField(ratinghistory.FieldExpectedRank, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.Delta(); ok {
+		_spec.SetField(ratinghistory.FieldDelta, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDelta(); ok {
+		_spec.AddField(ratinghistory.FieldDelta, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AlgorithmVersion(); ok {
+		_spec.SetField(ratinghistory.FieldAlgorithmVersion, field.TypeString, value)
+	}
+	if _u.mutation.AlgorithmVersionCleared() {
+		_spec.ClearField(ratinghistory.FieldAlgorithmVersion, field.TypeString)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -230,7 +517,7 @@ func (_u *RatingHistoryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			Columns: []string{ratinghistory.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -243,7 +530,7 @@ func (_u *RatingHistoryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			Columns: []string{ratinghistory.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -259,7 +546,7 @@ func (_u *RatingHistoryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			Columns: []string{ratinghistory.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -272,7 +559,36 @@ func (_u *RatingHistoryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			Columns: []string{ratinghistory.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingRunCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   ratinghistory.RatingRunTable,
+			Columns: []string{ratinghistory.RatingRunColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingRunIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   ratinghistory.RatingRunTable,
+			Columns: []string{ratinghistory.RatingRunColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -303,13 +619,13 @@ type RatingHistoryUpdateOne struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *RatingHistoryUpdateOne) SetUserID(v int) *RatingHistoryUpdateOne {
+func (_u *RatingHistoryUpdateOne) SetUserID(v uuid.UUID) *RatingHistoryUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *RatingHistoryUpdateOne) SetNillableUserID(v *int) *RatingHistoryUpdateOne {
+func (_u *RatingHistoryUpdateOne) SetNillableUserID(v *uuid.UUID) *RatingHistoryUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -317,16 +633,90 @@ func (_u *RatingHistoryUpdateOne) SetNillableUserID(v *int) *RatingHistoryUpdate
 }
 
 // SetContestID sets the "contest_id" field.
-func (_u *RatingHistoryUpdateOne) SetContestID(v int) *RatingHistoryUpdateOne {
+func (_u *RatingHistoryUpdateOne) SetContestID(v uuid.UUID) *RatingHistoryUpdateOne {
 	_u.mutation.SetContestID(v)
 	return _u
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *RatingHistoryUpdateOne) SetNillableContestID(v *int) *RatingHistoryUpdateOne {
+func (_u *RatingHistoryUpdateOne) SetNillableContestID(v *uuid.UUID) *RatingHistoryUpdateOne {
 	if v != nil {
 		_u.SetContestID(*v)
 	}
+	return _u
+}
+
+// SetRatingRunID sets the "rating_run_id" field.
+func (_u *RatingHistoryUpdateOne) SetRatingRunID(v uuid.UUID) *RatingHistoryUpdateOne {
+	_u.mutation.SetRatingRunID(v)
+	return _u
+}
+
+// SetNillableRatingRunID sets the "rating_run_id" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableRatingRunID(v *uuid.UUID) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetRatingRunID(*v)
+	}
+	return _u
+}
+
+// ClearRatingRunID clears the value of the "rating_run_id" field.
+func (_u *RatingHistoryUpdateOne) ClearRatingRunID() *RatingHistoryUpdateOne {
+	_u.mutation.ClearRatingRunID()
+	return _u
+}
+
+// SetRatingSequence sets the "rating_sequence" field.
+func (_u *RatingHistoryUpdateOne) SetRatingSequence(v int64) *RatingHistoryUpdateOne {
+	_u.mutation.ResetRatingSequence()
+	_u.mutation.SetRatingSequence(v)
+	return _u
+}
+
+// SetNillableRatingSequence sets the "rating_sequence" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableRatingSequence(v *int64) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetRatingSequence(*v)
+	}
+	return _u
+}
+
+// AddRatingSequence adds value to the "rating_sequence" field.
+func (_u *RatingHistoryUpdateOne) AddRatingSequence(v int64) *RatingHistoryUpdateOne {
+	_u.mutation.AddRatingSequence(v)
+	return _u
+}
+
+// ClearRatingSequence clears the value of the "rating_sequence" field.
+func (_u *RatingHistoryUpdateOne) ClearRatingSequence() *RatingHistoryUpdateOne {
+	_u.mutation.ClearRatingSequence()
+	return _u
+}
+
+// SetRunVersion sets the "run_version" field.
+func (_u *RatingHistoryUpdateOne) SetRunVersion(v int64) *RatingHistoryUpdateOne {
+	_u.mutation.ResetRunVersion()
+	_u.mutation.SetRunVersion(v)
+	return _u
+}
+
+// SetNillableRunVersion sets the "run_version" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableRunVersion(v *int64) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetRunVersion(*v)
+	}
+	return _u
+}
+
+// AddRunVersion adds value to the "run_version" field.
+func (_u *RatingHistoryUpdateOne) AddRunVersion(v int64) *RatingHistoryUpdateOne {
+	_u.mutation.AddRunVersion(v)
+	return _u
+}
+
+// ClearRunVersion clears the value of the "run_version" field.
+func (_u *RatingHistoryUpdateOne) ClearRunVersion() *RatingHistoryUpdateOne {
+	_u.mutation.ClearRunVersion()
 	return _u
 }
 
@@ -393,6 +783,122 @@ func (_u *RatingHistoryUpdateOne) AddRankPosition(v int) *RatingHistoryUpdateOne
 	return _u
 }
 
+// SetPriorRatedContestCount sets the "prior_rated_contest_count" field.
+func (_u *RatingHistoryUpdateOne) SetPriorRatedContestCount(v int) *RatingHistoryUpdateOne {
+	_u.mutation.ResetPriorRatedContestCount()
+	_u.mutation.SetPriorRatedContestCount(v)
+	return _u
+}
+
+// SetNillablePriorRatedContestCount sets the "prior_rated_contest_count" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillablePriorRatedContestCount(v *int) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetPriorRatedContestCount(*v)
+	}
+	return _u
+}
+
+// AddPriorRatedContestCount adds value to the "prior_rated_contest_count" field.
+func (_u *RatingHistoryUpdateOne) AddPriorRatedContestCount(v int) *RatingHistoryUpdateOne {
+	_u.mutation.AddPriorRatedContestCount(v)
+	return _u
+}
+
+// SetActualRank sets the "actual_rank" field.
+func (_u *RatingHistoryUpdateOne) SetActualRank(v float64) *RatingHistoryUpdateOne {
+	_u.mutation.ResetActualRank()
+	_u.mutation.SetActualRank(v)
+	return _u
+}
+
+// SetNillableActualRank sets the "actual_rank" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableActualRank(v *float64) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetActualRank(*v)
+	}
+	return _u
+}
+
+// AddActualRank adds value to the "actual_rank" field.
+func (_u *RatingHistoryUpdateOne) AddActualRank(v float64) *RatingHistoryUpdateOne {
+	_u.mutation.AddActualRank(v)
+	return _u
+}
+
+// ClearActualRank clears the value of the "actual_rank" field.
+func (_u *RatingHistoryUpdateOne) ClearActualRank() *RatingHistoryUpdateOne {
+	_u.mutation.ClearActualRank()
+	return _u
+}
+
+// SetExpectedRank sets the "expected_rank" field.
+func (_u *RatingHistoryUpdateOne) SetExpectedRank(v float64) *RatingHistoryUpdateOne {
+	_u.mutation.ResetExpectedRank()
+	_u.mutation.SetExpectedRank(v)
+	return _u
+}
+
+// SetNillableExpectedRank sets the "expected_rank" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableExpectedRank(v *float64) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetExpectedRank(*v)
+	}
+	return _u
+}
+
+// AddExpectedRank adds value to the "expected_rank" field.
+func (_u *RatingHistoryUpdateOne) AddExpectedRank(v float64) *RatingHistoryUpdateOne {
+	_u.mutation.AddExpectedRank(v)
+	return _u
+}
+
+// ClearExpectedRank clears the value of the "expected_rank" field.
+func (_u *RatingHistoryUpdateOne) ClearExpectedRank() *RatingHistoryUpdateOne {
+	_u.mutation.ClearExpectedRank()
+	return _u
+}
+
+// SetDelta sets the "delta" field.
+func (_u *RatingHistoryUpdateOne) SetDelta(v int) *RatingHistoryUpdateOne {
+	_u.mutation.ResetDelta()
+	_u.mutation.SetDelta(v)
+	return _u
+}
+
+// SetNillableDelta sets the "delta" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableDelta(v *int) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetDelta(*v)
+	}
+	return _u
+}
+
+// AddDelta adds value to the "delta" field.
+func (_u *RatingHistoryUpdateOne) AddDelta(v int) *RatingHistoryUpdateOne {
+	_u.mutation.AddDelta(v)
+	return _u
+}
+
+// SetAlgorithmVersion sets the "algorithm_version" field.
+func (_u *RatingHistoryUpdateOne) SetAlgorithmVersion(v string) *RatingHistoryUpdateOne {
+	_u.mutation.SetAlgorithmVersion(v)
+	return _u
+}
+
+// SetNillableAlgorithmVersion sets the "algorithm_version" field if the given value is not nil.
+func (_u *RatingHistoryUpdateOne) SetNillableAlgorithmVersion(v *string) *RatingHistoryUpdateOne {
+	if v != nil {
+		_u.SetAlgorithmVersion(*v)
+	}
+	return _u
+}
+
+// ClearAlgorithmVersion clears the value of the "algorithm_version" field.
+func (_u *RatingHistoryUpdateOne) ClearAlgorithmVersion() *RatingHistoryUpdateOne {
+	_u.mutation.ClearAlgorithmVersion()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *RatingHistoryUpdateOne) SetUser(v *User) *RatingHistoryUpdateOne {
 	return _u.SetUserID(v.ID)
@@ -401,6 +907,11 @@ func (_u *RatingHistoryUpdateOne) SetUser(v *User) *RatingHistoryUpdateOne {
 // SetContest sets the "contest" edge to the Contest entity.
 func (_u *RatingHistoryUpdateOne) SetContest(v *Contest) *RatingHistoryUpdateOne {
 	return _u.SetContestID(v.ID)
+}
+
+// SetRatingRun sets the "rating_run" edge to the ContestRatingRun entity.
+func (_u *RatingHistoryUpdateOne) SetRatingRun(v *ContestRatingRun) *RatingHistoryUpdateOne {
+	return _u.SetRatingRunID(v.ID)
 }
 
 // Mutation returns the RatingHistoryMutation object of the builder.
@@ -417,6 +928,12 @@ func (_u *RatingHistoryUpdateOne) ClearUser() *RatingHistoryUpdateOne {
 // ClearContest clears the "contest" edge to the Contest entity.
 func (_u *RatingHistoryUpdateOne) ClearContest() *RatingHistoryUpdateOne {
 	_u.mutation.ClearContest()
+	return _u
+}
+
+// ClearRatingRun clears the "rating_run" edge to the ContestRatingRun entity.
+func (_u *RatingHistoryUpdateOne) ClearRatingRun() *RatingHistoryUpdateOne {
+	_u.mutation.ClearRatingRun()
 	return _u
 }
 
@@ -462,6 +979,36 @@ func (_u *RatingHistoryUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RatingHistoryUpdateOne) check() error {
+	if v, ok := _u.mutation.RatingSequence(); ok {
+		if err := ratinghistory.RatingSequenceValidator(v); err != nil {
+			return &ValidationError{Name: "rating_sequence", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.rating_sequence": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RunVersion(); ok {
+		if err := ratinghistory.RunVersionValidator(v); err != nil {
+			return &ValidationError{Name: "run_version", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.run_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PriorRatedContestCount(); ok {
+		if err := ratinghistory.PriorRatedContestCountValidator(v); err != nil {
+			return &ValidationError{Name: "prior_rated_contest_count", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.prior_rated_contest_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ActualRank(); ok {
+		if err := ratinghistory.ActualRankValidator(v); err != nil {
+			return &ValidationError{Name: "actual_rank", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.actual_rank": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ExpectedRank(); ok {
+		if err := ratinghistory.ExpectedRankValidator(v); err != nil {
+			return &ValidationError{Name: "expected_rank", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.expected_rank": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AlgorithmVersion(); ok {
+		if err := ratinghistory.AlgorithmVersionValidator(v); err != nil {
+			return &ValidationError{Name: "algorithm_version", err: fmt.Errorf(`generate: validator failed for field "RatingHistory.algorithm_version": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "RatingHistory.user"`)
 	}
@@ -481,7 +1028,7 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(ratinghistory.Table, ratinghistory.Columns, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(ratinghistory.Table, ratinghistory.Columns, sqlgraph.NewFieldSpec(ratinghistory.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "RatingHistory.id" for update`)}
@@ -506,6 +1053,24 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 			}
 		}
 	}
+	if value, ok := _u.mutation.RatingSequence(); ok {
+		_spec.SetField(ratinghistory.FieldRatingSequence, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedRatingSequence(); ok {
+		_spec.AddField(ratinghistory.FieldRatingSequence, field.TypeInt64, value)
+	}
+	if _u.mutation.RatingSequenceCleared() {
+		_spec.ClearField(ratinghistory.FieldRatingSequence, field.TypeInt64)
+	}
+	if value, ok := _u.mutation.RunVersion(); ok {
+		_spec.SetField(ratinghistory.FieldRunVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedRunVersion(); ok {
+		_spec.AddField(ratinghistory.FieldRunVersion, field.TypeInt64, value)
+	}
+	if _u.mutation.RunVersionCleared() {
+		_spec.ClearField(ratinghistory.FieldRunVersion, field.TypeInt64)
+	}
 	if value, ok := _u.mutation.OldRating(); ok {
 		_spec.SetField(ratinghistory.FieldOldRating, field.TypeInt, value)
 	}
@@ -524,6 +1089,42 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 	if value, ok := _u.mutation.AddedRankPosition(); ok {
 		_spec.AddField(ratinghistory.FieldRankPosition, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.PriorRatedContestCount(); ok {
+		_spec.SetField(ratinghistory.FieldPriorRatedContestCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedPriorRatedContestCount(); ok {
+		_spec.AddField(ratinghistory.FieldPriorRatedContestCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.ActualRank(); ok {
+		_spec.SetField(ratinghistory.FieldActualRank, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedActualRank(); ok {
+		_spec.AddField(ratinghistory.FieldActualRank, field.TypeFloat64, value)
+	}
+	if _u.mutation.ActualRankCleared() {
+		_spec.ClearField(ratinghistory.FieldActualRank, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.ExpectedRank(); ok {
+		_spec.SetField(ratinghistory.FieldExpectedRank, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedExpectedRank(); ok {
+		_spec.AddField(ratinghistory.FieldExpectedRank, field.TypeFloat64, value)
+	}
+	if _u.mutation.ExpectedRankCleared() {
+		_spec.ClearField(ratinghistory.FieldExpectedRank, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.Delta(); ok {
+		_spec.SetField(ratinghistory.FieldDelta, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDelta(); ok {
+		_spec.AddField(ratinghistory.FieldDelta, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AlgorithmVersion(); ok {
+		_spec.SetField(ratinghistory.FieldAlgorithmVersion, field.TypeString, value)
+	}
+	if _u.mutation.AlgorithmVersionCleared() {
+		_spec.ClearField(ratinghistory.FieldAlgorithmVersion, field.TypeString)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -532,7 +1133,7 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 			Columns: []string{ratinghistory.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -545,7 +1146,7 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 			Columns: []string{ratinghistory.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -561,7 +1162,7 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 			Columns: []string{ratinghistory.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -574,7 +1175,36 @@ func (_u *RatingHistoryUpdateOne) sqlSave(ctx context.Context) (_node *RatingHis
 			Columns: []string{ratinghistory.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RatingRunCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   ratinghistory.RatingRunTable,
+			Columns: []string{ratinghistory.RatingRunColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RatingRunIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   ratinghistory.RatingRunTable,
+			Columns: []string{ratinghistory.RatingRunColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestratingrun.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

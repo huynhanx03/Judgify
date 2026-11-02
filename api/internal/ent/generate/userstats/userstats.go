@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -23,6 +24,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldDeletedBy holds the string denoting the deleted_by field in the database.
 	FieldDeletedBy = "deleted_by"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldTotalExp holds the string denoting the total_exp field in the database.
@@ -33,6 +36,14 @@ const (
 	FieldTotalSubmissions = "total_submissions"
 	// FieldAcceptedCount holds the string denoting the accepted_count field in the database.
 	FieldAcceptedCount = "accepted_count"
+	// FieldProgressionVersion holds the string denoting the progression_version field in the database.
+	FieldProgressionVersion = "progression_version"
+	// FieldRatingVersion holds the string denoting the rating_version field in the database.
+	FieldRatingVersion = "rating_version"
+	// FieldProgressionUpdatedAt holds the string denoting the progression_updated_at field in the database.
+	FieldProgressionUpdatedAt = "progression_updated_at"
+	// FieldRatingUpdatedAt holds the string denoting the rating_updated_at field in the database.
+	FieldRatingUpdatedAt = "rating_updated_at"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the userstats in the database.
@@ -53,11 +64,16 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldDeletedBy,
+	FieldTenantID,
 	FieldUserID,
 	FieldTotalExp,
 	FieldRating,
 	FieldTotalSubmissions,
 	FieldAcceptedCount,
+	FieldProgressionVersion,
+	FieldRatingVersion,
+	FieldProgressionUpdatedAt,
+	FieldRatingUpdatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -90,6 +106,8 @@ var (
 	TotalExpValidator func(int64) error
 	// DefaultRating holds the default value on creation for the "rating" field.
 	DefaultRating int
+	// RatingValidator is a validator for the "rating" field. It is called by the builders before save.
+	RatingValidator func(int) error
 	// DefaultTotalSubmissions holds the default value on creation for the "total_submissions" field.
 	DefaultTotalSubmissions int
 	// TotalSubmissionsValidator is a validator for the "total_submissions" field. It is called by the builders before save.
@@ -98,6 +116,16 @@ var (
 	DefaultAcceptedCount int
 	// AcceptedCountValidator is a validator for the "accepted_count" field. It is called by the builders before save.
 	AcceptedCountValidator func(int) error
+	// DefaultProgressionVersion holds the default value on creation for the "progression_version" field.
+	DefaultProgressionVersion int64
+	// ProgressionVersionValidator is a validator for the "progression_version" field. It is called by the builders before save.
+	ProgressionVersionValidator func(int64) error
+	// DefaultRatingVersion holds the default value on creation for the "rating_version" field.
+	DefaultRatingVersion int64
+	// RatingVersionValidator is a validator for the "rating_version" field. It is called by the builders before save.
+	RatingVersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the UserStats queries.
@@ -128,6 +156,11 @@ func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedBy, opts...).ToFunc()
 }
 
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
+}
+
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
@@ -151,6 +184,26 @@ func ByTotalSubmissions(opts ...sql.OrderTermOption) OrderOption {
 // ByAcceptedCount orders the results by the accepted_count field.
 func ByAcceptedCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAcceptedCount, opts...).ToFunc()
+}
+
+// ByProgressionVersion orders the results by the progression_version field.
+func ByProgressionVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProgressionVersion, opts...).ToFunc()
+}
+
+// ByRatingVersion orders the results by the rating_version field.
+func ByRatingVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingVersion, opts...).ToFunc()
+}
+
+// ByProgressionUpdatedAt orders the results by the progression_updated_at field.
+func ByProgressionUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProgressionUpdatedAt, opts...).ToFunc()
+}
+
+// ByRatingUpdatedAt orders the results by the rating_updated_at field.
+func ByRatingUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRatingUpdatedAt, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

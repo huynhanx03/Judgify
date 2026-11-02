@@ -13,7 +13,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 )
@@ -21,12 +23,15 @@ import (
 // AttributeDefinitionQuery is the builder for querying AttributeDefinition entities.
 type AttributeDefinitionQuery struct {
 	config
-	ctx        *QueryContext
-	order      []attributedefinition.OrderOption
-	inters     []Interceptor
-	predicates []predicate.AttributeDefinition
-	withValues *UserAttributeValueQuery
-	modifiers  []func(*sql.Selector)
+	ctx                *QueryContext
+	order              []attributedefinition.OrderOption
+	inters             []Interceptor
+	predicates         []predicate.AttributeDefinition
+	withValues         *UserAttributeValueQuery
+	withRevisions      *AttributeDefinitionRevisionQuery
+	withDraftRevision  *AttributeDefinitionRevisionQuery
+	withActiveRevision *AttributeDefinitionRevisionQuery
+	modifiers          []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -85,6 +90,72 @@ func (_q *AttributeDefinitionQuery) QueryValues() *UserAttributeValueQuery {
 	return query
 }
 
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *AttributeDefinitionQuery) QueryRevisions() *AttributeDefinitionRevisionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(attributedefinition.Table, attributedefinition.FieldID, selector),
+			sqlgraph.To(attributedefinitionrevision.Table, attributedefinitionrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, attributedefinition.RevisionsTable, attributedefinition.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDraftRevision chains the current query on the "draft_revision" edge.
+func (_q *AttributeDefinitionQuery) QueryDraftRevision() *AttributeDefinitionRevisionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(attributedefinition.Table, attributedefinition.FieldID, selector),
+			sqlgraph.To(attributedefinitionrevision.Table, attributedefinitionrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, attributedefinition.DraftRevisionTable, attributedefinition.DraftRevisionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryActiveRevision chains the current query on the "active_revision" edge.
+func (_q *AttributeDefinitionQuery) QueryActiveRevision() *AttributeDefinitionRevisionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(attributedefinition.Table, attributedefinition.FieldID, selector),
+			sqlgraph.To(attributedefinitionrevision.Table, attributedefinitionrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, attributedefinition.ActiveRevisionTable, attributedefinition.ActiveRevisionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first AttributeDefinition entity from the query.
 // Returns a *NotFoundError when no AttributeDefinition was found.
 func (_q *AttributeDefinitionQuery) First(ctx context.Context) (*AttributeDefinition, error) {
@@ -109,8 +180,8 @@ func (_q *AttributeDefinitionQuery) FirstX(ctx context.Context) *AttributeDefini
 
 // FirstID returns the first AttributeDefinition ID from the query.
 // Returns a *NotFoundError when no AttributeDefinition ID was found.
-func (_q *AttributeDefinitionQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *AttributeDefinitionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -122,7 +193,7 @@ func (_q *AttributeDefinitionQuery) FirstID(ctx context.Context) (id int, err er
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *AttributeDefinitionQuery) FirstIDX(ctx context.Context) int {
+func (_q *AttributeDefinitionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -160,8 +231,8 @@ func (_q *AttributeDefinitionQuery) OnlyX(ctx context.Context) *AttributeDefinit
 // OnlyID is like Only, but returns the only AttributeDefinition ID in the query.
 // Returns a *NotSingularError when more than one AttributeDefinition ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *AttributeDefinitionQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *AttributeDefinitionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -177,7 +248,7 @@ func (_q *AttributeDefinitionQuery) OnlyID(ctx context.Context) (id int, err err
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *AttributeDefinitionQuery) OnlyIDX(ctx context.Context) int {
+func (_q *AttributeDefinitionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -205,7 +276,7 @@ func (_q *AttributeDefinitionQuery) AllX(ctx context.Context) []*AttributeDefini
 }
 
 // IDs executes the query and returns a list of AttributeDefinition IDs.
-func (_q *AttributeDefinitionQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *AttributeDefinitionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -217,7 +288,7 @@ func (_q *AttributeDefinitionQuery) IDs(ctx context.Context) (ids []int, err err
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *AttributeDefinitionQuery) IDsX(ctx context.Context) []int {
+func (_q *AttributeDefinitionQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -272,12 +343,15 @@ func (_q *AttributeDefinitionQuery) Clone() *AttributeDefinitionQuery {
 		return nil
 	}
 	return &AttributeDefinitionQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]attributedefinition.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.AttributeDefinition{}, _q.predicates...),
-		withValues: _q.withValues.Clone(),
+		config:             _q.config,
+		ctx:                _q.ctx.Clone(),
+		order:              append([]attributedefinition.OrderOption{}, _q.order...),
+		inters:             append([]Interceptor{}, _q.inters...),
+		predicates:         append([]predicate.AttributeDefinition{}, _q.predicates...),
+		withValues:         _q.withValues.Clone(),
+		withRevisions:      _q.withRevisions.Clone(),
+		withDraftRevision:  _q.withDraftRevision.Clone(),
+		withActiveRevision: _q.withActiveRevision.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -293,6 +367,39 @@ func (_q *AttributeDefinitionQuery) WithValues(opts ...func(*UserAttributeValueQ
 		opt(query)
 	}
 	_q.withValues = query
+	return _q
+}
+
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AttributeDefinitionQuery) WithRevisions(opts ...func(*AttributeDefinitionRevisionQuery)) *AttributeDefinitionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
+}
+
+// WithDraftRevision tells the query-builder to eager-load the nodes that are connected to
+// the "draft_revision" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AttributeDefinitionQuery) WithDraftRevision(opts ...func(*AttributeDefinitionRevisionQuery)) *AttributeDefinitionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDraftRevision = query
+	return _q
+}
+
+// WithActiveRevision tells the query-builder to eager-load the nodes that are connected to
+// the "active_revision" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AttributeDefinitionQuery) WithActiveRevision(opts ...func(*AttributeDefinitionRevisionQuery)) *AttributeDefinitionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withActiveRevision = query
 	return _q
 }
 
@@ -374,8 +481,11 @@ func (_q *AttributeDefinitionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	var (
 		nodes       = []*AttributeDefinition{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [4]bool{
 			_q.withValues != nil,
+			_q.withRevisions != nil,
+			_q.withDraftRevision != nil,
+			_q.withActiveRevision != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -411,12 +521,36 @@ func (_q *AttributeDefinitionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 			return nil, err
 		}
 	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *AttributeDefinition) { n.Edges.Revisions = []*AttributeDefinitionRevision{} },
+			func(n *AttributeDefinition, e *AttributeDefinitionRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Definition = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDraftRevision; query != nil {
+		if err := _q.loadDraftRevision(ctx, query, nodes, nil,
+			func(n *AttributeDefinition, e *AttributeDefinitionRevision) { n.Edges.DraftRevision = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withActiveRevision; query != nil {
+		if err := _q.loadActiveRevision(ctx, query, nodes, nil,
+			func(n *AttributeDefinition, e *AttributeDefinitionRevision) { n.Edges.ActiveRevision = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *AttributeDefinitionQuery) loadValues(ctx context.Context, query *UserAttributeValueQuery, nodes []*AttributeDefinition, init func(*AttributeDefinition), assign func(*AttributeDefinition, *UserAttributeValue)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*AttributeDefinition)
+	nodeids := make(map[uuid.UUID]*AttributeDefinition)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -444,6 +578,100 @@ func (_q *AttributeDefinitionQuery) loadValues(ctx context.Context, query *UserA
 	}
 	return nil
 }
+func (_q *AttributeDefinitionQuery) loadRevisions(ctx context.Context, query *AttributeDefinitionRevisionQuery, nodes []*AttributeDefinition, init func(*AttributeDefinition), assign func(*AttributeDefinition, *AttributeDefinitionRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*AttributeDefinition)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(attributedefinitionrevision.FieldDefinitionID)
+	}
+	query.Where(predicate.AttributeDefinitionRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(attributedefinition.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DefinitionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "definition_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *AttributeDefinitionQuery) loadDraftRevision(ctx context.Context, query *AttributeDefinitionRevisionQuery, nodes []*AttributeDefinition, init func(*AttributeDefinition), assign func(*AttributeDefinition, *AttributeDefinitionRevision)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*AttributeDefinition)
+	for i := range nodes {
+		if nodes[i].DraftRevisionID == nil {
+			continue
+		}
+		fk := *nodes[i].DraftRevisionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(attributedefinitionrevision.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "draft_revision_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *AttributeDefinitionQuery) loadActiveRevision(ctx context.Context, query *AttributeDefinitionRevisionQuery, nodes []*AttributeDefinition, init func(*AttributeDefinition), assign func(*AttributeDefinition, *AttributeDefinitionRevision)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*AttributeDefinition)
+	for i := range nodes {
+		if nodes[i].ActiveRevisionID == nil {
+			continue
+		}
+		fk := *nodes[i].ActiveRevisionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(attributedefinitionrevision.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "active_revision_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *AttributeDefinitionQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -458,7 +686,7 @@ func (_q *AttributeDefinitionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *AttributeDefinitionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(attributedefinition.Table, attributedefinition.Columns, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(attributedefinition.Table, attributedefinition.Columns, sqlgraph.NewFieldSpec(attributedefinition.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -472,6 +700,12 @@ func (_q *AttributeDefinitionQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != attributedefinition.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withDraftRevision != nil {
+			_spec.Node.AddColumnOnce(attributedefinition.FieldDraftRevisionID)
+		}
+		if _q.withActiveRevision != nil {
+			_spec.Node.AddColumnOnce(attributedefinition.FieldActiveRevisionID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

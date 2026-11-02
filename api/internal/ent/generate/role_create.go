@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
-	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
 
 // RoleCreate is the builder for creating a Role entity.
@@ -67,16 +67,22 @@ func (_c *RoleCreate) SetNillableDeletedAt(v *time.Time) *RoleCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *RoleCreate) SetDeletedBy(v int) *RoleCreate {
+func (_c *RoleCreate) SetDeletedBy(v string) *RoleCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *RoleCreate) SetNillableDeletedBy(v *int) *RoleCreate {
+func (_c *RoleCreate) SetNillableDeletedBy(v *string) *RoleCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
+	return _c
+}
+
+// SetKey sets the "key" field.
+func (_c *RoleCreate) SetKey(v string) *RoleCreate {
+	_c.mutation.SetKey(v)
 	return _c
 }
 
@@ -86,90 +92,74 @@ func (_c *RoleCreate) SetName(v string) *RoleCreate {
 	return _c
 }
 
-// SetLevel sets the "level" field.
-func (_c *RoleCreate) SetLevel(v int) *RoleCreate {
-	_c.mutation.SetLevel(v)
+// SetDescription sets the "description" field.
+func (_c *RoleCreate) SetDescription(v string) *RoleCreate {
+	_c.mutation.SetDescription(v)
 	return _c
 }
 
-// SetNillableLevel sets the "level" field if the given value is not nil.
-func (_c *RoleCreate) SetNillableLevel(v *int) *RoleCreate {
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_c *RoleCreate) SetNillableDescription(v *string) *RoleCreate {
 	if v != nil {
-		_c.SetLevel(*v)
+		_c.SetDescription(*v)
 	}
 	return _c
 }
 
-// SetParentID sets the "parent_id" field.
-func (_c *RoleCreate) SetParentID(v int) *RoleCreate {
-	_c.mutation.SetParentID(v)
+// SetIsSystem sets the "is_system" field.
+func (_c *RoleCreate) SetIsSystem(v bool) *RoleCreate {
+	_c.mutation.SetIsSystem(v)
 	return _c
 }
 
-// SetNillableParentID sets the "parent_id" field if the given value is not nil.
-func (_c *RoleCreate) SetNillableParentID(v *int) *RoleCreate {
+// SetNillableIsSystem sets the "is_system" field if the given value is not nil.
+func (_c *RoleCreate) SetNillableIsSystem(v *bool) *RoleCreate {
 	if v != nil {
-		_c.SetParentID(*v)
+		_c.SetIsSystem(*v)
 	}
 	return _c
 }
 
-// SetLft sets the "lft" field.
-func (_c *RoleCreate) SetLft(v int) *RoleCreate {
-	_c.mutation.SetLft(v)
+// SetStatus sets the "status" field.
+func (_c *RoleCreate) SetStatus(v role.Status) *RoleCreate {
+	_c.mutation.SetStatus(v)
 	return _c
 }
 
-// SetNillableLft sets the "lft" field if the given value is not nil.
-func (_c *RoleCreate) SetNillableLft(v *int) *RoleCreate {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *RoleCreate) SetNillableStatus(v *role.Status) *RoleCreate {
 	if v != nil {
-		_c.SetLft(*v)
+		_c.SetStatus(*v)
 	}
 	return _c
 }
 
-// SetRgt sets the "rgt" field.
-func (_c *RoleCreate) SetRgt(v int) *RoleCreate {
-	_c.mutation.SetRgt(v)
+// SetVersion sets the "version" field.
+func (_c *RoleCreate) SetVersion(v int64) *RoleCreate {
+	_c.mutation.SetVersion(v)
 	return _c
 }
 
-// SetNillableRgt sets the "rgt" field if the given value is not nil.
-func (_c *RoleCreate) SetNillableRgt(v *int) *RoleCreate {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *RoleCreate) SetNillableVersion(v *int64) *RoleCreate {
 	if v != nil {
-		_c.SetRgt(*v)
+		_c.SetVersion(*v)
 	}
 	return _c
 }
 
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (_c *RoleCreate) AddUserIDs(ids ...int) *RoleCreate {
-	_c.mutation.AddUserIDs(ids...)
+// SetID sets the "id" field.
+func (_c *RoleCreate) SetID(v uuid.UUID) *RoleCreate {
+	_c.mutation.SetID(v)
 	return _c
 }
 
-// AddUsers adds the "users" edges to the User entity.
-func (_c *RoleCreate) AddUsers(v ...*User) *RoleCreate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *RoleCreate) SetNillableID(v *uuid.UUID) *RoleCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return _c.AddUserIDs(ids...)
-}
-
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (_c *RoleCreate) AddPermissionIDs(ids ...int) *RoleCreate {
-	_c.mutation.AddPermissionIDs(ids...)
 	return _c
-}
-
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (_c *RoleCreate) AddPermissions(v ...*Permission) *RoleCreate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _c.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -223,21 +213,24 @@ func (_c *RoleCreate) defaults() error {
 		v := role.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.Level(); !ok {
-		v := role.DefaultLevel
-		_c.mutation.SetLevel(v)
+	if _, ok := _c.mutation.IsSystem(); !ok {
+		v := role.DefaultIsSystem
+		_c.mutation.SetIsSystem(v)
 	}
-	if _, ok := _c.mutation.ParentID(); !ok {
-		v := role.DefaultParentID
-		_c.mutation.SetParentID(v)
+	if _, ok := _c.mutation.Status(); !ok {
+		v := role.DefaultStatus
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := _c.mutation.Lft(); !ok {
-		v := role.DefaultLft
-		_c.mutation.SetLft(v)
+	if _, ok := _c.mutation.Version(); !ok {
+		v := role.DefaultVersion
+		_c.mutation.SetVersion(v)
 	}
-	if _, ok := _c.mutation.Rgt(); !ok {
-		v := role.DefaultRgt
-		_c.mutation.SetRgt(v)
+	if _, ok := _c.mutation.ID(); !ok {
+		if role.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized role.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := role.DefaultID()
+		_c.mutation.SetID(v)
 	}
 	return nil
 }
@@ -250,6 +243,14 @@ func (_c *RoleCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Role.updated_at"`)}
 	}
+	if _, ok := _c.mutation.Key(); !ok {
+		return &ValidationError{Name: "key", err: errors.New(`generate: missing required field "Role.key"`)}
+	}
+	if v, ok := _c.mutation.Key(); ok {
+		if err := role.KeyValidator(v); err != nil {
+			return &ValidationError{Name: "key", err: fmt.Errorf(`generate: validator failed for field "Role.key": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`generate: missing required field "Role.name"`)}
 	}
@@ -258,17 +259,24 @@ func (_c *RoleCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Role.name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Level(); !ok {
-		return &ValidationError{Name: "level", err: errors.New(`generate: missing required field "Role.level"`)}
+	if _, ok := _c.mutation.IsSystem(); !ok {
+		return &ValidationError{Name: "is_system", err: errors.New(`generate: missing required field "Role.is_system"`)}
 	}
-	if _, ok := _c.mutation.ParentID(); !ok {
-		return &ValidationError{Name: "parent_id", err: errors.New(`generate: missing required field "Role.parent_id"`)}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "Role.status"`)}
 	}
-	if _, ok := _c.mutation.Lft(); !ok {
-		return &ValidationError{Name: "lft", err: errors.New(`generate: missing required field "Role.lft"`)}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := role.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Role.status": %w`, err)}
+		}
 	}
-	if _, ok := _c.mutation.Rgt(); !ok {
-		return &ValidationError{Name: "rgt", err: errors.New(`generate: missing required field "Role.rgt"`)}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Role.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := role.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Role.version": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -284,8 +292,13 @@ func (_c *RoleCreate) sqlSave(ctx context.Context) (*Role, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -294,9 +307,13 @@ func (_c *RoleCreate) sqlSave(ctx context.Context) (*Role, error) {
 func (_c *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Role{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(role.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -310,60 +327,32 @@ func (_c *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(role.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(role.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.Key(); ok {
+		_spec.SetField(role.FieldKey, field.TypeString, value)
+		_node.Key = value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := _c.mutation.Level(); ok {
-		_spec.SetField(role.FieldLevel, field.TypeInt, value)
-		_node.Level = value
+	if value, ok := _c.mutation.Description(); ok {
+		_spec.SetField(role.FieldDescription, field.TypeString, value)
+		_node.Description = &value
 	}
-	if value, ok := _c.mutation.ParentID(); ok {
-		_spec.SetField(role.FieldParentID, field.TypeInt, value)
-		_node.ParentID = value
+	if value, ok := _c.mutation.IsSystem(); ok {
+		_spec.SetField(role.FieldIsSystem, field.TypeBool, value)
+		_node.IsSystem = value
 	}
-	if value, ok := _c.mutation.Lft(); ok {
-		_spec.SetField(role.FieldLft, field.TypeInt, value)
-		_node.Lft = value
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(role.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
-	if value, ok := _c.mutation.Rgt(); ok {
-		_spec.SetField(role.FieldRgt, field.TypeInt, value)
-		_node.Rgt = value
-	}
-	if nodes := _c.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.PermissionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(role.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
 	}
 	return _node, _spec
 }
@@ -448,7 +437,7 @@ func (u *RoleUpsert) ClearDeletedAt() *RoleUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RoleUpsert) SetDeletedBy(v int) *RoleUpsert {
+func (u *RoleUpsert) SetDeletedBy(v string) *RoleUpsert {
 	u.Set(role.FieldDeletedBy, v)
 	return u
 }
@@ -459,15 +448,21 @@ func (u *RoleUpsert) UpdateDeletedBy() *RoleUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RoleUpsert) AddDeletedBy(v int) *RoleUpsert {
-	u.Add(role.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *RoleUpsert) ClearDeletedBy() *RoleUpsert {
 	u.SetNull(role.FieldDeletedBy)
+	return u
+}
+
+// SetKey sets the "key" field.
+func (u *RoleUpsert) SetKey(v string) *RoleUpsert {
+	u.Set(role.FieldKey, v)
+	return u
+}
+
+// UpdateKey sets the "key" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateKey() *RoleUpsert {
+	u.SetExcluded(role.FieldKey)
 	return u
 }
 
@@ -483,89 +478,83 @@ func (u *RoleUpsert) UpdateName() *RoleUpsert {
 	return u
 }
 
-// SetLevel sets the "level" field.
-func (u *RoleUpsert) SetLevel(v int) *RoleUpsert {
-	u.Set(role.FieldLevel, v)
+// SetDescription sets the "description" field.
+func (u *RoleUpsert) SetDescription(v string) *RoleUpsert {
+	u.Set(role.FieldDescription, v)
 	return u
 }
 
-// UpdateLevel sets the "level" field to the value that was provided on create.
-func (u *RoleUpsert) UpdateLevel() *RoleUpsert {
-	u.SetExcluded(role.FieldLevel)
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateDescription() *RoleUpsert {
+	u.SetExcluded(role.FieldDescription)
 	return u
 }
 
-// AddLevel adds v to the "level" field.
-func (u *RoleUpsert) AddLevel(v int) *RoleUpsert {
-	u.Add(role.FieldLevel, v)
+// ClearDescription clears the value of the "description" field.
+func (u *RoleUpsert) ClearDescription() *RoleUpsert {
+	u.SetNull(role.FieldDescription)
 	return u
 }
 
-// SetParentID sets the "parent_id" field.
-func (u *RoleUpsert) SetParentID(v int) *RoleUpsert {
-	u.Set(role.FieldParentID, v)
+// SetIsSystem sets the "is_system" field.
+func (u *RoleUpsert) SetIsSystem(v bool) *RoleUpsert {
+	u.Set(role.FieldIsSystem, v)
 	return u
 }
 
-// UpdateParentID sets the "parent_id" field to the value that was provided on create.
-func (u *RoleUpsert) UpdateParentID() *RoleUpsert {
-	u.SetExcluded(role.FieldParentID)
+// UpdateIsSystem sets the "is_system" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateIsSystem() *RoleUpsert {
+	u.SetExcluded(role.FieldIsSystem)
 	return u
 }
 
-// AddParentID adds v to the "parent_id" field.
-func (u *RoleUpsert) AddParentID(v int) *RoleUpsert {
-	u.Add(role.FieldParentID, v)
+// SetStatus sets the "status" field.
+func (u *RoleUpsert) SetStatus(v role.Status) *RoleUpsert {
+	u.Set(role.FieldStatus, v)
 	return u
 }
 
-// SetLft sets the "lft" field.
-func (u *RoleUpsert) SetLft(v int) *RoleUpsert {
-	u.Set(role.FieldLft, v)
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateStatus() *RoleUpsert {
+	u.SetExcluded(role.FieldStatus)
 	return u
 }
 
-// UpdateLft sets the "lft" field to the value that was provided on create.
-func (u *RoleUpsert) UpdateLft() *RoleUpsert {
-	u.SetExcluded(role.FieldLft)
+// SetVersion sets the "version" field.
+func (u *RoleUpsert) SetVersion(v int64) *RoleUpsert {
+	u.Set(role.FieldVersion, v)
 	return u
 }
 
-// AddLft adds v to the "lft" field.
-func (u *RoleUpsert) AddLft(v int) *RoleUpsert {
-	u.Add(role.FieldLft, v)
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *RoleUpsert) UpdateVersion() *RoleUpsert {
+	u.SetExcluded(role.FieldVersion)
 	return u
 }
 
-// SetRgt sets the "rgt" field.
-func (u *RoleUpsert) SetRgt(v int) *RoleUpsert {
-	u.Set(role.FieldRgt, v)
+// AddVersion adds v to the "version" field.
+func (u *RoleUpsert) AddVersion(v int64) *RoleUpsert {
+	u.Add(role.FieldVersion, v)
 	return u
 }
 
-// UpdateRgt sets the "rgt" field to the value that was provided on create.
-func (u *RoleUpsert) UpdateRgt() *RoleUpsert {
-	u.SetExcluded(role.FieldRgt)
-	return u
-}
-
-// AddRgt adds v to the "rgt" field.
-func (u *RoleUpsert) AddRgt(v int) *RoleUpsert {
-	u.Add(role.FieldRgt, v)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Role.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(role.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RoleUpsertOne) UpdateNewValues() *RoleUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(role.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(role.FieldCreatedAt)
 		}
@@ -636,16 +625,9 @@ func (u *RoleUpsertOne) ClearDeletedAt() *RoleUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RoleUpsertOne) SetDeletedBy(v int) *RoleUpsertOne {
+func (u *RoleUpsertOne) SetDeletedBy(v string) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RoleUpsertOne) AddDeletedBy(v int) *RoleUpsertOne {
-	return u.Update(func(s *RoleUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -663,6 +645,20 @@ func (u *RoleUpsertOne) ClearDeletedBy() *RoleUpsertOne {
 	})
 }
 
+// SetKey sets the "key" field.
+func (u *RoleUpsertOne) SetKey(v string) *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.SetKey(v)
+	})
+}
+
+// UpdateKey sets the "key" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateKey() *RoleUpsertOne {
+	return u.Update(func(s *RoleUpsert) {
+		s.UpdateKey()
+	})
+}
+
 // SetName sets the "name" field.
 func (u *RoleUpsertOne) SetName(v string) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
@@ -677,87 +673,73 @@ func (u *RoleUpsertOne) UpdateName() *RoleUpsertOne {
 	})
 }
 
-// SetLevel sets the "level" field.
-func (u *RoleUpsertOne) SetLevel(v int) *RoleUpsertOne {
+// SetDescription sets the "description" field.
+func (u *RoleUpsertOne) SetDescription(v string) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetLevel(v)
+		s.SetDescription(v)
 	})
 }
 
-// AddLevel adds v to the "level" field.
-func (u *RoleUpsertOne) AddLevel(v int) *RoleUpsertOne {
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateDescription() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.AddLevel(v)
+		s.UpdateDescription()
 	})
 }
 
-// UpdateLevel sets the "level" field to the value that was provided on create.
-func (u *RoleUpsertOne) UpdateLevel() *RoleUpsertOne {
+// ClearDescription clears the value of the "description" field.
+func (u *RoleUpsertOne) ClearDescription() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateLevel()
+		s.ClearDescription()
 	})
 }
 
-// SetParentID sets the "parent_id" field.
-func (u *RoleUpsertOne) SetParentID(v int) *RoleUpsertOne {
+// SetIsSystem sets the "is_system" field.
+func (u *RoleUpsertOne) SetIsSystem(v bool) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetParentID(v)
+		s.SetIsSystem(v)
 	})
 }
 
-// AddParentID adds v to the "parent_id" field.
-func (u *RoleUpsertOne) AddParentID(v int) *RoleUpsertOne {
+// UpdateIsSystem sets the "is_system" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateIsSystem() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.AddParentID(v)
+		s.UpdateIsSystem()
 	})
 }
 
-// UpdateParentID sets the "parent_id" field to the value that was provided on create.
-func (u *RoleUpsertOne) UpdateParentID() *RoleUpsertOne {
+// SetStatus sets the "status" field.
+func (u *RoleUpsertOne) SetStatus(v role.Status) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateParentID()
+		s.SetStatus(v)
 	})
 }
 
-// SetLft sets the "lft" field.
-func (u *RoleUpsertOne) SetLft(v int) *RoleUpsertOne {
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateStatus() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetLft(v)
+		s.UpdateStatus()
 	})
 }
 
-// AddLft adds v to the "lft" field.
-func (u *RoleUpsertOne) AddLft(v int) *RoleUpsertOne {
+// SetVersion sets the "version" field.
+func (u *RoleUpsertOne) SetVersion(v int64) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.AddLft(v)
+		s.SetVersion(v)
 	})
 }
 
-// UpdateLft sets the "lft" field to the value that was provided on create.
-func (u *RoleUpsertOne) UpdateLft() *RoleUpsertOne {
+// AddVersion adds v to the "version" field.
+func (u *RoleUpsertOne) AddVersion(v int64) *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateLft()
+		s.AddVersion(v)
 	})
 }
 
-// SetRgt sets the "rgt" field.
-func (u *RoleUpsertOne) SetRgt(v int) *RoleUpsertOne {
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *RoleUpsertOne) UpdateVersion() *RoleUpsertOne {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetRgt(v)
-	})
-}
-
-// AddRgt adds v to the "rgt" field.
-func (u *RoleUpsertOne) AddRgt(v int) *RoleUpsertOne {
-	return u.Update(func(s *RoleUpsert) {
-		s.AddRgt(v)
-	})
-}
-
-// UpdateRgt sets the "rgt" field to the value that was provided on create.
-func (u *RoleUpsertOne) UpdateRgt() *RoleUpsertOne {
-	return u.Update(func(s *RoleUpsert) {
-		s.UpdateRgt()
+		s.UpdateVersion()
 	})
 }
 
@@ -777,7 +759,12 @@ func (u *RoleUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *RoleUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *RoleUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: RoleUpsertOne.ID is not supported by MySQL driver. Use RoleUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -786,17 +773,12 @@ func (u *RoleUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *RoleUpsertOne) IDX(ctx context.Context) int {
+func (u *RoleUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *RoleCreate) SetID(id int) *RoleCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // RoleCreateBulk is the builder for creating many Role entities in bulk.
@@ -846,10 +828,6 @@ func (_c *RoleCreateBulk) Save(ctx context.Context) ([]*Role, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -936,12 +914,18 @@ type RoleUpsertBulk struct {
 //	client.Role.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(role.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RoleUpsertBulk) UpdateNewValues() *RoleUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(role.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(role.FieldCreatedAt)
 			}
@@ -1013,16 +997,9 @@ func (u *RoleUpsertBulk) ClearDeletedAt() *RoleUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RoleUpsertBulk) SetDeletedBy(v int) *RoleUpsertBulk {
+func (u *RoleUpsertBulk) SetDeletedBy(v string) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RoleUpsertBulk) AddDeletedBy(v int) *RoleUpsertBulk {
-	return u.Update(func(s *RoleUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -1040,6 +1017,20 @@ func (u *RoleUpsertBulk) ClearDeletedBy() *RoleUpsertBulk {
 	})
 }
 
+// SetKey sets the "key" field.
+func (u *RoleUpsertBulk) SetKey(v string) *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.SetKey(v)
+	})
+}
+
+// UpdateKey sets the "key" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateKey() *RoleUpsertBulk {
+	return u.Update(func(s *RoleUpsert) {
+		s.UpdateKey()
+	})
+}
+
 // SetName sets the "name" field.
 func (u *RoleUpsertBulk) SetName(v string) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
@@ -1054,87 +1045,73 @@ func (u *RoleUpsertBulk) UpdateName() *RoleUpsertBulk {
 	})
 }
 
-// SetLevel sets the "level" field.
-func (u *RoleUpsertBulk) SetLevel(v int) *RoleUpsertBulk {
+// SetDescription sets the "description" field.
+func (u *RoleUpsertBulk) SetDescription(v string) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetLevel(v)
+		s.SetDescription(v)
 	})
 }
 
-// AddLevel adds v to the "level" field.
-func (u *RoleUpsertBulk) AddLevel(v int) *RoleUpsertBulk {
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateDescription() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.AddLevel(v)
+		s.UpdateDescription()
 	})
 }
 
-// UpdateLevel sets the "level" field to the value that was provided on create.
-func (u *RoleUpsertBulk) UpdateLevel() *RoleUpsertBulk {
+// ClearDescription clears the value of the "description" field.
+func (u *RoleUpsertBulk) ClearDescription() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateLevel()
+		s.ClearDescription()
 	})
 }
 
-// SetParentID sets the "parent_id" field.
-func (u *RoleUpsertBulk) SetParentID(v int) *RoleUpsertBulk {
+// SetIsSystem sets the "is_system" field.
+func (u *RoleUpsertBulk) SetIsSystem(v bool) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetParentID(v)
+		s.SetIsSystem(v)
 	})
 }
 
-// AddParentID adds v to the "parent_id" field.
-func (u *RoleUpsertBulk) AddParentID(v int) *RoleUpsertBulk {
+// UpdateIsSystem sets the "is_system" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateIsSystem() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.AddParentID(v)
+		s.UpdateIsSystem()
 	})
 }
 
-// UpdateParentID sets the "parent_id" field to the value that was provided on create.
-func (u *RoleUpsertBulk) UpdateParentID() *RoleUpsertBulk {
+// SetStatus sets the "status" field.
+func (u *RoleUpsertBulk) SetStatus(v role.Status) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateParentID()
+		s.SetStatus(v)
 	})
 }
 
-// SetLft sets the "lft" field.
-func (u *RoleUpsertBulk) SetLft(v int) *RoleUpsertBulk {
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateStatus() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetLft(v)
+		s.UpdateStatus()
 	})
 }
 
-// AddLft adds v to the "lft" field.
-func (u *RoleUpsertBulk) AddLft(v int) *RoleUpsertBulk {
+// SetVersion sets the "version" field.
+func (u *RoleUpsertBulk) SetVersion(v int64) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.AddLft(v)
+		s.SetVersion(v)
 	})
 }
 
-// UpdateLft sets the "lft" field to the value that was provided on create.
-func (u *RoleUpsertBulk) UpdateLft() *RoleUpsertBulk {
+// AddVersion adds v to the "version" field.
+func (u *RoleUpsertBulk) AddVersion(v int64) *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.UpdateLft()
+		s.AddVersion(v)
 	})
 }
 
-// SetRgt sets the "rgt" field.
-func (u *RoleUpsertBulk) SetRgt(v int) *RoleUpsertBulk {
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *RoleUpsertBulk) UpdateVersion() *RoleUpsertBulk {
 	return u.Update(func(s *RoleUpsert) {
-		s.SetRgt(v)
-	})
-}
-
-// AddRgt adds v to the "rgt" field.
-func (u *RoleUpsertBulk) AddRgt(v int) *RoleUpsertBulk {
-	return u.Update(func(s *RoleUpsert) {
-		s.AddRgt(v)
-	})
-}
-
-// UpdateRgt sets the "rgt" field to the value that was provided on create.
-func (u *RoleUpsertBulk) UpdateRgt() *RoleUpsertBulk {
-	return u.Update(func(s *RoleUpsert) {
-		s.UpdateRgt()
+		s.UpdateVersion()
 	})
 }
 

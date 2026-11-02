@@ -10,10 +10,6 @@ import (
 )
 
 func main() {
-	opts := []entc.Option{
-		entc.TemplateDir("./template"),
-	}
-
 	if err := entc.Generate("./schema", &gen.Config{
 		Target:  "./generate",
 		Package: "github.com/huynhanx03/judgify/internal/ent/generate",
@@ -26,7 +22,7 @@ func main() {
 			gen.FeatureLock,
 			gen.FeatureBidiEdgeRefs,
 		},
-	}, opts...); err != nil {
+	}); err != nil {
 		log.Fatalf("running ent codegen: %v", err)
 	}
 }

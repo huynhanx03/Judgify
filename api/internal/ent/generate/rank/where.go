@@ -6,51 +6,52 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Rank {
+func ID(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Rank {
+func IDEQ(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Rank {
+func IDNEQ(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Rank {
+func IDIn(ids ...uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Rank {
+func IDNotIn(ids ...uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Rank {
+func IDGT(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Rank {
+func IDGTE(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Rank {
+func IDLT(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Rank {
+func IDLTE(id uuid.UUID) predicate.Rank {
 	return predicate.Rank(sql.FieldLTE(FieldID, id))
 }
 
@@ -70,7 +71,7 @@ func DeletedAt(v time.Time) predicate.Rank {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Rank {
+func DeletedBy(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -220,43 +221,58 @@ func DeletedAtNotNil() predicate.Rank {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Rank {
+func DeletedByEQ(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Rank {
+func DeletedByNEQ(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Rank {
+func DeletedByIn(vs ...string) predicate.Rank {
 	return predicate.Rank(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Rank {
+func DeletedByNotIn(vs ...string) predicate.Rank {
 	return predicate.Rank(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Rank {
+func DeletedByGT(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Rank {
+func DeletedByGTE(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Rank {
+func DeletedByLT(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Rank {
+func DeletedByLTE(v string) predicate.Rank {
 	return predicate.Rank(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Rank {
+	return predicate.Rank(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Rank {
+	return predicate.Rank(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Rank {
+	return predicate.Rank(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -267,6 +283,16 @@ func DeletedByIsNil() predicate.Rank {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Rank {
 	return predicate.Rank(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Rank {
+	return predicate.Rank(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Rank {
+	return predicate.Rank(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

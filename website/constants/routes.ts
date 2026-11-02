@@ -1,0 +1,56 @@
+import type { EntityID } from "@/types/api";
+
+/** Browser routes used outside the navigation catalogs. */
+export const APP_ROUTES = {
+  ARENA: "/arena",
+  ARENA_PROBLEM: (id: EntityID) => `/arena/${encodeURIComponent(id)}`,
+  CONTEST: "/contest",
+  CONTEST_DETAIL: (id: EntityID) => `/contest/${encodeURIComponent(id)}`,
+  RANKING: "/ranking",
+  ABOUT: "/about",
+  MATERIALS: "/materials",
+  MATERIAL_DETAIL: (slug: string) =>
+    `/materials/${encodeURIComponent(slug)}`,
+  LOGIN: "/login",
+  REGISTER: "/register",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
+  ACCEPT_INVITATION: "/accept-invitation",
+  VERIFY_RECOVERY_CONTACT: "/verify-recovery-contact",
+  PROFILE: "/profile",
+  PUBLIC_PROFILE: (username: string) =>
+    `/u/${encodeURIComponent(username)}`,
+  NOTIFICATIONS: "/notifications",
+  OAUTH_COMPLETE: "/auth/oauth/complete",
+  ADMIN: "/admin",
+  ADMIN_AUDIT: "/admin/audit",
+  ADMIN_LOGIN: "/admin/login",
+  ADMIN_PROBLEMS: "/admin/problems",
+  ADMIN_TAGS: "/admin/tags",
+  ADMIN_DIFFICULTIES: "/admin/difficulties",
+  ADMIN_CONTESTS: "/admin/contests",
+  ADMIN_CONTEST: (id: EntityID) =>
+    `/admin/contests/${encodeURIComponent(id)}`,
+  ADMIN_CONTEST_COMMUNICATIONS: (id: EntityID) =>
+    `/admin/contests/${encodeURIComponent(id)}/clarifications`,
+  ADMIN_SUBMISSIONS: "/admin/submissions",
+  ADMIN_JUDGE: "/admin/judge",
+  ADMIN_OPERATIONS: "/admin/operations",
+  ADMIN_OBSERVABILITY: "/admin/observability",
+  ADMIN_NOTIFICATION_CAMPAIGNS: "/admin/notification-campaigns",
+  ADMIN_PROBLEM_CREATE: "/admin/problems/create",
+  ADMIN_PROBLEM_EDIT: (id: EntityID) =>
+    `/admin/problems/${encodeURIComponent(id)}/edit`,
+  ADMIN_MATERIALS: "/admin/materials",
+  ADMIN_MATERIAL_CATEGORIES: "/admin/materials/categories",
+  ADMIN_ELEMENTS: "/admin/elements",
+  ADMIN_RARITIES: "/admin/rarities",
+  ADMIN_TRAITS: "/admin/traits",
+  ADMIN_LEVELS: "/admin/levels",
+  ADMIN_RANKS: "/admin/ranks",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_ROLES: "/admin/roles",
+  ADMIN_ATTRIBUTE_DEFINITIONS: "/admin/attribute-definitions",
+	ADMIN_USER_TRAITS: "/admin/user-traits",
+	ADMIN_PROGRESSION: "/admin/progression",
+} as const;

@@ -13,22 +13,27 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
+	"github.com/huynhanx03/judgify/internal/ent/generate/elementrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevisionelement"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userelementexp"
 )
 
 // ElementQuery is the builder for querying Element entities.
 type ElementQuery struct {
 	config
-	ctx                 *QueryContext
-	order               []element.OrderOption
-	inters              []Interceptor
-	predicates          []predicate.Element
-	withTags            *TagQuery
-	withUserElementExps *UserElementExpQuery
-	modifiers           []func(*sql.Selector)
+	ctx                     *QueryContext
+	order                   []element.OrderOption
+	inters                  []Interceptor
+	predicates              []predicate.Element
+	withRevisions           *ElementRevisionQuery
+	withTagRevisionElements *TagRevisionElementQuery
+	withTags                *TagQuery
+	withUserElementExps     *UserElementExpQuery
+	modifiers               []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,6 +68,50 @@ func (_q *ElementQuery) Unique(unique bool) *ElementQuery {
 func (_q *ElementQuery) Order(o ...element.OrderOption) *ElementQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *ElementQuery) QueryRevisions() *ElementRevisionQuery {
+	query := (&ElementRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(element.Table, element.FieldID, selector),
+			sqlgraph.To(elementrevision.Table, elementrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, element.RevisionsTable, element.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTagRevisionElements chains the current query on the "tag_revision_elements" edge.
+func (_q *ElementQuery) QueryTagRevisionElements() *TagRevisionElementQuery {
+	query := (&TagRevisionElementClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(element.Table, element.FieldID, selector),
+			sqlgraph.To(tagrevisionelement.Table, tagrevisionelement.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, element.TagRevisionElementsTable, element.TagRevisionElementsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryTags chains the current query on the "tags" edge.
@@ -133,8 +182,8 @@ func (_q *ElementQuery) FirstX(ctx context.Context) *Element {
 
 // FirstID returns the first Element ID from the query.
 // Returns a *NotFoundError when no Element ID was found.
-func (_q *ElementQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ElementQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -146,7 +195,7 @@ func (_q *ElementQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ElementQuery) FirstIDX(ctx context.Context) int {
+func (_q *ElementQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -184,8 +233,8 @@ func (_q *ElementQuery) OnlyX(ctx context.Context) *Element {
 // OnlyID is like Only, but returns the only Element ID in the query.
 // Returns a *NotSingularError when more than one Element ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ElementQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ElementQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -201,7 +250,7 @@ func (_q *ElementQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ElementQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ElementQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -229,7 +278,7 @@ func (_q *ElementQuery) AllX(ctx context.Context) []*Element {
 }
 
 // IDs executes the query and returns a list of Element IDs.
-func (_q *ElementQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *ElementQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -241,7 +290,7 @@ func (_q *ElementQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ElementQuery) IDsX(ctx context.Context) []int {
+func (_q *ElementQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -296,18 +345,42 @@ func (_q *ElementQuery) Clone() *ElementQuery {
 		return nil
 	}
 	return &ElementQuery{
-		config:              _q.config,
-		ctx:                 _q.ctx.Clone(),
-		order:               append([]element.OrderOption{}, _q.order...),
-		inters:              append([]Interceptor{}, _q.inters...),
-		predicates:          append([]predicate.Element{}, _q.predicates...),
-		withTags:            _q.withTags.Clone(),
-		withUserElementExps: _q.withUserElementExps.Clone(),
+		config:                  _q.config,
+		ctx:                     _q.ctx.Clone(),
+		order:                   append([]element.OrderOption{}, _q.order...),
+		inters:                  append([]Interceptor{}, _q.inters...),
+		predicates:              append([]predicate.Element{}, _q.predicates...),
+		withRevisions:           _q.withRevisions.Clone(),
+		withTagRevisionElements: _q.withTagRevisionElements.Clone(),
+		withTags:                _q.withTags.Clone(),
+		withUserElementExps:     _q.withUserElementExps.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
+}
+
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ElementQuery) WithRevisions(opts ...func(*ElementRevisionQuery)) *ElementQuery {
+	query := (&ElementRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
+}
+
+// WithTagRevisionElements tells the query-builder to eager-load the nodes that are connected to
+// the "tag_revision_elements" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ElementQuery) WithTagRevisionElements(opts ...func(*TagRevisionElementQuery)) *ElementQuery {
+	query := (&TagRevisionElementClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTagRevisionElements = query
+	return _q
 }
 
 // WithTags tells the query-builder to eager-load the nodes that are connected to
@@ -410,7 +483,9 @@ func (_q *ElementQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Elem
 	var (
 		nodes       = []*Element{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
+			_q.withRevisions != nil,
+			_q.withTagRevisionElements != nil,
 			_q.withTags != nil,
 			_q.withUserElementExps != nil,
 		}
@@ -436,6 +511,30 @@ func (_q *ElementQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Elem
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *Element) { n.Edges.Revisions = []*ElementRevision{} },
+			func(n *Element, e *ElementRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Element = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTagRevisionElements; query != nil {
+		if err := _q.loadTagRevisionElements(ctx, query, nodes,
+			func(n *Element) { n.Edges.TagRevisionElements = []*TagRevisionElement{} },
+			func(n *Element, e *TagRevisionElement) {
+				n.Edges.TagRevisionElements = append(n.Edges.TagRevisionElements, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Element = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withTags; query != nil {
 		if err := _q.loadTags(ctx, query, nodes,
 			func(n *Element) { n.Edges.Tags = []*Tag{} },
@@ -458,10 +557,70 @@ func (_q *ElementQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Elem
 	return nodes, nil
 }
 
+func (_q *ElementQuery) loadRevisions(ctx context.Context, query *ElementRevisionQuery, nodes []*Element, init func(*Element), assign func(*Element, *ElementRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Element)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(elementrevision.FieldElementID)
+	}
+	query.Where(predicate.ElementRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(element.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ElementID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "element_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ElementQuery) loadTagRevisionElements(ctx context.Context, query *TagRevisionElementQuery, nodes []*Element, init func(*Element), assign func(*Element, *TagRevisionElement)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Element)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(tagrevisionelement.FieldElementID)
+	}
+	query.Where(predicate.TagRevisionElement(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(element.TagRevisionElementsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ElementID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "element_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *ElementQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*Element, init func(*Element), assign func(*Element, *Tag)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Element)
-	nids := make(map[int]map[*Element]struct{})
+	byID := make(map[uuid.UUID]*Element)
+	nids := make(map[uuid.UUID]map[*Element]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -490,11 +649,11 @@ func (_q *ElementQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Element]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -521,7 +680,7 @@ func (_q *ElementQuery) loadTags(ctx context.Context, query *TagQuery, nodes []*
 }
 func (_q *ElementQuery) loadUserElementExps(ctx context.Context, query *UserElementExpQuery, nodes []*Element, init func(*Element), assign func(*Element, *UserElementExp)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Element)
+	nodeids := make(map[uuid.UUID]*Element)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -563,7 +722,7 @@ func (_q *ElementQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *ElementQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(element.Table, element.Columns, sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(element.Table, element.Columns, sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

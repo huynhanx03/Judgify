@@ -1,120 +1,178 @@
 "use client";
 
-/**
- * Submission detail panel — shown in a Sheet when a row is clicked.
- * Contains STATUS_CONFIG and LANG_LABELS since they're only used here.
- */
-
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TEXT } from "@/constants/text";
-import { formatDateTime } from "@/lib/format";
-import { Check, Copy } from "lucide-react";
+import {
+  formatDateTime,
+  formatDuration,
+  formatMemory,
+} from "@/lib/format";
+import { CopyButton } from "@/modules/problem/copy-button";
 import type { Submission, SubmissionStatus } from "@/types/submission";
 
-export const STATUS_CONFIG: Record<SubmissionStatus, { label: string; className: string }> = {
-  accepted:             { label: "Accepted",      className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
-  wrong_answer:         { label: "Wrong Answer",  className: "bg-red-500/10 text-red-500 border-red-500/20" },
-  time_limit_exceeded:  { label: "TLE",           className: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
-  memory_limit_exceeded:{ label: "MLE",           className: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
-  runtime_error:        { label: "Runtime Error", className: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
-  compile_error:        { label: "CE",            className: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" },
-  pending:              { label: "Pending",       className: "bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse" },
-  judging:              { label: "Judging...",    className: "bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse" },
-};
-
-export const LANG_LABELS: Record<string, string> = {
-  cpp: "C++", java: "Java", python: "Python", go: "Go",
-};
+export const STATUS_CONFIG = {
+  accepted: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.ACCEPTED,
+    className:
+      "border-status-success/25 bg-status-success/10 text-status-success",
+  },
+  wrong_answer: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.WRONG_ANSWER,
+    className: "border-destructive/25 bg-destructive/10 text-destructive",
+  },
+  time_limit_exceeded: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.TIME_LIMIT,
+    className:
+      "border-status-warning/25 bg-status-warning/10 text-status-warning",
+  },
+  memory_limit_exceeded: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.MEMORY_LIMIT,
+    className:
+      "border-status-warning/25 bg-status-warning/10 text-status-warning",
+  },
+  process_limit_exceeded: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.PROCESS_LIMIT,
+    className:
+      "border-status-warning/25 bg-status-warning/10 text-status-warning",
+  },
+  output_limit_exceeded: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.OUTPUT_LIMIT,
+    className:
+      "border-status-warning/25 bg-status-warning/10 text-status-warning",
+  },
+  runtime_error: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.RUNTIME_ERROR,
+    className: "border-destructive/25 bg-destructive/10 text-destructive",
+  },
+  compile_error: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.COMPILE_ERROR,
+    className: "border-destructive/25 bg-destructive/10 text-destructive",
+  },
+  pending: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.PENDING,
+    className:
+      "border-status-info/25 bg-status-info/10 text-status-info motion-safe:animate-pulse",
+  },
+  judging: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.JUDGING,
+    className:
+      "border-status-info/25 bg-status-info/10 text-status-info motion-safe:animate-pulse",
+  },
+  internal_error: {
+    label: TEXT.PROBLEM.SUBMISSION_STATUS.INTERNAL_ERROR,
+    className: "border-destructive/25 bg-destructive/10 text-destructive",
+  },
+} as const satisfies Record<
+  SubmissionStatus,
+  { label: string; className: string }
+>;
 
 interface SubmissionDetailProps {
   submission: Submission;
 }
 
 export function SubmissionDetail({ submission }: SubmissionDetailProps) {
-  const [copied, setCopied] = useState(false);
-  const cfg = STATUS_CONFIG[submission.status];
-
-  function handleCopy() {
-    navigator.clipboard.writeText(submission.source_code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
+  const config = STATUS_CONFIG[submission.status];
 
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-6">
-      {/* Status + meta */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <Badge variant="outline" className={`text-sm font-bold px-3 py-1 ${cfg.className}`}>
-          {cfg.label}
+    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-6 pt-4 sm:px-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <Badge
+          variant="outline"
+          className={`px-3 py-1 text-sm font-bold ${config.className}`}
+        >
+          {config.label}
         </Badge>
-        <span className="text-sm text-muted-foreground">
-          {LANG_LABELS[submission.language] ?? submission.language}
+        <span className="text-sm font-medium text-foreground">
+          {submission.language}
         </span>
-        <span className="text-xs text-muted-foreground ml-auto">
+        <span className="text-xs text-muted-foreground sm:ml-auto">
           {formatDateTime(submission.created_at)}
         </span>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-border/50 bg-muted/20 p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{TEXT.PROBLEM.DETAIL_STATS_TESTS}</p>
-          <p className="text-base font-bold font-mono">
-            {submission.total_count > 0 ? `${submission.passed_count}/${submission.total_count}` : "-"}
-          </p>
+      <dl className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-surface-sunken/50 p-3">
+          <dt className="text-xs font-medium text-muted-foreground">
+            {TEXT.PROBLEM.DETAIL_STATS_TESTS}
+          </dt>
+          <dd className="mt-1 font-mono text-base font-bold text-foreground">
+            {submission.total_count > 0
+              ? `${submission.passed_count}/${submission.total_count}`
+              : "-"}
+          </dd>
         </div>
-        <div className="rounded-lg border border-border/50 bg-muted/20 p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{TEXT.PROBLEM.DETAIL_STATS_TIME}</p>
-          <p className="text-base font-bold font-mono">
-            {submission.time_ms != null ? `${submission.time_ms} ms` : "-"}
-          </p>
+        <div className="rounded-xl border border-border bg-surface-sunken/50 p-3">
+          <dt className="text-xs font-medium text-muted-foreground">
+            {TEXT.PROBLEM.DETAIL_STATS_TIME}
+          </dt>
+          <dd className="mt-1 font-mono text-base font-bold text-foreground">
+            {submission.time_ms != null
+              ? formatDuration(submission.time_ms)
+              : "-"}
+          </dd>
         </div>
-        <div className="rounded-lg border border-border/50 bg-muted/20 p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{TEXT.PROBLEM.DETAIL_STATS_MEMORY}</p>
-          <p className="text-base font-bold font-mono">
-            {submission.memory_kb != null ? `${(submission.memory_kb / 1024).toFixed(1)} MB` : "-"}
-          </p>
+        <div className="rounded-xl border border-border bg-surface-sunken/50 p-3">
+          <dt className="text-xs font-medium text-muted-foreground">
+            {TEXT.PROBLEM.DETAIL_STATS_MEMORY}
+          </dt>
+          <dd className="mt-1 font-mono text-base font-bold text-foreground">
+            {submission.memory_kb != null
+              ? formatMemory(submission.memory_kb)
+              : "-"}
+          </dd>
         </div>
+      </dl>
+
+      <div className="rounded-xl border border-border bg-muted/20 px-3 py-2">
+        <p className="text-xs font-medium text-muted-foreground">
+          {TEXT.PROBLEM.DETAIL_SUBMISSION_ID}
+        </p>
+        <p className="mt-1 break-all font-mono text-xs text-foreground">
+          {submission.id}
+        </p>
       </div>
 
-      {/* Error message */}
-      {submission.error_message && (
+      {submission.error_message ? (
         <>
           <Separator />
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+          <section aria-labelledby="submission-error-heading">
+            <h3
+              id="submission-error-heading"
+              className="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+            >
               {TEXT.PROBLEM.DETAIL_ERROR}
-            </p>
-            <pre className="rounded-lg bg-red-500/5 border border-red-500/20 p-3 text-xs text-red-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+            </h3>
+            <pre className="mt-2 overflow-x-auto rounded-xl border border-destructive/25 bg-destructive/5 p-3 font-mono text-xs leading-5 whitespace-pre-wrap break-words text-destructive">
               {submission.error_message}
             </pre>
-          </div>
+          </section>
         </>
-      )}
+      ) : null}
 
       <Separator />
 
-      {/* Source code */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <section aria-labelledby="submission-source-heading">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <h3
+            id="submission-source-heading"
+            className="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+          >
             {TEXT.PROBLEM.DETAIL_SOURCE_CODE}
-          </p>
-          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={handleCopy}>
-            {copied ? (
-              <><Check className="h-3.5 w-3.5" />{TEXT.PROBLEM.DETAIL_COPIED}</>
-            ) : (
-              <><Copy className="h-3.5 w-3.5" />{TEXT.PROBLEM.DETAIL_COPY}</>
-            )}
-          </Button>
+          </h3>
+          <CopyButton
+            value={submission.source_code}
+            idleLabel={TEXT.PROBLEM.DETAIL_COPY}
+            successLabel={TEXT.PROBLEM.DETAIL_COPIED}
+            errorLabel={TEXT.PROBLEM.DETAIL_COPY_ERROR}
+            showLabel
+          />
         </div>
-        <pre className="rounded-lg bg-muted/30 border border-border/50 p-3 text-xs font-mono overflow-x-auto whitespace-pre leading-relaxed">
+        <pre className="max-h-[50dvh] overflow-auto rounded-xl border border-border bg-code-background p-4 font-mono text-xs leading-5 whitespace-pre text-media-foreground">
           {submission.source_code}
         </pre>
-      </div>
+      </section>
     </div>
   );
 }

@@ -6,7 +6,7 @@
  * Form fields: name (required), element_ids (optional multi-select).
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,13 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TEXT } from "@/constants/text";
+import { ADMIN_TEXT } from "@/constants/admin-text";
 import type { Tag } from "@/types/tag";
 import type { ElementResponse } from "@/types/cultivation";
 
 interface TagDialogProps {
   open: boolean;
   editing: Tag | null;
-  onSave: (input: { name: string; element_ids?: number[] }) => Promise<void>;
+  onSave: (input: { name: string; element_ids?: string[] }) => Promise<void>;
   onClose: () => void;
   isSaving: boolean;
   /** Elements list loaded by the parent page — avoids a duplicate network request */
@@ -30,21 +31,12 @@ interface TagDialogProps {
 }
 
 export function TagDialog({ open, editing, onSave, onClose, isSaving, elements }: TagDialogProps) {
-  const [name, setName] = useState("");
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [name, setName] = useState(editing?.name ?? "");
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    editing?.elements?.map((element) => element.id) ?? [],
+  );
 
-  // Pre-fill when editing
-  useEffect(() => {
-    if (editing) {
-      setName(editing.name);
-      setSelectedIds(editing.elements?.map((e) => e.id) ?? []);
-    } else {
-      setName("");
-      setSelectedIds([]);
-    }
-  }, [editing, open]);
-
-  function toggleElement(id: number) {
+  function toggleElement(id: string) {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
@@ -60,22 +52,24 @@ export function TagDialog({ open, editing, onSave, onClose, isSaving, elements }
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editing ? TEXT.ADMIN.TAGS.DIALOG_EDIT_TITLE : TEXT.ADMIN.TAGS.DIALOG_CREATE_TITLE}
+            {editing ? ADMIN_TEXT.TAGS.DIALOG_EDIT_TITLE : ADMIN_TEXT.TAGS.DIALOG_CREATE_TITLE}
           </DialogTitle>
           <DialogDescription>
-            {editing ? TEXT.ADMIN.TAGS.DIALOG_EDIT_DESC : TEXT.ADMIN.TAGS.DIALOG_CREATE_DESC}
+            {editing ? ADMIN_TEXT.TAGS.DIALOG_EDIT_DESC : ADMIN_TEXT.TAGS.DIALOG_CREATE_DESC}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label>{TEXT.ADMIN.FIELDS.NAME}</Label>
-            <Input placeholder="VD: Quy Hoạch Động" value={name} onChange={(e) => setName(e.target.value)} />
+            <Label htmlFor="tag-name">{ADMIN_TEXT.FIELDS.NAME}</Label>
+            <Input id="tag-name" placeholder={ADMIN_TEXT.EXAMPLES.TAG} value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           {elements.length > 0 && (
-            <div className="space-y-2">
-              <Label>{TEXT.ADMIN.FIELDS.ELEMENT}</Label>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium text-foreground">
+                {ADMIN_TEXT.FIELDS.ELEMENT}
+              </legend>
               <div className="grid grid-cols-2 gap-2">
                 {elements.map((el) => (
                   <label
@@ -92,7 +86,7 @@ export function TagDialog({ open, editing, onSave, onClose, isSaving, elements }
                   </label>
                 ))}
               </div>
-            </div>
+            </fieldset>
           )}
         </div>
 
@@ -105,7 +99,7 @@ export function TagDialog({ open, editing, onSave, onClose, isSaving, elements }
             disabled={!name.trim() || isSaving}
             onClick={handleSubmit}
           >
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2 motion-reduce:animate-none" aria-hidden="true" />}
             {editing ? TEXT.COMMON.SAVE : TEXT.COMMON.CREATE}
           </Button>
         </DialogFooter>

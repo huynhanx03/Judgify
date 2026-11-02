@@ -11,9 +11,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/onboardingtraitoffertalent"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
+	"github.com/huynhanx03/judgify/internal/ent/generate/traiteffectrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrewardprofiletrait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertrait"
 )
 
@@ -58,23 +62,16 @@ func (_u *TraitUpdate) ClearDeletedAt() *TraitUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *TraitUpdate) SetDeletedBy(v int) *TraitUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *TraitUpdate) SetDeletedBy(v string) *TraitUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *TraitUpdate) SetNillableDeletedBy(v *int) *TraitUpdate {
+func (_u *TraitUpdate) SetNillableDeletedBy(v *string) *TraitUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *TraitUpdate) AddDeletedBy(v int) *TraitUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -113,13 +110,13 @@ func (_u *TraitUpdate) SetNillableName(v *string) *TraitUpdate {
 }
 
 // SetRarityID sets the "rarity_id" field.
-func (_u *TraitUpdate) SetRarityID(v int) *TraitUpdate {
+func (_u *TraitUpdate) SetRarityID(v uuid.UUID) *TraitUpdate {
 	_u.mutation.SetRarityID(v)
 	return _u
 }
 
 // SetNillableRarityID sets the "rarity_id" field if the given value is not nil.
-func (_u *TraitUpdate) SetNillableRarityID(v *int) *TraitUpdate {
+func (_u *TraitUpdate) SetNillableRarityID(v *uuid.UUID) *TraitUpdate {
 	if v != nil {
 		_u.SetRarityID(*v)
 	}
@@ -146,15 +143,59 @@ func (_u *TraitUpdate) ClearDescription() *TraitUpdate {
 	return _u
 }
 
-// SetMetadata sets the "metadata" field.
-func (_u *TraitUpdate) SetMetadata(v map[string]interface{}) *TraitUpdate {
-	_u.mutation.SetMetadata(v)
+// SetDisplayOrder sets the "display_order" field.
+func (_u *TraitUpdate) SetDisplayOrder(v int) *TraitUpdate {
+	_u.mutation.ResetDisplayOrder()
+	_u.mutation.SetDisplayOrder(v)
 	return _u
 }
 
-// ClearMetadata clears the value of the "metadata" field.
-func (_u *TraitUpdate) ClearMetadata() *TraitUpdate {
-	_u.mutation.ClearMetadata()
+// SetNillableDisplayOrder sets the "display_order" field if the given value is not nil.
+func (_u *TraitUpdate) SetNillableDisplayOrder(v *int) *TraitUpdate {
+	if v != nil {
+		_u.SetDisplayOrder(*v)
+	}
+	return _u
+}
+
+// AddDisplayOrder adds value to the "display_order" field.
+func (_u *TraitUpdate) AddDisplayOrder(v int) *TraitUpdate {
+	_u.mutation.AddDisplayOrder(v)
+	return _u
+}
+
+// SetActive sets the "active" field.
+func (_u *TraitUpdate) SetActive(v bool) *TraitUpdate {
+	_u.mutation.SetActive(v)
+	return _u
+}
+
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (_u *TraitUpdate) SetNillableActive(v *bool) *TraitUpdate {
+	if v != nil {
+		_u.SetActive(*v)
+	}
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *TraitUpdate) SetVersion(v int64) *TraitUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *TraitUpdate) SetNillableVersion(v *int64) *TraitUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *TraitUpdate) AddVersion(v int64) *TraitUpdate {
+	_u.mutation.AddVersion(v)
 	return _u
 }
 
@@ -164,18 +205,63 @@ func (_u *TraitUpdate) SetRarity(v *Rarity) *TraitUpdate {
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
-func (_u *TraitUpdate) AddUserTraitIDs(ids ...int) *TraitUpdate {
+func (_u *TraitUpdate) AddUserTraitIDs(ids ...uuid.UUID) *TraitUpdate {
 	_u.mutation.AddUserTraitIDs(ids...)
 	return _u
 }
 
 // AddUserTraits adds the "user_traits" edges to the UserTrait entity.
 func (_u *TraitUpdate) AddUserTraits(v ...*UserTrait) *TraitUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserTraitIDs(ids...)
+}
+
+// AddOnboardingOfferTalentIDs adds the "onboarding_offer_talents" edge to the OnboardingTraitOfferTalent entity by IDs.
+func (_u *TraitUpdate) AddOnboardingOfferTalentIDs(ids ...int) *TraitUpdate {
+	_u.mutation.AddOnboardingOfferTalentIDs(ids...)
+	return _u
+}
+
+// AddOnboardingOfferTalents adds the "onboarding_offer_talents" edges to the OnboardingTraitOfferTalent entity.
+func (_u *TraitUpdate) AddOnboardingOfferTalents(v ...*OnboardingTraitOfferTalent) *TraitUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOnboardingOfferTalentIDs(ids...)
+}
+
+// AddEffectRevisionIDs adds the "effect_revisions" edge to the TraitEffectRevision entity by IDs.
+func (_u *TraitUpdate) AddEffectRevisionIDs(ids ...uuid.UUID) *TraitUpdate {
+	_u.mutation.AddEffectRevisionIDs(ids...)
+	return _u
+}
+
+// AddEffectRevisions adds the "effect_revisions" edges to the TraitEffectRevision entity.
+func (_u *TraitUpdate) AddEffectRevisions(v ...*TraitEffectRevision) *TraitUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEffectRevisionIDs(ids...)
+}
+
+// AddRewardProfileTraitIDs adds the "reward_profile_traits" edge to the UserRewardProfileTrait entity by IDs.
+func (_u *TraitUpdate) AddRewardProfileTraitIDs(ids ...uuid.UUID) *TraitUpdate {
+	_u.mutation.AddRewardProfileTraitIDs(ids...)
+	return _u
+}
+
+// AddRewardProfileTraits adds the "reward_profile_traits" edges to the UserRewardProfileTrait entity.
+func (_u *TraitUpdate) AddRewardProfileTraits(v ...*UserRewardProfileTrait) *TraitUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRewardProfileTraitIDs(ids...)
 }
 
 // Mutation returns the TraitMutation object of the builder.
@@ -196,18 +282,81 @@ func (_u *TraitUpdate) ClearUserTraits() *TraitUpdate {
 }
 
 // RemoveUserTraitIDs removes the "user_traits" edge to UserTrait entities by IDs.
-func (_u *TraitUpdate) RemoveUserTraitIDs(ids ...int) *TraitUpdate {
+func (_u *TraitUpdate) RemoveUserTraitIDs(ids ...uuid.UUID) *TraitUpdate {
 	_u.mutation.RemoveUserTraitIDs(ids...)
 	return _u
 }
 
 // RemoveUserTraits removes "user_traits" edges to UserTrait entities.
 func (_u *TraitUpdate) RemoveUserTraits(v ...*UserTrait) *TraitUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserTraitIDs(ids...)
+}
+
+// ClearOnboardingOfferTalents clears all "onboarding_offer_talents" edges to the OnboardingTraitOfferTalent entity.
+func (_u *TraitUpdate) ClearOnboardingOfferTalents() *TraitUpdate {
+	_u.mutation.ClearOnboardingOfferTalents()
+	return _u
+}
+
+// RemoveOnboardingOfferTalentIDs removes the "onboarding_offer_talents" edge to OnboardingTraitOfferTalent entities by IDs.
+func (_u *TraitUpdate) RemoveOnboardingOfferTalentIDs(ids ...int) *TraitUpdate {
+	_u.mutation.RemoveOnboardingOfferTalentIDs(ids...)
+	return _u
+}
+
+// RemoveOnboardingOfferTalents removes "onboarding_offer_talents" edges to OnboardingTraitOfferTalent entities.
+func (_u *TraitUpdate) RemoveOnboardingOfferTalents(v ...*OnboardingTraitOfferTalent) *TraitUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOnboardingOfferTalentIDs(ids...)
+}
+
+// ClearEffectRevisions clears all "effect_revisions" edges to the TraitEffectRevision entity.
+func (_u *TraitUpdate) ClearEffectRevisions() *TraitUpdate {
+	_u.mutation.ClearEffectRevisions()
+	return _u
+}
+
+// RemoveEffectRevisionIDs removes the "effect_revisions" edge to TraitEffectRevision entities by IDs.
+func (_u *TraitUpdate) RemoveEffectRevisionIDs(ids ...uuid.UUID) *TraitUpdate {
+	_u.mutation.RemoveEffectRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveEffectRevisions removes "effect_revisions" edges to TraitEffectRevision entities.
+func (_u *TraitUpdate) RemoveEffectRevisions(v ...*TraitEffectRevision) *TraitUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEffectRevisionIDs(ids...)
+}
+
+// ClearRewardProfileTraits clears all "reward_profile_traits" edges to the UserRewardProfileTrait entity.
+func (_u *TraitUpdate) ClearRewardProfileTraits() *TraitUpdate {
+	_u.mutation.ClearRewardProfileTraits()
+	return _u
+}
+
+// RemoveRewardProfileTraitIDs removes the "reward_profile_traits" edge to UserRewardProfileTrait entities by IDs.
+func (_u *TraitUpdate) RemoveRewardProfileTraitIDs(ids ...uuid.UUID) *TraitUpdate {
+	_u.mutation.RemoveRewardProfileTraitIDs(ids...)
+	return _u
+}
+
+// RemoveRewardProfileTraits removes "reward_profile_traits" edges to UserRewardProfileTrait entities.
+func (_u *TraitUpdate) RemoveRewardProfileTraits(v ...*UserRewardProfileTrait) *TraitUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRewardProfileTraitIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -269,6 +418,16 @@ func (_u *TraitUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Trait.description": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.DisplayOrder(); ok {
+		if err := trait.DisplayOrderValidator(v); err != nil {
+			return &ValidationError{Name: "display_order", err: fmt.Errorf(`generate: validator failed for field "Trait.display_order": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := trait.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Trait.version": %w`, err)}
+		}
+	}
 	if _u.mutation.RarityCleared() && len(_u.mutation.RarityIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Trait.rarity"`)
 	}
@@ -285,7 +444,7 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(trait.Table, trait.Columns, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(trait.Table, trait.Columns, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -303,13 +462,10 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(trait.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(trait.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(trait.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(trait.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(trait.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(trait.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(trait.FieldType, field.TypeEnum, value)
@@ -323,11 +479,20 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(trait.FieldDescription, field.TypeString)
 	}
-	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(trait.FieldMetadata, field.TypeJSON, value)
+	if value, ok := _u.mutation.DisplayOrder(); ok {
+		_spec.SetField(trait.FieldDisplayOrder, field.TypeInt, value)
 	}
-	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(trait.FieldMetadata, field.TypeJSON)
+	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
+		_spec.AddField(trait.FieldDisplayOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Active(); ok {
+		_spec.SetField(trait.FieldActive, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(trait.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(trait.FieldVersion, field.TypeInt64, value)
 	}
 	if _u.mutation.RarityCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -337,7 +502,7 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{trait.RarityColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -350,7 +515,7 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{trait.RarityColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -366,7 +531,7 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -379,7 +544,7 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -395,7 +560,142 @@ func (_u *TraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.OnboardingOfferTalentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedOnboardingOfferTalentsIDs(); len(nodes) > 0 && !_u.mutation.OnboardingOfferTalentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OnboardingOfferTalentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.EffectRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedEffectRevisionsIDs(); len(nodes) > 0 && !_u.mutation.EffectRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EffectRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RewardProfileTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRewardProfileTraitsIDs(); len(nodes) > 0 && !_u.mutation.RewardProfileTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RewardProfileTraitsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -452,23 +752,16 @@ func (_u *TraitUpdateOne) ClearDeletedAt() *TraitUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *TraitUpdateOne) SetDeletedBy(v int) *TraitUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *TraitUpdateOne) SetDeletedBy(v string) *TraitUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *TraitUpdateOne) SetNillableDeletedBy(v *int) *TraitUpdateOne {
+func (_u *TraitUpdateOne) SetNillableDeletedBy(v *string) *TraitUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *TraitUpdateOne) AddDeletedBy(v int) *TraitUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -507,13 +800,13 @@ func (_u *TraitUpdateOne) SetNillableName(v *string) *TraitUpdateOne {
 }
 
 // SetRarityID sets the "rarity_id" field.
-func (_u *TraitUpdateOne) SetRarityID(v int) *TraitUpdateOne {
+func (_u *TraitUpdateOne) SetRarityID(v uuid.UUID) *TraitUpdateOne {
 	_u.mutation.SetRarityID(v)
 	return _u
 }
 
 // SetNillableRarityID sets the "rarity_id" field if the given value is not nil.
-func (_u *TraitUpdateOne) SetNillableRarityID(v *int) *TraitUpdateOne {
+func (_u *TraitUpdateOne) SetNillableRarityID(v *uuid.UUID) *TraitUpdateOne {
 	if v != nil {
 		_u.SetRarityID(*v)
 	}
@@ -540,15 +833,59 @@ func (_u *TraitUpdateOne) ClearDescription() *TraitUpdateOne {
 	return _u
 }
 
-// SetMetadata sets the "metadata" field.
-func (_u *TraitUpdateOne) SetMetadata(v map[string]interface{}) *TraitUpdateOne {
-	_u.mutation.SetMetadata(v)
+// SetDisplayOrder sets the "display_order" field.
+func (_u *TraitUpdateOne) SetDisplayOrder(v int) *TraitUpdateOne {
+	_u.mutation.ResetDisplayOrder()
+	_u.mutation.SetDisplayOrder(v)
 	return _u
 }
 
-// ClearMetadata clears the value of the "metadata" field.
-func (_u *TraitUpdateOne) ClearMetadata() *TraitUpdateOne {
-	_u.mutation.ClearMetadata()
+// SetNillableDisplayOrder sets the "display_order" field if the given value is not nil.
+func (_u *TraitUpdateOne) SetNillableDisplayOrder(v *int) *TraitUpdateOne {
+	if v != nil {
+		_u.SetDisplayOrder(*v)
+	}
+	return _u
+}
+
+// AddDisplayOrder adds value to the "display_order" field.
+func (_u *TraitUpdateOne) AddDisplayOrder(v int) *TraitUpdateOne {
+	_u.mutation.AddDisplayOrder(v)
+	return _u
+}
+
+// SetActive sets the "active" field.
+func (_u *TraitUpdateOne) SetActive(v bool) *TraitUpdateOne {
+	_u.mutation.SetActive(v)
+	return _u
+}
+
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (_u *TraitUpdateOne) SetNillableActive(v *bool) *TraitUpdateOne {
+	if v != nil {
+		_u.SetActive(*v)
+	}
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *TraitUpdateOne) SetVersion(v int64) *TraitUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *TraitUpdateOne) SetNillableVersion(v *int64) *TraitUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *TraitUpdateOne) AddVersion(v int64) *TraitUpdateOne {
+	_u.mutation.AddVersion(v)
 	return _u
 }
 
@@ -558,18 +895,63 @@ func (_u *TraitUpdateOne) SetRarity(v *Rarity) *TraitUpdateOne {
 }
 
 // AddUserTraitIDs adds the "user_traits" edge to the UserTrait entity by IDs.
-func (_u *TraitUpdateOne) AddUserTraitIDs(ids ...int) *TraitUpdateOne {
+func (_u *TraitUpdateOne) AddUserTraitIDs(ids ...uuid.UUID) *TraitUpdateOne {
 	_u.mutation.AddUserTraitIDs(ids...)
 	return _u
 }
 
 // AddUserTraits adds the "user_traits" edges to the UserTrait entity.
 func (_u *TraitUpdateOne) AddUserTraits(v ...*UserTrait) *TraitUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserTraitIDs(ids...)
+}
+
+// AddOnboardingOfferTalentIDs adds the "onboarding_offer_talents" edge to the OnboardingTraitOfferTalent entity by IDs.
+func (_u *TraitUpdateOne) AddOnboardingOfferTalentIDs(ids ...int) *TraitUpdateOne {
+	_u.mutation.AddOnboardingOfferTalentIDs(ids...)
+	return _u
+}
+
+// AddOnboardingOfferTalents adds the "onboarding_offer_talents" edges to the OnboardingTraitOfferTalent entity.
+func (_u *TraitUpdateOne) AddOnboardingOfferTalents(v ...*OnboardingTraitOfferTalent) *TraitUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOnboardingOfferTalentIDs(ids...)
+}
+
+// AddEffectRevisionIDs adds the "effect_revisions" edge to the TraitEffectRevision entity by IDs.
+func (_u *TraitUpdateOne) AddEffectRevisionIDs(ids ...uuid.UUID) *TraitUpdateOne {
+	_u.mutation.AddEffectRevisionIDs(ids...)
+	return _u
+}
+
+// AddEffectRevisions adds the "effect_revisions" edges to the TraitEffectRevision entity.
+func (_u *TraitUpdateOne) AddEffectRevisions(v ...*TraitEffectRevision) *TraitUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEffectRevisionIDs(ids...)
+}
+
+// AddRewardProfileTraitIDs adds the "reward_profile_traits" edge to the UserRewardProfileTrait entity by IDs.
+func (_u *TraitUpdateOne) AddRewardProfileTraitIDs(ids ...uuid.UUID) *TraitUpdateOne {
+	_u.mutation.AddRewardProfileTraitIDs(ids...)
+	return _u
+}
+
+// AddRewardProfileTraits adds the "reward_profile_traits" edges to the UserRewardProfileTrait entity.
+func (_u *TraitUpdateOne) AddRewardProfileTraits(v ...*UserRewardProfileTrait) *TraitUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRewardProfileTraitIDs(ids...)
 }
 
 // Mutation returns the TraitMutation object of the builder.
@@ -590,18 +972,81 @@ func (_u *TraitUpdateOne) ClearUserTraits() *TraitUpdateOne {
 }
 
 // RemoveUserTraitIDs removes the "user_traits" edge to UserTrait entities by IDs.
-func (_u *TraitUpdateOne) RemoveUserTraitIDs(ids ...int) *TraitUpdateOne {
+func (_u *TraitUpdateOne) RemoveUserTraitIDs(ids ...uuid.UUID) *TraitUpdateOne {
 	_u.mutation.RemoveUserTraitIDs(ids...)
 	return _u
 }
 
 // RemoveUserTraits removes "user_traits" edges to UserTrait entities.
 func (_u *TraitUpdateOne) RemoveUserTraits(v ...*UserTrait) *TraitUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserTraitIDs(ids...)
+}
+
+// ClearOnboardingOfferTalents clears all "onboarding_offer_talents" edges to the OnboardingTraitOfferTalent entity.
+func (_u *TraitUpdateOne) ClearOnboardingOfferTalents() *TraitUpdateOne {
+	_u.mutation.ClearOnboardingOfferTalents()
+	return _u
+}
+
+// RemoveOnboardingOfferTalentIDs removes the "onboarding_offer_talents" edge to OnboardingTraitOfferTalent entities by IDs.
+func (_u *TraitUpdateOne) RemoveOnboardingOfferTalentIDs(ids ...int) *TraitUpdateOne {
+	_u.mutation.RemoveOnboardingOfferTalentIDs(ids...)
+	return _u
+}
+
+// RemoveOnboardingOfferTalents removes "onboarding_offer_talents" edges to OnboardingTraitOfferTalent entities.
+func (_u *TraitUpdateOne) RemoveOnboardingOfferTalents(v ...*OnboardingTraitOfferTalent) *TraitUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOnboardingOfferTalentIDs(ids...)
+}
+
+// ClearEffectRevisions clears all "effect_revisions" edges to the TraitEffectRevision entity.
+func (_u *TraitUpdateOne) ClearEffectRevisions() *TraitUpdateOne {
+	_u.mutation.ClearEffectRevisions()
+	return _u
+}
+
+// RemoveEffectRevisionIDs removes the "effect_revisions" edge to TraitEffectRevision entities by IDs.
+func (_u *TraitUpdateOne) RemoveEffectRevisionIDs(ids ...uuid.UUID) *TraitUpdateOne {
+	_u.mutation.RemoveEffectRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveEffectRevisions removes "effect_revisions" edges to TraitEffectRevision entities.
+func (_u *TraitUpdateOne) RemoveEffectRevisions(v ...*TraitEffectRevision) *TraitUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEffectRevisionIDs(ids...)
+}
+
+// ClearRewardProfileTraits clears all "reward_profile_traits" edges to the UserRewardProfileTrait entity.
+func (_u *TraitUpdateOne) ClearRewardProfileTraits() *TraitUpdateOne {
+	_u.mutation.ClearRewardProfileTraits()
+	return _u
+}
+
+// RemoveRewardProfileTraitIDs removes the "reward_profile_traits" edge to UserRewardProfileTrait entities by IDs.
+func (_u *TraitUpdateOne) RemoveRewardProfileTraitIDs(ids ...uuid.UUID) *TraitUpdateOne {
+	_u.mutation.RemoveRewardProfileTraitIDs(ids...)
+	return _u
+}
+
+// RemoveRewardProfileTraits removes "reward_profile_traits" edges to UserRewardProfileTrait entities.
+func (_u *TraitUpdateOne) RemoveRewardProfileTraits(v ...*UserRewardProfileTrait) *TraitUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRewardProfileTraitIDs(ids...)
 }
 
 // Where appends a list predicates to the TraitUpdate builder.
@@ -676,6 +1121,16 @@ func (_u *TraitUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Trait.description": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.DisplayOrder(); ok {
+		if err := trait.DisplayOrderValidator(v); err != nil {
+			return &ValidationError{Name: "display_order", err: fmt.Errorf(`generate: validator failed for field "Trait.display_order": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := trait.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Trait.version": %w`, err)}
+		}
+	}
 	if _u.mutation.RarityCleared() && len(_u.mutation.RarityIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Trait.rarity"`)
 	}
@@ -692,7 +1147,7 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(trait.Table, trait.Columns, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(trait.Table, trait.Columns, sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Trait.id" for update`)}
@@ -727,13 +1182,10 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 		_spec.ClearField(trait.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(trait.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(trait.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(trait.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(trait.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(trait.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(trait.FieldType, field.TypeEnum, value)
@@ -747,11 +1199,20 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(trait.FieldDescription, field.TypeString)
 	}
-	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(trait.FieldMetadata, field.TypeJSON, value)
+	if value, ok := _u.mutation.DisplayOrder(); ok {
+		_spec.SetField(trait.FieldDisplayOrder, field.TypeInt, value)
 	}
-	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(trait.FieldMetadata, field.TypeJSON)
+	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
+		_spec.AddField(trait.FieldDisplayOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Active(); ok {
+		_spec.SetField(trait.FieldActive, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(trait.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(trait.FieldVersion, field.TypeInt64, value)
 	}
 	if _u.mutation.RarityCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -761,7 +1222,7 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 			Columns: []string{trait.RarityColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -774,7 +1235,7 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 			Columns: []string{trait.RarityColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -790,7 +1251,7 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -803,7 +1264,7 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -819,7 +1280,142 @@ func (_u *TraitUpdateOne) sqlSave(ctx context.Context) (_node *Trait, err error)
 			Columns: []string{trait.UserTraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.OnboardingOfferTalentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedOnboardingOfferTalentsIDs(); len(nodes) > 0 && !_u.mutation.OnboardingOfferTalentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OnboardingOfferTalentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.OnboardingOfferTalentsTable,
+			Columns: []string{trait.OnboardingOfferTalentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.EffectRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedEffectRevisionsIDs(); len(nodes) > 0 && !_u.mutation.EffectRevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EffectRevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.EffectRevisionsTable,
+			Columns: []string{trait.EffectRevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(traiteffectrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RewardProfileTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRewardProfileTraitsIDs(); len(nodes) > 0 && !_u.mutation.RewardProfileTraitsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RewardProfileTraitsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trait.RewardProfileTraitsTable,
+			Columns: []string{trait.RewardProfileTraitsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrewardprofiletrait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

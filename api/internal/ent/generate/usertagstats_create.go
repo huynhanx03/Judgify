@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
@@ -23,14 +25,20 @@ type UserTagStatsCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserTagStatsCreate) SetTenantID(v uuid.UUID) *UserTagStatsCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
-func (_c *UserTagStatsCreate) SetUserID(v int) *UserTagStatsCreate {
+func (_c *UserTagStatsCreate) SetUserID(v uuid.UUID) *UserTagStatsCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetTagID sets the "tag_id" field.
-func (_c *UserTagStatsCreate) SetTagID(v int) *UserTagStatsCreate {
+func (_c *UserTagStatsCreate) SetTagID(v uuid.UUID) *UserTagStatsCreate {
 	_c.mutation.SetTagID(v)
 	return _c
 }
@@ -45,6 +53,20 @@ func (_c *UserTagStatsCreate) SetSolvedCount(v int) *UserTagStatsCreate {
 func (_c *UserTagStatsCreate) SetNillableSolvedCount(v *int) *UserTagStatsCreate {
 	if v != nil {
 		_c.SetSolvedCount(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *UserTagStatsCreate) SetID(v uuid.UUID) *UserTagStatsCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *UserTagStatsCreate) SetNillableID(v *uuid.UUID) *UserTagStatsCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -98,10 +120,17 @@ func (_c *UserTagStatsCreate) defaults() {
 		v := usertagstats.DefaultSolvedCount
 		_c.mutation.SetSolvedCount(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := usertagstats.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserTagStatsCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserTagStats.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserTagStats.user_id"`)}
 	}
@@ -136,8 +165,13 @@ func (_c *UserTagStatsCreate) sqlSave(ctx context.Context) (*UserTagStats, error
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -146,9 +180,17 @@ func (_c *UserTagStatsCreate) sqlSave(ctx context.Context) (*UserTagStats, error
 func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserTagStats{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(usertagstats.Table, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(usertagstats.Table, sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(usertagstats.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SolvedCount(); ok {
 		_spec.SetField(usertagstats.FieldSolvedCount, field.TypeInt, value)
 		_node.SolvedCount = value
@@ -161,7 +203,7 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 			Columns: []string{usertagstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -178,7 +220,7 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 			Columns: []string{usertagstats.TagColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -194,7 +236,7 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 // of the `INSERT` statement. For example:
 //
 //	client.UserTagStats.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -203,7 +245,7 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserTagStatsUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserTagStatsCreate) OnConflict(opts ...sql.ConflictOption) *UserTagStatsUpsertOne {
@@ -240,7 +282,7 @@ type (
 )
 
 // SetUserID sets the "user_id" field.
-func (u *UserTagStatsUpsert) SetUserID(v int) *UserTagStatsUpsert {
+func (u *UserTagStatsUpsert) SetUserID(v uuid.UUID) *UserTagStatsUpsert {
 	u.Set(usertagstats.FieldUserID, v)
 	return u
 }
@@ -252,7 +294,7 @@ func (u *UserTagStatsUpsert) UpdateUserID() *UserTagStatsUpsert {
 }
 
 // SetTagID sets the "tag_id" field.
-func (u *UserTagStatsUpsert) SetTagID(v int) *UserTagStatsUpsert {
+func (u *UserTagStatsUpsert) SetTagID(v uuid.UUID) *UserTagStatsUpsert {
 	u.Set(usertagstats.FieldTagID, v)
 	return u
 }
@@ -281,16 +323,27 @@ func (u *UserTagStatsUpsert) AddSolvedCount(v int) *UserTagStatsUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.UserTagStats.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(usertagstats.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserTagStatsUpsertOne) UpdateNewValues() *UserTagStatsUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(usertagstats.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(usertagstats.FieldTenantID)
+		}
+	}))
 	return u
 }
 
@@ -322,7 +375,7 @@ func (u *UserTagStatsUpsertOne) Update(set func(*UserTagStatsUpsert)) *UserTagSt
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserTagStatsUpsertOne) SetUserID(v int) *UserTagStatsUpsertOne {
+func (u *UserTagStatsUpsertOne) SetUserID(v uuid.UUID) *UserTagStatsUpsertOne {
 	return u.Update(func(s *UserTagStatsUpsert) {
 		s.SetUserID(v)
 	})
@@ -336,7 +389,7 @@ func (u *UserTagStatsUpsertOne) UpdateUserID() *UserTagStatsUpsertOne {
 }
 
 // SetTagID sets the "tag_id" field.
-func (u *UserTagStatsUpsertOne) SetTagID(v int) *UserTagStatsUpsertOne {
+func (u *UserTagStatsUpsertOne) SetTagID(v uuid.UUID) *UserTagStatsUpsertOne {
 	return u.Update(func(s *UserTagStatsUpsert) {
 		s.SetTagID(v)
 	})
@@ -386,7 +439,12 @@ func (u *UserTagStatsUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *UserTagStatsUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *UserTagStatsUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: UserTagStatsUpsertOne.ID is not supported by MySQL driver. Use UserTagStatsUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -395,17 +453,12 @@ func (u *UserTagStatsUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *UserTagStatsUpsertOne) IDX(ctx context.Context) int {
+func (u *UserTagStatsUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *UserTagStatsCreate) SetID(id int) *UserTagStatsCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // UserTagStatsCreateBulk is the builder for creating many UserTagStats entities in bulk.
@@ -455,10 +508,6 @@ func (_c *UserTagStatsCreateBulk) Save(ctx context.Context) ([]*UserTagStats, er
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -510,7 +559,7 @@ func (_c *UserTagStatsCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserTagStatsUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserTagStatsCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserTagStatsUpsertBulk {
@@ -545,10 +594,23 @@ type UserTagStatsUpsertBulk struct {
 //	client.UserTagStats.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(usertagstats.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *UserTagStatsUpsertBulk) UpdateNewValues() *UserTagStatsUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(usertagstats.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(usertagstats.FieldTenantID)
+			}
+		}
+	}))
 	return u
 }
 
@@ -580,7 +642,7 @@ func (u *UserTagStatsUpsertBulk) Update(set func(*UserTagStatsUpsert)) *UserTagS
 }
 
 // SetUserID sets the "user_id" field.
-func (u *UserTagStatsUpsertBulk) SetUserID(v int) *UserTagStatsUpsertBulk {
+func (u *UserTagStatsUpsertBulk) SetUserID(v uuid.UUID) *UserTagStatsUpsertBulk {
 	return u.Update(func(s *UserTagStatsUpsert) {
 		s.SetUserID(v)
 	})
@@ -594,7 +656,7 @@ func (u *UserTagStatsUpsertBulk) UpdateUserID() *UserTagStatsUpsertBulk {
 }
 
 // SetTagID sets the "tag_id" field.
-func (u *UserTagStatsUpsertBulk) SetTagID(v int) *UserTagStatsUpsertBulk {
+func (u *UserTagStatsUpsertBulk) SetTagID(v uuid.UUID) *UserTagStatsUpsertBulk {
 	return u.Update(func(s *UserTagStatsUpsert) {
 		s.SetTagID(v)
 	})

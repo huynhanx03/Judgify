@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Element {
+func ID(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Element {
+func IDEQ(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Element {
+func IDNEQ(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Element {
+func IDIn(ids ...uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Element {
+func IDNotIn(ids ...uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Element {
+func IDGT(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Element {
+func IDGTE(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Element {
+func IDLT(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Element {
+func IDLTE(id uuid.UUID) predicate.Element {
 	return predicate.Element(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Element {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Element {
+func DeletedBy(v string) predicate.Element {
 	return predicate.Element(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -88,6 +89,11 @@ func Code(v string) predicate.Element {
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Element {
 	return predicate.Element(sql.FieldEQ(FieldDescription, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Element {
+	return predicate.Element(sql.FieldEQ(FieldVersion, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -221,43 +227,58 @@ func DeletedAtNotNil() predicate.Element {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Element {
+func DeletedByEQ(v string) predicate.Element {
 	return predicate.Element(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Element {
+func DeletedByNEQ(v string) predicate.Element {
 	return predicate.Element(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Element {
+func DeletedByIn(vs ...string) predicate.Element {
 	return predicate.Element(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Element {
+func DeletedByNotIn(vs ...string) predicate.Element {
 	return predicate.Element(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Element {
+func DeletedByGT(v string) predicate.Element {
 	return predicate.Element(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Element {
+func DeletedByGTE(v string) predicate.Element {
 	return predicate.Element(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Element {
+func DeletedByLT(v string) predicate.Element {
 	return predicate.Element(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Element {
+func DeletedByLTE(v string) predicate.Element {
 	return predicate.Element(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Element {
+	return predicate.Element(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Element {
+	return predicate.Element(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Element {
+	return predicate.Element(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -268,6 +289,16 @@ func DeletedByIsNil() predicate.Element {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Element {
 	return predicate.Element(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Element {
+	return predicate.Element(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Element {
+	return predicate.Element(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -473,6 +504,92 @@ func DescriptionEqualFold(v string) predicate.Element {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.Element {
 	return predicate.Element(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Element {
+	return predicate.Element(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Element {
+	return predicate.Element(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Element {
+	return predicate.Element(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Element {
+	return predicate.Element(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Element {
+	return predicate.Element(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Element {
+	return predicate.Element(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Element {
+	return predicate.Element(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Element {
+	return predicate.Element(sql.FieldLTE(FieldVersion, v))
+}
+
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.Element {
+	return predicate.Element(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.ElementRevision) predicate.Element {
+	return predicate.Element(func(s *sql.Selector) {
+		step := newRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTagRevisionElements applies the HasEdge predicate on the "tag_revision_elements" edge.
+func HasTagRevisionElements() predicate.Element {
+	return predicate.Element(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TagRevisionElementsTable, TagRevisionElementsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTagRevisionElementsWith applies the HasEdge predicate on the "tag_revision_elements" edge with a given conditions (other predicates).
+func HasTagRevisionElementsWith(preds ...predicate.TagRevisionElement) predicate.Element {
+	return predicate.Element(func(s *sql.Selector) {
+		step := newTagRevisionElementsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // HasTags applies the HasEdge predicate on the "tags" edge.

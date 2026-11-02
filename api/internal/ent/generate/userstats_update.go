@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userstats"
@@ -57,23 +58,16 @@ func (_u *UserStatsUpdate) ClearDeletedAt() *UserStatsUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserStatsUpdate) SetDeletedBy(v int) *UserStatsUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserStatsUpdate) SetDeletedBy(v string) *UserStatsUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserStatsUpdate) SetNillableDeletedBy(v *int) *UserStatsUpdate {
+func (_u *UserStatsUpdate) SetNillableDeletedBy(v *string) *UserStatsUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserStatsUpdate) AddDeletedBy(v int) *UserStatsUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -84,13 +78,13 @@ func (_u *UserStatsUpdate) ClearDeletedBy() *UserStatsUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserStatsUpdate) SetUserID(v int) *UserStatsUpdate {
+func (_u *UserStatsUpdate) SetUserID(v uuid.UUID) *UserStatsUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserStatsUpdate) SetNillableUserID(v *int) *UserStatsUpdate {
+func (_u *UserStatsUpdate) SetNillableUserID(v *uuid.UUID) *UserStatsUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -181,6 +175,88 @@ func (_u *UserStatsUpdate) AddAcceptedCount(v int) *UserStatsUpdate {
 	return _u
 }
 
+// SetProgressionVersion sets the "progression_version" field.
+func (_u *UserStatsUpdate) SetProgressionVersion(v int64) *UserStatsUpdate {
+	_u.mutation.ResetProgressionVersion()
+	_u.mutation.SetProgressionVersion(v)
+	return _u
+}
+
+// SetNillableProgressionVersion sets the "progression_version" field if the given value is not nil.
+func (_u *UserStatsUpdate) SetNillableProgressionVersion(v *int64) *UserStatsUpdate {
+	if v != nil {
+		_u.SetProgressionVersion(*v)
+	}
+	return _u
+}
+
+// AddProgressionVersion adds value to the "progression_version" field.
+func (_u *UserStatsUpdate) AddProgressionVersion(v int64) *UserStatsUpdate {
+	_u.mutation.AddProgressionVersion(v)
+	return _u
+}
+
+// SetRatingVersion sets the "rating_version" field.
+func (_u *UserStatsUpdate) SetRatingVersion(v int64) *UserStatsUpdate {
+	_u.mutation.ResetRatingVersion()
+	_u.mutation.SetRatingVersion(v)
+	return _u
+}
+
+// SetNillableRatingVersion sets the "rating_version" field if the given value is not nil.
+func (_u *UserStatsUpdate) SetNillableRatingVersion(v *int64) *UserStatsUpdate {
+	if v != nil {
+		_u.SetRatingVersion(*v)
+	}
+	return _u
+}
+
+// AddRatingVersion adds value to the "rating_version" field.
+func (_u *UserStatsUpdate) AddRatingVersion(v int64) *UserStatsUpdate {
+	_u.mutation.AddRatingVersion(v)
+	return _u
+}
+
+// SetProgressionUpdatedAt sets the "progression_updated_at" field.
+func (_u *UserStatsUpdate) SetProgressionUpdatedAt(v time.Time) *UserStatsUpdate {
+	_u.mutation.SetProgressionUpdatedAt(v)
+	return _u
+}
+
+// SetNillableProgressionUpdatedAt sets the "progression_updated_at" field if the given value is not nil.
+func (_u *UserStatsUpdate) SetNillableProgressionUpdatedAt(v *time.Time) *UserStatsUpdate {
+	if v != nil {
+		_u.SetProgressionUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearProgressionUpdatedAt clears the value of the "progression_updated_at" field.
+func (_u *UserStatsUpdate) ClearProgressionUpdatedAt() *UserStatsUpdate {
+	_u.mutation.ClearProgressionUpdatedAt()
+	return _u
+}
+
+// SetRatingUpdatedAt sets the "rating_updated_at" field.
+func (_u *UserStatsUpdate) SetRatingUpdatedAt(v time.Time) *UserStatsUpdate {
+	_u.mutation.SetRatingUpdatedAt(v)
+	return _u
+}
+
+// SetNillableRatingUpdatedAt sets the "rating_updated_at" field if the given value is not nil.
+func (_u *UserStatsUpdate) SetNillableRatingUpdatedAt(v *time.Time) *UserStatsUpdate {
+	if v != nil {
+		_u.SetRatingUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearRatingUpdatedAt clears the value of the "rating_updated_at" field.
+func (_u *UserStatsUpdate) ClearRatingUpdatedAt() *UserStatsUpdate {
+	_u.mutation.ClearRatingUpdatedAt()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *UserStatsUpdate) SetUser(v *User) *UserStatsUpdate {
 	return _u.SetUserID(v.ID)
@@ -246,6 +322,11 @@ func (_u *UserStatsUpdate) check() error {
 			return &ValidationError{Name: "total_exp", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_exp": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Rating(); ok {
+		if err := userstats.RatingValidator(v); err != nil {
+			return &ValidationError{Name: "rating", err: fmt.Errorf(`generate: validator failed for field "UserStats.rating": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.TotalSubmissions(); ok {
 		if err := userstats.TotalSubmissionsValidator(v); err != nil {
 			return &ValidationError{Name: "total_submissions", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_submissions": %w`, err)}
@@ -254,6 +335,16 @@ func (_u *UserStatsUpdate) check() error {
 	if v, ok := _u.mutation.AcceptedCount(); ok {
 		if err := userstats.AcceptedCountValidator(v); err != nil {
 			return &ValidationError{Name: "accepted_count", err: fmt.Errorf(`generate: validator failed for field "UserStats.accepted_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ProgressionVersion(); ok {
+		if err := userstats.ProgressionVersionValidator(v); err != nil {
+			return &ValidationError{Name: "progression_version", err: fmt.Errorf(`generate: validator failed for field "UserStats.progression_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RatingVersion(); ok {
+		if err := userstats.RatingVersionValidator(v); err != nil {
+			return &ValidationError{Name: "rating_version", err: fmt.Errorf(`generate: validator failed for field "UserStats.rating_version": %w`, err)}
 		}
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
@@ -272,7 +363,7 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userstats.Table, userstats.Columns, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(userstats.Table, userstats.Columns, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -290,13 +381,10 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(userstats.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(userstats.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(userstats.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userstats.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(userstats.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(userstats.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.TotalExp(); ok {
 		_spec.SetField(userstats.FieldTotalExp, field.TypeInt64, value)
@@ -322,6 +410,30 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedAcceptedCount(); ok {
 		_spec.AddField(userstats.FieldAcceptedCount, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.ProgressionVersion(); ok {
+		_spec.SetField(userstats.FieldProgressionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedProgressionVersion(); ok {
+		_spec.AddField(userstats.FieldProgressionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.RatingVersion(); ok {
+		_spec.SetField(userstats.FieldRatingVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedRatingVersion(); ok {
+		_spec.AddField(userstats.FieldRatingVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ProgressionUpdatedAt(); ok {
+		_spec.SetField(userstats.FieldProgressionUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ProgressionUpdatedAtCleared() {
+		_spec.ClearField(userstats.FieldProgressionUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RatingUpdatedAt(); ok {
+		_spec.SetField(userstats.FieldRatingUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.RatingUpdatedAtCleared() {
+		_spec.ClearField(userstats.FieldRatingUpdatedAt, field.TypeTime)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -330,7 +442,7 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{userstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -343,7 +455,7 @@ func (_u *UserStatsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{userstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -400,23 +512,16 @@ func (_u *UserStatsUpdateOne) ClearDeletedAt() *UserStatsUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserStatsUpdateOne) SetDeletedBy(v int) *UserStatsUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserStatsUpdateOne) SetDeletedBy(v string) *UserStatsUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserStatsUpdateOne) SetNillableDeletedBy(v *int) *UserStatsUpdateOne {
+func (_u *UserStatsUpdateOne) SetNillableDeletedBy(v *string) *UserStatsUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserStatsUpdateOne) AddDeletedBy(v int) *UserStatsUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -427,13 +532,13 @@ func (_u *UserStatsUpdateOne) ClearDeletedBy() *UserStatsUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserStatsUpdateOne) SetUserID(v int) *UserStatsUpdateOne {
+func (_u *UserStatsUpdateOne) SetUserID(v uuid.UUID) *UserStatsUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserStatsUpdateOne) SetNillableUserID(v *int) *UserStatsUpdateOne {
+func (_u *UserStatsUpdateOne) SetNillableUserID(v *uuid.UUID) *UserStatsUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -524,6 +629,88 @@ func (_u *UserStatsUpdateOne) AddAcceptedCount(v int) *UserStatsUpdateOne {
 	return _u
 }
 
+// SetProgressionVersion sets the "progression_version" field.
+func (_u *UserStatsUpdateOne) SetProgressionVersion(v int64) *UserStatsUpdateOne {
+	_u.mutation.ResetProgressionVersion()
+	_u.mutation.SetProgressionVersion(v)
+	return _u
+}
+
+// SetNillableProgressionVersion sets the "progression_version" field if the given value is not nil.
+func (_u *UserStatsUpdateOne) SetNillableProgressionVersion(v *int64) *UserStatsUpdateOne {
+	if v != nil {
+		_u.SetProgressionVersion(*v)
+	}
+	return _u
+}
+
+// AddProgressionVersion adds value to the "progression_version" field.
+func (_u *UserStatsUpdateOne) AddProgressionVersion(v int64) *UserStatsUpdateOne {
+	_u.mutation.AddProgressionVersion(v)
+	return _u
+}
+
+// SetRatingVersion sets the "rating_version" field.
+func (_u *UserStatsUpdateOne) SetRatingVersion(v int64) *UserStatsUpdateOne {
+	_u.mutation.ResetRatingVersion()
+	_u.mutation.SetRatingVersion(v)
+	return _u
+}
+
+// SetNillableRatingVersion sets the "rating_version" field if the given value is not nil.
+func (_u *UserStatsUpdateOne) SetNillableRatingVersion(v *int64) *UserStatsUpdateOne {
+	if v != nil {
+		_u.SetRatingVersion(*v)
+	}
+	return _u
+}
+
+// AddRatingVersion adds value to the "rating_version" field.
+func (_u *UserStatsUpdateOne) AddRatingVersion(v int64) *UserStatsUpdateOne {
+	_u.mutation.AddRatingVersion(v)
+	return _u
+}
+
+// SetProgressionUpdatedAt sets the "progression_updated_at" field.
+func (_u *UserStatsUpdateOne) SetProgressionUpdatedAt(v time.Time) *UserStatsUpdateOne {
+	_u.mutation.SetProgressionUpdatedAt(v)
+	return _u
+}
+
+// SetNillableProgressionUpdatedAt sets the "progression_updated_at" field if the given value is not nil.
+func (_u *UserStatsUpdateOne) SetNillableProgressionUpdatedAt(v *time.Time) *UserStatsUpdateOne {
+	if v != nil {
+		_u.SetProgressionUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearProgressionUpdatedAt clears the value of the "progression_updated_at" field.
+func (_u *UserStatsUpdateOne) ClearProgressionUpdatedAt() *UserStatsUpdateOne {
+	_u.mutation.ClearProgressionUpdatedAt()
+	return _u
+}
+
+// SetRatingUpdatedAt sets the "rating_updated_at" field.
+func (_u *UserStatsUpdateOne) SetRatingUpdatedAt(v time.Time) *UserStatsUpdateOne {
+	_u.mutation.SetRatingUpdatedAt(v)
+	return _u
+}
+
+// SetNillableRatingUpdatedAt sets the "rating_updated_at" field if the given value is not nil.
+func (_u *UserStatsUpdateOne) SetNillableRatingUpdatedAt(v *time.Time) *UserStatsUpdateOne {
+	if v != nil {
+		_u.SetRatingUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearRatingUpdatedAt clears the value of the "rating_updated_at" field.
+func (_u *UserStatsUpdateOne) ClearRatingUpdatedAt() *UserStatsUpdateOne {
+	_u.mutation.ClearRatingUpdatedAt()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *UserStatsUpdateOne) SetUser(v *User) *UserStatsUpdateOne {
 	return _u.SetUserID(v.ID)
@@ -602,6 +789,11 @@ func (_u *UserStatsUpdateOne) check() error {
 			return &ValidationError{Name: "total_exp", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_exp": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Rating(); ok {
+		if err := userstats.RatingValidator(v); err != nil {
+			return &ValidationError{Name: "rating", err: fmt.Errorf(`generate: validator failed for field "UserStats.rating": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.TotalSubmissions(); ok {
 		if err := userstats.TotalSubmissionsValidator(v); err != nil {
 			return &ValidationError{Name: "total_submissions", err: fmt.Errorf(`generate: validator failed for field "UserStats.total_submissions": %w`, err)}
@@ -610,6 +802,16 @@ func (_u *UserStatsUpdateOne) check() error {
 	if v, ok := _u.mutation.AcceptedCount(); ok {
 		if err := userstats.AcceptedCountValidator(v); err != nil {
 			return &ValidationError{Name: "accepted_count", err: fmt.Errorf(`generate: validator failed for field "UserStats.accepted_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ProgressionVersion(); ok {
+		if err := userstats.ProgressionVersionValidator(v); err != nil {
+			return &ValidationError{Name: "progression_version", err: fmt.Errorf(`generate: validator failed for field "UserStats.progression_version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RatingVersion(); ok {
+		if err := userstats.RatingVersionValidator(v); err != nil {
+			return &ValidationError{Name: "rating_version", err: fmt.Errorf(`generate: validator failed for field "UserStats.rating_version": %w`, err)}
 		}
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
@@ -628,7 +830,7 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userstats.Table, userstats.Columns, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(userstats.Table, userstats.Columns, sqlgraph.NewFieldSpec(userstats.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "UserStats.id" for update`)}
@@ -663,13 +865,10 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 		_spec.ClearField(userstats.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(userstats.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(userstats.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(userstats.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(userstats.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(userstats.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.TotalExp(); ok {
 		_spec.SetField(userstats.FieldTotalExp, field.TypeInt64, value)
@@ -695,6 +894,30 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 	if value, ok := _u.mutation.AddedAcceptedCount(); ok {
 		_spec.AddField(userstats.FieldAcceptedCount, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.ProgressionVersion(); ok {
+		_spec.SetField(userstats.FieldProgressionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedProgressionVersion(); ok {
+		_spec.AddField(userstats.FieldProgressionVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.RatingVersion(); ok {
+		_spec.SetField(userstats.FieldRatingVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedRatingVersion(); ok {
+		_spec.AddField(userstats.FieldRatingVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.ProgressionUpdatedAt(); ok {
+		_spec.SetField(userstats.FieldProgressionUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ProgressionUpdatedAtCleared() {
+		_spec.ClearField(userstats.FieldProgressionUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RatingUpdatedAt(); ok {
+		_spec.SetField(userstats.FieldRatingUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.RatingUpdatedAtCleared() {
+		_spec.ClearField(userstats.FieldRatingUpdatedAt, field.TypeTime)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -703,7 +926,7 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 			Columns: []string{userstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -716,7 +939,7 @@ func (_u *UserStatsUpdateOne) sqlSave(ctx context.Context) (_node *UserStats, er
 			Columns: []string{userstats.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

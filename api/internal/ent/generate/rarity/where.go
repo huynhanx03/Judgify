@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Rarity {
+func ID(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Rarity {
+func IDEQ(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Rarity {
+func IDNEQ(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Rarity {
+func IDIn(ids ...uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Rarity {
+func IDNotIn(ids ...uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Rarity {
+func IDGT(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Rarity {
+func IDGTE(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Rarity {
+func IDLT(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Rarity {
+func IDLTE(id uuid.UUID) predicate.Rarity {
 	return predicate.Rarity(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Rarity {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Rarity {
+func DeletedBy(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -226,43 +227,58 @@ func DeletedAtNotNil() predicate.Rarity {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Rarity {
+func DeletedByEQ(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Rarity {
+func DeletedByNEQ(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Rarity {
+func DeletedByIn(vs ...string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Rarity {
+func DeletedByNotIn(vs ...string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Rarity {
+func DeletedByGT(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Rarity {
+func DeletedByGTE(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Rarity {
+func DeletedByLT(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Rarity {
+func DeletedByLTE(v string) predicate.Rarity {
 	return predicate.Rarity(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Rarity {
+	return predicate.Rarity(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Rarity {
+	return predicate.Rarity(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Rarity {
+	return predicate.Rarity(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -273,6 +289,16 @@ func DeletedByIsNil() predicate.Rarity {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Rarity {
 	return predicate.Rarity(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Rarity {
+	return predicate.Rarity(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Rarity {
+	return predicate.Rarity(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

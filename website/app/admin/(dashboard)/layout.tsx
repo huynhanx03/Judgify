@@ -1,37 +1,88 @@
 "use client";
 
-/**
- * Admin dashboard layout — auth guard + sidebar shell.
- * Redirects to /admin/login if no access token found in localStorage.
- */
+/** Admin dashboard shell with explicit authentication and capability states. */
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 import { AdminShell } from "@/modules/admin/admin-shell";
-import { Loader2 } from "lucide-react";
+import {
+  AdminAccessLoading,
+  AdminAccessState,
+} from "@/modules/admin/admin-access-state";
+import { adminRouteAllowed } from "@/lib/auth/admin-policy";
+import {
+  AUTH_BOOTSTRAP_STATUS,
+  CAPABILITY_STATUS,
+} from "@/constants/authorization";
+import { APP_ROUTES } from "@/constants/routes";
 
 export default function AdminDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
+  const {
+    isAuthenticated,
+    isLoading,
+    bootstrapStatus,
+    capabilityStatus,
+    capabilityIndex,
+    refreshCapabilities,
+    retryBootstrap,
+  } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("judgify_access_token");
-    if (!token) {
-      router.replace("/admin/login");
-    } else {
-      setIsChecking(false);
+    if (
+      bootstrapStatus === AUTH_BOOTSTRAP_STATUS.READY &&
+      !isAuthenticated
+    ) {
+      router.replace(APP_ROUTES.ADMIN_LOGIN);
     }
-  }, [router]);
+  }, [bootstrapStatus, isAuthenticated, router]);
 
-  if (isChecking) {
+  if (isLoading || bootstrapStatus === AUTH_BOOTSTRAP_STATUS.LOADING) {
+    return <AdminAccessLoading fullScreen />;
+  }
+
+  if (bootstrapStatus === AUTH_BOOTSTRAP_STATUS.ERROR) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
-      </div>
+      <AdminAccessState
+        kind="unavailable"
+        onRetry={retryBootstrap}
+        fullScreen
+      />
+    );
+  }
+
+  if (!isAuthenticated) return <AdminAccessLoading fullScreen />;
+
+  if (capabilityStatus === CAPABILITY_STATUS.ERROR) {
+    return (
+      <AdminShell>
+        <AdminAccessState
+          kind="unavailable"
+          onRetry={() => void refreshCapabilities()}
+        />
+      </AdminShell>
+    );
+  }
+
+  if (capabilityStatus !== CAPABILITY_STATUS.READY) {
+    return (
+      <AdminShell>
+        <AdminAccessLoading />
+      </AdminShell>
+    );
+  }
+
+  if (!adminRouteAllowed(pathname, capabilityIndex)) {
+    return (
+      <AdminShell>
+        <AdminAccessState kind="forbidden" />
+      </AdminShell>
     );
   }
 

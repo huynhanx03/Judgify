@@ -11,11 +11,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevisiontag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 )
 
@@ -60,23 +63,16 @@ func (_u *TagUpdate) ClearDeletedAt() *TagUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *TagUpdate) SetDeletedBy(v int) *TagUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *TagUpdate) SetDeletedBy(v string) *TagUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *TagUpdate) SetNillableDeletedBy(v *int) *TagUpdate {
+func (_u *TagUpdate) SetNillableDeletedBy(v *string) *TagUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *TagUpdate) AddDeletedBy(v int) *TagUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -100,15 +96,51 @@ func (_u *TagUpdate) SetNillableName(v *string) *TagUpdate {
 	return _u
 }
 
+// SetVersion sets the "version" field.
+func (_u *TagUpdate) SetVersion(v int64) *TagUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *TagUpdate) SetNillableVersion(v *int64) *TagUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *TagUpdate) AddVersion(v int64) *TagUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// AddRevisionIDs adds the "revisions" edge to the TagRevision entity by IDs.
+func (_u *TagUpdate) AddRevisionIDs(ids ...uuid.UUID) *TagUpdate {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the TagRevision entity.
+func (_u *TagUpdate) AddRevisions(v ...*TagRevision) *TagUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_u *TagUpdate) AddProblemIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) AddProblemIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.AddProblemIDs(ids...)
 	return _u
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_u *TagUpdate) AddProblems(v ...*Problem) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -116,14 +148,14 @@ func (_u *TagUpdate) AddProblems(v ...*Problem) *TagUpdate {
 }
 
 // AddElementIDs adds the "elements" edge to the Element entity by IDs.
-func (_u *TagUpdate) AddElementIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) AddElementIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.AddElementIDs(ids...)
 	return _u
 }
 
 // AddElements adds the "elements" edges to the Element entity.
 func (_u *TagUpdate) AddElements(v ...*Element) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -131,29 +163,44 @@ func (_u *TagUpdate) AddElements(v ...*Element) *TagUpdate {
 }
 
 // AddUserTagStatIDs adds the "user_tag_stats" edge to the UserTagStats entity by IDs.
-func (_u *TagUpdate) AddUserTagStatIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) AddUserTagStatIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.AddUserTagStatIDs(ids...)
 	return _u
 }
 
 // AddUserTagStats adds the "user_tag_stats" edges to the UserTagStats entity.
 func (_u *TagUpdate) AddUserTagStats(v ...*UserTagStats) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserTagStatIDs(ids...)
 }
 
+// AddMaterialRevisionTagIDs adds the "material_revision_tags" edge to the MaterialRevisionTag entity by IDs.
+func (_u *TagUpdate) AddMaterialRevisionTagIDs(ids ...int) *TagUpdate {
+	_u.mutation.AddMaterialRevisionTagIDs(ids...)
+	return _u
+}
+
+// AddMaterialRevisionTags adds the "material_revision_tags" edges to the MaterialRevisionTag entity.
+func (_u *TagUpdate) AddMaterialRevisionTags(v ...*MaterialRevisionTag) *TagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialRevisionTagIDs(ids...)
+}
+
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_u *TagUpdate) AddMaterialIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) AddMaterialIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.AddMaterialIDs(ids...)
 	return _u
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_u *TagUpdate) AddMaterials(v ...*Material) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -165,6 +212,27 @@ func (_u *TagUpdate) Mutation() *TagMutation {
 	return _u.mutation
 }
 
+// ClearRevisions clears all "revisions" edges to the TagRevision entity.
+func (_u *TagUpdate) ClearRevisions() *TagUpdate {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to TagRevision entities by IDs.
+func (_u *TagUpdate) RemoveRevisionIDs(ids ...uuid.UUID) *TagUpdate {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to TagRevision entities.
+func (_u *TagUpdate) RemoveRevisions(v ...*TagRevision) *TagUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
 // ClearProblems clears all "problems" edges to the Problem entity.
 func (_u *TagUpdate) ClearProblems() *TagUpdate {
 	_u.mutation.ClearProblems()
@@ -172,14 +240,14 @@ func (_u *TagUpdate) ClearProblems() *TagUpdate {
 }
 
 // RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (_u *TagUpdate) RemoveProblemIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) RemoveProblemIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.RemoveProblemIDs(ids...)
 	return _u
 }
 
 // RemoveProblems removes "problems" edges to Problem entities.
 func (_u *TagUpdate) RemoveProblems(v ...*Problem) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -193,14 +261,14 @@ func (_u *TagUpdate) ClearElements() *TagUpdate {
 }
 
 // RemoveElementIDs removes the "elements" edge to Element entities by IDs.
-func (_u *TagUpdate) RemoveElementIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) RemoveElementIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.RemoveElementIDs(ids...)
 	return _u
 }
 
 // RemoveElements removes "elements" edges to Element entities.
 func (_u *TagUpdate) RemoveElements(v ...*Element) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -214,18 +282,39 @@ func (_u *TagUpdate) ClearUserTagStats() *TagUpdate {
 }
 
 // RemoveUserTagStatIDs removes the "user_tag_stats" edge to UserTagStats entities by IDs.
-func (_u *TagUpdate) RemoveUserTagStatIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) RemoveUserTagStatIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.RemoveUserTagStatIDs(ids...)
 	return _u
 }
 
 // RemoveUserTagStats removes "user_tag_stats" edges to UserTagStats entities.
 func (_u *TagUpdate) RemoveUserTagStats(v ...*UserTagStats) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserTagStatIDs(ids...)
+}
+
+// ClearMaterialRevisionTags clears all "material_revision_tags" edges to the MaterialRevisionTag entity.
+func (_u *TagUpdate) ClearMaterialRevisionTags() *TagUpdate {
+	_u.mutation.ClearMaterialRevisionTags()
+	return _u
+}
+
+// RemoveMaterialRevisionTagIDs removes the "material_revision_tags" edge to MaterialRevisionTag entities by IDs.
+func (_u *TagUpdate) RemoveMaterialRevisionTagIDs(ids ...int) *TagUpdate {
+	_u.mutation.RemoveMaterialRevisionTagIDs(ids...)
+	return _u
+}
+
+// RemoveMaterialRevisionTags removes "material_revision_tags" edges to MaterialRevisionTag entities.
+func (_u *TagUpdate) RemoveMaterialRevisionTags(v ...*MaterialRevisionTag) *TagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialRevisionTagIDs(ids...)
 }
 
 // ClearMaterials clears all "materials" edges to the Material entity.
@@ -235,14 +324,14 @@ func (_u *TagUpdate) ClearMaterials() *TagUpdate {
 }
 
 // RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
-func (_u *TagUpdate) RemoveMaterialIDs(ids ...int) *TagUpdate {
+func (_u *TagUpdate) RemoveMaterialIDs(ids ...uuid.UUID) *TagUpdate {
 	_u.mutation.RemoveMaterialIDs(ids...)
 	return _u
 }
 
 // RemoveMaterials removes "materials" edges to Material entities.
 func (_u *TagUpdate) RemoveMaterials(v ...*Material) *TagUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -298,6 +387,11 @@ func (_u *TagUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Tag.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := tag.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Tag.version": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -311,7 +405,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(tag.Table, tag.Columns, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(tag.Table, tag.Columns, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -329,16 +423,64 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(tag.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(tag.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(tag.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(tag.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(tag.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(tag.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tag.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(tag.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(tag.FieldVersion, field.TypeInt64, value)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -348,7 +490,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -361,7 +503,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -377,7 +519,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -393,7 +535,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -406,7 +548,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -422,7 +564,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -438,7 +580,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -451,7 +593,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -467,7 +609,52 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MaterialRevisionTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialRevisionTagsIDs(); len(nodes) > 0 && !_u.mutation.MaterialRevisionTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialRevisionTagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -483,7 +670,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -496,7 +683,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -512,7 +699,7 @@ func (_u *TagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -569,23 +756,16 @@ func (_u *TagUpdateOne) ClearDeletedAt() *TagUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *TagUpdateOne) SetDeletedBy(v int) *TagUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *TagUpdateOne) SetDeletedBy(v string) *TagUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *TagUpdateOne) SetNillableDeletedBy(v *int) *TagUpdateOne {
+func (_u *TagUpdateOne) SetNillableDeletedBy(v *string) *TagUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *TagUpdateOne) AddDeletedBy(v int) *TagUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -609,15 +789,51 @@ func (_u *TagUpdateOne) SetNillableName(v *string) *TagUpdateOne {
 	return _u
 }
 
+// SetVersion sets the "version" field.
+func (_u *TagUpdateOne) SetVersion(v int64) *TagUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *TagUpdateOne) SetNillableVersion(v *int64) *TagUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *TagUpdateOne) AddVersion(v int64) *TagUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// AddRevisionIDs adds the "revisions" edge to the TagRevision entity by IDs.
+func (_u *TagUpdateOne) AddRevisionIDs(ids ...uuid.UUID) *TagUpdateOne {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the TagRevision entity.
+func (_u *TagUpdateOne) AddRevisions(v ...*TagRevision) *TagUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_u *TagUpdateOne) AddProblemIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) AddProblemIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.AddProblemIDs(ids...)
 	return _u
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_u *TagUpdateOne) AddProblems(v ...*Problem) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -625,14 +841,14 @@ func (_u *TagUpdateOne) AddProblems(v ...*Problem) *TagUpdateOne {
 }
 
 // AddElementIDs adds the "elements" edge to the Element entity by IDs.
-func (_u *TagUpdateOne) AddElementIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) AddElementIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.AddElementIDs(ids...)
 	return _u
 }
 
 // AddElements adds the "elements" edges to the Element entity.
 func (_u *TagUpdateOne) AddElements(v ...*Element) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -640,29 +856,44 @@ func (_u *TagUpdateOne) AddElements(v ...*Element) *TagUpdateOne {
 }
 
 // AddUserTagStatIDs adds the "user_tag_stats" edge to the UserTagStats entity by IDs.
-func (_u *TagUpdateOne) AddUserTagStatIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) AddUserTagStatIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.AddUserTagStatIDs(ids...)
 	return _u
 }
 
 // AddUserTagStats adds the "user_tag_stats" edges to the UserTagStats entity.
 func (_u *TagUpdateOne) AddUserTagStats(v ...*UserTagStats) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddUserTagStatIDs(ids...)
 }
 
+// AddMaterialRevisionTagIDs adds the "material_revision_tags" edge to the MaterialRevisionTag entity by IDs.
+func (_u *TagUpdateOne) AddMaterialRevisionTagIDs(ids ...int) *TagUpdateOne {
+	_u.mutation.AddMaterialRevisionTagIDs(ids...)
+	return _u
+}
+
+// AddMaterialRevisionTags adds the "material_revision_tags" edges to the MaterialRevisionTag entity.
+func (_u *TagUpdateOne) AddMaterialRevisionTags(v ...*MaterialRevisionTag) *TagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMaterialRevisionTagIDs(ids...)
+}
+
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_u *TagUpdateOne) AddMaterialIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) AddMaterialIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.AddMaterialIDs(ids...)
 	return _u
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_u *TagUpdateOne) AddMaterials(v ...*Material) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -674,6 +905,27 @@ func (_u *TagUpdateOne) Mutation() *TagMutation {
 	return _u.mutation
 }
 
+// ClearRevisions clears all "revisions" edges to the TagRevision entity.
+func (_u *TagUpdateOne) ClearRevisions() *TagUpdateOne {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to TagRevision entities by IDs.
+func (_u *TagUpdateOne) RemoveRevisionIDs(ids ...uuid.UUID) *TagUpdateOne {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to TagRevision entities.
+func (_u *TagUpdateOne) RemoveRevisions(v ...*TagRevision) *TagUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
 // ClearProblems clears all "problems" edges to the Problem entity.
 func (_u *TagUpdateOne) ClearProblems() *TagUpdateOne {
 	_u.mutation.ClearProblems()
@@ -681,14 +933,14 @@ func (_u *TagUpdateOne) ClearProblems() *TagUpdateOne {
 }
 
 // RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (_u *TagUpdateOne) RemoveProblemIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) RemoveProblemIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.RemoveProblemIDs(ids...)
 	return _u
 }
 
 // RemoveProblems removes "problems" edges to Problem entities.
 func (_u *TagUpdateOne) RemoveProblems(v ...*Problem) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -702,14 +954,14 @@ func (_u *TagUpdateOne) ClearElements() *TagUpdateOne {
 }
 
 // RemoveElementIDs removes the "elements" edge to Element entities by IDs.
-func (_u *TagUpdateOne) RemoveElementIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) RemoveElementIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.RemoveElementIDs(ids...)
 	return _u
 }
 
 // RemoveElements removes "elements" edges to Element entities.
 func (_u *TagUpdateOne) RemoveElements(v ...*Element) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -723,18 +975,39 @@ func (_u *TagUpdateOne) ClearUserTagStats() *TagUpdateOne {
 }
 
 // RemoveUserTagStatIDs removes the "user_tag_stats" edge to UserTagStats entities by IDs.
-func (_u *TagUpdateOne) RemoveUserTagStatIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) RemoveUserTagStatIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.RemoveUserTagStatIDs(ids...)
 	return _u
 }
 
 // RemoveUserTagStats removes "user_tag_stats" edges to UserTagStats entities.
 func (_u *TagUpdateOne) RemoveUserTagStats(v ...*UserTagStats) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUserTagStatIDs(ids...)
+}
+
+// ClearMaterialRevisionTags clears all "material_revision_tags" edges to the MaterialRevisionTag entity.
+func (_u *TagUpdateOne) ClearMaterialRevisionTags() *TagUpdateOne {
+	_u.mutation.ClearMaterialRevisionTags()
+	return _u
+}
+
+// RemoveMaterialRevisionTagIDs removes the "material_revision_tags" edge to MaterialRevisionTag entities by IDs.
+func (_u *TagUpdateOne) RemoveMaterialRevisionTagIDs(ids ...int) *TagUpdateOne {
+	_u.mutation.RemoveMaterialRevisionTagIDs(ids...)
+	return _u
+}
+
+// RemoveMaterialRevisionTags removes "material_revision_tags" edges to MaterialRevisionTag entities.
+func (_u *TagUpdateOne) RemoveMaterialRevisionTags(v ...*MaterialRevisionTag) *TagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMaterialRevisionTagIDs(ids...)
 }
 
 // ClearMaterials clears all "materials" edges to the Material entity.
@@ -744,14 +1017,14 @@ func (_u *TagUpdateOne) ClearMaterials() *TagUpdateOne {
 }
 
 // RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
-func (_u *TagUpdateOne) RemoveMaterialIDs(ids ...int) *TagUpdateOne {
+func (_u *TagUpdateOne) RemoveMaterialIDs(ids ...uuid.UUID) *TagUpdateOne {
 	_u.mutation.RemoveMaterialIDs(ids...)
 	return _u
 }
 
 // RemoveMaterials removes "materials" edges to Material entities.
 func (_u *TagUpdateOne) RemoveMaterials(v ...*Material) *TagUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -820,6 +1093,11 @@ func (_u *TagUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Tag.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := tag.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Tag.version": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -833,7 +1111,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(tag.Table, tag.Columns, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(tag.Table, tag.Columns, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Tag.id" for update`)}
@@ -868,16 +1146,64 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 		_spec.ClearField(tag.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(tag.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(tag.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(tag.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(tag.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(tag.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tag.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(tag.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(tag.FieldVersion, field.TypeInt64, value)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -887,7 +1213,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -900,7 +1226,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -916,7 +1242,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -932,7 +1258,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -945,7 +1271,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -961,7 +1287,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -977,7 +1303,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -990,7 +1316,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1006,7 +1332,52 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MaterialRevisionTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMaterialRevisionTagsIDs(); len(nodes) > 0 && !_u.mutation.MaterialRevisionTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MaterialRevisionTagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1022,7 +1393,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1035,7 +1406,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1051,7 +1422,7 @@ func (_u *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -4,7 +4,7 @@
  */
 
 import { TEXT } from "@/constants/text";
-import { ArenaClient } from "./arena-client";
+import { ArenaPage } from "@/modules/arena/arena-page";
 
 export const metadata = {
   title: TEXT.NAV.ARENA,
@@ -12,6 +12,6 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function ArenaPage() {
-  return <ArenaClient />;
+export default function ArenaRoute() {
+  return <ArenaPage />;
 }

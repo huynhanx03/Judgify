@@ -3,8 +3,10 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
-	e "github.com/huynhanx03/judgify/pkg/database/ent"
+	e "github.com/huynhanx03/go-common/pkg/database/ent"
+
 	"github.com/huynhanx03/judgify/internal/ent/mixin"
 )
 
@@ -16,6 +18,7 @@ type Rank struct {
 // Mixin of the Rank.
 func (Rank) Mixin() []ent.Mixin {
 	return []ent.Mixin{
+		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
 	}
@@ -25,7 +28,6 @@ func (Rank) Mixin() []ent.Mixin {
 func (Rank) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(100).
 			Comment("Title: Tan Tu, Ngoai Mon De Tu, Noi Mon De Tu..."),
@@ -36,6 +38,10 @@ func (Rank) Fields() []ent.Field {
 			Optional().
 			MaxLen(500),
 	}
+}
+
+func (Rank) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("name").Unique()}
 }
 
 // Edges of the Rank.

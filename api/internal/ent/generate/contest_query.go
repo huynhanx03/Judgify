@@ -13,12 +13,22 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestannouncement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestclarification"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestcontentcommand"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestdraftproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestratingrun"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/conteststanding"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contesttransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/ratingsequenceslot"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -26,17 +36,26 @@ import (
 // ContestQuery is the builder for querying Contest entities.
 type ContestQuery struct {
 	config
-	ctx                 *QueryContext
-	order               []contest.OrderOption
-	inters              []Interceptor
-	predicates          []predicate.Contest
-	withAuthor          *UserQuery
-	withProblems        *ProblemQuery
-	withRegistrations   *ContestRegistrationQuery
-	withStandings       *ContestStandingQuery
-	withSubmissions     *SubmissionQuery
-	withRatingHistories *RatingHistoryQuery
-	modifiers           []func(*sql.Selector)
+	ctx                     *QueryContext
+	order                   []contest.OrderOption
+	inters                  []Interceptor
+	predicates              []predicate.Contest
+	withAuthor              *UserQuery
+	withDraftProblems       *ContestDraftProblemQuery
+	withContestProblems     *ContestProblemQuery
+	withTransitions         *ContestTransitionQuery
+	withRegistrations       *ContestRegistrationQuery
+	withStandings           *ContestStandingQuery
+	withSubmissions         *SubmissionQuery
+	withRatingHistories     *RatingHistoryQuery
+	withRatingSequenceSlots *RatingSequenceSlotQuery
+	withRatingRuns          *ContestRatingRunQuery
+	withAnnouncements       *ContestAnnouncementQuery
+	withClarifications      *ContestClarificationQuery
+	withContentCommands     *ContestContentCommandQuery
+	withScoringAttempts     *ContestScoringAttemptQuery
+	withProblemResults      *ContestProblemResultQuery
+	modifiers               []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -95,9 +114,9 @@ func (_q *ContestQuery) QueryAuthor() *UserQuery {
 	return query
 }
 
-// QueryProblems chains the current query on the "problems" edge.
-func (_q *ContestQuery) QueryProblems() *ProblemQuery {
-	query := (&ProblemClient{config: _q.config}).Query()
+// QueryDraftProblems chains the current query on the "draft_problems" edge.
+func (_q *ContestQuery) QueryDraftProblems() *ContestDraftProblemQuery {
+	query := (&ContestDraftProblemClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -108,8 +127,52 @@ func (_q *ContestQuery) QueryProblems() *ProblemQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(contest.Table, contest.FieldID, selector),
-			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemsTable, contest.ProblemsColumn),
+			sqlgraph.To(contestdraftproblem.Table, contestdraftproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.DraftProblemsTable, contest.DraftProblemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestProblems chains the current query on the "contest_problems" edge.
+func (_q *ContestQuery) QueryContestProblems() *ContestProblemQuery {
+	query := (&ContestProblemClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestproblem.Table, contestproblem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestProblemsTable, contest.ContestProblemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTransitions chains the current query on the "transitions" edge.
+func (_q *ContestQuery) QueryTransitions() *ContestTransitionQuery {
+	query := (&ContestTransitionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contesttransition.Table, contesttransition.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.TransitionsTable, contest.TransitionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -205,6 +268,160 @@ func (_q *ContestQuery) QueryRatingHistories() *RatingHistoryQuery {
 	return query
 }
 
+// QueryRatingSequenceSlots chains the current query on the "rating_sequence_slots" edge.
+func (_q *ContestQuery) QueryRatingSequenceSlots() *RatingSequenceSlotQuery {
+	query := (&RatingSequenceSlotClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(ratingsequenceslot.Table, ratingsequenceslot.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.RatingSequenceSlotsTable, contest.RatingSequenceSlotsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRatingRuns chains the current query on the "rating_runs" edge.
+func (_q *ContestQuery) QueryRatingRuns() *ContestRatingRunQuery {
+	query := (&ContestRatingRunClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestratingrun.Table, contestratingrun.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.RatingRunsTable, contest.RatingRunsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAnnouncements chains the current query on the "announcements" edge.
+func (_q *ContestQuery) QueryAnnouncements() *ContestAnnouncementQuery {
+	query := (&ContestAnnouncementClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestannouncement.Table, contestannouncement.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.AnnouncementsTable, contest.AnnouncementsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryClarifications chains the current query on the "clarifications" edge.
+func (_q *ContestQuery) QueryClarifications() *ContestClarificationQuery {
+	query := (&ContestClarificationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestclarification.Table, contestclarification.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ClarificationsTable, contest.ClarificationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContentCommands chains the current query on the "content_commands" edge.
+func (_q *ContestQuery) QueryContentCommands() *ContestContentCommandQuery {
+	query := (&ContestContentCommandClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestcontentcommand.Table, contestcontentcommand.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContentCommandsTable, contest.ContentCommandsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryScoringAttempts chains the current query on the "scoring_attempts" edge.
+func (_q *ContestQuery) QueryScoringAttempts() *ContestScoringAttemptQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestscoringattempt.Table, contestscoringattempt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ScoringAttemptsTable, contest.ScoringAttemptsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProblemResults chains the current query on the "problem_results" edge.
+func (_q *ContestQuery) QueryProblemResults() *ContestProblemResultQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestproblemresult.Table, contestproblemresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemResultsTable, contest.ProblemResultsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Contest entity from the query.
 // Returns a *NotFoundError when no Contest was found.
 func (_q *ContestQuery) First(ctx context.Context) (*Contest, error) {
@@ -229,8 +446,8 @@ func (_q *ContestQuery) FirstX(ctx context.Context) *Contest {
 
 // FirstID returns the first Contest ID from the query.
 // Returns a *NotFoundError when no Contest ID was found.
-func (_q *ContestQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ContestQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -242,7 +459,7 @@ func (_q *ContestQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ContestQuery) FirstIDX(ctx context.Context) int {
+func (_q *ContestQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -280,8 +497,8 @@ func (_q *ContestQuery) OnlyX(ctx context.Context) *Contest {
 // OnlyID is like Only, but returns the only Contest ID in the query.
 // Returns a *NotSingularError when more than one Contest ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ContestQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *ContestQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -297,7 +514,7 @@ func (_q *ContestQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ContestQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ContestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -325,7 +542,7 @@ func (_q *ContestQuery) AllX(ctx context.Context) []*Contest {
 }
 
 // IDs executes the query and returns a list of Contest IDs.
-func (_q *ContestQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *ContestQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -337,7 +554,7 @@ func (_q *ContestQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ContestQuery) IDsX(ctx context.Context) []int {
+func (_q *ContestQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -392,17 +609,26 @@ func (_q *ContestQuery) Clone() *ContestQuery {
 		return nil
 	}
 	return &ContestQuery{
-		config:              _q.config,
-		ctx:                 _q.ctx.Clone(),
-		order:               append([]contest.OrderOption{}, _q.order...),
-		inters:              append([]Interceptor{}, _q.inters...),
-		predicates:          append([]predicate.Contest{}, _q.predicates...),
-		withAuthor:          _q.withAuthor.Clone(),
-		withProblems:        _q.withProblems.Clone(),
-		withRegistrations:   _q.withRegistrations.Clone(),
-		withStandings:       _q.withStandings.Clone(),
-		withSubmissions:     _q.withSubmissions.Clone(),
-		withRatingHistories: _q.withRatingHistories.Clone(),
+		config:                  _q.config,
+		ctx:                     _q.ctx.Clone(),
+		order:                   append([]contest.OrderOption{}, _q.order...),
+		inters:                  append([]Interceptor{}, _q.inters...),
+		predicates:              append([]predicate.Contest{}, _q.predicates...),
+		withAuthor:              _q.withAuthor.Clone(),
+		withDraftProblems:       _q.withDraftProblems.Clone(),
+		withContestProblems:     _q.withContestProblems.Clone(),
+		withTransitions:         _q.withTransitions.Clone(),
+		withRegistrations:       _q.withRegistrations.Clone(),
+		withStandings:           _q.withStandings.Clone(),
+		withSubmissions:         _q.withSubmissions.Clone(),
+		withRatingHistories:     _q.withRatingHistories.Clone(),
+		withRatingSequenceSlots: _q.withRatingSequenceSlots.Clone(),
+		withRatingRuns:          _q.withRatingRuns.Clone(),
+		withAnnouncements:       _q.withAnnouncements.Clone(),
+		withClarifications:      _q.withClarifications.Clone(),
+		withContentCommands:     _q.withContentCommands.Clone(),
+		withScoringAttempts:     _q.withScoringAttempts.Clone(),
+		withProblemResults:      _q.withProblemResults.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -421,14 +647,36 @@ func (_q *ContestQuery) WithAuthor(opts ...func(*UserQuery)) *ContestQuery {
 	return _q
 }
 
-// WithProblems tells the query-builder to eager-load the nodes that are connected to
-// the "problems" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *ContestQuery) WithProblems(opts ...func(*ProblemQuery)) *ContestQuery {
-	query := (&ProblemClient{config: _q.config}).Query()
+// WithDraftProblems tells the query-builder to eager-load the nodes that are connected to
+// the "draft_problems" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithDraftProblems(opts ...func(*ContestDraftProblemQuery)) *ContestQuery {
+	query := (&ContestDraftProblemClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withProblems = query
+	_q.withDraftProblems = query
+	return _q
+}
+
+// WithContestProblems tells the query-builder to eager-load the nodes that are connected to
+// the "contest_problems" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithContestProblems(opts ...func(*ContestProblemQuery)) *ContestQuery {
+	query := (&ContestProblemClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestProblems = query
+	return _q
+}
+
+// WithTransitions tells the query-builder to eager-load the nodes that are connected to
+// the "transitions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithTransitions(opts ...func(*ContestTransitionQuery)) *ContestQuery {
+	query := (&ContestTransitionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTransitions = query
 	return _q
 }
 
@@ -473,6 +721,83 @@ func (_q *ContestQuery) WithRatingHistories(opts ...func(*RatingHistoryQuery)) *
 		opt(query)
 	}
 	_q.withRatingHistories = query
+	return _q
+}
+
+// WithRatingSequenceSlots tells the query-builder to eager-load the nodes that are connected to
+// the "rating_sequence_slots" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithRatingSequenceSlots(opts ...func(*RatingSequenceSlotQuery)) *ContestQuery {
+	query := (&RatingSequenceSlotClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRatingSequenceSlots = query
+	return _q
+}
+
+// WithRatingRuns tells the query-builder to eager-load the nodes that are connected to
+// the "rating_runs" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithRatingRuns(opts ...func(*ContestRatingRunQuery)) *ContestQuery {
+	query := (&ContestRatingRunClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRatingRuns = query
+	return _q
+}
+
+// WithAnnouncements tells the query-builder to eager-load the nodes that are connected to
+// the "announcements" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithAnnouncements(opts ...func(*ContestAnnouncementQuery)) *ContestQuery {
+	query := (&ContestAnnouncementClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAnnouncements = query
+	return _q
+}
+
+// WithClarifications tells the query-builder to eager-load the nodes that are connected to
+// the "clarifications" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithClarifications(opts ...func(*ContestClarificationQuery)) *ContestQuery {
+	query := (&ContestClarificationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withClarifications = query
+	return _q
+}
+
+// WithContentCommands tells the query-builder to eager-load the nodes that are connected to
+// the "content_commands" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithContentCommands(opts ...func(*ContestContentCommandQuery)) *ContestQuery {
+	query := (&ContestContentCommandClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContentCommands = query
+	return _q
+}
+
+// WithScoringAttempts tells the query-builder to eager-load the nodes that are connected to
+// the "scoring_attempts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithScoringAttempts(opts ...func(*ContestScoringAttemptQuery)) *ContestQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withScoringAttempts = query
+	return _q
+}
+
+// WithProblemResults tells the query-builder to eager-load the nodes that are connected to
+// the "problem_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ContestQuery) WithProblemResults(opts ...func(*ContestProblemResultQuery)) *ContestQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withProblemResults = query
 	return _q
 }
 
@@ -554,13 +879,22 @@ func (_q *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 	var (
 		nodes       = []*Contest{}
 		_spec       = _q.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [15]bool{
 			_q.withAuthor != nil,
-			_q.withProblems != nil,
+			_q.withDraftProblems != nil,
+			_q.withContestProblems != nil,
+			_q.withTransitions != nil,
 			_q.withRegistrations != nil,
 			_q.withStandings != nil,
 			_q.withSubmissions != nil,
 			_q.withRatingHistories != nil,
+			_q.withRatingSequenceSlots != nil,
+			_q.withRatingRuns != nil,
+			_q.withAnnouncements != nil,
+			_q.withClarifications != nil,
+			_q.withContentCommands != nil,
+			_q.withScoringAttempts != nil,
+			_q.withProblemResults != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -590,10 +924,39 @@ func (_q *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 			return nil, err
 		}
 	}
-	if query := _q.withProblems; query != nil {
-		if err := _q.loadProblems(ctx, query, nodes,
-			func(n *Contest) { n.Edges.Problems = []*Problem{} },
-			func(n *Contest, e *Problem) { n.Edges.Problems = append(n.Edges.Problems, e) }); err != nil {
+	if query := _q.withDraftProblems; query != nil {
+		if err := _q.loadDraftProblems(ctx, query, nodes,
+			func(n *Contest) { n.Edges.DraftProblems = []*ContestDraftProblem{} },
+			func(n *Contest, e *ContestDraftProblem) {
+				n.Edges.DraftProblems = append(n.Edges.DraftProblems, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContestProblems; query != nil {
+		if err := _q.loadContestProblems(ctx, query, nodes,
+			func(n *Contest) { n.Edges.ContestProblems = []*ContestProblem{} },
+			func(n *Contest, e *ContestProblem) {
+				n.Edges.ContestProblems = append(n.Edges.ContestProblems, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTransitions; query != nil {
+		if err := _q.loadTransitions(ctx, query, nodes,
+			func(n *Contest) { n.Edges.Transitions = []*ContestTransition{} },
+			func(n *Contest, e *ContestTransition) {
+				n.Edges.Transitions = append(n.Edges.Transitions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -645,12 +1008,96 @@ func (_q *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 			return nil, err
 		}
 	}
+	if query := _q.withRatingSequenceSlots; query != nil {
+		if err := _q.loadRatingSequenceSlots(ctx, query, nodes,
+			func(n *Contest) { n.Edges.RatingSequenceSlots = []*RatingSequenceSlot{} },
+			func(n *Contest, e *RatingSequenceSlot) {
+				n.Edges.RatingSequenceSlots = append(n.Edges.RatingSequenceSlots, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withRatingRuns; query != nil {
+		if err := _q.loadRatingRuns(ctx, query, nodes,
+			func(n *Contest) { n.Edges.RatingRuns = []*ContestRatingRun{} },
+			func(n *Contest, e *ContestRatingRun) {
+				n.Edges.RatingRuns = append(n.Edges.RatingRuns, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAnnouncements; query != nil {
+		if err := _q.loadAnnouncements(ctx, query, nodes,
+			func(n *Contest) { n.Edges.Announcements = []*ContestAnnouncement{} },
+			func(n *Contest, e *ContestAnnouncement) {
+				n.Edges.Announcements = append(n.Edges.Announcements, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withClarifications; query != nil {
+		if err := _q.loadClarifications(ctx, query, nodes,
+			func(n *Contest) { n.Edges.Clarifications = []*ContestClarification{} },
+			func(n *Contest, e *ContestClarification) {
+				n.Edges.Clarifications = append(n.Edges.Clarifications, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withContentCommands; query != nil {
+		if err := _q.loadContentCommands(ctx, query, nodes,
+			func(n *Contest) { n.Edges.ContentCommands = []*ContestContentCommand{} },
+			func(n *Contest, e *ContestContentCommand) {
+				n.Edges.ContentCommands = append(n.Edges.ContentCommands, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withScoringAttempts; query != nil {
+		if err := _q.loadScoringAttempts(ctx, query, nodes,
+			func(n *Contest) { n.Edges.ScoringAttempts = []*ContestScoringAttempt{} },
+			func(n *Contest, e *ContestScoringAttempt) {
+				n.Edges.ScoringAttempts = append(n.Edges.ScoringAttempts, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withProblemResults; query != nil {
+		if err := _q.loadProblemResults(ctx, query, nodes,
+			func(n *Contest) { n.Edges.ProblemResults = []*ContestProblemResult{} },
+			func(n *Contest, e *ContestProblemResult) {
+				n.Edges.ProblemResults = append(n.Edges.ProblemResults, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Contest = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *ContestQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Contest)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Contest)
 	for i := range nodes {
 		fk := nodes[i].AuthorID
 		if _, ok := nodeids[fk]; !ok {
@@ -677,9 +1124,9 @@ func (_q *ContestQuery) loadAuthor(ctx context.Context, query *UserQuery, nodes 
 	}
 	return nil
 }
-func (_q *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *Problem)) error {
+func (_q *ContestQuery) loadDraftProblems(ctx context.Context, query *ContestDraftProblemQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestDraftProblem)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
+	nodeids := make(map[uuid.UUID]*Contest)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -687,22 +1134,81 @@ func (_q *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, n
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
-	query.Where(predicate.Problem(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(contest.ProblemsColumn), fks...))
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestdraftproblem.FieldContestID)
+	}
+	query.Where(predicate.ContestDraftProblem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.DraftProblemsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.contest_problems
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "contest_problems" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ContestID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "contest_problems" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadContestProblems(ctx context.Context, query *ContestProblemQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestProblem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestproblem.FieldContestID)
+	}
+	query.Where(predicate.ContestProblem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ContestProblemsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadTransitions(ctx context.Context, query *ContestTransitionQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestTransition)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contesttransition.FieldContestID)
+	}
+	query.Where(predicate.ContestTransition(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.TransitionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -710,7 +1216,7 @@ func (_q *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, n
 }
 func (_q *ContestQuery) loadRegistrations(ctx context.Context, query *ContestRegistrationQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestRegistration)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
+	nodeids := make(map[uuid.UUID]*Contest)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -740,7 +1246,7 @@ func (_q *ContestQuery) loadRegistrations(ctx context.Context, query *ContestReg
 }
 func (_q *ContestQuery) loadStandings(ctx context.Context, query *ContestStandingQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestStanding)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
+	nodeids := make(map[uuid.UUID]*Contest)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -770,7 +1276,7 @@ func (_q *ContestQuery) loadStandings(ctx context.Context, query *ContestStandin
 }
 func (_q *ContestQuery) loadSubmissions(ctx context.Context, query *SubmissionQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *Submission)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
+	nodeids := make(map[uuid.UUID]*Contest)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -803,7 +1309,7 @@ func (_q *ContestQuery) loadSubmissions(ctx context.Context, query *SubmissionQu
 }
 func (_q *ContestQuery) loadRatingHistories(ctx context.Context, query *RatingHistoryQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *RatingHistory)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
+	nodeids := make(map[uuid.UUID]*Contest)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -816,6 +1322,216 @@ func (_q *ContestQuery) loadRatingHistories(ctx context.Context, query *RatingHi
 	}
 	query.Where(predicate.RatingHistory(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(contest.RatingHistoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadRatingSequenceSlots(ctx context.Context, query *RatingSequenceSlotQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *RatingSequenceSlot)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(ratingsequenceslot.FieldContestID)
+	}
+	query.Where(predicate.RatingSequenceSlot(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.RatingSequenceSlotsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadRatingRuns(ctx context.Context, query *ContestRatingRunQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestRatingRun)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestratingrun.FieldContestID)
+	}
+	query.Where(predicate.ContestRatingRun(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.RatingRunsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadAnnouncements(ctx context.Context, query *ContestAnnouncementQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestAnnouncement)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestannouncement.FieldContestID)
+	}
+	query.Where(predicate.ContestAnnouncement(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.AnnouncementsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadClarifications(ctx context.Context, query *ContestClarificationQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestClarification)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestclarification.FieldContestID)
+	}
+	query.Where(predicate.ContestClarification(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ClarificationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadContentCommands(ctx context.Context, query *ContestContentCommandQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestContentCommand)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestcontentcommand.FieldContestID)
+	}
+	query.Where(predicate.ContestContentCommand(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ContentCommandsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadScoringAttempts(ctx context.Context, query *ContestScoringAttemptQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestScoringAttempt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestscoringattempt.FieldContestID)
+	}
+	query.Where(predicate.ContestScoringAttempt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ScoringAttemptsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ContestQuery) loadProblemResults(ctx context.Context, query *ContestProblemResultQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestProblemResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestproblemresult.FieldContestID)
+	}
+	query.Where(predicate.ContestProblemResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ProblemResultsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -845,7 +1561,7 @@ func (_q *ContestQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *ContestQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

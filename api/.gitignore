@@ -1,1 +1,22 @@
-storages
+# Runtime state and local credentials. Repository-wide rules provide the same
+# protection; keep this file for tools invoked with `api/` as their root.
+/storages/
+/.env
+/.env.*
+!/.env.example
+/certs/*.pem
+!/certs/*.pem.example
+/coverage.out
+/bin/
+/tmp/
+
+# Local Go build outputs; source commands live under cmd/.
+/bootstrap-admin
+/server
+/migrate
+/judge-worker
+/judgify
+/judgify-capability-inspector
+/judgify-sandbox-init
+/atlas-schema
+/atlas-migration-footer

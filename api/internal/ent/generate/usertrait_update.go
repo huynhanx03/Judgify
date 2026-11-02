@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -58,23 +59,16 @@ func (_u *UserTraitUpdate) ClearDeletedAt() *UserTraitUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserTraitUpdate) SetDeletedBy(v int) *UserTraitUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserTraitUpdate) SetDeletedBy(v string) *UserTraitUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserTraitUpdate) SetNillableDeletedBy(v *int) *UserTraitUpdate {
+func (_u *UserTraitUpdate) SetNillableDeletedBy(v *string) *UserTraitUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserTraitUpdate) AddDeletedBy(v int) *UserTraitUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -85,13 +79,13 @@ func (_u *UserTraitUpdate) ClearDeletedBy() *UserTraitUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserTraitUpdate) SetUserID(v int) *UserTraitUpdate {
+func (_u *UserTraitUpdate) SetUserID(v uuid.UUID) *UserTraitUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserTraitUpdate) SetNillableUserID(v *int) *UserTraitUpdate {
+func (_u *UserTraitUpdate) SetNillableUserID(v *uuid.UUID) *UserTraitUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -99,13 +93,13 @@ func (_u *UserTraitUpdate) SetNillableUserID(v *int) *UserTraitUpdate {
 }
 
 // SetTraitID sets the "trait_id" field.
-func (_u *UserTraitUpdate) SetTraitID(v int) *UserTraitUpdate {
+func (_u *UserTraitUpdate) SetTraitID(v uuid.UUID) *UserTraitUpdate {
 	_u.mutation.SetTraitID(v)
 	return _u
 }
 
 // SetNillableTraitID sets the "trait_id" field if the given value is not nil.
-func (_u *UserTraitUpdate) SetNillableTraitID(v *int) *UserTraitUpdate {
+func (_u *UserTraitUpdate) SetNillableTraitID(v *uuid.UUID) *UserTraitUpdate {
 	if v != nil {
 		_u.SetTraitID(*v)
 	}
@@ -202,7 +196,7 @@ func (_u *UserTraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usertrait.Table, usertrait.Columns, sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(usertrait.Table, usertrait.Columns, sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -220,13 +214,10 @@ func (_u *UserTraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(usertrait.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(usertrait.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(usertrait.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(usertrait.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(usertrait.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(usertrait.FieldDeletedBy, field.TypeString)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -236,7 +227,7 @@ func (_u *UserTraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{usertrait.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -249,7 +240,7 @@ func (_u *UserTraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{usertrait.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -265,7 +256,7 @@ func (_u *UserTraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{usertrait.TraitColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -278,7 +269,7 @@ func (_u *UserTraitUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{usertrait.TraitColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -335,23 +326,16 @@ func (_u *UserTraitUpdateOne) ClearDeletedAt() *UserTraitUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *UserTraitUpdateOne) SetDeletedBy(v int) *UserTraitUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *UserTraitUpdateOne) SetDeletedBy(v string) *UserTraitUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *UserTraitUpdateOne) SetNillableDeletedBy(v *int) *UserTraitUpdateOne {
+func (_u *UserTraitUpdateOne) SetNillableDeletedBy(v *string) *UserTraitUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *UserTraitUpdateOne) AddDeletedBy(v int) *UserTraitUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -362,13 +346,13 @@ func (_u *UserTraitUpdateOne) ClearDeletedBy() *UserTraitUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserTraitUpdateOne) SetUserID(v int) *UserTraitUpdateOne {
+func (_u *UserTraitUpdateOne) SetUserID(v uuid.UUID) *UserTraitUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserTraitUpdateOne) SetNillableUserID(v *int) *UserTraitUpdateOne {
+func (_u *UserTraitUpdateOne) SetNillableUserID(v *uuid.UUID) *UserTraitUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -376,13 +360,13 @@ func (_u *UserTraitUpdateOne) SetNillableUserID(v *int) *UserTraitUpdateOne {
 }
 
 // SetTraitID sets the "trait_id" field.
-func (_u *UserTraitUpdateOne) SetTraitID(v int) *UserTraitUpdateOne {
+func (_u *UserTraitUpdateOne) SetTraitID(v uuid.UUID) *UserTraitUpdateOne {
 	_u.mutation.SetTraitID(v)
 	return _u
 }
 
 // SetNillableTraitID sets the "trait_id" field if the given value is not nil.
-func (_u *UserTraitUpdateOne) SetNillableTraitID(v *int) *UserTraitUpdateOne {
+func (_u *UserTraitUpdateOne) SetNillableTraitID(v *uuid.UUID) *UserTraitUpdateOne {
 	if v != nil {
 		_u.SetTraitID(*v)
 	}
@@ -492,7 +476,7 @@ func (_u *UserTraitUpdateOne) sqlSave(ctx context.Context) (_node *UserTrait, er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usertrait.Table, usertrait.Columns, sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(usertrait.Table, usertrait.Columns, sqlgraph.NewFieldSpec(usertrait.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "UserTrait.id" for update`)}
@@ -527,13 +511,10 @@ func (_u *UserTraitUpdateOne) sqlSave(ctx context.Context) (_node *UserTrait, er
 		_spec.ClearField(usertrait.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(usertrait.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(usertrait.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(usertrait.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(usertrait.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(usertrait.FieldDeletedBy, field.TypeString)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -543,7 +524,7 @@ func (_u *UserTraitUpdateOne) sqlSave(ctx context.Context) (_node *UserTrait, er
 			Columns: []string{usertrait.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -556,7 +537,7 @@ func (_u *UserTraitUpdateOne) sqlSave(ctx context.Context) (_node *UserTrait, er
 			Columns: []string{usertrait.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -572,7 +553,7 @@ func (_u *UserTraitUpdateOne) sqlSave(ctx context.Context) (_node *UserTrait, er
 			Columns: []string{usertrait.TraitColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -585,7 +566,7 @@ func (_u *UserTraitUpdateOne) sqlSave(ctx context.Context) (_node *UserTrait, er
 			Columns: []string{usertrait.TraitColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

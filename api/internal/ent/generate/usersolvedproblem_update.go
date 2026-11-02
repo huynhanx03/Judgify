@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -32,13 +33,13 @@ func (_u *UserSolvedProblemUpdate) Where(ps ...predicate.UserSolvedProblem) *Use
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserSolvedProblemUpdate) SetUserID(v int) *UserSolvedProblemUpdate {
+func (_u *UserSolvedProblemUpdate) SetUserID(v uuid.UUID) *UserSolvedProblemUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserSolvedProblemUpdate) SetNillableUserID(v *int) *UserSolvedProblemUpdate {
+func (_u *UserSolvedProblemUpdate) SetNillableUserID(v *uuid.UUID) *UserSolvedProblemUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -46,13 +47,13 @@ func (_u *UserSolvedProblemUpdate) SetNillableUserID(v *int) *UserSolvedProblemU
 }
 
 // SetProblemID sets the "problem_id" field.
-func (_u *UserSolvedProblemUpdate) SetProblemID(v int) *UserSolvedProblemUpdate {
+func (_u *UserSolvedProblemUpdate) SetProblemID(v uuid.UUID) *UserSolvedProblemUpdate {
 	_u.mutation.SetProblemID(v)
 	return _u
 }
 
 // SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (_u *UserSolvedProblemUpdate) SetNillableProblemID(v *int) *UserSolvedProblemUpdate {
+func (_u *UserSolvedProblemUpdate) SetNillableProblemID(v *uuid.UUID) *UserSolvedProblemUpdate {
 	if v != nil {
 		_u.SetProblemID(*v)
 	}
@@ -148,7 +149,7 @@ func (_u *UserSolvedProblemUpdate) sqlSave(ctx context.Context) (_node int, err 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usersolvedproblem.Table, usersolvedproblem.Columns, sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(usersolvedproblem.Table, usersolvedproblem.Columns, sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -167,7 +168,7 @@ func (_u *UserSolvedProblemUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Columns: []string{usersolvedproblem.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -180,7 +181,7 @@ func (_u *UserSolvedProblemUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Columns: []string{usersolvedproblem.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -196,7 +197,7 @@ func (_u *UserSolvedProblemUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Columns: []string{usersolvedproblem.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -209,7 +210,7 @@ func (_u *UserSolvedProblemUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Columns: []string{usersolvedproblem.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -240,13 +241,13 @@ type UserSolvedProblemUpdateOne struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *UserSolvedProblemUpdateOne) SetUserID(v int) *UserSolvedProblemUpdateOne {
+func (_u *UserSolvedProblemUpdateOne) SetUserID(v uuid.UUID) *UserSolvedProblemUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *UserSolvedProblemUpdateOne) SetNillableUserID(v *int) *UserSolvedProblemUpdateOne {
+func (_u *UserSolvedProblemUpdateOne) SetNillableUserID(v *uuid.UUID) *UserSolvedProblemUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
@@ -254,13 +255,13 @@ func (_u *UserSolvedProblemUpdateOne) SetNillableUserID(v *int) *UserSolvedProbl
 }
 
 // SetProblemID sets the "problem_id" field.
-func (_u *UserSolvedProblemUpdateOne) SetProblemID(v int) *UserSolvedProblemUpdateOne {
+func (_u *UserSolvedProblemUpdateOne) SetProblemID(v uuid.UUID) *UserSolvedProblemUpdateOne {
 	_u.mutation.SetProblemID(v)
 	return _u
 }
 
 // SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (_u *UserSolvedProblemUpdateOne) SetNillableProblemID(v *int) *UserSolvedProblemUpdateOne {
+func (_u *UserSolvedProblemUpdateOne) SetNillableProblemID(v *uuid.UUID) *UserSolvedProblemUpdateOne {
 	if v != nil {
 		_u.SetProblemID(*v)
 	}
@@ -369,7 +370,7 @@ func (_u *UserSolvedProblemUpdateOne) sqlSave(ctx context.Context) (_node *UserS
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(usersolvedproblem.Table, usersolvedproblem.Columns, sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(usersolvedproblem.Table, usersolvedproblem.Columns, sqlgraph.NewFieldSpec(usersolvedproblem.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "UserSolvedProblem.id" for update`)}
@@ -405,7 +406,7 @@ func (_u *UserSolvedProblemUpdateOne) sqlSave(ctx context.Context) (_node *UserS
 			Columns: []string{usersolvedproblem.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -418,7 +419,7 @@ func (_u *UserSolvedProblemUpdateOne) sqlSave(ctx context.Context) (_node *UserS
 			Columns: []string{usersolvedproblem.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -434,7 +435,7 @@ func (_u *UserSolvedProblemUpdateOne) sqlSave(ctx context.Context) (_node *UserS
 			Columns: []string{usersolvedproblem.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -447,7 +448,7 @@ func (_u *UserSolvedProblemUpdateOne) sqlSave(ctx context.Context) (_node *UserS
 			Columns: []string{usersolvedproblem.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

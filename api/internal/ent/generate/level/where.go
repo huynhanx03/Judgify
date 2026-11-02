@@ -6,51 +6,52 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Level {
+func ID(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Level {
+func IDEQ(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Level {
+func IDNEQ(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Level {
+func IDIn(ids ...uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Level {
+func IDNotIn(ids ...uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Level {
+func IDGT(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Level {
+func IDGTE(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Level {
+func IDLT(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Level {
+func IDLTE(id uuid.UUID) predicate.Level {
 	return predicate.Level(sql.FieldLTE(FieldID, id))
 }
 
@@ -70,7 +71,7 @@ func DeletedAt(v time.Time) predicate.Level {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Level {
+func DeletedBy(v string) predicate.Level {
 	return predicate.Level(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -220,43 +221,58 @@ func DeletedAtNotNil() predicate.Level {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Level {
+func DeletedByEQ(v string) predicate.Level {
 	return predicate.Level(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Level {
+func DeletedByNEQ(v string) predicate.Level {
 	return predicate.Level(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Level {
+func DeletedByIn(vs ...string) predicate.Level {
 	return predicate.Level(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Level {
+func DeletedByNotIn(vs ...string) predicate.Level {
 	return predicate.Level(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Level {
+func DeletedByGT(v string) predicate.Level {
 	return predicate.Level(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Level {
+func DeletedByGTE(v string) predicate.Level {
 	return predicate.Level(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Level {
+func DeletedByLT(v string) predicate.Level {
 	return predicate.Level(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Level {
+func DeletedByLTE(v string) predicate.Level {
 	return predicate.Level(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Level {
+	return predicate.Level(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Level {
+	return predicate.Level(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Level {
+	return predicate.Level(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -267,6 +283,16 @@ func DeletedByIsNil() predicate.Level {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Level {
 	return predicate.Level(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Level {
+	return predicate.Level(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Level {
+	return predicate.Level(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

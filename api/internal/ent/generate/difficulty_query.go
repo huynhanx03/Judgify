@@ -13,8 +13,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
+	"github.com/huynhanx03/judgify/internal/ent/generate/difficultyrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -27,9 +30,11 @@ type DifficultyQuery struct {
 	order                   []difficulty.OrderOption
 	inters                  []Interceptor
 	predicates              []predicate.Difficulty
+	withRevisions           *DifficultyRevisionQuery
 	withProblems            *ProblemQuery
 	withUserDifficultyStats *UserDifficultyStatsQuery
 	withMaterials           *MaterialQuery
+	withMaterialRevisions   *MaterialRevisionQuery
 	modifiers               []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -65,6 +70,28 @@ func (_q *DifficultyQuery) Unique(unique bool) *DifficultyQuery {
 func (_q *DifficultyQuery) Order(o ...difficulty.OrderOption) *DifficultyQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryRevisions chains the current query on the "revisions" edge.
+func (_q *DifficultyQuery) QueryRevisions() *DifficultyRevisionQuery {
+	query := (&DifficultyRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(difficulty.Table, difficulty.FieldID, selector),
+			sqlgraph.To(difficultyrevision.Table, difficultyrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.RevisionsTable, difficulty.RevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryProblems chains the current query on the "problems" edge.
@@ -133,6 +160,28 @@ func (_q *DifficultyQuery) QueryMaterials() *MaterialQuery {
 	return query
 }
 
+// QueryMaterialRevisions chains the current query on the "material_revisions" edge.
+func (_q *DifficultyQuery) QueryMaterialRevisions() *MaterialRevisionQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(difficulty.Table, difficulty.FieldID, selector),
+			sqlgraph.To(materialrevision.Table, materialrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, difficulty.MaterialRevisionsTable, difficulty.MaterialRevisionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Difficulty entity from the query.
 // Returns a *NotFoundError when no Difficulty was found.
 func (_q *DifficultyQuery) First(ctx context.Context) (*Difficulty, error) {
@@ -157,8 +206,8 @@ func (_q *DifficultyQuery) FirstX(ctx context.Context) *Difficulty {
 
 // FirstID returns the first Difficulty ID from the query.
 // Returns a *NotFoundError when no Difficulty ID was found.
-func (_q *DifficultyQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *DifficultyQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -170,7 +219,7 @@ func (_q *DifficultyQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *DifficultyQuery) FirstIDX(ctx context.Context) int {
+func (_q *DifficultyQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -208,8 +257,8 @@ func (_q *DifficultyQuery) OnlyX(ctx context.Context) *Difficulty {
 // OnlyID is like Only, but returns the only Difficulty ID in the query.
 // Returns a *NotSingularError when more than one Difficulty ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *DifficultyQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *DifficultyQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -225,7 +274,7 @@ func (_q *DifficultyQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *DifficultyQuery) OnlyIDX(ctx context.Context) int {
+func (_q *DifficultyQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -253,7 +302,7 @@ func (_q *DifficultyQuery) AllX(ctx context.Context) []*Difficulty {
 }
 
 // IDs executes the query and returns a list of Difficulty IDs.
-func (_q *DifficultyQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *DifficultyQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -265,7 +314,7 @@ func (_q *DifficultyQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *DifficultyQuery) IDsX(ctx context.Context) []int {
+func (_q *DifficultyQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -325,14 +374,27 @@ func (_q *DifficultyQuery) Clone() *DifficultyQuery {
 		order:                   append([]difficulty.OrderOption{}, _q.order...),
 		inters:                  append([]Interceptor{}, _q.inters...),
 		predicates:              append([]predicate.Difficulty{}, _q.predicates...),
+		withRevisions:           _q.withRevisions.Clone(),
 		withProblems:            _q.withProblems.Clone(),
 		withUserDifficultyStats: _q.withUserDifficultyStats.Clone(),
 		withMaterials:           _q.withMaterials.Clone(),
+		withMaterialRevisions:   _q.withMaterialRevisions.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
+}
+
+// WithRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DifficultyQuery) WithRevisions(opts ...func(*DifficultyRevisionQuery)) *DifficultyQuery {
+	query := (&DifficultyRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRevisions = query
+	return _q
 }
 
 // WithProblems tells the query-builder to eager-load the nodes that are connected to
@@ -365,6 +427,17 @@ func (_q *DifficultyQuery) WithMaterials(opts ...func(*MaterialQuery)) *Difficul
 		opt(query)
 	}
 	_q.withMaterials = query
+	return _q
+}
+
+// WithMaterialRevisions tells the query-builder to eager-load the nodes that are connected to
+// the "material_revisions" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DifficultyQuery) WithMaterialRevisions(opts ...func(*MaterialRevisionQuery)) *DifficultyQuery {
+	query := (&MaterialRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMaterialRevisions = query
 	return _q
 }
 
@@ -446,10 +519,12 @@ func (_q *DifficultyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 	var (
 		nodes       = []*Difficulty{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [5]bool{
+			_q.withRevisions != nil,
 			_q.withProblems != nil,
 			_q.withUserDifficultyStats != nil,
 			_q.withMaterials != nil,
+			_q.withMaterialRevisions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -472,6 +547,18 @@ func (_q *DifficultyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+	if query := _q.withRevisions; query != nil {
+		if err := _q.loadRevisions(ctx, query, nodes,
+			func(n *Difficulty) { n.Edges.Revisions = []*DifficultyRevision{} },
+			func(n *Difficulty, e *DifficultyRevision) {
+				n.Edges.Revisions = append(n.Edges.Revisions, e)
+				if !e.Edges.loadedTypes[0] {
+					e.Edges.Difficulty = n
+				}
+			}); err != nil {
+			return nil, err
+		}
 	}
 	if query := _q.withProblems; query != nil {
 		if err := _q.loadProblems(ctx, query, nodes,
@@ -509,12 +596,24 @@ func (_q *DifficultyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*D
 			return nil, err
 		}
 	}
+	if query := _q.withMaterialRevisions; query != nil {
+		if err := _q.loadMaterialRevisions(ctx, query, nodes,
+			func(n *Difficulty) { n.Edges.MaterialRevisions = []*MaterialRevision{} },
+			func(n *Difficulty, e *MaterialRevision) {
+				n.Edges.MaterialRevisions = append(n.Edges.MaterialRevisions, e)
+				if !e.Edges.loadedTypes[2] {
+					e.Edges.Difficulty = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (_q *DifficultyQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *Problem)) error {
+func (_q *DifficultyQuery) loadRevisions(ctx context.Context, query *DifficultyRevisionQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *DifficultyRevision)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Difficulty)
+	nodeids := make(map[uuid.UUID]*Difficulty)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -522,7 +621,36 @@ func (_q *DifficultyQuery) loadProblems(ctx context.Context, query *ProblemQuery
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(difficultyrevision.FieldDifficultyID)
+	}
+	query.Where(predicate.DifficultyRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(difficulty.RevisionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DifficultyID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "difficulty_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *DifficultyQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *Problem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Difficulty)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(problem.FieldDifficultyID)
 	}
@@ -545,7 +673,7 @@ func (_q *DifficultyQuery) loadProblems(ctx context.Context, query *ProblemQuery
 }
 func (_q *DifficultyQuery) loadUserDifficultyStats(ctx context.Context, query *UserDifficultyStatsQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *UserDifficultyStats)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Difficulty)
+	nodeids := make(map[uuid.UUID]*Difficulty)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -575,7 +703,7 @@ func (_q *DifficultyQuery) loadUserDifficultyStats(ctx context.Context, query *U
 }
 func (_q *DifficultyQuery) loadMaterials(ctx context.Context, query *MaterialQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *Material)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Difficulty)
+	nodeids := make(map[uuid.UUID]*Difficulty)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -588,6 +716,36 @@ func (_q *DifficultyQuery) loadMaterials(ctx context.Context, query *MaterialQue
 	}
 	query.Where(predicate.Material(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(difficulty.MaterialsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DifficultyID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "difficulty_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *DifficultyQuery) loadMaterialRevisions(ctx context.Context, query *MaterialRevisionQuery, nodes []*Difficulty, init func(*Difficulty), assign func(*Difficulty, *MaterialRevision)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Difficulty)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(materialrevision.FieldDifficultyID)
+	}
+	query.Where(predicate.MaterialRevision(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(difficulty.MaterialRevisionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -617,7 +775,7 @@ func (_q *DifficultyQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *DifficultyQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(difficulty.Table, difficulty.Columns, sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(difficulty.Table, difficulty.Columns, sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

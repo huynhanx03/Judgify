@@ -7,51 +7,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Difficulty {
+func ID(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Difficulty {
+func IDEQ(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Difficulty {
+func IDNEQ(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Difficulty {
+func IDIn(ids ...uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Difficulty {
+func IDNotIn(ids ...uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Difficulty {
+func IDGT(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Difficulty {
+func IDGTE(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Difficulty {
+func IDLT(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Difficulty {
+func IDLTE(id uuid.UUID) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Difficulty {
 }
 
 // DeletedBy applies equality check predicate on the "deleted_by" field. It's identical to DeletedByEQ.
-func DeletedBy(v int) predicate.Difficulty {
+func DeletedBy(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldEQ(FieldDeletedBy, v))
 }
 
@@ -93,6 +94,11 @@ func ExpReward(v int64) predicate.Difficulty {
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldEQ(FieldDescription, v))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldEQ(FieldVersion, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -226,43 +232,58 @@ func DeletedAtNotNil() predicate.Difficulty {
 }
 
 // DeletedByEQ applies the EQ predicate on the "deleted_by" field.
-func DeletedByEQ(v int) predicate.Difficulty {
+func DeletedByEQ(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldEQ(FieldDeletedBy, v))
 }
 
 // DeletedByNEQ applies the NEQ predicate on the "deleted_by" field.
-func DeletedByNEQ(v int) predicate.Difficulty {
+func DeletedByNEQ(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldNEQ(FieldDeletedBy, v))
 }
 
 // DeletedByIn applies the In predicate on the "deleted_by" field.
-func DeletedByIn(vs ...int) predicate.Difficulty {
+func DeletedByIn(vs ...string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByNotIn applies the NotIn predicate on the "deleted_by" field.
-func DeletedByNotIn(vs ...int) predicate.Difficulty {
+func DeletedByNotIn(vs ...string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldNotIn(FieldDeletedBy, vs...))
 }
 
 // DeletedByGT applies the GT predicate on the "deleted_by" field.
-func DeletedByGT(v int) predicate.Difficulty {
+func DeletedByGT(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldGT(FieldDeletedBy, v))
 }
 
 // DeletedByGTE applies the GTE predicate on the "deleted_by" field.
-func DeletedByGTE(v int) predicate.Difficulty {
+func DeletedByGTE(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldGTE(FieldDeletedBy, v))
 }
 
 // DeletedByLT applies the LT predicate on the "deleted_by" field.
-func DeletedByLT(v int) predicate.Difficulty {
+func DeletedByLT(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldLT(FieldDeletedBy, v))
 }
 
 // DeletedByLTE applies the LTE predicate on the "deleted_by" field.
-func DeletedByLTE(v int) predicate.Difficulty {
+func DeletedByLTE(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldLTE(FieldDeletedBy, v))
+}
+
+// DeletedByContains applies the Contains predicate on the "deleted_by" field.
+func DeletedByContains(v string) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldContains(FieldDeletedBy, v))
+}
+
+// DeletedByHasPrefix applies the HasPrefix predicate on the "deleted_by" field.
+func DeletedByHasPrefix(v string) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldHasPrefix(FieldDeletedBy, v))
+}
+
+// DeletedByHasSuffix applies the HasSuffix predicate on the "deleted_by" field.
+func DeletedByHasSuffix(v string) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldHasSuffix(FieldDeletedBy, v))
 }
 
 // DeletedByIsNil applies the IsNil predicate on the "deleted_by" field.
@@ -273,6 +294,16 @@ func DeletedByIsNil() predicate.Difficulty {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// DeletedByEqualFold applies the EqualFold predicate on the "deleted_by" field.
+func DeletedByEqualFold(v string) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldEqualFold(FieldDeletedBy, v))
+}
+
+// DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
+func DeletedByContainsFold(v string) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldContainsFold(FieldDeletedBy, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -495,6 +526,69 @@ func DescriptionContainsFold(v string) predicate.Difficulty {
 	return predicate.Difficulty(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v int64) predicate.Difficulty {
+	return predicate.Difficulty(sql.FieldLTE(FieldVersion, v))
+}
+
+// HasRevisions applies the HasEdge predicate on the "revisions" edge.
+func HasRevisions() predicate.Difficulty {
+	return predicate.Difficulty(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRevisionsWith applies the HasEdge predicate on the "revisions" edge with a given conditions (other predicates).
+func HasRevisionsWith(preds ...predicate.DifficultyRevision) predicate.Difficulty {
+	return predicate.Difficulty(func(s *sql.Selector) {
+		step := newRevisionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasProblems applies the HasEdge predicate on the "problems" edge.
 func HasProblems() predicate.Difficulty {
 	return predicate.Difficulty(func(s *sql.Selector) {
@@ -556,6 +650,29 @@ func HasMaterials() predicate.Difficulty {
 func HasMaterialsWith(preds ...predicate.Material) predicate.Difficulty {
 	return predicate.Difficulty(func(s *sql.Selector) {
 		step := newMaterialsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMaterialRevisions applies the HasEdge predicate on the "material_revisions" edge.
+func HasMaterialRevisions() predicate.Difficulty {
+	return predicate.Difficulty(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MaterialRevisionsTable, MaterialRevisionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMaterialRevisionsWith applies the HasEdge predicate on the "material_revisions" edge with a given conditions (other predicates).
+func HasMaterialRevisionsWith(preds ...predicate.MaterialRevision) predicate.Difficulty {
+	return predicate.Difficulty(func(s *sql.Selector) {
+		step := newMaterialRevisionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

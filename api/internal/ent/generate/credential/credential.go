@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -29,6 +30,12 @@ const (
 	FieldType = "type"
 	// FieldCredentialData holds the string denoting the credential_data field in the database.
 	FieldCredentialData = "credential_data"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldActive holds the string denoting the active field in the database.
+	FieldActive = "active"
+	// FieldLastUsedAt holds the string denoting the last_used_at field in the database.
+	FieldLastUsedAt = "last_used_at"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the credential in the database.
@@ -52,6 +59,9 @@ var Columns = []string{
 	FieldUserID,
 	FieldType,
 	FieldCredentialData,
+	FieldVersion,
+	FieldActive,
+	FieldLastUsedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -80,6 +90,14 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	TypeValidator func(string) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultActive holds the default value on creation for the "active" field.
+	DefaultActive bool
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the Credential queries.
@@ -118,6 +136,21 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByActive orders the results by the active field.
+func ByActive(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActive, opts...).ToFunc()
+}
+
+// ByLastUsedAt orders the results by the last_used_at field.
+func ByLastUsedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastUsedAt, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

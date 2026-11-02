@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
@@ -109,8 +110,8 @@ func (_q *RarityQuery) FirstX(ctx context.Context) *Rarity {
 
 // FirstID returns the first Rarity ID from the query.
 // Returns a *NotFoundError when no Rarity ID was found.
-func (_q *RarityQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *RarityQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -122,7 +123,7 @@ func (_q *RarityQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *RarityQuery) FirstIDX(ctx context.Context) int {
+func (_q *RarityQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -160,8 +161,8 @@ func (_q *RarityQuery) OnlyX(ctx context.Context) *Rarity {
 // OnlyID is like Only, but returns the only Rarity ID in the query.
 // Returns a *NotSingularError when more than one Rarity ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *RarityQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *RarityQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -177,7 +178,7 @@ func (_q *RarityQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *RarityQuery) OnlyIDX(ctx context.Context) int {
+func (_q *RarityQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -205,7 +206,7 @@ func (_q *RarityQuery) AllX(ctx context.Context) []*Rarity {
 }
 
 // IDs executes the query and returns a list of Rarity IDs.
-func (_q *RarityQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *RarityQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -217,7 +218,7 @@ func (_q *RarityQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *RarityQuery) IDsX(ctx context.Context) []int {
+func (_q *RarityQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -416,7 +417,7 @@ func (_q *RarityQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Rarit
 
 func (_q *RarityQuery) loadTraits(ctx context.Context, query *TraitQuery, nodes []*Rarity, init func(*Rarity), assign func(*Rarity, *Trait)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Rarity)
+	nodeids := make(map[uuid.UUID]*Rarity)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -458,7 +459,7 @@ func (_q *RarityQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *RarityQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(rarity.Table, rarity.Columns, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(rarity.Table, rarity.Columns, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

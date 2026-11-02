@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 )
 
@@ -16,7 +17,7 @@ import (
 type Difficulty struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,7 +25,7 @@ type Difficulty struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Level holds the value of the "level" field.
@@ -33,6 +34,8 @@ type Difficulty struct {
 	ExpReward int64 `json:"exp_reward,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Version holds the value of the "version" field.
+	Version int64 `json:"version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DifficultyQuery when eager-loading is set.
 	Edges        DifficultyEdges `json:"edges"`
@@ -41,21 +44,34 @@ type Difficulty struct {
 
 // DifficultyEdges holds the relations/edges for other nodes in the graph.
 type DifficultyEdges struct {
+	// Revisions holds the value of the revisions edge.
+	Revisions []*DifficultyRevision `json:"revisions,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
 	// UserDifficultyStats holds the value of the user_difficulty_stats edge.
 	UserDifficultyStats []*UserDifficultyStats `json:"user_difficulty_stats,omitempty"`
 	// Materials holds the value of the materials edge.
 	Materials []*Material `json:"materials,omitempty"`
+	// MaterialRevisions holds the value of the material_revisions edge.
+	MaterialRevisions []*MaterialRevision `json:"material_revisions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [5]bool
+}
+
+// RevisionsOrErr returns the Revisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e DifficultyEdges) RevisionsOrErr() ([]*DifficultyRevision, error) {
+	if e.loadedTypes[0] {
+		return e.Revisions, nil
+	}
+	return nil, &NotLoadedError{edge: "revisions"}
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading.
 func (e DifficultyEdges) ProblemsOrErr() ([]*Problem, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
@@ -64,7 +80,7 @@ func (e DifficultyEdges) ProblemsOrErr() ([]*Problem, error) {
 // UserDifficultyStatsOrErr returns the UserDifficultyStats value or an error if the edge
 // was not loaded in eager-loading.
 func (e DifficultyEdges) UserDifficultyStatsOrErr() ([]*UserDifficultyStats, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.UserDifficultyStats, nil
 	}
 	return nil, &NotLoadedError{edge: "user_difficulty_stats"}
@@ -73,10 +89,19 @@ func (e DifficultyEdges) UserDifficultyStatsOrErr() ([]*UserDifficultyStats, err
 // MaterialsOrErr returns the Materials value or an error if the edge
 // was not loaded in eager-loading.
 func (e DifficultyEdges) MaterialsOrErr() ([]*Material, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.Materials, nil
 	}
 	return nil, &NotLoadedError{edge: "materials"}
+}
+
+// MaterialRevisionsOrErr returns the MaterialRevisions value or an error if the edge
+// was not loaded in eager-loading.
+func (e DifficultyEdges) MaterialRevisionsOrErr() ([]*MaterialRevision, error) {
+	if e.loadedTypes[4] {
+		return e.MaterialRevisions, nil
+	}
+	return nil, &NotLoadedError{edge: "material_revisions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -84,12 +109,14 @@ func (*Difficulty) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case difficulty.FieldID, difficulty.FieldDeletedBy, difficulty.FieldLevel, difficulty.FieldExpReward:
+		case difficulty.FieldLevel, difficulty.FieldExpReward, difficulty.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case difficulty.FieldName, difficulty.FieldDescription:
+		case difficulty.FieldDeletedBy, difficulty.FieldName, difficulty.FieldDescription:
 			values[i] = new(sql.NullString)
 		case difficulty.FieldCreatedAt, difficulty.FieldUpdatedAt, difficulty.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case difficulty.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -106,11 +133,11 @@ func (_m *Difficulty) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case difficulty.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case difficulty.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -131,11 +158,11 @@ func (_m *Difficulty) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case difficulty.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case difficulty.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -161,6 +188,12 @@ func (_m *Difficulty) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = value.String
 			}
+		case difficulty.FieldVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Int64
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -172,6 +205,11 @@ func (_m *Difficulty) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Difficulty) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryRevisions queries the "revisions" edge of the Difficulty entity.
+func (_m *Difficulty) QueryRevisions() *DifficultyRevisionQuery {
+	return NewDifficultyClient(_m.config).QueryRevisions(_m)
 }
 
 // QueryProblems queries the "problems" edge of the Difficulty entity.
@@ -187,6 +225,11 @@ func (_m *Difficulty) QueryUserDifficultyStats() *UserDifficultyStatsQuery {
 // QueryMaterials queries the "materials" edge of the Difficulty entity.
 func (_m *Difficulty) QueryMaterials() *MaterialQuery {
 	return NewDifficultyClient(_m.config).QueryMaterials(_m)
+}
+
+// QueryMaterialRevisions queries the "material_revisions" edge of the Difficulty entity.
+func (_m *Difficulty) QueryMaterialRevisions() *MaterialRevisionQuery {
+	return NewDifficultyClient(_m.config).QueryMaterialRevisions(_m)
 }
 
 // Update returns a builder for updating this Difficulty.
@@ -225,7 +268,7 @@ func (_m *Difficulty) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
@@ -239,16 +282,11 @@ func (_m *Difficulty) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
+	builder.WriteString(", ")
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Difficulty) GetID() int {
-	return _m.ID
-}
-
-func (_m *Difficulty) SetID(id int) {
-	_m.ID = id
 }
 
 // Difficulties is a parsable slice of Difficulty.

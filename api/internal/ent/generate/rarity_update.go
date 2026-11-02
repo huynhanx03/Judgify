@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rarity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/trait"
@@ -57,23 +58,16 @@ func (_u *RarityUpdate) ClearDeletedAt() *RarityUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *RarityUpdate) SetDeletedBy(v int) *RarityUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *RarityUpdate) SetDeletedBy(v string) *RarityUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *RarityUpdate) SetNillableDeletedBy(v *int) *RarityUpdate {
+func (_u *RarityUpdate) SetNillableDeletedBy(v *string) *RarityUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *RarityUpdate) AddDeletedBy(v int) *RarityUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -153,14 +147,14 @@ func (_u *RarityUpdate) ClearDescription() *RarityUpdate {
 }
 
 // AddTraitIDs adds the "traits" edge to the Trait entity by IDs.
-func (_u *RarityUpdate) AddTraitIDs(ids ...int) *RarityUpdate {
+func (_u *RarityUpdate) AddTraitIDs(ids ...uuid.UUID) *RarityUpdate {
 	_u.mutation.AddTraitIDs(ids...)
 	return _u
 }
 
 // AddTraits adds the "traits" edges to the Trait entity.
 func (_u *RarityUpdate) AddTraits(v ...*Trait) *RarityUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -179,14 +173,14 @@ func (_u *RarityUpdate) ClearTraits() *RarityUpdate {
 }
 
 // RemoveTraitIDs removes the "traits" edge to Trait entities by IDs.
-func (_u *RarityUpdate) RemoveTraitIDs(ids ...int) *RarityUpdate {
+func (_u *RarityUpdate) RemoveTraitIDs(ids ...uuid.UUID) *RarityUpdate {
 	_u.mutation.RemoveTraitIDs(ids...)
 	return _u
 }
 
 // RemoveTraits removes "traits" edges to Trait entities.
 func (_u *RarityUpdate) RemoveTraits(v ...*Trait) *RarityUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -270,7 +264,7 @@ func (_u *RarityUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(rarity.Table, rarity.Columns, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(rarity.Table, rarity.Columns, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -288,13 +282,10 @@ func (_u *RarityUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(rarity.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(rarity.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(rarity.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(rarity.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(rarity.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(rarity.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(rarity.FieldName, field.TypeString, value)
@@ -322,7 +313,7 @@ func (_u *RarityUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -335,7 +326,7 @@ func (_u *RarityUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -351,7 +342,7 @@ func (_u *RarityUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -408,23 +399,16 @@ func (_u *RarityUpdateOne) ClearDeletedAt() *RarityUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *RarityUpdateOne) SetDeletedBy(v int) *RarityUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *RarityUpdateOne) SetDeletedBy(v string) *RarityUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *RarityUpdateOne) SetNillableDeletedBy(v *int) *RarityUpdateOne {
+func (_u *RarityUpdateOne) SetNillableDeletedBy(v *string) *RarityUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *RarityUpdateOne) AddDeletedBy(v int) *RarityUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -504,14 +488,14 @@ func (_u *RarityUpdateOne) ClearDescription() *RarityUpdateOne {
 }
 
 // AddTraitIDs adds the "traits" edge to the Trait entity by IDs.
-func (_u *RarityUpdateOne) AddTraitIDs(ids ...int) *RarityUpdateOne {
+func (_u *RarityUpdateOne) AddTraitIDs(ids ...uuid.UUID) *RarityUpdateOne {
 	_u.mutation.AddTraitIDs(ids...)
 	return _u
 }
 
 // AddTraits adds the "traits" edges to the Trait entity.
 func (_u *RarityUpdateOne) AddTraits(v ...*Trait) *RarityUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -530,14 +514,14 @@ func (_u *RarityUpdateOne) ClearTraits() *RarityUpdateOne {
 }
 
 // RemoveTraitIDs removes the "traits" edge to Trait entities by IDs.
-func (_u *RarityUpdateOne) RemoveTraitIDs(ids ...int) *RarityUpdateOne {
+func (_u *RarityUpdateOne) RemoveTraitIDs(ids ...uuid.UUID) *RarityUpdateOne {
 	_u.mutation.RemoveTraitIDs(ids...)
 	return _u
 }
 
 // RemoveTraits removes "traits" edges to Trait entities.
 func (_u *RarityUpdateOne) RemoveTraits(v ...*Trait) *RarityUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -634,7 +618,7 @@ func (_u *RarityUpdateOne) sqlSave(ctx context.Context) (_node *Rarity, err erro
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(rarity.Table, rarity.Columns, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(rarity.Table, rarity.Columns, sqlgraph.NewFieldSpec(rarity.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Rarity.id" for update`)}
@@ -669,13 +653,10 @@ func (_u *RarityUpdateOne) sqlSave(ctx context.Context) (_node *Rarity, err erro
 		_spec.ClearField(rarity.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(rarity.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(rarity.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(rarity.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(rarity.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(rarity.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(rarity.FieldName, field.TypeString, value)
@@ -703,7 +684,7 @@ func (_u *RarityUpdateOne) sqlSave(ctx context.Context) (_node *Rarity, err erro
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -716,7 +697,7 @@ func (_u *RarityUpdateOne) sqlSave(ctx context.Context) (_node *Rarity, err erro
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -732,7 +713,7 @@ func (_u *RarityUpdateOne) sqlSave(ctx context.Context) (_node *Rarity, err erro
 			Columns: []string{rarity.TraitsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(trait.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

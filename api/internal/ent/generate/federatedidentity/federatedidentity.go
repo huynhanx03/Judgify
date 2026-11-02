@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -27,10 +28,18 @@ const (
 	FieldUserID = "user_id"
 	// FieldProvider holds the string denoting the provider field in the database.
 	FieldProvider = "provider"
-	// FieldExternalID holds the string denoting the external_id field in the database.
-	FieldExternalID = "external_id"
+	// FieldProviderSubject holds the string denoting the provider_subject field in the database.
+	FieldProviderSubject = "provider_subject"
+	// FieldDisplayName holds the string denoting the display_name field in the database.
+	FieldDisplayName = "display_name"
+	// FieldAvatarURL holds the string denoting the avatar_url field in the database.
+	FieldAvatarURL = "avatar_url"
+	// FieldLastAuthenticatedAt holds the string denoting the last_authenticated_at field in the database.
+	FieldLastAuthenticatedAt = "last_authenticated_at"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeRecoveryContacts holds the string denoting the recovery_contacts edge name in mutations.
+	EdgeRecoveryContacts = "recovery_contacts"
 	// Table holds the table name of the federatedidentity in the database.
 	Table = "federated_identities"
 	// UserTable is the table that holds the user relation/edge.
@@ -40,6 +49,13 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// RecoveryContactsTable is the table that holds the recovery_contacts relation/edge.
+	RecoveryContactsTable = "user_recovery_contacts"
+	// RecoveryContactsInverseTable is the table name for the UserRecoveryContact entity.
+	// It exists in this package in order to avoid circular dependency with the "userrecoverycontact" package.
+	RecoveryContactsInverseTable = "user_recovery_contacts"
+	// RecoveryContactsColumn is the table column denoting the recovery_contacts relation/edge.
+	RecoveryContactsColumn = "source_federated_identity_id"
 )
 
 // Columns holds all SQL columns for federatedidentity fields.
@@ -51,7 +67,10 @@ var Columns = []string{
 	FieldDeletedBy,
 	FieldUserID,
 	FieldProvider,
-	FieldExternalID,
+	FieldProviderSubject,
+	FieldDisplayName,
+	FieldAvatarURL,
+	FieldLastAuthenticatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -80,8 +99,14 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// ProviderValidator is a validator for the "provider" field. It is called by the builders before save.
 	ProviderValidator func(string) error
-	// ExternalIDValidator is a validator for the "external_id" field. It is called by the builders before save.
-	ExternalIDValidator func(string) error
+	// ProviderSubjectValidator is a validator for the "provider_subject" field. It is called by the builders before save.
+	ProviderSubjectValidator func(string) error
+	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	DisplayNameValidator func(string) error
+	// AvatarURLValidator is a validator for the "avatar_url" field. It is called by the builders before save.
+	AvatarURLValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the FederatedIdentity queries.
@@ -122,9 +147,24 @@ func ByProvider(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProvider, opts...).ToFunc()
 }
 
-// ByExternalID orders the results by the external_id field.
-func ByExternalID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExternalID, opts...).ToFunc()
+// ByProviderSubject orders the results by the provider_subject field.
+func ByProviderSubject(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProviderSubject, opts...).ToFunc()
+}
+
+// ByDisplayName orders the results by the display_name field.
+func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByAvatarURL orders the results by the avatar_url field.
+func ByAvatarURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatarURL, opts...).ToFunc()
+}
+
+// ByLastAuthenticatedAt orders the results by the last_authenticated_at field.
+func ByLastAuthenticatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastAuthenticatedAt, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.
@@ -133,10 +173,31 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByRecoveryContactsCount orders the results by recovery_contacts count.
+func ByRecoveryContactsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRecoveryContactsStep(), opts...)
+	}
+}
+
+// ByRecoveryContacts orders the results by recovery_contacts terms.
+func ByRecoveryContacts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRecoveryContactsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newRecoveryContactsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RecoveryContactsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RecoveryContactsTable, RecoveryContactsColumn),
 	)
 }

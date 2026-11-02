@@ -11,9 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
-	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
+	"github.com/huynhanx03/judgify/internal/ent/generate/testcaserevision"
 )
 
 // TestCaseUpdate is the builder for updating TestCase entities.
@@ -57,23 +58,16 @@ func (_u *TestCaseUpdate) ClearDeletedAt() *TestCaseUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *TestCaseUpdate) SetDeletedBy(v int) *TestCaseUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *TestCaseUpdate) SetDeletedBy(v string) *TestCaseUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableDeletedBy(v *int) *TestCaseUpdate {
+func (_u *TestCaseUpdate) SetNillableDeletedBy(v *string) *TestCaseUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *TestCaseUpdate) AddDeletedBy(v int) *TestCaseUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -83,86 +77,19 @@ func (_u *TestCaseUpdate) ClearDeletedBy() *TestCaseUpdate {
 	return _u
 }
 
-// SetProblemID sets the "problem_id" field.
-func (_u *TestCaseUpdate) SetProblemID(v int) *TestCaseUpdate {
-	_u.mutation.SetProblemID(v)
+// AddRevisionIDs adds the "revisions" edge to the TestcaseRevision entity by IDs.
+func (_u *TestCaseUpdate) AddRevisionIDs(ids ...uuid.UUID) *TestCaseUpdate {
+	_u.mutation.AddRevisionIDs(ids...)
 	return _u
 }
 
-// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableProblemID(v *int) *TestCaseUpdate {
-	if v != nil {
-		_u.SetProblemID(*v)
+// AddRevisions adds the "revisions" edges to the TestcaseRevision entity.
+func (_u *TestCaseUpdate) AddRevisions(v ...*TestcaseRevision) *TestCaseUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetInput sets the "input" field.
-func (_u *TestCaseUpdate) SetInput(v string) *TestCaseUpdate {
-	_u.mutation.SetInput(v)
-	return _u
-}
-
-// SetNillableInput sets the "input" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableInput(v *string) *TestCaseUpdate {
-	if v != nil {
-		_u.SetInput(*v)
-	}
-	return _u
-}
-
-// SetExpectedOutput sets the "expected_output" field.
-func (_u *TestCaseUpdate) SetExpectedOutput(v string) *TestCaseUpdate {
-	_u.mutation.SetExpectedOutput(v)
-	return _u
-}
-
-// SetNillableExpectedOutput sets the "expected_output" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableExpectedOutput(v *string) *TestCaseUpdate {
-	if v != nil {
-		_u.SetExpectedOutput(*v)
-	}
-	return _u
-}
-
-// SetIsHidden sets the "is_hidden" field.
-func (_u *TestCaseUpdate) SetIsHidden(v bool) *TestCaseUpdate {
-	_u.mutation.SetIsHidden(v)
-	return _u
-}
-
-// SetNillableIsHidden sets the "is_hidden" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableIsHidden(v *bool) *TestCaseUpdate {
-	if v != nil {
-		_u.SetIsHidden(*v)
-	}
-	return _u
-}
-
-// SetOrderIndex sets the "order_index" field.
-func (_u *TestCaseUpdate) SetOrderIndex(v int) *TestCaseUpdate {
-	_u.mutation.ResetOrderIndex()
-	_u.mutation.SetOrderIndex(v)
-	return _u
-}
-
-// SetNillableOrderIndex sets the "order_index" field if the given value is not nil.
-func (_u *TestCaseUpdate) SetNillableOrderIndex(v *int) *TestCaseUpdate {
-	if v != nil {
-		_u.SetOrderIndex(*v)
-	}
-	return _u
-}
-
-// AddOrderIndex adds value to the "order_index" field.
-func (_u *TestCaseUpdate) AddOrderIndex(v int) *TestCaseUpdate {
-	_u.mutation.AddOrderIndex(v)
-	return _u
-}
-
-// SetProblem sets the "problem" edge to the Problem entity.
-func (_u *TestCaseUpdate) SetProblem(v *Problem) *TestCaseUpdate {
-	return _u.SetProblemID(v.ID)
+	return _u.AddRevisionIDs(ids...)
 }
 
 // Mutation returns the TestCaseMutation object of the builder.
@@ -170,10 +97,25 @@ func (_u *TestCaseUpdate) Mutation() *TestCaseMutation {
 	return _u.mutation
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (_u *TestCaseUpdate) ClearProblem() *TestCaseUpdate {
-	_u.mutation.ClearProblem()
+// ClearRevisions clears all "revisions" edges to the TestcaseRevision entity.
+func (_u *TestCaseUpdate) ClearRevisions() *TestCaseUpdate {
+	_u.mutation.ClearRevisions()
 	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to TestcaseRevision entities by IDs.
+func (_u *TestCaseUpdate) RemoveRevisionIDs(ids ...uuid.UUID) *TestCaseUpdate {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to TestcaseRevision entities.
+func (_u *TestCaseUpdate) RemoveRevisions(v ...*TestcaseRevision) *TestCaseUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -220,16 +162,6 @@ func (_u *TestCaseUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *TestCaseUpdate) check() error {
-	if v, ok := _u.mutation.Input(); ok {
-		if err := testcase.InputValidator(v); err != nil {
-			return &ValidationError{Name: "input", err: fmt.Errorf(`generate: validator failed for field "TestCase.input": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ExpectedOutput(); ok {
-		if err := testcase.ExpectedOutputValidator(v); err != nil {
-			return &ValidationError{Name: "expected_output", err: fmt.Errorf(`generate: validator failed for field "TestCase.expected_output": %w`, err)}
-		}
-	}
 	if _u.mutation.ProblemCleared() && len(_u.mutation.ProblemIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "TestCase.problem"`)
 	}
@@ -246,7 +178,7 @@ func (_u *TestCaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(testcase.Table, testcase.Columns, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(testcase.Table, testcase.Columns, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -264,51 +196,49 @@ func (_u *TestCaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(testcase.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(testcase.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(testcase.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(testcase.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(testcase.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(testcase.FieldDeletedBy, field.TypeString)
 	}
-	if value, ok := _u.mutation.Input(); ok {
-		_spec.SetField(testcase.FieldInput, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.ExpectedOutput(); ok {
-		_spec.SetField(testcase.FieldExpectedOutput, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.IsHidden(); ok {
-		_spec.SetField(testcase.FieldIsHidden, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.OrderIndex(); ok {
-		_spec.SetField(testcase.FieldOrderIndex, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrderIndex(); ok {
-		_spec.AddField(testcase.FieldOrderIndex, field.TypeInt, value)
-	}
-	if _u.mutation.ProblemCleared() {
+	if _u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testcase.ProblemTable,
-			Columns: []string{testcase.ProblemColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testcase.ProblemTable,
-			Columns: []string{testcase.ProblemColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -365,23 +295,16 @@ func (_u *TestCaseUpdateOne) ClearDeletedAt() *TestCaseUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *TestCaseUpdateOne) SetDeletedBy(v int) *TestCaseUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *TestCaseUpdateOne) SetDeletedBy(v string) *TestCaseUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableDeletedBy(v *int) *TestCaseUpdateOne {
+func (_u *TestCaseUpdateOne) SetNillableDeletedBy(v *string) *TestCaseUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *TestCaseUpdateOne) AddDeletedBy(v int) *TestCaseUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -391,86 +314,19 @@ func (_u *TestCaseUpdateOne) ClearDeletedBy() *TestCaseUpdateOne {
 	return _u
 }
 
-// SetProblemID sets the "problem_id" field.
-func (_u *TestCaseUpdateOne) SetProblemID(v int) *TestCaseUpdateOne {
-	_u.mutation.SetProblemID(v)
+// AddRevisionIDs adds the "revisions" edge to the TestcaseRevision entity by IDs.
+func (_u *TestCaseUpdateOne) AddRevisionIDs(ids ...uuid.UUID) *TestCaseUpdateOne {
+	_u.mutation.AddRevisionIDs(ids...)
 	return _u
 }
 
-// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableProblemID(v *int) *TestCaseUpdateOne {
-	if v != nil {
-		_u.SetProblemID(*v)
+// AddRevisions adds the "revisions" edges to the TestcaseRevision entity.
+func (_u *TestCaseUpdateOne) AddRevisions(v ...*TestcaseRevision) *TestCaseUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetInput sets the "input" field.
-func (_u *TestCaseUpdateOne) SetInput(v string) *TestCaseUpdateOne {
-	_u.mutation.SetInput(v)
-	return _u
-}
-
-// SetNillableInput sets the "input" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableInput(v *string) *TestCaseUpdateOne {
-	if v != nil {
-		_u.SetInput(*v)
-	}
-	return _u
-}
-
-// SetExpectedOutput sets the "expected_output" field.
-func (_u *TestCaseUpdateOne) SetExpectedOutput(v string) *TestCaseUpdateOne {
-	_u.mutation.SetExpectedOutput(v)
-	return _u
-}
-
-// SetNillableExpectedOutput sets the "expected_output" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableExpectedOutput(v *string) *TestCaseUpdateOne {
-	if v != nil {
-		_u.SetExpectedOutput(*v)
-	}
-	return _u
-}
-
-// SetIsHidden sets the "is_hidden" field.
-func (_u *TestCaseUpdateOne) SetIsHidden(v bool) *TestCaseUpdateOne {
-	_u.mutation.SetIsHidden(v)
-	return _u
-}
-
-// SetNillableIsHidden sets the "is_hidden" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableIsHidden(v *bool) *TestCaseUpdateOne {
-	if v != nil {
-		_u.SetIsHidden(*v)
-	}
-	return _u
-}
-
-// SetOrderIndex sets the "order_index" field.
-func (_u *TestCaseUpdateOne) SetOrderIndex(v int) *TestCaseUpdateOne {
-	_u.mutation.ResetOrderIndex()
-	_u.mutation.SetOrderIndex(v)
-	return _u
-}
-
-// SetNillableOrderIndex sets the "order_index" field if the given value is not nil.
-func (_u *TestCaseUpdateOne) SetNillableOrderIndex(v *int) *TestCaseUpdateOne {
-	if v != nil {
-		_u.SetOrderIndex(*v)
-	}
-	return _u
-}
-
-// AddOrderIndex adds value to the "order_index" field.
-func (_u *TestCaseUpdateOne) AddOrderIndex(v int) *TestCaseUpdateOne {
-	_u.mutation.AddOrderIndex(v)
-	return _u
-}
-
-// SetProblem sets the "problem" edge to the Problem entity.
-func (_u *TestCaseUpdateOne) SetProblem(v *Problem) *TestCaseUpdateOne {
-	return _u.SetProblemID(v.ID)
+	return _u.AddRevisionIDs(ids...)
 }
 
 // Mutation returns the TestCaseMutation object of the builder.
@@ -478,10 +334,25 @@ func (_u *TestCaseUpdateOne) Mutation() *TestCaseMutation {
 	return _u.mutation
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (_u *TestCaseUpdateOne) ClearProblem() *TestCaseUpdateOne {
-	_u.mutation.ClearProblem()
+// ClearRevisions clears all "revisions" edges to the TestcaseRevision entity.
+func (_u *TestCaseUpdateOne) ClearRevisions() *TestCaseUpdateOne {
+	_u.mutation.ClearRevisions()
 	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to TestcaseRevision entities by IDs.
+func (_u *TestCaseUpdateOne) RemoveRevisionIDs(ids ...uuid.UUID) *TestCaseUpdateOne {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to TestcaseRevision entities.
+func (_u *TestCaseUpdateOne) RemoveRevisions(v ...*TestcaseRevision) *TestCaseUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
 }
 
 // Where appends a list predicates to the TestCaseUpdate builder.
@@ -541,16 +412,6 @@ func (_u *TestCaseUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *TestCaseUpdateOne) check() error {
-	if v, ok := _u.mutation.Input(); ok {
-		if err := testcase.InputValidator(v); err != nil {
-			return &ValidationError{Name: "input", err: fmt.Errorf(`generate: validator failed for field "TestCase.input": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ExpectedOutput(); ok {
-		if err := testcase.ExpectedOutputValidator(v); err != nil {
-			return &ValidationError{Name: "expected_output", err: fmt.Errorf(`generate: validator failed for field "TestCase.expected_output": %w`, err)}
-		}
-	}
 	if _u.mutation.ProblemCleared() && len(_u.mutation.ProblemIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "TestCase.problem"`)
 	}
@@ -567,7 +428,7 @@ func (_u *TestCaseUpdateOne) sqlSave(ctx context.Context) (_node *TestCase, err 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(testcase.Table, testcase.Columns, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(testcase.Table, testcase.Columns, sqlgraph.NewFieldSpec(testcase.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "TestCase.id" for update`)}
@@ -602,51 +463,49 @@ func (_u *TestCaseUpdateOne) sqlSave(ctx context.Context) (_node *TestCase, err 
 		_spec.ClearField(testcase.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(testcase.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(testcase.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(testcase.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(testcase.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(testcase.FieldDeletedBy, field.TypeString)
 	}
-	if value, ok := _u.mutation.Input(); ok {
-		_spec.SetField(testcase.FieldInput, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.ExpectedOutput(); ok {
-		_spec.SetField(testcase.FieldExpectedOutput, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.IsHidden(); ok {
-		_spec.SetField(testcase.FieldIsHidden, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.OrderIndex(); ok {
-		_spec.SetField(testcase.FieldOrderIndex, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedOrderIndex(); ok {
-		_spec.AddField(testcase.FieldOrderIndex, field.TypeInt, value)
-	}
-	if _u.mutation.ProblemCleared() {
+	if _u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testcase.ProblemTable,
-			Columns: []string{testcase.ProblemColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testcase.ProblemTable,
-			Columns: []string{testcase.ProblemColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   testcase.RevisionsTable,
+			Columns: []string{testcase.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testcaserevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

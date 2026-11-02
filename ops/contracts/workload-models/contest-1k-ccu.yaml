@@ -1,0 +1,22 @@
+schema_version: 1
+id: contest-1k-ccu-v1
+purpose: Contest steady-state workload
+users: 1000
+ramp_up: 10m
+steady_state: 60m
+ramp_down: 10m
+behaviors:
+  problem_browse:
+    users: 550
+    request_interval: 12s
+  leaderboard_poll:
+    users: 250
+    request_interval: 5s
+  submission_status:
+    users: 150
+    request_interval: 5s
+  editor_activity:
+    users: 50
+    request_interval: 30s
+submission_arrival_rate: 1/s
+

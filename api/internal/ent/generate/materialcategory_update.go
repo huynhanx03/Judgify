@@ -11,8 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
 
@@ -57,23 +59,16 @@ func (_u *MaterialCategoryUpdate) ClearDeletedAt() *MaterialCategoryUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *MaterialCategoryUpdate) SetDeletedBy(v int) *MaterialCategoryUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *MaterialCategoryUpdate) SetDeletedBy(v string) *MaterialCategoryUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *MaterialCategoryUpdate) SetNillableDeletedBy(v *int) *MaterialCategoryUpdate {
+func (_u *MaterialCategoryUpdate) SetNillableDeletedBy(v *string) *MaterialCategoryUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *MaterialCategoryUpdate) AddDeletedBy(v int) *MaterialCategoryUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -117,19 +112,34 @@ func (_u *MaterialCategoryUpdate) ClearDescription() *MaterialCategoryUpdate {
 	return _u
 }
 
-// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_u *MaterialCategoryUpdate) AddMaterialIDs(ids ...int) *MaterialCategoryUpdate {
-	_u.mutation.AddMaterialIDs(ids...)
+// AddRevisionIDs adds the "revisions" edge to the MaterialRevision entity by IDs.
+func (_u *MaterialCategoryUpdate) AddRevisionIDs(ids ...uuid.UUID) *MaterialCategoryUpdate {
+	_u.mutation.AddRevisionIDs(ids...)
 	return _u
 }
 
-// AddMaterials adds the "materials" edges to the Material entity.
-func (_u *MaterialCategoryUpdate) AddMaterials(v ...*Material) *MaterialCategoryUpdate {
-	ids := make([]int, len(v))
+// AddRevisions adds the "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialCategoryUpdate) AddRevisions(v ...*MaterialRevision) *MaterialCategoryUpdate {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.AddMaterialIDs(ids...)
+	return _u.AddRevisionIDs(ids...)
+}
+
+// AddLegacyMaterialIDs adds the "legacy_materials" edge to the Material entity by IDs.
+func (_u *MaterialCategoryUpdate) AddLegacyMaterialIDs(ids ...uuid.UUID) *MaterialCategoryUpdate {
+	_u.mutation.AddLegacyMaterialIDs(ids...)
+	return _u
+}
+
+// AddLegacyMaterials adds the "legacy_materials" edges to the Material entity.
+func (_u *MaterialCategoryUpdate) AddLegacyMaterials(v ...*Material) *MaterialCategoryUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddLegacyMaterialIDs(ids...)
 }
 
 // Mutation returns the MaterialCategoryMutation object of the builder.
@@ -137,25 +147,46 @@ func (_u *MaterialCategoryUpdate) Mutation() *MaterialCategoryMutation {
 	return _u.mutation
 }
 
-// ClearMaterials clears all "materials" edges to the Material entity.
-func (_u *MaterialCategoryUpdate) ClearMaterials() *MaterialCategoryUpdate {
-	_u.mutation.ClearMaterials()
+// ClearRevisions clears all "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialCategoryUpdate) ClearRevisions() *MaterialCategoryUpdate {
+	_u.mutation.ClearRevisions()
 	return _u
 }
 
-// RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
-func (_u *MaterialCategoryUpdate) RemoveMaterialIDs(ids ...int) *MaterialCategoryUpdate {
-	_u.mutation.RemoveMaterialIDs(ids...)
+// RemoveRevisionIDs removes the "revisions" edge to MaterialRevision entities by IDs.
+func (_u *MaterialCategoryUpdate) RemoveRevisionIDs(ids ...uuid.UUID) *MaterialCategoryUpdate {
+	_u.mutation.RemoveRevisionIDs(ids...)
 	return _u
 }
 
-// RemoveMaterials removes "materials" edges to Material entities.
-func (_u *MaterialCategoryUpdate) RemoveMaterials(v ...*Material) *MaterialCategoryUpdate {
-	ids := make([]int, len(v))
+// RemoveRevisions removes "revisions" edges to MaterialRevision entities.
+func (_u *MaterialCategoryUpdate) RemoveRevisions(v ...*MaterialRevision) *MaterialCategoryUpdate {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.RemoveMaterialIDs(ids...)
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearLegacyMaterials clears all "legacy_materials" edges to the Material entity.
+func (_u *MaterialCategoryUpdate) ClearLegacyMaterials() *MaterialCategoryUpdate {
+	_u.mutation.ClearLegacyMaterials()
+	return _u
+}
+
+// RemoveLegacyMaterialIDs removes the "legacy_materials" edge to Material entities by IDs.
+func (_u *MaterialCategoryUpdate) RemoveLegacyMaterialIDs(ids ...uuid.UUID) *MaterialCategoryUpdate {
+	_u.mutation.RemoveLegacyMaterialIDs(ids...)
+	return _u
+}
+
+// RemoveLegacyMaterials removes "legacy_materials" edges to Material entities.
+func (_u *MaterialCategoryUpdate) RemoveLegacyMaterials(v ...*Material) *MaterialCategoryUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveLegacyMaterialIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -225,7 +256,7 @@ func (_u *MaterialCategoryUpdate) sqlSave(ctx context.Context) (_node int, err e
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(materialcategory.Table, materialcategory.Columns, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(materialcategory.Table, materialcategory.Columns, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -243,13 +274,10 @@ func (_u *MaterialCategoryUpdate) sqlSave(ctx context.Context) (_node int, err e
 		_spec.ClearField(materialcategory.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(materialcategory.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(materialcategory.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(materialcategory.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(materialcategory.FieldName, field.TypeString, value)
@@ -260,28 +288,28 @@ func (_u *MaterialCategoryUpdate) sqlSave(ctx context.Context) (_node int, err e
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(materialcategory.FieldDescription, field.TypeString)
 	}
-	if _u.mutation.MaterialsCleared() {
+	if _u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.RemovedMaterialsIDs(); len(nodes) > 0 && !_u.mutation.MaterialsCleared() {
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -289,15 +317,60 @@ func (_u *MaterialCategoryUpdate) sqlSave(ctx context.Context) (_node int, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.MaterialsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.LegacyMaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedLegacyMaterialsIDs(); len(nodes) > 0 && !_u.mutation.LegacyMaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.LegacyMaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -354,23 +427,16 @@ func (_u *MaterialCategoryUpdateOne) ClearDeletedAt() *MaterialCategoryUpdateOne
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *MaterialCategoryUpdateOne) SetDeletedBy(v int) *MaterialCategoryUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *MaterialCategoryUpdateOne) SetDeletedBy(v string) *MaterialCategoryUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *MaterialCategoryUpdateOne) SetNillableDeletedBy(v *int) *MaterialCategoryUpdateOne {
+func (_u *MaterialCategoryUpdateOne) SetNillableDeletedBy(v *string) *MaterialCategoryUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *MaterialCategoryUpdateOne) AddDeletedBy(v int) *MaterialCategoryUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -414,19 +480,34 @@ func (_u *MaterialCategoryUpdateOne) ClearDescription() *MaterialCategoryUpdateO
 	return _u
 }
 
-// AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_u *MaterialCategoryUpdateOne) AddMaterialIDs(ids ...int) *MaterialCategoryUpdateOne {
-	_u.mutation.AddMaterialIDs(ids...)
+// AddRevisionIDs adds the "revisions" edge to the MaterialRevision entity by IDs.
+func (_u *MaterialCategoryUpdateOne) AddRevisionIDs(ids ...uuid.UUID) *MaterialCategoryUpdateOne {
+	_u.mutation.AddRevisionIDs(ids...)
 	return _u
 }
 
-// AddMaterials adds the "materials" edges to the Material entity.
-func (_u *MaterialCategoryUpdateOne) AddMaterials(v ...*Material) *MaterialCategoryUpdateOne {
-	ids := make([]int, len(v))
+// AddRevisions adds the "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialCategoryUpdateOne) AddRevisions(v ...*MaterialRevision) *MaterialCategoryUpdateOne {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.AddMaterialIDs(ids...)
+	return _u.AddRevisionIDs(ids...)
+}
+
+// AddLegacyMaterialIDs adds the "legacy_materials" edge to the Material entity by IDs.
+func (_u *MaterialCategoryUpdateOne) AddLegacyMaterialIDs(ids ...uuid.UUID) *MaterialCategoryUpdateOne {
+	_u.mutation.AddLegacyMaterialIDs(ids...)
+	return _u
+}
+
+// AddLegacyMaterials adds the "legacy_materials" edges to the Material entity.
+func (_u *MaterialCategoryUpdateOne) AddLegacyMaterials(v ...*Material) *MaterialCategoryUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddLegacyMaterialIDs(ids...)
 }
 
 // Mutation returns the MaterialCategoryMutation object of the builder.
@@ -434,25 +515,46 @@ func (_u *MaterialCategoryUpdateOne) Mutation() *MaterialCategoryMutation {
 	return _u.mutation
 }
 
-// ClearMaterials clears all "materials" edges to the Material entity.
-func (_u *MaterialCategoryUpdateOne) ClearMaterials() *MaterialCategoryUpdateOne {
-	_u.mutation.ClearMaterials()
+// ClearRevisions clears all "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialCategoryUpdateOne) ClearRevisions() *MaterialCategoryUpdateOne {
+	_u.mutation.ClearRevisions()
 	return _u
 }
 
-// RemoveMaterialIDs removes the "materials" edge to Material entities by IDs.
-func (_u *MaterialCategoryUpdateOne) RemoveMaterialIDs(ids ...int) *MaterialCategoryUpdateOne {
-	_u.mutation.RemoveMaterialIDs(ids...)
+// RemoveRevisionIDs removes the "revisions" edge to MaterialRevision entities by IDs.
+func (_u *MaterialCategoryUpdateOne) RemoveRevisionIDs(ids ...uuid.UUID) *MaterialCategoryUpdateOne {
+	_u.mutation.RemoveRevisionIDs(ids...)
 	return _u
 }
 
-// RemoveMaterials removes "materials" edges to Material entities.
-func (_u *MaterialCategoryUpdateOne) RemoveMaterials(v ...*Material) *MaterialCategoryUpdateOne {
-	ids := make([]int, len(v))
+// RemoveRevisions removes "revisions" edges to MaterialRevision entities.
+func (_u *MaterialCategoryUpdateOne) RemoveRevisions(v ...*MaterialRevision) *MaterialCategoryUpdateOne {
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return _u.RemoveMaterialIDs(ids...)
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearLegacyMaterials clears all "legacy_materials" edges to the Material entity.
+func (_u *MaterialCategoryUpdateOne) ClearLegacyMaterials() *MaterialCategoryUpdateOne {
+	_u.mutation.ClearLegacyMaterials()
+	return _u
+}
+
+// RemoveLegacyMaterialIDs removes the "legacy_materials" edge to Material entities by IDs.
+func (_u *MaterialCategoryUpdateOne) RemoveLegacyMaterialIDs(ids ...uuid.UUID) *MaterialCategoryUpdateOne {
+	_u.mutation.RemoveLegacyMaterialIDs(ids...)
+	return _u
+}
+
+// RemoveLegacyMaterials removes "legacy_materials" edges to Material entities.
+func (_u *MaterialCategoryUpdateOne) RemoveLegacyMaterials(v ...*Material) *MaterialCategoryUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveLegacyMaterialIDs(ids...)
 }
 
 // Where appends a list predicates to the MaterialCategoryUpdate builder.
@@ -535,7 +637,7 @@ func (_u *MaterialCategoryUpdateOne) sqlSave(ctx context.Context) (_node *Materi
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(materialcategory.Table, materialcategory.Columns, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(materialcategory.Table, materialcategory.Columns, sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "MaterialCategory.id" for update`)}
@@ -570,13 +672,10 @@ func (_u *MaterialCategoryUpdateOne) sqlSave(ctx context.Context) (_node *Materi
 		_spec.ClearField(materialcategory.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(materialcategory.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(materialcategory.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(materialcategory.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(materialcategory.FieldName, field.TypeString, value)
@@ -587,28 +686,28 @@ func (_u *MaterialCategoryUpdateOne) sqlSave(ctx context.Context) (_node *Materi
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(materialcategory.FieldDescription, field.TypeString)
 	}
-	if _u.mutation.MaterialsCleared() {
+	if _u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.RemovedMaterialsIDs(); len(nodes) > 0 && !_u.mutation.MaterialsCleared() {
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -616,15 +715,60 @@ func (_u *MaterialCategoryUpdateOne) sqlSave(ctx context.Context) (_node *Materi
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.MaterialsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   materialcategory.MaterialsTable,
-			Columns: []string{materialcategory.MaterialsColumn},
+			Table:   materialcategory.RevisionsTable,
+			Columns: []string{materialcategory.RevisionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.LegacyMaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedLegacyMaterialsIDs(); len(nodes) > 0 && !_u.mutation.LegacyMaterialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.LegacyMaterialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   materialcategory.LegacyMaterialsTable,
+			Columns: []string{materialcategory.LegacyMaterialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

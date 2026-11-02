@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
 )
 
@@ -65,13 +67,13 @@ func (_c *RankCreate) SetNillableDeletedAt(v *time.Time) *RankCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *RankCreate) SetDeletedBy(v int) *RankCreate {
+func (_c *RankCreate) SetDeletedBy(v string) *RankCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *RankCreate) SetNillableDeletedBy(v *int) *RankCreate {
+func (_c *RankCreate) SetNillableDeletedBy(v *string) *RankCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -108,6 +110,20 @@ func (_c *RankCreate) SetDescription(v string) *RankCreate {
 func (_c *RankCreate) SetNillableDescription(v *string) *RankCreate {
 	if v != nil {
 		_c.SetDescription(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *RankCreate) SetID(v uuid.UUID) *RankCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *RankCreate) SetNillableID(v *uuid.UUID) *RankCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -167,6 +183,13 @@ func (_c *RankCreate) defaults() error {
 		v := rank.DefaultMinRating
 		_c.mutation.SetMinRating(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if rank.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized rank.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := rank.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -208,8 +231,13 @@ func (_c *RankCreate) sqlSave(ctx context.Context) (*Rank, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -218,9 +246,13 @@ func (_c *RankCreate) sqlSave(ctx context.Context) (*Rank, error) {
 func (_c *RankCreate) createSpec() (*Rank, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Rank{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(rank.Table, sqlgraph.NewFieldSpec(rank.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(rank.Table, sqlgraph.NewFieldSpec(rank.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(rank.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -234,7 +266,7 @@ func (_c *RankCreate) createSpec() (*Rank, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(rank.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(rank.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
@@ -332,7 +364,7 @@ func (u *RankUpsert) ClearDeletedAt() *RankUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RankUpsert) SetDeletedBy(v int) *RankUpsert {
+func (u *RankUpsert) SetDeletedBy(v string) *RankUpsert {
 	u.Set(rank.FieldDeletedBy, v)
 	return u
 }
@@ -340,12 +372,6 @@ func (u *RankUpsert) SetDeletedBy(v int) *RankUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *RankUpsert) UpdateDeletedBy() *RankUpsert {
 	u.SetExcluded(rank.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RankUpsert) AddDeletedBy(v int) *RankUpsert {
-	u.Add(rank.FieldDeletedBy, v)
 	return u
 }
 
@@ -403,17 +429,23 @@ func (u *RankUpsert) ClearDescription() *RankUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Rank.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(rank.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RankUpsertOne) UpdateNewValues() *RankUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(rank.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(rank.FieldCreatedAt)
 		}
@@ -484,16 +516,9 @@ func (u *RankUpsertOne) ClearDeletedAt() *RankUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RankUpsertOne) SetDeletedBy(v int) *RankUpsertOne {
+func (u *RankUpsertOne) SetDeletedBy(v string) *RankUpsertOne {
 	return u.Update(func(s *RankUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RankUpsertOne) AddDeletedBy(v int) *RankUpsertOne {
-	return u.Update(func(s *RankUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -583,7 +608,12 @@ func (u *RankUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *RankUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *RankUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: RankUpsertOne.ID is not supported by MySQL driver. Use RankUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -592,17 +622,12 @@ func (u *RankUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *RankUpsertOne) IDX(ctx context.Context) int {
+func (u *RankUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *RankCreate) SetID(id int) *RankCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // RankCreateBulk is the builder for creating many Rank entities in bulk.
@@ -652,10 +677,6 @@ func (_c *RankCreateBulk) Save(ctx context.Context) ([]*Rank, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -742,12 +763,18 @@ type RankUpsertBulk struct {
 //	client.Rank.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(rank.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *RankUpsertBulk) UpdateNewValues() *RankUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(rank.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(rank.FieldCreatedAt)
 			}
@@ -819,16 +846,9 @@ func (u *RankUpsertBulk) ClearDeletedAt() *RankUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *RankUpsertBulk) SetDeletedBy(v int) *RankUpsertBulk {
+func (u *RankUpsertBulk) SetDeletedBy(v string) *RankUpsertBulk {
 	return u.Update(func(s *RankUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *RankUpsertBulk) AddDeletedBy(v int) *RankUpsertBulk {
-	return u.Update(func(s *RankUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 

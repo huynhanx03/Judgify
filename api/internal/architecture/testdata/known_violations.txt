@@ -1,0 +1,2 @@
+# Keep this file sorted. A non-empty entry documents a temporary, accepted
+# import-boundary violation; JUDGIFY_ARCH_STRICT=1 rejects every such entry.

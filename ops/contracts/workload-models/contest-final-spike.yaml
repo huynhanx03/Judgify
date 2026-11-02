@@ -1,0 +1,14 @@
+schema_version: 1
+id: contest-final-spike-v1
+purpose: Contest-closing burst and recovery
+base_profile: contest-1k-ccu-v1
+spike:
+  offset: 45m
+  submission_arrival_rate: 50/s
+  duration: 10s
+recovery_observation_window: 10m
+pass_criteria:
+  durable_submission_loss: 0
+  durable_submission_duplicates: 0
+  queue_drain_time: <5m
+

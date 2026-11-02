@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -29,12 +30,32 @@ const (
 	FieldCode = "code"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// EdgeRevisions holds the string denoting the revisions edge name in mutations.
+	EdgeRevisions = "revisions"
+	// EdgeTagRevisionElements holds the string denoting the tag_revision_elements edge name in mutations.
+	EdgeTagRevisionElements = "tag_revision_elements"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
 	EdgeTags = "tags"
 	// EdgeUserElementExps holds the string denoting the user_element_exps edge name in mutations.
 	EdgeUserElementExps = "user_element_exps"
 	// Table holds the table name of the element in the database.
 	Table = "elements"
+	// RevisionsTable is the table that holds the revisions relation/edge.
+	RevisionsTable = "element_revisions"
+	// RevisionsInverseTable is the table name for the ElementRevision entity.
+	// It exists in this package in order to avoid circular dependency with the "elementrevision" package.
+	RevisionsInverseTable = "element_revisions"
+	// RevisionsColumn is the table column denoting the revisions relation/edge.
+	RevisionsColumn = "element_id"
+	// TagRevisionElementsTable is the table that holds the tag_revision_elements relation/edge.
+	TagRevisionElementsTable = "tag_revision_elements"
+	// TagRevisionElementsInverseTable is the table name for the TagRevisionElement entity.
+	// It exists in this package in order to avoid circular dependency with the "tagrevisionelement" package.
+	TagRevisionElementsInverseTable = "tag_revision_elements"
+	// TagRevisionElementsColumn is the table column denoting the tag_revision_elements relation/edge.
+	TagRevisionElementsColumn = "element_id"
 	// TagsTable is the table that holds the tags relation/edge. The primary key declared below.
 	TagsTable = "tag_elements"
 	// TagsInverseTable is the table name for the Tag entity.
@@ -59,6 +80,7 @@ var Columns = []string{
 	FieldName,
 	FieldCode,
 	FieldDescription,
+	FieldVersion,
 }
 
 var (
@@ -97,6 +119,12 @@ var (
 	CodeValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion int64
+	// VersionValidator is a validator for the "version" field. It is called by the builders before save.
+	VersionValidator func(int64) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the Element queries.
@@ -142,6 +170,39 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByRevisionsCount orders the results by revisions count.
+func ByRevisionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRevisionsStep(), opts...)
+	}
+}
+
+// ByRevisions orders the results by revisions terms.
+func ByRevisions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRevisionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTagRevisionElementsCount orders the results by tag_revision_elements count.
+func ByTagRevisionElementsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTagRevisionElementsStep(), opts...)
+	}
+}
+
+// ByTagRevisionElements orders the results by tag_revision_elements terms.
+func ByTagRevisionElements(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTagRevisionElementsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByTagsCount orders the results by tags count.
 func ByTagsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -168,6 +229,20 @@ func ByUserElementExps(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newUserElementExpsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newRevisionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RevisionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RevisionsTable, RevisionsColumn),
+	)
+}
+func newTagRevisionElementsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TagRevisionElementsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TagRevisionElementsTable, TagRevisionElementsColumn),
+	)
 }
 func newTagsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

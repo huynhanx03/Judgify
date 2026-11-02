@@ -4,6 +4,7 @@ package generate
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,7 +13,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestproblemresult"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestscoringattempt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
@@ -22,14 +26,16 @@ import (
 // SubmissionQuery is the builder for querying Submission entities.
 type SubmissionQuery struct {
 	config
-	ctx         *QueryContext
-	order       []submission.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.Submission
-	withProblem *ProblemQuery
-	withUser    *UserQuery
-	withContest *ContestQuery
-	modifiers   []func(*sql.Selector)
+	ctx                           *QueryContext
+	order                         []submission.OrderOption
+	inters                        []Interceptor
+	predicates                    []predicate.Submission
+	withProblem                   *ProblemQuery
+	withUser                      *UserQuery
+	withContest                   *ContestQuery
+	withContestScoringAttempt     *ContestScoringAttemptQuery
+	withLastContestProblemResults *ContestProblemResultQuery
+	modifiers                     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -132,6 +138,50 @@ func (_q *SubmissionQuery) QueryContest() *ContestQuery {
 	return query
 }
 
+// QueryContestScoringAttempt chains the current query on the "contest_scoring_attempt" edge.
+func (_q *SubmissionQuery) QueryContestScoringAttempt() *ContestScoringAttemptQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
+			sqlgraph.To(contestscoringattempt.Table, contestscoringattempt.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, submission.ContestScoringAttemptTable, submission.ContestScoringAttemptColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryLastContestProblemResults chains the current query on the "last_contest_problem_results" edge.
+func (_q *SubmissionQuery) QueryLastContestProblemResults() *ContestProblemResultQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
+			sqlgraph.To(contestproblemresult.Table, contestproblemresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submission.LastContestProblemResultsTable, submission.LastContestProblemResultsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Submission entity from the query.
 // Returns a *NotFoundError when no Submission was found.
 func (_q *SubmissionQuery) First(ctx context.Context) (*Submission, error) {
@@ -156,8 +206,8 @@ func (_q *SubmissionQuery) FirstX(ctx context.Context) *Submission {
 
 // FirstID returns the first Submission ID from the query.
 // Returns a *NotFoundError when no Submission ID was found.
-func (_q *SubmissionQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *SubmissionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -169,7 +219,7 @@ func (_q *SubmissionQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *SubmissionQuery) FirstIDX(ctx context.Context) int {
+func (_q *SubmissionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -207,8 +257,8 @@ func (_q *SubmissionQuery) OnlyX(ctx context.Context) *Submission {
 // OnlyID is like Only, but returns the only Submission ID in the query.
 // Returns a *NotSingularError when more than one Submission ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *SubmissionQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *SubmissionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -224,7 +274,7 @@ func (_q *SubmissionQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *SubmissionQuery) OnlyIDX(ctx context.Context) int {
+func (_q *SubmissionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -252,7 +302,7 @@ func (_q *SubmissionQuery) AllX(ctx context.Context) []*Submission {
 }
 
 // IDs executes the query and returns a list of Submission IDs.
-func (_q *SubmissionQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *SubmissionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -264,7 +314,7 @@ func (_q *SubmissionQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *SubmissionQuery) IDsX(ctx context.Context) []int {
+func (_q *SubmissionQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -319,14 +369,16 @@ func (_q *SubmissionQuery) Clone() *SubmissionQuery {
 		return nil
 	}
 	return &SubmissionQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]submission.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.Submission{}, _q.predicates...),
-		withProblem: _q.withProblem.Clone(),
-		withUser:    _q.withUser.Clone(),
-		withContest: _q.withContest.Clone(),
+		config:                        _q.config,
+		ctx:                           _q.ctx.Clone(),
+		order:                         append([]submission.OrderOption{}, _q.order...),
+		inters:                        append([]Interceptor{}, _q.inters...),
+		predicates:                    append([]predicate.Submission{}, _q.predicates...),
+		withProblem:                   _q.withProblem.Clone(),
+		withUser:                      _q.withUser.Clone(),
+		withContest:                   _q.withContest.Clone(),
+		withContestScoringAttempt:     _q.withContestScoringAttempt.Clone(),
+		withLastContestProblemResults: _q.withLastContestProblemResults.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -364,6 +416,28 @@ func (_q *SubmissionQuery) WithContest(opts ...func(*ContestQuery)) *SubmissionQ
 		opt(query)
 	}
 	_q.withContest = query
+	return _q
+}
+
+// WithContestScoringAttempt tells the query-builder to eager-load the nodes that are connected to
+// the "contest_scoring_attempt" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SubmissionQuery) WithContestScoringAttempt(opts ...func(*ContestScoringAttemptQuery)) *SubmissionQuery {
+	query := (&ContestScoringAttemptClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withContestScoringAttempt = query
+	return _q
+}
+
+// WithLastContestProblemResults tells the query-builder to eager-load the nodes that are connected to
+// the "last_contest_problem_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SubmissionQuery) WithLastContestProblemResults(opts ...func(*ContestProblemResultQuery)) *SubmissionQuery {
+	query := (&ContestProblemResultClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withLastContestProblemResults = query
 	return _q
 }
 
@@ -445,10 +519,12 @@ func (_q *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	var (
 		nodes       = []*Submission{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [5]bool{
 			_q.withProblem != nil,
 			_q.withUser != nil,
 			_q.withContest != nil,
+			_q.withContestScoringAttempt != nil,
+			_q.withLastContestProblemResults != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -490,12 +566,35 @@ func (_q *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 			return nil, err
 		}
 	}
+	if query := _q.withContestScoringAttempt; query != nil {
+		if err := _q.loadContestScoringAttempt(ctx, query, nodes, nil,
+			func(n *Submission, e *ContestScoringAttempt) {
+				n.Edges.ContestScoringAttempt = e
+				if !e.Edges.loadedTypes[4] {
+					e.Edges.Submission = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withLastContestProblemResults; query != nil {
+		if err := _q.loadLastContestProblemResults(ctx, query, nodes,
+			func(n *Submission) { n.Edges.LastContestProblemResults = []*ContestProblemResult{} },
+			func(n *Submission, e *ContestProblemResult) {
+				n.Edges.LastContestProblemResults = append(n.Edges.LastContestProblemResults, e)
+				if !e.Edges.loadedTypes[4] {
+					e.Edges.LastScoringSubmission = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *SubmissionQuery) loadProblem(ctx context.Context, query *ProblemQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *Problem)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Submission)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Submission)
 	for i := range nodes {
 		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
@@ -523,8 +622,8 @@ func (_q *SubmissionQuery) loadProblem(ctx context.Context, query *ProblemQuery,
 	return nil
 }
 func (_q *SubmissionQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Submission)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Submission)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -552,8 +651,8 @@ func (_q *SubmissionQuery) loadUser(ctx context.Context, query *UserQuery, nodes
 	return nil
 }
 func (_q *SubmissionQuery) loadContest(ctx context.Context, query *ContestQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *Contest)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Submission)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Submission)
 	for i := range nodes {
 		if nodes[i].ContestID == nil {
 			continue
@@ -583,6 +682,66 @@ func (_q *SubmissionQuery) loadContest(ctx context.Context, query *ContestQuery,
 	}
 	return nil
 }
+func (_q *SubmissionQuery) loadContestScoringAttempt(ctx context.Context, query *ContestScoringAttemptQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *ContestScoringAttempt)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Submission)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestscoringattempt.FieldSubmissionID)
+	}
+	query.Where(predicate.ContestScoringAttempt(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(submission.ContestScoringAttemptColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.SubmissionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "submission_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *SubmissionQuery) loadLastContestProblemResults(ctx context.Context, query *ContestProblemResultQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *ContestProblemResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Submission)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestproblemresult.FieldLastScoringSubmissionID)
+	}
+	query.Where(predicate.ContestProblemResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(submission.LastContestProblemResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.LastScoringSubmissionID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "last_scoring_submission_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "last_scoring_submission_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *SubmissionQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -597,7 +756,7 @@ func (_q *SubmissionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *SubmissionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

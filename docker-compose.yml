@@ -1,24 +1,151 @@
+x-api-build: &api-build
+  context: .
+  dockerfile: api/Dockerfile
+  target: local
+  additional_contexts:
+    go_common: ../go-common
+
+x-local-database: &local-database
+  GO_ENV: local
+  DATABASE_HOST: postgres
+  DATABASE_PORT: "5432"
+  DATABASE_USERNAME: ${POSTGRES_USER:-judgify_dev}
+  DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-judgify-local}
+  DATABASE_DATABASE: ${POSTGRES_DB:-judgify}
+
 services:
   postgres:
-    image: postgres:16-alpine
-    container_name: judgify-postgres
-    restart: always
+    extends:
+      file: ./docker/infrastructure/postgres.local.yml
+      service: postgres
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  migrate:
+    image: judgify/api:local
+    build: *api-build
+    entrypoint: ["/usr/local/bin/migrate"]
+    profiles: [setup]
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: judgify
+      <<: *local-database
+    volumes:
+      - ./api/config/local.yaml:/app/config/local.yaml:ro
+
+  initialize:
+    image: judgify/api:local
+    build: *api-build
+    entrypoint: ["/usr/local/bin/judgify"]
+    command: ["bootstrap-admin"]
+    profiles: [setup]
+    environment:
+      <<: *local-database
+      JUDGIFY_BOOTSTRAP_ADMIN_USERNAME: ${JUDGIFY_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      JUDGIFY_BOOTSTRAP_ADMIN_PASSWORD: ${JUDGIFY_BOOTSTRAP_ADMIN_PASSWORD:-judgify-local-admin}
+    volumes:
+      - ./api/config/local.yaml:/app/config/local.yaml:ro
+      - local_state:/var/lib/judgify
+
+  api:
+    image: judgify/api:local
+    build: *api-build
+    entrypoint: ["/usr/local/bin/server"]
+    restart: unless-stopped
+    env_file:
+      - ./api/.env
+    environment:
+      <<: *local-database
+      JUDGIFY_VERSION: local
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "8000"
+      GOOGLE_CLIENT_ID: local-google-client-id
+      GOOGLE_CLIENT_SECRET: local-google-client-secret
+      GITHUB_CLIENT_ID: local-github-client-id
+      GITHUB_CLIENT_SECRET: local-github-client-secret
+      GOOGLE_REDIRECT_URL: http://localhost:8080/api/auth/oauth/google/callback
+      GITHUB_REDIRECT_URL: http://localhost:8080/api/auth/oauth/github/callback
+      AUTHENTICATION_OAUTH_COMPLETION_URL: http://localhost:8080/auth/oauth/complete
+      AUTHENTICATION_BROWSER_ORIGINS: http://localhost:8080
+      RESEND_API_KEY: local-resend-placeholder
+      RESEND_FROM_EMAIL: noreply@localhost.invalid
+      RESEND_FROM_NAME: Judgify
+      RESEND_RESET_URL: http://localhost:8080/reset-password
+      RESEND_VERIFICATION_URL: http://localhost:8080/verify-recovery-contact
+      RESEND_INVITATION_URL: http://localhost:8080/accept-invitation
+    volumes:
+      - ./api/config/local.yaml:/app/config/local.yaml:ro
+      - ./api/certs:/app/certs:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9090/ready"]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  website:
+    image: judgify/website:local
+    build:
+      context: .
+      dockerfile: website/Dockerfile
+      target: runtime
+      args:
+        NEXT_PUBLIC_API_URL: /api
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      api:
+        condition: service_healthy
 
   sandbox:
     build:
-      context: ./docker/sandbox
-      dockerfile: Dockerfile
-    image: judgify/sandbox:latest
+      context: .
+      dockerfile: docker/sandbox/Dockerfile
+    image: judgify/sandbox:dev
     profiles:
       - build
+
+  envoy:
+    image: envoyproxy/envoy@sha256:6bf0d37dd5e8eac4b37effe89a1aec4760f7f2ce860d1fd6af22147eb87a5058
+    user: "101:101"
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--base-id", "1"]
+    init: true
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    ports:
+      - "127.0.0.1:${JUDGIFY_HTTP_PORT:-8080}:8080"
+    volumes:
+      - ./docker/infrastructure/envoy.local.yaml:/etc/envoy/envoy.yaml:ro
+    healthcheck:
+      test: ["CMD", "envoy", "--mode", "validate", "-c", "/etc/envoy/envoy.yaml"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      api:
+        condition: service_healthy
+      website:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  local_state:

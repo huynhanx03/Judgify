@@ -13,11 +13,11 @@ function Select({
 }: {
   value?: string
   onValueChange?: (value: string) => void
-} & Omit<SelectPrimitive.Root.Props, "value" | "onValueChange">) {
+} & Omit<SelectPrimitive.Root.Props<string>, "value" | "onValueChange">) {
   return (
     <SelectPrimitive.Root
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={onValueChange as SelectPrimitive.Root.Props<string>["onValueChange"]}
       {...props}
     />
   )
@@ -32,7 +32,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        "flex h-11 w-full items-center justify-between gap-2 rounded-[var(--control-radius)] border border-[var(--input-border)] bg-[var(--input-background)] px-3 py-2 text-sm transition-colors duration-150 placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60 [&>span]:line-clamp-1",
         className
       )}
       {...props}
@@ -61,7 +61,7 @@ function SelectContent({
         <SelectPrimitive.Popup
           data-slot="select-content"
           className={cn(
-            "relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative z-50 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg duration-150 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className
           )}
           {...props}
@@ -86,7 +86,7 @@ function SelectItem({
       value={value}
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        "relative flex min-h-11 w-full cursor-default select-none items-center rounded-md py-2 pl-3 pr-9 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
         className
       )}
       {...props}

@@ -1,0 +1,14 @@
+import { arraySchema, enumSchema, integerSchema, optionalSchema, strictObjectSchema, stringSchema } from "@/lib/api/schema";
+import { entityIDSchema, isoDateTimeSchema } from "@/lib/api/contracts";
+import type {
+  ContestAnnouncement,
+  ContestClarification,
+  ContestContentPage,
+  ContestContentRevision,
+} from "@/types/contest";
+
+export const announcementSchema = strictObjectSchema({ id:entityIDSchema, contest_id:entityIDSchema, status:enumSchema(["draft","published","withdrawn"] as const), audience:enumSchema(["public","participants","jury"] as const), title:stringSchema({maximumLength:200}), markdown:optionalSchema(stringSchema({maximumLength:65_536})), sanitized_html:stringSchema({maximumLength:1_048_576}), revision:integerSchema({minimum:1}), version:integerSchema({minimum:1}), scheduled_for:optionalSchema(isoDateTimeSchema), published_at:optionalSchema(isoDateTimeSchema), withdrawn_at:optionalSchema(isoDateTimeSchema), created_at:isoDateTimeSchema, updated_at:isoDateTimeSchema }) as import("@/lib/api/schema").Schema<ContestAnnouncement>;
+export const clarificationSchema = strictObjectSchema({ id:entityIDSchema, contest_id:entityIDSchema, contest_problem_id:optionalSchema(entityIDSchema), status:enumSchema(["open","answered","closed","withdrawn"] as const), audience:enumSchema(["requester","participants"] as const), version:integerSchema({minimum:1}), question_html:optionalSchema(stringSchema({maximumLength:1_048_576})), question_markdown:optionalSchema(stringSchema({maximumLength:16_384})), public_summary_html:optionalSchema(stringSchema({maximumLength:1_048_576})), answer_html:optionalSchema(stringSchema({maximumLength:1_048_576})), requester_id:optionalSchema(entityIDSchema), created_at:isoDateTimeSchema, answered_at:optionalSchema(isoDateTimeSchema), closed_at:optionalSchema(isoDateTimeSchema), withdrawn_at:optionalSchema(isoDateTimeSchema), updated_at:isoDateTimeSchema }) as import("@/lib/api/schema").Schema<ContestClarification>;
+export const announcementPageSchema = strictObjectSchema({items:arraySchema(announcementSchema,{maximumLength:100}),next_cursor:optionalSchema(stringSchema({maximumLength:128}))}) as import("@/lib/api/schema").Schema<ContestContentPage<ContestAnnouncement>>;
+export const clarificationPageSchema = strictObjectSchema({items:arraySchema(clarificationSchema,{maximumLength:100}),next_cursor:optionalSchema(stringSchema({maximumLength:128}))}) as import("@/lib/api/schema").Schema<ContestContentPage<ContestClarification>>;
+export const contentRevisionSchema = strictObjectSchema({id:entityIDSchema,content_kind:enumSchema(["announcement_body","question","public_question_summary","answer"] as const),revision_number:integerSchema({minimum:1}),title:optionalSchema(stringSchema({maximumLength:200})),markdown:stringSchema({maximumLength:65_536}),author_id:entityIDSchema,created_at:isoDateTimeSchema}) as import("@/lib/api/schema").Schema<ContestContentRevision>;

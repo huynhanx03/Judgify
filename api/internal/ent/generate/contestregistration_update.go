@@ -6,12 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contest"
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
+	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistrationtransition"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -30,14 +33,20 @@ func (_u *ContestRegistrationUpdate) Where(ps ...predicate.ContestRegistration) 
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ContestRegistrationUpdate) SetUpdatedAt(v time.Time) *ContestRegistrationUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
 // SetContestID sets the "contest_id" field.
-func (_u *ContestRegistrationUpdate) SetContestID(v int) *ContestRegistrationUpdate {
+func (_u *ContestRegistrationUpdate) SetContestID(v uuid.UUID) *ContestRegistrationUpdate {
 	_u.mutation.SetContestID(v)
 	return _u
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *ContestRegistrationUpdate) SetNillableContestID(v *int) *ContestRegistrationUpdate {
+func (_u *ContestRegistrationUpdate) SetNillableContestID(v *uuid.UUID) *ContestRegistrationUpdate {
 	if v != nil {
 		_u.SetContestID(*v)
 	}
@@ -45,16 +54,166 @@ func (_u *ContestRegistrationUpdate) SetNillableContestID(v *int) *ContestRegist
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *ContestRegistrationUpdate) SetUserID(v int) *ContestRegistrationUpdate {
+func (_u *ContestRegistrationUpdate) SetUserID(v uuid.UUID) *ContestRegistrationUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *ContestRegistrationUpdate) SetNillableUserID(v *int) *ContestRegistrationUpdate {
+func (_u *ContestRegistrationUpdate) SetNillableUserID(v *uuid.UUID) *ContestRegistrationUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *ContestRegistrationUpdate) SetStatus(v contestregistration.Status) *ContestRegistrationUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableStatus(v *contestregistration.Status) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetSource sets the "source" field.
+func (_u *ContestRegistrationUpdate) SetSource(v contestregistration.Source) *ContestRegistrationUpdate {
+	_u.mutation.SetSource(v)
+	return _u
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableSource(v *contestregistration.Source) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ContestRegistrationUpdate) SetVersion(v int64) *ContestRegistrationUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableVersion(v *int64) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ContestRegistrationUpdate) AddVersion(v int64) *ContestRegistrationUpdate {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetOfficialSubmissionCount sets the "official_submission_count" field.
+func (_u *ContestRegistrationUpdate) SetOfficialSubmissionCount(v int64) *ContestRegistrationUpdate {
+	_u.mutation.ResetOfficialSubmissionCount()
+	_u.mutation.SetOfficialSubmissionCount(v)
+	return _u
+}
+
+// SetNillableOfficialSubmissionCount sets the "official_submission_count" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableOfficialSubmissionCount(v *int64) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetOfficialSubmissionCount(*v)
+	}
+	return _u
+}
+
+// AddOfficialSubmissionCount adds value to the "official_submission_count" field.
+func (_u *ContestRegistrationUpdate) AddOfficialSubmissionCount(v int64) *ContestRegistrationUpdate {
+	_u.mutation.AddOfficialSubmissionCount(v)
+	return _u
+}
+
+// SetRegisteredAt sets the "registered_at" field.
+func (_u *ContestRegistrationUpdate) SetRegisteredAt(v time.Time) *ContestRegistrationUpdate {
+	_u.mutation.SetRegisteredAt(v)
+	return _u
+}
+
+// SetNillableRegisteredAt sets the "registered_at" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableRegisteredAt(v *time.Time) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetRegisteredAt(*v)
+	}
+	return _u
+}
+
+// ClearRegisteredAt clears the value of the "registered_at" field.
+func (_u *ContestRegistrationUpdate) ClearRegisteredAt() *ContestRegistrationUpdate {
+	_u.mutation.ClearRegisteredAt()
+	return _u
+}
+
+// SetWithdrawnAt sets the "withdrawn_at" field.
+func (_u *ContestRegistrationUpdate) SetWithdrawnAt(v time.Time) *ContestRegistrationUpdate {
+	_u.mutation.SetWithdrawnAt(v)
+	return _u
+}
+
+// SetNillableWithdrawnAt sets the "withdrawn_at" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableWithdrawnAt(v *time.Time) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetWithdrawnAt(*v)
+	}
+	return _u
+}
+
+// ClearWithdrawnAt clears the value of the "withdrawn_at" field.
+func (_u *ContestRegistrationUpdate) ClearWithdrawnAt() *ContestRegistrationUpdate {
+	_u.mutation.ClearWithdrawnAt()
+	return _u
+}
+
+// SetBannedAt sets the "banned_at" field.
+func (_u *ContestRegistrationUpdate) SetBannedAt(v time.Time) *ContestRegistrationUpdate {
+	_u.mutation.SetBannedAt(v)
+	return _u
+}
+
+// SetNillableBannedAt sets the "banned_at" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableBannedAt(v *time.Time) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetBannedAt(*v)
+	}
+	return _u
+}
+
+// ClearBannedAt clears the value of the "banned_at" field.
+func (_u *ContestRegistrationUpdate) ClearBannedAt() *ContestRegistrationUpdate {
+	_u.mutation.ClearBannedAt()
+	return _u
+}
+
+// SetReason sets the "reason" field.
+func (_u *ContestRegistrationUpdate) SetReason(v string) *ContestRegistrationUpdate {
+	_u.mutation.SetReason(v)
+	return _u
+}
+
+// SetNillableReason sets the "reason" field if the given value is not nil.
+func (_u *ContestRegistrationUpdate) SetNillableReason(v *string) *ContestRegistrationUpdate {
+	if v != nil {
+		_u.SetReason(*v)
+	}
+	return _u
+}
+
+// ClearReason clears the value of the "reason" field.
+func (_u *ContestRegistrationUpdate) ClearReason() *ContestRegistrationUpdate {
+	_u.mutation.ClearReason()
 	return _u
 }
 
@@ -66,6 +225,21 @@ func (_u *ContestRegistrationUpdate) SetContest(v *Contest) *ContestRegistration
 // SetUser sets the "user" edge to the User entity.
 func (_u *ContestRegistrationUpdate) SetUser(v *User) *ContestRegistrationUpdate {
 	return _u.SetUserID(v.ID)
+}
+
+// AddTransitionIDs adds the "transitions" edge to the ContestRegistrationTransition entity by IDs.
+func (_u *ContestRegistrationUpdate) AddTransitionIDs(ids ...uuid.UUID) *ContestRegistrationUpdate {
+	_u.mutation.AddTransitionIDs(ids...)
+	return _u
+}
+
+// AddTransitions adds the "transitions" edges to the ContestRegistrationTransition entity.
+func (_u *ContestRegistrationUpdate) AddTransitions(v ...*ContestRegistrationTransition) *ContestRegistrationUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTransitionIDs(ids...)
 }
 
 // Mutation returns the ContestRegistrationMutation object of the builder.
@@ -85,8 +259,30 @@ func (_u *ContestRegistrationUpdate) ClearUser() *ContestRegistrationUpdate {
 	return _u
 }
 
+// ClearTransitions clears all "transitions" edges to the ContestRegistrationTransition entity.
+func (_u *ContestRegistrationUpdate) ClearTransitions() *ContestRegistrationUpdate {
+	_u.mutation.ClearTransitions()
+	return _u
+}
+
+// RemoveTransitionIDs removes the "transitions" edge to ContestRegistrationTransition entities by IDs.
+func (_u *ContestRegistrationUpdate) RemoveTransitionIDs(ids ...uuid.UUID) *ContestRegistrationUpdate {
+	_u.mutation.RemoveTransitionIDs(ids...)
+	return _u
+}
+
+// RemoveTransitions removes "transitions" edges to ContestRegistrationTransition entities.
+func (_u *ContestRegistrationUpdate) RemoveTransitions(v ...*ContestRegistrationTransition) *ContestRegistrationUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTransitionIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ContestRegistrationUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -112,8 +308,41 @@ func (_u *ContestRegistrationUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *ContestRegistrationUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := contestregistration.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *ContestRegistrationUpdate) check() error {
+	if v, ok := _u.mutation.Status(); ok {
+		if err := contestregistration.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Source(); ok {
+		if err := contestregistration.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.source": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := contestregistration.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.OfficialSubmissionCount(); ok {
+		if err := contestregistration.OfficialSubmissionCountValidator(v); err != nil {
+			return &ValidationError{Name: "official_submission_count", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.official_submission_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Reason(); ok {
+		if err := contestregistration.ReasonValidator(v); err != nil {
+			return &ValidationError{Name: "reason", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.reason": %w`, err)}
+		}
+	}
 	if _u.mutation.ContestCleared() && len(_u.mutation.ContestIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "ContestRegistration.contest"`)
 	}
@@ -133,13 +362,58 @@ func (_u *ContestRegistrationUpdate) sqlSave(ctx context.Context) (_node int, er
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(contestregistration.Table, contestregistration.Columns, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(contestregistration.Table, contestregistration.Columns, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(contestregistration.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(contestregistration.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Source(); ok {
+		_spec.SetField(contestregistration.FieldSource, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(contestregistration.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(contestregistration.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.OfficialSubmissionCount(); ok {
+		_spec.SetField(contestregistration.FieldOfficialSubmissionCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedOfficialSubmissionCount(); ok {
+		_spec.AddField(contestregistration.FieldOfficialSubmissionCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.RegisteredAt(); ok {
+		_spec.SetField(contestregistration.FieldRegisteredAt, field.TypeTime, value)
+	}
+	if _u.mutation.RegisteredAtCleared() {
+		_spec.ClearField(contestregistration.FieldRegisteredAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.WithdrawnAt(); ok {
+		_spec.SetField(contestregistration.FieldWithdrawnAt, field.TypeTime, value)
+	}
+	if _u.mutation.WithdrawnAtCleared() {
+		_spec.ClearField(contestregistration.FieldWithdrawnAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.BannedAt(); ok {
+		_spec.SetField(contestregistration.FieldBannedAt, field.TypeTime, value)
+	}
+	if _u.mutation.BannedAtCleared() {
+		_spec.ClearField(contestregistration.FieldBannedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Reason(); ok {
+		_spec.SetField(contestregistration.FieldReason, field.TypeString, value)
+	}
+	if _u.mutation.ReasonCleared() {
+		_spec.ClearField(contestregistration.FieldReason, field.TypeString)
 	}
 	if _u.mutation.ContestCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -149,7 +423,7 @@ func (_u *ContestRegistrationUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{contestregistration.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -162,7 +436,7 @@ func (_u *ContestRegistrationUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{contestregistration.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -178,7 +452,7 @@ func (_u *ContestRegistrationUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{contestregistration.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -191,7 +465,52 @@ func (_u *ContestRegistrationUpdate) sqlSave(ctx context.Context) (_node int, er
 			Columns: []string{contestregistration.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTransitionsIDs(); len(nodes) > 0 && !_u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TransitionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -221,14 +540,20 @@ type ContestRegistrationUpdateOne struct {
 	modifiers []func(*sql.UpdateBuilder)
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ContestRegistrationUpdateOne) SetUpdatedAt(v time.Time) *ContestRegistrationUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
 // SetContestID sets the "contest_id" field.
-func (_u *ContestRegistrationUpdateOne) SetContestID(v int) *ContestRegistrationUpdateOne {
+func (_u *ContestRegistrationUpdateOne) SetContestID(v uuid.UUID) *ContestRegistrationUpdateOne {
 	_u.mutation.SetContestID(v)
 	return _u
 }
 
 // SetNillableContestID sets the "contest_id" field if the given value is not nil.
-func (_u *ContestRegistrationUpdateOne) SetNillableContestID(v *int) *ContestRegistrationUpdateOne {
+func (_u *ContestRegistrationUpdateOne) SetNillableContestID(v *uuid.UUID) *ContestRegistrationUpdateOne {
 	if v != nil {
 		_u.SetContestID(*v)
 	}
@@ -236,16 +561,166 @@ func (_u *ContestRegistrationUpdateOne) SetNillableContestID(v *int) *ContestReg
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *ContestRegistrationUpdateOne) SetUserID(v int) *ContestRegistrationUpdateOne {
+func (_u *ContestRegistrationUpdateOne) SetUserID(v uuid.UUID) *ContestRegistrationUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *ContestRegistrationUpdateOne) SetNillableUserID(v *int) *ContestRegistrationUpdateOne {
+func (_u *ContestRegistrationUpdateOne) SetNillableUserID(v *uuid.UUID) *ContestRegistrationUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *ContestRegistrationUpdateOne) SetStatus(v contestregistration.Status) *ContestRegistrationUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableStatus(v *contestregistration.Status) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetSource sets the "source" field.
+func (_u *ContestRegistrationUpdateOne) SetSource(v contestregistration.Source) *ContestRegistrationUpdateOne {
+	_u.mutation.SetSource(v)
+	return _u
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableSource(v *contestregistration.Source) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *ContestRegistrationUpdateOne) SetVersion(v int64) *ContestRegistrationUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableVersion(v *int64) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
+	}
+	return _u
+}
+
+// AddVersion adds value to the "version" field.
+func (_u *ContestRegistrationUpdateOne) AddVersion(v int64) *ContestRegistrationUpdateOne {
+	_u.mutation.AddVersion(v)
+	return _u
+}
+
+// SetOfficialSubmissionCount sets the "official_submission_count" field.
+func (_u *ContestRegistrationUpdateOne) SetOfficialSubmissionCount(v int64) *ContestRegistrationUpdateOne {
+	_u.mutation.ResetOfficialSubmissionCount()
+	_u.mutation.SetOfficialSubmissionCount(v)
+	return _u
+}
+
+// SetNillableOfficialSubmissionCount sets the "official_submission_count" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableOfficialSubmissionCount(v *int64) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetOfficialSubmissionCount(*v)
+	}
+	return _u
+}
+
+// AddOfficialSubmissionCount adds value to the "official_submission_count" field.
+func (_u *ContestRegistrationUpdateOne) AddOfficialSubmissionCount(v int64) *ContestRegistrationUpdateOne {
+	_u.mutation.AddOfficialSubmissionCount(v)
+	return _u
+}
+
+// SetRegisteredAt sets the "registered_at" field.
+func (_u *ContestRegistrationUpdateOne) SetRegisteredAt(v time.Time) *ContestRegistrationUpdateOne {
+	_u.mutation.SetRegisteredAt(v)
+	return _u
+}
+
+// SetNillableRegisteredAt sets the "registered_at" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableRegisteredAt(v *time.Time) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetRegisteredAt(*v)
+	}
+	return _u
+}
+
+// ClearRegisteredAt clears the value of the "registered_at" field.
+func (_u *ContestRegistrationUpdateOne) ClearRegisteredAt() *ContestRegistrationUpdateOne {
+	_u.mutation.ClearRegisteredAt()
+	return _u
+}
+
+// SetWithdrawnAt sets the "withdrawn_at" field.
+func (_u *ContestRegistrationUpdateOne) SetWithdrawnAt(v time.Time) *ContestRegistrationUpdateOne {
+	_u.mutation.SetWithdrawnAt(v)
+	return _u
+}
+
+// SetNillableWithdrawnAt sets the "withdrawn_at" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableWithdrawnAt(v *time.Time) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetWithdrawnAt(*v)
+	}
+	return _u
+}
+
+// ClearWithdrawnAt clears the value of the "withdrawn_at" field.
+func (_u *ContestRegistrationUpdateOne) ClearWithdrawnAt() *ContestRegistrationUpdateOne {
+	_u.mutation.ClearWithdrawnAt()
+	return _u
+}
+
+// SetBannedAt sets the "banned_at" field.
+func (_u *ContestRegistrationUpdateOne) SetBannedAt(v time.Time) *ContestRegistrationUpdateOne {
+	_u.mutation.SetBannedAt(v)
+	return _u
+}
+
+// SetNillableBannedAt sets the "banned_at" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableBannedAt(v *time.Time) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetBannedAt(*v)
+	}
+	return _u
+}
+
+// ClearBannedAt clears the value of the "banned_at" field.
+func (_u *ContestRegistrationUpdateOne) ClearBannedAt() *ContestRegistrationUpdateOne {
+	_u.mutation.ClearBannedAt()
+	return _u
+}
+
+// SetReason sets the "reason" field.
+func (_u *ContestRegistrationUpdateOne) SetReason(v string) *ContestRegistrationUpdateOne {
+	_u.mutation.SetReason(v)
+	return _u
+}
+
+// SetNillableReason sets the "reason" field if the given value is not nil.
+func (_u *ContestRegistrationUpdateOne) SetNillableReason(v *string) *ContestRegistrationUpdateOne {
+	if v != nil {
+		_u.SetReason(*v)
+	}
+	return _u
+}
+
+// ClearReason clears the value of the "reason" field.
+func (_u *ContestRegistrationUpdateOne) ClearReason() *ContestRegistrationUpdateOne {
+	_u.mutation.ClearReason()
 	return _u
 }
 
@@ -257,6 +732,21 @@ func (_u *ContestRegistrationUpdateOne) SetContest(v *Contest) *ContestRegistrat
 // SetUser sets the "user" edge to the User entity.
 func (_u *ContestRegistrationUpdateOne) SetUser(v *User) *ContestRegistrationUpdateOne {
 	return _u.SetUserID(v.ID)
+}
+
+// AddTransitionIDs adds the "transitions" edge to the ContestRegistrationTransition entity by IDs.
+func (_u *ContestRegistrationUpdateOne) AddTransitionIDs(ids ...uuid.UUID) *ContestRegistrationUpdateOne {
+	_u.mutation.AddTransitionIDs(ids...)
+	return _u
+}
+
+// AddTransitions adds the "transitions" edges to the ContestRegistrationTransition entity.
+func (_u *ContestRegistrationUpdateOne) AddTransitions(v ...*ContestRegistrationTransition) *ContestRegistrationUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTransitionIDs(ids...)
 }
 
 // Mutation returns the ContestRegistrationMutation object of the builder.
@@ -276,6 +766,27 @@ func (_u *ContestRegistrationUpdateOne) ClearUser() *ContestRegistrationUpdateOn
 	return _u
 }
 
+// ClearTransitions clears all "transitions" edges to the ContestRegistrationTransition entity.
+func (_u *ContestRegistrationUpdateOne) ClearTransitions() *ContestRegistrationUpdateOne {
+	_u.mutation.ClearTransitions()
+	return _u
+}
+
+// RemoveTransitionIDs removes the "transitions" edge to ContestRegistrationTransition entities by IDs.
+func (_u *ContestRegistrationUpdateOne) RemoveTransitionIDs(ids ...uuid.UUID) *ContestRegistrationUpdateOne {
+	_u.mutation.RemoveTransitionIDs(ids...)
+	return _u
+}
+
+// RemoveTransitions removes "transitions" edges to ContestRegistrationTransition entities.
+func (_u *ContestRegistrationUpdateOne) RemoveTransitions(v ...*ContestRegistrationTransition) *ContestRegistrationUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTransitionIDs(ids...)
+}
+
 // Where appends a list predicates to the ContestRegistrationUpdate builder.
 func (_u *ContestRegistrationUpdateOne) Where(ps ...predicate.ContestRegistration) *ContestRegistrationUpdateOne {
 	_u.mutation.Where(ps...)
@@ -291,6 +802,7 @@ func (_u *ContestRegistrationUpdateOne) Select(field string, fields ...string) *
 
 // Save executes the query and returns the updated ContestRegistration entity.
 func (_u *ContestRegistrationUpdateOne) Save(ctx context.Context) (*ContestRegistration, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -316,8 +828,41 @@ func (_u *ContestRegistrationUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *ContestRegistrationUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := contestregistration.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *ContestRegistrationUpdateOne) check() error {
+	if v, ok := _u.mutation.Status(); ok {
+		if err := contestregistration.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Source(); ok {
+		if err := contestregistration.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.source": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := contestregistration.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.version": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.OfficialSubmissionCount(); ok {
+		if err := contestregistration.OfficialSubmissionCountValidator(v); err != nil {
+			return &ValidationError{Name: "official_submission_count", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.official_submission_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Reason(); ok {
+		if err := contestregistration.ReasonValidator(v); err != nil {
+			return &ValidationError{Name: "reason", err: fmt.Errorf(`generate: validator failed for field "ContestRegistration.reason": %w`, err)}
+		}
+	}
 	if _u.mutation.ContestCleared() && len(_u.mutation.ContestIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "ContestRegistration.contest"`)
 	}
@@ -337,7 +882,7 @@ func (_u *ContestRegistrationUpdateOne) sqlSave(ctx context.Context) (_node *Con
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(contestregistration.Table, contestregistration.Columns, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(contestregistration.Table, contestregistration.Columns, sqlgraph.NewFieldSpec(contestregistration.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "ContestRegistration.id" for update`)}
@@ -362,6 +907,51 @@ func (_u *ContestRegistrationUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(contestregistration.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(contestregistration.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Source(); ok {
+		_spec.SetField(contestregistration.FieldSource, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(contestregistration.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(contestregistration.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.OfficialSubmissionCount(); ok {
+		_spec.SetField(contestregistration.FieldOfficialSubmissionCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedOfficialSubmissionCount(); ok {
+		_spec.AddField(contestregistration.FieldOfficialSubmissionCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.RegisteredAt(); ok {
+		_spec.SetField(contestregistration.FieldRegisteredAt, field.TypeTime, value)
+	}
+	if _u.mutation.RegisteredAtCleared() {
+		_spec.ClearField(contestregistration.FieldRegisteredAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.WithdrawnAt(); ok {
+		_spec.SetField(contestregistration.FieldWithdrawnAt, field.TypeTime, value)
+	}
+	if _u.mutation.WithdrawnAtCleared() {
+		_spec.ClearField(contestregistration.FieldWithdrawnAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.BannedAt(); ok {
+		_spec.SetField(contestregistration.FieldBannedAt, field.TypeTime, value)
+	}
+	if _u.mutation.BannedAtCleared() {
+		_spec.ClearField(contestregistration.FieldBannedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Reason(); ok {
+		_spec.SetField(contestregistration.FieldReason, field.TypeString, value)
+	}
+	if _u.mutation.ReasonCleared() {
+		_spec.ClearField(contestregistration.FieldReason, field.TypeString)
+	}
 	if _u.mutation.ContestCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -370,7 +960,7 @@ func (_u *ContestRegistrationUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			Columns: []string{contestregistration.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -383,7 +973,7 @@ func (_u *ContestRegistrationUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			Columns: []string{contestregistration.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -399,7 +989,7 @@ func (_u *ContestRegistrationUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			Columns: []string{contestregistration.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -412,7 +1002,52 @@ func (_u *ContestRegistrationUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			Columns: []string{contestregistration.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTransitionsIDs(); len(nodes) > 0 && !_u.mutation.TransitionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TransitionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contestregistration.TransitionsTable,
+			Columns: []string{contestregistration.TransitionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestregistrationtransition.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

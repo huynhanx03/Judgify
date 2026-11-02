@@ -11,10 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huynhanx03/judgify/internal/ent/generate/permission"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
-	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
 
 // RoleUpdate is the builder for updating Role entities.
@@ -58,29 +56,36 @@ func (_u *RoleUpdate) ClearDeletedAt() *RoleUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *RoleUpdate) SetDeletedBy(v int) *RoleUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *RoleUpdate) SetDeletedBy(v string) *RoleUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *RoleUpdate) SetNillableDeletedBy(v *int) *RoleUpdate {
+func (_u *RoleUpdate) SetNillableDeletedBy(v *string) *RoleUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
 	return _u
 }
 
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *RoleUpdate) AddDeletedBy(v int) *RoleUpdate {
-	_u.mutation.AddDeletedBy(v)
-	return _u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (_u *RoleUpdate) ClearDeletedBy() *RoleUpdate {
 	_u.mutation.ClearDeletedBy()
+	return _u
+}
+
+// SetKey sets the "key" field.
+func (_u *RoleUpdate) SetKey(v string) *RoleUpdate {
+	_u.mutation.SetKey(v)
+	return _u
+}
+
+// SetNillableKey sets the "key" field if the given value is not nil.
+func (_u *RoleUpdate) SetNillableKey(v *string) *RoleUpdate {
+	if v != nil {
+		_u.SetKey(*v)
+	}
 	return _u
 }
 
@@ -98,165 +103,78 @@ func (_u *RoleUpdate) SetNillableName(v *string) *RoleUpdate {
 	return _u
 }
 
-// SetLevel sets the "level" field.
-func (_u *RoleUpdate) SetLevel(v int) *RoleUpdate {
-	_u.mutation.ResetLevel()
-	_u.mutation.SetLevel(v)
+// SetDescription sets the "description" field.
+func (_u *RoleUpdate) SetDescription(v string) *RoleUpdate {
+	_u.mutation.SetDescription(v)
 	return _u
 }
 
-// SetNillableLevel sets the "level" field if the given value is not nil.
-func (_u *RoleUpdate) SetNillableLevel(v *int) *RoleUpdate {
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *RoleUpdate) SetNillableDescription(v *string) *RoleUpdate {
 	if v != nil {
-		_u.SetLevel(*v)
+		_u.SetDescription(*v)
 	}
 	return _u
 }
 
-// AddLevel adds value to the "level" field.
-func (_u *RoleUpdate) AddLevel(v int) *RoleUpdate {
-	_u.mutation.AddLevel(v)
+// ClearDescription clears the value of the "description" field.
+func (_u *RoleUpdate) ClearDescription() *RoleUpdate {
+	_u.mutation.ClearDescription()
 	return _u
 }
 
-// SetParentID sets the "parent_id" field.
-func (_u *RoleUpdate) SetParentID(v int) *RoleUpdate {
-	_u.mutation.ResetParentID()
-	_u.mutation.SetParentID(v)
+// SetIsSystem sets the "is_system" field.
+func (_u *RoleUpdate) SetIsSystem(v bool) *RoleUpdate {
+	_u.mutation.SetIsSystem(v)
 	return _u
 }
 
-// SetNillableParentID sets the "parent_id" field if the given value is not nil.
-func (_u *RoleUpdate) SetNillableParentID(v *int) *RoleUpdate {
+// SetNillableIsSystem sets the "is_system" field if the given value is not nil.
+func (_u *RoleUpdate) SetNillableIsSystem(v *bool) *RoleUpdate {
 	if v != nil {
-		_u.SetParentID(*v)
+		_u.SetIsSystem(*v)
 	}
 	return _u
 }
 
-// AddParentID adds value to the "parent_id" field.
-func (_u *RoleUpdate) AddParentID(v int) *RoleUpdate {
-	_u.mutation.AddParentID(v)
+// SetStatus sets the "status" field.
+func (_u *RoleUpdate) SetStatus(v role.Status) *RoleUpdate {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetLft sets the "lft" field.
-func (_u *RoleUpdate) SetLft(v int) *RoleUpdate {
-	_u.mutation.ResetLft()
-	_u.mutation.SetLft(v)
-	return _u
-}
-
-// SetNillableLft sets the "lft" field if the given value is not nil.
-func (_u *RoleUpdate) SetNillableLft(v *int) *RoleUpdate {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *RoleUpdate) SetNillableStatus(v *role.Status) *RoleUpdate {
 	if v != nil {
-		_u.SetLft(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
 }
 
-// AddLft adds value to the "lft" field.
-func (_u *RoleUpdate) AddLft(v int) *RoleUpdate {
-	_u.mutation.AddLft(v)
+// SetVersion sets the "version" field.
+func (_u *RoleUpdate) SetVersion(v int64) *RoleUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
 	return _u
 }
 
-// SetRgt sets the "rgt" field.
-func (_u *RoleUpdate) SetRgt(v int) *RoleUpdate {
-	_u.mutation.ResetRgt()
-	_u.mutation.SetRgt(v)
-	return _u
-}
-
-// SetNillableRgt sets the "rgt" field if the given value is not nil.
-func (_u *RoleUpdate) SetNillableRgt(v *int) *RoleUpdate {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *RoleUpdate) SetNillableVersion(v *int64) *RoleUpdate {
 	if v != nil {
-		_u.SetRgt(*v)
+		_u.SetVersion(*v)
 	}
 	return _u
 }
 
-// AddRgt adds value to the "rgt" field.
-func (_u *RoleUpdate) AddRgt(v int) *RoleUpdate {
-	_u.mutation.AddRgt(v)
+// AddVersion adds value to the "version" field.
+func (_u *RoleUpdate) AddVersion(v int64) *RoleUpdate {
+	_u.mutation.AddVersion(v)
 	return _u
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (_u *RoleUpdate) AddUserIDs(ids ...int) *RoleUpdate {
-	_u.mutation.AddUserIDs(ids...)
-	return _u
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (_u *RoleUpdate) AddUsers(v ...*User) *RoleUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUserIDs(ids...)
-}
-
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (_u *RoleUpdate) AddPermissionIDs(ids ...int) *RoleUpdate {
-	_u.mutation.AddPermissionIDs(ids...)
-	return _u
-}
-
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (_u *RoleUpdate) AddPermissions(v ...*Permission) *RoleUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
 func (_u *RoleUpdate) Mutation() *RoleMutation {
 	return _u.mutation
-}
-
-// ClearUsers clears all "users" edges to the User entity.
-func (_u *RoleUpdate) ClearUsers() *RoleUpdate {
-	_u.mutation.ClearUsers()
-	return _u
-}
-
-// RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (_u *RoleUpdate) RemoveUserIDs(ids ...int) *RoleUpdate {
-	_u.mutation.RemoveUserIDs(ids...)
-	return _u
-}
-
-// RemoveUsers removes "users" edges to User entities.
-func (_u *RoleUpdate) RemoveUsers(v ...*User) *RoleUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUserIDs(ids...)
-}
-
-// ClearPermissions clears all "permissions" edges to the Permission entity.
-func (_u *RoleUpdate) ClearPermissions() *RoleUpdate {
-	_u.mutation.ClearPermissions()
-	return _u
-}
-
-// RemovePermissionIDs removes the "permissions" edge to Permission entities by IDs.
-func (_u *RoleUpdate) RemovePermissionIDs(ids ...int) *RoleUpdate {
-	_u.mutation.RemovePermissionIDs(ids...)
-	return _u
-}
-
-// RemovePermissions removes "permissions" edges to Permission entities.
-func (_u *RoleUpdate) RemovePermissions(v ...*Permission) *RoleUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemovePermissionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -303,9 +221,24 @@ func (_u *RoleUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RoleUpdate) check() error {
+	if v, ok := _u.mutation.Key(); ok {
+		if err := role.KeyValidator(v); err != nil {
+			return &ValidationError{Name: "key", err: fmt.Errorf(`generate: validator failed for field "Role.key": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := role.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Role.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := role.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Role.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := role.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Role.version": %w`, err)}
 		}
 	}
 	return nil
@@ -321,7 +254,7 @@ func (_u *RoleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -339,130 +272,34 @@ func (_u *RoleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(role.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(role.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(role.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(role.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(role.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(role.FieldDeletedBy, field.TypeString)
+	}
+	if value, ok := _u.mutation.Key(); ok {
+		_spec.SetField(role.FieldKey, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Level(); ok {
-		_spec.SetField(role.FieldLevel, field.TypeInt, value)
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(role.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.AddedLevel(); ok {
-		_spec.AddField(role.FieldLevel, field.TypeInt, value)
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(role.FieldDescription, field.TypeString)
 	}
-	if value, ok := _u.mutation.ParentID(); ok {
-		_spec.SetField(role.FieldParentID, field.TypeInt, value)
+	if value, ok := _u.mutation.IsSystem(); ok {
+		_spec.SetField(role.FieldIsSystem, field.TypeBool, value)
 	}
-	if value, ok := _u.mutation.AddedParentID(); ok {
-		_spec.AddField(role.FieldParentID, field.TypeInt, value)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(role.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.Lft(); ok {
-		_spec.SetField(role.FieldLft, field.TypeInt, value)
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(role.FieldVersion, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedLft(); ok {
-		_spec.AddField(role.FieldLft, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.Rgt(); ok {
-		_spec.SetField(role.FieldRgt, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedRgt(); ok {
-		_spec.AddField(role.FieldRgt, field.TypeInt, value)
-	}
-	if _u.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUsersIDs(); len(nodes) > 0 && !_u.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.PermissionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !_u.mutation.PermissionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.PermissionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(role.FieldVersion, field.TypeInt64, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -513,29 +350,36 @@ func (_u *RoleUpdateOne) ClearDeletedAt() *RoleUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *RoleUpdateOne) SetDeletedBy(v int) *RoleUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *RoleUpdateOne) SetDeletedBy(v string) *RoleUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *RoleUpdateOne) SetNillableDeletedBy(v *int) *RoleUpdateOne {
+func (_u *RoleUpdateOne) SetNillableDeletedBy(v *string) *RoleUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
 	return _u
 }
 
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *RoleUpdateOne) AddDeletedBy(v int) *RoleUpdateOne {
-	_u.mutation.AddDeletedBy(v)
-	return _u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (_u *RoleUpdateOne) ClearDeletedBy() *RoleUpdateOne {
 	_u.mutation.ClearDeletedBy()
+	return _u
+}
+
+// SetKey sets the "key" field.
+func (_u *RoleUpdateOne) SetKey(v string) *RoleUpdateOne {
+	_u.mutation.SetKey(v)
+	return _u
+}
+
+// SetNillableKey sets the "key" field if the given value is not nil.
+func (_u *RoleUpdateOne) SetNillableKey(v *string) *RoleUpdateOne {
+	if v != nil {
+		_u.SetKey(*v)
+	}
 	return _u
 }
 
@@ -553,165 +397,78 @@ func (_u *RoleUpdateOne) SetNillableName(v *string) *RoleUpdateOne {
 	return _u
 }
 
-// SetLevel sets the "level" field.
-func (_u *RoleUpdateOne) SetLevel(v int) *RoleUpdateOne {
-	_u.mutation.ResetLevel()
-	_u.mutation.SetLevel(v)
+// SetDescription sets the "description" field.
+func (_u *RoleUpdateOne) SetDescription(v string) *RoleUpdateOne {
+	_u.mutation.SetDescription(v)
 	return _u
 }
 
-// SetNillableLevel sets the "level" field if the given value is not nil.
-func (_u *RoleUpdateOne) SetNillableLevel(v *int) *RoleUpdateOne {
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *RoleUpdateOne) SetNillableDescription(v *string) *RoleUpdateOne {
 	if v != nil {
-		_u.SetLevel(*v)
+		_u.SetDescription(*v)
 	}
 	return _u
 }
 
-// AddLevel adds value to the "level" field.
-func (_u *RoleUpdateOne) AddLevel(v int) *RoleUpdateOne {
-	_u.mutation.AddLevel(v)
+// ClearDescription clears the value of the "description" field.
+func (_u *RoleUpdateOne) ClearDescription() *RoleUpdateOne {
+	_u.mutation.ClearDescription()
 	return _u
 }
 
-// SetParentID sets the "parent_id" field.
-func (_u *RoleUpdateOne) SetParentID(v int) *RoleUpdateOne {
-	_u.mutation.ResetParentID()
-	_u.mutation.SetParentID(v)
+// SetIsSystem sets the "is_system" field.
+func (_u *RoleUpdateOne) SetIsSystem(v bool) *RoleUpdateOne {
+	_u.mutation.SetIsSystem(v)
 	return _u
 }
 
-// SetNillableParentID sets the "parent_id" field if the given value is not nil.
-func (_u *RoleUpdateOne) SetNillableParentID(v *int) *RoleUpdateOne {
+// SetNillableIsSystem sets the "is_system" field if the given value is not nil.
+func (_u *RoleUpdateOne) SetNillableIsSystem(v *bool) *RoleUpdateOne {
 	if v != nil {
-		_u.SetParentID(*v)
+		_u.SetIsSystem(*v)
 	}
 	return _u
 }
 
-// AddParentID adds value to the "parent_id" field.
-func (_u *RoleUpdateOne) AddParentID(v int) *RoleUpdateOne {
-	_u.mutation.AddParentID(v)
+// SetStatus sets the "status" field.
+func (_u *RoleUpdateOne) SetStatus(v role.Status) *RoleUpdateOne {
+	_u.mutation.SetStatus(v)
 	return _u
 }
 
-// SetLft sets the "lft" field.
-func (_u *RoleUpdateOne) SetLft(v int) *RoleUpdateOne {
-	_u.mutation.ResetLft()
-	_u.mutation.SetLft(v)
-	return _u
-}
-
-// SetNillableLft sets the "lft" field if the given value is not nil.
-func (_u *RoleUpdateOne) SetNillableLft(v *int) *RoleUpdateOne {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *RoleUpdateOne) SetNillableStatus(v *role.Status) *RoleUpdateOne {
 	if v != nil {
-		_u.SetLft(*v)
+		_u.SetStatus(*v)
 	}
 	return _u
 }
 
-// AddLft adds value to the "lft" field.
-func (_u *RoleUpdateOne) AddLft(v int) *RoleUpdateOne {
-	_u.mutation.AddLft(v)
+// SetVersion sets the "version" field.
+func (_u *RoleUpdateOne) SetVersion(v int64) *RoleUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
 	return _u
 }
 
-// SetRgt sets the "rgt" field.
-func (_u *RoleUpdateOne) SetRgt(v int) *RoleUpdateOne {
-	_u.mutation.ResetRgt()
-	_u.mutation.SetRgt(v)
-	return _u
-}
-
-// SetNillableRgt sets the "rgt" field if the given value is not nil.
-func (_u *RoleUpdateOne) SetNillableRgt(v *int) *RoleUpdateOne {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *RoleUpdateOne) SetNillableVersion(v *int64) *RoleUpdateOne {
 	if v != nil {
-		_u.SetRgt(*v)
+		_u.SetVersion(*v)
 	}
 	return _u
 }
 
-// AddRgt adds value to the "rgt" field.
-func (_u *RoleUpdateOne) AddRgt(v int) *RoleUpdateOne {
-	_u.mutation.AddRgt(v)
+// AddVersion adds value to the "version" field.
+func (_u *RoleUpdateOne) AddVersion(v int64) *RoleUpdateOne {
+	_u.mutation.AddVersion(v)
 	return _u
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (_u *RoleUpdateOne) AddUserIDs(ids ...int) *RoleUpdateOne {
-	_u.mutation.AddUserIDs(ids...)
-	return _u
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (_u *RoleUpdateOne) AddUsers(v ...*User) *RoleUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUserIDs(ids...)
-}
-
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (_u *RoleUpdateOne) AddPermissionIDs(ids ...int) *RoleUpdateOne {
-	_u.mutation.AddPermissionIDs(ids...)
-	return _u
-}
-
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (_u *RoleUpdateOne) AddPermissions(v ...*Permission) *RoleUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
 func (_u *RoleUpdateOne) Mutation() *RoleMutation {
 	return _u.mutation
-}
-
-// ClearUsers clears all "users" edges to the User entity.
-func (_u *RoleUpdateOne) ClearUsers() *RoleUpdateOne {
-	_u.mutation.ClearUsers()
-	return _u
-}
-
-// RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (_u *RoleUpdateOne) RemoveUserIDs(ids ...int) *RoleUpdateOne {
-	_u.mutation.RemoveUserIDs(ids...)
-	return _u
-}
-
-// RemoveUsers removes "users" edges to User entities.
-func (_u *RoleUpdateOne) RemoveUsers(v ...*User) *RoleUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUserIDs(ids...)
-}
-
-// ClearPermissions clears all "permissions" edges to the Permission entity.
-func (_u *RoleUpdateOne) ClearPermissions() *RoleUpdateOne {
-	_u.mutation.ClearPermissions()
-	return _u
-}
-
-// RemovePermissionIDs removes the "permissions" edge to Permission entities by IDs.
-func (_u *RoleUpdateOne) RemovePermissionIDs(ids ...int) *RoleUpdateOne {
-	_u.mutation.RemovePermissionIDs(ids...)
-	return _u
-}
-
-// RemovePermissions removes "permissions" edges to Permission entities.
-func (_u *RoleUpdateOne) RemovePermissions(v ...*Permission) *RoleUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemovePermissionIDs(ids...)
 }
 
 // Where appends a list predicates to the RoleUpdate builder.
@@ -771,9 +528,24 @@ func (_u *RoleUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RoleUpdateOne) check() error {
+	if v, ok := _u.mutation.Key(); ok {
+		if err := role.KeyValidator(v); err != nil {
+			return &ValidationError{Name: "key", err: fmt.Errorf(`generate: validator failed for field "Role.key": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := role.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Role.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := role.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Role.status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := role.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Role.version": %w`, err)}
 		}
 	}
 	return nil
@@ -789,7 +561,7 @@ func (_u *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Role.id" for update`)}
@@ -824,130 +596,34 @@ func (_u *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) {
 		_spec.ClearField(role.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(role.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(role.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(role.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(role.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(role.FieldDeletedBy, field.TypeString)
+	}
+	if value, ok := _u.mutation.Key(); ok {
+		_spec.SetField(role.FieldKey, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Level(); ok {
-		_spec.SetField(role.FieldLevel, field.TypeInt, value)
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(role.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.AddedLevel(); ok {
-		_spec.AddField(role.FieldLevel, field.TypeInt, value)
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(role.FieldDescription, field.TypeString)
 	}
-	if value, ok := _u.mutation.ParentID(); ok {
-		_spec.SetField(role.FieldParentID, field.TypeInt, value)
+	if value, ok := _u.mutation.IsSystem(); ok {
+		_spec.SetField(role.FieldIsSystem, field.TypeBool, value)
 	}
-	if value, ok := _u.mutation.AddedParentID(); ok {
-		_spec.AddField(role.FieldParentID, field.TypeInt, value)
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(role.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.Lft(); ok {
-		_spec.SetField(role.FieldLft, field.TypeInt, value)
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(role.FieldVersion, field.TypeInt64, value)
 	}
-	if value, ok := _u.mutation.AddedLft(); ok {
-		_spec.AddField(role.FieldLft, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.Rgt(); ok {
-		_spec.SetField(role.FieldRgt, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedRgt(); ok {
-		_spec.AddField(role.FieldRgt, field.TypeInt, value)
-	}
-	if _u.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUsersIDs(); len(nodes) > 0 && !_u.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.UsersTable,
-			Columns: []string{role.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.PermissionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !_u.mutation.PermissionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.PermissionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: []string{role.PermissionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(role.FieldVersion, field.TypeInt64, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Role{config: _u.config}

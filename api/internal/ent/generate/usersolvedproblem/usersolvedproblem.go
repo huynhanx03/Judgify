@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -14,6 +15,8 @@ const (
 	Label = "user_solved_problem"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldProblemID holds the string denoting the problem_id field in the database.
@@ -45,6 +48,7 @@ const (
 // Columns holds all SQL columns for usersolvedproblem fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldUserID,
 	FieldProblemID,
 	FieldSolvedAt,
@@ -63,6 +67,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultSolvedAt holds the default value on creation for the "solved_at" field.
 	DefaultSolvedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the UserSolvedProblem queries.
@@ -71,6 +77,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByUserID orders the results by the user_id field.

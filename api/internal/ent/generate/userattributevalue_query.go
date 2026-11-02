@@ -12,7 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinition"
+	"github.com/huynhanx03/judgify/internal/ent/generate/attributedefinitionrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
@@ -21,13 +23,15 @@ import (
 // UserAttributeValueQuery is the builder for querying UserAttributeValue entities.
 type UserAttributeValueQuery struct {
 	config
-	ctx            *QueryContext
-	order          []userattributevalue.OrderOption
-	inters         []Interceptor
-	predicates     []predicate.UserAttributeValue
-	withUser       *UserQuery
-	withDefinition *AttributeDefinitionQuery
-	modifiers      []func(*sql.Selector)
+	ctx                    *QueryContext
+	order                  []userattributevalue.OrderOption
+	inters                 []Interceptor
+	predicates             []predicate.UserAttributeValue
+	withUser               *UserQuery
+	withDefinition         *AttributeDefinitionQuery
+	withDefinitionRevision *AttributeDefinitionRevisionQuery
+	withSourceRevision     *AttributeDefinitionRevisionQuery
+	modifiers              []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -108,6 +112,50 @@ func (_q *UserAttributeValueQuery) QueryDefinition() *AttributeDefinitionQuery {
 	return query
 }
 
+// QueryDefinitionRevision chains the current query on the "definition_revision" edge.
+func (_q *UserAttributeValueQuery) QueryDefinitionRevision() *AttributeDefinitionRevisionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userattributevalue.Table, userattributevalue.FieldID, selector),
+			sqlgraph.To(attributedefinitionrevision.Table, attributedefinitionrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userattributevalue.DefinitionRevisionTable, userattributevalue.DefinitionRevisionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySourceRevision chains the current query on the "source_revision" edge.
+func (_q *UserAttributeValueQuery) QuerySourceRevision() *AttributeDefinitionRevisionQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userattributevalue.Table, userattributevalue.FieldID, selector),
+			sqlgraph.To(attributedefinitionrevision.Table, attributedefinitionrevision.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userattributevalue.SourceRevisionTable, userattributevalue.SourceRevisionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first UserAttributeValue entity from the query.
 // Returns a *NotFoundError when no UserAttributeValue was found.
 func (_q *UserAttributeValueQuery) First(ctx context.Context) (*UserAttributeValue, error) {
@@ -132,8 +180,8 @@ func (_q *UserAttributeValueQuery) FirstX(ctx context.Context) *UserAttributeVal
 
 // FirstID returns the first UserAttributeValue ID from the query.
 // Returns a *NotFoundError when no UserAttributeValue ID was found.
-func (_q *UserAttributeValueQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserAttributeValueQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -145,7 +193,7 @@ func (_q *UserAttributeValueQuery) FirstID(ctx context.Context) (id int, err err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserAttributeValueQuery) FirstIDX(ctx context.Context) int {
+func (_q *UserAttributeValueQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -183,8 +231,8 @@ func (_q *UserAttributeValueQuery) OnlyX(ctx context.Context) *UserAttributeValu
 // OnlyID is like Only, but returns the only UserAttributeValue ID in the query.
 // Returns a *NotSingularError when more than one UserAttributeValue ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserAttributeValueQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *UserAttributeValueQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -200,7 +248,7 @@ func (_q *UserAttributeValueQuery) OnlyID(ctx context.Context) (id int, err erro
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserAttributeValueQuery) OnlyIDX(ctx context.Context) int {
+func (_q *UserAttributeValueQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -228,7 +276,7 @@ func (_q *UserAttributeValueQuery) AllX(ctx context.Context) []*UserAttributeVal
 }
 
 // IDs executes the query and returns a list of UserAttributeValue IDs.
-func (_q *UserAttributeValueQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *UserAttributeValueQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -240,7 +288,7 @@ func (_q *UserAttributeValueQuery) IDs(ctx context.Context) (ids []int, err erro
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserAttributeValueQuery) IDsX(ctx context.Context) []int {
+func (_q *UserAttributeValueQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -295,13 +343,15 @@ func (_q *UserAttributeValueQuery) Clone() *UserAttributeValueQuery {
 		return nil
 	}
 	return &UserAttributeValueQuery{
-		config:         _q.config,
-		ctx:            _q.ctx.Clone(),
-		order:          append([]userattributevalue.OrderOption{}, _q.order...),
-		inters:         append([]Interceptor{}, _q.inters...),
-		predicates:     append([]predicate.UserAttributeValue{}, _q.predicates...),
-		withUser:       _q.withUser.Clone(),
-		withDefinition: _q.withDefinition.Clone(),
+		config:                 _q.config,
+		ctx:                    _q.ctx.Clone(),
+		order:                  append([]userattributevalue.OrderOption{}, _q.order...),
+		inters:                 append([]Interceptor{}, _q.inters...),
+		predicates:             append([]predicate.UserAttributeValue{}, _q.predicates...),
+		withUser:               _q.withUser.Clone(),
+		withDefinition:         _q.withDefinition.Clone(),
+		withDefinitionRevision: _q.withDefinitionRevision.Clone(),
+		withSourceRevision:     _q.withSourceRevision.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -328,6 +378,28 @@ func (_q *UserAttributeValueQuery) WithDefinition(opts ...func(*AttributeDefinit
 		opt(query)
 	}
 	_q.withDefinition = query
+	return _q
+}
+
+// WithDefinitionRevision tells the query-builder to eager-load the nodes that are connected to
+// the "definition_revision" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserAttributeValueQuery) WithDefinitionRevision(opts ...func(*AttributeDefinitionRevisionQuery)) *UserAttributeValueQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDefinitionRevision = query
+	return _q
+}
+
+// WithSourceRevision tells the query-builder to eager-load the nodes that are connected to
+// the "source_revision" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserAttributeValueQuery) WithSourceRevision(opts ...func(*AttributeDefinitionRevisionQuery)) *UserAttributeValueQuery {
+	query := (&AttributeDefinitionRevisionClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSourceRevision = query
 	return _q
 }
 
@@ -409,9 +481,11 @@ func (_q *UserAttributeValueQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 	var (
 		nodes       = []*UserAttributeValue{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			_q.withUser != nil,
 			_q.withDefinition != nil,
+			_q.withDefinitionRevision != nil,
+			_q.withSourceRevision != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -447,12 +521,24 @@ func (_q *UserAttributeValueQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 			return nil, err
 		}
 	}
+	if query := _q.withDefinitionRevision; query != nil {
+		if err := _q.loadDefinitionRevision(ctx, query, nodes, nil,
+			func(n *UserAttributeValue, e *AttributeDefinitionRevision) { n.Edges.DefinitionRevision = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSourceRevision; query != nil {
+		if err := _q.loadSourceRevision(ctx, query, nodes, nil,
+			func(n *UserAttributeValue, e *AttributeDefinitionRevision) { n.Edges.SourceRevision = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *UserAttributeValueQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserAttributeValue, init func(*UserAttributeValue), assign func(*UserAttributeValue, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserAttributeValue)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserAttributeValue)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -480,8 +566,8 @@ func (_q *UserAttributeValueQuery) loadUser(ctx context.Context, query *UserQuer
 	return nil
 }
 func (_q *UserAttributeValueQuery) loadDefinition(ctx context.Context, query *AttributeDefinitionQuery, nodes []*UserAttributeValue, init func(*UserAttributeValue), assign func(*UserAttributeValue, *AttributeDefinition)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*UserAttributeValue)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserAttributeValue)
 	for i := range nodes {
 		fk := nodes[i].AttributeID
 		if _, ok := nodeids[fk]; !ok {
@@ -508,6 +594,64 @@ func (_q *UserAttributeValueQuery) loadDefinition(ctx context.Context, query *At
 	}
 	return nil
 }
+func (_q *UserAttributeValueQuery) loadDefinitionRevision(ctx context.Context, query *AttributeDefinitionRevisionQuery, nodes []*UserAttributeValue, init func(*UserAttributeValue), assign func(*UserAttributeValue, *AttributeDefinitionRevision)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserAttributeValue)
+	for i := range nodes {
+		fk := nodes[i].DefinitionRevisionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(attributedefinitionrevision.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "definition_revision_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *UserAttributeValueQuery) loadSourceRevision(ctx context.Context, query *AttributeDefinitionRevisionQuery, nodes []*UserAttributeValue, init func(*UserAttributeValue), assign func(*UserAttributeValue, *AttributeDefinitionRevision)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserAttributeValue)
+	for i := range nodes {
+		fk := nodes[i].SourceRevisionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(attributedefinitionrevision.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "source_revision_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *UserAttributeValueQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -522,7 +666,7 @@ func (_q *UserAttributeValueQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *UserAttributeValueQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(userattributevalue.Table, userattributevalue.Columns, sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(userattributevalue.Table, userattributevalue.Columns, sqlgraph.NewFieldSpec(userattributevalue.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -542,6 +686,12 @@ func (_q *UserAttributeValueQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withDefinition != nil {
 			_spec.Node.AddColumnOnce(userattributevalue.FieldAttributeID)
+		}
+		if _q.withDefinitionRevision != nil {
+			_spec.Node.AddColumnOnce(userattributevalue.FieldDefinitionRevisionID)
+		}
+		if _q.withSourceRevision != nil {
+			_spec.Node.AddColumnOnce(userattributevalue.FieldSourceRevisionID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

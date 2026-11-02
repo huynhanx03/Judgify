@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
 )
 
@@ -16,7 +17,7 @@ import (
 type Role struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,50 +25,20 @@ type Role struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
+	// Stable authorization key used by Casbin, for example admin, teacher, student
+	Key string `json:"key,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Role hierarchy level, lower = more privileged
-	Level int `json:"level,omitempty"`
-	// Parent role ID for hierarchy (root = -1)
-	ParentID int `json:"parent_id,omitempty"`
-	// Nested Set left value for hierarchy
-	Lft int `json:"lft,omitempty"`
-	// Nested Set right value for hierarchy
-	Rgt int `json:"rgt,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the RoleQuery when eager-loading is set.
-	Edges        RoleEdges `json:"edges"`
+	// Description holds the value of the "description" field.
+	Description *string `json:"description,omitempty"`
+	// System roles are seeded and should not be deleted casually
+	IsSystem bool `json:"is_system,omitempty"`
+	// Status holds the value of the "status" field.
+	Status role.Status `json:"status,omitempty"`
+	// Version holds the value of the "version" field.
+	Version      int64 `json:"version,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// RoleEdges holds the relations/edges for other nodes in the graph.
-type RoleEdges struct {
-	// Users holds the value of the users edge.
-	Users []*User `json:"users,omitempty"`
-	// Permissions holds the value of the permissions edge.
-	Permissions []*Permission `json:"permissions,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// UsersOrErr returns the Users value or an error if the edge
-// was not loaded in eager-loading.
-func (e RoleEdges) UsersOrErr() ([]*User, error) {
-	if e.loadedTypes[0] {
-		return e.Users, nil
-	}
-	return nil, &NotLoadedError{edge: "users"}
-}
-
-// PermissionsOrErr returns the Permissions value or an error if the edge
-// was not loaded in eager-loading.
-func (e RoleEdges) PermissionsOrErr() ([]*Permission, error) {
-	if e.loadedTypes[1] {
-		return e.Permissions, nil
-	}
-	return nil, &NotLoadedError{edge: "permissions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -75,12 +46,16 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case role.FieldID, role.FieldDeletedBy, role.FieldLevel, role.FieldParentID, role.FieldLft, role.FieldRgt:
+		case role.FieldIsSystem:
+			values[i] = new(sql.NullBool)
+		case role.FieldVersion:
 			values[i] = new(sql.NullInt64)
-		case role.FieldName:
+		case role.FieldDeletedBy, role.FieldKey, role.FieldName, role.FieldDescription, role.FieldStatus:
 			values[i] = new(sql.NullString)
 		case role.FieldCreatedAt, role.FieldUpdatedAt, role.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case role.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -97,11 +72,11 @@ func (_m *Role) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case role.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case role.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -122,11 +97,17 @@ func (_m *Role) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case role.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
+			}
+		case role.FieldKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field key", values[i])
+			} else if value.Valid {
+				_m.Key = value.String
 			}
 		case role.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -134,29 +115,30 @@ func (_m *Role) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Name = value.String
 			}
-		case role.FieldLevel:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field level", values[i])
+		case role.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				_m.Level = int(value.Int64)
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
-		case role.FieldParentID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
+		case role.FieldIsSystem:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_system", values[i])
 			} else if value.Valid {
-				_m.ParentID = int(value.Int64)
+				_m.IsSystem = value.Bool
 			}
-		case role.FieldLft:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field lft", values[i])
+		case role.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.Lft = int(value.Int64)
+				_m.Status = role.Status(value.String)
 			}
-		case role.FieldRgt:
+		case role.FieldVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field rgt", values[i])
+				return fmt.Errorf("unexpected type %T for field version", values[i])
 			} else if value.Valid {
-				_m.Rgt = int(value.Int64)
+				_m.Version = value.Int64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -169,16 +151,6 @@ func (_m *Role) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Role) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
-}
-
-// QueryUsers queries the "users" edge of the Role entity.
-func (_m *Role) QueryUsers() *UserQuery {
-	return NewRoleClient(_m.config).QueryUsers(_m)
-}
-
-// QueryPermissions queries the "permissions" edge of the Role entity.
-func (_m *Role) QueryPermissions() *PermissionQuery {
-	return NewRoleClient(_m.config).QueryPermissions(_m)
 }
 
 // Update returns a builder for updating this Role.
@@ -217,33 +189,30 @@ func (_m *Role) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("key=")
+	builder.WriteString(_m.Key)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
-	builder.WriteString("level=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Level))
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("parent_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ParentID))
+	builder.WriteString("is_system=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsSystem))
 	builder.WriteString(", ")
-	builder.WriteString("lft=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Lft))
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
-	builder.WriteString("rgt=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Rgt))
+	builder.WriteString("version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Role) GetID() int {
-	return _m.ID
-}
-
-func (_m *Role) SetID(id int) {
-	_m.ID = id
 }
 
 // Roles is a parsable slice of Role.

@@ -11,9 +11,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/difficulty"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
 	"github.com/huynhanx03/judgify/internal/ent/generate/materialcategory"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevision"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialslug"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialviewdaily"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -60,23 +64,16 @@ func (_u *MaterialUpdate) ClearDeletedAt() *MaterialUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *MaterialUpdate) SetDeletedBy(v int) *MaterialUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *MaterialUpdate) SetDeletedBy(v string) *MaterialUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableDeletedBy(v *int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetNillableDeletedBy(v *string) *MaterialUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *MaterialUpdate) AddDeletedBy(v int) *MaterialUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -97,6 +94,12 @@ func (_u *MaterialUpdate) SetNillableTitle(v *string) *MaterialUpdate {
 	if v != nil {
 		_u.SetTitle(*v)
 	}
+	return _u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (_u *MaterialUpdate) ClearTitle() *MaterialUpdate {
+	_u.mutation.ClearTitle()
 	return _u
 }
 
@@ -141,43 +144,137 @@ func (_u *MaterialUpdate) ClearContent() *MaterialUpdate {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_u *MaterialUpdate) SetDifficultyID(v int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetDifficultyID(v uuid.UUID) *MaterialUpdate {
 	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
 // SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableDifficultyID(v *int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetNillableDifficultyID(v *uuid.UUID) *MaterialUpdate {
 	if v != nil {
 		_u.SetDifficultyID(*v)
 	}
 	return _u
 }
 
-// SetAuthorID sets the "author_id" field.
-func (_u *MaterialUpdate) SetAuthorID(v int) *MaterialUpdate {
-	_u.mutation.SetAuthorID(v)
-	return _u
-}
-
-// SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableAuthorID(v *int) *MaterialUpdate {
-	if v != nil {
-		_u.SetAuthorID(*v)
-	}
+// ClearDifficultyID clears the value of the "difficulty_id" field.
+func (_u *MaterialUpdate) ClearDifficultyID() *MaterialUpdate {
+	_u.mutation.ClearDifficultyID()
 	return _u
 }
 
 // SetCategoryID sets the "category_id" field.
-func (_u *MaterialUpdate) SetCategoryID(v int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetCategoryID(v uuid.UUID) *MaterialUpdate {
 	_u.mutation.SetCategoryID(v)
 	return _u
 }
 
 // SetNillableCategoryID sets the "category_id" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableCategoryID(v *int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetNillableCategoryID(v *uuid.UUID) *MaterialUpdate {
 	if v != nil {
 		_u.SetCategoryID(*v)
+	}
+	return _u
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (_u *MaterialUpdate) ClearCategoryID() *MaterialUpdate {
+	_u.mutation.ClearCategoryID()
+	return _u
+}
+
+// SetGroupID sets the "group_id" field.
+func (_u *MaterialUpdate) SetGroupID(v int) *MaterialUpdate {
+	_u.mutation.ResetGroupID()
+	_u.mutation.SetGroupID(v)
+	return _u
+}
+
+// SetNillableGroupID sets the "group_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableGroupID(v *int) *MaterialUpdate {
+	if v != nil {
+		_u.SetGroupID(*v)
+	}
+	return _u
+}
+
+// AddGroupID adds value to the "group_id" field.
+func (_u *MaterialUpdate) AddGroupID(v int) *MaterialUpdate {
+	_u.mutation.AddGroupID(v)
+	return _u
+}
+
+// ClearGroupID clears the value of the "group_id" field.
+func (_u *MaterialUpdate) ClearGroupID() *MaterialUpdate {
+	_u.mutation.ClearGroupID()
+	return _u
+}
+
+// SetEstimatedReadTime sets the "estimated_read_time" field.
+func (_u *MaterialUpdate) SetEstimatedReadTime(v int) *MaterialUpdate {
+	_u.mutation.ResetEstimatedReadTime()
+	_u.mutation.SetEstimatedReadTime(v)
+	return _u
+}
+
+// SetNillableEstimatedReadTime sets the "estimated_read_time" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableEstimatedReadTime(v *int) *MaterialUpdate {
+	if v != nil {
+		_u.SetEstimatedReadTime(*v)
+	}
+	return _u
+}
+
+// AddEstimatedReadTime adds value to the "estimated_read_time" field.
+func (_u *MaterialUpdate) AddEstimatedReadTime(v int) *MaterialUpdate {
+	_u.mutation.AddEstimatedReadTime(v)
+	return _u
+}
+
+// SetCurrentSlugID sets the "current_slug_id" field.
+func (_u *MaterialUpdate) SetCurrentSlugID(v uuid.UUID) *MaterialUpdate {
+	_u.mutation.SetCurrentSlugID(v)
+	return _u
+}
+
+// SetNillableCurrentSlugID sets the "current_slug_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableCurrentSlugID(v *uuid.UUID) *MaterialUpdate {
+	if v != nil {
+		_u.SetCurrentSlugID(*v)
+	}
+	return _u
+}
+
+// ClearCurrentSlugID clears the value of the "current_slug_id" field.
+func (_u *MaterialUpdate) ClearCurrentSlugID() *MaterialUpdate {
+	_u.mutation.ClearCurrentSlugID()
+	return _u
+}
+
+// SetCurrentSlugState sets the "current_slug_state" field.
+func (_u *MaterialUpdate) SetCurrentSlugState(v material.CurrentSlugState) *MaterialUpdate {
+	_u.mutation.SetCurrentSlugState(v)
+	return _u
+}
+
+// SetNillableCurrentSlugState sets the "current_slug_state" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableCurrentSlugState(v *material.CurrentSlugState) *MaterialUpdate {
+	if v != nil {
+		_u.SetCurrentSlugState(*v)
+	}
+	return _u
+}
+
+// SetAuthorID sets the "author_id" field.
+func (_u *MaterialUpdate) SetAuthorID(v uuid.UUID) *MaterialUpdate {
+	_u.mutation.SetAuthorID(v)
+	return _u
+}
+
+// SetNillableAuthorID sets the "author_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableAuthorID(v *uuid.UUID) *MaterialUpdate {
+	if v != nil {
+		_u.SetAuthorID(*v)
 	}
 	return _u
 }
@@ -210,42 +307,167 @@ func (_u *MaterialUpdate) SetNillableVisibility(v *material.Visibility) *Materia
 	return _u
 }
 
-// SetGroupID sets the "group_id" field.
-func (_u *MaterialUpdate) SetGroupID(v int) *MaterialUpdate {
-	_u.mutation.ResetGroupID()
-	_u.mutation.SetGroupID(v)
+// SetCurrentDraftRevisionID sets the "current_draft_revision_id" field.
+func (_u *MaterialUpdate) SetCurrentDraftRevisionID(v uuid.UUID) *MaterialUpdate {
+	_u.mutation.SetCurrentDraftRevisionID(v)
 	return _u
 }
 
-// SetNillableGroupID sets the "group_id" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableGroupID(v *int) *MaterialUpdate {
+// SetNillableCurrentDraftRevisionID sets the "current_draft_revision_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableCurrentDraftRevisionID(v *uuid.UUID) *MaterialUpdate {
 	if v != nil {
-		_u.SetGroupID(*v)
+		_u.SetCurrentDraftRevisionID(*v)
 	}
 	return _u
 }
 
-// AddGroupID adds value to the "group_id" field.
-func (_u *MaterialUpdate) AddGroupID(v int) *MaterialUpdate {
-	_u.mutation.AddGroupID(v)
+// ClearCurrentDraftRevisionID clears the value of the "current_draft_revision_id" field.
+func (_u *MaterialUpdate) ClearCurrentDraftRevisionID() *MaterialUpdate {
+	_u.mutation.ClearCurrentDraftRevisionID()
 	return _u
 }
 
-// ClearGroupID clears the value of the "group_id" field.
-func (_u *MaterialUpdate) ClearGroupID() *MaterialUpdate {
-	_u.mutation.ClearGroupID()
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (_u *MaterialUpdate) SetPublishedRevisionID(v uuid.UUID) *MaterialUpdate {
+	_u.mutation.SetPublishedRevisionID(v)
+	return _u
+}
+
+// SetNillablePublishedRevisionID sets the "published_revision_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillablePublishedRevisionID(v *uuid.UUID) *MaterialUpdate {
+	if v != nil {
+		_u.SetPublishedRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (_u *MaterialUpdate) ClearPublishedRevisionID() *MaterialUpdate {
+	_u.mutation.ClearPublishedRevisionID()
+	return _u
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (_u *MaterialUpdate) SetPublishedRenderSourceID(v uuid.UUID) *MaterialUpdate {
+	_u.mutation.SetPublishedRenderSourceID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceID sets the "published_render_source_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillablePublishedRenderSourceID(v *uuid.UUID) *MaterialUpdate {
+	if v != nil {
+		_u.SetPublishedRenderSourceID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (_u *MaterialUpdate) ClearPublishedRenderSourceID() *MaterialUpdate {
+	_u.mutation.ClearPublishedRenderSourceID()
+	return _u
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (_u *MaterialUpdate) SetPublishedRenderArtifactID(v uuid.UUID) *MaterialUpdate {
+	_u.mutation.SetPublishedRenderArtifactID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderArtifactID sets the "published_render_artifact_id" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillablePublishedRenderArtifactID(v *uuid.UUID) *MaterialUpdate {
+	if v != nil {
+		_u.SetPublishedRenderArtifactID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (_u *MaterialUpdate) ClearPublishedRenderArtifactID() *MaterialUpdate {
+	_u.mutation.ClearPublishedRenderArtifactID()
+	return _u
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (_u *MaterialUpdate) SetPublishedRenderSourceKind(v material.PublishedRenderSourceKind) *MaterialUpdate {
+	_u.mutation.SetPublishedRenderSourceKind(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceKind sets the "published_render_source_kind" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillablePublishedRenderSourceKind(v *material.PublishedRenderSourceKind) *MaterialUpdate {
+	if v != nil {
+		_u.SetPublishedRenderSourceKind(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (_u *MaterialUpdate) ClearPublishedRenderSourceKind() *MaterialUpdate {
+	_u.mutation.ClearPublishedRenderSourceKind()
+	return _u
+}
+
+// SetPublishedSourceChecksum sets the "published_source_checksum" field.
+func (_u *MaterialUpdate) SetPublishedSourceChecksum(v []byte) *MaterialUpdate {
+	_u.mutation.SetPublishedSourceChecksum(v)
+	return _u
+}
+
+// ClearPublishedSourceChecksum clears the value of the "published_source_checksum" field.
+func (_u *MaterialUpdate) ClearPublishedSourceChecksum() *MaterialUpdate {
+	_u.mutation.ClearPublishedSourceChecksum()
+	return _u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_u *MaterialUpdate) SetPublishedAt(v time.Time) *MaterialUpdate {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillablePublishedAt(v *time.Time) *MaterialUpdate {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *MaterialUpdate) ClearPublishedAt() *MaterialUpdate {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_u *MaterialUpdate) SetArchivedAt(v time.Time) *MaterialUpdate {
+	_u.mutation.SetArchivedAt(v)
+	return _u
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableArchivedAt(v *time.Time) *MaterialUpdate {
+	if v != nil {
+		_u.SetArchivedAt(*v)
+	}
+	return _u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (_u *MaterialUpdate) ClearArchivedAt() *MaterialUpdate {
+	_u.mutation.ClearArchivedAt()
 	return _u
 }
 
 // SetViewCount sets the "view_count" field.
-func (_u *MaterialUpdate) SetViewCount(v int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetViewCount(v int64) *MaterialUpdate {
 	_u.mutation.ResetViewCount()
 	_u.mutation.SetViewCount(v)
 	return _u
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableViewCount(v *int) *MaterialUpdate {
+func (_u *MaterialUpdate) SetNillableViewCount(v *int64) *MaterialUpdate {
 	if v != nil {
 		_u.SetViewCount(*v)
 	}
@@ -253,40 +475,40 @@ func (_u *MaterialUpdate) SetNillableViewCount(v *int) *MaterialUpdate {
 }
 
 // AddViewCount adds value to the "view_count" field.
-func (_u *MaterialUpdate) AddViewCount(v int) *MaterialUpdate {
+func (_u *MaterialUpdate) AddViewCount(v int64) *MaterialUpdate {
 	_u.mutation.AddViewCount(v)
 	return _u
 }
 
-// SetEstimatedReadTime sets the "estimated_read_time" field.
-func (_u *MaterialUpdate) SetEstimatedReadTime(v int) *MaterialUpdate {
-	_u.mutation.ResetEstimatedReadTime()
-	_u.mutation.SetEstimatedReadTime(v)
+// SetVersion sets the "version" field.
+func (_u *MaterialUpdate) SetVersion(v int64) *MaterialUpdate {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
 	return _u
 }
 
-// SetNillableEstimatedReadTime sets the "estimated_read_time" field if the given value is not nil.
-func (_u *MaterialUpdate) SetNillableEstimatedReadTime(v *int) *MaterialUpdate {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *MaterialUpdate) SetNillableVersion(v *int64) *MaterialUpdate {
 	if v != nil {
-		_u.SetEstimatedReadTime(*v)
+		_u.SetVersion(*v)
 	}
 	return _u
 }
 
-// AddEstimatedReadTime adds value to the "estimated_read_time" field.
-func (_u *MaterialUpdate) AddEstimatedReadTime(v int) *MaterialUpdate {
-	_u.mutation.AddEstimatedReadTime(v)
+// AddVersion adds value to the "version" field.
+func (_u *MaterialUpdate) AddVersion(v int64) *MaterialUpdate {
+	_u.mutation.AddVersion(v)
 	return _u
-}
-
-// SetCategory sets the "category" edge to the MaterialCategory entity.
-func (_u *MaterialUpdate) SetCategory(v *MaterialCategory) *MaterialUpdate {
-	return _u.SetCategoryID(v.ID)
 }
 
 // SetAuthor sets the "author" edge to the User entity.
 func (_u *MaterialUpdate) SetAuthor(v *User) *MaterialUpdate {
 	return _u.SetAuthorID(v.ID)
+}
+
+// SetCategory sets the "category" edge to the MaterialCategory entity.
+func (_u *MaterialUpdate) SetCategory(v *MaterialCategory) *MaterialUpdate {
+	return _u.SetCategoryID(v.ID)
 }
 
 // SetDifficulty sets the "difficulty" edge to the Difficulty entity.
@@ -295,18 +517,63 @@ func (_u *MaterialUpdate) SetDifficulty(v *Difficulty) *MaterialUpdate {
 }
 
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_u *MaterialUpdate) AddTagIDs(ids ...int) *MaterialUpdate {
+func (_u *MaterialUpdate) AddTagIDs(ids ...uuid.UUID) *MaterialUpdate {
 	_u.mutation.AddTagIDs(ids...)
 	return _u
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_u *MaterialUpdate) AddTags(v ...*Tag) *MaterialUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddTagIDs(ids...)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the MaterialRevision entity by IDs.
+func (_u *MaterialUpdate) AddRevisionIDs(ids ...uuid.UUID) *MaterialUpdate {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialUpdate) AddRevisions(v ...*MaterialRevision) *MaterialUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
+// AddSlugIDs adds the "slugs" edge to the MaterialSlug entity by IDs.
+func (_u *MaterialUpdate) AddSlugIDs(ids ...uuid.UUID) *MaterialUpdate {
+	_u.mutation.AddSlugIDs(ids...)
+	return _u
+}
+
+// AddSlugs adds the "slugs" edges to the MaterialSlug entity.
+func (_u *MaterialUpdate) AddSlugs(v ...*MaterialSlug) *MaterialUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSlugIDs(ids...)
+}
+
+// AddDailyViewIDs adds the "daily_views" edge to the MaterialViewDaily entity by IDs.
+func (_u *MaterialUpdate) AddDailyViewIDs(ids ...uuid.UUID) *MaterialUpdate {
+	_u.mutation.AddDailyViewIDs(ids...)
+	return _u
+}
+
+// AddDailyViews adds the "daily_views" edges to the MaterialViewDaily entity.
+func (_u *MaterialUpdate) AddDailyViews(v ...*MaterialViewDaily) *MaterialUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDailyViewIDs(ids...)
 }
 
 // Mutation returns the MaterialMutation object of the builder.
@@ -314,15 +581,15 @@ func (_u *MaterialUpdate) Mutation() *MaterialMutation {
 	return _u.mutation
 }
 
-// ClearCategory clears the "category" edge to the MaterialCategory entity.
-func (_u *MaterialUpdate) ClearCategory() *MaterialUpdate {
-	_u.mutation.ClearCategory()
-	return _u
-}
-
 // ClearAuthor clears the "author" edge to the User entity.
 func (_u *MaterialUpdate) ClearAuthor() *MaterialUpdate {
 	_u.mutation.ClearAuthor()
+	return _u
+}
+
+// ClearCategory clears the "category" edge to the MaterialCategory entity.
+func (_u *MaterialUpdate) ClearCategory() *MaterialUpdate {
+	_u.mutation.ClearCategory()
 	return _u
 }
 
@@ -339,18 +606,81 @@ func (_u *MaterialUpdate) ClearTags() *MaterialUpdate {
 }
 
 // RemoveTagIDs removes the "tags" edge to Tag entities by IDs.
-func (_u *MaterialUpdate) RemoveTagIDs(ids ...int) *MaterialUpdate {
+func (_u *MaterialUpdate) RemoveTagIDs(ids ...uuid.UUID) *MaterialUpdate {
 	_u.mutation.RemoveTagIDs(ids...)
 	return _u
 }
 
 // RemoveTags removes "tags" edges to Tag entities.
 func (_u *MaterialUpdate) RemoveTags(v ...*Tag) *MaterialUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTagIDs(ids...)
+}
+
+// ClearRevisions clears all "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialUpdate) ClearRevisions() *MaterialUpdate {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to MaterialRevision entities by IDs.
+func (_u *MaterialUpdate) RemoveRevisionIDs(ids ...uuid.UUID) *MaterialUpdate {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to MaterialRevision entities.
+func (_u *MaterialUpdate) RemoveRevisions(v ...*MaterialRevision) *MaterialUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearSlugs clears all "slugs" edges to the MaterialSlug entity.
+func (_u *MaterialUpdate) ClearSlugs() *MaterialUpdate {
+	_u.mutation.ClearSlugs()
+	return _u
+}
+
+// RemoveSlugIDs removes the "slugs" edge to MaterialSlug entities by IDs.
+func (_u *MaterialUpdate) RemoveSlugIDs(ids ...uuid.UUID) *MaterialUpdate {
+	_u.mutation.RemoveSlugIDs(ids...)
+	return _u
+}
+
+// RemoveSlugs removes "slugs" edges to MaterialSlug entities.
+func (_u *MaterialUpdate) RemoveSlugs(v ...*MaterialSlug) *MaterialUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSlugIDs(ids...)
+}
+
+// ClearDailyViews clears all "daily_views" edges to the MaterialViewDaily entity.
+func (_u *MaterialUpdate) ClearDailyViews() *MaterialUpdate {
+	_u.mutation.ClearDailyViews()
+	return _u
+}
+
+// RemoveDailyViewIDs removes the "daily_views" edge to MaterialViewDaily entities by IDs.
+func (_u *MaterialUpdate) RemoveDailyViewIDs(ids ...uuid.UUID) *MaterialUpdate {
+	_u.mutation.RemoveDailyViewIDs(ids...)
+	return _u
+}
+
+// RemoveDailyViews removes "daily_views" edges to MaterialViewDaily entities.
+func (_u *MaterialUpdate) RemoveDailyViews(v ...*MaterialViewDaily) *MaterialUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDailyViewIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -407,6 +737,16 @@ func (_u *MaterialUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Material.description": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.EstimatedReadTime(); ok {
+		if err := material.EstimatedReadTimeValidator(v); err != nil {
+			return &ValidationError{Name: "estimated_read_time", err: fmt.Errorf(`generate: validator failed for field "Material.estimated_read_time": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.CurrentSlugState(); ok {
+		if err := material.CurrentSlugStateValidator(v); err != nil {
+			return &ValidationError{Name: "current_slug_state", err: fmt.Errorf(`generate: validator failed for field "Material.current_slug_state": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := material.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Material.status": %w`, err)}
@@ -417,24 +757,23 @@ func (_u *MaterialUpdate) check() error {
 			return &ValidationError{Name: "visibility", err: fmt.Errorf(`generate: validator failed for field "Material.visibility": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		if err := material.PublishedRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "published_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Material.published_render_source_kind": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.ViewCount(); ok {
 		if err := material.ViewCountValidator(v); err != nil {
 			return &ValidationError{Name: "view_count", err: fmt.Errorf(`generate: validator failed for field "Material.view_count": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.EstimatedReadTime(); ok {
-		if err := material.EstimatedReadTimeValidator(v); err != nil {
-			return &ValidationError{Name: "estimated_read_time", err: fmt.Errorf(`generate: validator failed for field "Material.estimated_read_time": %w`, err)}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := material.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Material.version": %w`, err)}
 		}
-	}
-	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "Material.category"`)
 	}
 	if _u.mutation.AuthorCleared() && len(_u.mutation.AuthorIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Material.author"`)
-	}
-	if _u.mutation.DifficultyCleared() && len(_u.mutation.DifficultyIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "Material.difficulty"`)
 	}
 	return nil
 }
@@ -449,7 +788,7 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(material.Table, material.Columns, sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(material.Table, material.Columns, sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -467,16 +806,16 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(material.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(material.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(material.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(material.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(material.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(material.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(material.FieldTitle, field.TypeString, value)
+	}
+	if _u.mutation.TitleCleared() {
+		_spec.ClearField(material.FieldTitle, field.TypeString)
 	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(material.FieldDescription, field.TypeString, value)
@@ -490,12 +829,6 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.ContentCleared() {
 		_spec.ClearField(material.FieldContent, field.TypeString)
 	}
-	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(material.FieldStatus, field.TypeEnum, value)
-	}
-	if value, ok := _u.mutation.Visibility(); ok {
-		_spec.SetField(material.FieldVisibility, field.TypeEnum, value)
-	}
 	if value, ok := _u.mutation.GroupID(); ok {
 		_spec.SetField(material.FieldGroupID, field.TypeInt, value)
 	}
@@ -505,46 +838,86 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.GroupIDCleared() {
 		_spec.ClearField(material.FieldGroupID, field.TypeInt)
 	}
-	if value, ok := _u.mutation.ViewCount(); ok {
-		_spec.SetField(material.FieldViewCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedViewCount(); ok {
-		_spec.AddField(material.FieldViewCount, field.TypeInt, value)
-	}
 	if value, ok := _u.mutation.EstimatedReadTime(); ok {
 		_spec.SetField(material.FieldEstimatedReadTime, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AddedEstimatedReadTime(); ok {
 		_spec.AddField(material.FieldEstimatedReadTime, field.TypeInt, value)
 	}
-	if _u.mutation.CategoryCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   material.CategoryTable,
-			Columns: []string{material.CategoryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := _u.mutation.CurrentSlugID(); ok {
+		_spec.SetField(material.FieldCurrentSlugID, field.TypeUUID, value)
 	}
-	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   material.CategoryTable,
-			Columns: []string{material.CategoryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if _u.mutation.CurrentSlugIDCleared() {
+		_spec.ClearField(material.FieldCurrentSlugID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.CurrentSlugState(); ok {
+		_spec.SetField(material.FieldCurrentSlugState, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(material.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Visibility(); ok {
+		_spec.SetField(material.FieldVisibility, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.CurrentDraftRevisionID(); ok {
+		_spec.SetField(material.FieldCurrentDraftRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.CurrentDraftRevisionIDCleared() {
+		_spec.ClearField(material.FieldCurrentDraftRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRevisionID(); ok {
+		_spec.SetField(material.FieldPublishedRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRevisionIDCleared() {
+		_spec.ClearField(material.FieldPublishedRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceID(); ok {
+		_spec.SetField(material.FieldPublishedRenderSourceID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderSourceIDCleared() {
+		_spec.ClearField(material.FieldPublishedRenderSourceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderArtifactID(); ok {
+		_spec.SetField(material.FieldPublishedRenderArtifactID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderArtifactIDCleared() {
+		_spec.ClearField(material.FieldPublishedRenderArtifactID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		_spec.SetField(material.FieldPublishedRenderSourceKind, field.TypeEnum, value)
+	}
+	if _u.mutation.PublishedRenderSourceKindCleared() {
+		_spec.ClearField(material.FieldPublishedRenderSourceKind, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.PublishedSourceChecksum(); ok {
+		_spec.SetField(material.FieldPublishedSourceChecksum, field.TypeBytes, value)
+	}
+	if _u.mutation.PublishedSourceChecksumCleared() {
+		_spec.ClearField(material.FieldPublishedSourceChecksum, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(material.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(material.FieldPublishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ArchivedAt(); ok {
+		_spec.SetField(material.FieldArchivedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ArchivedAtCleared() {
+		_spec.ClearField(material.FieldArchivedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ViewCount(); ok {
+		_spec.SetField(material.FieldViewCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedViewCount(); ok {
+		_spec.AddField(material.FieldViewCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(material.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(material.FieldVersion, field.TypeInt64, value)
 	}
 	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -554,7 +927,7 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{material.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -567,7 +940,36 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{material.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CategoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   material.CategoryTable,
+			Columns: []string{material.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   material.CategoryTable,
+			Columns: []string{material.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -583,7 +985,7 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{material.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -596,7 +998,7 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{material.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -612,7 +1014,7 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -625,7 +1027,7 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -641,7 +1043,142 @@ func (_u *MaterialUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SlugsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSlugsIDs(); len(nodes) > 0 && !_u.mutation.SlugsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SlugsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DailyViewsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDailyViewsIDs(); len(nodes) > 0 && !_u.mutation.DailyViewsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DailyViewsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -698,23 +1235,16 @@ func (_u *MaterialUpdateOne) ClearDeletedAt() *MaterialUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *MaterialUpdateOne) SetDeletedBy(v int) *MaterialUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *MaterialUpdateOne) SetDeletedBy(v string) *MaterialUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableDeletedBy(v *int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetNillableDeletedBy(v *string) *MaterialUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *MaterialUpdateOne) AddDeletedBy(v int) *MaterialUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -735,6 +1265,12 @@ func (_u *MaterialUpdateOne) SetNillableTitle(v *string) *MaterialUpdateOne {
 	if v != nil {
 		_u.SetTitle(*v)
 	}
+	return _u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (_u *MaterialUpdateOne) ClearTitle() *MaterialUpdateOne {
+	_u.mutation.ClearTitle()
 	return _u
 }
 
@@ -779,43 +1315,137 @@ func (_u *MaterialUpdateOne) ClearContent() *MaterialUpdateOne {
 }
 
 // SetDifficultyID sets the "difficulty_id" field.
-func (_u *MaterialUpdateOne) SetDifficultyID(v int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetDifficultyID(v uuid.UUID) *MaterialUpdateOne {
 	_u.mutation.SetDifficultyID(v)
 	return _u
 }
 
 // SetNillableDifficultyID sets the "difficulty_id" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableDifficultyID(v *int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetNillableDifficultyID(v *uuid.UUID) *MaterialUpdateOne {
 	if v != nil {
 		_u.SetDifficultyID(*v)
 	}
 	return _u
 }
 
-// SetAuthorID sets the "author_id" field.
-func (_u *MaterialUpdateOne) SetAuthorID(v int) *MaterialUpdateOne {
-	_u.mutation.SetAuthorID(v)
-	return _u
-}
-
-// SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableAuthorID(v *int) *MaterialUpdateOne {
-	if v != nil {
-		_u.SetAuthorID(*v)
-	}
+// ClearDifficultyID clears the value of the "difficulty_id" field.
+func (_u *MaterialUpdateOne) ClearDifficultyID() *MaterialUpdateOne {
+	_u.mutation.ClearDifficultyID()
 	return _u
 }
 
 // SetCategoryID sets the "category_id" field.
-func (_u *MaterialUpdateOne) SetCategoryID(v int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetCategoryID(v uuid.UUID) *MaterialUpdateOne {
 	_u.mutation.SetCategoryID(v)
 	return _u
 }
 
 // SetNillableCategoryID sets the "category_id" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableCategoryID(v *int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetNillableCategoryID(v *uuid.UUID) *MaterialUpdateOne {
 	if v != nil {
 		_u.SetCategoryID(*v)
+	}
+	return _u
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (_u *MaterialUpdateOne) ClearCategoryID() *MaterialUpdateOne {
+	_u.mutation.ClearCategoryID()
+	return _u
+}
+
+// SetGroupID sets the "group_id" field.
+func (_u *MaterialUpdateOne) SetGroupID(v int) *MaterialUpdateOne {
+	_u.mutation.ResetGroupID()
+	_u.mutation.SetGroupID(v)
+	return _u
+}
+
+// SetNillableGroupID sets the "group_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableGroupID(v *int) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetGroupID(*v)
+	}
+	return _u
+}
+
+// AddGroupID adds value to the "group_id" field.
+func (_u *MaterialUpdateOne) AddGroupID(v int) *MaterialUpdateOne {
+	_u.mutation.AddGroupID(v)
+	return _u
+}
+
+// ClearGroupID clears the value of the "group_id" field.
+func (_u *MaterialUpdateOne) ClearGroupID() *MaterialUpdateOne {
+	_u.mutation.ClearGroupID()
+	return _u
+}
+
+// SetEstimatedReadTime sets the "estimated_read_time" field.
+func (_u *MaterialUpdateOne) SetEstimatedReadTime(v int) *MaterialUpdateOne {
+	_u.mutation.ResetEstimatedReadTime()
+	_u.mutation.SetEstimatedReadTime(v)
+	return _u
+}
+
+// SetNillableEstimatedReadTime sets the "estimated_read_time" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableEstimatedReadTime(v *int) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetEstimatedReadTime(*v)
+	}
+	return _u
+}
+
+// AddEstimatedReadTime adds value to the "estimated_read_time" field.
+func (_u *MaterialUpdateOne) AddEstimatedReadTime(v int) *MaterialUpdateOne {
+	_u.mutation.AddEstimatedReadTime(v)
+	return _u
+}
+
+// SetCurrentSlugID sets the "current_slug_id" field.
+func (_u *MaterialUpdateOne) SetCurrentSlugID(v uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.SetCurrentSlugID(v)
+	return _u
+}
+
+// SetNillableCurrentSlugID sets the "current_slug_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableCurrentSlugID(v *uuid.UUID) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetCurrentSlugID(*v)
+	}
+	return _u
+}
+
+// ClearCurrentSlugID clears the value of the "current_slug_id" field.
+func (_u *MaterialUpdateOne) ClearCurrentSlugID() *MaterialUpdateOne {
+	_u.mutation.ClearCurrentSlugID()
+	return _u
+}
+
+// SetCurrentSlugState sets the "current_slug_state" field.
+func (_u *MaterialUpdateOne) SetCurrentSlugState(v material.CurrentSlugState) *MaterialUpdateOne {
+	_u.mutation.SetCurrentSlugState(v)
+	return _u
+}
+
+// SetNillableCurrentSlugState sets the "current_slug_state" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableCurrentSlugState(v *material.CurrentSlugState) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetCurrentSlugState(*v)
+	}
+	return _u
+}
+
+// SetAuthorID sets the "author_id" field.
+func (_u *MaterialUpdateOne) SetAuthorID(v uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.SetAuthorID(v)
+	return _u
+}
+
+// SetNillableAuthorID sets the "author_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableAuthorID(v *uuid.UUID) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetAuthorID(*v)
 	}
 	return _u
 }
@@ -848,42 +1478,167 @@ func (_u *MaterialUpdateOne) SetNillableVisibility(v *material.Visibility) *Mate
 	return _u
 }
 
-// SetGroupID sets the "group_id" field.
-func (_u *MaterialUpdateOne) SetGroupID(v int) *MaterialUpdateOne {
-	_u.mutation.ResetGroupID()
-	_u.mutation.SetGroupID(v)
+// SetCurrentDraftRevisionID sets the "current_draft_revision_id" field.
+func (_u *MaterialUpdateOne) SetCurrentDraftRevisionID(v uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.SetCurrentDraftRevisionID(v)
 	return _u
 }
 
-// SetNillableGroupID sets the "group_id" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableGroupID(v *int) *MaterialUpdateOne {
+// SetNillableCurrentDraftRevisionID sets the "current_draft_revision_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableCurrentDraftRevisionID(v *uuid.UUID) *MaterialUpdateOne {
 	if v != nil {
-		_u.SetGroupID(*v)
+		_u.SetCurrentDraftRevisionID(*v)
 	}
 	return _u
 }
 
-// AddGroupID adds value to the "group_id" field.
-func (_u *MaterialUpdateOne) AddGroupID(v int) *MaterialUpdateOne {
-	_u.mutation.AddGroupID(v)
+// ClearCurrentDraftRevisionID clears the value of the "current_draft_revision_id" field.
+func (_u *MaterialUpdateOne) ClearCurrentDraftRevisionID() *MaterialUpdateOne {
+	_u.mutation.ClearCurrentDraftRevisionID()
 	return _u
 }
 
-// ClearGroupID clears the value of the "group_id" field.
-func (_u *MaterialUpdateOne) ClearGroupID() *MaterialUpdateOne {
-	_u.mutation.ClearGroupID()
+// SetPublishedRevisionID sets the "published_revision_id" field.
+func (_u *MaterialUpdateOne) SetPublishedRevisionID(v uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.SetPublishedRevisionID(v)
+	return _u
+}
+
+// SetNillablePublishedRevisionID sets the "published_revision_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillablePublishedRevisionID(v *uuid.UUID) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetPublishedRevisionID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRevisionID clears the value of the "published_revision_id" field.
+func (_u *MaterialUpdateOne) ClearPublishedRevisionID() *MaterialUpdateOne {
+	_u.mutation.ClearPublishedRevisionID()
+	return _u
+}
+
+// SetPublishedRenderSourceID sets the "published_render_source_id" field.
+func (_u *MaterialUpdateOne) SetPublishedRenderSourceID(v uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.SetPublishedRenderSourceID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceID sets the "published_render_source_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillablePublishedRenderSourceID(v *uuid.UUID) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetPublishedRenderSourceID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceID clears the value of the "published_render_source_id" field.
+func (_u *MaterialUpdateOne) ClearPublishedRenderSourceID() *MaterialUpdateOne {
+	_u.mutation.ClearPublishedRenderSourceID()
+	return _u
+}
+
+// SetPublishedRenderArtifactID sets the "published_render_artifact_id" field.
+func (_u *MaterialUpdateOne) SetPublishedRenderArtifactID(v uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.SetPublishedRenderArtifactID(v)
+	return _u
+}
+
+// SetNillablePublishedRenderArtifactID sets the "published_render_artifact_id" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillablePublishedRenderArtifactID(v *uuid.UUID) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetPublishedRenderArtifactID(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderArtifactID clears the value of the "published_render_artifact_id" field.
+func (_u *MaterialUpdateOne) ClearPublishedRenderArtifactID() *MaterialUpdateOne {
+	_u.mutation.ClearPublishedRenderArtifactID()
+	return _u
+}
+
+// SetPublishedRenderSourceKind sets the "published_render_source_kind" field.
+func (_u *MaterialUpdateOne) SetPublishedRenderSourceKind(v material.PublishedRenderSourceKind) *MaterialUpdateOne {
+	_u.mutation.SetPublishedRenderSourceKind(v)
+	return _u
+}
+
+// SetNillablePublishedRenderSourceKind sets the "published_render_source_kind" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillablePublishedRenderSourceKind(v *material.PublishedRenderSourceKind) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetPublishedRenderSourceKind(*v)
+	}
+	return _u
+}
+
+// ClearPublishedRenderSourceKind clears the value of the "published_render_source_kind" field.
+func (_u *MaterialUpdateOne) ClearPublishedRenderSourceKind() *MaterialUpdateOne {
+	_u.mutation.ClearPublishedRenderSourceKind()
+	return _u
+}
+
+// SetPublishedSourceChecksum sets the "published_source_checksum" field.
+func (_u *MaterialUpdateOne) SetPublishedSourceChecksum(v []byte) *MaterialUpdateOne {
+	_u.mutation.SetPublishedSourceChecksum(v)
+	return _u
+}
+
+// ClearPublishedSourceChecksum clears the value of the "published_source_checksum" field.
+func (_u *MaterialUpdateOne) ClearPublishedSourceChecksum() *MaterialUpdateOne {
+	_u.mutation.ClearPublishedSourceChecksum()
+	return _u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (_u *MaterialUpdateOne) SetPublishedAt(v time.Time) *MaterialUpdateOne {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillablePublishedAt(v *time.Time) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *MaterialUpdateOne) ClearPublishedAt() *MaterialUpdateOne {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_u *MaterialUpdateOne) SetArchivedAt(v time.Time) *MaterialUpdateOne {
+	_u.mutation.SetArchivedAt(v)
+	return _u
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableArchivedAt(v *time.Time) *MaterialUpdateOne {
+	if v != nil {
+		_u.SetArchivedAt(*v)
+	}
+	return _u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (_u *MaterialUpdateOne) ClearArchivedAt() *MaterialUpdateOne {
+	_u.mutation.ClearArchivedAt()
 	return _u
 }
 
 // SetViewCount sets the "view_count" field.
-func (_u *MaterialUpdateOne) SetViewCount(v int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetViewCount(v int64) *MaterialUpdateOne {
 	_u.mutation.ResetViewCount()
 	_u.mutation.SetViewCount(v)
 	return _u
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableViewCount(v *int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) SetNillableViewCount(v *int64) *MaterialUpdateOne {
 	if v != nil {
 		_u.SetViewCount(*v)
 	}
@@ -891,40 +1646,40 @@ func (_u *MaterialUpdateOne) SetNillableViewCount(v *int) *MaterialUpdateOne {
 }
 
 // AddViewCount adds value to the "view_count" field.
-func (_u *MaterialUpdateOne) AddViewCount(v int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) AddViewCount(v int64) *MaterialUpdateOne {
 	_u.mutation.AddViewCount(v)
 	return _u
 }
 
-// SetEstimatedReadTime sets the "estimated_read_time" field.
-func (_u *MaterialUpdateOne) SetEstimatedReadTime(v int) *MaterialUpdateOne {
-	_u.mutation.ResetEstimatedReadTime()
-	_u.mutation.SetEstimatedReadTime(v)
+// SetVersion sets the "version" field.
+func (_u *MaterialUpdateOne) SetVersion(v int64) *MaterialUpdateOne {
+	_u.mutation.ResetVersion()
+	_u.mutation.SetVersion(v)
 	return _u
 }
 
-// SetNillableEstimatedReadTime sets the "estimated_read_time" field if the given value is not nil.
-func (_u *MaterialUpdateOne) SetNillableEstimatedReadTime(v *int) *MaterialUpdateOne {
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_u *MaterialUpdateOne) SetNillableVersion(v *int64) *MaterialUpdateOne {
 	if v != nil {
-		_u.SetEstimatedReadTime(*v)
+		_u.SetVersion(*v)
 	}
 	return _u
 }
 
-// AddEstimatedReadTime adds value to the "estimated_read_time" field.
-func (_u *MaterialUpdateOne) AddEstimatedReadTime(v int) *MaterialUpdateOne {
-	_u.mutation.AddEstimatedReadTime(v)
+// AddVersion adds value to the "version" field.
+func (_u *MaterialUpdateOne) AddVersion(v int64) *MaterialUpdateOne {
+	_u.mutation.AddVersion(v)
 	return _u
-}
-
-// SetCategory sets the "category" edge to the MaterialCategory entity.
-func (_u *MaterialUpdateOne) SetCategory(v *MaterialCategory) *MaterialUpdateOne {
-	return _u.SetCategoryID(v.ID)
 }
 
 // SetAuthor sets the "author" edge to the User entity.
 func (_u *MaterialUpdateOne) SetAuthor(v *User) *MaterialUpdateOne {
 	return _u.SetAuthorID(v.ID)
+}
+
+// SetCategory sets the "category" edge to the MaterialCategory entity.
+func (_u *MaterialUpdateOne) SetCategory(v *MaterialCategory) *MaterialUpdateOne {
+	return _u.SetCategoryID(v.ID)
 }
 
 // SetDifficulty sets the "difficulty" edge to the Difficulty entity.
@@ -933,18 +1688,63 @@ func (_u *MaterialUpdateOne) SetDifficulty(v *Difficulty) *MaterialUpdateOne {
 }
 
 // AddTagIDs adds the "tags" edge to the Tag entity by IDs.
-func (_u *MaterialUpdateOne) AddTagIDs(ids ...int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) AddTagIDs(ids ...uuid.UUID) *MaterialUpdateOne {
 	_u.mutation.AddTagIDs(ids...)
 	return _u
 }
 
 // AddTags adds the "tags" edges to the Tag entity.
 func (_u *MaterialUpdateOne) AddTags(v ...*Tag) *MaterialUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.AddTagIDs(ids...)
+}
+
+// AddRevisionIDs adds the "revisions" edge to the MaterialRevision entity by IDs.
+func (_u *MaterialUpdateOne) AddRevisionIDs(ids ...uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.AddRevisionIDs(ids...)
+	return _u
+}
+
+// AddRevisions adds the "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialUpdateOne) AddRevisions(v ...*MaterialRevision) *MaterialUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRevisionIDs(ids...)
+}
+
+// AddSlugIDs adds the "slugs" edge to the MaterialSlug entity by IDs.
+func (_u *MaterialUpdateOne) AddSlugIDs(ids ...uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.AddSlugIDs(ids...)
+	return _u
+}
+
+// AddSlugs adds the "slugs" edges to the MaterialSlug entity.
+func (_u *MaterialUpdateOne) AddSlugs(v ...*MaterialSlug) *MaterialUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSlugIDs(ids...)
+}
+
+// AddDailyViewIDs adds the "daily_views" edge to the MaterialViewDaily entity by IDs.
+func (_u *MaterialUpdateOne) AddDailyViewIDs(ids ...uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.AddDailyViewIDs(ids...)
+	return _u
+}
+
+// AddDailyViews adds the "daily_views" edges to the MaterialViewDaily entity.
+func (_u *MaterialUpdateOne) AddDailyViews(v ...*MaterialViewDaily) *MaterialUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDailyViewIDs(ids...)
 }
 
 // Mutation returns the MaterialMutation object of the builder.
@@ -952,15 +1752,15 @@ func (_u *MaterialUpdateOne) Mutation() *MaterialMutation {
 	return _u.mutation
 }
 
-// ClearCategory clears the "category" edge to the MaterialCategory entity.
-func (_u *MaterialUpdateOne) ClearCategory() *MaterialUpdateOne {
-	_u.mutation.ClearCategory()
-	return _u
-}
-
 // ClearAuthor clears the "author" edge to the User entity.
 func (_u *MaterialUpdateOne) ClearAuthor() *MaterialUpdateOne {
 	_u.mutation.ClearAuthor()
+	return _u
+}
+
+// ClearCategory clears the "category" edge to the MaterialCategory entity.
+func (_u *MaterialUpdateOne) ClearCategory() *MaterialUpdateOne {
+	_u.mutation.ClearCategory()
 	return _u
 }
 
@@ -977,18 +1777,81 @@ func (_u *MaterialUpdateOne) ClearTags() *MaterialUpdateOne {
 }
 
 // RemoveTagIDs removes the "tags" edge to Tag entities by IDs.
-func (_u *MaterialUpdateOne) RemoveTagIDs(ids ...int) *MaterialUpdateOne {
+func (_u *MaterialUpdateOne) RemoveTagIDs(ids ...uuid.UUID) *MaterialUpdateOne {
 	_u.mutation.RemoveTagIDs(ids...)
 	return _u
 }
 
 // RemoveTags removes "tags" edges to Tag entities.
 func (_u *MaterialUpdateOne) RemoveTags(v ...*Tag) *MaterialUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveTagIDs(ids...)
+}
+
+// ClearRevisions clears all "revisions" edges to the MaterialRevision entity.
+func (_u *MaterialUpdateOne) ClearRevisions() *MaterialUpdateOne {
+	_u.mutation.ClearRevisions()
+	return _u
+}
+
+// RemoveRevisionIDs removes the "revisions" edge to MaterialRevision entities by IDs.
+func (_u *MaterialUpdateOne) RemoveRevisionIDs(ids ...uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.RemoveRevisionIDs(ids...)
+	return _u
+}
+
+// RemoveRevisions removes "revisions" edges to MaterialRevision entities.
+func (_u *MaterialUpdateOne) RemoveRevisions(v ...*MaterialRevision) *MaterialUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRevisionIDs(ids...)
+}
+
+// ClearSlugs clears all "slugs" edges to the MaterialSlug entity.
+func (_u *MaterialUpdateOne) ClearSlugs() *MaterialUpdateOne {
+	_u.mutation.ClearSlugs()
+	return _u
+}
+
+// RemoveSlugIDs removes the "slugs" edge to MaterialSlug entities by IDs.
+func (_u *MaterialUpdateOne) RemoveSlugIDs(ids ...uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.RemoveSlugIDs(ids...)
+	return _u
+}
+
+// RemoveSlugs removes "slugs" edges to MaterialSlug entities.
+func (_u *MaterialUpdateOne) RemoveSlugs(v ...*MaterialSlug) *MaterialUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSlugIDs(ids...)
+}
+
+// ClearDailyViews clears all "daily_views" edges to the MaterialViewDaily entity.
+func (_u *MaterialUpdateOne) ClearDailyViews() *MaterialUpdateOne {
+	_u.mutation.ClearDailyViews()
+	return _u
+}
+
+// RemoveDailyViewIDs removes the "daily_views" edge to MaterialViewDaily entities by IDs.
+func (_u *MaterialUpdateOne) RemoveDailyViewIDs(ids ...uuid.UUID) *MaterialUpdateOne {
+	_u.mutation.RemoveDailyViewIDs(ids...)
+	return _u
+}
+
+// RemoveDailyViews removes "daily_views" edges to MaterialViewDaily entities.
+func (_u *MaterialUpdateOne) RemoveDailyViews(v ...*MaterialViewDaily) *MaterialUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDailyViewIDs(ids...)
 }
 
 // Where appends a list predicates to the MaterialUpdate builder.
@@ -1058,6 +1921,16 @@ func (_u *MaterialUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`generate: validator failed for field "Material.description": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.EstimatedReadTime(); ok {
+		if err := material.EstimatedReadTimeValidator(v); err != nil {
+			return &ValidationError{Name: "estimated_read_time", err: fmt.Errorf(`generate: validator failed for field "Material.estimated_read_time": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.CurrentSlugState(); ok {
+		if err := material.CurrentSlugStateValidator(v); err != nil {
+			return &ValidationError{Name: "current_slug_state", err: fmt.Errorf(`generate: validator failed for field "Material.current_slug_state": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := material.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generate: validator failed for field "Material.status": %w`, err)}
@@ -1068,24 +1941,23 @@ func (_u *MaterialUpdateOne) check() error {
 			return &ValidationError{Name: "visibility", err: fmt.Errorf(`generate: validator failed for field "Material.visibility": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		if err := material.PublishedRenderSourceKindValidator(v); err != nil {
+			return &ValidationError{Name: "published_render_source_kind", err: fmt.Errorf(`generate: validator failed for field "Material.published_render_source_kind": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.ViewCount(); ok {
 		if err := material.ViewCountValidator(v); err != nil {
 			return &ValidationError{Name: "view_count", err: fmt.Errorf(`generate: validator failed for field "Material.view_count": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.EstimatedReadTime(); ok {
-		if err := material.EstimatedReadTimeValidator(v); err != nil {
-			return &ValidationError{Name: "estimated_read_time", err: fmt.Errorf(`generate: validator failed for field "Material.estimated_read_time": %w`, err)}
+	if v, ok := _u.mutation.Version(); ok {
+		if err := material.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Material.version": %w`, err)}
 		}
-	}
-	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "Material.category"`)
 	}
 	if _u.mutation.AuthorCleared() && len(_u.mutation.AuthorIDs()) > 0 {
 		return errors.New(`generate: clearing a required unique edge "Material.author"`)
-	}
-	if _u.mutation.DifficultyCleared() && len(_u.mutation.DifficultyIDs()) > 0 {
-		return errors.New(`generate: clearing a required unique edge "Material.difficulty"`)
 	}
 	return nil
 }
@@ -1100,7 +1972,7 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(material.Table, material.Columns, sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(material.Table, material.Columns, sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Material.id" for update`)}
@@ -1135,16 +2007,16 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 		_spec.ClearField(material.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(material.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(material.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(material.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(material.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(material.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(material.FieldTitle, field.TypeString, value)
+	}
+	if _u.mutation.TitleCleared() {
+		_spec.ClearField(material.FieldTitle, field.TypeString)
 	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(material.FieldDescription, field.TypeString, value)
@@ -1158,12 +2030,6 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 	if _u.mutation.ContentCleared() {
 		_spec.ClearField(material.FieldContent, field.TypeString)
 	}
-	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(material.FieldStatus, field.TypeEnum, value)
-	}
-	if value, ok := _u.mutation.Visibility(); ok {
-		_spec.SetField(material.FieldVisibility, field.TypeEnum, value)
-	}
 	if value, ok := _u.mutation.GroupID(); ok {
 		_spec.SetField(material.FieldGroupID, field.TypeInt, value)
 	}
@@ -1173,46 +2039,86 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 	if _u.mutation.GroupIDCleared() {
 		_spec.ClearField(material.FieldGroupID, field.TypeInt)
 	}
-	if value, ok := _u.mutation.ViewCount(); ok {
-		_spec.SetField(material.FieldViewCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedViewCount(); ok {
-		_spec.AddField(material.FieldViewCount, field.TypeInt, value)
-	}
 	if value, ok := _u.mutation.EstimatedReadTime(); ok {
 		_spec.SetField(material.FieldEstimatedReadTime, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AddedEstimatedReadTime(); ok {
 		_spec.AddField(material.FieldEstimatedReadTime, field.TypeInt, value)
 	}
-	if _u.mutation.CategoryCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   material.CategoryTable,
-			Columns: []string{material.CategoryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := _u.mutation.CurrentSlugID(); ok {
+		_spec.SetField(material.FieldCurrentSlugID, field.TypeUUID, value)
 	}
-	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   material.CategoryTable,
-			Columns: []string{material.CategoryColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if _u.mutation.CurrentSlugIDCleared() {
+		_spec.ClearField(material.FieldCurrentSlugID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.CurrentSlugState(); ok {
+		_spec.SetField(material.FieldCurrentSlugState, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(material.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Visibility(); ok {
+		_spec.SetField(material.FieldVisibility, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.CurrentDraftRevisionID(); ok {
+		_spec.SetField(material.FieldCurrentDraftRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.CurrentDraftRevisionIDCleared() {
+		_spec.ClearField(material.FieldCurrentDraftRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRevisionID(); ok {
+		_spec.SetField(material.FieldPublishedRevisionID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRevisionIDCleared() {
+		_spec.ClearField(material.FieldPublishedRevisionID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceID(); ok {
+		_spec.SetField(material.FieldPublishedRenderSourceID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderSourceIDCleared() {
+		_spec.ClearField(material.FieldPublishedRenderSourceID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderArtifactID(); ok {
+		_spec.SetField(material.FieldPublishedRenderArtifactID, field.TypeUUID, value)
+	}
+	if _u.mutation.PublishedRenderArtifactIDCleared() {
+		_spec.ClearField(material.FieldPublishedRenderArtifactID, field.TypeUUID)
+	}
+	if value, ok := _u.mutation.PublishedRenderSourceKind(); ok {
+		_spec.SetField(material.FieldPublishedRenderSourceKind, field.TypeEnum, value)
+	}
+	if _u.mutation.PublishedRenderSourceKindCleared() {
+		_spec.ClearField(material.FieldPublishedRenderSourceKind, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.PublishedSourceChecksum(); ok {
+		_spec.SetField(material.FieldPublishedSourceChecksum, field.TypeBytes, value)
+	}
+	if _u.mutation.PublishedSourceChecksumCleared() {
+		_spec.ClearField(material.FieldPublishedSourceChecksum, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(material.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(material.FieldPublishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ArchivedAt(); ok {
+		_spec.SetField(material.FieldArchivedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ArchivedAtCleared() {
+		_spec.ClearField(material.FieldArchivedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ViewCount(); ok {
+		_spec.SetField(material.FieldViewCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedViewCount(); ok {
+		_spec.AddField(material.FieldViewCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(material.FieldVersion, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedVersion(); ok {
+		_spec.AddField(material.FieldVersion, field.TypeInt64, value)
 	}
 	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1222,7 +2128,7 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: []string{material.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1235,7 +2141,36 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: []string{material.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.CategoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   material.CategoryTable,
+			Columns: []string{material.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   material.CategoryTable,
+			Columns: []string{material.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialcategory.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1251,7 +2186,7 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: []string{material.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1264,7 +2199,7 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: []string{material.DifficultyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(difficulty.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1280,7 +2215,7 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1293,7 +2228,7 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1309,7 +2244,142 @@ func (_u *MaterialUpdateOne) sqlSave(ctx context.Context) (_node *Material, err 
 			Columns: material.TagsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRevisionsIDs(); len(nodes) > 0 && !_u.mutation.RevisionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.RevisionsTable,
+			Columns: []string{material.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SlugsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSlugsIDs(); len(nodes) > 0 && !_u.mutation.SlugsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SlugsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.SlugsTable,
+			Columns: []string{material.SlugsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialslug.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DailyViewsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDailyViewsIDs(); len(nodes) > 0 && !_u.mutation.DailyViewsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DailyViewsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   material.DailyViewsTable,
+			Columns: []string{material.DailyViewsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialviewdaily.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

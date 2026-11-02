@@ -8,13 +8,17 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/element"
 	"github.com/huynhanx03/judgify/internal/ent/generate/material"
+	"github.com/huynhanx03/judgify/internal/ent/generate/materialrevisiontag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/usertagstats"
 )
 
@@ -69,13 +73,13 @@ func (_c *TagCreate) SetNillableDeletedAt(v *time.Time) *TagCreate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *TagCreate) SetDeletedBy(v int) *TagCreate {
+func (_c *TagCreate) SetDeletedBy(v string) *TagCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *TagCreate) SetNillableDeletedBy(v *int) *TagCreate {
+func (_c *TagCreate) SetNillableDeletedBy(v *string) *TagCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -88,15 +92,58 @@ func (_c *TagCreate) SetName(v string) *TagCreate {
 	return _c
 }
 
+// SetVersion sets the "version" field.
+func (_c *TagCreate) SetVersion(v int64) *TagCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *TagCreate) SetNillableVersion(v *int64) *TagCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *TagCreate) SetID(v uuid.UUID) *TagCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *TagCreate) SetNillableID(v *uuid.UUID) *TagCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddRevisionIDs adds the "revisions" edge to the TagRevision entity by IDs.
+func (_c *TagCreate) AddRevisionIDs(ids ...uuid.UUID) *TagCreate {
+	_c.mutation.AddRevisionIDs(ids...)
+	return _c
+}
+
+// AddRevisions adds the "revisions" edges to the TagRevision entity.
+func (_c *TagCreate) AddRevisions(v ...*TagRevision) *TagCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRevisionIDs(ids...)
+}
+
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (_c *TagCreate) AddProblemIDs(ids ...int) *TagCreate {
+func (_c *TagCreate) AddProblemIDs(ids ...uuid.UUID) *TagCreate {
 	_c.mutation.AddProblemIDs(ids...)
 	return _c
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (_c *TagCreate) AddProblems(v ...*Problem) *TagCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -104,14 +151,14 @@ func (_c *TagCreate) AddProblems(v ...*Problem) *TagCreate {
 }
 
 // AddElementIDs adds the "elements" edge to the Element entity by IDs.
-func (_c *TagCreate) AddElementIDs(ids ...int) *TagCreate {
+func (_c *TagCreate) AddElementIDs(ids ...uuid.UUID) *TagCreate {
 	_c.mutation.AddElementIDs(ids...)
 	return _c
 }
 
 // AddElements adds the "elements" edges to the Element entity.
 func (_c *TagCreate) AddElements(v ...*Element) *TagCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -119,29 +166,44 @@ func (_c *TagCreate) AddElements(v ...*Element) *TagCreate {
 }
 
 // AddUserTagStatIDs adds the "user_tag_stats" edge to the UserTagStats entity by IDs.
-func (_c *TagCreate) AddUserTagStatIDs(ids ...int) *TagCreate {
+func (_c *TagCreate) AddUserTagStatIDs(ids ...uuid.UUID) *TagCreate {
 	_c.mutation.AddUserTagStatIDs(ids...)
 	return _c
 }
 
 // AddUserTagStats adds the "user_tag_stats" edges to the UserTagStats entity.
 func (_c *TagCreate) AddUserTagStats(v ...*UserTagStats) *TagCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUserTagStatIDs(ids...)
 }
 
+// AddMaterialRevisionTagIDs adds the "material_revision_tags" edge to the MaterialRevisionTag entity by IDs.
+func (_c *TagCreate) AddMaterialRevisionTagIDs(ids ...int) *TagCreate {
+	_c.mutation.AddMaterialRevisionTagIDs(ids...)
+	return _c
+}
+
+// AddMaterialRevisionTags adds the "material_revision_tags" edges to the MaterialRevisionTag entity.
+func (_c *TagCreate) AddMaterialRevisionTags(v ...*MaterialRevisionTag) *TagCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMaterialRevisionTagIDs(ids...)
+}
+
 // AddMaterialIDs adds the "materials" edge to the Material entity by IDs.
-func (_c *TagCreate) AddMaterialIDs(ids ...int) *TagCreate {
+func (_c *TagCreate) AddMaterialIDs(ids ...uuid.UUID) *TagCreate {
 	_c.mutation.AddMaterialIDs(ids...)
 	return _c
 }
 
 // AddMaterials adds the "materials" edges to the Material entity.
 func (_c *TagCreate) AddMaterials(v ...*Material) *TagCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -199,6 +261,17 @@ func (_c *TagCreate) defaults() error {
 		v := tag.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := tag.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if tag.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized tag.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := tag.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -218,6 +291,14 @@ func (_c *TagCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generate: validator failed for field "Tag.name": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Tag.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := tag.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Tag.version": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -232,8 +313,13 @@ func (_c *TagCreate) sqlSave(ctx context.Context) (*Tag, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -242,9 +328,13 @@ func (_c *TagCreate) sqlSave(ctx context.Context) (*Tag, error) {
 func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Tag{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(tag.Table, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(tag.Table, sqlgraph.NewFieldSpec(tag.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(tag.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -258,12 +348,32 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(tag.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(tag.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(tag.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(tag.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if nodes := _c.mutation.RevisionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.RevisionsTable,
+			Columns: []string{tag.RevisionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tagrevision.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -273,7 +383,7 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 			Columns: tag.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -289,7 +399,7 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 			Columns: tag.ElementsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(element.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -305,7 +415,23 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 			Columns: []string{tag.UserTagStatsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usertagstats.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MaterialRevisionTagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tag.MaterialRevisionTagsTable,
+			Columns: []string{tag.MaterialRevisionTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -321,7 +447,7 @@ func (_c *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 			Columns: tag.MaterialsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(material.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -412,7 +538,7 @@ func (u *TagUpsert) ClearDeletedAt() *TagUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TagUpsert) SetDeletedBy(v int) *TagUpsert {
+func (u *TagUpsert) SetDeletedBy(v string) *TagUpsert {
 	u.Set(tag.FieldDeletedBy, v)
 	return u
 }
@@ -420,12 +546,6 @@ func (u *TagUpsert) SetDeletedBy(v int) *TagUpsert {
 // UpdateDeletedBy sets the "deleted_by" field to the value that was provided on create.
 func (u *TagUpsert) UpdateDeletedBy() *TagUpsert {
 	u.SetExcluded(tag.FieldDeletedBy)
-	return u
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TagUpsert) AddDeletedBy(v int) *TagUpsert {
-	u.Add(tag.FieldDeletedBy, v)
 	return u
 }
 
@@ -447,17 +567,41 @@ func (u *TagUpsert) UpdateName() *TagUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetVersion sets the "version" field.
+func (u *TagUpsert) SetVersion(v int64) *TagUpsert {
+	u.Set(tag.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *TagUpsert) UpdateVersion() *TagUpsert {
+	u.SetExcluded(tag.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *TagUpsert) AddVersion(v int64) *TagUpsert {
+	u.Add(tag.FieldVersion, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Tag.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(tag.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TagUpsertOne) UpdateNewValues() *TagUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(tag.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(tag.FieldCreatedAt)
 		}
@@ -528,16 +672,9 @@ func (u *TagUpsertOne) ClearDeletedAt() *TagUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TagUpsertOne) SetDeletedBy(v int) *TagUpsertOne {
+func (u *TagUpsertOne) SetDeletedBy(v string) *TagUpsertOne {
 	return u.Update(func(s *TagUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TagUpsertOne) AddDeletedBy(v int) *TagUpsertOne {
-	return u.Update(func(s *TagUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -569,6 +706,27 @@ func (u *TagUpsertOne) UpdateName() *TagUpsertOne {
 	})
 }
 
+// SetVersion sets the "version" field.
+func (u *TagUpsertOne) SetVersion(v int64) *TagUpsertOne {
+	return u.Update(func(s *TagUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *TagUpsertOne) AddVersion(v int64) *TagUpsertOne {
+	return u.Update(func(s *TagUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *TagUpsertOne) UpdateVersion() *TagUpsertOne {
+	return u.Update(func(s *TagUpsert) {
+		s.UpdateVersion()
+	})
+}
+
 // Exec executes the query.
 func (u *TagUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -585,7 +743,12 @@ func (u *TagUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *TagUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *TagUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: TagUpsertOne.ID is not supported by MySQL driver. Use TagUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -594,17 +757,12 @@ func (u *TagUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *TagUpsertOne) IDX(ctx context.Context) int {
+func (u *TagUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *TagCreate) SetID(id int) *TagCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // TagCreateBulk is the builder for creating many Tag entities in bulk.
@@ -654,10 +812,6 @@ func (_c *TagCreateBulk) Save(ctx context.Context) ([]*Tag, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -744,12 +898,18 @@ type TagUpsertBulk struct {
 //	client.Tag.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(tag.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *TagUpsertBulk) UpdateNewValues() *TagUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(tag.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(tag.FieldCreatedAt)
 			}
@@ -821,16 +981,9 @@ func (u *TagUpsertBulk) ClearDeletedAt() *TagUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *TagUpsertBulk) SetDeletedBy(v int) *TagUpsertBulk {
+func (u *TagUpsertBulk) SetDeletedBy(v string) *TagUpsertBulk {
 	return u.Update(func(s *TagUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *TagUpsertBulk) AddDeletedBy(v int) *TagUpsertBulk {
-	return u.Update(func(s *TagUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -859,6 +1012,27 @@ func (u *TagUpsertBulk) SetName(v string) *TagUpsertBulk {
 func (u *TagUpsertBulk) UpdateName() *TagUpsertBulk {
 	return u.Update(func(s *TagUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *TagUpsertBulk) SetVersion(v int64) *TagUpsertBulk {
+	return u.Update(func(s *TagUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *TagUpsertBulk) AddVersion(v int64) *TagUpsertBulk {
+	return u.Update(func(s *TagUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *TagUpsertBulk) UpdateVersion() *TagUpsertBulk {
+	return u.Update(func(s *TagUpsert) {
+		s.UpdateVersion()
 	})
 }
 

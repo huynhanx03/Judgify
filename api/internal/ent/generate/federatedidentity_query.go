@@ -4,6 +4,7 @@ package generate
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,20 +13,23 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
 )
 
 // FederatedIdentityQuery is the builder for querying FederatedIdentity entities.
 type FederatedIdentityQuery struct {
 	config
-	ctx        *QueryContext
-	order      []federatedidentity.OrderOption
-	inters     []Interceptor
-	predicates []predicate.FederatedIdentity
-	withUser   *UserQuery
-	modifiers  []func(*sql.Selector)
+	ctx                  *QueryContext
+	order                []federatedidentity.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.FederatedIdentity
+	withUser             *UserQuery
+	withRecoveryContacts *UserRecoveryContactQuery
+	modifiers            []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -84,6 +88,28 @@ func (_q *FederatedIdentityQuery) QueryUser() *UserQuery {
 	return query
 }
 
+// QueryRecoveryContacts chains the current query on the "recovery_contacts" edge.
+func (_q *FederatedIdentityQuery) QueryRecoveryContacts() *UserRecoveryContactQuery {
+	query := (&UserRecoveryContactClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(federatedidentity.Table, federatedidentity.FieldID, selector),
+			sqlgraph.To(userrecoverycontact.Table, userrecoverycontact.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, federatedidentity.RecoveryContactsTable, federatedidentity.RecoveryContactsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first FederatedIdentity entity from the query.
 // Returns a *NotFoundError when no FederatedIdentity was found.
 func (_q *FederatedIdentityQuery) First(ctx context.Context) (*FederatedIdentity, error) {
@@ -108,8 +134,8 @@ func (_q *FederatedIdentityQuery) FirstX(ctx context.Context) *FederatedIdentity
 
 // FirstID returns the first FederatedIdentity ID from the query.
 // Returns a *NotFoundError when no FederatedIdentity ID was found.
-func (_q *FederatedIdentityQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *FederatedIdentityQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +147,7 @@ func (_q *FederatedIdentityQuery) FirstID(ctx context.Context) (id int, err erro
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *FederatedIdentityQuery) FirstIDX(ctx context.Context) int {
+func (_q *FederatedIdentityQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +185,8 @@ func (_q *FederatedIdentityQuery) OnlyX(ctx context.Context) *FederatedIdentity 
 // OnlyID is like Only, but returns the only FederatedIdentity ID in the query.
 // Returns a *NotSingularError when more than one FederatedIdentity ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *FederatedIdentityQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *FederatedIdentityQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +202,7 @@ func (_q *FederatedIdentityQuery) OnlyID(ctx context.Context) (id int, err error
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *FederatedIdentityQuery) OnlyIDX(ctx context.Context) int {
+func (_q *FederatedIdentityQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +230,7 @@ func (_q *FederatedIdentityQuery) AllX(ctx context.Context) []*FederatedIdentity
 }
 
 // IDs executes the query and returns a list of FederatedIdentity IDs.
-func (_q *FederatedIdentityQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *FederatedIdentityQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -216,7 +242,7 @@ func (_q *FederatedIdentityQuery) IDs(ctx context.Context) (ids []int, err error
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *FederatedIdentityQuery) IDsX(ctx context.Context) []int {
+func (_q *FederatedIdentityQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -271,12 +297,13 @@ func (_q *FederatedIdentityQuery) Clone() *FederatedIdentityQuery {
 		return nil
 	}
 	return &FederatedIdentityQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]federatedidentity.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.FederatedIdentity{}, _q.predicates...),
-		withUser:   _q.withUser.Clone(),
+		config:               _q.config,
+		ctx:                  _q.ctx.Clone(),
+		order:                append([]federatedidentity.OrderOption{}, _q.order...),
+		inters:               append([]Interceptor{}, _q.inters...),
+		predicates:           append([]predicate.FederatedIdentity{}, _q.predicates...),
+		withUser:             _q.withUser.Clone(),
+		withRecoveryContacts: _q.withRecoveryContacts.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -292,6 +319,17 @@ func (_q *FederatedIdentityQuery) WithUser(opts ...func(*UserQuery)) *FederatedI
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithRecoveryContacts tells the query-builder to eager-load the nodes that are connected to
+// the "recovery_contacts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *FederatedIdentityQuery) WithRecoveryContacts(opts ...func(*UserRecoveryContactQuery)) *FederatedIdentityQuery {
+	query := (&UserRecoveryContactClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRecoveryContacts = query
 	return _q
 }
 
@@ -373,8 +411,9 @@ func (_q *FederatedIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	var (
 		nodes       = []*FederatedIdentity{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withUser != nil,
+			_q.withRecoveryContacts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -404,12 +443,24 @@ func (_q *FederatedIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook
 			return nil, err
 		}
 	}
+	if query := _q.withRecoveryContacts; query != nil {
+		if err := _q.loadRecoveryContacts(ctx, query, nodes,
+			func(n *FederatedIdentity) { n.Edges.RecoveryContacts = []*UserRecoveryContact{} },
+			func(n *FederatedIdentity, e *UserRecoveryContact) {
+				n.Edges.RecoveryContacts = append(n.Edges.RecoveryContacts, e)
+				if !e.Edges.loadedTypes[3] {
+					e.Edges.SourceFederatedIdentity = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *FederatedIdentityQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*FederatedIdentity, init func(*FederatedIdentity), assign func(*FederatedIdentity, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*FederatedIdentity)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*FederatedIdentity)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -436,6 +487,39 @@ func (_q *FederatedIdentityQuery) loadUser(ctx context.Context, query *UserQuery
 	}
 	return nil
 }
+func (_q *FederatedIdentityQuery) loadRecoveryContacts(ctx context.Context, query *UserRecoveryContactQuery, nodes []*FederatedIdentity, init func(*FederatedIdentity), assign func(*FederatedIdentity, *UserRecoveryContact)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*FederatedIdentity)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userrecoverycontact.FieldSourceFederatedIdentityID)
+	}
+	query.Where(predicate.UserRecoveryContact(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(federatedidentity.RecoveryContactsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.SourceFederatedIdentityID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "source_federated_identity_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "source_federated_identity_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *FederatedIdentityQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -450,7 +534,7 @@ func (_q *FederatedIdentityQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *FederatedIdentityQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(federatedidentity.Table, federatedidentity.Columns, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(federatedidentity.Table, federatedidentity.Columns, sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

@@ -1,96 +1,131 @@
 # Judgify
 
-An Online Judge powered by a Cultivation (Xianxia) gamification system to improve the learning experience.
+Judgify is a single-tenant online judge for DSA practice, programming contests,
+reproducible code evaluation, learning content, and cultivation-style learner
+progression. The public product and administration console share one typed API,
+one authorization model, and one realtime WebSocket transport.
 
-Judgify goes beyond a standard code judging platform. By merging competitive programming with an RPG-like progression system, users can cultivate their stats, discover elemental affinities, and breakthrough cultivation realms as they solve algorithmic challenges.
+## Product capabilities
 
-## Tech Stack
+- Versioned problems, taxonomy, statements, test groups, immutable testsets,
+  checker profiles, language runtimes, publication, archive, and rollback.
+- Idempotent submissions, durable jobs/attempts/judgements, isolated execution,
+  capability-aware workers, cancellation/rejudge, and realtime verdict updates.
+- Contest registration, announcements, clarifications, standings, rating runs,
+  rerating, participant visibility rules, and replayable realtime updates.
+- Password and OAuth authentication, protected browser sessions, recovery-contact
+  lifecycle, session/device management, audit history, and Ent-backed Casbin
+  role/policy administration.
+- Learning materials with versioned render artifacts, publication lifecycle,
+  search, related content, and privacy-safe view accounting.
+- Server-owned cultivation catalogs, durable onboarding trait offers, immutable
+  reward facts, progression, rankings, and administrative catalogs.
+- Notification inbox/campaigns, operational controls, health/readiness, bounded
+  metrics, correlation-aware logs, encrypted backup/restore, and N/N-1 rollout.
 
-* Frontend: React / Vue
-* Backend: Go 1.25+, Gin Framework
-* Database & ORM: PostgreSQL, Ent
-* Caching & Queue: Local Cache
-* Infrastructure: Docker, Make
+All browser-facing Vietnamese copy is centralized so another locale can be
+introduced without rewriting components. Light, dark, and system themes use the
+same tokenized design system across public and admin routes.
 
-## System Architecture
-
-Judgify is constructed as a high-performance Monolithic application, designed to effortlessly handle features like rate-limiting and robust data caching internally without the overhead of microservices.
+## Architecture
 
 ```mermaid
-flowchart TD
-    Client[User Client] --> Backend
-    
-    subgraph Backend [Judgify Monolithic Server]
-        Identity[Identity Module]
-        Problem[Problem Module]
-        Submit[Submission Module]
-        Cultivate[Cultivation Module]
-    end
-    
-    Backend --> DB[(PostgreSQL)]
-    Backend -.-> Cache[(Local Cache)]
-    Backend -.-> Queue{{Task Queue}}
-    Queue -.-> JudgeWorker[Isolated Judge Workers]
+flowchart LR
+    Browser["Next.js web + admin"] --> Ingress["TLS ingress"]
+    Ingress --> API["Go API role"]
+    Ingress --> Web["Next.js standalone role"]
+    API --> DB[("PostgreSQL system of record")]
+    API --> WS["Authorized WebSocket hub"]
+    API --> Outbox["Transactional outbox"]
+    Outbox --> Forge["Forge local durable queue"]
+    Forge --> Worker["Go judge worker role"]
+    Worker --> DB
+    Worker --> Sandbox["Dedicated rootless sandbox daemon"]
 ```
 
-## Setup Guide
+The backend is a modular monolith with explicit API, worker, and migration
+roles. PostgreSQL is canonical; Forge is a single-host durable accelerator and
+can be rebuilt/reconciled from canonical state. API processes never receive a
+Docker socket. Browser realtime uses short-lived authenticated tickets,
+bounded queues, replay cursors, and resynchronization rather than SSE or network
+polling.
 
-We use Make commands to streamline the setup and installation process.
+## Technology
 
+- Go 1.27.1, Gin, Ent, Casbin with the Ent adapter, PostgreSQL 16
+- Next.js 16, React 19, TypeScript, Tailwind CSS 4
+- `go-common` lifecycle, health, security, observability, WebSocket, outbox, and
+  Forge packages
+- Docker/Compose for local and single-host production topology
 
-### 1. Start Infrastructure
+Only focused packages are imported from the sibling `go-common` module. Local
+development uses the sibling working tree; release source must reference an
+immutable published version and contain no filesystem replace.
 
-Bring up the database and cache containers:
+## Repository layout
 
-```bash
-make docker-up
+```text
+api/        Go commands, domain modules, Ent schema, migrations, and Dockerfile
+website/    Next.js application, browser contracts, and Dockerfile
+docker/     Sandbox image and shared infrastructure configuration
+deploy/     Single-host production topology, role bootstrap, and runbook
+scripts/    Migration, verification, backup, restore, rollout, and smoke tools
+test/       Load, chaos, rollout, and backup/restore evidence scenarios
+docs/       Architecture guides plus approved design and execution plans
 ```
 
-### 2. Prepare the Database
+## Local development
 
-Apply schema migrations and seed the initial data:
+Prepare the local environment, migrate the database, and create the local admin:
 
-```bash
-make migrate-apply
-make seed
+```sh
+make local-setup
 ```
 
-### 3. Run the Backend (API)
+This copies the env templates, generates a JWT secret and key pair, then
+starts PostgreSQL, applies migrations (including the baseline catalog data),
+and creates the local admin.
 
-The backend API server typically runs on port 8080:
+To build and start the server stack:
 
-```bash
-make run-api
+```sh
+make run-local
 ```
 
-### 4. Run the Web Interface
+Open <http://localhost:8080>. This command only builds and starts PostgreSQL,
+the API, website, and Envoy; it does not rerun migrations. Stop the
+stack with `docker compose down`; add `--volumes` to reset the database. After
+resetting volumes, run `make local-setup` again. Local settings
+live in `api/config/local.yaml`; the local admin is `admin` / `judgify-local-admin`.
+Production uses the templates under `deploy/`.
 
-Boot up the local development frontend server:
+## Verification and release
 
-```bash
-make run-website
+Focused checks are available through the component Make targets. The canonical
+full gates are:
+
+```sh
+make verify
+make verify-integration
+make verify-release
 ```
 
-## Useful Commands
+Integration and release commands intentionally fail unless their isolated
+drivers, acknowledgements, immutable image inventory, coverage floor, and
+external evidence directories are supplied. CI, destructive integration, and
+unsigned release-evidence workflows use separate permission and runner trust
+boundaries.
 
-| Command | Description |
-|---|---|
-| `make run-api` | Starts the Go API backend. |
-| `make run-website` | Starts the local frontend development server. |
-| `make docker-up` / `docker-down` | Manage backend infrastructure containers. |
-| `make generate` | Regenerates Ent schemas and API bindings. |
-| `make migrate-diff name=...` | Generates a new migration script based on schema changes. |
-| `make migrate-apply` | Applies pending migrations to the local database. |
-| `make seed` | Injects predefined seed data for testing. |
+Production is not started with the local Compose file. Follow
+[`deploy/README.md`](deploy/README.md) for topology, release manifest approval,
+database roles, rootless sandboxing, probes, backup/restore, deployment, and
+rollback.
 
-## Future Roadmap
+## Project guides
 
-- [ ] Daily Missions: Implement daily coding tasks (e.g., 3 challenges a day) to encourage consistent practice and reward users with cultivation materials.
-- [ ] Contests System: Introduce timed programming competitions, real-time rankings, and customized leaderboards.
-- [ ] Blogs & Discussions: Establish a built-in community platform for users to share editorials, solutions, and algorithmic knowledge.
-- [ ] Local Cache Synchronization: Implement an event-driven syncing mechanism to keep the local cache seamlessly consistent with database updates in real-time.
-- [ ] Frontend Optimization: Revamp the web interface for higher performance, smoother animations, and an optimized UI/UX design.
+- [`docs/BACKEND_GUIDE.md`](docs/BACKEND_GUIDE.md)
+- [`docs/FRONTEND_GUIDE.md`](docs/FRONTEND_GUIDE.md)
+- [`SECURITY.md`](SECURITY.md)
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+Judgify is licensed under the [MIT License](LICENSE).

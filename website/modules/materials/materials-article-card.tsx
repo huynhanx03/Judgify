@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clock, Eye } from "lucide-react";
 import type { MaterialArticle } from "@/types/material";
 import { DIFFICULTY_SLUG } from "@/types/difficulty";
+import { TEXT } from "@/constants/text";
+import { APP_ROUTES } from "@/constants/routes";
 
 const DIFFICULTY_STYLES: Record<string, string> = {
-  easy: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-  medium: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
-  hard: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  easy: "border-difficulty-1/25 bg-difficulty-1/10 text-difficulty-1",
+  medium: "border-difficulty-2/25 bg-difficulty-2/10 text-difficulty-2",
+  hard: "border-difficulty-3/25 bg-difficulty-3/10 text-difficulty-3",
 };
 
 interface MaterialsArticleCardProps {
@@ -23,53 +25,57 @@ export function MaterialsArticleCard({ article }: MaterialsArticleCardProps) {
   const slug = DIFFICULTY_SLUG[article.difficulty?.level] ?? "medium";
 
   return (
-    <Link href={`/materials/${article.id}`}>
-      <div className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-sm cursor-pointer">
-        <div className="flex-1 min-w-0 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-              {article.title}
-            </h3>
-            {article.difficulty && (
-              <Badge
-                variant="outline"
-                className={`text-[11px] px-2 py-0 h-5 font-medium border ${DIFFICULTY_STYLES[slug]}`}
-              >
-                {article.difficulty.name}
-              </Badge>
-            )}
-          </div>
-
-          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-            {article.description}
-          </p>
-
-          <div className="flex items-center gap-3 flex-wrap pt-0.5">
-            {article.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
-              >
-                {tag.name}
-              </span>
-            ))}
-            {article.estimated_read_time > 0 && (
-              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
-                <Clock className="h-3 w-3" />
-                {article.estimated_read_time} phút
-              </span>
-            )}
-            {article.view_count > 0 && (
-              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
-                <Eye className="h-3 w-3" />
-                {article.view_count}
-              </span>
-            )}
-          </div>
+    <Link
+      href={APP_ROUTES.MATERIAL_DETAIL(article.slug)}
+      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 outline-none transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+            {article.title}
+          </h3>
+          {article.difficulty ? (
+            <Badge
+              variant="outline"
+              className={`h-5 border px-2 py-0 text-[11px] font-medium ${DIFFICULTY_STYLES[slug]}`}
+            >
+              {article.difficulty.name}
+            </Badge>
+          ) : null}
         </div>
 
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/40 group-hover:text-primary transition-colors mt-1" />
+        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+          {article.description}
+        </p>
+
+        <div className="flex flex-wrap items-center gap-3 pt-0.5">
+          {article.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+            >
+              {tag.name}
+            </span>
+          ))}
+          {article.estimated_read_time > 0 ? (
+            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
+              <Clock className="size-3" aria-hidden="true" />
+              {article.estimated_read_time} {TEXT.MATERIALS.MINUTES_SHORT}
+            </span>
+          ) : null}
+          {article.view_count > 0 ? (
+            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
+              <Eye className="size-3" aria-hidden="true" />
+              {article.view_count}
+            </span>
+          ) : null}
+        </div>
       </div>
+
+      <ArrowRight
+        className="mt-1 size-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-primary"
+        aria-hidden="true"
+      />
     </Link>
   );
 }

@@ -3,17 +3,17 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"entgo.io/ent/dialect/sql"
 
-	commonEnt "github.com/huynhanx03/judgify/pkg/database/ent"
-	d "github.com/huynhanx03/judgify/pkg/dto"
+	commonEnt "github.com/huynhanx03/go-common/pkg/database/ent"
+	d "github.com/huynhanx03/go-common/pkg/dto"
 
+	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	dbEnt "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate/rank"
-	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/builder"
-	"github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db/mapper"
-	"github.com/huynhanx03/judgify/internal/cultivation/core/entity"
-	"github.com/huynhanx03/judgify/internal/cultivation/ports"
+	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 const rankRepoName = "Rank"
@@ -28,23 +28,18 @@ func NewRankRepository(client *dbEnt.EntClient) ports.RankRepository {
 
 func (r *RankRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Rank], error) {
 	query := r.client.DB(ctx).Rank.Query()
-	if opts != nil {
-		query.Where(func(s *sql.Selector) {
-			commonEnt.ApplyFilters(opts.Filters, s)
-		})
-	}
+	query.Where(func(s *sql.Selector) {
+		commonEnt.ApplyQueryFilters(opts, s, rankQueryColumns...)
+	})
 
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, rankRepoName)
 	}
 
-	if opts != nil {
-		query.Where(func(s *sql.Selector) {
-			commonEnt.ApplySort(opts.Sort, s)
-			commonEnt.ApplyPagination(opts.Pagination, s)
-		})
-	}
+	query.Where(func(s *sql.Selector) {
+		commonEnt.ApplyQueryWindow(opts, s, rankQueryColumns...)
+	})
 
 	records, err := query.All(ctx)
 	if err != nil {
@@ -53,7 +48,7 @@ func (r *RankRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pag
 
 	entities := make([]*entity.Rank, len(records))
 	for i, rec := range records {
-		entities[i] = mapper.ToRankEntity(rec)
+		entities[i] = ToRankEntity(rec)
 	}
 
 	paginationOpts := &d.PaginationOptions{}
@@ -68,27 +63,27 @@ func (r *RankRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pag
 	return &d.Paginated[*entity.Rank]{Records: &entities, Pagination: meta}, nil
 }
 
-func (r *RankRepository) Get(ctx context.Context, id int) (*entity.Rank, error) {
+func (r *RankRepository) Get(ctx context.Context, id uuid.UUID) (*entity.Rank, error) {
 	rec, err := r.client.DB(ctx).Rank.Get(ctx, id)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, rankRepoName)
 	}
-	return mapper.ToRankEntity(rec), nil
+	return ToRankEntity(rec), nil
 }
 
 func (r *RankRepository) Create(ctx context.Context, e *entity.Rank) error {
-	rec, err := builder.BuildCreateRank(ctx, e).Save(ctx)
+	rec, err := BuildCreateRank(r.client.DB(ctx), e).Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, rankRepoName)
 	}
-	if created := mapper.ToRankEntity(rec); created != nil {
+	if created := ToRankEntity(rec); created != nil {
 		*e = *created
 	}
 	return nil
 }
 
 func (r *RankRepository) Update(ctx context.Context, e *entity.Rank) error {
-	rec, err := builder.BuildUpdateRank(ctx, e).Save(ctx)
+	rec, err := BuildUpdateRank(r.client.DB(ctx), e).Save(ctx)
 	if err != nil {
 		return commonEnt.MapEntError(err, rankRepoName)
 	}
@@ -96,14 +91,14 @@ func (r *RankRepository) Update(ctx context.Context, e *entity.Rank) error {
 	return nil
 }
 
-func (r *RankRepository) Delete(ctx context.Context, id int) error {
+func (r *RankRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := r.client.DB(ctx).Rank.DeleteOneID(id).Exec(ctx); err != nil {
 		return commonEnt.MapEntError(err, rankRepoName)
 	}
 	return nil
 }
 
-func (r *RankRepository) Exists(ctx context.Context, id int) (bool, error) {
+func (r *RankRepository) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
 	exists, err := r.client.DB(ctx).Rank.Query().Where(rank.ID(id)).Exist(ctx)
 	if err != nil {
 		return false, commonEnt.MapEntError(err, rankRepoName)
@@ -118,7 +113,7 @@ func (r *RankRepository) FindAll(ctx context.Context) ([]*entity.Rank, error) {
 	}
 	entities := make([]*entity.Rank, len(records))
 	for i, rec := range records {
-		entities[i] = mapper.ToRankEntity(rec)
+		entities[i] = ToRankEntity(rec)
 	}
 	return entities, nil
 }

@@ -3,42 +3,843 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
 var (
+	// ActivatedJudgeCapabilitiesColumns holds the columns for the "activated_judge_capabilities" table.
+	ActivatedJudgeCapabilitiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "release_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "approved_release_manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "actor_id", Type: field.TypeUUID},
+		{Name: "audit_id", Type: field.TypeUUID},
+		{Name: "reason", Type: field.TypeString, Size: 500, SchemaType: map[string]string{"postgres": "character varying(500)"}},
+		{Name: "judge_spec_protocol", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "runtime_profile_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compiler_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_bootstrap_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compile_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "run_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "image_digest", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "manifest_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "supervisor_protocol", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "checker_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "checker_version", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "capability_profile_hash", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "checker_implementation_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "smoke_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "golden_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "proof_worker_instance_id", Type: field.TypeUUID},
+		{Name: "proof_boot_id", Type: field.TypeUUID},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"active", "retired"}, Default: "active", SchemaType: map[string]string{"postgres": "character varying(16)"}},
+		{Name: "activated_at", Type: field.TypeTime},
+		{Name: "retired_at", Type: field.TypeTime, Nullable: true},
+		{Name: "retired_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "retirement_audit_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "retirement_reason", Type: field.TypeString, Nullable: true, Size: 500, SchemaType: map[string]string{"postgres": "character varying(500)"}},
+		{Name: "proof_evidence_id", Type: field.TypeUUID},
+	}
+	// ActivatedJudgeCapabilitiesTable holds the schema information for the "activated_judge_capabilities" table.
+	ActivatedJudgeCapabilitiesTable = &schema.Table{
+		Name:       "activated_judge_capabilities",
+		Columns:    ActivatedJudgeCapabilitiesColumns,
+		PrimaryKey: []*schema.Column{ActivatedJudgeCapabilitiesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "activated_judge_capabilities_judge_worker_capabilities_activations",
+				Columns:    []*schema.Column{ActivatedJudgeCapabilitiesColumns[33]},
+				RefColumns: []*schema.Column{JudgeWorkerCapabilitiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "activatedjudgecapability_release_id_capability_profile_hash",
+				Unique:  true,
+				Columns: []*schema.Column{ActivatedJudgeCapabilitiesColumns[3], ActivatedJudgeCapabilitiesColumns[21]},
+			},
+			{
+				Name:    "activatedjudgecapability_release_id_runtime_key_checker_key_checker_version",
+				Unique:  true,
+				Columns: []*schema.Column{ActivatedJudgeCapabilitiesColumns[3], ActivatedJudgeCapabilitiesColumns[9], ActivatedJudgeCapabilitiesColumns[19], ActivatedJudgeCapabilitiesColumns[20]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "state = 'active'",
+				},
+			},
+			{
+				Name:    "activatedjudgecapability_state_release_id_capability_profile_hash_activated_at",
+				Unique:  false,
+				Columns: []*schema.Column{ActivatedJudgeCapabilitiesColumns[27], ActivatedJudgeCapabilitiesColumns[3], ActivatedJudgeCapabilitiesColumns[21], ActivatedJudgeCapabilitiesColumns[28]},
+			},
+			{
+				Name:    "activatedjudgecapability_proof_worker_instance_id_proof_boot_id",
+				Unique:  false,
+				Columns: []*schema.Column{ActivatedJudgeCapabilitiesColumns[25], ActivatedJudgeCapabilitiesColumns[26]},
+			},
+		},
+	}
 	// AttributeDefinitionsColumns holds the columns for the "attribute_definitions" table.
 	AttributeDefinitionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "key", Type: field.TypeString, Unique: true},
-		{Name: "data_type", Type: field.TypeString, Default: "string"},
-		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "key", Type: field.TypeString, Size: 50},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"system", "custom"}, Default: "custom"},
+		{Name: "required_on_onboarding", Type: field.TypeBool, Default: false},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "archived"}, Default: "active"},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "draft_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "active_revision_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// AttributeDefinitionsTable holds the schema information for the "attribute_definitions" table.
 	AttributeDefinitionsTable = &schema.Table{
 		Name:       "attribute_definitions",
 		Columns:    AttributeDefinitionsColumns,
 		PrimaryKey: []*schema.Column{AttributeDefinitionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "attribute_definitions_attribute_definition_revisions_draft_revision",
+				Columns:    []*schema.Column{AttributeDefinitionsColumns[11]},
+				RefColumns: []*schema.Column{AttributeDefinitionRevisionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "attribute_definitions_attribute_definition_revisions_active_revision",
+				Columns:    []*schema.Column{AttributeDefinitionsColumns[12]},
+				RefColumns: []*schema.Column{AttributeDefinitionRevisionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "attributedefinition_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AttributeDefinitionsColumns[5]},
+			},
+			{
+				Name:    "attributedefinition_tenant_id_key",
+				Unique:  true,
+				Columns: []*schema.Column{AttributeDefinitionsColumns[5], AttributeDefinitionsColumns[6]},
+			},
+		},
+	}
+	// AttributeDefinitionRevisionsColumns holds the columns for the "attribute_definition_revisions" table.
+	AttributeDefinitionRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "data_type", Type: field.TypeEnum, Enums: []string{"string", "number", "boolean", "date"}},
+		{Name: "label", Type: field.TypeString, Size: 128},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"public", "private", "admin"}},
+		{Name: "user_editable", Type: field.TypeBool, Default: false},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "validation", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "created_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "definition_id", Type: field.TypeUUID},
+	}
+	// AttributeDefinitionRevisionsTable holds the schema information for the "attribute_definition_revisions" table.
+	AttributeDefinitionRevisionsTable = &schema.Table{
+		Name:       "attribute_definition_revisions",
+		Columns:    AttributeDefinitionRevisionsColumns,
+		PrimaryKey: []*schema.Column{AttributeDefinitionRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "attribute_definition_revisions_attribute_definitions_revisions",
+				Columns:    []*schema.Column{AttributeDefinitionRevisionsColumns[12]},
+				RefColumns: []*schema.Column{AttributeDefinitionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "attributedefinitionrevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AttributeDefinitionRevisionsColumns[1]},
+			},
+			{
+				Name:    "attributedefinitionrevision_definition_id_revision",
+				Unique:  true,
+				Columns: []*schema.Column{AttributeDefinitionRevisionsColumns[12], AttributeDefinitionRevisionsColumns[2]},
+			},
+			{
+				Name:    "attributedefinitionrevision_id_definition_id",
+				Unique:  true,
+				Columns: []*schema.Column{AttributeDefinitionRevisionsColumns[0], AttributeDefinitionRevisionsColumns[12]},
+			},
+			{
+				Name:    "attributedefinitionrevision_definition_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{AttributeDefinitionRevisionsColumns[12], AttributeDefinitionRevisionsColumns[11]},
+			},
+		},
+	}
+	// AuditLogsColumns holds the columns for the "audit_logs" table.
+	AuditLogsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "actor_user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "actor_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "action", Type: field.TypeString, Size: 128},
+		{Name: "resource", Type: field.TypeString, Size: 128},
+		{Name: "resource_id", Type: field.TypeString, Size: 256},
+		{Name: "reason", Type: field.TypeString, Size: 1024},
+		{Name: "before_data", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "after_data", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// AuditLogsTable holds the schema information for the "audit_logs" table.
+	AuditLogsTable = &schema.Table{
+		Name:       "audit_logs",
+		Columns:    AuditLogsColumns,
+		PrimaryKey: []*schema.Column{AuditLogsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "audit_logs_tenants_audit_logs",
+				Columns:    []*schema.Column{AuditLogsColumns[12]},
+				RefColumns: []*schema.Column{TenantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "auditlog_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+			{
+				Name:    "auditlog_action_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[3], AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+			{
+				Name:    "auditlog_resource_resource_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[4], AuditLogsColumns[5], AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+			{
+				Name:    "auditlog_resource_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[5], AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+			{
+				Name:    "auditlog_actor_user_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[1], AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+			{
+				Name:    "auditlog_correlation_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[9], AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+			{
+				Name:    "auditlog_tenant_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuditLogsColumns[12], AuditLogsColumns[10], AuditLogsColumns[0]},
+			},
+		},
+	}
+	// AuthRefreshReceiptsColumns holds the columns for the "auth_refresh_receipts" table.
+	AuthRefreshReceiptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "recovery_ciphertext", Type: field.TypeBytes},
+		{Name: "key_id", Type: field.TypeString, Size: 128},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "recovered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "erased_at", Type: field.TypeTime, Nullable: true},
+		{Name: "presented_token_id", Type: field.TypeUUID},
+		{Name: "replacement_token_id", Type: field.TypeUUID},
+		{Name: "session_id", Type: field.TypeUUID},
+	}
+	// AuthRefreshReceiptsTable holds the schema information for the "auth_refresh_receipts" table.
+	AuthRefreshReceiptsTable = &schema.Table{
+		Name:       "auth_refresh_receipts",
+		Columns:    AuthRefreshReceiptsColumns,
+		PrimaryKey: []*schema.Column{AuthRefreshReceiptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "auth_refresh_receipts_auth_refresh_tokens_presented_receipts",
+				Columns:    []*schema.Column{AuthRefreshReceiptsColumns[9]},
+				RefColumns: []*schema.Column{AuthRefreshTokensColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "auth_refresh_receipts_auth_refresh_tokens_replacement_receipts",
+				Columns:    []*schema.Column{AuthRefreshReceiptsColumns[10]},
+				RefColumns: []*schema.Column{AuthRefreshTokensColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "auth_refresh_receipts_auth_sessions_refresh_receipts",
+				Columns:    []*schema.Column{AuthRefreshReceiptsColumns[11]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authrefreshreceipt_session_id_presented_token_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{AuthRefreshReceiptsColumns[11], AuthRefreshReceiptsColumns[9], AuthRefreshReceiptsColumns[3]},
+			},
+			{
+				Name:    "authrefreshreceipt_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthRefreshReceiptsColumns[6]},
+			},
+			{
+				Name:    "authrefreshreceipt_replacement_token_id",
+				Unique:  true,
+				Columns: []*schema.Column{AuthRefreshReceiptsColumns[10]},
+			},
+		},
+	}
+	// AuthRefreshTokensColumns holds the columns for the "auth_refresh_tokens" table.
+	AuthRefreshTokensColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "token_hash", Type: field.TypeBytes, Unique: true, Size: 32},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"issued", "consumed", "revoked"}, Default: "issued"},
+		{Name: "issued_at", Type: field.TypeTime},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "revoked_at", Type: field.TypeTime, Nullable: true},
+		{Name: "parent_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "replaced_by_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "session_id", Type: field.TypeUUID},
+	}
+	// AuthRefreshTokensTable holds the schema information for the "auth_refresh_tokens" table.
+	AuthRefreshTokensTable = &schema.Table{
+		Name:       "auth_refresh_tokens",
+		Columns:    AuthRefreshTokensColumns,
+		PrimaryKey: []*schema.Column{AuthRefreshTokensColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "auth_refresh_tokens_auth_refresh_tokens_parent",
+				Columns:    []*schema.Column{AuthRefreshTokensColumns[9]},
+				RefColumns: []*schema.Column{AuthRefreshTokensColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "auth_refresh_tokens_auth_refresh_tokens_replacement",
+				Columns:    []*schema.Column{AuthRefreshTokensColumns[10]},
+				RefColumns: []*schema.Column{AuthRefreshTokensColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "auth_refresh_tokens_auth_sessions_refresh_tokens",
+				Columns:    []*schema.Column{AuthRefreshTokensColumns[11]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authrefreshtoken_session_id_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthRefreshTokensColumns[11], AuthRefreshTokensColumns[4], AuthRefreshTokensColumns[6]},
+			},
+			{
+				Name:    "authrefreshtoken_parent_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuthRefreshTokensColumns[9]},
+			},
+			{
+				Name:    "authrefreshtoken_replaced_by_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuthRefreshTokensColumns[10]},
+			},
+			{
+				Name:    "authrefreshtoken_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthRefreshTokensColumns[4], AuthRefreshTokensColumns[6]},
+			},
+		},
+	}
+	// AuthSessionsColumns holds the columns for the "auth_sessions" table.
+	AuthSessionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "family_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "revoked", "expired"}, Default: "active"},
+		{Name: "user_security_version", Type: field.TypeInt64},
+		{Name: "last_seen_at", Type: field.TypeTime},
+		{Name: "last_reauthenticated_at", Type: field.TypeTime},
+		{Name: "idle_expires_at", Type: field.TypeTime},
+		{Name: "absolute_expires_at", Type: field.TypeTime},
+		{Name: "revoked_at", Type: field.TypeTime, Nullable: true},
+		{Name: "revoke_reason", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "ip_hash", Type: field.TypeBytes, Nullable: true, Size: 32},
+		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "created_cid", Type: field.TypeString, Size: 128},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// AuthSessionsTable holds the schema information for the "auth_sessions" table.
+	AuthSessionsTable = &schema.Table{
+		Name:       "auth_sessions",
+		Columns:    AuthSessionsColumns,
+		PrimaryKey: []*schema.Column{AuthSessionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "auth_sessions_users_auth_sessions",
+				Columns:    []*schema.Column{AuthSessionsColumns[15]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authsession_user_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionsColumns[15], AuthSessionsColumns[4]},
+			},
+			{
+				Name:    "authsession_family_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionsColumns[3]},
+			},
+			{
+				Name:    "authsession_status_idle_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionsColumns[4], AuthSessionsColumns[8]},
+			},
+			{
+				Name:    "authsession_status_absolute_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionsColumns[4], AuthSessionsColumns[9]},
+			},
+			{
+				Name:    "authsession_user_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionsColumns[15], AuthSessionsColumns[1], AuthSessionsColumns[0]},
+			},
+		},
+	}
+	// AuthSessionCommandReceiptsColumns holds the columns for the "auth_session_command_receipts" table.
+	AuthSessionCommandReceiptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"revoke", "logout_all"}},
+		{Name: "result_security_version", Type: field.TypeInt64, Default: 0},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "actor_session_id", Type: field.TypeUUID},
+		{Name: "target_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// AuthSessionCommandReceiptsTable holds the schema information for the "auth_session_command_receipts" table.
+	AuthSessionCommandReceiptsTable = &schema.Table{
+		Name:       "auth_session_command_receipts",
+		Columns:    AuthSessionCommandReceiptsColumns,
+		PrimaryKey: []*schema.Column{AuthSessionCommandReceiptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "auth_session_command_receipts_auth_sessions_actor_commands",
+				Columns:    []*schema.Column{AuthSessionCommandReceiptsColumns[7]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "auth_session_command_receipts_auth_sessions_targeted_commands",
+				Columns:    []*schema.Column{AuthSessionCommandReceiptsColumns[8]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "auth_session_command_receipts_users_session_commands",
+				Columns:    []*schema.Column{AuthSessionCommandReceiptsColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authsessioncommandreceipt_user_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{AuthSessionCommandReceiptsColumns[9], AuthSessionCommandReceiptsColumns[3]},
+			},
+			{
+				Name:    "authsessioncommandreceipt_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionCommandReceiptsColumns[6]},
+			},
+		},
+	}
+	// AuthSessionIssuanceReceiptsColumns holds the columns for the "auth_session_issuance_receipts" table.
+	AuthSessionIssuanceReceiptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"password_login", "password_registration", "oauth_login", "oauth_registration"}},
+		{Name: "request_or_ticket_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "pre_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "request_fingerprint", Type: field.TypeBytes, Nullable: true, Size: 32},
+		{Name: "fingerprint_key_id", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "offer_checksum", Type: field.TypeBytes, Nullable: true, Size: 32},
+		{Name: "recovery_ciphertext", Type: field.TypeBytes},
+		{Name: "key_id", Type: field.TypeString, Size: 128},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "recovered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "erased_at", Type: field.TypeTime, Nullable: true},
+		{Name: "refresh_token_id", Type: field.TypeUUID},
+		{Name: "session_id", Type: field.TypeUUID},
+		{Name: "trait_offer_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// AuthSessionIssuanceReceiptsTable holds the schema information for the "auth_session_issuance_receipts" table.
+	AuthSessionIssuanceReceiptsTable = &schema.Table{
+		Name:       "auth_session_issuance_receipts",
+		Columns:    AuthSessionIssuanceReceiptsColumns,
+		PrimaryKey: []*schema.Column{AuthSessionIssuanceReceiptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "auth_session_issuance_receipts_auth_refresh_tokens_issuance_receipts",
+				Columns:    []*schema.Column{AuthSessionIssuanceReceiptsColumns[15]},
+				RefColumns: []*schema.Column{AuthRefreshTokensColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "auth_session_issuance_receipts_auth_sessions_issuance_receipts",
+				Columns:    []*schema.Column{AuthSessionIssuanceReceiptsColumns[16]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "auth_session_issuance_receipts_onboarding_trait_offers_issuance_receipts",
+				Columns:    []*schema.Column{AuthSessionIssuanceReceiptsColumns[17]},
+				RefColumns: []*schema.Column{OnboardingTraitOffersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "auth_session_issuance_receipts_users_session_issuance_receipts",
+				Columns:    []*schema.Column{AuthSessionIssuanceReceiptsColumns[18]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authsessionissuancereceipt_user_id_pre_session_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{AuthSessionIssuanceReceiptsColumns[18], AuthSessionIssuanceReceiptsColumns[5], AuthSessionIssuanceReceiptsColumns[8]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "purpose = 'password_login'",
+				},
+			},
+			{
+				Name:    "authsessionissuancereceipt_purpose_request_or_ticket_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{AuthSessionIssuanceReceiptsColumns[3], AuthSessionIssuanceReceiptsColumns[4], AuthSessionIssuanceReceiptsColumns[8]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "purpose <> 'password_login'",
+				},
+			},
+			{
+				Name:    "authsessionissuancereceipt_session_id",
+				Unique:  true,
+				Columns: []*schema.Column{AuthSessionIssuanceReceiptsColumns[16]},
+			},
+			{
+				Name:    "authsessionissuancereceipt_refresh_token_id",
+				Unique:  true,
+				Columns: []*schema.Column{AuthSessionIssuanceReceiptsColumns[15]},
+			},
+			{
+				Name:    "authsessionissuancereceipt_trait_offer_id",
+				Unique:  true,
+				Columns: []*schema.Column{AuthSessionIssuanceReceiptsColumns[17]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "trait_offer_id IS NOT NULL",
+				},
+			},
+			{
+				Name:    "authsessionissuancereceipt_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AuthSessionIssuanceReceiptsColumns[12]},
+			},
+		},
+	}
+	// AuthorizationActionsColumns holds the columns for the "authorization_actions" table.
+	AuthorizationActionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "key", Type: field.TypeString, Size: 64},
+		{Name: "label", Type: field.TypeString, Size: 128},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "catalog_revision", Type: field.TypeInt64, Default: 1},
+		{Name: "resource_id", Type: field.TypeUUID},
+	}
+	// AuthorizationActionsTable holds the schema information for the "authorization_actions" table.
+	AuthorizationActionsTable = &schema.Table{
+		Name:       "authorization_actions",
+		Columns:    AuthorizationActionsColumns,
+		PrimaryKey: []*schema.Column{AuthorizationActionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "authorization_actions_authorization_resources_actions",
+				Columns:    []*schema.Column{AuthorizationActionsColumns[8]},
+				RefColumns: []*schema.Column{AuthorizationResourcesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authorizationaction_resource_id_key",
+				Unique:  true,
+				Columns: []*schema.Column{AuthorizationActionsColumns[8], AuthorizationActionsColumns[3]},
+			},
+			{
+				Name:    "authorizationaction_resource_id_display_order_key",
+				Unique:  false,
+				Columns: []*schema.Column{AuthorizationActionsColumns[8], AuthorizationActionsColumns[6], AuthorizationActionsColumns[3]},
+			},
+		},
+	}
+	// AuthorizationResourcesColumns holds the columns for the "authorization_resources" table.
+	AuthorizationResourcesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "key", Type: field.TypeString, Unique: true, Size: 64},
+		{Name: "label", Type: field.TypeString, Size: 128},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "catalog_revision", Type: field.TypeInt64, Default: 1},
+	}
+	// AuthorizationResourcesTable holds the schema information for the "authorization_resources" table.
+	AuthorizationResourcesTable = &schema.Table{
+		Name:       "authorization_resources",
+		Columns:    AuthorizationResourcesColumns,
+		PrimaryKey: []*schema.Column{AuthorizationResourcesColumns[0]},
+	}
+	// AuthorizationStatesColumns holds the columns for the "authorization_states" table.
+	AuthorizationStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Size: 32},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "desired_revision", Type: field.TypeInt64, Default: 0},
+		{Name: "updated_by", Type: field.TypeUUID, Nullable: true},
+	}
+	// AuthorizationStatesTable holds the schema information for the "authorization_states" table.
+	AuthorizationStatesTable = &schema.Table{
+		Name:       "authorization_states",
+		Columns:    AuthorizationStatesColumns,
+		PrimaryKey: []*schema.Column{AuthorizationStatesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "authorization_states_users_authorization_updates",
+				Columns:    []*schema.Column{AuthorizationStatesColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// CasbinRulesColumns holds the columns for the "casbin_rules" table.
+	CasbinRulesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "ptype", Type: field.TypeString, Default: ""},
+		{Name: "v0", Type: field.TypeString, Default: ""},
+		{Name: "v1", Type: field.TypeString, Default: ""},
+		{Name: "v2", Type: field.TypeString, Default: ""},
+		{Name: "v3", Type: field.TypeString, Default: ""},
+		{Name: "v4", Type: field.TypeString, Default: ""},
+		{Name: "v5", Type: field.TypeString, Default: ""},
+	}
+	// CasbinRulesTable holds the schema information for the "casbin_rules" table.
+	CasbinRulesTable = &schema.Table{
+		Name:       "casbin_rules",
+		Columns:    CasbinRulesColumns,
+		PrimaryKey: []*schema.Column{CasbinRulesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "casbinrule_ptype_v0_v1_v2_v3_v4_v5",
+				Unique:  true,
+				Columns: []*schema.Column{CasbinRulesColumns[1], CasbinRulesColumns[2], CasbinRulesColumns[3], CasbinRulesColumns[4], CasbinRulesColumns[5], CasbinRulesColumns[6], CasbinRulesColumns[7]},
+			},
+			{
+				Name:    "casbinrule_ptype_v1",
+				Unique:  false,
+				Columns: []*schema.Column{CasbinRulesColumns[1], CasbinRulesColumns[3]},
+			},
+			{
+				Name:    "casbinrule_ptype_v2",
+				Unique:  false,
+				Columns: []*schema.Column{CasbinRulesColumns[1], CasbinRulesColumns[4]},
+			},
+		},
+	}
+	// CheckerProfilesColumns holds the columns for the "checker_profiles" table.
+	CheckerProfilesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "checker_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "checker_version", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "implementation_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "config_kind", Type: field.TypeEnum, Enums: []string{"none", "float_tolerance"}},
+		{Name: "active", Type: field.TypeBool, Default: false},
+	}
+	// CheckerProfilesTable holds the schema information for the "checker_profiles" table.
+	CheckerProfilesTable = &schema.Table{
+		Name:       "checker_profiles",
+		Columns:    CheckerProfilesColumns,
+		PrimaryKey: []*schema.Column{CheckerProfilesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "checkerprofile_checker_key_checker_version",
+				Unique:  true,
+				Columns: []*schema.Column{CheckerProfilesColumns[3], CheckerProfilesColumns[4]},
+			},
+			{
+				Name:    "checkerprofile_checker_key_active_checker_version",
+				Unique:  false,
+				Columns: []*schema.Column{CheckerProfilesColumns[3], CheckerProfilesColumns[7], CheckerProfilesColumns[4]},
+			},
+		},
+	}
+	// ContentRenderArtifactsColumns holds the columns for the "content_render_artifacts" table.
+	ContentRenderArtifactsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "render_source_kind", Type: field.TypeEnum, Enums: []string{"problem_statement", "contest_description", "contest_announcement", "contest_clarification", "material_body", "notification_campaign_body"}},
+		{Name: "source_checksum", Type: field.TypeBytes},
+		{Name: "renderer_version", Type: field.TypeString, Size: 64},
+		{Name: "sanitizer_policy_version", Type: field.TypeString, Size: 64},
+		{Name: "sanitized_html", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "artifact_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"ready", "rejected"}},
+		{Name: "diagnostics", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "created_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "render_source_id", Type: field.TypeUUID},
+	}
+	// ContentRenderArtifactsTable holds the schema information for the "content_render_artifacts" table.
+	ContentRenderArtifactsTable = &schema.Table{
+		Name:       "content_render_artifacts",
+		Columns:    ContentRenderArtifactsColumns,
+		PrimaryKey: []*schema.Column{ContentRenderArtifactsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "content_render_artifacts_content_render_sources_artifacts",
+				Columns:    []*schema.Column{ContentRenderArtifactsColumns[12]},
+				RefColumns: []*schema.Column{ContentRenderSourcesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contentrenderartifact_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContentRenderArtifactsColumns[1]},
+			},
+			{
+				Name:    "contentrenderartifact_id_render_source_id_render_source_kind_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContentRenderArtifactsColumns[0], ContentRenderArtifactsColumns[12], ContentRenderArtifactsColumns[2], ContentRenderArtifactsColumns[3]},
+			},
+			{
+				Name:    "contentrenderartifact_render_source_id_renderer_version_sanitizer_policy_version",
+				Unique:  true,
+				Columns: []*schema.Column{ContentRenderArtifactsColumns[12], ContentRenderArtifactsColumns[4], ContentRenderArtifactsColumns[5]},
+			},
+			{
+				Name:    "contentrenderartifact_render_source_id_render_source_kind_source_checksum",
+				Unique:  false,
+				Columns: []*schema.Column{ContentRenderArtifactsColumns[12], ContentRenderArtifactsColumns[2], ContentRenderArtifactsColumns[3]},
+			},
+		},
+	}
+	// ContentRenderSourcesColumns holds the columns for the "content_render_sources" table.
+	ContentRenderSourcesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "owner_revision_id", Type: field.TypeUUID},
+		{Name: "source_kind", Type: field.TypeEnum, Enums: []string{"problem_statement", "contest_description", "contest_announcement", "contest_clarification", "material_body", "notification_campaign_body"}},
+		{Name: "source_checksum", Type: field.TypeBytes},
+		{Name: "created_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// ContentRenderSourcesTable holds the schema information for the "content_render_sources" table.
+	ContentRenderSourcesTable = &schema.Table{
+		Name:       "content_render_sources",
+		Columns:    ContentRenderSourcesColumns,
+		PrimaryKey: []*schema.Column{ContentRenderSourcesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contentrendersource_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContentRenderSourcesColumns[1]},
+			},
+			{
+				Name:    "contentrendersource_source_kind_owner_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContentRenderSourcesColumns[3], ContentRenderSourcesColumns[2]},
+			},
+			{
+				Name:    "contentrendersource_id_source_kind_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContentRenderSourcesColumns[0], ContentRenderSourcesColumns[3], ContentRenderSourcesColumns[4]},
+			},
+			{
+				Name:    "contentrendersource_id_owner_revision_id_source_kind_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContentRenderSourcesColumns[0], ContentRenderSourcesColumns[2], ContentRenderSourcesColumns[3], ContentRenderSourcesColumns[4]},
+			},
+		},
 	}
 	// ContestsColumns holds the columns for the "contests" table.
 	ContestsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "title", Type: field.TypeString, Size: 300},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "start_time", Type: field.TypeTime},
 		{Name: "end_time", Type: field.TypeTime},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "upcoming", "running", "ended"}, Default: "draft"},
-		{Name: "max_participants", Type: field.TypeInt, Default: 0},
-		{Name: "author_id", Type: field.TypeInt},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "upcoming", "running", "ended", "cancelled"}, Default: "draft"},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "registration_mode", Type: field.TypeEnum, Enums: []string{"registered", "open"}, Default: "registered"},
+		{Name: "registration_opens_at", Type: field.TypeTime, Nullable: true},
+		{Name: "registration_closes_at", Type: field.TypeTime, Nullable: true},
+		{Name: "max_participants", Type: field.TypeInt, Nullable: true},
+		{Name: "next_submission_sequence", Type: field.TypeInt64, Default: 1},
+		{Name: "scoring_policy", Type: field.TypeEnum, Enums: []string{"icpc"}, Default: "icpc"},
+		{Name: "scoring_policy_version", Type: field.TypeInt64, Default: 1},
+		{Name: "standings_projection_version", Type: field.TypeInt64, Default: 1},
+		{Name: "freeze_standings_at", Type: field.TypeTime, Nullable: true},
+		{Name: "rated", Type: field.TypeBool, Default: true},
+		{Name: "rating_algorithm_version", Type: field.TypeString, Size: 64, Default: "expected-rank-v1"},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "ended_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "rating_completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "author_id", Type: field.TypeUUID},
 	}
 	// ContestsTable holds the schema information for the "contests" table.
 	ContestsTable = &schema.Table{
@@ -48,29 +849,709 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "contests_users_contests",
-				Columns:    []*schema.Column{ContestsColumns[11]},
+				Columns:    []*schema.Column{ContestsColumns[28]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "contest_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestsColumns[5]},
+			},
+			{
 				Name:    "contest_status",
 				Unique:  false,
-				Columns: []*schema.Column{ContestsColumns[9]},
+				Columns: []*schema.Column{ContestsColumns[10]},
 			},
 			{
 				Name:    "contest_start_time",
 				Unique:  false,
-				Columns: []*schema.Column{ContestsColumns[7]},
+				Columns: []*schema.Column{ContestsColumns[8]},
+			},
+			{
+				Name:    "contest_status_start_time_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestsColumns[10], ContestsColumns[8], ContestsColumns[0]},
+			},
+			{
+				Name:    "contest_status_rating_completed_at_end_time_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestsColumns[10], ContestsColumns[27], ContestsColumns[9], ContestsColumns[0]},
+			},
+			{
+				Name:    "contest_status_rated_rating_completed_at_end_time_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestsColumns[10], ContestsColumns[21], ContestsColumns[27], ContestsColumns[9], ContestsColumns[0]},
+			},
+		},
+	}
+	// ContestAnnouncementsColumns holds the columns for the "contest_announcements" table.
+	ContestAnnouncementsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "published", "withdrawn"}, Default: "draft"},
+		{Name: "audience", Type: field.TypeEnum, Enums: []string{"public", "participants", "jury"}},
+		{Name: "current_draft_revision_id", Type: field.TypeUUID},
+		{Name: "current_draft_owner_type", Type: field.TypeEnum, Enums: []string{"announcement"}, Default: "announcement"},
+		{Name: "current_draft_content_kind", Type: field.TypeEnum, Enums: []string{"announcement_body"}, Default: "announcement_body"},
+		{Name: "current_draft_render_source_id", Type: field.TypeUUID},
+		{Name: "current_draft_render_source_kind", Type: field.TypeEnum, Enums: []string{"contest_announcement"}},
+		{Name: "current_draft_normalized_source_checksum", Type: field.TypeBytes},
+		{Name: "current_draft_render_artifact_id", Type: field.TypeUUID},
+		{Name: "published_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_owner_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"announcement"}},
+		{Name: "published_content_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"announcement_body"}},
+		{Name: "published_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"contest_announcement"}},
+		{Name: "published_normalized_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "published_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "scheduled_for", Type: field.TypeTime, Nullable: true},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true},
+		{Name: "withdrawn_at", Type: field.TypeTime, Nullable: true},
+		{Name: "contest_id", Type: field.TypeUUID},
+	}
+	// ContestAnnouncementsTable holds the schema information for the "contest_announcements" table.
+	ContestAnnouncementsTable = &schema.Table{
+		Name:       "contest_announcements",
+		Columns:    ContestAnnouncementsColumns,
+		PrimaryKey: []*schema.Column{ContestAnnouncementsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_announcements_contests_announcements",
+				Columns:    []*schema.Column{ContestAnnouncementsColumns[24]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestannouncement_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestAnnouncementsColumns[3]},
+			},
+			{
+				Name:    "contestannouncement_contest_id_status_published_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestAnnouncementsColumns[24], ContestAnnouncementsColumns[4], ContestAnnouncementsColumns[22], ContestAnnouncementsColumns[0]},
+			},
+			{
+				Name:    "contestannouncement_contest_id_audience_status_published_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestAnnouncementsColumns[24], ContestAnnouncementsColumns[5], ContestAnnouncementsColumns[4], ContestAnnouncementsColumns[22], ContestAnnouncementsColumns[0]},
+			},
+			{
+				Name:    "contestannouncement_status_scheduled_for_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestAnnouncementsColumns[4], ContestAnnouncementsColumns[21], ContestAnnouncementsColumns[0]},
+			},
+			{
+				Name:    "contestannouncement_current_draft_revision_id_id_current_draft_owner_type_current_draft_content_kind_current_draft_render_source_id_current_draft_render_source_kind_current_draft_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestAnnouncementsColumns[6], ContestAnnouncementsColumns[0], ContestAnnouncementsColumns[7], ContestAnnouncementsColumns[8], ContestAnnouncementsColumns[9], ContestAnnouncementsColumns[10], ContestAnnouncementsColumns[11]},
+			},
+			{
+				Name:    "contestannouncement_published_revision_id_id_published_owner_type_published_content_kind_published_render_source_id_published_render_source_kind_published_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestAnnouncementsColumns[13], ContestAnnouncementsColumns[0], ContestAnnouncementsColumns[14], ContestAnnouncementsColumns[15], ContestAnnouncementsColumns[16], ContestAnnouncementsColumns[17], ContestAnnouncementsColumns[18]},
+			},
+		},
+	}
+	// ContestClarificationsColumns holds the columns for the "contest_clarifications" table.
+	ContestClarificationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"open", "answered", "closed", "withdrawn"}, Default: "open"},
+		{Name: "answer_audience", Type: field.TypeEnum, Enums: []string{"requester", "participants"}, Default: "requester"},
+		{Name: "question_revision_id", Type: field.TypeUUID},
+		{Name: "question_owner_type", Type: field.TypeEnum, Enums: []string{"clarification"}, Default: "clarification"},
+		{Name: "question_content_kind", Type: field.TypeEnum, Enums: []string{"question"}, Default: "question"},
+		{Name: "question_render_source_id", Type: field.TypeUUID},
+		{Name: "question_render_source_kind", Type: field.TypeEnum, Enums: []string{"contest_clarification"}},
+		{Name: "question_normalized_source_checksum", Type: field.TypeBytes},
+		{Name: "question_render_artifact_id", Type: field.TypeUUID},
+		{Name: "current_public_question_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "current_public_question_owner_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"clarification"}},
+		{Name: "current_public_question_content_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"public_question_summary"}},
+		{Name: "current_public_question_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "current_public_question_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"contest_clarification"}},
+		{Name: "current_public_question_normalized_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "current_public_question_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "current_answer_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "current_answer_owner_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"clarification"}},
+		{Name: "current_answer_content_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"answer"}},
+		{Name: "current_answer_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "current_answer_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"contest_clarification"}},
+		{Name: "current_answer_normalized_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "current_answer_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "answered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "closed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "withdrawn_at", Type: field.TypeTime, Nullable: true},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "contest_problem_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "requester_id", Type: field.TypeUUID},
+	}
+	// ContestClarificationsTable holds the schema information for the "contest_clarifications" table.
+	ContestClarificationsTable = &schema.Table{
+		Name:       "contest_clarifications",
+		Columns:    ContestClarificationsColumns,
+		PrimaryKey: []*schema.Column{ContestClarificationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_clarifications_contests_clarifications",
+				Columns:    []*schema.Column{ContestClarificationsColumns[31]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_clarifications_contest_problems_clarifications",
+				Columns:    []*schema.Column{ContestClarificationsColumns[32]},
+				RefColumns: []*schema.Column{ContestProblemsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "contest_clarifications_users_contest_clarifications",
+				Columns:    []*schema.Column{ContestClarificationsColumns[33]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestclarification_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestClarificationsColumns[3]},
+			},
+			{
+				Name:    "contestclarification_contest_id_status_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestClarificationsColumns[31], ContestClarificationsColumns[4], ContestClarificationsColumns[1], ContestClarificationsColumns[0]},
+			},
+			{
+				Name:    "contestclarification_contest_id_requester_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestClarificationsColumns[31], ContestClarificationsColumns[33], ContestClarificationsColumns[1], ContestClarificationsColumns[0]},
+			},
+			{
+				Name:    "contestclarification_contest_id_answer_audience_status_answered_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestClarificationsColumns[31], ContestClarificationsColumns[5], ContestClarificationsColumns[4], ContestClarificationsColumns[28], ContestClarificationsColumns[0]},
+			},
+			{
+				Name:    "contestclarification_question_revision_id_id_question_owner_type_question_content_kind_question_render_source_id_question_render_source_kind_question_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestClarificationsColumns[6], ContestClarificationsColumns[0], ContestClarificationsColumns[7], ContestClarificationsColumns[8], ContestClarificationsColumns[9], ContestClarificationsColumns[10], ContestClarificationsColumns[11]},
+			},
+			{
+				Name:    "contestclarification_current_public_question_revision_id_id_current_public_question_owner_type_current_public_question_content_kind_current_public_question_render_source_id_current_public_question_render_source_kind_current_public_question_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestClarificationsColumns[13], ContestClarificationsColumns[0], ContestClarificationsColumns[14], ContestClarificationsColumns[15], ContestClarificationsColumns[16], ContestClarificationsColumns[17], ContestClarificationsColumns[18]},
+			},
+			{
+				Name:    "contestclarification_current_answer_revision_id_id_current_answer_owner_type_current_answer_content_kind_current_answer_render_source_id_current_answer_render_source_kind_current_answer_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestClarificationsColumns[20], ContestClarificationsColumns[0], ContestClarificationsColumns[21], ContestClarificationsColumns[22], ContestClarificationsColumns[23], ContestClarificationsColumns[24], ContestClarificationsColumns[25]},
+			},
+		},
+	}
+	// ContestContentCommandsColumns holds the columns for the "contest_content_commands" table.
+	ContestContentCommandsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "command_kind", Type: field.TypeEnum, Enums: []string{"announcement_create", "announcement_edit", "announcement_publish", "announcement_withdraw", "clarification_submit", "clarification_answer", "clarification_close", "clarification_withdraw"}},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "request_hash", Type: field.TypeBytes},
+		{Name: "actor_session_id", Type: field.TypeUUID},
+		{Name: "result_owner_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"announcement", "clarification"}},
+		{Name: "result_content_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "result_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "result_version", Type: field.TypeInt64, Nullable: true},
+		{Name: "result_projection", Type: field.TypeBytes, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "actor_user_id", Type: field.TypeUUID},
+	}
+	// ContestContentCommandsTable holds the schema information for the "contest_content_commands" table.
+	ContestContentCommandsTable = &schema.Table{
+		Name:       "contest_content_commands",
+		Columns:    ContestContentCommandsColumns,
+		PrimaryKey: []*schema.Column{ContestContentCommandsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_content_commands_contests_content_commands",
+				Columns:    []*schema.Column{ContestContentCommandsColumns[12]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_content_commands_users_contest_content_commands",
+				Columns:    []*schema.Column{ContestContentCommandsColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestcontentcommand_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestContentCommandsColumns[1]},
+			},
+			{
+				Name:    "contestcontentcommand_command_kind_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{ContestContentCommandsColumns[2], ContestContentCommandsColumns[3]},
+			},
+			{
+				Name:    "contestcontentcommand_contest_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ContestContentCommandsColumns[12], ContestContentCommandsColumns[11]},
+			},
+		},
+	}
+	// ContestContentRevisionsColumns holds the columns for the "contest_content_revisions" table.
+	ContestContentRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "owner_type", Type: field.TypeEnum, Enums: []string{"announcement", "clarification"}},
+		{Name: "owner_id", Type: field.TypeUUID},
+		{Name: "content_kind", Type: field.TypeEnum, Enums: []string{"announcement_body", "question", "public_question_summary", "answer"}},
+		{Name: "revision_number", Type: field.TypeInt64},
+		{Name: "title", Type: field.TypeString, Nullable: true, Size: 200},
+		{Name: "markdown", Type: field.TypeString, Size: 2147483647},
+		{Name: "render_source_id", Type: field.TypeUUID},
+		{Name: "render_source_kind", Type: field.TypeEnum, Enums: []string{"contest_announcement", "contest_clarification"}},
+		{Name: "normalized_source_checksum", Type: field.TypeBytes},
+		{Name: "render_artifact_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "author_id", Type: field.TypeUUID},
+	}
+	// ContestContentRevisionsTable holds the schema information for the "contest_content_revisions" table.
+	ContestContentRevisionsTable = &schema.Table{
+		Name:       "contest_content_revisions",
+		Columns:    ContestContentRevisionsColumns,
+		PrimaryKey: []*schema.Column{ContestContentRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_content_revisions_users_contest_content_revisions",
+				Columns:    []*schema.Column{ContestContentRevisionsColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestcontentrevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestContentRevisionsColumns[1]},
+			},
+			{
+				Name:    "contestcontentrevision_owner_type_owner_id_content_kind_revision_number",
+				Unique:  true,
+				Columns: []*schema.Column{ContestContentRevisionsColumns[2], ContestContentRevisionsColumns[3], ContestContentRevisionsColumns[4], ContestContentRevisionsColumns[5]},
+			},
+			{
+				Name:    "contestcontentrevision_id_render_source_id_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestContentRevisionsColumns[0], ContestContentRevisionsColumns[8], ContestContentRevisionsColumns[9], ContestContentRevisionsColumns[10]},
+			},
+			{
+				Name:    "contestcontentrevision_id_owner_type_owner_id_content_kind_render_source_id_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestContentRevisionsColumns[0], ContestContentRevisionsColumns[2], ContestContentRevisionsColumns[3], ContestContentRevisionsColumns[4], ContestContentRevisionsColumns[8], ContestContentRevisionsColumns[9], ContestContentRevisionsColumns[10]},
+			},
+			{
+				Name:    "contestcontentrevision_render_artifact_id_render_source_id_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ContestContentRevisionsColumns[11], ContestContentRevisionsColumns[8], ContestContentRevisionsColumns[9], ContestContentRevisionsColumns[10]},
+			},
+			{
+				Name:    "contestcontentrevision_owner_type_owner_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestContentRevisionsColumns[2], ContestContentRevisionsColumns[3], ContestContentRevisionsColumns[12], ContestContentRevisionsColumns[0]},
+			},
+		},
+	}
+	// ContestDraftProblemsColumns holds the columns for the "contest_draft_problems" table.
+	ContestDraftProblemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "display_order", Type: field.TypeInt},
+		{Name: "alias", Type: field.TypeString, Size: 16},
+		{Name: "points", Type: field.TypeInt, Nullable: true},
+		{Name: "visible_before_start", Type: field.TypeBool, Default: true},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+	}
+	// ContestDraftProblemsTable holds the schema information for the "contest_draft_problems" table.
+	ContestDraftProblemsTable = &schema.Table{
+		Name:       "contest_draft_problems",
+		Columns:    ContestDraftProblemsColumns,
+		PrimaryKey: []*schema.Column{ContestDraftProblemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_draft_problems_contests_draft_problems",
+				Columns:    []*schema.Column{ContestDraftProblemsColumns[8]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_draft_problems_problems_contest_draft_memberships",
+				Columns:    []*schema.Column{ContestDraftProblemsColumns[9]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestdraftproblem_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestDraftProblemsColumns[3]},
+			},
+			{
+				Name:    "contestdraftproblem_contest_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestDraftProblemsColumns[8], ContestDraftProblemsColumns[9]},
+			},
+			{
+				Name:    "contestdraftproblem_contest_id_display_order",
+				Unique:  true,
+				Columns: []*schema.Column{ContestDraftProblemsColumns[8], ContestDraftProblemsColumns[4]},
+			},
+			{
+				Name:    "contestdraftproblem_contest_id_alias",
+				Unique:  true,
+				Columns: []*schema.Column{ContestDraftProblemsColumns[8], ContestDraftProblemsColumns[5]},
+			},
+			{
+				Name:    "contestdraftproblem_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestDraftProblemsColumns[9]},
+			},
+		},
+	}
+	// ContestProblemsColumns holds the columns for the "contest_problems" table.
+	ContestProblemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "display_order", Type: field.TypeInt},
+		{Name: "alias", Type: field.TypeString, Size: 16},
+		{Name: "points", Type: field.TypeInt, Nullable: true},
+		{Name: "penalty_policy", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "visible_before_start", Type: field.TypeBool, Default: false},
+		{Name: "checker_key", Type: field.TypeString, Size: 64},
+		{Name: "checker_version", Type: field.TypeString, Size: 64},
+		{Name: "checker_config", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "allowed_runtime_keys", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "snapshot_checksum", Type: field.TypeBytes},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "problem_revision_id", Type: field.TypeUUID},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+	}
+	// ContestProblemsTable holds the schema information for the "contest_problems" table.
+	ContestProblemsTable = &schema.Table{
+		Name:       "contest_problems",
+		Columns:    ContestProblemsColumns,
+		PrimaryKey: []*schema.Column{ContestProblemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_problems_contests_contest_problems",
+				Columns:    []*schema.Column{ContestProblemsColumns[13]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_problems_problems_contest_problem_snapshots",
+				Columns:    []*schema.Column{ContestProblemsColumns[14]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_problems_problem_revisions_contest_problem_snapshots",
+				Columns:    []*schema.Column{ContestProblemsColumns[15]},
+				RefColumns: []*schema.Column{ProblemRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_problems_testset_revisions_contest_problem_snapshots",
+				Columns:    []*schema.Column{ContestProblemsColumns[16]},
+				RefColumns: []*schema.Column{TestsetRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestproblem_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestProblemsColumns[1]},
+			},
+			{
+				Name:    "contestproblem_contest_id_alias",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemsColumns[13], ContestProblemsColumns[4]},
+			},
+			{
+				Name:    "contestproblem_contest_id_display_order",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemsColumns[13], ContestProblemsColumns[3]},
+			},
+			{
+				Name:    "contestproblem_contest_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemsColumns[13], ContestProblemsColumns[14]},
+			},
+			{
+				Name:    "contestproblem_id_contest_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemsColumns[0], ContestProblemsColumns[13], ContestProblemsColumns[14]},
+			},
+			{
+				Name:    "contestproblem_id_contest_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemsColumns[0], ContestProblemsColumns[13]},
+			},
+			{
+				Name:    "contestproblem_problem_revision_id_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestProblemsColumns[15], ContestProblemsColumns[14]},
+			},
+			{
+				Name:    "contestproblem_testset_revision_id_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestProblemsColumns[16], ContestProblemsColumns[14]},
+			},
+		},
+	}
+	// ContestProblemResultsColumns holds the columns for the "contest_problem_results" table.
+	ContestProblemResultsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "accepted", Type: field.TypeBool, Default: false},
+		{Name: "accepted_elapsed_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "wrong_attempts_before_accept", Type: field.TypeInt, Default: 0},
+		{Name: "best_score", Type: field.TypeInt, Default: 0},
+		{Name: "last_accepted_sequence", Type: field.TypeInt64, Nullable: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "contest_problem_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "last_scoring_submission_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// ContestProblemResultsTable holds the schema information for the "contest_problem_results" table.
+	ContestProblemResultsTable = &schema.Table{
+		Name:       "contest_problem_results",
+		Columns:    ContestProblemResultsColumns,
+		PrimaryKey: []*schema.Column{ContestProblemResultsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_problem_results_contests_problem_results",
+				Columns:    []*schema.Column{ContestProblemResultsColumns[10]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_problem_results_contest_problems_scoring_results",
+				Columns:    []*schema.Column{ContestProblemResultsColumns[11]},
+				RefColumns: []*schema.Column{ContestProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_problem_results_problems_contest_problem_results",
+				Columns:    []*schema.Column{ContestProblemResultsColumns[12]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_problem_results_submissions_last_contest_problem_results",
+				Columns:    []*schema.Column{ContestProblemResultsColumns[13]},
+				RefColumns: []*schema.Column{SubmissionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "contest_problem_results_users_contest_problem_results",
+				Columns:    []*schema.Column{ContestProblemResultsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestproblemresult_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestProblemResultsColumns[3]},
+			},
+			{
+				Name:    "contestproblemresult_contest_id_user_id_contest_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemResultsColumns[10], ContestProblemResultsColumns[14], ContestProblemResultsColumns[11]},
+			},
+			{
+				Name:    "contestproblemresult_contest_id_user_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestProblemResultsColumns[10], ContestProblemResultsColumns[14], ContestProblemResultsColumns[12]},
+			},
+			{
+				Name:    "contestproblemresult_last_scoring_submission_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestProblemResultsColumns[13]},
+			},
+		},
+	}
+	// ContestRatingResultsColumns holds the columns for the "contest_rating_results" table.
+	ContestRatingResultsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "prior_rating", Type: field.TypeInt},
+		{Name: "prior_rated_contest_count", Type: field.TypeInt},
+		{Name: "rank_position", Type: field.TypeInt},
+		{Name: "actual_rank", Type: field.TypeFloat64},
+		{Name: "expected_rank", Type: field.TypeFloat64},
+		{Name: "delta", Type: field.TypeInt},
+		{Name: "new_rating", Type: field.TypeInt},
+		{Name: "rating_run_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// ContestRatingResultsTable holds the schema information for the "contest_rating_results" table.
+	ContestRatingResultsTable = &schema.Table{
+		Name:       "contest_rating_results",
+		Columns:    ContestRatingResultsColumns,
+		PrimaryKey: []*schema.Column{ContestRatingResultsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_rating_results_contest_rating_runs_results",
+				Columns:    []*schema.Column{ContestRatingResultsColumns[11]},
+				RefColumns: []*schema.Column{ContestRatingRunsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_rating_results_users_contest_rating_results",
+				Columns:    []*schema.Column{ContestRatingResultsColumns[12]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestratingresult_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRatingResultsColumns[3]},
+			},
+			{
+				Name:    "contestratingresult_rating_run_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRatingResultsColumns[11], ContestRatingResultsColumns[12]},
+			},
+			{
+				Name:    "contestratingresult_user_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRatingResultsColumns[12], ContestRatingResultsColumns[1], ContestRatingResultsColumns[0]},
+			},
+		},
+	}
+	// ContestRatingRunsColumns holds the columns for the "contest_rating_runs" table.
+	ContestRatingRunsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "rating_sequence", Type: field.TypeInt64},
+		{Name: "run_version", Type: field.TypeInt64},
+		{Name: "standings_projection_version", Type: field.TypeInt64},
+		{Name: "algorithm_version", Type: field.TypeString, Size: 64},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"waiting", "running", "applied", "skipped", "superseded", "failed"}, Default: "waiting"},
+		{Name: "skip_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "actor_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "reason", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "input_checksum", Type: field.TypeBytes, Size: 32},
+		{Name: "participant_count", Type: field.TypeInt},
+		{Name: "failure_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "applied_at", Type: field.TypeTime, Nullable: true},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "rating_sequence_slot_id", Type: field.TypeUUID},
+	}
+	// ContestRatingRunsTable holds the schema information for the "contest_rating_runs" table.
+	ContestRatingRunsTable = &schema.Table{
+		Name:       "contest_rating_runs",
+		Columns:    ContestRatingRunsColumns,
+		PrimaryKey: []*schema.Column{ContestRatingRunsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_rating_runs_contests_rating_runs",
+				Columns:    []*schema.Column{ContestRatingRunsColumns[16]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_rating_runs_rating_sequence_slots_runs",
+				Columns:    []*schema.Column{ContestRatingRunsColumns[17]},
+				RefColumns: []*schema.Column{RatingSequenceSlotsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestratingrun_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRatingRunsColumns[3]},
+			},
+			{
+				Name:    "contestratingrun_contest_id_run_version",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRatingRunsColumns[16], ContestRatingRunsColumns[5]},
+			},
+			{
+				Name:    "contestratingrun_rating_sequence_run_version",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRatingRunsColumns[4], ContestRatingRunsColumns[5]},
+			},
+			{
+				Name:    "contestratingrun_rating_sequence_slot_id_run_version",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRatingRunsColumns[17], ContestRatingRunsColumns[5]},
+			},
+			{
+				Name:    "contestratingrun_status_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRatingRunsColumns[8], ContestRatingRunsColumns[1], ContestRatingRunsColumns[0]},
+			},
+			{
+				Name:    "contestratingrun_contest_id_status_run_version",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRatingRunsColumns[16], ContestRatingRunsColumns[8], ContestRatingRunsColumns[5]},
 			},
 		},
 	}
 	// ContestRegistrationsColumns holds the columns for the "contest_registrations" table.
 	ContestRegistrationsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "contest_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"registered", "withdrawn", "banned"}, Default: "registered"},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"explicit", "implicit_open", "admin"}},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "official_submission_count", Type: field.TypeInt64, Default: 0},
+		{Name: "registered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "withdrawn_at", Type: field.TypeTime, Nullable: true},
+		{Name: "banned_at", Type: field.TypeTime, Nullable: true},
+		{Name: "reason", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// ContestRegistrationsTable holds the schema information for the "contest_registrations" table.
 	ContestRegistrationsTable = &schema.Table{
@@ -80,38 +1561,210 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "contest_registrations_contests_registrations",
-				Columns:    []*schema.Column{ContestRegistrationsColumns[1]},
+				Columns:    []*schema.Column{ContestRegistrationsColumns[12]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "contest_registrations_users_contest_registrations",
-				Columns:    []*schema.Column{ContestRegistrationsColumns[2]},
+				Columns:    []*schema.Column{ContestRegistrationsColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "contestregistration_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRegistrationsColumns[3]},
+			},
+			{
 				Name:    "contestregistration_contest_id_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{ContestRegistrationsColumns[1], ContestRegistrationsColumns[2]},
+				Columns: []*schema.Column{ContestRegistrationsColumns[12], ContestRegistrationsColumns[13]},
+			},
+			{
+				Name:    "contestregistration_id_contest_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRegistrationsColumns[0], ContestRegistrationsColumns[12], ContestRegistrationsColumns[13]},
 			},
 			{
 				Name:    "contestregistration_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{ContestRegistrationsColumns[2]},
+				Columns: []*schema.Column{ContestRegistrationsColumns[13]},
+			},
+			{
+				Name:    "contestregistration_contest_id_status_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRegistrationsColumns[12], ContestRegistrationsColumns[4], ContestRegistrationsColumns[0]},
+			},
+		},
+	}
+	// ContestRegistrationTransitionsColumns holds the columns for the "contest_registration_transitions" table.
+	ContestRegistrationTransitionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "command_id", Type: field.TypeUUID},
+		{Name: "command_hash", Type: field.TypeBytes},
+		{Name: "registration_version", Type: field.TypeInt64},
+		{Name: "official_submission_count", Type: field.TypeInt64},
+		{Name: "mutation", Type: field.TypeEnum, Enums: []string{"register", "withdraw", "ban"}},
+		{Name: "from_status", Type: field.TypeEnum, Enums: []string{"absent", "registered", "withdrawn", "banned"}},
+		{Name: "to_status", Type: field.TypeEnum, Enums: []string{"registered", "withdrawn", "banned"}},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"explicit", "implicit_open", "admin"}},
+		{Name: "actor_user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "actor_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "reason", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "registration_id", Type: field.TypeUUID},
+	}
+	// ContestRegistrationTransitionsTable holds the schema information for the "contest_registration_transitions" table.
+	ContestRegistrationTransitionsTable = &schema.Table{
+		Name:       "contest_registration_transitions",
+		Columns:    ContestRegistrationTransitionsColumns,
+		PrimaryKey: []*schema.Column{ContestRegistrationTransitionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_registration_transitions_contest_registrations_transitions",
+				Columns:    []*schema.Column{ContestRegistrationTransitionsColumns[17]},
+				RefColumns: []*schema.Column{ContestRegistrationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestregistrationtransition_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRegistrationTransitionsColumns[1]},
+			},
+			{
+				Name:    "contestregistrationtransition_contest_id_user_id_command_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRegistrationTransitionsColumns[3], ContestRegistrationTransitionsColumns[4], ContestRegistrationTransitionsColumns[5]},
+			},
+			{
+				Name:    "contestregistrationtransition_registration_id_registration_version",
+				Unique:  true,
+				Columns: []*schema.Column{ContestRegistrationTransitionsColumns[17], ContestRegistrationTransitionsColumns[7]},
+			},
+			{
+				Name:    "contestregistrationtransition_contest_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestRegistrationTransitionsColumns[3], ContestRegistrationTransitionsColumns[16], ContestRegistrationTransitionsColumns[0]},
+			},
+		},
+	}
+	// ContestScoringAttemptsColumns holds the columns for the "contest_scoring_attempts" table.
+	ContestScoringAttemptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "submitted_at", Type: field.TypeTime},
+		{Name: "submission_elapsed_ms", Type: field.TypeInt64},
+		{Name: "contest_submission_sequence", Type: field.TypeInt64},
+		{Name: "active_generation", Type: field.TypeInt64},
+		{Name: "terminal_verdict", Type: field.TypeEnum, Enums: []string{"accepted", "wrong_answer", "compile_error", "runtime_error", "time_limit_exceeded", "memory_limit_exceeded", "process_limit_exceeded", "output_limit_exceeded"}},
+		{Name: "judgement_version", Type: field.TypeInt64},
+		{Name: "source_event_id", Type: field.TypeUUID},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "contest_problem_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "submission_id", Type: field.TypeUUID, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// ContestScoringAttemptsTable holds the schema information for the "contest_scoring_attempts" table.
+	ContestScoringAttemptsTable = &schema.Table{
+		Name:       "contest_scoring_attempts",
+		Columns:    ContestScoringAttemptsColumns,
+		PrimaryKey: []*schema.Column{ContestScoringAttemptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_scoring_attempts_contests_scoring_attempts",
+				Columns:    []*schema.Column{ContestScoringAttemptsColumns[12]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_scoring_attempts_contest_problems_scoring_attempts",
+				Columns:    []*schema.Column{ContestScoringAttemptsColumns[13]},
+				RefColumns: []*schema.Column{ContestProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_scoring_attempts_problems_contest_scoring_attempts",
+				Columns:    []*schema.Column{ContestScoringAttemptsColumns[14]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_scoring_attempts_submissions_contest_scoring_attempt",
+				Columns:    []*schema.Column{ContestScoringAttemptsColumns[15]},
+				RefColumns: []*schema.Column{SubmissionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_scoring_attempts_users_contest_scoring_attempts",
+				Columns:    []*schema.Column{ContestScoringAttemptsColumns[16]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestscoringattempt_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestScoringAttemptsColumns[3]},
+			},
+			{
+				Name:    "contestscoringattempt_submission_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestScoringAttemptsColumns[15]},
+			},
+			{
+				Name:    "contestscoringattempt_contest_id_contest_submission_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{ContestScoringAttemptsColumns[12], ContestScoringAttemptsColumns[6]},
+			},
+			{
+				Name:    "contestscoringattempt_contest_id_user_id_contest_problem_id_contest_submission_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{ContestScoringAttemptsColumns[12], ContestScoringAttemptsColumns[16], ContestScoringAttemptsColumns[13], ContestScoringAttemptsColumns[6]},
+			},
+			{
+				Name:    "contestscoringattempt_contest_id_user_id_problem_id_contest_submission_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{ContestScoringAttemptsColumns[12], ContestScoringAttemptsColumns[16], ContestScoringAttemptsColumns[14], ContestScoringAttemptsColumns[6]},
+			},
+			{
+				Name:    "contestscoringattempt_source_event_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestScoringAttemptsColumns[10]},
 			},
 		},
 	}
 	// ContestStandingsColumns holds the columns for the "contest_standings" table.
 	ContestStandingsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "solved_count", Type: field.TypeInt, Default: 0},
 		{Name: "penalty", Type: field.TypeInt, Default: 0},
 		{Name: "problem_results", Type: field.TypeJSON, Nullable: true},
-		{Name: "contest_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "last_accepted_elapsed_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "frozen_solved_count", Type: field.TypeInt, Default: 0},
+		{Name: "frozen_penalty", Type: field.TypeInt, Default: 0},
+		{Name: "frozen_problem_results", Type: field.TypeJSON, Nullable: true},
+		{Name: "frozen_pending_problem_attempts", Type: field.TypeJSON, Nullable: true},
+		{Name: "frozen_pending_attempts", Type: field.TypeInt, Default: 0},
+		{Name: "frozen_last_accepted_elapsed_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "frozen_version", Type: field.TypeInt64, Default: 1},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// ContestStandingsTable holds the schema information for the "contest_standings" table.
 	ContestStandingsTable = &schema.Table{
@@ -121,35 +1774,160 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "contest_standings_contests_standings",
-				Columns:    []*schema.Column{ContestStandingsColumns[4]},
+				Columns:    []*schema.Column{ContestStandingsColumns[14]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "contest_standings_users_contest_standings",
-				Columns:    []*schema.Column{ContestStandingsColumns[5]},
+				Columns:    []*schema.Column{ContestStandingsColumns[15]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "conteststanding_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestStandingsColumns[1]},
+			},
+			{
 				Name:    "conteststanding_contest_id_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{ContestStandingsColumns[4], ContestStandingsColumns[5]},
+				Columns: []*schema.Column{ContestStandingsColumns[14], ContestStandingsColumns[15]},
+			},
+			{
+				Name:    "conteststanding_contest_id_solved_count_penalty_last_accepted_elapsed_ms_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestStandingsColumns[14], ContestStandingsColumns[2], ContestStandingsColumns[3], ContestStandingsColumns[5], ContestStandingsColumns[15]},
+			},
+			{
+				Name:    "conteststanding_contest_id_frozen_solved_count_frozen_penalty_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestStandingsColumns[14], ContestStandingsColumns[7], ContestStandingsColumns[8], ContestStandingsColumns[15]},
+			},
+		},
+	}
+	// ContestTransitionsColumns holds the columns for the "contest_transitions" table.
+	ContestTransitionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "command_id", Type: field.TypeUUID},
+		{Name: "command_hash", Type: field.TypeBytes},
+		{Name: "version", Type: field.TypeInt64},
+		{Name: "from_state", Type: field.TypeEnum, Enums: []string{"draft", "upcoming", "running"}},
+		{Name: "to_state", Type: field.TypeEnum, Enums: []string{"upcoming", "running", "ended", "cancelled"}},
+		{Name: "actor_user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "actor_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "reason", Type: field.TypeString, Size: 1024},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "contest_id", Type: field.TypeUUID},
+	}
+	// ContestTransitionsTable holds the schema information for the "contest_transitions" table.
+	ContestTransitionsTable = &schema.Table{
+		Name:       "contest_transitions",
+		Columns:    ContestTransitionsColumns,
+		PrimaryKey: []*schema.Column{ContestTransitionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_transitions_contests_transitions",
+				Columns:    []*schema.Column{ContestTransitionsColumns[12]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contesttransition_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestTransitionsColumns[1]},
+			},
+			{
+				Name:    "contesttransition_contest_id_version",
+				Unique:  true,
+				Columns: []*schema.Column{ContestTransitionsColumns[12], ContestTransitionsColumns[5]},
+			},
+			{
+				Name:    "contesttransition_contest_id_command_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestTransitionsColumns[12], ContestTransitionsColumns[3]},
+			},
+			{
+				Name:    "contesttransition_contest_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestTransitionsColumns[12], ContestTransitionsColumns[11], ContestTransitionsColumns[0]},
+			},
+		},
+	}
+	// ContestUserRatingsColumns holds the columns for the "contest_user_ratings" table.
+	ContestUserRatingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "rating", Type: field.TypeInt},
+		{Name: "rated_contest_count", Type: field.TypeInt},
+		{Name: "applied_sequence", Type: field.TypeInt64},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "projection_generation_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// ContestUserRatingsTable holds the schema information for the "contest_user_ratings" table.
+	ContestUserRatingsTable = &schema.Table{
+		Name:       "contest_user_ratings",
+		Columns:    ContestUserRatingsColumns,
+		PrimaryKey: []*schema.Column{ContestUserRatingsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_user_ratings_rating_projection_generations_ratings",
+				Columns:    []*schema.Column{ContestUserRatingsColumns[8]},
+				RefColumns: []*schema.Column{RatingProjectionGenerationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_user_ratings_users_contest_user_ratings",
+				Columns:    []*schema.Column{ContestUserRatingsColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "contestuserrating_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestUserRatingsColumns[3]},
+			},
+			{
+				Name:    "contestuserrating_projection_generation_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ContestUserRatingsColumns[8], ContestUserRatingsColumns[9]},
+			},
+			{
+				Name:    "contestuserrating_projection_generation_id_rating_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ContestUserRatingsColumns[8], ContestUserRatingsColumns[4], ContestUserRatingsColumns[9]},
+			},
+			{
+				Name:    "contestuserrating_user_id_applied_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{ContestUserRatingsColumns[9], ContestUserRatingsColumns[6]},
 			},
 		},
 	}
 	// CredentialsColumns holds the columns for the "credentials" table.
 	CredentialsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "type", Type: field.TypeString},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "type", Type: field.TypeString, Size: 32},
 		{Name: "credential_data", Type: field.TypeJSON},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "active", Type: field.TypeBool, Default: true},
+		{Name: "last_used_at", Type: field.TypeTime, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// CredentialsTable holds the schema information for the "credentials" table.
 	CredentialsTable = &schema.Table{
@@ -159,57 +1937,334 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "credentials_users_credentials",
-				Columns:    []*schema.Column{CredentialsColumns[7]},
+				Columns:    []*schema.Column{CredentialsColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "credential_user_id_type",
+				Unique:  true,
+				Columns: []*schema.Column{CredentialsColumns[10], CredentialsColumns[5]},
+			},
+		},
+	}
+	// CultivationCatalogRevisionsColumns holds the columns for the "cultivation_catalog_revisions" table.
+	CultivationCatalogRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "algorithm_version", Type: field.TypeString, Size: 64},
+		{Name: "catalog_checksum", Type: field.TypeBytes},
+		{Name: "root_pool", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "talent_pool", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "maximum_offers", Type: field.TypeInt},
+		{Name: "offer_ttl_seconds", Type: field.TypeInt64},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// CultivationCatalogRevisionsTable holds the schema information for the "cultivation_catalog_revisions" table.
+	CultivationCatalogRevisionsTable = &schema.Table{
+		Name:       "cultivation_catalog_revisions",
+		Columns:    CultivationCatalogRevisionsColumns,
+		PrimaryKey: []*schema.Column{CultivationCatalogRevisionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "cultivationcatalogrevision_revision",
+				Unique:  true,
+				Columns: []*schema.Column{CultivationCatalogRevisionsColumns[1]},
+			},
+			{
+				Name:    "cultivationcatalogrevision_catalog_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{CultivationCatalogRevisionsColumns[3]},
+			},
+		},
+	}
+	// CultivationRankingPrivacyChangesColumns holds the columns for the "cultivation_ranking_privacy_changes" table.
+	CultivationRankingPrivacyChangesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "from_visibility", Type: field.TypeEnum, Enums: []string{"public", "anonymous", "hidden"}},
+		{Name: "to_visibility", Type: field.TypeEnum, Enums: []string{"public", "anonymous", "hidden"}},
+		{Name: "from_version", Type: field.TypeInt64},
+		{Name: "to_version", Type: field.TypeInt64},
+		{Name: "projection_revision", Type: field.TypeInt64},
+		{Name: "request_checksum", Type: field.TypeBytes},
+		{Name: "reason", Type: field.TypeString, Size: 512},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// CultivationRankingPrivacyChangesTable holds the schema information for the "cultivation_ranking_privacy_changes" table.
+	CultivationRankingPrivacyChangesTable = &schema.Table{
+		Name:       "cultivation_ranking_privacy_changes",
+		Columns:    CultivationRankingPrivacyChangesColumns,
+		PrimaryKey: []*schema.Column{CultivationRankingPrivacyChangesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "cultivationrankingprivacychange_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingPrivacyChangesColumns[1]},
+			},
+			{
+				Name:    "cultivationrankingprivacychange_tenant_id_user_id_to_version",
+				Unique:  true,
+				Columns: []*schema.Column{CultivationRankingPrivacyChangesColumns[1], CultivationRankingPrivacyChangesColumns[2], CultivationRankingPrivacyChangesColumns[6]},
+			},
+			{
+				Name:    "cultivationrankingprivacychange_user_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingPrivacyChangesColumns[2], CultivationRankingPrivacyChangesColumns[11], CultivationRankingPrivacyChangesColumns[0]},
+			},
+			{
+				Name:    "cultivationrankingprivacychange_request_checksum",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingPrivacyChangesColumns[8]},
+			},
+		},
+	}
+	// CultivationRankingProjectionsColumns holds the columns for the "cultivation_ranking_projections" table.
+	CultivationRankingProjectionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "public_id", Type: field.TypeUUID},
+		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"public", "anonymous", "hidden"}, Default: "public"},
+		{Name: "privacy_version", Type: field.TypeInt64, Default: 1},
+		{Name: "projection_revision", Type: field.TypeInt64},
+		{Name: "progression_source_version", Type: field.TypeInt64, Default: 0},
+		{Name: "rating_source_version", Type: field.TypeInt64, Default: 0},
+		{Name: "total_exp", Type: field.TypeInt64, Default: 0},
+		{Name: "rating", Type: field.TypeInt, Default: 1200},
+		{Name: "progression_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "rating_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// CultivationRankingProjectionsTable holds the schema information for the "cultivation_ranking_projections" table.
+	CultivationRankingProjectionsTable = &schema.Table{
+		Name:       "cultivation_ranking_projections",
+		Columns:    CultivationRankingProjectionsColumns,
+		PrimaryKey: []*schema.Column{CultivationRankingProjectionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "cultivation_ranking_projections_users_cultivation_ranking_projection",
+				Columns:    []*schema.Column{CultivationRankingProjectionsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "cultivationrankingprojection_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingProjectionsColumns[1]},
+			},
+			{
+				Name:    "cultivationrankingprojection_tenant_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{CultivationRankingProjectionsColumns[1], CultivationRankingProjectionsColumns[14]},
+			},
+			{
+				Name:    "cultivationrankingprojection_public_id",
+				Unique:  true,
+				Columns: []*schema.Column{CultivationRankingProjectionsColumns[2]},
+			},
+			{
+				Name:    "cultivationrankingprojection_visibility_rating_rating_updated_at_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingProjectionsColumns[3], CultivationRankingProjectionsColumns[9], CultivationRankingProjectionsColumns[11], CultivationRankingProjectionsColumns[14]},
+			},
+			{
+				Name:    "cultivationrankingprojection_visibility_total_exp_progression_updated_at_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingProjectionsColumns[3], CultivationRankingProjectionsColumns[8], CultivationRankingProjectionsColumns[10], CultivationRankingProjectionsColumns[14]},
+			},
+			{
+				Name:    "cultivationrankingprojection_projection_revision",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingProjectionsColumns[5]},
+			},
+		},
+	}
+	// CultivationRankingStatesColumns holds the columns for the "cultivation_ranking_states" table.
+	CultivationRankingStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "key", Type: field.TypeString, Size: 32},
+		{Name: "revision", Type: field.TypeInt64, Default: 0},
+		{Name: "last_reconciled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// CultivationRankingStatesTable holds the schema information for the "cultivation_ranking_states" table.
+	CultivationRankingStatesTable = &schema.Table{
+		Name:       "cultivation_ranking_states",
+		Columns:    CultivationRankingStatesColumns,
+		PrimaryKey: []*schema.Column{CultivationRankingStatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "cultivationrankingstate_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{CultivationRankingStatesColumns[1]},
+			},
+			{
+				Name:    "cultivationrankingstate_tenant_id_key",
+				Unique:  true,
+				Columns: []*schema.Column{CultivationRankingStatesColumns[1], CultivationRankingStatesColumns[2]},
 			},
 		},
 	}
 	// DifficultiesColumns holds the columns for the "difficulties" table.
 	DifficultiesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
-		{Name: "level", Type: field.TypeInt, Unique: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "level", Type: field.TypeInt},
 		{Name: "exp_reward", Type: field.TypeInt64, Default: 0},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
 	}
 	// DifficultiesTable holds the schema information for the "difficulties" table.
 	DifficultiesTable = &schema.Table{
 		Name:       "difficulties",
 		Columns:    DifficultiesColumns,
 		PrimaryKey: []*schema.Column{DifficultiesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "difficulty_name",
+				Unique:  true,
+				Columns: []*schema.Column{DifficultiesColumns[5]},
+			},
+			{
+				Name:    "difficulty_level",
+				Unique:  true,
+				Columns: []*schema.Column{DifficultiesColumns[6]},
+			},
+		},
+	}
+	// DifficultyRevisionsColumns holds the columns for the "difficulty_revisions" table.
+	DifficultyRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "level", Type: field.TypeInt},
+		{Name: "exp_reward", Type: field.TypeInt64},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "checksum", Type: field.TypeBytes},
+		{Name: "difficulty_id", Type: field.TypeUUID},
+	}
+	// DifficultyRevisionsTable holds the schema information for the "difficulty_revisions" table.
+	DifficultyRevisionsTable = &schema.Table{
+		Name:       "difficulty_revisions",
+		Columns:    DifficultyRevisionsColumns,
+		PrimaryKey: []*schema.Column{DifficultyRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "difficulty_revisions_difficulties_revisions",
+				Columns:    []*schema.Column{DifficultyRevisionsColumns[8]},
+				RefColumns: []*schema.Column{DifficultiesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "difficultyrevision_difficulty_id_revision",
+				Unique:  true,
+				Columns: []*schema.Column{DifficultyRevisionsColumns[8], DifficultyRevisionsColumns[2]},
+			},
+			{
+				Name:    "difficultyrevision_difficulty_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{DifficultyRevisionsColumns[8], DifficultyRevisionsColumns[1], DifficultyRevisionsColumns[0]},
+			},
+		},
 	}
 	// ElementsColumns holds the columns for the "elements" table.
 	ElementsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
-		{Name: "code", Type: field.TypeString, Unique: true, Size: 20},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "code", Type: field.TypeString, Size: 20},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
 	}
 	// ElementsTable holds the schema information for the "elements" table.
 	ElementsTable = &schema.Table{
 		Name:       "elements",
 		Columns:    ElementsColumns,
 		PrimaryKey: []*schema.Column{ElementsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "element_name",
+				Unique:  true,
+				Columns: []*schema.Column{ElementsColumns[5]},
+			},
+			{
+				Name:    "element_code",
+				Unique:  true,
+				Columns: []*schema.Column{ElementsColumns[6]},
+			},
+		},
+	}
+	// ElementRevisionsColumns holds the columns for the "element_revisions" table.
+	ElementRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "code", Type: field.TypeString, Size: 20},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "checksum", Type: field.TypeBytes},
+		{Name: "element_id", Type: field.TypeUUID},
+	}
+	// ElementRevisionsTable holds the schema information for the "element_revisions" table.
+	ElementRevisionsTable = &schema.Table{
+		Name:       "element_revisions",
+		Columns:    ElementRevisionsColumns,
+		PrimaryKey: []*schema.Column{ElementRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "element_revisions_elements_revisions",
+				Columns:    []*schema.Column{ElementRevisionsColumns[7]},
+				RefColumns: []*schema.Column{ElementsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "elementrevision_element_id_revision",
+				Unique:  true,
+				Columns: []*schema.Column{ElementRevisionsColumns[7], ElementRevisionsColumns[2]},
+			},
+			{
+				Name:    "elementrevision_element_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ElementRevisionsColumns[7], ElementRevisionsColumns[1], ElementRevisionsColumns[0]},
+			},
+		},
 	}
 	// FederatedIdentitiesColumns holds the columns for the "federated_identities" table.
 	FederatedIdentitiesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "provider", Type: field.TypeString},
-		{Name: "external_id", Type: field.TypeString},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "provider", Type: field.TypeString, Size: 64},
+		{Name: "provider_subject", Type: field.TypeString, Size: 256},
+		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "avatar_url", Type: field.TypeString, Nullable: true, Size: 2048},
+		{Name: "last_authenticated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// FederatedIdentitiesTable holds the schema information for the "federated_identities" table.
 	FederatedIdentitiesTable = &schema.Table{
@@ -219,7 +2274,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "federated_identities_users_federated_identities",
-				Columns:    []*schema.Column{FederatedIdentitiesColumns[7]},
+				Columns:    []*schema.Column{FederatedIdentitiesColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -228,23 +2283,552 @@ var (
 			{
 				Name:    "federatedidentity_user_id_provider",
 				Unique:  true,
-				Columns: []*schema.Column{FederatedIdentitiesColumns[7], FederatedIdentitiesColumns[5]},
+				Columns: []*schema.Column{FederatedIdentitiesColumns[10], FederatedIdentitiesColumns[5]},
 			},
 			{
-				Name:    "federatedidentity_provider_external_id",
+				Name:    "federatedidentity_provider_provider_subject",
 				Unique:  true,
 				Columns: []*schema.Column{FederatedIdentitiesColumns[5], FederatedIdentitiesColumns[6]},
 			},
 		},
 	}
+	// JudgeAttemptsColumns holds the columns for the "judge_attempts" table.
+	JudgeAttemptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "job_id", Type: field.TypeUUID},
+		{Name: "submission_id", Type: field.TypeUUID},
+		{Name: "generation", Type: field.TypeInt64},
+		{Name: "judge_spec_id", Type: field.TypeUUID},
+		{Name: "attempt_number", Type: field.TypeUint32},
+		{Name: "lease_owner", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "lease_token_hash", Type: field.TypeBytes},
+		{Name: "worker_id", Type: field.TypeUUID},
+		{Name: "worker_boot_id", Type: field.TypeUUID},
+		{Name: "origin_cid", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"created", "preparing", "compiling", "running", "finalizing", "succeeded", "infrastructure_failed", "lease_lost", "cancelled"}, Default: "created"},
+		{Name: "failure_classification", Type: field.TypeString, Nullable: true, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "failure_code", Type: field.TypeString, Nullable: true, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "failure_summary", Type: field.TypeString, Nullable: true, Size: 16384},
+		{Name: "started_at", Type: field.TypeTime},
+		{Name: "heartbeat_at", Type: field.TypeTime, Nullable: true},
+		{Name: "finished_at", Type: field.TypeTime, Nullable: true},
+		{Name: "runtime_profile_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compiler_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_bootstrap_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "supervisor_protocol_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "sandbox_image_digest", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "artifact_manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+	}
+	// JudgeAttemptsTable holds the schema information for the "judge_attempts" table.
+	JudgeAttemptsTable = &schema.Table{
+		Name:       "judge_attempts",
+		Columns:    JudgeAttemptsColumns,
+		PrimaryKey: []*schema.Column{JudgeAttemptsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgeattempt_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeAttemptsColumns[3]},
+			},
+			{
+				Name:    "judgeattempt_job_id_attempt_number",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeAttemptsColumns[4], JudgeAttemptsColumns[8]},
+			},
+			{
+				Name:    "judge_attempts_job_identity",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeAttemptsColumns[0], JudgeAttemptsColumns[4], JudgeAttemptsColumns[5], JudgeAttemptsColumns[6], JudgeAttemptsColumns[7]},
+			},
+			{
+				Name:    "judge_attempts_generation_identity",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeAttemptsColumns[0], JudgeAttemptsColumns[5], JudgeAttemptsColumns[6], JudgeAttemptsColumns[7]},
+			},
+			{
+				Name:    "judgeattempt_id_judge_spec_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeAttemptsColumns[0], JudgeAttemptsColumns[7]},
+			},
+			{
+				Name:    "judgeattempt_lease_token_hash",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeAttemptsColumns[10]},
+			},
+			{
+				Name:    "judgeattempt_job_id_state_attempt_number",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeAttemptsColumns[4], JudgeAttemptsColumns[14], JudgeAttemptsColumns[8]},
+			},
+			{
+				Name:    "judgeattempt_worker_id_state_heartbeat_at",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeAttemptsColumns[11], JudgeAttemptsColumns[14], JudgeAttemptsColumns[19]},
+			},
+			{
+				Name:    "judgeattempt_worker_id_worker_boot_id_attempt_number",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeAttemptsColumns[11], JudgeAttemptsColumns[12], JudgeAttemptsColumns[8]},
+			},
+			{
+				Name:    "judgeattempt_submission_id_generation_attempt_number",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeAttemptsColumns[5], JudgeAttemptsColumns[6], JudgeAttemptsColumns[8]},
+			},
+		},
+	}
+	// JudgeJobsColumns holds the columns for the "judge_jobs" table.
+	JudgeJobsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "submission_id", Type: field.TypeUUID},
+		{Name: "generation", Type: field.TypeInt64},
+		{Name: "judge_spec_id", Type: field.TypeUUID},
+		{Name: "lane", Type: field.TypeEnum, Enums: []string{"contest", "regular", "maintenance"}},
+		{Name: "base_priority", Type: field.TypeInt, Default: 0},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"ready", "leased", "retry_wait", "done", "cancelled", "dead"}, Default: "ready"},
+		{Name: "available_at", Type: field.TypeTime},
+		{Name: "attempts", Type: field.TypeUint32, Default: 0},
+		{Name: "max_attempts", Type: field.TypeUint32, Default: 5},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "lease_token_hash", Type: field.TypeBytes, Nullable: true},
+		{Name: "lease_until", Type: field.TypeTime, Nullable: true},
+		{Name: "heartbeat_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_error_code", Type: field.TypeString, Nullable: true, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "last_error_summary", Type: field.TypeString, Nullable: true, Size: 16384},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "dead_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "origin_cid", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "origin_traceparent", Type: field.TypeString, Nullable: true, Size: 55},
+	}
+	// JudgeJobsTable holds the schema information for the "judge_jobs" table.
+	JudgeJobsTable = &schema.Table{
+		Name:       "judge_jobs",
+		Columns:    JudgeJobsColumns,
+		PrimaryKey: []*schema.Column{JudgeJobsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgejob_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeJobsColumns[3]},
+			},
+			{
+				Name:    "judgejob_submission_id_generation",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeJobsColumns[4], JudgeJobsColumns[5]},
+			},
+			{
+				Name:    "judgejob_id_submission_id_generation_judge_spec_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeJobsColumns[0], JudgeJobsColumns[4], JudgeJobsColumns[5], JudgeJobsColumns[6]},
+			},
+			{
+				Name:    "judgejob_judge_spec_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeJobsColumns[6]},
+			},
+			{
+				Name:    "judgejob_lease_token_hash",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeJobsColumns[14]},
+			},
+			{
+				Name:    "judgejob_state_lane_available_at_base_priority_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeJobsColumns[9], JudgeJobsColumns[7], JudgeJobsColumns[10], JudgeJobsColumns[8], JudgeJobsColumns[1], JudgeJobsColumns[0]},
+			},
+			{
+				Name:    "judgejob_state_lease_until",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeJobsColumns[9], JudgeJobsColumns[15]},
+			},
+			{
+				Name:    "judgejob_submission_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeJobsColumns[4], JudgeJobsColumns[1], JudgeJobsColumns[0]},
+			},
+		},
+	}
+	// JudgeSpecsColumns holds the columns for the "judge_specs" table.
+	JudgeSpecsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "submission_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "generation", Type: field.TypeInt64},
+		{Name: "problem_revision_id", Type: field.TypeUUID},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+		{Name: "language", Type: field.TypeEnum, Enums: []string{"cpp", "python", "java", "go"}},
+		{Name: "runtime_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "runtime_profile_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compiler_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_bootstrap_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "sandbox_image_digest", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "compile_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "run_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "artifact_manifest_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "artifact_manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "artifact_manifest", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "supervisor_protocol_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "checker_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "checker_version", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "checker_config", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "release_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "approved_release_manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "checker_implementation_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "capability_profile_hash", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "reward_snapshot", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "reward_snapshot_checksum", Type: field.TypeBytes},
+		{Name: "cpu_time_limit_ms", Type: field.TypeInt},
+		{Name: "wall_time_limit_ms", Type: field.TypeInt},
+		{Name: "memory_limit_kb", Type: field.TypeInt},
+		{Name: "output_limit_bytes", Type: field.TypeInt},
+		{Name: "process_limit", Type: field.TypeInt},
+		{Name: "compile_cpu_time_limit_ms", Type: field.TypeInt},
+		{Name: "compile_wall_time_limit_ms", Type: field.TypeInt},
+		{Name: "total_attempt_wall_time_limit_ms", Type: field.TypeInt},
+		{Name: "source_sha256", Type: field.TypeBytes},
+		{Name: "judge_spec_protocol", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "spec_checksum", Type: field.TypeBytes},
+	}
+	// JudgeSpecsTable holds the schema information for the "judge_specs" table.
+	JudgeSpecsTable = &schema.Table{
+		Name:       "judge_specs",
+		Columns:    JudgeSpecsColumns,
+		PrimaryKey: []*schema.Column{JudgeSpecsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgespec_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeSpecsColumns[1]},
+			},
+			{
+				Name:    "judgespec_submission_id_generation",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeSpecsColumns[3], JudgeSpecsColumns[6]},
+			},
+			{
+				Name:    "judgespec_id_submission_id_generation",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeSpecsColumns[0], JudgeSpecsColumns[3], JudgeSpecsColumns[6]},
+			},
+			{
+				Name:    "judgespec_id_submission_id_generation_testset_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeSpecsColumns[0], JudgeSpecsColumns[3], JudgeSpecsColumns[6], JudgeSpecsColumns[8]},
+			},
+			{
+				Name:    "judge_specs_judgement_identity",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeSpecsColumns[0], JudgeSpecsColumns[3], JudgeSpecsColumns[6], JudgeSpecsColumns[8], JudgeSpecsColumns[7], JudgeSpecsColumns[40], JudgeSpecsColumns[29], JudgeSpecsColumns[11], JudgeSpecsColumns[12], JudgeSpecsColumns[13], JudgeSpecsColumns[20], JudgeSpecsColumns[14], JudgeSpecsColumns[18], JudgeSpecsColumns[24], JudgeSpecsColumns[25], JudgeSpecsColumns[26]},
+			},
+			{
+				Name:    "judge_specs_attempt_provenance_identity",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeSpecsColumns[0], JudgeSpecsColumns[11], JudgeSpecsColumns[12], JudgeSpecsColumns[13], JudgeSpecsColumns[20], JudgeSpecsColumns[14], JudgeSpecsColumns[18]},
+			},
+			{
+				Name:    "judgespec_id_testset_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeSpecsColumns[0], JudgeSpecsColumns[8]},
+			},
+			{
+				Name:    "judgespec_submission_id_user_id_problem_id_generation",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeSpecsColumns[3], JudgeSpecsColumns[4], JudgeSpecsColumns[5], JudgeSpecsColumns[6]},
+			},
+			{
+				Name:    "judgespec_problem_revision_id_testset_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeSpecsColumns[7], JudgeSpecsColumns[8]},
+			},
+			{
+				Name:    "judgespec_capability_profile_hash_runtime_key",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeSpecsColumns[27], JudgeSpecsColumns[10]},
+			},
+			{
+				Name:    "judgespec_spec_checksum",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeSpecsColumns[40]},
+			},
+		},
+	}
+	// JudgeTestResultsColumns holds the columns for the "judge_test_results" table.
+	JudgeTestResultsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "attempt_id", Type: field.TypeUUID},
+		{Name: "judge_spec_id", Type: field.TypeUUID},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+		{Name: "group_id", Type: field.TypeUUID},
+		{Name: "group_index", Type: field.TypeInt},
+		{Name: "group_stop_on_failure", Type: field.TypeBool},
+		{Name: "testcase_revision_id", Type: field.TypeUUID},
+		{Name: "case_order", Type: field.TypeInt},
+		{Name: "execution_order", Type: field.TypeInt},
+		{Name: "test_kind", Type: field.TypeEnum, Enums: []string{"sample", "hidden"}},
+		{Name: "verdict", Type: field.TypeEnum, Enums: []string{"accepted", "wrong_answer", "runtime_error", "time_limit_exceeded", "memory_limit_exceeded", "process_limit_exceeded", "output_limit_exceeded"}},
+		{Name: "time_ms", Type: field.TypeInt},
+		{Name: "memory_kb", Type: field.TypeInt},
+		{Name: "exit_code", Type: field.TypeInt, Nullable: true},
+		{Name: "terminating_signal", Type: field.TypeInt, Nullable: true},
+		{Name: "stdout_bytes", Type: field.TypeInt},
+		{Name: "stderr_bytes", Type: field.TypeInt},
+		{Name: "safe_diagnostic", Type: field.TypeString, Nullable: true, Size: 16384},
+		{Name: "checker_metadata", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "execution_started_at", Type: field.TypeTime},
+		{Name: "execution_completed_at", Type: field.TypeTime},
+	}
+	// JudgeTestResultsTable holds the schema information for the "judge_test_results" table.
+	JudgeTestResultsTable = &schema.Table{
+		Name:       "judge_test_results",
+		Columns:    JudgeTestResultsColumns,
+		PrimaryKey: []*schema.Column{JudgeTestResultsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgetestresult_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeTestResultsColumns[1]},
+			},
+			{
+				Name:    "judgetestresult_attempt_id_testcase_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeTestResultsColumns[3], JudgeTestResultsColumns[9]},
+			},
+			{
+				Name:    "judgetestresult_attempt_id_execution_order",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeTestResultsColumns[3], JudgeTestResultsColumns[11]},
+			},
+			{
+				Name:    "judgetestresult_attempt_id_group_index_case_order",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeTestResultsColumns[3], JudgeTestResultsColumns[7], JudgeTestResultsColumns[10]},
+			},
+			{
+				Name:    "judgetestresult_judge_spec_id_testset_revision_id_group_index_case_order",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeTestResultsColumns[4], JudgeTestResultsColumns[5], JudgeTestResultsColumns[7], JudgeTestResultsColumns[10]},
+			},
+			{
+				Name:    "judgetestresult_testcase_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeTestResultsColumns[9]},
+			},
+		},
+	}
+	// JudgeWorkerCapabilitiesColumns holds the columns for the "judge_worker_capabilities" table.
+	JudgeWorkerCapabilitiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "boot_id", Type: field.TypeUUID},
+		{Name: "judge_spec_protocol", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "runtime_profile_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compiler_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_bootstrap_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compile_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "run_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "image_digest", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "manifest_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "supervisor_protocol", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "checker_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "checker_version", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "capability_profile_hash", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "smoke_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "checker_implementation_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "golden_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "probed_at", Type: field.TypeTime},
+		{Name: "passing", Type: field.TypeBool},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "worker_instance_id", Type: field.TypeUUID},
+	}
+	// JudgeWorkerCapabilitiesTable holds the schema information for the "judge_worker_capabilities" table.
+	JudgeWorkerCapabilitiesTable = &schema.Table{
+		Name:       "judge_worker_capabilities",
+		Columns:    JudgeWorkerCapabilitiesColumns,
+		PrimaryKey: []*schema.Column{JudgeWorkerCapabilitiesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "judge_worker_capabilities_judge_worker_instances_capabilities",
+				Columns:    []*schema.Column{JudgeWorkerCapabilitiesColumns[22]},
+				RefColumns: []*schema.Column{JudgeWorkerInstancesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgeworkercapability_id_worker_instance_id_boot_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeWorkerCapabilitiesColumns[0], JudgeWorkerCapabilitiesColumns[22], JudgeWorkerCapabilitiesColumns[1]},
+			},
+			{
+				Name:    "judge_worker_capabilities_activation_proof_identity",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeWorkerCapabilitiesColumns[0], JudgeWorkerCapabilitiesColumns[22], JudgeWorkerCapabilitiesColumns[1], JudgeWorkerCapabilitiesColumns[2], JudgeWorkerCapabilitiesColumns[3], JudgeWorkerCapabilitiesColumns[4], JudgeWorkerCapabilitiesColumns[5], JudgeWorkerCapabilitiesColumns[6], JudgeWorkerCapabilitiesColumns[7], JudgeWorkerCapabilitiesColumns[8], JudgeWorkerCapabilitiesColumns[9], JudgeWorkerCapabilitiesColumns[10], JudgeWorkerCapabilitiesColumns[11], JudgeWorkerCapabilitiesColumns[12], JudgeWorkerCapabilitiesColumns[13], JudgeWorkerCapabilitiesColumns[14], JudgeWorkerCapabilitiesColumns[15], JudgeWorkerCapabilitiesColumns[17], JudgeWorkerCapabilitiesColumns[16], JudgeWorkerCapabilitiesColumns[18]},
+			},
+			{
+				Name:    "judgeworkercapability_worker_instance_id_boot_id_capability_profile_hash",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeWorkerCapabilitiesColumns[22], JudgeWorkerCapabilitiesColumns[1], JudgeWorkerCapabilitiesColumns[15]},
+			},
+			{
+				Name:    "judgeworkercapability_capability_profile_hash_probed_at",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeWorkerCapabilitiesColumns[15], JudgeWorkerCapabilitiesColumns[19]},
+			},
+			{
+				Name:    "judgeworkercapability_worker_instance_id_probed_at",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeWorkerCapabilitiesColumns[22], JudgeWorkerCapabilitiesColumns[19]},
+			},
+		},
+	}
+	// JudgeWorkerInstancesColumns holds the columns for the "judge_worker_instances" table.
+	JudgeWorkerInstancesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "worker_key", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "boot_id", Type: field.TypeUUID},
+		{Name: "boot_started_at", Type: field.TypeTime},
+		{Name: "heartbeat_at", Type: field.TypeTime},
+		{Name: "claims_enabled", Type: field.TypeBool, Default: false},
+		{Name: "total_capacity", Type: field.TypeInt, Default: 1},
+		{Name: "free_capacity", Type: field.TypeInt, Default: 0},
+	}
+	// JudgeWorkerInstancesTable holds the schema information for the "judge_worker_instances" table.
+	JudgeWorkerInstancesTable = &schema.Table{
+		Name:       "judge_worker_instances",
+		Columns:    JudgeWorkerInstancesColumns,
+		PrimaryKey: []*schema.Column{JudgeWorkerInstancesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgeworkerinstance_boot_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeWorkerInstancesColumns[4]},
+			},
+			{
+				Name:    "judgeworkerinstance_worker_key_boot_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeWorkerInstancesColumns[3], JudgeWorkerInstancesColumns[4]},
+			},
+			{
+				Name:    "judgeworkerinstance_claims_enabled_heartbeat_at",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeWorkerInstancesColumns[7], JudgeWorkerInstancesColumns[6]},
+			},
+			{
+				Name:    "judgeworkerinstance_id_boot_id",
+				Unique:  true,
+				Columns: []*schema.Column{JudgeWorkerInstancesColumns[0], JudgeWorkerInstancesColumns[4]},
+			},
+		},
+	}
+	// SubmissionJudgementsColumns holds the columns for the "submission_judgements" table.
+	SubmissionJudgementsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "submission_id", Type: field.TypeUUID},
+		{Name: "generation", Type: field.TypeInt64},
+		{Name: "judge_spec_id", Type: field.TypeUUID},
+		{Name: "problem_revision_id", Type: field.TypeUUID},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+		{Name: "verdict", Type: field.TypeEnum, Enums: []string{"accepted", "wrong_answer", "compile_error", "runtime_error", "time_limit_exceeded", "memory_limit_exceeded", "process_limit_exceeded", "output_limit_exceeded", "system_error"}},
+		{Name: "passed_count", Type: field.TypeInt},
+		{Name: "total_count", Type: field.TypeInt},
+		{Name: "maximum_time_ms", Type: field.TypeInt, Nullable: true},
+		{Name: "maximum_memory_kb", Type: field.TypeInt, Nullable: true},
+		{Name: "compile_diagnostic_summary", Type: field.TypeString, Nullable: true, Size: 16384},
+		{Name: "judge_spec_checksum", Type: field.TypeBytes},
+		{Name: "reward_snapshot", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "reward_snapshot_checksum", Type: field.TypeBytes},
+		{Name: "runtime_profile_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compiler_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_bootstrap_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "supervisor_protocol_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "sandbox_image_digest", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "artifact_manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "release_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "approved_release_manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "checker_implementation_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "winning_attempt_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime},
+		{Name: "origin_cid", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+	}
+	// SubmissionJudgementsTable holds the schema information for the "submission_judgements" table.
+	SubmissionJudgementsTable = &schema.Table{
+		Name:       "submission_judgements",
+		Columns:    SubmissionJudgementsColumns,
+		PrimaryKey: []*schema.Column{SubmissionJudgementsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgement_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[1]},
+			},
+			{
+				Name:    "judgement_submission_id_generation",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[3], SubmissionJudgementsColumns[4]},
+			},
+			{
+				Name:    "judgement_id_submission_id_generation_verdict",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[0], SubmissionJudgementsColumns[3], SubmissionJudgementsColumns[4], SubmissionJudgementsColumns[8]},
+			},
+			{
+				Name:    "judgement_id_submission_id_generation_problem_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[0], SubmissionJudgementsColumns[3], SubmissionJudgementsColumns[4], SubmissionJudgementsColumns[6]},
+			},
+			{
+				Name:    "submission_judgements_reward_identity",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[0], SubmissionJudgementsColumns[3], SubmissionJudgementsColumns[4], SubmissionJudgementsColumns[6], SubmissionJudgementsColumns[16]},
+			},
+			{
+				Name:    "judgement_judge_spec_id",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[5]},
+			},
+			{
+				Name:    "judgement_winning_attempt_id",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[26]},
+			},
+			{
+				Name:    "judgement_submission_id_completed_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[3], SubmissionJudgementsColumns[27], SubmissionJudgementsColumns[0]},
+			},
+			{
+				Name:    "judgement_verdict_completed_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionJudgementsColumns[8], SubmissionJudgementsColumns[27], SubmissionJudgementsColumns[0]},
+			},
+		},
+	}
 	// LevelsColumns holds the columns for the "levels" table.
 	LevelsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "min_exp", Type: field.TypeInt64, Default: 0},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 	}
@@ -253,25 +2837,44 @@ var (
 		Name:       "levels",
 		Columns:    LevelsColumns,
 		PrimaryKey: []*schema.Column{LevelsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "level_name",
+				Unique:  true,
+				Columns: []*schema.Column{LevelsColumns[5]},
+			},
+		},
 	}
 	// MaterialsColumns holds the columns for the "materials" table.
 	MaterialsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "title", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1000},
 		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "published"}, Default: "draft"},
-		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"public", "group"}, Default: "public"},
 		{Name: "group_id", Type: field.TypeInt, Nullable: true},
-		{Name: "view_count", Type: field.TypeInt, Default: 0},
 		{Name: "estimated_read_time", Type: field.TypeInt, Default: 0},
-		{Name: "difficulty_id", Type: field.TypeInt},
-		{Name: "category_id", Type: field.TypeInt},
-		{Name: "author_id", Type: field.TypeInt},
+		{Name: "current_slug_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "current_slug_state", Type: field.TypeEnum, Enums: []string{"current"}, Default: "current"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "in_review", "published", "archived"}, Default: "draft"},
+		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"public", "authenticated"}, Default: "public"},
+		{Name: "current_draft_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"material_body"}},
+		{Name: "published_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true},
+		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
+		{Name: "view_count", Type: field.TypeInt64, Default: 0},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "difficulty_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "category_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "author_id", Type: field.TypeUUID},
 	}
 	// MaterialsTable holds the schema information for the "materials" table.
 	MaterialsTable = &schema.Table{
@@ -281,49 +2884,65 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "materials_difficulties_materials",
-				Columns:    []*schema.Column{MaterialsColumns[13]},
+				Columns:    []*schema.Column{MaterialsColumns[25]},
 				RefColumns: []*schema.Column{DifficultiesColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "materials_material_categories_materials",
-				Columns:    []*schema.Column{MaterialsColumns[14]},
+				Symbol:     "materials_material_categories_legacy_materials",
+				Columns:    []*schema.Column{MaterialsColumns[26]},
 				RefColumns: []*schema.Column{MaterialCategoriesColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "materials_users_materials",
-				Columns:    []*schema.Column{MaterialsColumns[15]},
+				Columns:    []*schema.Column{MaterialsColumns[27]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "material_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialsColumns[5]},
+			},
+			{
 				Name:    "material_status",
 				Unique:  false,
-				Columns: []*schema.Column{MaterialsColumns[8]},
-			},
-			{
-				Name:    "material_category_id",
-				Unique:  false,
-				Columns: []*schema.Column{MaterialsColumns[14]},
-			},
-			{
-				Name:    "material_difficulty_id",
-				Unique:  false,
 				Columns: []*schema.Column{MaterialsColumns[13]},
+			},
+			{
+				Name:    "material_current_slug_id_id_current_slug_state",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialsColumns[11], MaterialsColumns[0], MaterialsColumns[12]},
+			},
+			{
+				Name:    "material_published_revision_id_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialsColumns[16], MaterialsColumns[0]},
+			},
+			{
+				Name:    "material_published_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialsColumns[21], MaterialsColumns[0]},
+			},
+			{
+				Name:    "material_view_count_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialsColumns[23], MaterialsColumns[0]},
 			},
 		},
 	}
 	// MaterialCategoriesColumns holds the columns for the "material_categories" table.
 	MaterialCategoriesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 	}
 	// MaterialCategoriesTable holds the schema information for the "material_categories" table.
@@ -331,53 +2950,1320 @@ var (
 		Name:       "material_categories",
 		Columns:    MaterialCategoriesColumns,
 		PrimaryKey: []*schema.Column{MaterialCategoriesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "materialcategory_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialCategoriesColumns[5]},
+			},
+			{
+				Name:    "materialcategory_tenant_id_name",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialCategoriesColumns[5], MaterialCategoriesColumns[6]},
+			},
+		},
 	}
-	// PermissionsColumns holds the columns for the "permissions" table.
-	PermissionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "description", Type: field.TypeString, Nullable: true},
-		{Name: "scopes", Type: field.TypeInt, Default: 0},
-		{Name: "resource_id", Type: field.TypeInt},
-		{Name: "role_id", Type: field.TypeInt},
+	// MaterialRevisionsColumns holds the columns for the "material_revisions" table.
+	MaterialRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "revision_number", Type: field.TypeInt64},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Size: 1000},
+		{Name: "content_markdown", Type: field.TypeString, Size: 1048576},
+		{Name: "estimated_read_minutes", Type: field.TypeInt},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "change_summary", Type: field.TypeString, Size: 500},
+		{Name: "normalized_source_checksum", Type: field.TypeBytes},
+		{Name: "render_source_id", Type: field.TypeUUID},
+		{Name: "render_source_kind", Type: field.TypeEnum, Enums: []string{"material_body"}},
+		{Name: "render_artifact_id", Type: field.TypeUUID},
+		{Name: "difficulty_id", Type: field.TypeUUID},
+		{Name: "material_id", Type: field.TypeUUID},
+		{Name: "category_id", Type: field.TypeUUID},
+		{Name: "author_id", Type: field.TypeUUID},
 	}
-	// PermissionsTable holds the schema information for the "permissions" table.
-	PermissionsTable = &schema.Table{
-		Name:       "permissions",
-		Columns:    PermissionsColumns,
-		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
+	// MaterialRevisionsTable holds the schema information for the "material_revisions" table.
+	MaterialRevisionsTable = &schema.Table{
+		Name:       "material_revisions",
+		Columns:    MaterialRevisionsColumns,
+		PrimaryKey: []*schema.Column{MaterialRevisionsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "permissions_resources_permissions",
-				Columns:    []*schema.Column{PermissionsColumns[7]},
-				RefColumns: []*schema.Column{ResourcesColumns[0]},
+				Symbol:     "material_revisions_difficulties_material_revisions",
+				Columns:    []*schema.Column{MaterialRevisionsColumns[13]},
+				RefColumns: []*schema.Column{DifficultiesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "permissions_roles_permissions",
-				Columns:    []*schema.Column{PermissionsColumns[8]},
-				RefColumns: []*schema.Column{RolesColumns[0]},
+				Symbol:     "material_revisions_materials_revisions",
+				Columns:    []*schema.Column{MaterialRevisionsColumns[14]},
+				RefColumns: []*schema.Column{MaterialsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "material_revisions_material_categories_revisions",
+				Columns:    []*schema.Column{MaterialRevisionsColumns[15]},
+				RefColumns: []*schema.Column{MaterialCategoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "material_revisions_users_material_revisions",
+				Columns:    []*schema.Column{MaterialRevisionsColumns[16]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "permission_role_id_resource_id",
+				Name:    "materialrevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialRevisionsColumns[1]},
+			},
+			{
+				Name:    "materialrevision_material_id_revision_number",
 				Unique:  true,
-				Columns: []*schema.Column{PermissionsColumns[8], PermissionsColumns[7]},
+				Columns: []*schema.Column{MaterialRevisionsColumns[14], MaterialRevisionsColumns[2]},
+			},
+			{
+				Name:    "materialrevision_id_material_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionsColumns[0], MaterialRevisionsColumns[14]},
+			},
+			{
+				Name:    "materialrevision_id_render_source_id_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionsColumns[0], MaterialRevisionsColumns[10], MaterialRevisionsColumns[11], MaterialRevisionsColumns[9]},
+			},
+			{
+				Name:    "materialrevision_render_artifact_id_render_source_id_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionsColumns[12], MaterialRevisionsColumns[10], MaterialRevisionsColumns[11], MaterialRevisionsColumns[9]},
+			},
+			{
+				Name:    "materialrevision_render_source_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionsColumns[10]},
+			},
+			{
+				Name:    "materialrevision_render_artifact_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionsColumns[12]},
+			},
+			{
+				Name:    "materialrevision_category_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialRevisionsColumns[15], MaterialRevisionsColumns[7], MaterialRevisionsColumns[0]},
+			},
+			{
+				Name:    "materialrevision_difficulty_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialRevisionsColumns[13], MaterialRevisionsColumns[7], MaterialRevisionsColumns[0]},
+			},
+		},
+	}
+	// MaterialRevisionTagsColumns holds the columns for the "material_revision_tags" table.
+	MaterialRevisionTagsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "display_order", Type: field.TypeInt},
+		{Name: "revision_id", Type: field.TypeUUID},
+		{Name: "tag_id", Type: field.TypeUUID},
+	}
+	// MaterialRevisionTagsTable holds the schema information for the "material_revision_tags" table.
+	MaterialRevisionTagsTable = &schema.Table{
+		Name:       "material_revision_tags",
+		Columns:    MaterialRevisionTagsColumns,
+		PrimaryKey: []*schema.Column{MaterialRevisionTagsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "material_revision_tags_material_revisions_tags",
+				Columns:    []*schema.Column{MaterialRevisionTagsColumns[3]},
+				RefColumns: []*schema.Column{MaterialRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "material_revision_tags_tags_material_revision_tags",
+				Columns:    []*schema.Column{MaterialRevisionTagsColumns[4]},
+				RefColumns: []*schema.Column{TagsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "materialrevisiontag_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialRevisionTagsColumns[1]},
+			},
+			{
+				Name:    "materialrevisiontag_revision_id_tag_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionTagsColumns[3], MaterialRevisionTagsColumns[4]},
+			},
+			{
+				Name:    "materialrevisiontag_revision_id_display_order",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialRevisionTagsColumns[3], MaterialRevisionTagsColumns[2]},
+			},
+			{
+				Name:    "materialrevisiontag_tag_id_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialRevisionTagsColumns[4], MaterialRevisionTagsColumns[3]},
+			},
+		},
+	}
+	// MaterialSlugsColumns holds the columns for the "material_slugs" table.
+	MaterialSlugsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "slug", Type: field.TypeString, Size: 160},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"current", "retired"}, Default: "current"},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "retired_at", Type: field.TypeTime, Nullable: true},
+		{Name: "material_id", Type: field.TypeUUID},
+	}
+	// MaterialSlugsTable holds the schema information for the "material_slugs" table.
+	MaterialSlugsTable = &schema.Table{
+		Name:       "material_slugs",
+		Columns:    MaterialSlugsColumns,
+		PrimaryKey: []*schema.Column{MaterialSlugsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "material_slugs_materials_slugs",
+				Columns:    []*schema.Column{MaterialSlugsColumns[6]},
+				RefColumns: []*schema.Column{MaterialsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "materialslug_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialSlugsColumns[1]},
+			},
+			{
+				Name:    "materialslug_tenant_id_slug",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialSlugsColumns[1], MaterialSlugsColumns[2]},
+			},
+			{
+				Name:    "materialslug_id_material_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialSlugsColumns[0], MaterialSlugsColumns[6]},
+			},
+			{
+				Name:    "materialslug_id_material_id_state",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialSlugsColumns[0], MaterialSlugsColumns[6], MaterialSlugsColumns[3]},
+			},
+			{
+				Name:    "materialslug_material_id_state",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialSlugsColumns[6], MaterialSlugsColumns[3]},
+			},
+			{
+				Name:    "materialslug_tenant_id_material_id",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialSlugsColumns[1], MaterialSlugsColumns[6]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "state = 'current'",
+				},
+			},
+		},
+	}
+	// MaterialViewDailiesColumns holds the columns for the "material_view_dailies" table.
+	MaterialViewDailiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "view_day", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "date"}},
+		{Name: "viewer_fingerprint", Type: field.TypeBytes},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "projected_at", Type: field.TypeTime, Nullable: true},
+		{Name: "material_id", Type: field.TypeUUID},
+	}
+	// MaterialViewDailiesTable holds the schema information for the "material_view_dailies" table.
+	MaterialViewDailiesTable = &schema.Table{
+		Name:       "material_view_dailies",
+		Columns:    MaterialViewDailiesColumns,
+		PrimaryKey: []*schema.Column{MaterialViewDailiesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "material_view_dailies_materials_daily_views",
+				Columns:    []*schema.Column{MaterialViewDailiesColumns[6]},
+				RefColumns: []*schema.Column{MaterialsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "materialviewdaily_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialViewDailiesColumns[1]},
+			},
+			{
+				Name:    "materialviewdaily_material_id_view_day_viewer_fingerprint",
+				Unique:  true,
+				Columns: []*schema.Column{MaterialViewDailiesColumns[6], MaterialViewDailiesColumns[2], MaterialViewDailiesColumns[3]},
+			},
+			{
+				Name:    "materialviewdaily_view_day_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialViewDailiesColumns[2], MaterialViewDailiesColumns[0]},
+			},
+			{
+				Name:    "materialviewdaily_projected_at_view_day_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaterialViewDailiesColumns[5], MaterialViewDailiesColumns[2], MaterialViewDailiesColumns[0]},
+			},
+		},
+	}
+	// NotificationsColumns holds the columns for the "notifications" table.
+	NotificationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "type", Type: field.TypeString, Size: 128},
+		{Name: "category", Type: field.TypeEnum, Enums: []string{"authorization", "campaign", "contest", "material", "operation", "security", "submission"}},
+		{Name: "content_kind", Type: field.TypeEnum, Enums: []string{"catalog", "campaign"}},
+		{Name: "title_key", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "body_key", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "params", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "action_path", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "source_event_id", Type: field.TypeUUID},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "read_at", Type: field.TypeTime, Nullable: true},
+		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "campaign_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// NotificationsTable holds the schema information for the "notifications" table.
+	NotificationsTable = &schema.Table{
+		Name:       "notifications",
+		Columns:    NotificationsColumns,
+		PrimaryKey: []*schema.Column{NotificationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notifications_notification_campaign_revisions_notifications",
+				Columns:    []*schema.Column{NotificationsColumns[15]},
+				RefColumns: []*schema.Column{NotificationCampaignRevisionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "notifications_users_notifications",
+				Columns:    []*schema.Column{NotificationsColumns[16]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notification_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationsColumns[1]},
+			},
+			{
+				Name:    "notification_user_id_source_event_id_type",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationsColumns[16], NotificationsColumns[9], NotificationsColumns[2]},
+			},
+			{
+				Name:    "notification_user_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationsColumns[16], NotificationsColumns[11], NotificationsColumns[0]},
+			},
+			{
+				Name:    "notification_user_id_archived_at_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationsColumns[16], NotificationsColumns[13], NotificationsColumns[11], NotificationsColumns[0]},
+			},
+			{
+				Name:    "notification_user_id_read_at_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationsColumns[16], NotificationsColumns[12], NotificationsColumns[14]},
+			},
+			{
+				Name:    "notification_campaign_revision_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationsColumns[15], NotificationsColumns[16]},
+			},
+		},
+	}
+	// NotificationCampaignsColumns holds the columns for the "notification_campaigns" table.
+	NotificationCampaignsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"cancelled", "completed", "draft", "failed", "scheduled", "sending"}, Default: "draft"},
+		{Name: "current_draft_revision_id", Type: field.TypeUUID},
+		{Name: "scheduled_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "scheduled_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "scheduled_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"notification_campaign_body"}},
+		{Name: "scheduled_normalized_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "scheduled_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "operation_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "scheduled_for", Type: field.TypeTime, Nullable: true},
+		{Name: "last_failure_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "scheduled_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "cancelled_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "schedule_reason", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "cancel_reason", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "scheduled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_by", Type: field.TypeUUID},
+	}
+	// NotificationCampaignsTable holds the schema information for the "notification_campaigns" table.
+	NotificationCampaignsTable = &schema.Table{
+		Name:       "notification_campaigns",
+		Columns:    NotificationCampaignsColumns,
+		PrimaryKey: []*schema.Column{NotificationCampaignsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_campaigns_users_created_notification_campaigns",
+				Columns:    []*schema.Column{NotificationCampaignsColumns[23]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationcampaign_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignsColumns[3]},
+			},
+			{
+				Name:    "notificationcampaign_status_scheduled_for_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignsColumns[4], NotificationCampaignsColumns[13], NotificationCampaignsColumns[1], NotificationCampaignsColumns[0]},
+			},
+			{
+				Name:    "notificationcampaign_created_by_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignsColumns[23], NotificationCampaignsColumns[1], NotificationCampaignsColumns[0]},
+			},
+			{
+				Name:    "notificationcampaign_operation_id",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignsColumns[11]},
+			},
+			{
+				Name:    "notificationcampaign_scheduled_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignsColumns[6]},
+			},
+		},
+	}
+	// NotificationCampaignConfirmationsColumns holds the columns for the "notification_campaign_confirmations" table.
+	NotificationCampaignConfirmationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "nonce_hash", Type: field.TypeBytes},
+		{Name: "actor_id", Type: field.TypeUUID},
+		{Name: "session_id", Type: field.TypeUUID},
+		{Name: "campaign_revision_id", Type: field.TypeUUID},
+		{Name: "render_source_id", Type: field.TypeUUID},
+		{Name: "render_source_kind", Type: field.TypeEnum, Enums: []string{"notification_campaign_body"}},
+		{Name: "normalized_source_checksum", Type: field.TypeBytes},
+		{Name: "render_artifact_id", Type: field.TypeUUID},
+		{Name: "audience_fingerprint", Type: field.TypeBytes},
+		{Name: "expected_campaign_version", Type: field.TypeInt64},
+		{Name: "scheduled_for", Type: field.TypeTime, Nullable: true},
+		{Name: "dry_run_estimated_at", Type: field.TypeTime},
+		{Name: "dry_run_recipient_count", Type: field.TypeInt64},
+		{Name: "issued_at", Type: field.TypeTime},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "consumed_by_idempotency_key", Type: field.TypeUUID, Nullable: true},
+		{Name: "schedule_request_hash", Type: field.TypeBytes, Nullable: true},
+		{Name: "operation_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "campaign_id", Type: field.TypeUUID},
+	}
+	// NotificationCampaignConfirmationsTable holds the schema information for the "notification_campaign_confirmations" table.
+	NotificationCampaignConfirmationsTable = &schema.Table{
+		Name:       "notification_campaign_confirmations",
+		Columns:    NotificationCampaignConfirmationsColumns,
+		PrimaryKey: []*schema.Column{NotificationCampaignConfirmationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_campaign_confirmations_notification_campaigns_confirmations",
+				Columns:    []*schema.Column{NotificationCampaignConfirmationsColumns[21]},
+				RefColumns: []*schema.Column{NotificationCampaignsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationcampaignconfirmation_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignConfirmationsColumns[1]},
+			},
+			{
+				Name:    "notificationcampaignconfirmation_nonce_hash",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignConfirmationsColumns[2]},
+			},
+			{
+				Name:    "notificationcampaignconfirmation_campaign_id_issued_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignConfirmationsColumns[21], NotificationCampaignConfirmationsColumns[15], NotificationCampaignConfirmationsColumns[0]},
+			},
+			{
+				Name:    "notificationcampaignconfirmation_expires_at_consumed_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignConfirmationsColumns[16], NotificationCampaignConfirmationsColumns[17]},
+			},
+			{
+				Name:    "notificationcampaignconfirmation_operation_id",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignConfirmationsColumns[20]},
+			},
+		},
+	}
+	// NotificationCampaignExplicitUsersColumns holds the columns for the "notification_campaign_explicit_users" table.
+	NotificationCampaignExplicitUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "campaign_revision_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// NotificationCampaignExplicitUsersTable holds the schema information for the "notification_campaign_explicit_users" table.
+	NotificationCampaignExplicitUsersTable = &schema.Table{
+		Name:       "notification_campaign_explicit_users",
+		Columns:    NotificationCampaignExplicitUsersColumns,
+		PrimaryKey: []*schema.Column{NotificationCampaignExplicitUsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_campaign_explicit_users_notification_campaign_revisions_explicit_users",
+				Columns:    []*schema.Column{NotificationCampaignExplicitUsersColumns[3]},
+				RefColumns: []*schema.Column{NotificationCampaignRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "notification_campaign_explicit_users_users_explicit_notification_campaign_revisions",
+				Columns:    []*schema.Column{NotificationCampaignExplicitUsersColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationcampaignexplicituser_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignExplicitUsersColumns[1]},
+			},
+			{
+				Name:    "notificationcampaignexplicituser_campaign_revision_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignExplicitUsersColumns[3], NotificationCampaignExplicitUsersColumns[4]},
+			},
+			{
+				Name:    "notificationcampaignexplicituser_user_id_campaign_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignExplicitUsersColumns[4], NotificationCampaignExplicitUsersColumns[3]},
+			},
+		},
+	}
+	// NotificationCampaignRecipientsColumns holds the columns for the "notification_campaign_recipients" table.
+	NotificationCampaignRecipientsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "source_event_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"created", "failed", "pending", "skipped"}, Default: "pending"},
+		{Name: "skip_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "failure_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "attempt_count", Type: field.TypeUint32, Default: 0},
+		{Name: "next_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "last_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "processed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "notification_id", Type: field.TypeUUID, Unique: true, Nullable: true},
+		{Name: "campaign_id", Type: field.TypeUUID},
+		{Name: "campaign_revision_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// NotificationCampaignRecipientsTable holds the schema information for the "notification_campaign_recipients" table.
+	NotificationCampaignRecipientsTable = &schema.Table{
+		Name:       "notification_campaign_recipients",
+		Columns:    NotificationCampaignRecipientsColumns,
+		PrimaryKey: []*schema.Column{NotificationCampaignRecipientsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_campaign_recipients_notifications_campaign_delivery",
+				Columns:    []*schema.Column{NotificationCampaignRecipientsColumns[11]},
+				RefColumns: []*schema.Column{NotificationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "notification_campaign_recipients_notification_campaigns_recipients",
+				Columns:    []*schema.Column{NotificationCampaignRecipientsColumns[12]},
+				RefColumns: []*schema.Column{NotificationCampaignsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "notification_campaign_recipients_notification_campaign_revisions_recipients",
+				Columns:    []*schema.Column{NotificationCampaignRecipientsColumns[13]},
+				RefColumns: []*schema.Column{NotificationCampaignRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "notification_campaign_recipients_users_notification_campaign_deliveries",
+				Columns:    []*schema.Column{NotificationCampaignRecipientsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationcampaignrecipient_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignRecipientsColumns[1]},
+			},
+			{
+				Name:    "notificationcampaignrecipient_campaign_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignRecipientsColumns[12], NotificationCampaignRecipientsColumns[14]},
+			},
+			{
+				Name:    "notificationcampaignrecipient_source_event_id",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignRecipientsColumns[2]},
+			},
+			{
+				Name:    "notificationcampaignrecipient_campaign_id_status_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignRecipientsColumns[12], NotificationCampaignRecipientsColumns[3], NotificationCampaignRecipientsColumns[14]},
+			},
+			{
+				Name:    "notificationcampaignrecipient_campaign_id_status_next_attempt_at_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignRecipientsColumns[12], NotificationCampaignRecipientsColumns[3], NotificationCampaignRecipientsColumns[7], NotificationCampaignRecipientsColumns[14]},
+			},
+			{
+				Name:    "notificationcampaignrecipient_campaign_revision_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignRecipientsColumns[13], NotificationCampaignRecipientsColumns[14]},
+			},
+		},
+	}
+	// NotificationCampaignRevisionsColumns holds the columns for the "notification_campaign_revisions" table.
+	NotificationCampaignRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "revision_number", Type: field.TypeInt64},
+		{Name: "title", Type: field.TypeString, Size: 160},
+		{Name: "body_markdown", Type: field.TypeString, Size: 2147483647},
+		{Name: "body_render_source_id", Type: field.TypeUUID},
+		{Name: "body_render_source_kind", Type: field.TypeEnum, Enums: []string{"notification_campaign_body"}},
+		{Name: "body_render_artifact_id", Type: field.TypeUUID},
+		{Name: "action_path", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "audience_kind", Type: field.TypeEnum, Enums: []string{"all_active", "explicit_users", "role"}},
+		{Name: "audience_role_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "normalized_source_checksum", Type: field.TypeBytes},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "campaign_id", Type: field.TypeUUID},
+		{Name: "author_id", Type: field.TypeUUID},
+	}
+	// NotificationCampaignRevisionsTable holds the schema information for the "notification_campaign_revisions" table.
+	NotificationCampaignRevisionsTable = &schema.Table{
+		Name:       "notification_campaign_revisions",
+		Columns:    NotificationCampaignRevisionsColumns,
+		PrimaryKey: []*schema.Column{NotificationCampaignRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_campaign_revisions_notification_campaigns_revisions",
+				Columns:    []*schema.Column{NotificationCampaignRevisionsColumns[13]},
+				RefColumns: []*schema.Column{NotificationCampaignsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "notification_campaign_revisions_users_notification_campaign_revisions",
+				Columns:    []*schema.Column{NotificationCampaignRevisionsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationcampaignrevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationCampaignRevisionsColumns[1]},
+			},
+			{
+				Name:    "notificationcampaignrevision_campaign_id_revision_number",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignRevisionsColumns[13], NotificationCampaignRevisionsColumns[2]},
+			},
+			{
+				Name:    "notificationcampaignrevision_id_campaign_id_body_render_source_id_body_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignRevisionsColumns[0], NotificationCampaignRevisionsColumns[13], NotificationCampaignRevisionsColumns[5], NotificationCampaignRevisionsColumns[6], NotificationCampaignRevisionsColumns[11]},
+			},
+			{
+				Name:    "notificationcampaignrevision_id_body_render_source_id_body_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignRevisionsColumns[0], NotificationCampaignRevisionsColumns[5], NotificationCampaignRevisionsColumns[6], NotificationCampaignRevisionsColumns[11]},
+			},
+			{
+				Name:    "notificationcampaignrevision_body_render_artifact_id_body_render_source_id_body_render_source_kind_normalized_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationCampaignRevisionsColumns[7], NotificationCampaignRevisionsColumns[5], NotificationCampaignRevisionsColumns[6], NotificationCampaignRevisionsColumns[11]},
+			},
+		},
+	}
+	// NotificationInboxStatesColumns holds the columns for the "notification_inbox_states" table.
+	NotificationInboxStatesColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "version", Type: field.TypeInt64, Default: 0},
+		{Name: "unread_count", Type: field.TypeInt64, Default: 0},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// NotificationInboxStatesTable holds the schema information for the "notification_inbox_states" table.
+	NotificationInboxStatesTable = &schema.Table{
+		Name:       "notification_inbox_states",
+		Columns:    NotificationInboxStatesColumns,
+		PrimaryKey: []*schema.Column{NotificationInboxStatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationinboxstate_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationInboxStatesColumns[1]},
+			},
+			{
+				Name:    "notificationinboxstate_updated_at_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationInboxStatesColumns[4], NotificationInboxStatesColumns[0]},
+			},
+		},
+	}
+	// NotificationPreferencesColumns holds the columns for the "notification_preferences" table.
+	NotificationPreferencesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "category", Type: field.TypeEnum, Enums: []string{"authorization", "campaign", "contest", "material", "operation", "security", "submission"}},
+		{Name: "in_app", Type: field.TypeBool, Default: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// NotificationPreferencesTable holds the schema information for the "notification_preferences" table.
+	NotificationPreferencesTable = &schema.Table{
+		Name:       "notification_preferences",
+		Columns:    NotificationPreferencesColumns,
+		PrimaryKey: []*schema.Column{NotificationPreferencesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_preferences_users_notification_preferences",
+				Columns:    []*schema.Column{NotificationPreferencesColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationpreference_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationPreferencesColumns[1]},
+			},
+			{
+				Name:    "notificationpreference_tenant_id_user_id_category",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationPreferencesColumns[1], NotificationPreferencesColumns[6], NotificationPreferencesColumns[2]},
+			},
+		},
+	}
+	// OauthCompletionTicketsColumns holds the columns for the "oauth_completion_tickets" table.
+	OauthCompletionTicketsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "ticket_hash", Type: field.TypeBytes, Unique: true, Size: 32},
+		{Name: "provider", Type: field.TypeString, Size: 64},
+		{Name: "provider_subject", Type: field.TypeString, Size: 256},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"login", "link"}},
+		{Name: "pre_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "provider_profile_ciphertext", Type: field.TypeBytes},
+		{Name: "key_id", Type: field.TypeString, Size: 128},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"issued", "consumed", "expired"}, Default: "issued"},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "bound_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "flow_id", Type: field.TypeUUID},
+		{Name: "bound_user_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// OauthCompletionTicketsTable holds the schema information for the "oauth_completion_tickets" table.
+	OauthCompletionTicketsTable = &schema.Table{
+		Name:       "oauth_completion_tickets",
+		Columns:    OauthCompletionTicketsColumns,
+		PrimaryKey: []*schema.Column{OauthCompletionTicketsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "oauth_completion_tickets_auth_sessions_oauth_completion_tickets",
+				Columns:    []*schema.Column{OauthCompletionTicketsColumns[13]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "oauth_completion_tickets_oauth_flows_completion_tickets",
+				Columns:    []*schema.Column{OauthCompletionTicketsColumns[14]},
+				RefColumns: []*schema.Column{OauthFlowsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "oauth_completion_tickets_users_oauth_completion_tickets",
+				Columns:    []*schema.Column{OauthCompletionTicketsColumns[15]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "oauthcompletionticket_provider_provider_subject",
+				Unique:  false,
+				Columns: []*schema.Column{OauthCompletionTicketsColumns[4], OauthCompletionTicketsColumns[5]},
+			},
+			{
+				Name:    "oauthcompletionticket_bound_session_id_purpose_status",
+				Unique:  false,
+				Columns: []*schema.Column{OauthCompletionTicketsColumns[13], OauthCompletionTicketsColumns[6], OauthCompletionTicketsColumns[10]},
+			},
+			{
+				Name:    "oauthcompletionticket_pre_session_id_purpose_status",
+				Unique:  false,
+				Columns: []*schema.Column{OauthCompletionTicketsColumns[7], OauthCompletionTicketsColumns[6], OauthCompletionTicketsColumns[10]},
+			},
+			{
+				Name:    "oauthcompletionticket_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{OauthCompletionTicketsColumns[10], OauthCompletionTicketsColumns[11]},
+			},
+		},
+	}
+	// OauthFlowsColumns holds the columns for the "oauth_flows" table.
+	OauthFlowsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "provider", Type: field.TypeString, Size: 64},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"login", "link"}},
+		{Name: "state_hash", Type: field.TypeBytes, Unique: true, Size: 32},
+		{Name: "pre_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "redirect_uri", Type: field.TypeString, Size: 2048},
+		{Name: "pkce_verifier_ciphertext", Type: field.TypeBytes},
+		{Name: "key_id", Type: field.TypeString, Size: 128},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "consumed", "expired"}, Default: "pending"},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "session_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// OauthFlowsTable holds the schema information for the "oauth_flows" table.
+	OauthFlowsTable = &schema.Table{
+		Name:       "oauth_flows",
+		Columns:    OauthFlowsColumns,
+		PrimaryKey: []*schema.Column{OauthFlowsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "oauth_flows_auth_sessions_oauth_flows",
+				Columns:    []*schema.Column{OauthFlowsColumns[13]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "oauthflow_provider_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{OauthFlowsColumns[3], OauthFlowsColumns[10], OauthFlowsColumns[11]},
+			},
+			{
+				Name:    "oauthflow_session_id_purpose_status",
+				Unique:  false,
+				Columns: []*schema.Column{OauthFlowsColumns[13], OauthFlowsColumns[4], OauthFlowsColumns[10]},
+			},
+			{
+				Name:    "oauthflow_pre_session_id_purpose_status",
+				Unique:  false,
+				Columns: []*schema.Column{OauthFlowsColumns[6], OauthFlowsColumns[4], OauthFlowsColumns[10]},
+			},
+			{
+				Name:    "oauthflow_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{OauthFlowsColumns[10], OauthFlowsColumns[11]},
+			},
+		},
+	}
+	// OnboardingTraitOffersColumns holds the columns for the "onboarding_trait_offers" table.
+	OnboardingTraitOffersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "pre_session_id", Type: field.TypeUUID},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "offer_sequence", Type: field.TypeInt64},
+		{Name: "algorithm_version", Type: field.TypeString, Size: 64},
+		{Name: "root_bone_trait_id", Type: field.TypeUUID},
+		{Name: "root_bone_trait_revision", Type: field.TypeInt64},
+		{Name: "offer_checksum", Type: field.TypeBytes},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"issued", "consumed", "expired", "superseded"}, Default: "issued"},
+		{Name: "issued_at", Type: field.TypeTime},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "catalog_revision_id", Type: field.TypeUUID},
+		{Name: "consumed_by_user_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// OnboardingTraitOffersTable holds the schema information for the "onboarding_trait_offers" table.
+	OnboardingTraitOffersTable = &schema.Table{
+		Name:       "onboarding_trait_offers",
+		Columns:    OnboardingTraitOffersColumns,
+		PrimaryKey: []*schema.Column{OnboardingTraitOffersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "onboarding_trait_offers_cultivation_catalog_revisions_offers",
+				Columns:    []*schema.Column{OnboardingTraitOffersColumns[13]},
+				RefColumns: []*schema.Column{CultivationCatalogRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "onboarding_trait_offers_users_consumed_trait_offers",
+				Columns:    []*schema.Column{OnboardingTraitOffersColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "onboardingtraitoffer_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{OnboardingTraitOffersColumns[1]},
+			},
+			{
+				Name:    "onboardingtraitoffer_pre_session_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{OnboardingTraitOffersColumns[2], OnboardingTraitOffersColumns[3]},
+			},
+			{
+				Name:    "onboardingtraitoffer_pre_session_id_offer_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{OnboardingTraitOffersColumns[2], OnboardingTraitOffersColumns[4]},
+			},
+			{
+				Name:    "onboardingtraitoffer_pre_session_id_status_offer_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{OnboardingTraitOffersColumns[2], OnboardingTraitOffersColumns[9], OnboardingTraitOffersColumns[4]},
+			},
+			{
+				Name:    "onboardingtraitoffer_consumed_by_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{OnboardingTraitOffersColumns[14]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "consumed_by_user_id IS NOT NULL",
+				},
+			},
+		},
+	}
+	// OnboardingTraitOfferTalentsColumns holds the columns for the "onboarding_trait_offer_talents" table.
+	OnboardingTraitOfferTalentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "trait_revision", Type: field.TypeInt64},
+		{Name: "display_order", Type: field.TypeInt},
+		{Name: "offer_id", Type: field.TypeUUID},
+		{Name: "trait_id", Type: field.TypeUUID},
+	}
+	// OnboardingTraitOfferTalentsTable holds the schema information for the "onboarding_trait_offer_talents" table.
+	OnboardingTraitOfferTalentsTable = &schema.Table{
+		Name:       "onboarding_trait_offer_talents",
+		Columns:    OnboardingTraitOfferTalentsColumns,
+		PrimaryKey: []*schema.Column{OnboardingTraitOfferTalentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "onboarding_trait_offer_talents_onboarding_trait_offers_talents",
+				Columns:    []*schema.Column{OnboardingTraitOfferTalentsColumns[4]},
+				RefColumns: []*schema.Column{OnboardingTraitOffersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "onboarding_trait_offer_talents_traits_onboarding_offer_talents",
+				Columns:    []*schema.Column{OnboardingTraitOfferTalentsColumns[5]},
+				RefColumns: []*schema.Column{TraitsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "onboardingtraitoffertalent_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{OnboardingTraitOfferTalentsColumns[1]},
+			},
+			{
+				Name:    "onboardingtraitoffertalent_offer_id_trait_id",
+				Unique:  true,
+				Columns: []*schema.Column{OnboardingTraitOfferTalentsColumns[4], OnboardingTraitOfferTalentsColumns[5]},
+			},
+			{
+				Name:    "onboardingtraitoffertalent_offer_id_display_order",
+				Unique:  true,
+				Columns: []*schema.Column{OnboardingTraitOfferTalentsColumns[4], OnboardingTraitOfferTalentsColumns[3]},
+			},
+		},
+	}
+	// OperationsColumns holds the columns for the "operations" table.
+	OperationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "kind", Type: field.TypeString, Size: 128},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "request_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "request_payload", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "actor_user_id", Type: field.TypeUUID},
+		{Name: "actor_session_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "audit_id", Type: field.TypeUUID},
+		{Name: "reason", Type: field.TypeString, Size: 1024},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "running", "paused", "completed", "failed", "cancelled"}, Default: "pending"},
+		{Name: "requested_action", Type: field.TypeEnum, Enums: []string{"none", "pause", "cancel"}, Default: "none"},
+		{Name: "total_count", Type: field.TypeInt64},
+		{Name: "processed_count", Type: field.TypeInt64, Default: 0},
+		{Name: "succeeded_count", Type: field.TypeInt64, Default: 0},
+		{Name: "failed_count", Type: field.TypeInt64, Default: 0},
+		{Name: "next_batch_sequence", Type: field.TypeInt64, Default: 1},
+		{Name: "batch_size", Type: field.TypeInt},
+		{Name: "checkpoint", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "lease_token", Type: field.TypeUUID, Nullable: true},
+		{Name: "leased_until", Type: field.TypeTime, Nullable: true},
+		{Name: "not_before", Type: field.TypeTime, Nullable: true},
+		{Name: "available_at", Type: field.TypeTime},
+		{Name: "attempt_count", Type: field.TypeUint32, Default: 0},
+		{Name: "last_error_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "finished_at", Type: field.TypeTime, Nullable: true},
+	}
+	// OperationsTable holds the schema information for the "operations" table.
+	OperationsTable = &schema.Table{
+		Name:       "operations",
+		Columns:    OperationsColumns,
+		PrimaryKey: []*schema.Column{OperationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "operation_tenant_id_id",
+				Unique:  true,
+				Columns: []*schema.Column{OperationsColumns[3], OperationsColumns[0]},
+			},
+			{
+				Name:    "operation_kind_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{OperationsColumns[4], OperationsColumns[5]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "tenant_id IS NULL",
+				},
+			},
+			{
+				Name:    "operation_tenant_id_kind_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{OperationsColumns[3], OperationsColumns[4], OperationsColumns[5]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "tenant_id IS NOT NULL",
+				},
+			},
+			{
+				Name:    "operation_not_before_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationsColumns[26], OperationsColumns[1], OperationsColumns[0]},
+			},
+			{
+				Name:    "operation_tenant_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationsColumns[3], OperationsColumns[1], OperationsColumns[0]},
+			},
+			{
+				Name:    "operation_status_available_at_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationsColumns[13], OperationsColumns[27], OperationsColumns[1], OperationsColumns[0]},
+			},
+			{
+				Name:    "operation_status_leased_until",
+				Unique:  false,
+				Columns: []*schema.Column{OperationsColumns[13], OperationsColumns[25]},
+			},
+			{
+				Name:    "operation_actor_user_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationsColumns[8], OperationsColumns[1], OperationsColumns[0]},
+			},
+			{
+				Name:    "operation_correlation_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationsColumns[12], OperationsColumns[1], OperationsColumns[0]},
+			},
+			{
+				Name:    "operation_audit_id",
+				Unique:  true,
+				Columns: []*schema.Column{OperationsColumns[10]},
+			},
+		},
+	}
+	// OperationBatchesColumns holds the columns for the "operation_batches" table.
+	OperationBatchesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "sequence", Type: field.TypeInt64},
+		{Name: "lease_token", Type: field.TypeUUID},
+		{Name: "input_checkpoint", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "output_checkpoint", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "processed_count", Type: field.TypeInt64},
+		{Name: "succeeded_count", Type: field.TypeInt64},
+		{Name: "failed_count", Type: field.TypeInt64},
+		{Name: "failure_summary", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "started_at", Type: field.TypeTime},
+		{Name: "completed_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "operation_id", Type: field.TypeUUID},
+	}
+	// OperationBatchesTable holds the schema information for the "operation_batches" table.
+	OperationBatchesTable = &schema.Table{
+		Name:       "operation_batches",
+		Columns:    OperationBatchesColumns,
+		PrimaryKey: []*schema.Column{OperationBatchesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "operation_batches_operations_batches",
+				Columns:    []*schema.Column{OperationBatchesColumns[13]},
+				RefColumns: []*schema.Column{OperationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "operationbatch_operation_id_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{OperationBatchesColumns[13], OperationBatchesColumns[2]},
+			},
+			{
+				Name:    "operationbatch_operation_id_completed_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationBatchesColumns[13], OperationBatchesColumns[11], OperationBatchesColumns[0]},
+			},
+		},
+	}
+	// OperationControlReceiptsColumns holds the columns for the "operation_control_receipts" table.
+	OperationControlReceiptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "request_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "action", Type: field.TypeEnum, Enums: []string{"pause", "resume", "cancel"}},
+		{Name: "expected_version", Type: field.TypeInt64},
+		{Name: "resulting_version", Type: field.TypeInt64},
+		{Name: "resulting_status", Type: field.TypeEnum, Enums: []string{"pending", "running", "paused", "completed", "failed", "cancelled"}},
+		{Name: "result_projection", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "actor_user_id", Type: field.TypeUUID},
+		{Name: "actor_session_id", Type: field.TypeUUID},
+		{Name: "audit_id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "operation_id", Type: field.TypeUUID},
+	}
+	// OperationControlReceiptsTable holds the schema information for the "operation_control_receipts" table.
+	OperationControlReceiptsTable = &schema.Table{
+		Name:       "operation_control_receipts",
+		Columns:    OperationControlReceiptsColumns,
+		PrimaryKey: []*schema.Column{OperationControlReceiptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "operation_control_receipts_operations_control_receipts",
+				Columns:    []*schema.Column{OperationControlReceiptsColumns[13]},
+				RefColumns: []*schema.Column{OperationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "operationcontrolreceipt_operation_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{OperationControlReceiptsColumns[13], OperationControlReceiptsColumns[2]},
+			},
+			{
+				Name:    "operationcontrolreceipt_operation_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OperationControlReceiptsColumns[13], OperationControlReceiptsColumns[12], OperationControlReceiptsColumns[0]},
+			},
+		},
+	}
+	// OutboxEventsColumns holds the columns for the "outbox_events" table.
+	OutboxEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "event_type", Type: field.TypeString, Size: 128},
+		{Name: "aggregate_type", Type: field.TypeString, Size: 64},
+		{Name: "aggregate_id", Type: field.TypeUUID},
+		{Name: "aggregate_version", Type: field.TypeInt64},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128},
+		{Name: "traceparent", Type: field.TypeString, Nullable: true, Size: 55},
+		{Name: "causation_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "payload", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"pending", "leased", "published", "dead"}, Default: "pending"},
+		{Name: "attempt_count", Type: field.TypeUint32, Default: 0},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "lease_token", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "leased_until", Type: field.TypeTime, Nullable: true},
+		{Name: "next_attempt_at", Type: field.TypeTime},
+		{Name: "last_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true},
+		{Name: "dead_at", Type: field.TypeTime, Nullable: true},
+		{Name: "publish_reference", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "last_error_code", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "ambiguous", Type: field.TypeBool, Default: false},
+		{Name: "tenant_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// OutboxEventsTable holds the schema information for the "outbox_events" table.
+	OutboxEventsTable = &schema.Table{
+		Name:       "outbox_events",
+		Columns:    OutboxEventsColumns,
+		PrimaryKey: []*schema.Column{OutboxEventsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "outbox_events_tenants_outbox_events",
+				Columns:    []*schema.Column{OutboxEventsColumns[23]},
+				RefColumns: []*schema.Column{TenantsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "outboxevent_event_type_aggregate_type_aggregate_id_aggregate_version",
+				Unique:  true,
+				Columns: []*schema.Column{OutboxEventsColumns[1], OutboxEventsColumns[2], OutboxEventsColumns[3], OutboxEventsColumns[4]},
+			},
+			{
+				Name:    "outboxevent_state_next_attempt_at_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[11], OutboxEventsColumns[16], OutboxEventsColumns[9], OutboxEventsColumns[0]},
+			},
+			{
+				Name:    "outboxevent_state_leased_until",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[11], OutboxEventsColumns[15]},
+			},
+			{
+				Name:    "outboxevent_state_published_at",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[11], OutboxEventsColumns[18]},
+			},
+			{
+				Name:    "outboxevent_state_dead_at",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[11], OutboxEventsColumns[19]},
+			},
+			{
+				Name:    "outboxevent_aggregate_type_aggregate_id_aggregate_version",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[2], OutboxEventsColumns[3], OutboxEventsColumns[4]},
+			},
+			{
+				Name:    "outboxevent_correlation_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[5], OutboxEventsColumns[9], OutboxEventsColumns[0]},
+			},
+			{
+				Name:    "outboxevent_tenant_id_state_next_attempt_at_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{OutboxEventsColumns[23], OutboxEventsColumns[11], OutboxEventsColumns[16], OutboxEventsColumns[9], OutboxEventsColumns[0]},
+			},
+		},
+	}
+	// PasswordResetTokensColumns holds the columns for the "password_reset_tokens" table.
+	PasswordResetTokensColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "contact_version", Type: field.TypeInt64},
+		{Name: "user_security_version", Type: field.TypeInt64},
+		{Name: "hash_key_id", Type: field.TypeString, Size: 128},
+		{Name: "token_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"issued", "consumed", "superseded", "expired"}, Default: "issued"},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "superseded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "attempt_count", Type: field.TypeUint32, Default: 0},
+		{Name: "last_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "contact_id", Type: field.TypeUUID},
+	}
+	// PasswordResetTokensTable holds the schema information for the "password_reset_tokens" table.
+	PasswordResetTokensTable = &schema.Table{
+		Name:       "password_reset_tokens",
+		Columns:    PasswordResetTokensColumns,
+		PrimaryKey: []*schema.Column{PasswordResetTokensColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "password_reset_tokens_users_password_reset_tokens",
+				Columns:    []*schema.Column{PasswordResetTokensColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "password_reset_tokens_user_recovery_contacts_password_reset_tokens",
+				Columns:    []*schema.Column{PasswordResetTokensColumns[14]},
+				RefColumns: []*schema.Column{UserRecoveryContactsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "passwordresettoken_hash_key_id_token_hash",
+				Unique:  true,
+				Columns: []*schema.Column{PasswordResetTokensColumns[5], PasswordResetTokensColumns[6]},
+			},
+			{
+				Name:    "passwordresettoken_user_id_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{PasswordResetTokensColumns[13], PasswordResetTokensColumns[7], PasswordResetTokensColumns[8]},
+			},
+			{
+				Name:    "passwordresettoken_contact_id_contact_version_status",
+				Unique:  false,
+				Columns: []*schema.Column{PasswordResetTokensColumns[14], PasswordResetTokensColumns[3], PasswordResetTokensColumns[7]},
+			},
+			{
+				Name:    "passwordresettoken_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{PasswordResetTokensColumns[7], PasswordResetTokensColumns[8]},
 			},
 		},
 	}
 	// ProblemsColumns holds the columns for the "problems" table.
 	ProblemsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "slug", Type: field.TypeString, Size: 128},
+		{Name: "lifecycle", Type: field.TypeEnum, Enums: []string{"draft", "published", "archived"}, Default: "draft"},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "tag_mapping_id", Type: field.TypeUUID},
+		{Name: "element_mapping_id", Type: field.TypeUUID},
+		{Name: "draft_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "draft_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "draft_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"problem_statement"}},
+		{Name: "draft_render_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "draft_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_render_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_render_source_kind", Type: field.TypeEnum, Nullable: true, Enums: []string{"problem_statement"}},
+		{Name: "published_render_source_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "published_render_artifact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true},
+		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
 		{Name: "title", Type: field.TypeString, Size: 300},
 		{Name: "description", Type: field.TypeString, Size: 2147483647},
 		{Name: "time_limit_ms", Type: field.TypeInt, Default: 1000},
@@ -385,9 +4271,8 @@ var (
 		{Name: "is_published", Type: field.TypeBool, Default: false},
 		{Name: "submission_count", Type: field.TypeInt, Default: 0},
 		{Name: "accepted_count", Type: field.TypeInt, Default: 0},
-		{Name: "contest_problems", Type: field.TypeInt, Nullable: true},
-		{Name: "difficulty_id", Type: field.TypeInt},
-		{Name: "author_id", Type: field.TypeInt},
+		{Name: "difficulty_id", Type: field.TypeUUID},
+		{Name: "author_id", Type: field.TypeUUID},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
@@ -396,33 +4281,298 @@ var (
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "problems_contests_problems",
-				Columns:    []*schema.Column{ProblemsColumns[12]},
-				RefColumns: []*schema.Column{ContestsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
 				Symbol:     "problems_difficulties_problems",
-				Columns:    []*schema.Column{ProblemsColumns[13]},
+				Columns:    []*schema.Column{ProblemsColumns[30]},
 				RefColumns: []*schema.Column{DifficultiesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "problems_users_problems",
-				Columns:    []*schema.Column{ProblemsColumns[14]},
+				Columns:    []*schema.Column{ProblemsColumns[31]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "problem_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemsColumns[5]},
+			},
+			{
+				Name:    "problem_tenant_id_slug",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemsColumns[5], ProblemsColumns[6]},
+			},
+			{
+				Name:    "problem_lifecycle_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemsColumns[7], ProblemsColumns[1], ProblemsColumns[0]},
+			},
+			{
+				Name:    "problem_author_id_lifecycle_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemsColumns[31], ProblemsColumns[7], ProblemsColumns[1], ProblemsColumns[0]},
+			},
+			{
+				Name:    "problem_id_tag_mapping_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemsColumns[0], ProblemsColumns[9]},
+			},
+			{
+				Name:    "problem_id_element_mapping_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemsColumns[0], ProblemsColumns[10]},
+			},
+			{
+				Name:    "problem_draft_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemsColumns[11]},
+			},
+			{
+				Name:    "problem_published_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemsColumns[16]},
+			},
+		},
+	}
+	// ProblemRevisionsColumns holds the columns for the "problem_revisions" table.
+	ProblemRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "revision_number", Type: field.TypeInt64},
+		{Name: "title", Type: field.TypeString, Size: 300},
+		{Name: "statement_markdown", Type: field.TypeString, Size: 1048576},
+		{Name: "render_source_id", Type: field.TypeUUID},
+		{Name: "render_source_kind", Type: field.TypeEnum, Enums: []string{"problem_statement"}},
+		{Name: "render_source_checksum", Type: field.TypeBytes},
+		{Name: "difficulty_id", Type: field.TypeUUID},
+		{Name: "difficulty_revision", Type: field.TypeInt64},
+		{Name: "base_exp", Type: field.TypeInt64},
+		{Name: "tag_mapping_id", Type: field.TypeUUID},
+		{Name: "tag_mapping_revision", Type: field.TypeInt64},
+		{Name: "tag_snapshot", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "element_mapping_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "element_mapping_revision", Type: field.TypeInt64, Nullable: true},
+		{Name: "element_snapshot", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "reward_snapshot_checksum", Type: field.TypeBytes},
+		{Name: "cpu_time_limit_ms", Type: field.TypeInt},
+		{Name: "wall_time_limit_ms", Type: field.TypeInt},
+		{Name: "memory_limit_kb", Type: field.TypeInt},
+		{Name: "output_limit_bytes", Type: field.TypeInt},
+		{Name: "process_limit", Type: field.TypeInt},
+		{Name: "checker_key", Type: field.TypeString, Size: 64},
+		{Name: "checker_version", Type: field.TypeString, Size: 64},
+		{Name: "checker_config", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "allowed_runtime_keys", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "created_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "content_checksum", Type: field.TypeBytes},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+	}
+	// ProblemRevisionsTable holds the schema information for the "problem_revisions" table.
+	ProblemRevisionsTable = &schema.Table{
+		Name:       "problem_revisions",
+		Columns:    ProblemRevisionsColumns,
+		PrimaryKey: []*schema.Column{ProblemRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "problem_revisions_problems_revisions",
+				Columns:    []*schema.Column{ProblemRevisionsColumns[30]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "problem_revisions_testset_revisions_problem_revisions",
+				Columns:    []*schema.Column{ProblemRevisionsColumns[31]},
+				RefColumns: []*schema.Column{TestsetRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "problemrevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemRevisionsColumns[1]},
+			},
+			{
+				Name:    "problemrevision_problem_id_revision_number",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemRevisionsColumns[30], ProblemRevisionsColumns[3]},
+			},
+			{
+				Name:    "problemrevision_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemRevisionsColumns[0], ProblemRevisionsColumns[30]},
+			},
+			{
+				Name:    "problemrevision_id_render_source_id_render_source_kind_render_source_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemRevisionsColumns[0], ProblemRevisionsColumns[6], ProblemRevisionsColumns[7], ProblemRevisionsColumns[8]},
+			},
+			{
+				Name:    "problemrevision_render_source_id_render_source_kind",
+				Unique:  true,
+				Columns: []*schema.Column{ProblemRevisionsColumns[6], ProblemRevisionsColumns[7]},
+			},
+			{
+				Name:    "problemrevision_problem_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemRevisionsColumns[30], ProblemRevisionsColumns[2], ProblemRevisionsColumns[0]},
+			},
+			{
+				Name:    "problemrevision_testset_revision_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemRevisionsColumns[31]},
+			},
+			{
+				Name:    "problemrevision_content_checksum",
+				Unique:  false,
+				Columns: []*schema.Column{ProblemRevisionsColumns[29]},
+			},
+		},
+	}
+	// ProfileSchemaStatesColumns holds the columns for the "profile_schema_states" table.
+	ProfileSchemaStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "key", Type: field.TypeString, Size: 32},
+		{Name: "revision", Type: field.TypeInt64, Default: 1},
+	}
+	// ProfileSchemaStatesTable holds the schema information for the "profile_schema_states" table.
+	ProfileSchemaStatesTable = &schema.Table{
+		Name:       "profile_schema_states",
+		Columns:    ProfileSchemaStatesColumns,
+		PrimaryKey: []*schema.Column{ProfileSchemaStatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "profileschemastate_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProfileSchemaStatesColumns[3]},
+			},
+			{
+				Name:    "profileschemastate_tenant_id_key",
+				Unique:  true,
+				Columns: []*schema.Column{ProfileSchemaStatesColumns[3], ProfileSchemaStatesColumns[4]},
+			},
+		},
+	}
+	// ProgressionLedgerEntriesColumns holds the columns for the "progression_ledger_entries" table.
+	ProgressionLedgerEntriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"grant", "reversal", "manual_adjustment", "manual_reversal", "legacy_reconstructed"}},
+		{Name: "source_type", Type: field.TypeString, Size: 64},
+		{Name: "source_aggregate_id", Type: field.TypeUUID},
+		{Name: "source_aggregate_version", Type: field.TypeInt64},
+		{Name: "source_transition_id", Type: field.TypeUUID},
+		{Name: "source_event_id", Type: field.TypeUUID},
+		{Name: "total_exp_delta", Type: field.TypeInt64},
+		{Name: "balance_before", Type: field.TypeInt64},
+		{Name: "balance_after", Type: field.TypeInt64},
+		{Name: "progression_version", Type: field.TypeInt64},
+		{Name: "element_deltas", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "difficulty_deltas", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "tag_deltas", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "source_checksum", Type: field.TypeBytes},
+		{Name: "provenance", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "reversed_entry_id", Type: field.TypeUUID, Unique: true, Nullable: true},
+		{Name: "reward_rule_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "reward_profile_revision_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// ProgressionLedgerEntriesTable holds the schema information for the "progression_ledger_entries" table.
+	ProgressionLedgerEntriesTable = &schema.Table{
+		Name:       "progression_ledger_entries",
+		Columns:    ProgressionLedgerEntriesColumns,
+		PrimaryKey: []*schema.Column{ProgressionLedgerEntriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "progression_ledger_entries_progression_ledger_entries_reversal",
+				Columns:    []*schema.Column{ProgressionLedgerEntriesColumns[21]},
+				RefColumns: []*schema.Column{ProgressionLedgerEntriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "progression_ledger_entries_reward_rule_revisions_ledger_entries",
+				Columns:    []*schema.Column{ProgressionLedgerEntriesColumns[22]},
+				RefColumns: []*schema.Column{RewardRuleRevisionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "progression_ledger_entries_user_reward_profile_revisions_ledger_entries",
+				Columns:    []*schema.Column{ProgressionLedgerEntriesColumns[23]},
+				RefColumns: []*schema.Column{UserRewardProfileRevisionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "progressionledgerentry_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[1]},
+			},
+			{
+				Name:    "progressionledgerentry_source_type_source_aggregate_id_source_aggregate_version",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[4], ProgressionLedgerEntriesColumns[5], ProgressionLedgerEntriesColumns[6]},
+			},
+			{
+				Name:    "progressionledgerentry_source_transition_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[7]},
+			},
+			{
+				Name:    "progressionledgerentry_source_event_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[8]},
+			},
+			{
+				Name:    "progressionledgerentry_reversed_entry_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[21]},
+			},
+			{
+				Name:    "progressionledgerentry_id_source_aggregate_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[0], ProgressionLedgerEntriesColumns[5], ProgressionLedgerEntriesColumns[2]},
+			},
+			{
+				Name:    "progressionledgerentry_id_source_transition_id_source_event_id_source_aggregate_id_user_id_source_aggregate_version_kind",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[0], ProgressionLedgerEntriesColumns[7], ProgressionLedgerEntriesColumns[8], ProgressionLedgerEntriesColumns[5], ProgressionLedgerEntriesColumns[2], ProgressionLedgerEntriesColumns[6], ProgressionLedgerEntriesColumns[3]},
+			},
+			{
+				Name:    "progressionledgerentry_user_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[2], ProgressionLedgerEntriesColumns[19], ProgressionLedgerEntriesColumns[0]},
+			},
+			{
+				Name:    "progressionledgerentry_tenant_id_user_id_progression_version",
+				Unique:  true,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[1], ProgressionLedgerEntriesColumns[2], ProgressionLedgerEntriesColumns[12]},
+			},
+			{
+				Name:    "progressionledgerentry_source_type_source_aggregate_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProgressionLedgerEntriesColumns[4], ProgressionLedgerEntriesColumns[5], ProgressionLedgerEntriesColumns[19], ProgressionLedgerEntriesColumns[0]},
 			},
 		},
 	}
 	// RanksColumns holds the columns for the "ranks" table.
 	RanksColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "min_rating", Type: field.TypeInt, Default: 0},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 	}
@@ -431,16 +4581,23 @@ var (
 		Name:       "ranks",
 		Columns:    RanksColumns,
 		PrimaryKey: []*schema.Column{RanksColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rank_name",
+				Unique:  true,
+				Columns: []*schema.Column{RanksColumns[5]},
+			},
+		},
 	}
 	// RaritiesColumns holds the columns for the "rarities" table.
 	RaritiesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
-		{Name: "code", Type: field.TypeString, Unique: true, Size: 20},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "code", Type: field.TypeString, Size: 20},
 		{Name: "weight", Type: field.TypeInt, Default: 100},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 255},
 	}
@@ -449,15 +4606,36 @@ var (
 		Name:       "rarities",
 		Columns:    RaritiesColumns,
 		PrimaryKey: []*schema.Column{RaritiesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rarity_name",
+				Unique:  true,
+				Columns: []*schema.Column{RaritiesColumns[5]},
+			},
+			{
+				Name:    "rarity_code",
+				Unique:  true,
+				Columns: []*schema.Column{RaritiesColumns[6]},
+			},
+		},
 	}
 	// RatingHistoriesColumns holds the columns for the "rating_histories" table.
 	RatingHistoriesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "old_rating", Type: field.TypeInt, Default: 0},
-		{Name: "new_rating", Type: field.TypeInt, Default: 0},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "rating_sequence", Type: field.TypeInt64, Nullable: true},
+		{Name: "run_version", Type: field.TypeInt64, Nullable: true},
+		{Name: "old_rating", Type: field.TypeInt, Default: 1200},
+		{Name: "new_rating", Type: field.TypeInt, Default: 1200},
 		{Name: "rank_position", Type: field.TypeInt, Default: 0},
-		{Name: "contest_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "prior_rated_contest_count", Type: field.TypeInt, Default: 0},
+		{Name: "actual_rank", Type: field.TypeFloat64, Nullable: true},
+		{Name: "expected_rank", Type: field.TypeFloat64, Nullable: true},
+		{Name: "delta", Type: field.TypeInt, Default: 0},
+		{Name: "algorithm_version", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "contest_id", Type: field.TypeUUID},
+		{Name: "rating_run_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// RatingHistoriesTable holds the schema information for the "rating_histories" table.
 	RatingHistoriesTable = &schema.Table{
@@ -467,63 +4645,482 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "rating_histories_contests_rating_histories",
-				Columns:    []*schema.Column{RatingHistoriesColumns[4]},
+				Columns:    []*schema.Column{RatingHistoriesColumns[12]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
+				Symbol:     "rating_histories_contest_rating_runs_compatibility_histories",
+				Columns:    []*schema.Column{RatingHistoriesColumns[13]},
+				RefColumns: []*schema.Column{ContestRatingRunsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "rating_histories_users_rating_histories",
-				Columns:    []*schema.Column{RatingHistoriesColumns[5]},
+				Columns:    []*schema.Column{RatingHistoriesColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "ratinghistory_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingHistoriesColumns[1]},
+			},
+			{
 				Name:    "ratinghistory_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{RatingHistoriesColumns[5]},
+				Columns: []*schema.Column{RatingHistoriesColumns[14]},
 			},
 			{
 				Name:    "ratinghistory_contest_id",
 				Unique:  false,
-				Columns: []*schema.Column{RatingHistoriesColumns[4]},
+				Columns: []*schema.Column{RatingHistoriesColumns[12]},
 			},
 			{
 				Name:    "ratinghistory_user_id_contest_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingHistoriesColumns[14], RatingHistoriesColumns[12]},
+			},
+			{
+				Name:    "ratinghistory_rating_run_id_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{RatingHistoriesColumns[5], RatingHistoriesColumns[4]},
+				Columns: []*schema.Column{RatingHistoriesColumns[13], RatingHistoriesColumns[14]},
+			},
+			{
+				Name:    "ratinghistory_rating_sequence_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingHistoriesColumns[2], RatingHistoriesColumns[14]},
 			},
 		},
 	}
-	// ResourcesColumns holds the columns for the "resources" table.
-	ResourcesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "key", Type: field.TypeString, Unique: true},
-		{Name: "description", Type: field.TypeString, Nullable: true},
+	// RatingProjectionGenerationsColumns holds the columns for the "rating_projection_generations" table.
+	RatingProjectionGenerationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"building", "verified", "active", "retired"}, Default: "building"},
+		{Name: "based_on_projection_revision", Type: field.TypeInt64},
+		{Name: "through_sequence", Type: field.TypeInt64, Default: 0},
+		{Name: "checksum", Type: field.TypeBytes, Nullable: true, Size: 32},
+		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
+		{Name: "activated_at", Type: field.TypeTime, Nullable: true},
 	}
-	// ResourcesTable holds the schema information for the "resources" table.
-	ResourcesTable = &schema.Table{
-		Name:       "resources",
-		Columns:    ResourcesColumns,
-		PrimaryKey: []*schema.Column{ResourcesColumns[0]},
+	// RatingProjectionGenerationsTable holds the schema information for the "rating_projection_generations" table.
+	RatingProjectionGenerationsTable = &schema.Table{
+		Name:       "rating_projection_generations",
+		Columns:    RatingProjectionGenerationsColumns,
+		PrimaryKey: []*schema.Column{RatingProjectionGenerationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratingprojectiongeneration_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingProjectionGenerationsColumns[3]},
+			},
+			{
+				Name:    "ratingprojectiongeneration_status_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingProjectionGenerationsColumns[4], RatingProjectionGenerationsColumns[1], RatingProjectionGenerationsColumns[0]},
+			},
+			{
+				Name:    "ratingprojectiongeneration_through_sequence_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingProjectionGenerationsColumns[6], RatingProjectionGenerationsColumns[0]},
+			},
+		},
+	}
+	// RatingRunChainsColumns holds the columns for the "rating_run_chains" table.
+	RatingRunChainsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"building", "verified", "active", "retired"}, Default: "building"},
+		{Name: "based_on_chain_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "through_sequence", Type: field.TypeInt64, Default: 0},
+		{Name: "checksum", Type: field.TypeBytes, Nullable: true, Size: 32},
+		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
+		{Name: "activated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// RatingRunChainsTable holds the schema information for the "rating_run_chains" table.
+	RatingRunChainsTable = &schema.Table{
+		Name:       "rating_run_chains",
+		Columns:    RatingRunChainsColumns,
+		PrimaryKey: []*schema.Column{RatingRunChainsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratingrunchain_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingRunChainsColumns[3]},
+			},
+			{
+				Name:    "ratingrunchain_status_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingRunChainsColumns[4], RatingRunChainsColumns[1], RatingRunChainsColumns[0]},
+			},
+			{
+				Name:    "ratingrunchain_based_on_chain_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingRunChainsColumns[5]},
+			},
+			{
+				Name:    "ratingrunchain_through_sequence_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingRunChainsColumns[6], RatingRunChainsColumns[0]},
+			},
+		},
+	}
+	// RatingRunChainEntriesColumns holds the columns for the "rating_run_chain_entries" table.
+	RatingRunChainEntriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "rating_sequence", Type: field.TypeInt64},
+		{Name: "rating_run_id", Type: field.TypeUUID},
+		{Name: "chain_id", Type: field.TypeUUID},
+	}
+	// RatingRunChainEntriesTable holds the schema information for the "rating_run_chain_entries" table.
+	RatingRunChainEntriesTable = &schema.Table{
+		Name:       "rating_run_chain_entries",
+		Columns:    RatingRunChainEntriesColumns,
+		PrimaryKey: []*schema.Column{RatingRunChainEntriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "rating_run_chain_entries_contest_rating_runs_chain_entries",
+				Columns:    []*schema.Column{RatingRunChainEntriesColumns[5]},
+				RefColumns: []*schema.Column{ContestRatingRunsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "rating_run_chain_entries_rating_run_chains_entries",
+				Columns:    []*schema.Column{RatingRunChainEntriesColumns[6]},
+				RefColumns: []*schema.Column{RatingRunChainsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratingrunchainentry_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingRunChainEntriesColumns[3]},
+			},
+			{
+				Name:    "ratingrunchainentry_chain_id_rating_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{RatingRunChainEntriesColumns[6], RatingRunChainEntriesColumns[4]},
+			},
+			{
+				Name:    "ratingrunchainentry_chain_id_rating_run_id",
+				Unique:  true,
+				Columns: []*schema.Column{RatingRunChainEntriesColumns[6], RatingRunChainEntriesColumns[5]},
+			},
+			{
+				Name:    "ratingrunchainentry_rating_run_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingRunChainEntriesColumns[5]},
+			},
+		},
+	}
+	// RatingSequenceSlotsColumns holds the columns for the "rating_sequence_slots" table.
+	RatingSequenceSlotsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "rating_sequence", Type: field.TypeInt64},
+		{Name: "effective_end_at", Type: field.TypeTime},
+		{Name: "assigned_at", Type: field.TypeTime},
+		{Name: "contest_id", Type: field.TypeUUID},
+	}
+	// RatingSequenceSlotsTable holds the schema information for the "rating_sequence_slots" table.
+	RatingSequenceSlotsTable = &schema.Table{
+		Name:       "rating_sequence_slots",
+		Columns:    RatingSequenceSlotsColumns,
+		PrimaryKey: []*schema.Column{RatingSequenceSlotsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "rating_sequence_slots_contests_rating_sequence_slots",
+				Columns:    []*schema.Column{RatingSequenceSlotsColumns[7]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratingsequenceslot_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingSequenceSlotsColumns[3]},
+			},
+			{
+				Name:    "ratingsequenceslot_tenant_id_rating_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{RatingSequenceSlotsColumns[3], RatingSequenceSlotsColumns[4]},
+			},
+			{
+				Name:    "ratingsequenceslot_tenant_id_contest_id",
+				Unique:  true,
+				Columns: []*schema.Column{RatingSequenceSlotsColumns[3], RatingSequenceSlotsColumns[7]},
+			},
+			{
+				Name:    "ratingsequenceslot_tenant_id_effective_end_at_contest_id",
+				Unique:  true,
+				Columns: []*schema.Column{RatingSequenceSlotsColumns[3], RatingSequenceSlotsColumns[5], RatingSequenceSlotsColumns[7]},
+			},
+		},
+	}
+	// RatingStatesColumns holds the columns for the "rating_states" table.
+	RatingStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Size: 32},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "next_sequence", Type: field.TypeInt64, Default: 1},
+		{Name: "applied_sequence", Type: field.TypeInt64, Default: 0},
+		{Name: "projection_revision", Type: field.TypeInt64, Default: 1},
+		{Name: "active_projection_generation_id", Type: field.TypeUUID},
+		{Name: "active_run_chain_id", Type: field.TypeUUID},
+	}
+	// RatingStatesTable holds the schema information for the "rating_states" table.
+	RatingStatesTable = &schema.Table{
+		Name:       "rating_states",
+		Columns:    RatingStatesColumns,
+		PrimaryKey: []*schema.Column{RatingStatesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "rating_states_rating_projection_generations_active_states",
+				Columns:    []*schema.Column{RatingStatesColumns[7]},
+				RefColumns: []*schema.Column{RatingProjectionGenerationsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "rating_states_rating_run_chains_active_states",
+				Columns:    []*schema.Column{RatingStatesColumns[8]},
+				RefColumns: []*schema.Column{RatingRunChainsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "ratingstate_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RatingStatesColumns[3]},
+			},
+		},
+	}
+	// RealtimeCursorStatesColumns holds the columns for the "realtime_cursor_states" table.
+	RealtimeCursorStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Size: 64},
+		{Name: "last_sequence", Type: field.TypeInt64, Default: 0},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// RealtimeCursorStatesTable holds the schema information for the "realtime_cursor_states" table.
+	RealtimeCursorStatesTable = &schema.Table{
+		Name:       "realtime_cursor_states",
+		Columns:    RealtimeCursorStatesColumns,
+		PrimaryKey: []*schema.Column{RealtimeCursorStatesColumns[0]},
+	}
+	// RealtimeEventsColumns holds the columns for the "realtime_events" table.
+	RealtimeEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "event_id", Type: field.TypeString, Size: 128},
+		{Name: "topic", Type: field.TypeString, Size: 256},
+		{Name: "sequence", Type: field.TypeInt64},
+		{Name: "type", Type: field.TypeString, Size: 128},
+		{Name: "aggregate_version", Type: field.TypeInt64},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "data", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "delivery_class", Type: field.TypeEnum, Enums: []string{"latest_state", "ephemeral", "critical"}},
+		{Name: "coalesce_key", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "evidence_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// RealtimeEventsTable holds the schema information for the "realtime_events" table.
+	RealtimeEventsTable = &schema.Table{
+		Name:       "realtime_events",
+		Columns:    RealtimeEventsColumns,
+		PrimaryKey: []*schema.Column{RealtimeEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "realtimeevent_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{RealtimeEventsColumns[3]},
+			},
+			{
+				Name:    "realtimeevent_topic_event_id",
+				Unique:  true,
+				Columns: []*schema.Column{RealtimeEventsColumns[2], RealtimeEventsColumns[1]},
+			},
+			{
+				Name:    "realtimeevent_topic_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{RealtimeEventsColumns[2], RealtimeEventsColumns[3]},
+			},
+			{
+				Name:    "realtimeevent_created_at_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{RealtimeEventsColumns[11], RealtimeEventsColumns[3]},
+			},
+			{
+				Name:    "realtimeevent_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{RealtimeEventsColumns[11], RealtimeEventsColumns[0]},
+			},
+		},
+	}
+	// RecoveryContactCommandReceiptsColumns holds the columns for the "recovery_contact_command_receipts" table.
+	RecoveryContactCommandReceiptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "idempotency_key", Type: field.TypeUUID},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"replace", "resend", "cancel_pending", "remove"}},
+		{Name: "request_fingerprint", Type: field.TypeBytes, Size: 32},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "session_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// RecoveryContactCommandReceiptsTable holds the schema information for the "recovery_contact_command_receipts" table.
+	RecoveryContactCommandReceiptsTable = &schema.Table{
+		Name:       "recovery_contact_command_receipts",
+		Columns:    RecoveryContactCommandReceiptsColumns,
+		PrimaryKey: []*schema.Column{RecoveryContactCommandReceiptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "recovery_contact_command_receipts_auth_sessions_recovery_contact_commands",
+				Columns:    []*schema.Column{RecoveryContactCommandReceiptsColumns[7]},
+				RefColumns: []*schema.Column{AuthSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "recovery_contact_command_receipts_users_recovery_contact_commands",
+				Columns:    []*schema.Column{RecoveryContactCommandReceiptsColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "recoverycontactcommandreceipt_user_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{RecoveryContactCommandReceiptsColumns[8], RecoveryContactCommandReceiptsColumns[3]},
+			},
+			{
+				Name:    "recoverycontactcommandreceipt_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{RecoveryContactCommandReceiptsColumns[6]},
+			},
+		},
+	}
+	// RecoveryContactVerificationTokensColumns holds the columns for the "recovery_contact_verification_tokens" table.
+	RecoveryContactVerificationTokensColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "contact_version", Type: field.TypeInt64},
+		{Name: "hash_key_id", Type: field.TypeString, Size: 128},
+		{Name: "token_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"registration", "replacement", "invitation"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"issued", "consumed", "superseded", "expired"}, Default: "issued"},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "superseded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "attempt_count", Type: field.TypeUint32, Default: 0},
+		{Name: "last_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "contact_id", Type: field.TypeUUID},
+	}
+	// RecoveryContactVerificationTokensTable holds the schema information for the "recovery_contact_verification_tokens" table.
+	RecoveryContactVerificationTokensTable = &schema.Table{
+		Name:       "recovery_contact_verification_tokens",
+		Columns:    RecoveryContactVerificationTokensColumns,
+		PrimaryKey: []*schema.Column{RecoveryContactVerificationTokensColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "recovery_contact_verification_tokens_user_recovery_contacts_verification_tokens",
+				Columns:    []*schema.Column{RecoveryContactVerificationTokensColumns[13]},
+				RefColumns: []*schema.Column{UserRecoveryContactsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "recoverycontactverificationtoken_hash_key_id_token_hash",
+				Unique:  true,
+				Columns: []*schema.Column{RecoveryContactVerificationTokensColumns[4], RecoveryContactVerificationTokensColumns[5]},
+			},
+			{
+				Name:    "recoverycontactverificationtoken_contact_id_contact_version_status",
+				Unique:  false,
+				Columns: []*schema.Column{RecoveryContactVerificationTokensColumns[13], RecoveryContactVerificationTokensColumns[3], RecoveryContactVerificationTokensColumns[7]},
+			},
+			{
+				Name:    "recoverycontactverificationtoken_status_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{RecoveryContactVerificationTokensColumns[7], RecoveryContactVerificationTokensColumns[8]},
+			},
+		},
+	}
+	// RewardRuleRevisionsColumns holds the columns for the "reward_rule_revisions" table.
+	RewardRuleRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "rule_key", Type: field.TypeString, Size: 64},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "algorithm_version", Type: field.TypeString, Size: 64},
+		{Name: "configuration", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "checksum", Type: field.TypeBytes},
+		{Name: "request_checksum", Type: field.TypeBytes},
+		{Name: "effective_from", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// RewardRuleRevisionsTable holds the schema information for the "reward_rule_revisions" table.
+	RewardRuleRevisionsTable = &schema.Table{
+		Name:       "reward_rule_revisions",
+		Columns:    RewardRuleRevisionsColumns,
+		PrimaryKey: []*schema.Column{RewardRuleRevisionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rewardrulerevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RewardRuleRevisionsColumns[1]},
+			},
+			{
+				Name:    "rewardrulerevision_tenant_id_rule_key_revision",
+				Unique:  true,
+				Columns: []*schema.Column{RewardRuleRevisionsColumns[1], RewardRuleRevisionsColumns[2], RewardRuleRevisionsColumns[3]},
+			},
+			{
+				Name:    "rewardrulerevision_tenant_id_rule_key_effective_from",
+				Unique:  false,
+				Columns: []*schema.Column{RewardRuleRevisionsColumns[1], RewardRuleRevisionsColumns[2], RewardRuleRevisionsColumns[8]},
+			},
+			{
+				Name:    "rewardrulerevision_tenant_id_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{RewardRuleRevisionsColumns[1], RewardRuleRevisionsColumns[6]},
+			},
+			{
+				Name:    "rewardrulerevision_tenant_id_request_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{RewardRuleRevisionsColumns[1], RewardRuleRevisionsColumns[7]},
+			},
+		},
 	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true},
-		{Name: "level", Type: field.TypeInt, Default: 0},
-		{Name: "parent_id", Type: field.TypeInt, Default: -1},
-		{Name: "lft", Type: field.TypeInt, Default: 0},
-		{Name: "rgt", Type: field.TypeInt, Default: 0},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "key", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "is_system", Type: field.TypeBool, Default: false},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "archived"}, Default: "active"},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{
@@ -531,24 +5128,273 @@ var (
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
 	}
+	// RuntimeProfilesColumns holds the columns for the "runtime_profiles" table.
+	RuntimeProfilesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "runtime_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "language", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
+		{Name: "display_name", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "profile_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "compiler_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "runtime_bootstrap_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "sandbox_image_digest", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "compile_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "run_command_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "default_compile_timeout_ms", Type: field.TypeInt, SchemaType: map[string]string{"postgres": "integer"}},
+		{Name: "manifest_version", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "manifest_checksum", Type: field.TypeString, Size: 71, SchemaType: map[string]string{"postgres": "character varying(71)"}},
+		{Name: "artifact_manifest", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "active", Type: field.TypeBool, Default: false},
+	}
+	// RuntimeProfilesTable holds the schema information for the "runtime_profiles" table.
+	RuntimeProfilesTable = &schema.Table{
+		Name:       "runtime_profiles",
+		Columns:    RuntimeProfilesColumns,
+		PrimaryKey: []*schema.Column{RuntimeProfilesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "runtimeprofile_runtime_key_profile_version",
+				Unique:  true,
+				Columns: []*schema.Column{RuntimeProfilesColumns[3], RuntimeProfilesColumns[6]},
+			},
+			{
+				Name:    "runtimeprofile_runtime_key_active_profile_version",
+				Unique:  false,
+				Columns: []*schema.Column{RuntimeProfilesColumns[3], RuntimeProfilesColumns[16], RuntimeProfilesColumns[6]},
+			},
+			{
+				Name:    "runtimeprofile_sandbox_image_digest",
+				Unique:  false,
+				Columns: []*schema.Column{RuntimeProfilesColumns[9]},
+			},
+		},
+	}
+	// SecurityEmailDeliveriesColumns holds the columns for the "security_email_deliveries" table.
+	SecurityEmailDeliveriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"recovery_contact_verification", "password_reset", "account_invitation"}},
+		{Name: "provider_idempotency_key", Type: field.TypeString, Unique: true, Size: 128},
+		{Name: "payload_ciphertext", Type: field.TypeBytes},
+		{Name: "key_id", Type: field.TypeString, Size: 128},
+		{Name: "payload_expires_at", Type: field.TypeTime},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"ready", "leased", "sent", "dead", "cancelled"}, Default: "ready"},
+		{Name: "attempt_count", Type: field.TypeUint32, Default: 0},
+		{Name: "next_attempt_at", Type: field.TypeTime},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "lease_token", Type: field.TypeUUID, Nullable: true},
+		{Name: "leased_until", Type: field.TypeTime, Nullable: true},
+		{Name: "sent_at", Type: field.TypeTime, Nullable: true},
+		{Name: "dead_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancelled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_error_class", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "ciphertext_erased_at", Type: field.TypeTime, Nullable: true},
+		{Name: "password_reset_token_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "verification_token_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// SecurityEmailDeliveriesTable holds the schema information for the "security_email_deliveries" table.
+	SecurityEmailDeliveriesTable = &schema.Table{
+		Name:       "security_email_deliveries",
+		Columns:    SecurityEmailDeliveriesColumns,
+		PrimaryKey: []*schema.Column{SecurityEmailDeliveriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "security_email_deliveries_password_reset_tokens_email_deliveries",
+				Columns:    []*schema.Column{SecurityEmailDeliveriesColumns[19]},
+				RefColumns: []*schema.Column{PasswordResetTokensColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "security_email_deliveries_recovery_contact_verification_tokens_email_deliveries",
+				Columns:    []*schema.Column{SecurityEmailDeliveriesColumns[20]},
+				RefColumns: []*schema.Column{RecoveryContactVerificationTokensColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "securityemaildelivery_status_next_attempt_at_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEmailDeliveriesColumns[8], SecurityEmailDeliveriesColumns[10], SecurityEmailDeliveriesColumns[1], SecurityEmailDeliveriesColumns[0]},
+			},
+			{
+				Name:    "securityemaildelivery_status_leased_until",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEmailDeliveriesColumns[8], SecurityEmailDeliveriesColumns[13]},
+			},
+			{
+				Name:    "securityemaildelivery_payload_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEmailDeliveriesColumns[7]},
+			},
+			{
+				Name:    "securityemaildelivery_verification_token_id",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEmailDeliveriesColumns[20]},
+			},
+			{
+				Name:    "securityemaildelivery_password_reset_token_id",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEmailDeliveriesColumns[19]},
+			},
+		},
+	}
+	// SolveRewardCursorsColumns holds the columns for the "solve_reward_cursors" table.
+	SolveRewardCursorsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "solve_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "last_applied_version", Type: field.TypeInt64, Default: 0},
+		{Name: "current_status", Type: field.TypeEnum, Enums: []string{"solved", "unsolved"}, Default: "unsolved"},
+		{Name: "active_ledger_entry_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "last_transition_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "last_event_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "last_transition_hash", Type: field.TypeBytes, Nullable: true},
+		{Name: "reconciliation_state", Type: field.TypeEnum, Enums: []string{"ready", "blocked_gap"}, Default: "ready"},
+		{Name: "missing_from_version", Type: field.TypeInt64, Nullable: true},
+		{Name: "missing_to_version", Type: field.TypeInt64, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// SolveRewardCursorsTable holds the schema information for the "solve_reward_cursors" table.
+	SolveRewardCursorsTable = &schema.Table{
+		Name:       "solve_reward_cursors",
+		Columns:    SolveRewardCursorsColumns,
+		PrimaryKey: []*schema.Column{SolveRewardCursorsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "solverewardcursor_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardCursorsColumns[1]},
+			},
+			{
+				Name:    "solverewardcursor_solve_id",
+				Unique:  true,
+				Columns: []*schema.Column{SolveRewardCursorsColumns[2]},
+			},
+			{
+				Name:    "solverewardcursor_user_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{SolveRewardCursorsColumns[3], SolveRewardCursorsColumns[4]},
+			},
+			{
+				Name:    "solverewardcursor_reconciliation_state_updated_at_solve_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardCursorsColumns[11], SolveRewardCursorsColumns[15], SolveRewardCursorsColumns[2]},
+			},
+			{
+				Name:    "solverewardcursor_last_event_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardCursorsColumns[9]},
+			},
+			{
+				Name:    "solverewardcursor_active_ledger_entry_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardCursorsColumns[7]},
+			},
+		},
+	}
+	// SolveRewardProcessedTransitionsColumns holds the columns for the "solve_reward_processed_transitions" table.
+	SolveRewardProcessedTransitionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "solve_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "aggregate_version", Type: field.TypeInt64},
+		{Name: "transition_id", Type: field.TypeUUID},
+		{Name: "event_id", Type: field.TypeUUID},
+		{Name: "transition_hash", Type: field.TypeBytes},
+		{Name: "outcome", Type: field.TypeEnum, Enums: []string{"grant", "reversal", "pointer_move"}},
+		{Name: "ledger_entry_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "processed_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+	}
+	// SolveRewardProcessedTransitionsTable holds the schema information for the "solve_reward_processed_transitions" table.
+	SolveRewardProcessedTransitionsTable = &schema.Table{
+		Name:       "solve_reward_processed_transitions",
+		Columns:    SolveRewardProcessedTransitionsColumns,
+		PrimaryKey: []*schema.Column{SolveRewardProcessedTransitionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "solverewardprocessedtransition_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardProcessedTransitionsColumns[1]},
+			},
+			{
+				Name:    "solverewardprocessedtransition_solve_id_aggregate_version",
+				Unique:  true,
+				Columns: []*schema.Column{SolveRewardProcessedTransitionsColumns[2], SolveRewardProcessedTransitionsColumns[5]},
+			},
+			{
+				Name:    "solverewardprocessedtransition_transition_id",
+				Unique:  true,
+				Columns: []*schema.Column{SolveRewardProcessedTransitionsColumns[6]},
+			},
+			{
+				Name:    "solverewardprocessedtransition_event_id",
+				Unique:  true,
+				Columns: []*schema.Column{SolveRewardProcessedTransitionsColumns[7]},
+			},
+			{
+				Name:    "solverewardprocessedtransition_ledger_entry_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardProcessedTransitionsColumns[10]},
+			},
+			{
+				Name:    "solverewardprocessedtransition_user_id_processed_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SolveRewardProcessedTransitionsColumns[3], SolveRewardProcessedTransitionsColumns[13], SolveRewardProcessedTransitionsColumns[0]},
+			},
+		},
+	}
 	// SubmissionsColumns holds the columns for the "submissions" table.
 	SubmissionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "contest_problem_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "contest_scoring_policy_version", Type: field.TypeInt64, Nullable: true},
+		{Name: "submitted_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "contest_elapsed_ms", Type: field.TypeInt64, Nullable: true},
+		{Name: "contest_submission_sequence", Type: field.TypeInt64, Nullable: true},
 		{Name: "language", Type: field.TypeEnum, Enums: []string{"cpp", "python", "java", "go"}},
+		{Name: "runtime_key", Type: field.TypeString, Size: 64, SchemaType: map[string]string{"postgres": "character varying(64)"}},
 		{Name: "source_code", Type: field.TypeString, Size: 2147483647},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "judging", "accepted", "wrong_answer", "time_limit_exceeded", "memory_limit_exceeded", "runtime_error", "compile_error"}, Default: "pending"},
+		{Name: "source_sha256", Type: field.TypeBytes},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "latest_generation", Type: field.TypeInt64, Default: 1},
+		{Name: "latest_generation_phase", Type: field.TypeEnum, Enums: []string{"queued", "claimed", "compiling", "running", "finalizing", "terminal", "cancelled"}, Default: "queued"},
+		{Name: "latest_generation_outcome", Type: field.TypeEnum, Nullable: true, Enums: []string{"accepted", "wrong_answer", "compile_error", "runtime_error", "time_limit_exceeded", "memory_limit_exceeded", "process_limit_exceeded", "output_limit_exceeded", "system_error", "cancelled"}},
+		{Name: "active_judgement_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "active_judgement_generation", Type: field.TypeInt64, Nullable: true},
+		{Name: "active_verdict", Type: field.TypeEnum, Nullable: true, Enums: []string{"accepted", "wrong_answer", "compile_error", "runtime_error", "time_limit_exceeded", "memory_limit_exceeded", "process_limit_exceeded", "output_limit_exceeded"}},
+		{Name: "idempotency_key", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "request_hash", Type: field.TypeBytes},
+		{Name: "origin_cid", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+		{Name: "latest_generation_queued_at", Type: field.TypeTime},
+		{Name: "latest_generation_started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "latest_generation_completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "judging", "accepted", "wrong_answer", "time_limit_exceeded", "memory_limit_exceeded", "process_limit_exceeded", "output_limit_exceeded", "runtime_error", "compile_error", "internal_error"}, Default: "pending"},
+		{Name: "judged_at", Type: field.TypeTime, Nullable: true},
+		{Name: "verdict_version", Type: field.TypeInt64, Default: 0},
 		{Name: "passed_count", Type: field.TypeInt, Default: 0},
 		{Name: "total_count", Type: field.TypeInt, Default: 0},
 		{Name: "time_ms", Type: field.TypeInt, Nullable: true},
 		{Name: "memory_kb", Type: field.TypeInt, Nullable: true},
 		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "contest_id", Type: field.TypeInt, Nullable: true},
-		{Name: "problem_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "contest_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// SubmissionsTable holds the schema information for the "submissions" table.
 	SubmissionsTable = &schema.Table{
@@ -558,73 +5404,405 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "submissions_contests_submissions",
-				Columns:    []*schema.Column{SubmissionsColumns[13]},
+				Columns:    []*schema.Column{SubmissionsColumns[36]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "submissions_problems_submissions",
-				Columns:    []*schema.Column{SubmissionsColumns[14]},
+				Columns:    []*schema.Column{SubmissionsColumns[37]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "submissions_users_submissions",
-				Columns:    []*schema.Column{SubmissionsColumns[15]},
+				Columns:    []*schema.Column{SubmissionsColumns[38]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "submission_user_id_problem_id",
+				Name:    "submission_tenant_id",
 				Unique:  false,
-				Columns: []*schema.Column{SubmissionsColumns[15], SubmissionsColumns[14]},
+				Columns: []*schema.Column{SubmissionsColumns[5]},
+			},
+			{
+				Name:    "submission_user_id_problem_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[38], SubmissionsColumns[37], SubmissionsColumns[1], SubmissionsColumns[0]},
+			},
+			{
+				Name:    "submission_user_id_problem_id_contest_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[38], SubmissionsColumns[37], SubmissionsColumns[36], SubmissionsColumns[1], SubmissionsColumns[0]},
+			},
+			{
+				Name:    "submission_id_user_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionsColumns[0], SubmissionsColumns[38], SubmissionsColumns[37]},
+			},
+			{
+				Name:    "submission_user_id_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionsColumns[38], SubmissionsColumns[22]},
 			},
 			{
 				Name:    "submission_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{SubmissionsColumns[15]},
+				Columns: []*schema.Column{SubmissionsColumns[38]},
 			},
 			{
 				Name:    "submission_problem_id",
 				Unique:  false,
-				Columns: []*schema.Column{SubmissionsColumns[14]},
+				Columns: []*schema.Column{SubmissionsColumns[37]},
 			},
 			{
 				Name:    "submission_contest_id",
 				Unique:  false,
-				Columns: []*schema.Column{SubmissionsColumns[13]},
+				Columns: []*schema.Column{SubmissionsColumns[36]},
+			},
+			{
+				Name:    "submission_status_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[28], SubmissionsColumns[1], SubmissionsColumns[0]},
+			},
+			{
+				Name:    "submission_user_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[38], SubmissionsColumns[1], SubmissionsColumns[0]},
+			},
+			{
+				Name:    "submission_problem_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[37], SubmissionsColumns[1], SubmissionsColumns[0]},
+			},
+			{
+				Name:    "submission_latest_generation_phase_latest_generation_queued_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[17], SubmissionsColumns[25], SubmissionsColumns[0]},
+			},
+			{
+				Name:    "submission_active_judgement_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[19]},
+			},
+			{
+				Name:    "submission_contest_id_contest_submission_sequence",
+				Unique:  true,
+				Columns: []*schema.Column{SubmissionsColumns[36], SubmissionsColumns[10]},
+			},
+			{
+				Name:    "submission_contest_id_user_id_problem_id_contest_submission_sequence",
+				Unique:  false,
+				Columns: []*schema.Column{SubmissionsColumns[36], SubmissionsColumns[38], SubmissionsColumns[37], SubmissionsColumns[10]},
 			},
 		},
 	}
 	// TagsColumns holds the columns for the "tags" table.
 	TagsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
 	}
 	// TagsTable holds the schema information for the "tags" table.
 	TagsTable = &schema.Table{
 		Name:       "tags",
 		Columns:    TagsColumns,
 		PrimaryKey: []*schema.Column{TagsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tag_name",
+				Unique:  true,
+				Columns: []*schema.Column{TagsColumns[5]},
+			},
+		},
+	}
+	// TagRevisionsColumns holds the columns for the "tag_revisions" table.
+	TagRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "checksum", Type: field.TypeBytes},
+		{Name: "tag_id", Type: field.TypeUUID},
+	}
+	// TagRevisionsTable holds the schema information for the "tag_revisions" table.
+	TagRevisionsTable = &schema.Table{
+		Name:       "tag_revisions",
+		Columns:    TagRevisionsColumns,
+		PrimaryKey: []*schema.Column{TagRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tag_revisions_tags_revisions",
+				Columns:    []*schema.Column{TagRevisionsColumns[5]},
+				RefColumns: []*schema.Column{TagsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tagrevision_tag_id_revision",
+				Unique:  true,
+				Columns: []*schema.Column{TagRevisionsColumns[5], TagRevisionsColumns[2]},
+			},
+			{
+				Name:    "tagrevision_tag_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{TagRevisionsColumns[5], TagRevisionsColumns[1], TagRevisionsColumns[0]},
+			},
+		},
+	}
+	// TagRevisionElementsColumns holds the columns for the "tag_revision_elements" table.
+	TagRevisionElementsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "element_revision", Type: field.TypeInt64},
+		{Name: "element_id", Type: field.TypeUUID},
+		{Name: "tag_revision_id", Type: field.TypeUUID},
+	}
+	// TagRevisionElementsTable holds the schema information for the "tag_revision_elements" table.
+	TagRevisionElementsTable = &schema.Table{
+		Name:       "tag_revision_elements",
+		Columns:    TagRevisionElementsColumns,
+		PrimaryKey: []*schema.Column{TagRevisionElementsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tag_revision_elements_elements_tag_revision_elements",
+				Columns:    []*schema.Column{TagRevisionElementsColumns[3]},
+				RefColumns: []*schema.Column{ElementsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "tag_revision_elements_tag_revisions_elements",
+				Columns:    []*schema.Column{TagRevisionElementsColumns[4]},
+				RefColumns: []*schema.Column{TagRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tagrevisionelement_tag_revision_id_element_id",
+				Unique:  true,
+				Columns: []*schema.Column{TagRevisionElementsColumns[4], TagRevisionElementsColumns[3]},
+			},
+			{
+				Name:    "tagrevisionelement_element_id_element_revision",
+				Unique:  false,
+				Columns: []*schema.Column{TagRevisionElementsColumns[3], TagRevisionElementsColumns[2]},
+			},
+		},
+	}
+	// TenantsColumns holds the columns for the "tenants" table.
+	TenantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "name", Type: field.TypeString, Size: 120},
+		{Name: "slug", Type: field.TypeString, Size: 80},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "suspended", "archived"}, Default: "active"},
+		{Name: "name_changed_at", Type: field.TypeTime, Nullable: true},
+	}
+	// TenantsTable holds the schema information for the "tenants" table.
+	TenantsTable = &schema.Table{
+		Name:       "tenants",
+		Columns:    TenantsColumns,
+		PrimaryKey: []*schema.Column{TenantsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tenant_slug",
+				Unique:  true,
+				Columns: []*schema.Column{TenantsColumns[4]},
+			},
+			{
+				Name:    "tenant_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantsColumns[5]},
+			},
+		},
+	}
+	// TenantInvitationsColumns holds the columns for the "tenant_invitations" table.
+	TenantInvitationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "accepted", "declined", "revoked", "expired"}, Default: "pending"},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "responded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "invited_user_id", Type: field.TypeUUID},
+		{Name: "invited_by", Type: field.TypeUUID},
+	}
+	// TenantInvitationsTable holds the schema information for the "tenant_invitations" table.
+	TenantInvitationsTable = &schema.Table{
+		Name:       "tenant_invitations",
+		Columns:    TenantInvitationsColumns,
+		PrimaryKey: []*schema.Column{TenantInvitationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tenant_invitations_tenants_invitations",
+				Columns:    []*schema.Column{TenantInvitationsColumns[6]},
+				RefColumns: []*schema.Column{TenantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "tenant_invitations_users_tenant_invitations",
+				Columns:    []*schema.Column{TenantInvitationsColumns[7]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "tenant_invitations_users_sent_tenant_invitations",
+				Columns:    []*schema.Column{TenantInvitationsColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tenantinvitation_tenant_id_invited_user_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantInvitationsColumns[6], TenantInvitationsColumns[7], TenantInvitationsColumns[3]},
+			},
+			{
+				Name:    "tenantinvitation_invited_user_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantInvitationsColumns[7], TenantInvitationsColumns[3]},
+			},
+		},
+	}
+	// TenantMembershipsColumns holds the columns for the "tenant_memberships" table.
+	TenantMembershipsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "suspended", "left"}, Default: "active"},
+		{Name: "joined_at", Type: field.TypeTime},
+		{Name: "left_at", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// TenantMembershipsTable holds the schema information for the "tenant_memberships" table.
+	TenantMembershipsTable = &schema.Table{
+		Name:       "tenant_memberships",
+		Columns:    TenantMembershipsColumns,
+		PrimaryKey: []*schema.Column{TenantMembershipsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tenant_memberships_tenants_memberships",
+				Columns:    []*schema.Column{TenantMembershipsColumns[6]},
+				RefColumns: []*schema.Column{TenantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "tenant_memberships_users_tenant_memberships",
+				Columns:    []*schema.Column{TenantMembershipsColumns[7]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tenantmembership_tenant_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{TenantMembershipsColumns[6], TenantMembershipsColumns[7]},
+			},
+			{
+				Name:    "tenantmembership_user_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantMembershipsColumns[7], TenantMembershipsColumns[3]},
+			},
+			{
+				Name:    "tenantmembership_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantMembershipsColumns[6], TenantMembershipsColumns[3]},
+			},
+		},
+	}
+	// TenantRolesColumns holds the columns for the "tenant_roles" table.
+	TenantRolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "key", Type: field.TypeString, Size: 64},
+		{Name: "name", Type: field.TypeString, Size: 120},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "is_system", Type: field.TypeBool, Default: false},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "archived"}, Default: "active"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+	}
+	// TenantRolesTable holds the schema information for the "tenant_roles" table.
+	TenantRolesTable = &schema.Table{
+		Name:       "tenant_roles",
+		Columns:    TenantRolesColumns,
+		PrimaryKey: []*schema.Column{TenantRolesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tenant_roles_tenants_roles",
+				Columns:    []*schema.Column{TenantRolesColumns[8]},
+				RefColumns: []*schema.Column{TenantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tenantrole_tenant_id_key",
+				Unique:  true,
+				Columns: []*schema.Column{TenantRolesColumns[8], TenantRolesColumns[3]},
+			},
+			{
+				Name:    "tenantrole_tenant_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{TenantRolesColumns[8], TenantRolesColumns[7]},
+			},
+		},
+	}
+	// TestAssetsColumns holds the columns for the "test_assets" table.
+	TestAssetsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "sha256", Type: field.TypeBytes},
+		{Name: "encoding", Type: field.TypeEnum, Enums: []string{"identity", "zstd"}},
+		{Name: "content", Type: field.TypeBytes, Size: 1048576},
+		{Name: "uncompressed_size", Type: field.TypeInt64},
+	}
+	// TestAssetsTable holds the schema information for the "test_assets" table.
+	TestAssetsTable = &schema.Table{
+		Name:       "test_assets",
+		Columns:    TestAssetsColumns,
+		PrimaryKey: []*schema.Column{TestAssetsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "testasset_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestAssetsColumns[1]},
+			},
+			{
+				Name:    "testasset_tenant_id_sha256",
+				Unique:  true,
+				Columns: []*schema.Column{TestAssetsColumns[1], TestAssetsColumns[3]},
+			},
+			{
+				Name:    "testasset_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestAssetsColumns[2], TestAssetsColumns[0]},
+			},
+		},
 	}
 	// TestCasesColumns holds the columns for the "test_cases" table.
 	TestCasesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "input", Type: field.TypeString, Size: 2147483647},
-		{Name: "expected_output", Type: field.TypeString, Size: 2147483647},
-		{Name: "is_hidden", Type: field.TypeBool, Default: false},
-		{Name: "order_index", Type: field.TypeInt},
-		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
 	}
 	// TestCasesTable holds the schema information for the "test_cases" table.
 	TestCasesTable = &schema.Table{
@@ -634,24 +5812,249 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "test_cases_problems_test_cases",
-				Columns:    []*schema.Column{TestCasesColumns[9]},
+				Columns:    []*schema.Column{TestCasesColumns[6]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "testcase_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestCasesColumns[5]},
+			},
+			{
+				Name:    "testcase_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{TestCasesColumns[0], TestCasesColumns[6]},
+			},
+		},
+	}
+	// TestcaseGroupsColumns holds the columns for the "testcase_groups" table.
+	TestcaseGroupsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "group_index", Type: field.TypeInt},
+		{Name: "stop_on_failure", Type: field.TypeBool, Default: false},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+	}
+	// TestcaseGroupsTable holds the schema information for the "testcase_groups" table.
+	TestcaseGroupsTable = &schema.Table{
+		Name:       "testcase_groups",
+		Columns:    TestcaseGroupsColumns,
+		PrimaryKey: []*schema.Column{TestcaseGroupsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "testcase_groups_testset_revisions_groups",
+				Columns:    []*schema.Column{TestcaseGroupsColumns[5]},
+				RefColumns: []*schema.Column{TestsetRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "testcasegroup_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseGroupsColumns[1]},
+			},
+			{
+				Name:    "testcasegroup_testset_revision_id_group_index",
+				Unique:  true,
+				Columns: []*schema.Column{TestcaseGroupsColumns[5], TestcaseGroupsColumns[3]},
+			},
+			{
+				Name:    "testcasegroup_testset_revision_id_group_index_stop_on_failure",
+				Unique:  true,
+				Columns: []*schema.Column{TestcaseGroupsColumns[5], TestcaseGroupsColumns[3], TestcaseGroupsColumns[4]},
+			},
+			{
+				Name:    "testcasegroup_id_testset_revision_id_group_index_stop_on_failure",
+				Unique:  true,
+				Columns: []*schema.Column{TestcaseGroupsColumns[0], TestcaseGroupsColumns[5], TestcaseGroupsColumns[3], TestcaseGroupsColumns[4]},
+			},
+			{
+				Name:    "testcasegroup_testset_revision_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseGroupsColumns[5], TestcaseGroupsColumns[2], TestcaseGroupsColumns[0]},
+			},
+		},
+	}
+	// TestcaseRevisionsColumns holds the columns for the "testcase_revisions" table.
+	TestcaseRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"sample", "hidden"}},
+		{Name: "group_index", Type: field.TypeInt},
+		{Name: "order_index", Type: field.TypeInt},
+		{Name: "weight", Type: field.TypeInt, Default: 1},
+		{Name: "stop_on_failure", Type: field.TypeBool, Default: false},
+		{Name: "input_asset_id", Type: field.TypeUUID},
+		{Name: "expected_asset_id", Type: field.TypeUUID},
+		{Name: "test_case_id", Type: field.TypeUUID},
+		{Name: "group_id", Type: field.TypeUUID},
+		{Name: "testset_revision_id", Type: field.TypeUUID},
+	}
+	// TestcaseRevisionsTable holds the schema information for the "testcase_revisions" table.
+	TestcaseRevisionsTable = &schema.Table{
+		Name:       "testcase_revisions",
+		Columns:    TestcaseRevisionsColumns,
+		PrimaryKey: []*schema.Column{TestcaseRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "testcase_revisions_test_assets_input_testcase_revisions",
+				Columns:    []*schema.Column{TestcaseRevisionsColumns[9]},
+				RefColumns: []*schema.Column{TestAssetsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "testcase_revisions_test_assets_expected_testcase_revisions",
+				Columns:    []*schema.Column{TestcaseRevisionsColumns[10]},
+				RefColumns: []*schema.Column{TestAssetsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "testcase_revisions_test_cases_revisions",
+				Columns:    []*schema.Column{TestcaseRevisionsColumns[11]},
+				RefColumns: []*schema.Column{TestCasesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "testcase_revisions_testcase_groups_testcase_revisions",
+				Columns:    []*schema.Column{TestcaseRevisionsColumns[12]},
+				RefColumns: []*schema.Column{TestcaseGroupsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "testcase_revisions_testset_revisions_testcase_revisions",
+				Columns:    []*schema.Column{TestcaseRevisionsColumns[13]},
+				RefColumns: []*schema.Column{TestsetRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "testcaserevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[1]},
+			},
+			{
+				Name:    "testcaserevision_testset_revision_id_test_case_id",
+				Unique:  true,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[13], TestcaseRevisionsColumns[11]},
+			},
+			{
+				Name:    "testcaserevision_test_case_id_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[11], TestcaseRevisionsColumns[3]},
+			},
+			{
+				Name:    "testcaserevision_testset_revision_id_problem_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[13], TestcaseRevisionsColumns[3]},
+			},
+			{
+				Name:    "testcaserevision_testset_revision_id_group_index_order_index",
+				Unique:  true,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[13], TestcaseRevisionsColumns[5], TestcaseRevisionsColumns[6]},
+			},
+			{
+				Name:    "testcaserevision_group_id_order_index",
+				Unique:  true,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[12], TestcaseRevisionsColumns[6]},
+			},
+			{
+				Name:    "testcaserevision_group_id_testset_revision_id_group_index_stop_on_failure",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[12], TestcaseRevisionsColumns[13], TestcaseRevisionsColumns[5], TestcaseRevisionsColumns[8]},
+			},
+			{
+				Name:    "testcaserevision_testset_revision_id_kind_group_index_order_index",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[13], TestcaseRevisionsColumns[4], TestcaseRevisionsColumns[5], TestcaseRevisionsColumns[6]},
+			},
+			{
+				Name:    "testcaserevision_input_asset_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[9]},
+			},
+			{
+				Name:    "testcaserevision_expected_asset_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestcaseRevisionsColumns[10]},
+			},
+		},
+	}
+	// TestsetRevisionsColumns holds the columns for the "testset_revisions" table.
+	TestsetRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "revision_number", Type: field.TypeInt64},
+		{Name: "checksum", Type: field.TypeBytes},
+		{Name: "test_count", Type: field.TypeInt},
+		{Name: "total_uncompressed_bytes", Type: field.TypeInt64},
+		{Name: "created_by", Type: field.TypeUUID, Nullable: true},
+		{Name: "problem_id", Type: field.TypeUUID},
+	}
+	// TestsetRevisionsTable holds the schema information for the "testset_revisions" table.
+	TestsetRevisionsTable = &schema.Table{
+		Name:       "testset_revisions",
+		Columns:    TestsetRevisionsColumns,
+		PrimaryKey: []*schema.Column{TestsetRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "testset_revisions_problems_testset_revisions",
+				Columns:    []*schema.Column{TestsetRevisionsColumns[8]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "testsetrevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestsetRevisionsColumns[1]},
+			},
+			{
+				Name:    "testsetrevision_problem_id_revision_number",
+				Unique:  true,
+				Columns: []*schema.Column{TestsetRevisionsColumns[8], TestsetRevisionsColumns[3]},
+			},
+			{
+				Name:    "testsetrevision_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{TestsetRevisionsColumns[0], TestsetRevisionsColumns[8]},
+			},
+			{
+				Name:    "testsetrevision_problem_id_created_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{TestsetRevisionsColumns[8], TestsetRevisionsColumns[2], TestsetRevisionsColumns[0]},
+			},
+			{
+				Name:    "testsetrevision_checksum",
+				Unique:  false,
+				Columns: []*schema.Column{TestsetRevisionsColumns[4]},
 			},
 		},
 	}
 	// TraitsColumns holds the columns for the "traits" table.
 	TraitsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "code", Type: field.TypeString, Size: 64},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"root_bone", "talent"}},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
-		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
-		{Name: "rarity_id", Type: field.TypeInt},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "active", Type: field.TypeBool, Default: true},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "rarity_id", Type: field.TypeUUID},
 	}
 	// TraitsTable holds the schema information for the "traits" table.
 	TraitsTable = &schema.Table{
@@ -661,46 +6064,105 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "traits_rarities_traits",
-				Columns:    []*schema.Column{TraitsColumns[9]},
+				Columns:    []*schema.Column{TraitsColumns[12]},
 				RefColumns: []*schema.Column{RaritiesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "trait_code",
+				Unique:  true,
+				Columns: []*schema.Column{TraitsColumns[5]},
+			},
+			{
+				Name:    "trait_name",
+				Unique:  true,
+				Columns: []*schema.Column{TraitsColumns[7]},
+			},
+		},
+	}
+	// TraitEffectRevisionsColumns holds the columns for the "trait_effect_revisions" table.
+	TraitEffectRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "schema_version", Type: field.TypeInt},
+		{Name: "effect", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "target_element_ids", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "checksum", Type: field.TypeBytes},
+		{Name: "effective_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "trait_id", Type: field.TypeUUID},
+	}
+	// TraitEffectRevisionsTable holds the schema information for the "trait_effect_revisions" table.
+	TraitEffectRevisionsTable = &schema.Table{
+		Name:       "trait_effect_revisions",
+		Columns:    TraitEffectRevisionsColumns,
+		PrimaryKey: []*schema.Column{TraitEffectRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "trait_effect_revisions_traits_effect_revisions",
+				Columns:    []*schema.Column{TraitEffectRevisionsColumns[8]},
+				RefColumns: []*schema.Column{TraitsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "traiteffectrevision_trait_id_revision",
+				Unique:  true,
+				Columns: []*schema.Column{TraitEffectRevisionsColumns[8], TraitEffectRevisionsColumns[1]},
+			},
+			{
+				Name:    "traiteffectrevision_trait_id_effective_at_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{TraitEffectRevisionsColumns[8], TraitEffectRevisionsColumns[6], TraitEffectRevisionsColumns[1], TraitEffectRevisionsColumns[0]},
+			},
+			{
+				Name:    "traiteffectrevision_checksum",
+				Unique:  true,
+				Columns: []*schema.Column{TraitEffectRevisionsColumns[5]},
 			},
 		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "username", Type: field.TypeString, Unique: true},
-		{Name: "role_id", Type: field.TypeInt},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "username", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"invited", "active", "suspended", "deleted"}, Default: "active"},
+		{Name: "security_version", Type: field.TypeInt64, Default: 1},
+		{Name: "profile_visibility", Type: field.TypeEnum, Enums: []string{"private", "public"}, Default: "private"},
+		{Name: "profile_visibility_version", Type: field.TypeInt64, Default: 1},
+		{Name: "profile_visibility_updated_at", Type: field.TypeTime},
+		{Name: "suspended_at", Type: field.TypeTime, Nullable: true},
+		{Name: "suspension_reason", Type: field.TypeString, Nullable: true, Size: 1024},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "users_roles_users",
-				Columns:    []*schema.Column{UsersColumns[6]},
-				RefColumns: []*schema.Column{RolesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
 	}
 	// UserAttributeValuesColumns holds the columns for the "user_attribute_values" table.
 	UserAttributeValuesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "canonical_value", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "source_value_version", Type: field.TypeInt64, Default: 1},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
 		{Name: "value", Type: field.TypeString, Size: 2147483647},
-		{Name: "attribute_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "attribute_id", Type: field.TypeUUID},
+		{Name: "definition_revision_id", Type: field.TypeUUID},
+		{Name: "source_revision_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserAttributeValuesTable holds the schema information for the "user_attribute_values" table.
 	UserAttributeValuesTable = &schema.Table{
@@ -710,31 +6172,52 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_attribute_values_attribute_definitions_values",
-				Columns:    []*schema.Column{UserAttributeValuesColumns[6]},
+				Columns:    []*schema.Column{UserAttributeValuesColumns[10]},
 				RefColumns: []*schema.Column{AttributeDefinitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
+				Symbol:     "user_attribute_values_attribute_definition_revisions_values",
+				Columns:    []*schema.Column{UserAttributeValuesColumns[11]},
+				RefColumns: []*schema.Column{AttributeDefinitionRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_attribute_values_attribute_definition_revisions_derived_values",
+				Columns:    []*schema.Column{UserAttributeValuesColumns[12]},
+				RefColumns: []*schema.Column{AttributeDefinitionRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
 				Symbol:     "user_attribute_values_users_attributes",
-				Columns:    []*schema.Column{UserAttributeValuesColumns[7]},
+				Columns:    []*schema.Column{UserAttributeValuesColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "userattributevalue_user_id_attribute_id",
+				Name:    "userattributevalue_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserAttributeValuesColumns[5]},
+			},
+			{
+				Name:    "userattributevalue_user_id_attribute_id_definition_revision_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserAttributeValuesColumns[7], UserAttributeValuesColumns[6]},
+				Columns: []*schema.Column{UserAttributeValuesColumns[13], UserAttributeValuesColumns[10], UserAttributeValuesColumns[11]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "deleted_at IS NULL",
+				},
 			},
 		},
 	}
 	// UserDifficultyStatsColumns holds the columns for the "user_difficulty_stats" table.
 	UserDifficultyStatsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "solved_count", Type: field.TypeInt, Default: 0},
-		{Name: "difficulty_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "difficulty_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserDifficultyStatsTable holds the schema information for the "user_difficulty_stats" table.
 	UserDifficultyStatsTable = &schema.Table{
@@ -744,40 +6227,46 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_difficulty_stats_difficulties_user_difficulty_stats",
-				Columns:    []*schema.Column{UserDifficultyStatsColumns[2]},
+				Columns:    []*schema.Column{UserDifficultyStatsColumns[3]},
 				RefColumns: []*schema.Column{DifficultiesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_difficulty_stats_users_difficulty_stats",
-				Columns:    []*schema.Column{UserDifficultyStatsColumns[3]},
+				Columns:    []*schema.Column{UserDifficultyStatsColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "userdifficultystats_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserDifficultyStatsColumns[1]},
+			},
+			{
 				Name:    "userdifficultystats_user_id_difficulty_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserDifficultyStatsColumns[3], UserDifficultyStatsColumns[2]},
+				Columns: []*schema.Column{UserDifficultyStatsColumns[4], UserDifficultyStatsColumns[3]},
 			},
 			{
 				Name:    "userdifficultystats_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{UserDifficultyStatsColumns[3]},
+				Columns: []*schema.Column{UserDifficultyStatsColumns[4]},
 			},
 		},
 	}
 	// UserElementExpsColumns holds the columns for the "user_element_exps" table.
 	UserElementExpsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "exp", Type: field.TypeInt64, Default: 0},
-		{Name: "element_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "element_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserElementExpsTable holds the schema information for the "user_element_exps" table.
 	UserElementExpsTable = &schema.Table{
@@ -787,31 +6276,397 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_element_exps_elements_user_element_exps",
-				Columns:    []*schema.Column{UserElementExpsColumns[6]},
+				Columns:    []*schema.Column{UserElementExpsColumns[7]},
 				RefColumns: []*schema.Column{ElementsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_element_exps_users_user_element_exps",
-				Columns:    []*schema.Column{UserElementExpsColumns[7]},
+				Columns:    []*schema.Column{UserElementExpsColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "userelementexp_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserElementExpsColumns[5]},
+			},
+			{
 				Name:    "userelementexp_user_id_element_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserElementExpsColumns[7], UserElementExpsColumns[6]},
+				Columns: []*schema.Column{UserElementExpsColumns[8], UserElementExpsColumns[7]},
+			},
+		},
+	}
+	// UserProblemSolvesColumns holds the columns for the "user_problem_solves" table.
+	UserProblemSolvesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"solved", "unsolved"}, Default: "unsolved"},
+		{Name: "active_submission_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "active_judgement_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "active_generation", Type: field.TypeInt64, Nullable: true},
+		{Name: "active_problem_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "reward_facts", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "reward_facts_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "active_reward_transition_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "reward_provenance", Type: field.TypeEnum, Nullable: true, Enums: []string{"live"}},
+		{Name: "solved_at", Type: field.TypeTime, Nullable: true},
+		{Name: "version", Type: field.TypeInt64, Default: 0},
+	}
+	// UserProblemSolvesTable holds the schema information for the "user_problem_solves" table.
+	UserProblemSolvesTable = &schema.Table{
+		Name:       "user_problem_solves",
+		Columns:    UserProblemSolvesColumns,
+		PrimaryKey: []*schema.Column{UserProblemSolvesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userproblemsolve_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolvesColumns[3]},
+			},
+			{
+				Name:    "userproblemsolve_user_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolvesColumns[4], UserProblemSolvesColumns[5]},
+			},
+			{
+				Name:    "userproblemsolve_id_user_id_problem_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolvesColumns[0], UserProblemSolvesColumns[4], UserProblemSolvesColumns[5]},
+			},
+			{
+				Name:    "userproblemsolve_status_problem_id_solved_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolvesColumns[6], UserProblemSolvesColumns[5], UserProblemSolvesColumns[15], UserProblemSolvesColumns[0]},
+			},
+			{
+				Name:    "userproblemsolve_active_submission_id_active_judgement_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolvesColumns[7], UserProblemSolvesColumns[8]},
+			},
+			{
+				Name:    "userproblemsolve_active_reward_transition_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolvesColumns[13]},
+			},
+		},
+	}
+	// UserProblemSolveTransitionsColumns holds the columns for the "user_problem_solve_transitions" table.
+	UserProblemSolveTransitionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "event_id", Type: field.TypeUUID},
+		{Name: "solve_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "from_version", Type: field.TypeInt64},
+		{Name: "to_version", Type: field.TypeInt64},
+		{Name: "from_status", Type: field.TypeEnum, Enums: []string{"solved", "unsolved"}},
+		{Name: "to_status", Type: field.TypeEnum, Enums: []string{"solved", "unsolved"}},
+		{Name: "from_submission_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "to_submission_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "from_judgement_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "to_judgement_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "from_generation", Type: field.TypeInt64, Nullable: true},
+		{Name: "to_generation", Type: field.TypeInt64, Nullable: true},
+		{Name: "from_problem_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "to_problem_revision_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "from_reward_facts", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "to_reward_facts", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb", "sqlite3": "json"}},
+		{Name: "from_reward_facts_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "to_reward_facts_checksum", Type: field.TypeBytes, Nullable: true},
+		{Name: "from_reward_grant_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "to_reward_grant_source_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "from_reward_provenance", Type: field.TypeEnum, Nullable: true, Enums: []string{"live"}},
+		{Name: "to_reward_provenance", Type: field.TypeEnum, Nullable: true, Enums: []string{"live"}},
+		{Name: "from_solved_at", Type: field.TypeTime, Nullable: true},
+		{Name: "to_solved_at", Type: field.TypeTime, Nullable: true},
+		{Name: "provenance", Type: field.TypeEnum, Enums: []string{"live"}},
+		{Name: "occurred_at", Type: field.TypeTime},
+		{Name: "correlation_id", Type: field.TypeString, Size: 128, SchemaType: map[string]string{"postgres": "character varying(128)"}},
+	}
+	// UserProblemSolveTransitionsTable holds the schema information for the "user_problem_solve_transitions" table.
+	UserProblemSolveTransitionsTable = &schema.Table{
+		Name:       "user_problem_solve_transitions",
+		Columns:    UserProblemSolveTransitionsColumns,
+		PrimaryKey: []*schema.Column{UserProblemSolveTransitionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userproblemsolvetransition_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[1]},
+			},
+			{
+				Name:    "userproblemsolvetransition_event_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[3]},
+			},
+			{
+				Name:    "userproblemsolvetransition_solve_id_to_version",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[4], UserProblemSolveTransitionsColumns[8]},
+			},
+			{
+				Name:    "userproblemsolvetransition_id_event_id_solve_id_user_id_problem_id_to_version",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[0], UserProblemSolveTransitionsColumns[3], UserProblemSolveTransitionsColumns[4], UserProblemSolveTransitionsColumns[5], UserProblemSolveTransitionsColumns[6], UserProblemSolveTransitionsColumns[8]},
+			},
+			{
+				Name:    "userproblemsolvetransition_id_solve_id_to_version",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[0], UserProblemSolveTransitionsColumns[4], UserProblemSolveTransitionsColumns[8]},
+			},
+			{
+				Name:    "userproblemsolvetransition_id_solve_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[0], UserProblemSolveTransitionsColumns[4]},
+			},
+			{
+				Name:    "userproblemsolvetransition_solve_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[4], UserProblemSolveTransitionsColumns[30], UserProblemSolveTransitionsColumns[0]},
+			},
+			{
+				Name:    "userproblemsolvetransition_user_id_problem_id_to_version",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[5], UserProblemSolveTransitionsColumns[6], UserProblemSolveTransitionsColumns[8]},
+			},
+			{
+				Name:    "userproblemsolvetransition_correlation_id_occurred_at_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserProblemSolveTransitionsColumns[31], UserProblemSolveTransitionsColumns[30], UserProblemSolveTransitionsColumns[0]},
+			},
+		},
+	}
+	// UserRecoveryContactsColumns holds the columns for the "user_recovery_contacts" table.
+	UserRecoveryContactsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"email"}},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"registration", "replacement", "invitation", "oauth_link"}},
+		{Name: "lookup_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "fingerprint_hash", Type: field.TypeBytes, Size: 32},
+		{Name: "address_ciphertext", Type: field.TypeBytes},
+		{Name: "key_id", Type: field.TypeString, Size: 128},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "verified", "revoked"}, Default: "pending"},
+		{Name: "version", Type: field.TypeInt64, Default: 1},
+		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
+		{Name: "revoked_at", Type: field.TypeTime, Nullable: true},
+		{Name: "replaced_contact_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "source_federated_identity_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// UserRecoveryContactsTable holds the schema information for the "user_recovery_contacts" table.
+	UserRecoveryContactsTable = &schema.Table{
+		Name:       "user_recovery_contacts",
+		Columns:    UserRecoveryContactsColumns,
+		PrimaryKey: []*schema.Column{UserRecoveryContactsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_recovery_contacts_federated_identities_recovery_contacts",
+				Columns:    []*schema.Column{UserRecoveryContactsColumns[14]},
+				RefColumns: []*schema.Column{FederatedIdentitiesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "user_recovery_contacts_users_recovery_contacts",
+				Columns:    []*schema.Column{UserRecoveryContactsColumns[15]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userrecoverycontact_lookup_hash",
+				Unique:  false,
+				Columns: []*schema.Column{UserRecoveryContactsColumns[5]},
+			},
+			{
+				Name:    "userrecoverycontact_fingerprint_hash",
+				Unique:  false,
+				Columns: []*schema.Column{UserRecoveryContactsColumns[6]},
+			},
+			{
+				Name:    "userrecoverycontact_source_federated_identity_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRecoveryContactsColumns[14]},
+			},
+			{
+				Name:    "userrecoverycontact_user_kind_verified",
+				Unique:  true,
+				Columns: []*schema.Column{UserRecoveryContactsColumns[15], UserRecoveryContactsColumns[3]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "status = 'verified'",
+				},
+			},
+			{
+				Name:    "userrecoverycontact_user_kind_pending",
+				Unique:  true,
+				Columns: []*schema.Column{UserRecoveryContactsColumns[15], UserRecoveryContactsColumns[3]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "status = 'pending'",
+				},
+			},
+			{
+				Name:    "userrecoverycontact_user_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{UserRecoveryContactsColumns[15], UserRecoveryContactsColumns[9]},
+			},
+		},
+	}
+	// UserRewardProfileRevisionsColumns holds the columns for the "user_reward_profile_revisions" table.
+	UserRewardProfileRevisionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "revision", Type: field.TypeInt64},
+		{Name: "assignment_checksum", Type: field.TypeBytes},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"onboarding", "administrative"}},
+		{Name: "command_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "request_checksum", Type: field.TypeBytes},
+		{Name: "effective_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "source_offer_id", Type: field.TypeUUID, Unique: true, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// UserRewardProfileRevisionsTable holds the schema information for the "user_reward_profile_revisions" table.
+	UserRewardProfileRevisionsTable = &schema.Table{
+		Name:       "user_reward_profile_revisions",
+		Columns:    UserRewardProfileRevisionsColumns,
+		PrimaryKey: []*schema.Column{UserRewardProfileRevisionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_reward_profile_revisions_onboarding_trait_offers_reward_profile_revision",
+				Columns:    []*schema.Column{UserRewardProfileRevisionsColumns[9]},
+				RefColumns: []*schema.Column{OnboardingTraitOffersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "user_reward_profile_revisions_users_reward_profile_revisions",
+				Columns:    []*schema.Column{UserRewardProfileRevisionsColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userrewardprofilerevision_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRewardProfileRevisionsColumns[1]},
+			},
+			{
+				Name:    "userrewardprofilerevision_tenant_id_user_id_revision",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileRevisionsColumns[1], UserRewardProfileRevisionsColumns[10], UserRewardProfileRevisionsColumns[2]},
+			},
+			{
+				Name:    "userrewardprofilerevision_user_id_effective_at_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileRevisionsColumns[10], UserRewardProfileRevisionsColumns[7], UserRewardProfileRevisionsColumns[2], UserRewardProfileRevisionsColumns[0]},
+			},
+			{
+				Name:    "userrewardprofilerevision_source_offer_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileRevisionsColumns[9]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "source_offer_id IS NOT NULL",
+				},
+			},
+			{
+				Name:    "userrewardprofilerevision_command_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileRevisionsColumns[5]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "command_id IS NOT NULL",
+				},
+			},
+		},
+	}
+	// UserRewardProfileTraitsColumns holds the columns for the "user_reward_profile_traits" table.
+	UserRewardProfileTraitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "trait_code", Type: field.TypeString, Size: 64},
+		{Name: "trait_type", Type: field.TypeEnum, Enums: []string{"root_bone", "talent"}},
+		{Name: "trait_name", Type: field.TypeString, Size: 255},
+		{Name: "trait_description", Type: field.TypeString, Nullable: true, Size: 2048},
+		{Name: "rarity_code", Type: field.TypeString, Size: 64},
+		{Name: "rarity_name", Type: field.TypeString, Size: 255},
+		{Name: "slot", Type: field.TypeEnum, Enums: []string{"root_bone", "talent"}},
+		{Name: "slot_order", Type: field.TypeInt},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "trait_id", Type: field.TypeUUID},
+		{Name: "trait_effect_revision_id", Type: field.TypeUUID},
+		{Name: "profile_revision_id", Type: field.TypeUUID},
+	}
+	// UserRewardProfileTraitsTable holds the schema information for the "user_reward_profile_traits" table.
+	UserRewardProfileTraitsTable = &schema.Table{
+		Name:       "user_reward_profile_traits",
+		Columns:    UserRewardProfileTraitsColumns,
+		PrimaryKey: []*schema.Column{UserRewardProfileTraitsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_reward_profile_traits_traits_reward_profile_traits",
+				Columns:    []*schema.Column{UserRewardProfileTraitsColumns[11]},
+				RefColumns: []*schema.Column{TraitsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_reward_profile_traits_trait_effect_revisions_profile_traits",
+				Columns:    []*schema.Column{UserRewardProfileTraitsColumns[12]},
+				RefColumns: []*schema.Column{TraitEffectRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_reward_profile_traits_user_reward_profile_revisions_traits",
+				Columns:    []*schema.Column{UserRewardProfileTraitsColumns[13]},
+				RefColumns: []*schema.Column{UserRewardProfileRevisionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userrewardprofiletrait_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRewardProfileTraitsColumns[1]},
+			},
+			{
+				Name:    "userrewardprofiletrait_profile_revision_id_trait_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileTraitsColumns[13], UserRewardProfileTraitsColumns[11]},
+			},
+			{
+				Name:    "userrewardprofiletrait_profile_revision_id_slot_slot_order",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileTraitsColumns[13], UserRewardProfileTraitsColumns[8], UserRewardProfileTraitsColumns[9]},
+			},
+			{
+				Name:    "userrewardprofiletrait_profile_revision_id_trait_effect_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileTraitsColumns[13], UserRewardProfileTraitsColumns[12]},
+			},
+			{
+				Name:    "userrewardprofiletrait_id_profile_revision_id_trait_id_trait_effect_revision_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRewardProfileTraitsColumns[0], UserRewardProfileTraitsColumns[13], UserRewardProfileTraitsColumns[11], UserRewardProfileTraitsColumns[12]},
 			},
 		},
 	}
 	// UserSolvedProblemsColumns holds the columns for the "user_solved_problems" table.
 	UserSolvedProblemsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "solved_at", Type: field.TypeTime},
-		{Name: "problem_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserSolvedProblemsTable holds the schema information for the "user_solved_problems" table.
 	UserSolvedProblemsTable = &schema.Table{
@@ -821,42 +6676,52 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_solved_problems_problems_solvers",
-				Columns:    []*schema.Column{UserSolvedProblemsColumns[2]},
+				Columns:    []*schema.Column{UserSolvedProblemsColumns[3]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_solved_problems_users_solved_problems",
-				Columns:    []*schema.Column{UserSolvedProblemsColumns[3]},
+				Columns:    []*schema.Column{UserSolvedProblemsColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "usersolvedproblem_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserSolvedProblemsColumns[1]},
+			},
+			{
 				Name:    "usersolvedproblem_user_id_problem_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserSolvedProblemsColumns[3], UserSolvedProblemsColumns[2]},
+				Columns: []*schema.Column{UserSolvedProblemsColumns[4], UserSolvedProblemsColumns[3]},
 			},
 			{
 				Name:    "usersolvedproblem_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{UserSolvedProblemsColumns[3]},
+				Columns: []*schema.Column{UserSolvedProblemsColumns[4]},
 			},
 		},
 	}
 	// UserStatsColumns holds the columns for the "user_stats" table.
 	UserStatsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "total_exp", Type: field.TypeInt64, Default: 0},
-		{Name: "rating", Type: field.TypeInt, Default: 0},
+		{Name: "rating", Type: field.TypeInt, Default: 1200},
 		{Name: "total_submissions", Type: field.TypeInt, Default: 0},
 		{Name: "accepted_count", Type: field.TypeInt, Default: 0},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "progression_version", Type: field.TypeInt64, Default: 0},
+		{Name: "rating_version", Type: field.TypeInt64, Default: 0},
+		{Name: "progression_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "rating_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserStatsTable holds the schema information for the "user_stats" table.
 	UserStatsTable = &schema.Table{
@@ -866,25 +6731,31 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_stats_users_user_stats",
-				Columns:    []*schema.Column{UserStatsColumns[9]},
+				Columns:    []*schema.Column{UserStatsColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "userstats_user_id",
+				Name:    "userstats_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserStatsColumns[5]},
+			},
+			{
+				Name:    "userstats_tenant_id_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserStatsColumns[9]},
+				Columns: []*schema.Column{UserStatsColumns[5], UserStatsColumns[14]},
 			},
 		},
 	}
 	// UserTagStatsColumns holds the columns for the "user_tag_stats" table.
 	UserTagStatsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "solved_count", Type: field.TypeInt, Default: 0},
-		{Name: "tag_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "tag_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserTagStatsTable holds the schema information for the "user_tag_stats" table.
 	UserTagStatsTable = &schema.Table{
@@ -894,39 +6765,45 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_tag_stats_tags_user_tag_stats",
-				Columns:    []*schema.Column{UserTagStatsColumns[2]},
+				Columns:    []*schema.Column{UserTagStatsColumns[3]},
 				RefColumns: []*schema.Column{TagsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_tag_stats_users_tag_stats",
-				Columns:    []*schema.Column{UserTagStatsColumns[3]},
+				Columns:    []*schema.Column{UserTagStatsColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "usertagstats_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserTagStatsColumns[1]},
+			},
+			{
 				Name:    "usertagstats_user_id_tag_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserTagStatsColumns[3], UserTagStatsColumns[2]},
+				Columns: []*schema.Column{UserTagStatsColumns[4], UserTagStatsColumns[3]},
 			},
 			{
 				Name:    "usertagstats_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{UserTagStatsColumns[3]},
+				Columns: []*schema.Column{UserTagStatsColumns[4]},
 			},
 		},
 	}
 	// UserTraitsColumns holds the columns for the "user_traits" table.
 	UserTraitsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_by", Type: field.TypeInt, Nullable: true},
-		{Name: "trait_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "trait_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserTraitsTable holds the schema information for the "user_traits" table.
 	UserTraitsTable = &schema.Table{
@@ -936,29 +6813,34 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_traits_traits_user_traits",
-				Columns:    []*schema.Column{UserTraitsColumns[5]},
+				Columns:    []*schema.Column{UserTraitsColumns[6]},
 				RefColumns: []*schema.Column{TraitsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_traits_users_user_traits",
-				Columns:    []*schema.Column{UserTraitsColumns[6]},
+				Columns:    []*schema.Column{UserTraitsColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "usertrait_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserTraitsColumns[5]},
+			},
+			{
 				Name:    "usertrait_user_id_trait_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserTraitsColumns[6], UserTraitsColumns[5]},
+				Columns: []*schema.Column{UserTraitsColumns[7], UserTraitsColumns[6]},
 			},
 		},
 	}
 	// MaterialTagsColumns holds the columns for the "material_tags" table.
 	MaterialTagsColumns = []*schema.Column{
-		{Name: "material_id", Type: field.TypeInt},
-		{Name: "tag_id", Type: field.TypeInt},
+		{Name: "material_id", Type: field.TypeUUID},
+		{Name: "tag_id", Type: field.TypeUUID},
 	}
 	// MaterialTagsTable holds the schema information for the "material_tags" table.
 	MaterialTagsTable = &schema.Table{
@@ -982,8 +6864,8 @@ var (
 	}
 	// ProblemTagsColumns holds the columns for the "problem_tags" table.
 	ProblemTagsColumns = []*schema.Column{
-		{Name: "problem_id", Type: field.TypeInt},
-		{Name: "tag_id", Type: field.TypeInt},
+		{Name: "problem_id", Type: field.TypeUUID},
+		{Name: "tag_id", Type: field.TypeUUID},
 	}
 	// ProblemTagsTable holds the schema information for the "problem_tags" table.
 	ProblemTagsTable = &schema.Table{
@@ -1007,8 +6889,8 @@ var (
 	}
 	// TagElementsColumns holds the columns for the "tag_elements" table.
 	TagElementsColumns = []*schema.Column{
-		{Name: "tag_id", Type: field.TypeInt},
-		{Name: "element_id", Type: field.TypeInt},
+		{Name: "tag_id", Type: field.TypeUUID},
+		{Name: "element_id", Type: field.TypeUUID},
 	}
 	// TagElementsTable holds the schema information for the "tag_elements" table.
 	TagElementsTable = &schema.Table{
@@ -1032,32 +6914,125 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ActivatedJudgeCapabilitiesTable,
 		AttributeDefinitionsTable,
+		AttributeDefinitionRevisionsTable,
+		AuditLogsTable,
+		AuthRefreshReceiptsTable,
+		AuthRefreshTokensTable,
+		AuthSessionsTable,
+		AuthSessionCommandReceiptsTable,
+		AuthSessionIssuanceReceiptsTable,
+		AuthorizationActionsTable,
+		AuthorizationResourcesTable,
+		AuthorizationStatesTable,
+		CasbinRulesTable,
+		CheckerProfilesTable,
+		ContentRenderArtifactsTable,
+		ContentRenderSourcesTable,
 		ContestsTable,
+		ContestAnnouncementsTable,
+		ContestClarificationsTable,
+		ContestContentCommandsTable,
+		ContestContentRevisionsTable,
+		ContestDraftProblemsTable,
+		ContestProblemsTable,
+		ContestProblemResultsTable,
+		ContestRatingResultsTable,
+		ContestRatingRunsTable,
 		ContestRegistrationsTable,
+		ContestRegistrationTransitionsTable,
+		ContestScoringAttemptsTable,
 		ContestStandingsTable,
+		ContestTransitionsTable,
+		ContestUserRatingsTable,
 		CredentialsTable,
+		CultivationCatalogRevisionsTable,
+		CultivationRankingPrivacyChangesTable,
+		CultivationRankingProjectionsTable,
+		CultivationRankingStatesTable,
 		DifficultiesTable,
+		DifficultyRevisionsTable,
 		ElementsTable,
+		ElementRevisionsTable,
 		FederatedIdentitiesTable,
+		JudgeAttemptsTable,
+		JudgeJobsTable,
+		JudgeSpecsTable,
+		JudgeTestResultsTable,
+		JudgeWorkerCapabilitiesTable,
+		JudgeWorkerInstancesTable,
+		SubmissionJudgementsTable,
 		LevelsTable,
 		MaterialsTable,
 		MaterialCategoriesTable,
-		PermissionsTable,
+		MaterialRevisionsTable,
+		MaterialRevisionTagsTable,
+		MaterialSlugsTable,
+		MaterialViewDailiesTable,
+		NotificationsTable,
+		NotificationCampaignsTable,
+		NotificationCampaignConfirmationsTable,
+		NotificationCampaignExplicitUsersTable,
+		NotificationCampaignRecipientsTable,
+		NotificationCampaignRevisionsTable,
+		NotificationInboxStatesTable,
+		NotificationPreferencesTable,
+		OauthCompletionTicketsTable,
+		OauthFlowsTable,
+		OnboardingTraitOffersTable,
+		OnboardingTraitOfferTalentsTable,
+		OperationsTable,
+		OperationBatchesTable,
+		OperationControlReceiptsTable,
+		OutboxEventsTable,
+		PasswordResetTokensTable,
 		ProblemsTable,
+		ProblemRevisionsTable,
+		ProfileSchemaStatesTable,
+		ProgressionLedgerEntriesTable,
 		RanksTable,
 		RaritiesTable,
 		RatingHistoriesTable,
-		ResourcesTable,
+		RatingProjectionGenerationsTable,
+		RatingRunChainsTable,
+		RatingRunChainEntriesTable,
+		RatingSequenceSlotsTable,
+		RatingStatesTable,
+		RealtimeCursorStatesTable,
+		RealtimeEventsTable,
+		RecoveryContactCommandReceiptsTable,
+		RecoveryContactVerificationTokensTable,
+		RewardRuleRevisionsTable,
 		RolesTable,
+		RuntimeProfilesTable,
+		SecurityEmailDeliveriesTable,
+		SolveRewardCursorsTable,
+		SolveRewardProcessedTransitionsTable,
 		SubmissionsTable,
 		TagsTable,
+		TagRevisionsTable,
+		TagRevisionElementsTable,
+		TenantsTable,
+		TenantInvitationsTable,
+		TenantMembershipsTable,
+		TenantRolesTable,
+		TestAssetsTable,
 		TestCasesTable,
+		TestcaseGroupsTable,
+		TestcaseRevisionsTable,
+		TestsetRevisionsTable,
 		TraitsTable,
+		TraitEffectRevisionsTable,
 		UsersTable,
 		UserAttributeValuesTable,
 		UserDifficultyStatsTable,
 		UserElementExpsTable,
+		UserProblemSolvesTable,
+		UserProblemSolveTransitionsTable,
+		UserRecoveryContactsTable,
+		UserRewardProfileRevisionsTable,
+		UserRewardProfileTraitsTable,
 		UserSolvedProblemsTable,
 		UserStatsTable,
 		UserTagStatsTable,
@@ -1069,35 +7044,836 @@ var (
 )
 
 func init() {
+	ActivatedJudgeCapabilitiesTable.ForeignKeys[0].RefTable = JudgeWorkerCapabilitiesTable
+	ActivatedJudgeCapabilitiesTable.Annotation = &entsql.Annotation{}
+	ActivatedJudgeCapabilitiesTable.Annotation.Checks = map[string]string{
+		"activated_judge_capability_identifiers":      "release_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND judge_spec_protocol ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND runtime_key ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND runtime_profile_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND compiler_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND runtime_bootstrap_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND compile_command_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND run_command_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND manifest_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND supervisor_protocol ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND checker_key ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND checker_version ~ '^[a-z0-9][a-z0-9._-]{0,63}$'",
+		"activated_judge_capability_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND actor_id <> '00000000-0000-0000-0000-000000000000'::uuid AND audit_id <> '00000000-0000-0000-0000-000000000000'::uuid AND proof_worker_instance_id <> '00000000-0000-0000-0000-000000000000'::uuid AND proof_boot_id <> '00000000-0000-0000-0000-000000000000'::uuid AND proof_evidence_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"activated_judge_capability_pinned_digests":   "image_digest ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND approved_release_manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND capability_profile_hash ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND checker_implementation_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND smoke_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND golden_checksum ~ '^sha256:[0-9a-f]{64}$'",
+		"activated_judge_capability_state_times":      "(state = 'active' AND retired_at IS NULL AND retired_by IS NULL AND retirement_audit_id IS NULL AND retirement_reason IS NULL)\n\t\t\t\tOR (state = 'retired' AND retired_at IS NOT NULL AND retired_by IS NOT NULL AND retirement_audit_id IS NOT NULL AND retirement_reason IS NOT NULL\n\t\t\t\t\tAND retired_at >= activated_at)",
+	}
+	AttributeDefinitionsTable.ForeignKeys[0].RefTable = AttributeDefinitionRevisionsTable
+	AttributeDefinitionsTable.ForeignKeys[1].RefTable = AttributeDefinitionRevisionsTable
+	AttributeDefinitionsTable.Annotation = &entsql.Annotation{}
+	AttributeDefinitionsTable.Annotation.Checks = map[string]string{
+		"attribute_definition_kind_closed":   "kind IN ('system', 'custom')",
+		"attribute_definition_status_closed": "status IN ('active', 'archived')",
+	}
+	AttributeDefinitionRevisionsTable.ForeignKeys[0].RefTable = AttributeDefinitionsTable
+	AttributeDefinitionRevisionsTable.Annotation = &entsql.Annotation{}
+	AttributeDefinitionRevisionsTable.Annotation.Checks = map[string]string{
+		"attribute_revision_data_type_closed":  "data_type IN ('string', 'number', 'boolean', 'date')",
+		"attribute_revision_visibility_closed": "visibility IN ('public', 'private', 'admin')",
+	}
+	AuditLogsTable.ForeignKeys[0].RefTable = TenantsTable
+	AuthRefreshReceiptsTable.ForeignKeys[0].RefTable = AuthRefreshTokensTable
+	AuthRefreshReceiptsTable.ForeignKeys[1].RefTable = AuthRefreshTokensTable
+	AuthRefreshReceiptsTable.ForeignKeys[2].RefTable = AuthSessionsTable
+	AuthRefreshTokensTable.ForeignKeys[0].RefTable = AuthRefreshTokensTable
+	AuthRefreshTokensTable.ForeignKeys[1].RefTable = AuthRefreshTokensTable
+	AuthRefreshTokensTable.ForeignKeys[2].RefTable = AuthSessionsTable
+	AuthRefreshTokensTable.Annotation = &entsql.Annotation{}
+	AuthRefreshTokensTable.Annotation.Checks = map[string]string{
+		"auth_refresh_consumed_complete":  "(status = 'consumed' AND consumed_at IS NOT NULL AND replaced_by_id IS NOT NULL) OR (status <> 'consumed')",
+		"auth_refresh_expiry_after_issue": "expires_at > issued_at",
+		"auth_refresh_revoked_complete":   "(status = 'revoked' AND revoked_at IS NOT NULL) OR (status <> 'revoked')",
+		"auth_refresh_status_closed":      "status IN ('issued', 'consumed', 'revoked')",
+	}
+	AuthSessionsTable.ForeignKeys[0].RefTable = UsersTable
+	AuthSessionsTable.Annotation = &entsql.Annotation{}
+	AuthSessionsTable.Annotation.Checks = map[string]string{
+		"auth_session_expiry_order":        "idle_expires_at <= absolute_expires_at",
+		"auth_session_revocation_complete": "(status = 'revoked' AND revoked_at IS NOT NULL AND revoke_reason IS NOT NULL) OR (status <> 'revoked')",
+		"auth_session_status_closed":       "status IN ('active', 'revoked', 'expired')",
+	}
+	AuthSessionCommandReceiptsTable.ForeignKeys[0].RefTable = AuthSessionsTable
+	AuthSessionCommandReceiptsTable.ForeignKeys[1].RefTable = AuthSessionsTable
+	AuthSessionCommandReceiptsTable.ForeignKeys[2].RefTable = UsersTable
+	AuthSessionCommandReceiptsTable.Annotation = &entsql.Annotation{}
+	AuthSessionCommandReceiptsTable.Annotation.Checks = map[string]string{
+		"auth_session_command_shape": "(kind = 'revoke' AND target_session_id IS NOT NULL AND result_security_version = 0) OR (kind = 'logout_all' AND target_session_id IS NULL AND result_security_version > 0)",
+	}
+	AuthSessionIssuanceReceiptsTable.ForeignKeys[0].RefTable = AuthRefreshTokensTable
+	AuthSessionIssuanceReceiptsTable.ForeignKeys[1].RefTable = AuthSessionsTable
+	AuthSessionIssuanceReceiptsTable.ForeignKeys[2].RefTable = OnboardingTraitOffersTable
+	AuthSessionIssuanceReceiptsTable.ForeignKeys[3].RefTable = UsersTable
+	AuthSessionIssuanceReceiptsTable.Annotation = &entsql.Annotation{}
+	AuthSessionIssuanceReceiptsTable.Annotation.Checks = map[string]string{
+		"auth_issuance_external_identity":       "(purpose = 'password_login') OR request_or_ticket_id IS NOT NULL",
+		"auth_issuance_fingerprint_pair":        "(request_fingerprint IS NULL AND fingerprint_key_id IS NULL) OR (request_fingerprint IS NOT NULL AND fingerprint_key_id IS NOT NULL)",
+		"auth_issuance_offer_checksum_shape":    "offer_checksum IS NULL OR (octet_length(offer_checksum) = 32 AND offer_checksum <> decode(repeat('00', 32), 'hex'))",
+		"auth_issuance_offer_pair":              "(trait_offer_id IS NULL AND offer_checksum IS NULL) OR (trait_offer_id IS NOT NULL AND offer_checksum IS NOT NULL)",
+		"auth_issuance_password_login_identity": "(purpose = 'password_login' AND user_id IS NOT NULL AND pre_session_id IS NOT NULL) OR purpose <> 'password_login'",
+		"auth_issuance_purpose_closed":          "purpose IN ('password_login', 'password_registration', 'oauth_login', 'oauth_registration')",
+		"auth_issuance_registration_offer":      "(purpose IN ('password_registration', 'oauth_registration') AND trait_offer_id IS NOT NULL) OR (purpose NOT IN ('password_registration', 'oauth_registration') AND trait_offer_id IS NULL)",
+	}
+	AuthorizationActionsTable.ForeignKeys[0].RefTable = AuthorizationResourcesTable
+	AuthorizationStatesTable.ForeignKeys[0].RefTable = UsersTable
+	AuthorizationStatesTable.Annotation = &entsql.Annotation{
+		Check: "id = 'default'",
+	}
+	CheckerProfilesTable.Annotation = &entsql.Annotation{}
+	CheckerProfilesTable.Annotation.Checks = map[string]string{
+		"checker_profile_config_kind_closed":    "config_kind IN ('none', 'float_tolerance')",
+		"checker_profile_identity_closed_shape": "checker_key ~ '^[a-z0-9][a-z0-9._-]*$'\n\t\t\t\tAND checker_version ~ '^[a-z0-9][a-z0-9._-]*$'",
+		"checker_profile_implementation_digest": "implementation_checksum ~ '^sha256:[0-9a-f]{64}$'",
+	}
+	ContentRenderArtifactsTable.ForeignKeys[0].RefTable = ContentRenderSourcesTable
+	ContentRenderArtifactsTable.Annotation = &entsql.Annotation{}
+	ContentRenderArtifactsTable.Annotation.Checks = map[string]string{
+		"content_render_artifact_diagnostics_bound":              "jsonb_typeof(diagnostics) = 'array' AND\n\t\t\t\tjsonb_array_length(diagnostics) <= 8 AND\n\t\t\t\toctet_length(diagnostics::text) <= 2048",
+		"content_render_artifact_diagnostics_safe_codes":         "diagnostics <@ '[{\"code\":\"invalid_utf8\"},{\"code\":\"ambiguous_encoding\"},{\"code\":\"source_too_large\"},{\"code\":\"output_too_large\"},{\"code\":\"nesting_too_deep\"},{\"code\":\"render_rejected\"}]'::jsonb AND NOT (diagnostics @? '$[*] ? (!(exists(@.code)))')",
+		"content_render_artifact_html_bound":                     "sanitized_html IS NULL OR octet_length(sanitized_html) <= 2097152",
+		"content_render_artifact_nonzero_checksums":              "source_checksum <> decode(repeat('00', 32), 'hex') AND (artifact_checksum IS NULL OR artifact_checksum <> decode(repeat('00', 32), 'hex'))",
+		"content_render_artifact_nonzero_identity":               "id <> '00000000-0000-0000-0000-000000000000'::uuid AND render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND (created_by IS NULL OR created_by <> '00000000-0000-0000-0000-000000000000'::uuid)",
+		"content_render_artifact_ready_shape":                    "status <> 'ready' OR (\n\t\t\t\tsanitized_html IS NOT NULL AND\n\t\t\t\tartifact_checksum IS NOT NULL AND\n\t\t\t\toctet_length(artifact_checksum) = 32 AND\n\t\t\t\tjsonb_array_length(diagnostics) = 0\n\t\t\t)",
+		"content_render_artifact_rejected_shape":                 "status <> 'rejected' OR (\n\t\t\t\tsanitized_html IS NULL AND\n\t\t\t\tartifact_checksum IS NULL AND\n\t\t\t\tjsonb_array_length(diagnostics) BETWEEN 1 AND 8\n\t\t\t)",
+		"content_render_artifact_renderer_version_bound":         "octet_length(renderer_version) BETWEEN 1 AND 64 AND renderer_version ~ '^[a-z0-9._-]+$'",
+		"content_render_artifact_sanitizer_policy_version_bound": "octet_length(sanitizer_policy_version) BETWEEN 1 AND 64 AND sanitizer_policy_version ~ '^[a-z0-9._-]+$'",
+		"content_render_artifact_source_checksum_length":         "octet_length(source_checksum) = 32",
+		"content_render_artifact_source_kind_closed":             "render_source_kind IN ('problem_statement', 'contest_description', 'contest_announcement', 'contest_clarification', 'material_body', 'notification_campaign_body')",
+		"content_render_artifact_status_closed":                  "status IN ('ready', 'rejected')",
+	}
+	ContentRenderSourcesTable.Annotation = &entsql.Annotation{}
+	ContentRenderSourcesTable.Annotation.Checks = map[string]string{
+		"content_render_source_checksum_length":  "octet_length(source_checksum) = 32",
+		"content_render_source_kind_closed":      "source_kind IN ('problem_statement', 'contest_description', 'contest_announcement', 'contest_clarification', 'material_body', 'notification_campaign_body')",
+		"content_render_source_nonzero_checksum": "source_checksum <> decode(repeat('00', 32), 'hex')",
+		"content_render_source_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND owner_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND (created_by IS NULL OR created_by <> '00000000-0000-0000-0000-000000000000'::uuid)",
+	}
 	ContestsTable.ForeignKeys[0].RefTable = UsersTable
+	ContestsTable.Annotation = &entsql.Annotation{}
+	ContestsTable.Annotation.Checks = map[string]string{
+		"contest_freeze_window":                "freeze_standings_at IS NULL OR (freeze_standings_at >= start_time AND freeze_standings_at < end_time)",
+		"contest_lifecycle_timestamps":         "(\n\t\t\t\tstatus = 'draft' AND published_at IS NULL AND started_at IS NULL AND ended_at IS NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'upcoming' AND published_at IS NOT NULL AND started_at IS NULL AND ended_at IS NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'running' AND published_at IS NOT NULL AND started_at IS NOT NULL AND ended_at IS NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'ended' AND published_at IS NOT NULL AND started_at IS NOT NULL AND ended_at IS NOT NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'cancelled' AND cancelled_at IS NOT NULL AND ended_at IS NULL\n\t\t\t)",
+		"contest_positive_capacity":            "max_participants IS NULL OR max_participants > 0",
+		"contest_positive_scoring_version":     "scoring_policy_version >= 1",
+		"contest_positive_standings_version":   "standings_projection_version >= 1",
+		"contest_positive_submission_sequence": "next_submission_sequence >= 1",
+		"contest_positive_version":             "version >= 1",
+		"contest_rating_algorithm":             "rating_algorithm_version = 'expected-rank-v1'",
+		"contest_rating_completion":            "rating_completed_at IS NULL OR (rated AND status = 'ended' AND ended_at IS NOT NULL AND rating_completed_at >= ended_at)",
+		"contest_registration_policy":          "status IN ('draft', 'cancelled') OR ((\n\t\t\t\tregistration_mode = 'registered'\n\t\t\t\tAND registration_opens_at IS NOT NULL\n\t\t\t\tAND registration_closes_at IS NOT NULL\n\t\t\t\tAND registration_opens_at <= registration_closes_at\n\t\t\t\tAND registration_closes_at <= start_time\n\t\t\t) OR (\n\t\t\t\tregistration_mode = 'open'\n\t\t\t\tAND registration_opens_at IS NULL\n\t\t\t\tAND registration_closes_at IS NULL\n\t\t\t))",
+		"contest_valid_window":                 "start_time < end_time",
+	}
+	ContestAnnouncementsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestAnnouncementsTable.Annotation = &entsql.Annotation{}
+	ContestAnnouncementsTable.Annotation.Checks = map[string]string{
+		"contest_announcement_draft_checksum":    "octet_length(current_draft_normalized_source_checksum) = 32 AND current_draft_normalized_source_checksum <> decode(repeat('00', 32), 'hex')",
+		"contest_announcement_nonzero_identity":  "id <> '00000000-0000-0000-0000-000000000000'::uuid AND contest_id <> '00000000-0000-0000-0000-000000000000'::uuid AND current_draft_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND current_draft_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND current_draft_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"contest_announcement_published_pointer": "(\n\t\t\tpublished_revision_id IS NULL AND published_owner_type IS NULL AND published_content_kind IS NULL\n\t\t\tAND published_render_source_id IS NULL AND published_render_source_kind IS NULL\n\t\t\tAND published_normalized_source_checksum IS NULL AND published_render_artifact_id IS NULL\n\t\t) OR (\n\t\t\tpublished_revision_id IS NOT NULL AND published_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND published_owner_type = 'announcement' AND published_content_kind = 'announcement_body'\n\t\t\tAND published_render_source_id IS NOT NULL AND published_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND published_render_source_kind = 'contest_announcement'\n\t\t\tAND octet_length(published_normalized_source_checksum) = 32\n\t\t\tAND published_normalized_source_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\tAND published_render_artifact_id IS NOT NULL AND published_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t)",
+		"contest_announcement_state":             "(\n\t\t\tstatus = 'draft' AND published_at IS NULL AND withdrawn_at IS NULL\n\t\t) OR (\n\t\t\tstatus = 'published' AND published_at IS NOT NULL AND withdrawn_at IS NULL AND published_revision_id IS NOT NULL\n\t\t) OR (\n\t\t\tstatus = 'withdrawn' AND withdrawn_at IS NOT NULL\n\t\t)",
+	}
+	ContestClarificationsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestClarificationsTable.ForeignKeys[1].RefTable = ContestProblemsTable
+	ContestClarificationsTable.ForeignKeys[2].RefTable = UsersTable
+	ContestClarificationsTable.Annotation = &entsql.Annotation{}
+	ContestClarificationsTable.Annotation.Checks = map[string]string{
+		"contest_clarification_answer_pointer":    "(\n\t\tcurrent_answer_revision_id IS NULL AND current_answer_owner_type IS NULL AND current_answer_content_kind IS NULL\n\t\tAND current_answer_render_source_id IS NULL AND current_answer_render_source_kind IS NULL\n\t\tAND current_answer_normalized_source_checksum IS NULL AND current_answer_render_artifact_id IS NULL\n\t) OR (\n\t\tcurrent_answer_revision_id IS NOT NULL AND current_answer_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\tAND current_answer_owner_type = 'clarification' AND current_answer_content_kind = 'answer'\n\t\tAND current_answer_render_source_id IS NOT NULL AND current_answer_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\tAND current_answer_render_source_kind = 'contest_clarification'\n\t\tAND octet_length(current_answer_normalized_source_checksum) = 32\n\t\tAND current_answer_normalized_source_checksum <> decode(repeat('00', 32), 'hex')\n\t\tAND current_answer_render_artifact_id IS NOT NULL AND current_answer_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t)",
+		"contest_clarification_audience":          "answer_audience <> 'participants' OR (\n\t\t\tcurrent_public_question_revision_id IS NOT NULL AND current_answer_revision_id IS NOT NULL\n\t\t)",
+		"contest_clarification_nonzero_identity":  "id <> '00000000-0000-0000-0000-000000000000'::uuid AND contest_id <> '00000000-0000-0000-0000-000000000000'::uuid AND requester_id <> '00000000-0000-0000-0000-000000000000'::uuid AND (contest_problem_id IS NULL OR contest_problem_id <> '00000000-0000-0000-0000-000000000000'::uuid) AND question_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND question_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND question_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"contest_clarification_public_pointer":    "(\n\t\tcurrent_public_question_revision_id IS NULL AND current_public_question_owner_type IS NULL AND current_public_question_content_kind IS NULL\n\t\tAND current_public_question_render_source_id IS NULL AND current_public_question_render_source_kind IS NULL\n\t\tAND current_public_question_normalized_source_checksum IS NULL AND current_public_question_render_artifact_id IS NULL\n\t) OR (\n\t\tcurrent_public_question_revision_id IS NOT NULL AND current_public_question_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\tAND current_public_question_owner_type = 'clarification' AND current_public_question_content_kind = 'public_question_summary'\n\t\tAND current_public_question_render_source_id IS NOT NULL AND current_public_question_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\tAND current_public_question_render_source_kind = 'contest_clarification'\n\t\tAND octet_length(current_public_question_normalized_source_checksum) = 32\n\t\tAND current_public_question_normalized_source_checksum <> decode(repeat('00', 32), 'hex')\n\t\tAND current_public_question_render_artifact_id IS NOT NULL AND current_public_question_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t)",
+		"contest_clarification_question_checksum": "octet_length(question_normalized_source_checksum) = 32 AND question_normalized_source_checksum <> decode(repeat('00', 32), 'hex')",
+		"contest_clarification_state":             "(\n\t\t\tstatus = 'open' AND answered_at IS NULL AND closed_at IS NULL AND withdrawn_at IS NULL AND current_answer_revision_id IS NULL\n\t\t) OR (\n\t\t\tstatus = 'answered' AND answered_at IS NOT NULL AND closed_at IS NULL AND withdrawn_at IS NULL AND current_answer_revision_id IS NOT NULL\n\t\t) OR (\n\t\t\tstatus = 'closed' AND closed_at IS NOT NULL AND withdrawn_at IS NULL\n\t\t) OR (\n\t\t\tstatus = 'withdrawn' AND withdrawn_at IS NOT NULL AND answered_at IS NULL AND closed_at IS NULL AND current_answer_revision_id IS NULL\n\t\t)",
+	}
+	ContestContentCommandsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestContentCommandsTable.ForeignKeys[1].RefTable = UsersTable
+	ContestContentCommandsTable.Annotation = &entsql.Annotation{}
+	ContestContentCommandsTable.Annotation.Checks = map[string]string{
+		"contest_content_command_hash":     "octet_length(request_hash) = 32 AND request_hash <> decode(repeat('00', 32), 'hex')",
+		"contest_content_command_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND contest_id <> '00000000-0000-0000-0000-000000000000'::uuid AND idempotency_key <> '00000000-0000-0000-0000-000000000000'::uuid AND actor_user_id <> '00000000-0000-0000-0000-000000000000'::uuid AND actor_session_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"contest_content_command_result":   "(result_owner_type IS NULL AND result_content_id IS NULL AND result_revision_id IS NULL AND result_version IS NULL AND result_projection IS NULL) OR (result_owner_type IS NOT NULL AND result_content_id IS NOT NULL AND result_content_id <> '00000000-0000-0000-0000-000000000000'::uuid AND result_version IS NOT NULL AND result_version >= 1 AND result_projection IS NOT NULL AND octet_length(result_projection) BETWEEN 2 AND 1048576)",
+	}
+	ContestContentRevisionsTable.ForeignKeys[0].RefTable = UsersTable
+	ContestContentRevisionsTable.Annotation = &entsql.Annotation{}
+	ContestContentRevisionsTable.Annotation.Checks = map[string]string{
+		"contest_content_revision_checksum":         "octet_length(normalized_source_checksum) = 32 AND normalized_source_checksum <> decode(repeat('00', 32), 'hex')",
+		"contest_content_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND owner_id <> '00000000-0000-0000-0000-000000000000'::uuid AND author_id <> '00000000-0000-0000-0000-000000000000'::uuid AND render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"contest_content_revision_shape":            "(\n\t\t\towner_type = 'announcement' AND content_kind = 'announcement_body'\n\t\t\tAND render_source_kind = 'contest_announcement'\n\t\t\tAND title IS NOT NULL\n\t\t\tAND octet_length(title) BETWEEN 1 AND 200\n\t\t\tAND octet_length(markdown) BETWEEN 1 AND 65536\n\t\t) OR (\n\t\t\towner_type = 'clarification' AND content_kind IN ('question', 'public_question_summary', 'answer')\n\t\t\tAND render_source_kind = 'contest_clarification'\n\t\t\tAND title IS NULL\n\t\t\tAND octet_length(markdown) BETWEEN 1 AND CASE content_kind\n\t\t\t\tWHEN 'question' THEN 16384\n\t\t\t\tWHEN 'public_question_summary' THEN 16384\n\t\t\t\tELSE 32768 END\n\t\t)",
+	}
+	ContestDraftProblemsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestDraftProblemsTable.ForeignKeys[1].RefTable = ProblemsTable
+	ContestDraftProblemsTable.Annotation = &entsql.Annotation{
+		Table: "contest_draft_problems",
+	}
+	ContestDraftProblemsTable.Annotation.Checks = map[string]string{
+		"contest_draft_problem_alias":  "alias ~ '^[A-Z][A-Z0-9]{0,15}$'",
+		"contest_draft_problem_points": "points IS NULL OR points > 0",
+	}
+	ContestProblemsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestProblemsTable.ForeignKeys[1].RefTable = ProblemsTable
+	ContestProblemsTable.ForeignKeys[2].RefTable = ProblemRevisionsTable
+	ContestProblemsTable.ForeignKeys[3].RefTable = TestsetRevisionsTable
+	ContestProblemsTable.Annotation = &entsql.Annotation{}
+	ContestProblemsTable.Annotation.Checks = map[string]string{
+		"contest_problem_alias":             "alias ~ '^[A-Z][A-Z0-9]{0,15}$'",
+		"contest_problem_json_bounds":       "jsonb_typeof(penalty_policy) = 'object' AND octet_length(penalty_policy::text) <= 4096 AND jsonb_typeof(checker_config) = 'object' AND octet_length(checker_config::text) <= 4096 AND jsonb_typeof(allowed_runtime_keys) = 'array' AND jsonb_array_length(allowed_runtime_keys) BETWEEN 1 AND 32",
+		"contest_problem_snapshot_checksum": "octet_length(snapshot_checksum) = 32 AND snapshot_checksum <> decode(repeat('00', 32), 'hex')",
+	}
+	ContestProblemResultsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestProblemResultsTable.ForeignKeys[1].RefTable = ContestProblemsTable
+	ContestProblemResultsTable.ForeignKeys[2].RefTable = ProblemsTable
+	ContestProblemResultsTable.ForeignKeys[3].RefTable = SubmissionsTable
+	ContestProblemResultsTable.ForeignKeys[4].RefTable = UsersTable
+	ContestProblemResultsTable.Annotation = &entsql.Annotation{}
+	ContestProblemResultsTable.Annotation.Checks = map[string]string{
+		"contest_problem_result_acceptance":  "(accepted AND accepted_elapsed_ms IS NOT NULL AND last_scoring_submission_id IS NOT NULL AND last_accepted_sequence IS NOT NULL) OR (NOT accepted AND accepted_elapsed_ms IS NULL AND last_accepted_sequence IS NULL)",
+		"contest_problem_result_nonzero_ids": "contest_id <> '00000000-0000-0000-0000-000000000000'::uuid AND user_id <> '00000000-0000-0000-0000-000000000000'::uuid AND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid AND contest_problem_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	ContestRatingResultsTable.ForeignKeys[0].RefTable = ContestRatingRunsTable
+	ContestRatingResultsTable.ForeignKeys[1].RefTable = UsersTable
+	ContestRatingResultsTable.Annotation = &entsql.Annotation{}
+	ContestRatingResultsTable.Annotation.Checks = map[string]string{
+		"contest_rating_result_math":        "new_rating = GREATEST(0, prior_rating + delta)",
+		"contest_rating_result_nonzero_ids": "rating_run_id <> '00000000-0000-0000-0000-000000000000'::uuid AND user_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	ContestRatingRunsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestRatingRunsTable.ForeignKeys[1].RefTable = RatingSequenceSlotsTable
+	ContestRatingRunsTable.Annotation = &entsql.Annotation{}
+	ContestRatingRunsTable.Annotation.Checks = map[string]string{
+		"contest_rating_run_applied_shape":   "(status IN ('applied', 'skipped') AND applied_at IS NOT NULL AND failure_code IS NULL) OR (status NOT IN ('applied', 'skipped') AND applied_at IS NULL)",
+		"contest_rating_run_checksum":        "octet_length(input_checksum) = 32",
+		"contest_rating_run_failed_shape":    "(status = 'failed' AND failure_code IS NOT NULL) OR (status <> 'failed' AND failure_code IS NULL)",
+		"contest_rating_run_nonzero_contest": "contest_id <> '00000000-0000-0000-0000-000000000000'::uuid AND rating_sequence_slot_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"contest_rating_run_skip_shape":      "(status = 'skipped' AND skip_code IS NOT NULL AND reason IS NOT NULL AND applied_at IS NOT NULL) OR (status <> 'skipped' AND skip_code IS NULL)",
+	}
 	ContestRegistrationsTable.ForeignKeys[0].RefTable = ContestsTable
 	ContestRegistrationsTable.ForeignKeys[1].RefTable = UsersTable
+	ContestRegistrationsTable.Annotation = &entsql.Annotation{}
+	ContestRegistrationsTable.Annotation.Checks = map[string]string{
+		"contest_registration_positive_version":              "version >= 1",
+		"contest_registration_reason_bound":                  "reason IS NULL OR octet_length(reason) BETWEEN 1 AND 1024",
+		"contest_registration_state_complete":                "(\n\t\t\t\tstatus = 'registered' AND registered_at IS NOT NULL AND withdrawn_at IS NULL AND banned_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'withdrawn' AND registered_at IS NOT NULL AND withdrawn_at IS NOT NULL AND banned_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'banned' AND banned_at IS NOT NULL\n\t\t\t)",
+		"contest_registration_submission_count":              "official_submission_count >= 0",
+		"contest_registration_withdrawal_has_no_submissions": "status <> 'withdrawn' OR official_submission_count = 0",
+	}
+	ContestRegistrationTransitionsTable.ForeignKeys[0].RefTable = ContestRegistrationsTable
+	ContestRegistrationTransitionsTable.Annotation = &entsql.Annotation{}
+	ContestRegistrationTransitionsTable.Annotation.Checks = map[string]string{
+		"contest_registration_transition_graph":  "\n\t\t\t\t(mutation = 'register' AND from_status IN ('absent', 'withdrawn') AND to_status = 'registered') OR\n\t\t\t\t(mutation = 'withdraw' AND from_status = 'registered' AND to_status = 'withdrawn') OR\n\t\t\t\t(mutation = 'ban' AND from_status IN ('absent', 'registered', 'withdrawn') AND to_status = 'banned')",
+		"contest_registration_transition_hash":   "octet_length(command_hash) = 32 AND command_hash <> decode(repeat('00', 32), 'hex')",
+		"contest_registration_transition_reason": "reason IS NULL OR octet_length(reason) BETWEEN 1 AND 1024",
+	}
+	ContestScoringAttemptsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestScoringAttemptsTable.ForeignKeys[1].RefTable = ContestProblemsTable
+	ContestScoringAttemptsTable.ForeignKeys[2].RefTable = ProblemsTable
+	ContestScoringAttemptsTable.ForeignKeys[3].RefTable = SubmissionsTable
+	ContestScoringAttemptsTable.ForeignKeys[4].RefTable = UsersTable
+	ContestScoringAttemptsTable.Annotation = &entsql.Annotation{}
+	ContestScoringAttemptsTable.Annotation.Checks = map[string]string{
+		"contest_scoring_attempt_nonzero_ids": "contest_id <> '00000000-0000-0000-0000-000000000000'::uuid AND user_id <> '00000000-0000-0000-0000-000000000000'::uuid AND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid AND contest_problem_id <> '00000000-0000-0000-0000-000000000000'::uuid AND submission_id <> '00000000-0000-0000-0000-000000000000'::uuid AND source_event_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
 	ContestStandingsTable.ForeignKeys[0].RefTable = ContestsTable
 	ContestStandingsTable.ForeignKeys[1].RefTable = UsersTable
+	ContestTransitionsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestTransitionsTable.Annotation = &entsql.Annotation{}
+	ContestTransitionsTable.Annotation.Checks = map[string]string{
+		"contest_transition_command_hash": "octet_length(command_hash) = 32 AND command_hash <> decode(repeat('00', 32), 'hex')",
+		"contest_transition_graph":        "\n\t\t\t\t(from_state = 'draft' AND to_state IN ('upcoming', 'cancelled')) OR\n\t\t\t\t(from_state = 'upcoming' AND to_state IN ('running', 'cancelled')) OR\n\t\t\t\t(from_state = 'running' AND to_state IN ('ended', 'cancelled'))",
+		"contest_transition_reason_bound": "octet_length(reason) BETWEEN 1 AND 1024",
+	}
+	ContestUserRatingsTable.ForeignKeys[0].RefTable = RatingProjectionGenerationsTable
+	ContestUserRatingsTable.ForeignKeys[1].RefTable = UsersTable
+	ContestUserRatingsTable.Annotation = &entsql.Annotation{
+		Check: "projection_generation_id <> '00000000-0000-0000-0000-000000000000'::uuid AND user_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
 	CredentialsTable.ForeignKeys[0].RefTable = UsersTable
+	CultivationCatalogRevisionsTable.Annotation = &entsql.Annotation{}
+	CultivationCatalogRevisionsTable.Annotation.Checks = map[string]string{
+		"cultivation_catalog_algorithm_bound": "octet_length(algorithm_version) BETWEEN 1 AND 64",
+		"cultivation_catalog_checksum_shape":  "octet_length(catalog_checksum) = 32 AND catalog_checksum <> decode(repeat('00', 32), 'hex')",
+		"cultivation_catalog_pool_shape":      "jsonb_typeof(root_pool) = 'array' AND jsonb_array_length(root_pool) >= 1 AND jsonb_typeof(talent_pool) = 'array' AND jsonb_array_length(talent_pool) >= 6",
+	}
+	CultivationRankingPrivacyChangesTable.Annotation = &entsql.Annotation{}
+	CultivationRankingPrivacyChangesTable.Annotation.Checks = map[string]string{
+		"cultivation_ranking_privacy_checksum":   "octet_length(request_checksum) = 32\n\t\t\t\tAND request_checksum <> decode(repeat('00', 32), 'hex')",
+		"cultivation_ranking_privacy_identity":   "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"cultivation_ranking_privacy_transition": "from_visibility <> to_visibility\n\t\t\t\tAND to_version = from_version + 1",
+	}
+	CultivationRankingProjectionsTable.ForeignKeys[0].RefTable = UsersTable
+	CultivationRankingProjectionsTable.Annotation = &entsql.Annotation{}
+	CultivationRankingProjectionsTable.Annotation.Checks = map[string]string{
+		"cultivation_ranking_projection_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND public_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	CultivationRankingStatesTable.Annotation = &entsql.Annotation{}
+	CultivationRankingStatesTable.Annotation.Checks = map[string]string{
+		"cultivation_ranking_state_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"cultivation_ranking_state_key":      "key = 'global'",
+	}
+	DifficultiesTable.Annotation = &entsql.Annotation{}
+	DifficultiesTable.Annotation.Checks = map[string]string{
+		"difficulty_exp_reward_bound": "exp_reward BETWEEN 0 AND 1000000000",
+		"difficulty_positive_version": "version >= 1",
+	}
+	DifficultyRevisionsTable.ForeignKeys[0].RefTable = DifficultiesTable
+	DifficultyRevisionsTable.Annotation = &entsql.Annotation{}
+	DifficultyRevisionsTable.Annotation.Checks = map[string]string{
+		"difficulty_revision_checksum_shape":   "octet_length(checksum) = 32 AND checksum <> decode(repeat('00', 32), 'hex')",
+		"difficulty_revision_exp_reward_bound": "exp_reward BETWEEN 0 AND 1000000000",
+		"difficulty_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND difficulty_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"difficulty_revision_number_bound":     "revision BETWEEN 1 AND 1000000000",
+	}
+	ElementsTable.Annotation = &entsql.Annotation{}
+	ElementsTable.Annotation.Checks = map[string]string{
+		"element_positive_version": "version >= 1",
+	}
+	ElementRevisionsTable.ForeignKeys[0].RefTable = ElementsTable
+	ElementRevisionsTable.Annotation = &entsql.Annotation{}
+	ElementRevisionsTable.Annotation.Checks = map[string]string{
+		"element_revision_checksum_shape":   "octet_length(checksum) = 32 AND checksum <> decode(repeat('00', 32), 'hex')",
+		"element_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND element_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"element_revision_number_bound":     "revision BETWEEN 1 AND 1000000000",
+	}
 	FederatedIdentitiesTable.ForeignKeys[0].RefTable = UsersTable
+	JudgeAttemptsTable.Annotation = &entsql.Annotation{}
+	JudgeAttemptsTable.Annotation.Checks = map[string]string{
+		"judge_attempt_failure_metadata":   "(\n\t\t\t\tstate IN ('created', 'preparing', 'compiling', 'running', 'finalizing', 'succeeded')\n\t\t\t\tAND failure_classification IS NULL\n\t\t\t\tAND failure_code IS NULL\n\t\t\t\tAND failure_summary IS NULL\n\t\t\t) OR (\n\t\t\t\tstate IN ('infrastructure_failed', 'lease_lost', 'cancelled')\n\t\t\t\tAND failure_classification IS NOT NULL\n\t\t\t\tAND failure_code IS NOT NULL\n\t\t\t\tAND failure_summary IS NOT NULL\n\t\t\t\tAND octet_length(failure_classification) BETWEEN 1 AND 64\n\t\t\t\tAND octet_length(failure_code) BETWEEN 1 AND 64\n\t\t\t\tAND octet_length(failure_summary) BETWEEN 1 AND 16384\n\t\t\t\tAND failure_classification ~ '^[a-z][a-z0-9._-]{0,63}$'\n\t\t\t\tAND failure_code ~ '^[a-z][a-z0-9._-]{0,63}$'\n\t\t\t)",
+		"judge_attempt_heartbeat_order":    "heartbeat_at IS NULL OR heartbeat_at >= started_at",
+		"judge_attempt_lease_hash_shape":   "octet_length(lease_token_hash) = 32\n\t\t\t\tAND lease_token_hash <> decode(repeat('00', 32), 'hex')",
+		"judge_attempt_nonzero_identity":   "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND job_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND submission_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND judge_spec_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND worker_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND worker_boot_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"judge_attempt_number_bound":       "generation >= 1 AND attempt_number BETWEEN 1 AND 100",
+		"judge_attempt_pinned_digests":     "sandbox_image_digest ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND artifact_manifest_checksum ~ '^sha256:[0-9a-f]{64}$'",
+		"judge_attempt_state_closed":       "state IN ('created', 'preparing', 'compiling', 'running', 'finalizing', 'succeeded', 'infrastructure_failed', 'lease_lost', 'cancelled')",
+		"judge_attempt_terminal_timestamp": "(\n\t\t\t\tstate IN ('created', 'preparing', 'compiling', 'running', 'finalizing')\n\t\t\t\tAND finished_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstate IN ('succeeded', 'infrastructure_failed', 'lease_lost', 'cancelled')\n\t\t\t\tAND finished_at IS NOT NULL\n\t\t\t\tAND finished_at >= started_at\n\t\t\t)",
+	}
+	JudgeJobsTable.Annotation = &entsql.Annotation{}
+	JudgeJobsTable.Annotation.Checks = map[string]string{
+		"judge_job_error_metadata_complete":       "(\n\t\t\t\tlast_error_code IS NULL AND last_error_summary IS NULL\n\t\t\t) OR (\n\t\t\t\tlast_error_code IS NOT NULL AND last_error_summary IS NOT NULL\n\t\t\t\tAND octet_length(last_error_code) BETWEEN 1 AND 64\n\t\t\t\tAND octet_length(last_error_summary) BETWEEN 1 AND 16384\n\t\t\t\tAND last_error_code ~ '^[a-z][a-z0-9._-]{0,63}$'\n\t\t\t)",
+		"judge_job_generation_and_attempt_bounds": "generation >= 1 AND attempts BETWEEN 0 AND max_attempts AND max_attempts BETWEEN 1 AND 100",
+		"judge_job_lease_complete":                "(\n\t\t\t\tstate = 'leased'\n\t\t\t\tAND lease_owner IS NOT NULL\n\t\t\t\tAND lease_token_hash IS NOT NULL\n\t\t\t\tAND lease_until IS NOT NULL\n\t\t\t\tAND heartbeat_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstate <> 'leased'\n\t\t\t\tAND lease_owner IS NULL\n\t\t\t\tAND lease_token_hash IS NULL\n\t\t\t\tAND lease_until IS NULL\n\t\t\t\tAND heartbeat_at IS NULL\n\t\t\t)",
+		"judge_job_lease_hash_shape":              "lease_token_hash IS NULL OR (\n\t\t\t\toctet_length(lease_token_hash) = 32\n\t\t\t\tAND lease_token_hash <> decode(repeat('00', 32), 'hex')\n\t\t\t)",
+		"judge_job_nonzero_identity":              "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND submission_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND judge_spec_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"judge_job_priority_bound":                "base_priority BETWEEN -1000 AND 1000",
+		"judge_job_started_before_terminal":       "(started_at IS NULL OR started_at >= created_at)\n\t\t\t\tAND (completed_at IS NULL OR (started_at IS NOT NULL AND completed_at >= started_at))\n\t\t\t\tAND (dead_at IS NULL OR dead_at >= created_at)\n\t\t\t\tAND (cancelled_at IS NULL OR cancelled_at >= created_at)",
+		"judge_job_state_closed":                  "state IN ('ready', 'leased', 'retry_wait', 'done', 'cancelled', 'dead')",
+		"judge_job_state_timestamps":              "(\n\t\t\t\tstate IN ('ready', 'leased', 'retry_wait')\n\t\t\t\tAND completed_at IS NULL AND dead_at IS NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstate = 'done'\n\t\t\t\tAND completed_at IS NOT NULL AND dead_at IS NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstate = 'dead'\n\t\t\t\tAND completed_at IS NULL AND dead_at IS NOT NULL AND cancelled_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstate = 'cancelled'\n\t\t\t\tAND completed_at IS NULL AND dead_at IS NULL AND cancelled_at IS NOT NULL\n\t\t\t)",
+	}
+	JudgeSpecsTable.Annotation = &entsql.Annotation{}
+	JudgeSpecsTable.Annotation.Checks = map[string]string{
+		"judge_spec_checksum_shapes":  "octet_length(source_sha256) = 32\n\t\t\t\tAND source_sha256 <> decode(repeat('00', 32), 'hex')\n\t\t\t\tAND octet_length(reward_snapshot_checksum) = 32\n\t\t\t\tAND reward_snapshot_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\t\tAND octet_length(spec_checksum) = 32\n\t\t\t\tAND spec_checksum <> decode(repeat('00', 32), 'hex')",
+		"judge_spec_generation_bound": "generation >= 1",
+		"judge_spec_identifiers":      "runtime_key ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND runtime_profile_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND compile_command_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND run_command_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND artifact_manifest_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND supervisor_protocol_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND checker_key ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND checker_version ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND release_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND judge_spec_protocol ~ '^[a-z0-9][a-z0-9._-]{0,127}$'",
+		"judge_spec_json_bounds":      "jsonb_typeof(checker_config) = 'object'\n\t\t\t\tAND octet_length(checker_config::text) <= 4096\n\t\t\t\tAND jsonb_typeof(reward_snapshot) = 'object'\n\t\t\t\tAND octet_length(reward_snapshot::text) <= 65536\n\t\t\t\tAND jsonb_typeof(artifact_manifest) = 'array'\n\t\t\t\tAND jsonb_array_length(artifact_manifest) > 0\n\t\t\t\tAND octet_length(artifact_manifest::text) <= 32768",
+		"judge_spec_limit_bounds":     "cpu_time_limit_ms BETWEEN 10 AND 30000\n\t\t\t\tAND wall_time_limit_ms BETWEEN 10 AND 60000\n\t\t\t\tAND wall_time_limit_ms >= cpu_time_limit_ms\n\t\t\t\tAND memory_limit_kb BETWEEN 16384 AND 2097152\n\t\t\t\tAND output_limit_bytes BETWEEN 1 AND 1048576\n\t\t\t\tAND process_limit BETWEEN 1 AND 64\n\t\t\t\tAND compile_cpu_time_limit_ms BETWEEN 1 AND 600000\n\t\t\t\tAND compile_wall_time_limit_ms BETWEEN compile_cpu_time_limit_ms AND 600000\n\t\t\t\tAND total_attempt_wall_time_limit_ms BETWEEN compile_wall_time_limit_ms AND 86400000",
+		"judge_spec_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND submission_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND testset_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"judge_spec_pinned_digests":   "sandbox_image_digest ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND artifact_manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND approved_release_manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND checker_implementation_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND capability_profile_hash ~ '^sha256:[0-9a-f]{64}$'",
+	}
+	JudgeTestResultsTable.Annotation = &entsql.Annotation{}
+	JudgeTestResultsTable.Annotation.Checks = map[string]string{
+		"judge_test_result_checker_metadata_bound": "jsonb_typeof(checker_metadata) = 'object' AND octet_length(checker_metadata::text) <= 4096",
+		"judge_test_result_execution_order":        "execution_completed_at >= execution_started_at",
+		"judge_test_result_exit_complete":          "exit_code IS NULL OR terminating_signal IS NULL",
+		"judge_test_result_index_bounds":           "group_index BETWEEN 0 AND 63 AND case_order BETWEEN 0 AND 255 AND execution_order BETWEEN 0 AND 255",
+		"judge_test_result_kind_closed":            "test_kind IN ('sample', 'hidden')",
+		"judge_test_result_nonzero_identity":       "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND attempt_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND judge_spec_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND testset_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND group_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND testcase_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"judge_test_result_resource_bounds":        "time_ms BETWEEN 0 AND 60000\n\t\t\t\tAND memory_kb BETWEEN 0 AND 2097152\n\t\t\t\tAND stdout_bytes BETWEEN 0 AND 1048576\n\t\t\t\tAND stderr_bytes BETWEEN 0 AND 1048576",
+		"judge_test_result_safe_diagnostic":        "safe_diagnostic IS NULL OR (\n\t\t\t\t\ttest_kind = 'sample'\n\t\t\t\t\tAND octet_length(safe_diagnostic) BETWEEN 1 AND 16384\n\t\t\t\t)",
+		"judge_test_result_verdict_closed":         "verdict IN ('accepted', 'wrong_answer', 'runtime_error', 'time_limit_exceeded', 'memory_limit_exceeded', 'process_limit_exceeded', 'output_limit_exceeded')",
+	}
+	JudgeWorkerCapabilitiesTable.ForeignKeys[0].RefTable = JudgeWorkerInstancesTable
+	JudgeWorkerCapabilitiesTable.Annotation = &entsql.Annotation{}
+	JudgeWorkerCapabilitiesTable.Annotation.Checks = map[string]string{
+		"judge_worker_capability_identifiers":      "judge_spec_protocol ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND runtime_key ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND runtime_profile_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND compiler_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND runtime_bootstrap_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND compile_command_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND run_command_id ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND manifest_version ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND supervisor_protocol ~ '^[a-z0-9][a-z0-9._-]{0,127}$'\n\t\t\t\tAND checker_key ~ '^[a-z0-9][a-z0-9._-]{0,63}$'\n\t\t\t\tAND checker_version ~ '^[a-z0-9][a-z0-9._-]{0,63}$'",
+		"judge_worker_capability_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND worker_instance_id <> '00000000-0000-0000-0000-000000000000'::uuid AND boot_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"judge_worker_capability_passing_only":     "passing",
+		"judge_worker_capability_pinned_digests":   "image_digest ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND capability_profile_hash ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND smoke_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND checker_implementation_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND golden_checksum ~ '^sha256:[0-9a-f]{64}$'",
+	}
+	JudgeWorkerInstancesTable.Annotation = &entsql.Annotation{}
+	JudgeWorkerInstancesTable.Annotation.Checks = map[string]string{
+		"judge_worker_instance_capacity_bound":   "total_capacity >= 1 AND free_capacity BETWEEN 0 AND total_capacity",
+		"judge_worker_instance_heartbeat_order":  "heartbeat_at >= boot_started_at",
+		"judge_worker_instance_key_shape":        "worker_key ~ '^[a-z0-9][a-z0-9._-]{0,127}$'",
+		"judge_worker_instance_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND boot_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	SubmissionJudgementsTable.Annotation = &entsql.Annotation{
+		Table: "submission_judgements",
+	}
+	SubmissionJudgementsTable.Annotation.Checks = map[string]string{
+		"submission_judgement_accepted_counts":  "verdict <> 'accepted' OR (total_count > 0 AND passed_count = total_count)",
+		"submission_judgement_attempt_complete": "verdict = 'system_error' OR winning_attempt_id IS NOT NULL",
+		"submission_judgement_checksum_shapes":  "octet_length(judge_spec_checksum) = 32\n\t\t\t\tAND judge_spec_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\t\tAND octet_length(reward_snapshot_checksum) = 32\n\t\t\t\tAND reward_snapshot_checksum <> decode(repeat('00', 32), 'hex')",
+		"submission_judgement_count_bounds":     "passed_count BETWEEN 0 AND total_count AND total_count BETWEEN 0 AND 256",
+		"submission_judgement_diagnostic_bound": "compile_diagnostic_summary IS NULL OR octet_length(compile_diagnostic_summary) BETWEEN 1 AND 16384",
+		"submission_judgement_generation_bound": "generation >= 1",
+		"submission_judgement_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND submission_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND judge_spec_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND testset_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND (winning_attempt_id IS NULL OR winning_attempt_id <> '00000000-0000-0000-0000-000000000000'::uuid)",
+		"submission_judgement_pinned_digests":   "sandbox_image_digest ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND artifact_manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND approved_release_manifest_checksum ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND checker_implementation_checksum ~ '^sha256:[0-9a-f]{64}$'",
+		"submission_judgement_resource_bounds":  "(maximum_time_ms IS NULL OR maximum_time_ms BETWEEN 0 AND 86400000)\n\t\t\t\tAND (maximum_memory_kb IS NULL OR maximum_memory_kb BETWEEN 0 AND 2097152)",
+		"submission_judgement_reward_bound":     "jsonb_typeof(reward_snapshot) = 'object' AND octet_length(reward_snapshot::text) <= 65536",
+		"submission_judgement_verdict_closed":   "verdict IN ('accepted', 'wrong_answer', 'compile_error', 'runtime_error', 'time_limit_exceeded', 'memory_limit_exceeded', 'process_limit_exceeded', 'output_limit_exceeded', 'system_error')",
+	}
 	MaterialsTable.ForeignKeys[0].RefTable = DifficultiesTable
 	MaterialsTable.ForeignKeys[1].RefTable = MaterialCategoriesTable
 	MaterialsTable.ForeignKeys[2].RefTable = UsersTable
-	PermissionsTable.ForeignKeys[0].RefTable = ResourcesTable
-	PermissionsTable.ForeignKeys[1].RefTable = RolesTable
-	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
-	ProblemsTable.ForeignKeys[1].RefTable = DifficultiesTable
-	ProblemsTable.ForeignKeys[2].RefTable = UsersTable
+	MaterialsTable.Annotation = &entsql.Annotation{}
+	MaterialsTable.Annotation.Checks = map[string]string{
+		"material_lifecycle_shape":           "(\n\t\t\t\tstatus = 'archived' AND archived_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstatus <> 'archived' AND archived_at IS NULL\n\t\t\t)",
+		"material_nonzero_identity":          "id <> '00000000-0000-0000-0000-000000000000'::uuid AND author_id <> '00000000-0000-0000-0000-000000000000'::uuid AND current_slug_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"material_positive_version":          "version BETWEEN 1 AND 9223372036854775807",
+		"material_publication_pointer_shape": "(\n\t\t\t\tpublished_revision_id IS NULL AND published_render_source_id IS NULL\n\t\t\t\tAND published_render_artifact_id IS NULL AND published_render_source_kind IS NULL\n\t\t\t\tAND published_source_checksum IS NULL AND published_at IS NULL\n\t\t\t) OR (\n\t\t\t\tpublished_revision_id IS NOT NULL AND published_render_source_id IS NOT NULL\n\t\t\t\tAND published_render_artifact_id IS NOT NULL\n\t\t\t\tAND published_render_source_kind = 'material_body'\n\t\t\t\tAND published_source_checksum IS NOT NULL\n\t\t\t\tAND octet_length(published_source_checksum) = 32\n\t\t\t\tAND published_at IS NOT NULL\n\t\t\t)",
+	}
+	MaterialRevisionsTable.ForeignKeys[0].RefTable = DifficultiesTable
+	MaterialRevisionsTable.ForeignKeys[1].RefTable = MaterialsTable
+	MaterialRevisionsTable.ForeignKeys[2].RefTable = MaterialCategoriesTable
+	MaterialRevisionsTable.ForeignKeys[3].RefTable = UsersTable
+	MaterialRevisionsTable.Annotation = &entsql.Annotation{}
+	MaterialRevisionsTable.Annotation.Checks = map[string]string{
+		"material_revision_checksum_shape":   "octet_length(normalized_source_checksum) = 32 AND normalized_source_checksum <> decode(repeat('00', 32), 'hex')",
+		"material_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND material_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND category_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND difficulty_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND author_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"material_revision_source_kind":      "render_source_kind = 'material_body'",
+		"material_revision_text_bounds":      "octet_length(title) BETWEEN 1 AND 255 AND octet_length(description) BETWEEN 1 AND 1000 AND octet_length(content_markdown) BETWEEN 1 AND 1048576 AND octet_length(change_summary) BETWEEN 1 AND 500",
+	}
+	MaterialRevisionTagsTable.ForeignKeys[0].RefTable = MaterialRevisionsTable
+	MaterialRevisionTagsTable.ForeignKeys[1].RefTable = TagsTable
+	MaterialSlugsTable.ForeignKeys[0].RefTable = MaterialsTable
+	MaterialSlugsTable.Annotation = &entsql.Annotation{}
+	MaterialSlugsTable.Annotation.Checks = map[string]string{
+		"material_slug_normalized":  "octet_length(slug) BETWEEN 1 AND 160 AND slug = lower(slug) AND slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'",
+		"material_slug_state_shape": "(state = 'current' AND retired_at IS NULL) OR (state = 'retired' AND retired_at IS NOT NULL)",
+	}
+	MaterialViewDailiesTable.ForeignKeys[0].RefTable = MaterialsTable
+	MaterialViewDailiesTable.Annotation = &entsql.Annotation{}
+	MaterialViewDailiesTable.Annotation.Checks = map[string]string{
+		"material_view_daily_fingerprint_shape": "octet_length(viewer_fingerprint) = 32 AND viewer_fingerprint <> decode(repeat('00', 32), 'hex')",
+		"material_view_daily_projection_time":   "projected_at IS NULL OR projected_at >= created_at",
+	}
+	NotificationsTable.ForeignKeys[0].RefTable = NotificationCampaignRevisionsTable
+	NotificationsTable.ForeignKeys[1].RefTable = UsersTable
+	NotificationsTable.Annotation = &entsql.Annotation{}
+	NotificationsTable.Annotation.Checks = map[string]string{
+		"notification_content_shape":         "(\n\t\t\t\tcontent_kind = 'catalog'\n\t\t\t\tAND title_key IS NOT NULL\n\t\t\t\tAND body_key IS NOT NULL\n\t\t\t\tAND params IS NOT NULL\n\t\t\t\tAND campaign_revision_id IS NULL\n\t\t\t) OR (\n\t\t\t\tcontent_kind = 'campaign'\n\t\t\t\tAND title_key IS NULL\n\t\t\t\tAND body_key IS NULL\n\t\t\t\tAND params IS NULL\n\t\t\t\tAND campaign_revision_id IS NOT NULL\n\t\t\t)",
+		"notification_expiry_after_creation": "expires_at IS NULL OR expires_at > created_at",
+		"notification_params_bound":          "params IS NULL OR octet_length(params::text) <= 16384",
+		"notification_positive_version":      "version >= 1",
+		"notification_read_before_archive":   "archived_at IS NULL OR read_at IS NOT NULL",
+	}
+	NotificationCampaignsTable.ForeignKeys[0].RefTable = UsersTable
+	NotificationCampaignsTable.Annotation = &entsql.Annotation{}
+	NotificationCampaignsTable.Annotation.Checks = map[string]string{
+		"notification_campaign_cancel_shape":      "(\n\t\t\t\tstatus = 'cancelled'\n\t\t\t\tAND cancelled_by IS NOT NULL\n\t\t\t\tAND cancel_reason IS NOT NULL\n\t\t\t\tAND cancelled_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstatus <> 'cancelled'\n\t\t\t\tAND cancelled_by IS NULL\n\t\t\t\tAND cancel_reason IS NULL\n\t\t\t\tAND cancelled_at IS NULL\n\t\t\t)",
+		"notification_campaign_completion_shape":  "(\n\t\t\t\tstatus IN ('completed', 'failed') AND completed_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstatus NOT IN ('completed', 'failed') AND completed_at IS NULL\n\t\t\t)",
+		"notification_campaign_failure_shape":     "(\n\t\t\t\tstatus = 'failed' AND last_failure_code IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstatus <> 'failed'\n\t\t\t)",
+		"notification_campaign_positive_version":  "version >= 1",
+		"notification_campaign_schedule_checksum": "scheduled_normalized_source_checksum IS NULL OR octet_length(scheduled_normalized_source_checksum) = 32",
+		"notification_campaign_schedule_shape":    "(\n\t\t\t\tstatus = 'draft'\n\t\t\t\tAND scheduled_revision_id IS NULL\n\t\t\t\tAND scheduled_render_source_id IS NULL\n\t\t\t\tAND scheduled_render_source_kind IS NULL\n\t\t\t\tAND scheduled_normalized_source_checksum IS NULL\n\t\t\t\tAND scheduled_render_artifact_id IS NULL\n\t\t\t\tAND operation_id IS NULL\n\t\t\t\tAND scheduled_by IS NULL\n\t\t\t\tAND schedule_reason IS NULL\n\t\t\t\tAND scheduled_at IS NULL\n\t\t\t\tAND started_at IS NULL\n\t\t\t\tAND completed_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus <> 'draft'\n\t\t\t\tAND scheduled_revision_id IS NOT NULL\n\t\t\t\tAND scheduled_render_source_id IS NOT NULL\n\t\t\t\tAND scheduled_render_source_kind = 'notification_campaign_body'\n\t\t\t\tAND scheduled_normalized_source_checksum IS NOT NULL\n\t\t\t\tAND scheduled_render_artifact_id IS NOT NULL\n\t\t\t\tAND operation_id IS NOT NULL\n\t\t\t\tAND scheduled_by IS NOT NULL\n\t\t\t\tAND schedule_reason IS NOT NULL\n\t\t\t\tAND scheduled_at IS NOT NULL\n\t\t\t)",
+	}
+	NotificationCampaignConfirmationsTable.ForeignKeys[0].RefTable = NotificationCampaignsTable
+	NotificationCampaignConfirmationsTable.Annotation = &entsql.Annotation{}
+	NotificationCampaignConfirmationsTable.Annotation.Checks = map[string]string{
+		"notification_campaign_confirmation_audience_fingerprint_size": "octet_length(audience_fingerprint) = 32",
+		"notification_campaign_confirmation_consumption_shape":         "(\n\t\t\t\tconsumed_at IS NULL\n\t\t\t\tAND consumed_by_idempotency_key IS NULL\n\t\t\t\tAND schedule_request_hash IS NULL\n\t\t\t\tAND operation_id IS NULL\n\t\t\t) OR (\n\t\t\t\tconsumed_at IS NOT NULL\n\t\t\t\tAND consumed_by_idempotency_key IS NOT NULL\n\t\t\t\tAND schedule_request_hash IS NOT NULL\n\t\t\t\tAND operation_id IS NOT NULL\n\t\t\t)",
+		"notification_campaign_confirmation_expiry_order":              "expires_at > issued_at AND dry_run_estimated_at <= issued_at",
+		"notification_campaign_confirmation_nonce_size":                "octet_length(nonce_hash) = 32",
+		"notification_campaign_confirmation_request_hash_size":         "schedule_request_hash IS NULL OR octet_length(schedule_request_hash) = 32",
+		"notification_campaign_confirmation_source_checksum_size":      "octet_length(normalized_source_checksum) = 32",
+		"notification_campaign_confirmation_source_kind":               "render_source_kind = 'notification_campaign_body'",
+	}
+	NotificationCampaignExplicitUsersTable.ForeignKeys[0].RefTable = NotificationCampaignRevisionsTable
+	NotificationCampaignExplicitUsersTable.ForeignKeys[1].RefTable = UsersTable
+	NotificationCampaignRecipientsTable.ForeignKeys[0].RefTable = NotificationsTable
+	NotificationCampaignRecipientsTable.ForeignKeys[1].RefTable = NotificationCampaignsTable
+	NotificationCampaignRecipientsTable.ForeignKeys[2].RefTable = NotificationCampaignRevisionsTable
+	NotificationCampaignRecipientsTable.ForeignKeys[3].RefTable = UsersTable
+	NotificationCampaignRecipientsTable.Annotation = &entsql.Annotation{}
+	NotificationCampaignRecipientsTable.Annotation.Checks = map[string]string{
+		"notification_campaign_recipient_result_shape": "(\n\t\t\t\tstatus = 'pending'\n\t\t\t\tAND notification_id IS NULL\n\t\t\t\tAND skip_code IS NULL\n\t\t\t\tAND failure_code IS NULL\n\t\t\t\tAND processed_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'created'\n\t\t\t\tAND notification_id IS NOT NULL\n\t\t\t\tAND skip_code IS NULL\n\t\t\t\tAND failure_code IS NULL\n\t\t\t\tAND processed_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'skipped'\n\t\t\t\tAND notification_id IS NULL\n\t\t\t\tAND skip_code IS NOT NULL\n\t\t\t\tAND failure_code IS NULL\n\t\t\t\tAND processed_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'failed'\n\t\t\t\tAND notification_id IS NULL\n\t\t\t\tAND skip_code IS NULL\n\t\t\t\tAND failure_code IS NOT NULL\n\t\t\t\tAND processed_at IS NOT NULL\n\t\t\t)",
+		"notification_campaign_recipient_retry_shape":  "status = 'pending' OR next_attempt_at IS NULL",
+	}
+	NotificationCampaignRevisionsTable.ForeignKeys[0].RefTable = NotificationCampaignsTable
+	NotificationCampaignRevisionsTable.ForeignKeys[1].RefTable = UsersTable
+	NotificationCampaignRevisionsTable.Annotation = &entsql.Annotation{}
+	NotificationCampaignRevisionsTable.Annotation.Checks = map[string]string{
+		"notification_campaign_revision_audience_shape": "(\n\t\t\t\taudience_kind = 'role' AND audience_role_id IS NOT NULL\n\t\t\t) OR (\n\t\t\t\taudience_kind IN ('explicit_users', 'all_active')\n\t\t\t\tAND audience_role_id IS NULL\n\t\t\t)",
+		"notification_campaign_revision_body_bound":     "octet_length(body_markdown) BETWEEN 1 AND 65536",
+		"notification_campaign_revision_checksum_size":  "octet_length(normalized_source_checksum) = 32",
+		"notification_campaign_revision_source_kind":    "body_render_source_kind = 'notification_campaign_body'",
+	}
+	NotificationPreferencesTable.ForeignKeys[0].RefTable = UsersTable
+	NotificationPreferencesTable.Annotation = &entsql.Annotation{}
+	NotificationPreferencesTable.Annotation.Checks = map[string]string{
+		"notification_preference_positive_version":    "version >= 1",
+		"notification_preference_required_categories": "category NOT IN ('security', 'authorization', 'operation') OR in_app",
+	}
+	OauthCompletionTicketsTable.ForeignKeys[0].RefTable = AuthSessionsTable
+	OauthCompletionTicketsTable.ForeignKeys[1].RefTable = OauthFlowsTable
+	OauthCompletionTicketsTable.ForeignKeys[2].RefTable = UsersTable
+	OauthCompletionTicketsTable.Annotation = &entsql.Annotation{
+		Table: "oauth_completion_tickets",
+	}
+	OauthCompletionTicketsTable.Annotation.Checks = map[string]string{
+		"oauth_ticket_purpose_binding": "(purpose = 'login' AND pre_session_id IS NOT NULL AND bound_session_id IS NULL) OR (purpose = 'link' AND bound_user_id IS NOT NULL AND bound_session_id IS NOT NULL)",
+		"oauth_ticket_purpose_closed":  "purpose IN ('login', 'link')",
+		"oauth_ticket_status_closed":   "status IN ('issued', 'consumed', 'expired')",
+	}
+	OauthFlowsTable.ForeignKeys[0].RefTable = AuthSessionsTable
+	OauthFlowsTable.Annotation = &entsql.Annotation{
+		Table: "oauth_flows",
+	}
+	OauthFlowsTable.Annotation.Checks = map[string]string{
+		"oauth_flow_purpose_binding": "(purpose = 'login' AND pre_session_id IS NOT NULL AND session_id IS NULL) OR (purpose = 'link' AND session_id IS NOT NULL)",
+		"oauth_flow_purpose_closed":  "purpose IN ('login', 'link')",
+		"oauth_flow_status_closed":   "status IN ('pending', 'consumed', 'expired')",
+	}
+	OnboardingTraitOffersTable.ForeignKeys[0].RefTable = CultivationCatalogRevisionsTable
+	OnboardingTraitOffersTable.ForeignKeys[1].RefTable = UsersTable
+	OnboardingTraitOffersTable.Annotation = &entsql.Annotation{}
+	OnboardingTraitOffersTable.Annotation.Checks = map[string]string{
+		"onboarding_trait_offer_checksum_shape":    "octet_length(offer_checksum) = 32 AND offer_checksum <> decode(repeat('00', 32), 'hex')",
+		"onboarding_trait_offer_consumption_shape": "(status = 'consumed' AND consumed_by_user_id IS NOT NULL AND consumed_at IS NOT NULL) OR (status <> 'consumed' AND consumed_by_user_id IS NULL AND consumed_at IS NULL)",
+		"onboarding_trait_offer_nonzero_identity":  "id <> '00000000-0000-0000-0000-000000000000'::uuid AND pre_session_id <> '00000000-0000-0000-0000-000000000000'::uuid AND idempotency_key <> '00000000-0000-0000-0000-000000000000'::uuid AND root_bone_trait_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"onboarding_trait_offer_time_shape":        "expires_at > issued_at",
+	}
+	OnboardingTraitOfferTalentsTable.ForeignKeys[0].RefTable = OnboardingTraitOffersTable
+	OnboardingTraitOfferTalentsTable.ForeignKeys[1].RefTable = TraitsTable
+	OperationsTable.Annotation = &entsql.Annotation{}
+	OperationsTable.Annotation.Checks = map[string]string{
+		"operation_cancelled_state":   "status <> 'cancelled' OR (lease_owner IS NULL AND requested_action = 'none' AND finished_at IS NOT NULL)",
+		"operation_completed_state":   "status <> 'completed' OR (processed_count = total_count AND lease_owner IS NULL AND requested_action = 'none' AND finished_at IS NOT NULL AND last_error_code IS NULL)",
+		"operation_failed_state":      "status <> 'failed' OR (lease_owner IS NULL AND requested_action = 'none' AND finished_at IS NOT NULL AND last_error_code IS NOT NULL)",
+		"operation_lease_complete":    "(lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL) OR (lease_owner IS NOT NULL AND lease_token IS NOT NULL AND leased_until IS NOT NULL)",
+		"operation_lease_state":       "(lease_owner IS NULL) OR status = 'running'",
+		"operation_nonterminal_state": "status IN ('completed', 'failed', 'cancelled') OR finished_at IS NULL",
+		"operation_paused_state":      "status <> 'paused' OR (lease_owner IS NULL AND requested_action = 'none' AND finished_at IS NULL)",
+		"operation_pending_state":     "status <> 'pending' OR (processed_count = 0 AND lease_owner IS NULL AND started_at IS NULL AND finished_at IS NULL)",
+		"operation_progress_exact":    "processed_count = succeeded_count + failed_count AND processed_count <= total_count",
+		"operation_request_hash_size": "octet_length(request_hash) = 32",
+		"operation_schedule_floor":    "not_before IS NULL OR available_at >= not_before",
+	}
+	OperationBatchesTable.ForeignKeys[0].RefTable = OperationsTable
+	OperationBatchesTable.Annotation = &entsql.Annotation{}
+	OperationBatchesTable.Annotation.Checks = map[string]string{
+		"operation_batch_progress_exact": "processed_count = succeeded_count + failed_count",
+		"operation_batch_time_order":     "completed_at >= started_at",
+	}
+	OperationControlReceiptsTable.ForeignKeys[0].RefTable = OperationsTable
+	OperationControlReceiptsTable.Annotation = &entsql.Annotation{}
+	OperationControlReceiptsTable.Annotation.Checks = map[string]string{
+		"operation_control_request_hash_size": "octet_length(request_hash) = 32",
+		"operation_control_result_object":     "jsonb_typeof(result_projection) = 'object'",
+		"operation_control_version_advanced":  "resulting_version > expected_version",
+	}
+	OutboxEventsTable.ForeignKeys[0].RefTable = TenantsTable
+	OutboxEventsTable.Annotation = &entsql.Annotation{}
+	OutboxEventsTable.Annotation.Checks = map[string]string{
+		"outbox_lease_fields_complete": "(\n\t\t\t\t(lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL) OR\n\t\t\t\t(lease_owner IS NOT NULL AND lease_token IS NOT NULL AND leased_until IS NOT NULL)\n\t\t\t)",
+		"outbox_state_timestamps":      "(\n\t\t\t\t(state = 'pending' AND lease_owner IS NULL AND published_at IS NULL AND dead_at IS NULL) OR\n\t\t\t\t(state = 'leased' AND lease_owner IS NOT NULL AND published_at IS NULL AND dead_at IS NULL) OR\n\t\t\t\t(state = 'published' AND lease_owner IS NULL AND published_at IS NOT NULL AND dead_at IS NULL) OR\n\t\t\t\t(state = 'dead' AND lease_owner IS NULL AND published_at IS NULL AND dead_at IS NOT NULL)\n\t\t\t)",
+	}
+	PasswordResetTokensTable.ForeignKeys[0].RefTable = UsersTable
+	PasswordResetTokensTable.ForeignKeys[1].RefTable = UserRecoveryContactsTable
+	PasswordResetTokensTable.Annotation = &entsql.Annotation{}
+	PasswordResetTokensTable.Annotation.Checks = map[string]string{
+		"password_reset_status_closed": "status IN ('issued', 'consumed', 'superseded', 'expired')",
+	}
+	ProblemsTable.ForeignKeys[0].RefTable = DifficultiesTable
+	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
+	ProblemsTable.Annotation = &entsql.Annotation{}
+	ProblemsTable.Annotation.Checks = map[string]string{
+		"problem_draft_selection_complete":            "(\n\t\t(draft_revision_id IS NULL AND draft_render_source_id IS NULL AND draft_render_source_kind IS NULL AND draft_render_source_checksum IS NULL AND draft_render_artifact_id IS NULL) OR\n\t\t(draft_revision_id IS NOT NULL AND draft_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND\n\t\t draft_render_source_id IS NOT NULL AND draft_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND\n\t\t draft_render_source_kind = 'problem_statement' AND\n\t\t draft_render_source_checksum IS NOT NULL AND octet_length(draft_render_source_checksum) = 32 AND draft_render_source_checksum <> decode(repeat('00', 32), 'hex') AND\n\t\t draft_render_artifact_id IS NOT NULL AND draft_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid)\n\t)",
+		"problem_lifecycle_closed":                    "lifecycle IN ('draft', 'published', 'archived')",
+		"problem_lifecycle_selection":                 "(\n\t\t\t\tlifecycle = 'draft'\n\t\t\t\tAND published_revision_id IS NULL\n\t\t\t\tAND published_at IS NULL\n\t\t\t\tAND archived_at IS NULL\n\t\t\t) OR (\n\t\t\t\tlifecycle = 'published'\n\t\t\t\tAND published_revision_id IS NOT NULL\n\t\t\t\tAND published_at IS NOT NULL\n\t\t\t\tAND archived_at IS NULL\n\t\t\t) OR (\n\t\t\t\tlifecycle = 'archived'\n\t\t\t\tAND published_revision_id IS NOT NULL\n\t\t\t\tAND published_at IS NOT NULL\n\t\t\t\tAND archived_at IS NOT NULL\n\t\t\t\tAND archived_at >= published_at\n\t\t\t)",
+		"problem_nonnegative_counts":                  "submission_count >= 0 AND accepted_count >= 0 AND accepted_count <= submission_count",
+		"problem_nonzero_mapping_identities":          "tag_mapping_id <> '00000000-0000-0000-0000-000000000000'::uuid AND element_mapping_id <> '00000000-0000-0000-0000-000000000000'::uuid AND tag_mapping_id <> element_mapping_id",
+		"problem_positive_version":                    "version >= 1",
+		"problem_public_visibility_matches_lifecycle": "is_published = (lifecycle = 'published')",
+		"problem_published_selection_complete":        "(\n\t\t(published_revision_id IS NULL AND published_render_source_id IS NULL AND published_render_source_kind IS NULL AND published_render_source_checksum IS NULL AND published_render_artifact_id IS NULL) OR\n\t\t(published_revision_id IS NOT NULL AND published_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND\n\t\t published_render_source_id IS NOT NULL AND published_render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND\n\t\t published_render_source_kind = 'problem_statement' AND\n\t\t published_render_source_checksum IS NOT NULL AND octet_length(published_render_source_checksum) = 32 AND published_render_source_checksum <> decode(repeat('00', 32), 'hex') AND\n\t\t published_render_artifact_id IS NOT NULL AND published_render_artifact_id <> '00000000-0000-0000-0000-000000000000'::uuid)\n\t)",
+		"problem_slug_bound":                          "octet_length(slug) BETWEEN 1 AND 128 AND slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'",
+	}
+	ProblemRevisionsTable.ForeignKeys[0].RefTable = ProblemsTable
+	ProblemRevisionsTable.ForeignKeys[1].RefTable = TestsetRevisionsTable
+	ProblemRevisionsTable.Annotation = &entsql.Annotation{}
+	ProblemRevisionsTable.Annotation.Checks = map[string]string{
+		"problem_revision_checker_config_bound":      "jsonb_typeof(checker_config) = 'object'\n\t\t\t\tAND octet_length(checker_config::text) <= 4096",
+		"problem_revision_checker_identity_bound":    "octet_length(checker_key) BETWEEN 1 AND 64\n\t\t\t\tAND octet_length(checker_version) BETWEEN 1 AND 64",
+		"problem_revision_checksum_shape":            "octet_length(render_source_checksum) = 32\n\t\t\t\tAND octet_length(reward_snapshot_checksum) = 32\n\t\t\t\tAND octet_length(content_checksum) = 32",
+		"problem_revision_difficulty_bound":          "difficulty_revision BETWEEN 1 AND 1000000000",
+		"problem_revision_element_snapshot_complete": "(\n\t\t\t\telement_mapping_id IS NULL AND element_mapping_revision IS NULL AND element_snapshot IS NULL\n\t\t\t) OR (\n\t\t\t\telement_mapping_id IS NOT NULL AND element_mapping_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND element_mapping_revision IS NOT NULL AND element_snapshot IS NOT NULL\n\t\t\t)",
+		"problem_revision_limit_bounds":              "cpu_time_limit_ms BETWEEN 10 AND 30000\n\t\t\t\tAND wall_time_limit_ms BETWEEN 10 AND 60000\n\t\t\t\tAND memory_limit_kb BETWEEN 16384 AND 2097152\n\t\t\t\tAND output_limit_bytes BETWEEN 1 AND 1048576\n\t\t\t\tAND process_limit BETWEEN 1 AND 64",
+		"problem_revision_nonzero_checksums":         "render_source_checksum <> decode(repeat('00', 32), 'hex') AND reward_snapshot_checksum <> decode(repeat('00', 32), 'hex') AND content_checksum <> decode(repeat('00', 32), 'hex')",
+		"problem_revision_nonzero_identity":          "id <> '00000000-0000-0000-0000-000000000000'::uuid AND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid AND render_source_id <> '00000000-0000-0000-0000-000000000000'::uuid AND difficulty_id <> '00000000-0000-0000-0000-000000000000'::uuid AND tag_mapping_id <> '00000000-0000-0000-0000-000000000000'::uuid AND testset_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND (created_by IS NULL OR created_by <> '00000000-0000-0000-0000-000000000000'::uuid)",
+		"problem_revision_number_bound":              "revision_number BETWEEN 1 AND 1000000000",
+		"problem_revision_reward_mapping_bound":      "tag_mapping_revision BETWEEN 1 AND 1000000000\n\t\t\t\tAND (element_mapping_revision IS NULL OR element_mapping_revision BETWEEN 1 AND 1000000000)\n\t\t\t\tAND base_exp BETWEEN 0 AND 1000000000",
+		"problem_revision_reward_snapshot_bound":     "jsonb_typeof(tag_snapshot) = 'object'\n\t\t\t\tAND octet_length(tag_snapshot::text) <= 65536\n\t\t\t\tAND (element_snapshot IS NULL OR (\n\t\t\t\t\tjsonb_typeof(element_snapshot) = 'object'\n\t\t\t\t\tAND octet_length(element_snapshot::text) <= 65536\n\t\t\t\t))",
+		"problem_revision_runtime_keys_bound":        "jsonb_typeof(allowed_runtime_keys) = 'array'\n\t\t\t\tAND jsonb_array_length(allowed_runtime_keys) BETWEEN 1 AND 16\n\t\t\t\tAND octet_length(allowed_runtime_keys::text) <= 1072\n\t\t\t\tAND NOT jsonb_path_exists(allowed_runtime_keys, '$[*] ? (@.type() != \"string\")')",
+		"problem_revision_source_kind":               "render_source_kind = 'problem_statement'",
+		"problem_revision_statement_bound":           "octet_length(statement_markdown) BETWEEN 1 AND 1048576",
+		"problem_revision_title_bound":               "octet_length(title) BETWEEN 1 AND 300",
+		"problem_revision_wall_covers_cpu":           "wall_time_limit_ms >= cpu_time_limit_ms",
+	}
+	ProfileSchemaStatesTable.Annotation = &entsql.Annotation{}
+	ProfileSchemaStatesTable.Annotation.Checks = map[string]string{
+		"profile_schema_state_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"profile_schema_state_key":      "key = 'onboarding'",
+	}
+	ProgressionLedgerEntriesTable.ForeignKeys[0].RefTable = ProgressionLedgerEntriesTable
+	ProgressionLedgerEntriesTable.ForeignKeys[1].RefTable = RewardRuleRevisionsTable
+	ProgressionLedgerEntriesTable.ForeignKeys[2].RefTable = UserRewardProfileRevisionsTable
+	ProgressionLedgerEntriesTable.Annotation = &entsql.Annotation{}
+	ProgressionLedgerEntriesTable.Annotation.Checks = map[string]string{
+		"progression_ledger_balance":          "balance_before <= 9007199254740991\n\t\t\t\tAND balance_after <= 9007199254740991\n\t\t\t\tAND balance_after - balance_before = total_exp_delta",
+		"progression_ledger_json_shape":       "\n\t\t\t\tjsonb_typeof(element_deltas) = 'array'\n\t\t\t\tAND jsonb_typeof(difficulty_deltas) = 'array'\n\t\t\t\tAND jsonb_typeof(tag_deltas) = 'array'\n\t\t\t\tAND jsonb_typeof(provenance) = 'object'\n\t\t\t\tAND octet_length(element_deltas::text) <= 65536\n\t\t\t\tAND octet_length(difficulty_deltas::text) <= 65536\n\t\t\t\tAND octet_length(tag_deltas::text) <= 65536\n\t\t\t\tAND octet_length(provenance::text) <= 65536",
+		"progression_ledger_kind_shape":       "(\n\t\t\t\tkind IN ('grant', 'legacy_reconstructed')\n\t\t\t\tAND reversed_entry_id IS NULL\n\t\t\t\tAND total_exp_delta > 0\n\t\t\t) OR (\n\t\t\t\tkind = 'reversal'\n\t\t\t\tAND reversed_entry_id IS NOT NULL\n\t\t\t\tAND total_exp_delta < 0\n\t\t\t) OR (\n\t\t\t\tkind = 'manual_adjustment'\n\t\t\t\tAND reversed_entry_id IS NULL\n\t\t\t\tAND total_exp_delta <> 0\n\t\t\t) OR (\n\t\t\t\tkind = 'manual_reversal'\n\t\t\t\tAND reversed_entry_id IS NOT NULL\n\t\t\t\tAND total_exp_delta <> 0\n\t\t\t)",
+		"progression_ledger_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND source_aggregate_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND source_transition_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND source_event_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND (reversed_entry_id IS NULL OR (\n\t\t\t\t\treversed_entry_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\t\tAND reversed_entry_id <> id\n\t\t\t\t))",
+		"progression_ledger_rule_shape":       "(\n\t\t\t\tkind IN ('grant', 'reversal')\n\t\t\t\tAND reward_rule_revision_id IS NOT NULL\n\t\t\t\tAND reward_profile_revision_id IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tkind NOT IN ('grant', 'reversal')\n\t\t\t\tAND reward_rule_revision_id IS NULL\n\t\t\t\tAND reward_profile_revision_id IS NULL\n\t\t\t)",
+		"progression_ledger_source_checksum":  "octet_length(source_checksum) = 32\n\t\t\t\tAND source_checksum <> decode(repeat('00', 32), 'hex')",
+	}
 	RatingHistoriesTable.ForeignKeys[0].RefTable = ContestsTable
-	RatingHistoriesTable.ForeignKeys[1].RefTable = UsersTable
+	RatingHistoriesTable.ForeignKeys[1].RefTable = ContestRatingRunsTable
+	RatingHistoriesTable.ForeignKeys[2].RefTable = UsersTable
+	RatingProjectionGenerationsTable.Annotation = &entsql.Annotation{}
+	RatingProjectionGenerationsTable.Annotation.Checks = map[string]string{
+		"rating_projection_checksum": "checksum IS NULL OR octet_length(checksum) = 32",
+		"rating_projection_verified": "(status = 'building' AND checksum IS NULL AND verified_at IS NULL AND activated_at IS NULL) OR (status = 'verified' AND checksum IS NOT NULL AND verified_at IS NOT NULL AND activated_at IS NULL) OR (status IN ('active', 'retired') AND checksum IS NOT NULL AND verified_at IS NOT NULL AND activated_at IS NOT NULL)",
+	}
+	RatingRunChainsTable.Annotation = &entsql.Annotation{}
+	RatingRunChainsTable.Annotation.Checks = map[string]string{
+		"rating_chain_checksum": "checksum IS NULL OR octet_length(checksum) = 32",
+		"rating_chain_verified": "(status = 'building' AND checksum IS NULL AND verified_at IS NULL AND activated_at IS NULL) OR (status = 'verified' AND checksum IS NOT NULL AND verified_at IS NOT NULL AND activated_at IS NULL) OR (status IN ('active', 'retired') AND checksum IS NOT NULL AND verified_at IS NOT NULL AND activated_at IS NOT NULL)",
+	}
+	RatingRunChainEntriesTable.ForeignKeys[0].RefTable = ContestRatingRunsTable
+	RatingRunChainEntriesTable.ForeignKeys[1].RefTable = RatingRunChainsTable
+	RatingRunChainEntriesTable.Annotation = &entsql.Annotation{
+		Check: "chain_id <> '00000000-0000-0000-0000-000000000000'::uuid AND rating_run_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	RatingSequenceSlotsTable.ForeignKeys[0].RefTable = ContestsTable
+	RatingSequenceSlotsTable.Annotation = &entsql.Annotation{
+		Check: "contest_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	RatingStatesTable.ForeignKeys[0].RefTable = RatingProjectionGenerationsTable
+	RatingStatesTable.ForeignKeys[1].RefTable = RatingRunChainsTable
+	RatingStatesTable.Annotation = &entsql.Annotation{}
+	RatingStatesTable.Annotation.Checks = map[string]string{
+		"rating_state_pointers":  "active_projection_generation_id <> '00000000-0000-0000-0000-000000000000'::uuid AND active_run_chain_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"rating_state_sequence":  "next_sequence > applied_sequence",
+		"rating_state_singleton": "id = 'global'",
+	}
+	RealtimeEventsTable.Annotation = &entsql.Annotation{}
+	RealtimeEventsTable.Annotation.Checks = map[string]string{
+		"realtime_event_hash_length":       "octet_length(evidence_hash) = 32",
+		"realtime_event_sequence_positive": "sequence > 0",
+	}
+	RecoveryContactCommandReceiptsTable.ForeignKeys[0].RefTable = AuthSessionsTable
+	RecoveryContactCommandReceiptsTable.ForeignKeys[1].RefTable = UsersTable
+	RecoveryContactCommandReceiptsTable.Annotation = &entsql.Annotation{}
+	RecoveryContactCommandReceiptsTable.Annotation.Checks = map[string]string{
+		"recovery_contact_command_kind_closed": "kind IN ('replace', 'resend', 'cancel_pending', 'remove')",
+	}
+	RecoveryContactVerificationTokensTable.ForeignKeys[0].RefTable = UserRecoveryContactsTable
+	RecoveryContactVerificationTokensTable.Annotation = &entsql.Annotation{}
+	RecoveryContactVerificationTokensTable.Annotation.Checks = map[string]string{
+		"recovery_verification_purpose_closed": "purpose IN ('registration', 'replacement', 'invitation')",
+		"recovery_verification_status_closed":  "status IN ('issued', 'consumed', 'superseded', 'expired')",
+	}
+	RewardRuleRevisionsTable.Annotation = &entsql.Annotation{}
+	RewardRuleRevisionsTable.Annotation.Checks = map[string]string{
+		"reward_rule_revision_checksum":      "octet_length(checksum) = 32\n\t\t\t\tAND checksum <> decode(repeat('00', 32), 'hex')\n\t\t\t\tAND octet_length(request_checksum) = 32\n\t\t\t\tAND request_checksum <> decode(repeat('00', 32), 'hex')",
+		"reward_rule_revision_configuration": "jsonb_typeof(configuration) = 'object'\n\t\t\t\tAND octet_length(configuration::text) <= 16384",
+		"reward_rule_revision_identity":      "id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	RolesTable.Annotation = &entsql.Annotation{}
+	RolesTable.Annotation.Checks = map[string]string{
+		"role_status_closed": "status IN ('active', 'archived')",
+	}
+	RuntimeProfilesTable.Annotation = &entsql.Annotation{}
+	RuntimeProfilesTable.Annotation.Checks = map[string]string{
+		"runtime_profile_artifact_manifest_bound":     "jsonb_typeof(artifact_manifest) = 'array' AND jsonb_array_length(artifact_manifest) > 0 AND octet_length(artifact_manifest::text) <= 32768",
+		"runtime_profile_command_ids_closed_shape":    "compile_command_id ~ '^[a-z0-9][a-z0-9._-]*$'\n\t\t\t\tAND run_command_id ~ '^[a-z0-9][a-z0-9._-]*$'",
+		"runtime_profile_key_closed_shape":            "octet_length(runtime_key) BETWEEN 1 AND 64 AND runtime_key ~ '^[a-z0-9][a-z0-9._-]*$'",
+		"runtime_profile_pinned_digests":              "sandbox_image_digest ~ '^sha256:[0-9a-f]{64}$'\n\t\t\t\tAND manifest_checksum ~ '^sha256:[0-9a-f]{64}$'",
+		"runtime_profile_version_closed_shape":        "profile_version ~ '^[a-z0-9][a-z0-9._-]*$'\n\t\t\t\tAND manifest_version ~ '^[a-z0-9][a-z0-9._-]*$'",
+		"runtime_profiles_default_compile_timeout_ms": "default_compile_timeout_ms BETWEEN 1 AND 60000",
+	}
+	SecurityEmailDeliveriesTable.ForeignKeys[0].RefTable = PasswordResetTokensTable
+	SecurityEmailDeliveriesTable.ForeignKeys[1].RefTable = RecoveryContactVerificationTokensTable
+	SecurityEmailDeliveriesTable.Annotation = &entsql.Annotation{}
+	SecurityEmailDeliveriesTable.Annotation.Checks = map[string]string{
+		"security_email_intent_matches_kind": "(kind IN ('recovery_contact_verification', 'account_invitation') AND verification_token_id IS NOT NULL AND password_reset_token_id IS NULL) OR (kind = 'password_reset' AND password_reset_token_id IS NOT NULL AND verification_token_id IS NULL)",
+		"security_email_kind_closed":         "kind IN ('recovery_contact_verification', 'password_reset', 'account_invitation')",
+		"security_email_lease_complete":      "(lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL) OR (lease_owner IS NOT NULL AND lease_token IS NOT NULL AND leased_until IS NOT NULL)",
+		"security_email_state_shape":         "(status = 'ready' AND lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL AND sent_at IS NULL AND dead_at IS NULL AND cancelled_at IS NULL AND ciphertext_erased_at IS NULL AND octet_length(payload_ciphertext) > 1) OR (status = 'leased' AND lease_owner IS NOT NULL AND lease_token IS NOT NULL AND leased_until IS NOT NULL AND attempt_count > 0 AND sent_at IS NULL AND dead_at IS NULL AND cancelled_at IS NULL AND ciphertext_erased_at IS NULL AND octet_length(payload_ciphertext) > 1) OR (status = 'sent' AND lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL AND sent_at IS NOT NULL AND dead_at IS NULL AND cancelled_at IS NULL AND ciphertext_erased_at IS NOT NULL AND octet_length(payload_ciphertext) = 1) OR (status = 'dead' AND lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL AND sent_at IS NULL AND dead_at IS NOT NULL AND cancelled_at IS NULL AND ciphertext_erased_at IS NOT NULL AND octet_length(payload_ciphertext) = 1) OR (status = 'cancelled' AND lease_owner IS NULL AND lease_token IS NULL AND leased_until IS NULL AND sent_at IS NULL AND dead_at IS NULL AND cancelled_at IS NOT NULL AND ciphertext_erased_at IS NOT NULL AND octet_length(payload_ciphertext) = 1)",
+		"security_email_status_closed":       "status IN ('ready', 'leased', 'sent', 'dead', 'cancelled')",
+		"security_email_terminal_timestamp":  "(status = 'sent' AND sent_at IS NOT NULL) OR (status = 'dead' AND dead_at IS NOT NULL) OR (status = 'cancelled' AND cancelled_at IS NOT NULL) OR status IN ('ready', 'leased')",
+	}
+	SolveRewardCursorsTable.Annotation = &entsql.Annotation{}
+	SolveRewardCursorsTable.Annotation.Checks = map[string]string{
+		"solve_reward_cursor_active_entry":     "(\n\t\t\t\tcurrent_status = 'unsolved' AND active_ledger_entry_id IS NULL\n\t\t\t) OR (\n\t\t\t\tcurrent_status = 'solved' AND active_ledger_entry_id IS NOT NULL\n\t\t\t)",
+		"solve_reward_cursor_gap":              "(\n\t\t\t\treconciliation_state = 'ready'\n\t\t\t\tAND missing_from_version IS NULL\n\t\t\t\tAND missing_to_version IS NULL\n\t\t\t) OR (\n\t\t\t\treconciliation_state = 'blocked_gap'\n\t\t\t\tAND missing_from_version = last_applied_version + 1\n\t\t\t\tAND missing_to_version >= missing_from_version\n\t\t\t)",
+		"solve_reward_cursor_last_identity":    "(\n\t\t\t\tlast_applied_version = 0\n\t\t\t\tAND last_transition_id IS NULL\n\t\t\t\tAND last_event_id IS NULL\n\t\t\t\tAND last_transition_hash IS NULL\n\t\t\t) OR (\n\t\t\t\tlast_applied_version > 0\n\t\t\t\tAND last_transition_id IS NOT NULL\n\t\t\t\tAND last_event_id IS NOT NULL\n\t\t\t\tAND octet_length(last_transition_hash) = 32\n\t\t\t\tAND last_transition_hash <> decode(repeat('00', 32), 'hex')\n\t\t\t)",
+		"solve_reward_cursor_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND solve_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	SolveRewardProcessedTransitionsTable.Annotation = &entsql.Annotation{}
+	SolveRewardProcessedTransitionsTable.Annotation.Checks = map[string]string{
+		"solve_reward_processed_hash":             "octet_length(transition_hash) = 32\n\t\t\t\tAND transition_hash <> decode(repeat('00', 32), 'hex')",
+		"solve_reward_processed_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND solve_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND transition_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND event_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"solve_reward_processed_outcome":          "(\n\t\t\t\toutcome IN ('grant', 'reversal') AND ledger_entry_id IS NOT NULL\n\t\t\t) OR (\n\t\t\t\toutcome = 'pointer_move' AND ledger_entry_id IS NULL\n\t\t\t)",
+	}
 	SubmissionsTable.ForeignKeys[0].RefTable = ContestsTable
 	SubmissionsTable.ForeignKeys[1].RefTable = ProblemsTable
 	SubmissionsTable.ForeignKeys[2].RefTable = UsersTable
+	SubmissionsTable.Annotation = &entsql.Annotation{}
+	SubmissionsTable.Annotation.Checks = map[string]string{
+		"submission_active_judgement_complete":     "(\n\t\t\t\tactive_judgement_id IS NULL\n\t\t\t\tAND active_judgement_generation IS NULL\n\t\t\t\tAND active_verdict IS NULL\n\t\t\t) OR (\n\t\t\t\tactive_judgement_id IS NOT NULL\n\t\t\t\tAND active_judgement_generation BETWEEN 1 AND latest_generation\n\t\t\t\tAND active_verdict IN ('accepted', 'wrong_answer', 'compile_error', 'runtime_error', 'time_limit_exceeded', 'memory_limit_exceeded', 'process_limit_exceeded', 'output_limit_exceeded')\n\t\t\t)",
+		"submission_contest_snapshot_complete":     "(\n\t\t\t\tcontest_id IS NULL AND contest_problem_id IS NULL\n\t\t\t\tAND contest_scoring_policy_version IS NULL\n\t\t\t\tAND contest_elapsed_ms IS NULL\n\t\t\t\tAND contest_submission_sequence IS NULL\n\t\t\t) OR (\n\t\t\t\tcontest_id IS NOT NULL AND contest_problem_id IS NOT NULL\n\t\t\t\tAND contest_scoring_policy_version >= 1\n\t\t\t\tAND contest_elapsed_ms >= 0\n\t\t\t\tAND contest_submission_sequence >= 1\n\t\t\t)",
+		"submission_generation_and_version_bounds": "latest_generation >= 1 AND version >= 1",
+		"submission_generation_timestamps_ordered": "latest_generation_queued_at >= submitted_at\n\t\t\t\tAND (latest_generation_started_at IS NULL OR latest_generation_started_at >= latest_generation_queued_at)\n\t\t\t\tAND (latest_generation_completed_at IS NULL OR latest_generation_completed_at >= latest_generation_queued_at)",
+		"submission_idempotency_key_bound":         "octet_length(idempotency_key) BETWEEN 1 AND 128 AND idempotency_key ~ '^[ -~]+$'",
+		"submission_latest_generation_state":       "(\n\t\t\t\tlatest_generation_phase IN ('queued', 'claimed', 'compiling', 'running', 'finalizing')\n\t\t\t\tAND latest_generation_outcome IS NULL\n\t\t\t\tAND latest_generation_completed_at IS NULL\n\t\t\t) OR (\n\t\t\t\tlatest_generation_phase = 'terminal'\n\t\t\t\tAND latest_generation_outcome IN ('accepted', 'wrong_answer', 'compile_error', 'runtime_error', 'time_limit_exceeded', 'memory_limit_exceeded', 'process_limit_exceeded', 'output_limit_exceeded', 'system_error')\n\t\t\t\tAND latest_generation_completed_at IS NOT NULL\n\t\t\t) OR (\n\t\t\t\tlatest_generation_phase = 'cancelled'\n\t\t\t\tAND latest_generation_outcome = 'cancelled'\n\t\t\t\tAND latest_generation_completed_at IS NOT NULL\n\t\t\t)",
+		"submission_nonzero_durable_identity":      "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND (active_judgement_id IS NULL OR active_judgement_id <> '00000000-0000-0000-0000-000000000000'::uuid)",
+		"submission_origin_cid_bound":              "octet_length(origin_cid) BETWEEN 1 AND 128",
+		"submission_runtime_key_bound":             "octet_length(runtime_key) BETWEEN 1 AND 64 AND runtime_key ~ '^[a-z0-9][a-z0-9._-]*$'",
+		"submission_source_and_request_hashes":     "octet_length(source_sha256) = 32\n\t\t\t\tAND source_sha256 <> decode(repeat('00', 32), 'hex')\n\t\t\t\tAND octet_length(request_hash) = 32\n\t\t\t\tAND request_hash <> decode(repeat('00', 32), 'hex')",
+		"submission_source_code_bytes":             "octet_length(source_code) BETWEEN 1 AND 262144",
+		"submission_status_closed":                 "status IN ('pending', 'judging', 'accepted', 'wrong_answer', 'time_limit_exceeded', 'memory_limit_exceeded', 'process_limit_exceeded', 'output_limit_exceeded', 'runtime_error', 'compile_error', 'internal_error')",
+		"submission_verdict_complete":              "(\n\t\t\t\t(status IN ('pending', 'judging') AND judged_at IS NULL AND verdict_version = 0) OR\n\t\t\t\t(status NOT IN ('pending', 'judging') AND judged_at IS NOT NULL AND verdict_version > 0)\n\t\t\t)",
+	}
+	TagsTable.Annotation = &entsql.Annotation{}
+	TagsTable.Annotation.Checks = map[string]string{
+		"tag_positive_version": "version >= 1",
+	}
+	TagRevisionsTable.ForeignKeys[0].RefTable = TagsTable
+	TagRevisionsTable.Annotation = &entsql.Annotation{}
+	TagRevisionsTable.Annotation.Checks = map[string]string{
+		"tag_revision_checksum_shape":   "octet_length(checksum) = 32 AND checksum <> decode(repeat('00', 32), 'hex')",
+		"tag_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND tag_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"tag_revision_number_bound":     "revision BETWEEN 1 AND 1000000000",
+	}
+	TagRevisionElementsTable.ForeignKeys[0].RefTable = ElementsTable
+	TagRevisionElementsTable.ForeignKeys[1].RefTable = TagRevisionsTable
+	TagRevisionElementsTable.Annotation = &entsql.Annotation{}
+	TagRevisionElementsTable.Annotation.Checks = map[string]string{
+		"tag_revision_element_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND tag_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND element_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"tag_revision_element_revision_bound":   "element_revision BETWEEN 1 AND 1000000000",
+	}
+	TenantsTable.Annotation = &entsql.Annotation{}
+	TenantsTable.Annotation.Checks = map[string]string{
+		"tenant_name_nonempty":     "length(btrim(name)) > 0",
+		"tenant_rename_not_future": "name_changed_at IS NULL OR name_changed_at <= CURRENT_TIMESTAMP",
+		"tenant_slug_nonempty":     "length(btrim(slug)) > 0",
+	}
+	TenantInvitationsTable.ForeignKeys[0].RefTable = TenantsTable
+	TenantInvitationsTable.ForeignKeys[1].RefTable = UsersTable
+	TenantInvitationsTable.ForeignKeys[2].RefTable = UsersTable
+	TenantInvitationsTable.Annotation = &entsql.Annotation{
+		Check: "status IN ('pending', 'accepted', 'declined', 'revoked', 'expired')",
+	}
+	TenantMembershipsTable.ForeignKeys[0].RefTable = TenantsTable
+	TenantMembershipsTable.ForeignKeys[1].RefTable = UsersTable
+	TenantMembershipsTable.Annotation = &entsql.Annotation{}
+	TenantMembershipsTable.Annotation.Checks = map[string]string{
+		"tenant_membership_lifecycle":     "(status = 'left' AND left_at IS NOT NULL) OR (status <> 'left' AND left_at IS NULL)",
+		"tenant_membership_status_closed": "status IN ('active', 'suspended', 'left')",
+	}
+	TenantRolesTable.ForeignKeys[0].RefTable = TenantsTable
+	TestAssetsTable.Annotation = &entsql.Annotation{}
+	TestAssetsTable.Annotation.Checks = map[string]string{
+		"test_asset_checksum_shape":           "octet_length(sha256) = 32 AND sha256 <> decode(repeat('00', 32), 'hex')",
+		"test_asset_content_bound":            "octet_length(content) BETWEEN 0 AND 1048576",
+		"test_asset_encoding_closed":          "encoding IN ('identity', 'zstd')",
+		"test_asset_encoding_size_consistent": "(\n\t\t\t\tencoding = 'identity' AND uncompressed_size = octet_length(content)\n\t\t\t) OR (\n\t\t\t\tencoding = 'zstd' AND octet_length(content) BETWEEN 1 AND 1048576\n\t\t\t\tAND uncompressed_size BETWEEN 0 AND 1048576\n\t\t\t)",
+		"test_asset_nonzero_identity":         "id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
 	TestCasesTable.ForeignKeys[0].RefTable = ProblemsTable
+	TestCasesTable.Annotation = &entsql.Annotation{}
+	TestCasesTable.Annotation.Checks = map[string]string{
+		"test_case_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	TestcaseGroupsTable.ForeignKeys[0].RefTable = TestsetRevisionsTable
+	TestcaseGroupsTable.Annotation = &entsql.Annotation{}
+	TestcaseGroupsTable.Annotation.Checks = map[string]string{
+		"testcase_group_index_bound":      "group_index BETWEEN 0 AND 63",
+		"testcase_group_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND testset_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	TestcaseRevisionsTable.ForeignKeys[0].RefTable = TestAssetsTable
+	TestcaseRevisionsTable.ForeignKeys[1].RefTable = TestAssetsTable
+	TestcaseRevisionsTable.ForeignKeys[2].RefTable = TestCasesTable
+	TestcaseRevisionsTable.ForeignKeys[3].RefTable = TestcaseGroupsTable
+	TestcaseRevisionsTable.ForeignKeys[4].RefTable = TestsetRevisionsTable
+	TestcaseRevisionsTable.Annotation = &entsql.Annotation{}
+	TestcaseRevisionsTable.Annotation.Checks = map[string]string{
+		"testcase_revision_group_index_bound": "group_index BETWEEN 0 AND 63",
+		"testcase_revision_kind_closed":       "kind IN ('sample', 'hidden')",
+		"testcase_revision_launch_weight":     "weight = 1",
+		"testcase_revision_nonzero_identity":  "id <> '00000000-0000-0000-0000-000000000000'::uuid AND test_case_id <> '00000000-0000-0000-0000-000000000000'::uuid AND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid AND testset_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid AND group_id <> '00000000-0000-0000-0000-000000000000'::uuid AND input_asset_id <> '00000000-0000-0000-0000-000000000000'::uuid AND expected_asset_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"testcase_revision_order_index_bound": "order_index BETWEEN 0 AND 255",
+	}
+	TestsetRevisionsTable.ForeignKeys[0].RefTable = ProblemsTable
+	TestsetRevisionsTable.Annotation = &entsql.Annotation{}
+	TestsetRevisionsTable.Annotation.Checks = map[string]string{
+		"testset_revision_checksum_shape":   "octet_length(checksum) = 32 AND checksum <> decode(repeat('00', 32), 'hex')",
+		"testset_revision_count_bound":      "test_count BETWEEN 1 AND 256",
+		"testset_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid AND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid AND (created_by IS NULL OR created_by <> '00000000-0000-0000-0000-000000000000'::uuid)",
+		"testset_revision_number_bound":     "revision_number BETWEEN 1 AND 1000000000",
+		"testset_revision_total_size_bound": "total_uncompressed_bytes BETWEEN 0 AND 536870912",
+	}
 	TraitsTable.ForeignKeys[0].RefTable = RaritiesTable
-	UsersTable.ForeignKeys[0].RefTable = RolesTable
+	TraitEffectRevisionsTable.ForeignKeys[0].RefTable = TraitsTable
+	TraitEffectRevisionsTable.Annotation = &entsql.Annotation{}
+	TraitEffectRevisionsTable.Annotation.Checks = map[string]string{
+		"trait_effect_revision_checksum_shape":   "octet_length(checksum) = 32\n\t\t\tAND checksum <> decode(repeat('00', 32), 'hex')",
+		"trait_effect_revision_document_shape":   "schema_version = 1\n\t\t\tAND jsonb_typeof(effect) = 'object'\n\t\t\tAND jsonb_typeof(target_element_ids) = 'array'\n\t\t\tAND octet_length(effect::text) <= 8192\n\t\t\tAND octet_length(target_element_ids::text) <= 8192",
+		"trait_effect_revision_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND trait_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+	}
+	UsersTable.Annotation = &entsql.Annotation{}
+	UsersTable.Annotation.Checks = map[string]string{
+		"user_profile_visibility_closed":           "profile_visibility IN ('private', 'public')",
+		"user_profile_visibility_version_positive": "profile_visibility_version >= 1",
+		"user_status_closed":                       "status IN ('invited', 'active', 'suspended', 'deleted')",
+		"user_suspension_state":                    "(status = 'suspended' AND suspended_at IS NOT NULL AND suspension_reason IS NOT NULL) OR (status <> 'suspended' AND suspended_at IS NULL AND suspension_reason IS NULL)",
+	}
 	UserAttributeValuesTable.ForeignKeys[0].RefTable = AttributeDefinitionsTable
-	UserAttributeValuesTable.ForeignKeys[1].RefTable = UsersTable
+	UserAttributeValuesTable.ForeignKeys[1].RefTable = AttributeDefinitionRevisionsTable
+	UserAttributeValuesTable.ForeignKeys[2].RefTable = AttributeDefinitionRevisionsTable
+	UserAttributeValuesTable.ForeignKeys[3].RefTable = UsersTable
 	UserDifficultyStatsTable.ForeignKeys[0].RefTable = DifficultiesTable
 	UserDifficultyStatsTable.ForeignKeys[1].RefTable = UsersTable
 	UserElementExpsTable.ForeignKeys[0].RefTable = ElementsTable
 	UserElementExpsTable.ForeignKeys[1].RefTable = UsersTable
+	UserProblemSolvesTable.Annotation = &entsql.Annotation{}
+	UserProblemSolvesTable.Annotation.Checks = map[string]string{
+		"user_problem_solve_nonzero_identity":   "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"user_problem_solve_pointer_invariant":  "(\n\t\t\t\tstatus = 'unsolved'\n\t\t\t\tAND active_submission_id IS NULL\n\t\t\t\tAND active_judgement_id IS NULL\n\t\t\t\tAND active_generation IS NULL\n\t\t\t\tAND active_problem_revision_id IS NULL\n\t\t\t\tAND reward_facts IS NULL\n\t\t\t\tAND reward_facts_checksum IS NULL\n\t\t\t\tAND active_reward_transition_id IS NULL\n\t\t\t\tAND reward_provenance IS NULL\n\t\t\t\tAND solved_at IS NULL\n\t\t\t) OR (\n\t\t\t\tstatus = 'solved'\n\t\t\t\tAND active_submission_id IS NOT NULL\n\t\t\t\tAND active_judgement_id IS NOT NULL\n\t\t\t\tAND active_generation >= 1\n\t\t\t\tAND active_problem_revision_id IS NOT NULL\n\t\t\t\tAND reward_facts IS NOT NULL\n\t\t\t\tAND reward_facts_checksum IS NOT NULL\n\t\t\t\tAND active_reward_transition_id IS NOT NULL\n\t\t\t\tAND reward_provenance IS NOT NULL\n\t\t\t\tAND solved_at IS NOT NULL\n\t\t\t)",
+		"user_problem_solve_reward_checksum":    "reward_facts_checksum IS NULL OR (\n\t\t\t\toctet_length(reward_facts_checksum) = 32\n\t\t\t\tAND reward_facts_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\t)",
+		"user_problem_solve_reward_facts_bound": "reward_facts IS NULL OR (\n\t\t\t\t\tjsonb_typeof(reward_facts) = 'object'\n\t\t\t\t\tAND octet_length(reward_facts::text) <= 65536\n\t\t\t\t)",
+		"user_problem_solve_version_bound":      "version >= 0 AND (status = 'unsolved' OR version >= 1)",
+	}
+	UserProblemSolveTransitionsTable.Annotation = &entsql.Annotation{}
+	UserProblemSolveTransitionsTable.Annotation.Checks = map[string]string{
+		"user_problem_solve_transition_changes_projection": "NOT (\n\t\t\t\tfrom_status = 'unsolved' AND to_status = 'unsolved'\n\t\t\t)",
+		"user_problem_solve_transition_contiguous":         "to_version = from_version + 1",
+		"user_problem_solve_transition_from_side":          "(\n\t\tfrom_status = 'unsolved'\n\t\tAND from_submission_id IS NULL\n\t\tAND from_judgement_id IS NULL\n\t\tAND from_generation IS NULL\n\t\tAND from_problem_revision_id IS NULL\n\t\tAND from_reward_facts IS NULL\n\t\tAND from_reward_facts_checksum IS NULL\n\t\tAND from_reward_grant_source_id IS NULL\n\t\tAND from_reward_provenance IS NULL\n\t\tAND from_solved_at IS NULL\n\t) OR (\n\t\tfrom_status = 'solved'\n\t\tAND from_submission_id IS NOT NULL\n\t\tAND from_judgement_id IS NOT NULL\n\t\tAND from_generation >= 1\n\t\tAND from_problem_revision_id IS NOT NULL\n\t\tAND from_reward_facts IS NOT NULL\n\t\tAND from_reward_facts_checksum IS NOT NULL\n\t\tAND from_reward_grant_source_id IS NOT NULL\n\t\tAND from_reward_provenance IS NOT NULL\n\t\tAND from_solved_at IS NOT NULL\n\t)",
+		"user_problem_solve_transition_nonzero_identity":   "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\t\tAND event_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\t\tAND solve_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\t\tAND problem_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"user_problem_solve_transition_origin":             "from_version <> 0 OR (\n\t\t\t\tfrom_status = 'unsolved'\n\t\t\t\tAND from_submission_id IS NULL\n\t\t\t\tAND from_judgement_id IS NULL\n\t\t\t)",
+		"user_problem_solve_transition_reward_bounds":      "(from_reward_facts IS NULL OR (\n\t\t\t\t\tjsonb_typeof(from_reward_facts) = 'object'\n\t\t\t\t\tAND octet_length(from_reward_facts::text) <= 65536\n\t\t\t\t)) AND (to_reward_facts IS NULL OR (\n\t\t\t\t\tjsonb_typeof(to_reward_facts) = 'object'\n\t\t\t\t\tAND octet_length(to_reward_facts::text) <= 65536\n\t\t\t\t))",
+		"user_problem_solve_transition_reward_checksums":   "(\n\t\t\t\tfrom_reward_facts_checksum IS NULL OR (\n\t\t\t\t\toctet_length(from_reward_facts_checksum) = 32\n\t\t\t\t\tAND from_reward_facts_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\t\t)\n\t\t\t) AND (\n\t\t\t\tto_reward_facts_checksum IS NULL OR (\n\t\t\t\t\toctet_length(to_reward_facts_checksum) = 32\n\t\t\t\t\tAND to_reward_facts_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\t\t)\n\t\t\t)",
+		"user_problem_solve_transition_reward_grant":       "(\n\t\t\t\tfrom_status = 'unsolved' AND to_status = 'solved'\n\t\t\t\tAND to_reward_grant_source_id = id\n\t\t\t) OR (\n\t\t\t\tfrom_status = 'solved' AND to_status = 'solved'\n\t\t\t\tAND to_reward_grant_source_id = from_reward_grant_source_id\n\t\t\t\tAND to_reward_provenance = from_reward_provenance\n\t\t\t) OR (\n\t\t\t\tfrom_status = 'solved' AND to_status = 'unsolved'\n\t\t\t)",
+		"user_problem_solve_transition_to_side":            "(\n\t\tto_status = 'unsolved'\n\t\tAND to_submission_id IS NULL\n\t\tAND to_judgement_id IS NULL\n\t\tAND to_generation IS NULL\n\t\tAND to_problem_revision_id IS NULL\n\t\tAND to_reward_facts IS NULL\n\t\tAND to_reward_facts_checksum IS NULL\n\t\tAND to_reward_grant_source_id IS NULL\n\t\tAND to_reward_provenance IS NULL\n\t\tAND to_solved_at IS NULL\n\t) OR (\n\t\tto_status = 'solved'\n\t\tAND to_submission_id IS NOT NULL\n\t\tAND to_judgement_id IS NOT NULL\n\t\tAND to_generation >= 1\n\t\tAND to_problem_revision_id IS NOT NULL\n\t\tAND to_reward_facts IS NOT NULL\n\t\tAND to_reward_facts_checksum IS NOT NULL\n\t\tAND to_reward_grant_source_id IS NOT NULL\n\t\tAND to_reward_provenance IS NOT NULL\n\t\tAND to_solved_at IS NOT NULL\n\t)",
+	}
+	UserRecoveryContactsTable.ForeignKeys[0].RefTable = FederatedIdentitiesTable
+	UserRecoveryContactsTable.ForeignKeys[1].RefTable = UsersTable
+	UserRecoveryContactsTable.Annotation = &entsql.Annotation{}
+	UserRecoveryContactsTable.Annotation.Checks = map[string]string{
+		"recovery_contact_kind_closed":    "kind = 'email'",
+		"recovery_contact_oauth_source":   "(purpose = 'oauth_link' AND (source_federated_identity_id IS NOT NULL OR status = 'revoked')) OR (purpose <> 'oauth_link' AND source_federated_identity_id IS NULL)",
+		"recovery_contact_purpose_closed": "purpose IN ('registration', 'replacement', 'invitation', 'oauth_link')",
+		"recovery_contact_revoked_at":     "(status = 'revoked' AND revoked_at IS NOT NULL) OR status <> 'revoked'",
+		"recovery_contact_status_closed":  "status IN ('pending', 'verified', 'revoked')",
+		"recovery_contact_verified_at":    "(status = 'verified' AND verified_at IS NOT NULL) OR status <> 'verified'",
+	}
+	UserRewardProfileRevisionsTable.ForeignKeys[0].RefTable = OnboardingTraitOffersTable
+	UserRewardProfileRevisionsTable.ForeignKeys[1].RefTable = UsersTable
+	UserRewardProfileRevisionsTable.Annotation = &entsql.Annotation{}
+	UserRewardProfileRevisionsTable.Annotation.Checks = map[string]string{
+		"user_reward_profile_checksum_shape":   "octet_length(assignment_checksum) = 32\n\t\t\tAND assignment_checksum <> decode(repeat('00', 32), 'hex')\n\t\t\tAND octet_length(request_checksum) = 32\n\t\t\tAND request_checksum <> decode(repeat('00', 32), 'hex')",
+		"user_reward_profile_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND user_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND (source_offer_id IS NULL OR source_offer_id <> '00000000-0000-0000-0000-000000000000'::uuid)\n\t\t\tAND (command_id IS NULL OR command_id <> '00000000-0000-0000-0000-000000000000'::uuid)",
+		"user_reward_profile_source_shape":     "(source = 'onboarding'\n\t\t\tAND source_offer_id IS NOT NULL AND command_id IS NULL)\n\t\t\tOR (source = 'administrative'\n\t\t\tAND source_offer_id IS NULL AND command_id IS NOT NULL)",
+	}
+	UserRewardProfileTraitsTable.ForeignKeys[0].RefTable = TraitsTable
+	UserRewardProfileTraitsTable.ForeignKeys[1].RefTable = TraitEffectRevisionsTable
+	UserRewardProfileTraitsTable.ForeignKeys[2].RefTable = UserRewardProfileRevisionsTable
+	UserRewardProfileTraitsTable.Annotation = &entsql.Annotation{}
+	UserRewardProfileTraitsTable.Annotation.Checks = map[string]string{
+		"user_reward_profile_trait_nonzero_identity": "id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND profile_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND trait_id <> '00000000-0000-0000-0000-000000000000'::uuid\n\t\t\tAND trait_effect_revision_id <> '00000000-0000-0000-0000-000000000000'::uuid",
+		"user_reward_profile_trait_slot_shape":       "(slot = 'root_bone' AND slot_order = 0)\n\t\t\tOR (slot = 'talent' AND slot_order BETWEEN 0 AND 2)",
+		"user_reward_profile_trait_type_shape":       "trait_type = slot",
+	}
 	UserSolvedProblemsTable.ForeignKeys[0].RefTable = ProblemsTable
 	UserSolvedProblemsTable.ForeignKeys[1].RefTable = UsersTable
 	UserStatsTable.ForeignKeys[0].RefTable = UsersTable

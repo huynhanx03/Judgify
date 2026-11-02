@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/credential"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 )
@@ -66,13 +68,13 @@ func (_c *CredentialCreate) SetNillableDeletedAt(v *time.Time) *CredentialCreate
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_c *CredentialCreate) SetDeletedBy(v int) *CredentialCreate {
+func (_c *CredentialCreate) SetDeletedBy(v string) *CredentialCreate {
 	_c.mutation.SetDeletedBy(v)
 	return _c
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_c *CredentialCreate) SetNillableDeletedBy(v *int) *CredentialCreate {
+func (_c *CredentialCreate) SetNillableDeletedBy(v *string) *CredentialCreate {
 	if v != nil {
 		_c.SetDeletedBy(*v)
 	}
@@ -80,7 +82,7 @@ func (_c *CredentialCreate) SetNillableDeletedBy(v *int) *CredentialCreate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *CredentialCreate) SetUserID(v int) *CredentialCreate {
+func (_c *CredentialCreate) SetUserID(v uuid.UUID) *CredentialCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
@@ -94,6 +96,62 @@ func (_c *CredentialCreate) SetType(v string) *CredentialCreate {
 // SetCredentialData sets the "credential_data" field.
 func (_c *CredentialCreate) SetCredentialData(v map[string]interface{}) *CredentialCreate {
 	_c.mutation.SetCredentialData(v)
+	return _c
+}
+
+// SetVersion sets the "version" field.
+func (_c *CredentialCreate) SetVersion(v int64) *CredentialCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *CredentialCreate) SetNillableVersion(v *int64) *CredentialCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetActive sets the "active" field.
+func (_c *CredentialCreate) SetActive(v bool) *CredentialCreate {
+	_c.mutation.SetActive(v)
+	return _c
+}
+
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (_c *CredentialCreate) SetNillableActive(v *bool) *CredentialCreate {
+	if v != nil {
+		_c.SetActive(*v)
+	}
+	return _c
+}
+
+// SetLastUsedAt sets the "last_used_at" field.
+func (_c *CredentialCreate) SetLastUsedAt(v time.Time) *CredentialCreate {
+	_c.mutation.SetLastUsedAt(v)
+	return _c
+}
+
+// SetNillableLastUsedAt sets the "last_used_at" field if the given value is not nil.
+func (_c *CredentialCreate) SetNillableLastUsedAt(v *time.Time) *CredentialCreate {
+	if v != nil {
+		_c.SetLastUsedAt(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *CredentialCreate) SetID(v uuid.UUID) *CredentialCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *CredentialCreate) SetNillableID(v *uuid.UUID) *CredentialCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
 	return _c
 }
 
@@ -153,6 +211,21 @@ func (_c *CredentialCreate) defaults() error {
 		v := credential.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		v := credential.DefaultVersion
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.Active(); !ok {
+		v := credential.DefaultActive
+		_c.mutation.SetActive(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		if credential.DefaultID == nil {
+			return fmt.Errorf("generate: uninitialized credential.DefaultID (forgotten import generate/runtime?)")
+		}
+		v := credential.DefaultID()
+		_c.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -178,6 +251,17 @@ func (_c *CredentialCreate) check() error {
 	if _, ok := _c.mutation.CredentialData(); !ok {
 		return &ValidationError{Name: "credential_data", err: errors.New(`generate: missing required field "Credential.credential_data"`)}
 	}
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "Credential.version"`)}
+	}
+	if v, ok := _c.mutation.Version(); ok {
+		if err := credential.VersionValidator(v); err != nil {
+			return &ValidationError{Name: "version", err: fmt.Errorf(`generate: validator failed for field "Credential.version": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Active(); !ok {
+		return &ValidationError{Name: "active", err: errors.New(`generate: missing required field "Credential.active"`)}
+	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`generate: missing required edge "Credential.user"`)}
 	}
@@ -195,8 +279,13 @@ func (_c *CredentialCreate) sqlSave(ctx context.Context) (*Credential, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -205,9 +294,13 @@ func (_c *CredentialCreate) sqlSave(ctx context.Context) (*Credential, error) {
 func (_c *CredentialCreate) createSpec() (*Credential, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Credential{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(credential.Table, sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(credential.Table, sqlgraph.NewFieldSpec(credential.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(credential.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -221,7 +314,7 @@ func (_c *CredentialCreate) createSpec() (*Credential, *sqlgraph.CreateSpec) {
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.DeletedBy(); ok {
-		_spec.SetField(credential.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(credential.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
 	}
 	if value, ok := _c.mutation.GetType(); ok {
@@ -232,6 +325,18 @@ func (_c *CredentialCreate) createSpec() (*Credential, *sqlgraph.CreateSpec) {
 		_spec.SetField(credential.FieldCredentialData, field.TypeJSON, value)
 		_node.CredentialData = value
 	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(credential.FieldVersion, field.TypeInt64, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.Active(); ok {
+		_spec.SetField(credential.FieldActive, field.TypeBool, value)
+		_node.Active = value
+	}
+	if value, ok := _c.mutation.LastUsedAt(); ok {
+		_spec.SetField(credential.FieldLastUsedAt, field.TypeTime, value)
+		_node.LastUsedAt = &value
+	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -240,7 +345,7 @@ func (_c *CredentialCreate) createSpec() (*Credential, *sqlgraph.CreateSpec) {
 			Columns: []string{credential.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -332,7 +437,7 @@ func (u *CredentialUpsert) ClearDeletedAt() *CredentialUpsert {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *CredentialUpsert) SetDeletedBy(v int) *CredentialUpsert {
+func (u *CredentialUpsert) SetDeletedBy(v string) *CredentialUpsert {
 	u.Set(credential.FieldDeletedBy, v)
 	return u
 }
@@ -343,12 +448,6 @@ func (u *CredentialUpsert) UpdateDeletedBy() *CredentialUpsert {
 	return u
 }
 
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *CredentialUpsert) AddDeletedBy(v int) *CredentialUpsert {
-	u.Add(credential.FieldDeletedBy, v)
-	return u
-}
-
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *CredentialUpsert) ClearDeletedBy() *CredentialUpsert {
 	u.SetNull(credential.FieldDeletedBy)
@@ -356,7 +455,7 @@ func (u *CredentialUpsert) ClearDeletedBy() *CredentialUpsert {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *CredentialUpsert) SetUserID(v int) *CredentialUpsert {
+func (u *CredentialUpsert) SetUserID(v uuid.UUID) *CredentialUpsert {
 	u.Set(credential.FieldUserID, v)
 	return u
 }
@@ -391,17 +490,71 @@ func (u *CredentialUpsert) UpdateCredentialData() *CredentialUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetVersion sets the "version" field.
+func (u *CredentialUpsert) SetVersion(v int64) *CredentialUpsert {
+	u.Set(credential.FieldVersion, v)
+	return u
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *CredentialUpsert) UpdateVersion() *CredentialUpsert {
+	u.SetExcluded(credential.FieldVersion)
+	return u
+}
+
+// AddVersion adds v to the "version" field.
+func (u *CredentialUpsert) AddVersion(v int64) *CredentialUpsert {
+	u.Add(credential.FieldVersion, v)
+	return u
+}
+
+// SetActive sets the "active" field.
+func (u *CredentialUpsert) SetActive(v bool) *CredentialUpsert {
+	u.Set(credential.FieldActive, v)
+	return u
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *CredentialUpsert) UpdateActive() *CredentialUpsert {
+	u.SetExcluded(credential.FieldActive)
+	return u
+}
+
+// SetLastUsedAt sets the "last_used_at" field.
+func (u *CredentialUpsert) SetLastUsedAt(v time.Time) *CredentialUpsert {
+	u.Set(credential.FieldLastUsedAt, v)
+	return u
+}
+
+// UpdateLastUsedAt sets the "last_used_at" field to the value that was provided on create.
+func (u *CredentialUpsert) UpdateLastUsedAt() *CredentialUpsert {
+	u.SetExcluded(credential.FieldLastUsedAt)
+	return u
+}
+
+// ClearLastUsedAt clears the value of the "last_used_at" field.
+func (u *CredentialUpsert) ClearLastUsedAt() *CredentialUpsert {
+	u.SetNull(credential.FieldLastUsedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Credential.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(credential.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *CredentialUpsertOne) UpdateNewValues() *CredentialUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(credential.FieldID)
+		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(credential.FieldCreatedAt)
 		}
@@ -472,16 +625,9 @@ func (u *CredentialUpsertOne) ClearDeletedAt() *CredentialUpsertOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *CredentialUpsertOne) SetDeletedBy(v int) *CredentialUpsertOne {
+func (u *CredentialUpsertOne) SetDeletedBy(v string) *CredentialUpsertOne {
 	return u.Update(func(s *CredentialUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *CredentialUpsertOne) AddDeletedBy(v int) *CredentialUpsertOne {
-	return u.Update(func(s *CredentialUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -500,7 +646,7 @@ func (u *CredentialUpsertOne) ClearDeletedBy() *CredentialUpsertOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *CredentialUpsertOne) SetUserID(v int) *CredentialUpsertOne {
+func (u *CredentialUpsertOne) SetUserID(v uuid.UUID) *CredentialUpsertOne {
 	return u.Update(func(s *CredentialUpsert) {
 		s.SetUserID(v)
 	})
@@ -541,6 +687,62 @@ func (u *CredentialUpsertOne) UpdateCredentialData() *CredentialUpsertOne {
 	})
 }
 
+// SetVersion sets the "version" field.
+func (u *CredentialUpsertOne) SetVersion(v int64) *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *CredentialUpsertOne) AddVersion(v int64) *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *CredentialUpsertOne) UpdateVersion() *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetActive sets the "active" field.
+func (u *CredentialUpsertOne) SetActive(v bool) *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.SetActive(v)
+	})
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *CredentialUpsertOne) UpdateActive() *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.UpdateActive()
+	})
+}
+
+// SetLastUsedAt sets the "last_used_at" field.
+func (u *CredentialUpsertOne) SetLastUsedAt(v time.Time) *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.SetLastUsedAt(v)
+	})
+}
+
+// UpdateLastUsedAt sets the "last_used_at" field to the value that was provided on create.
+func (u *CredentialUpsertOne) UpdateLastUsedAt() *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.UpdateLastUsedAt()
+	})
+}
+
+// ClearLastUsedAt clears the value of the "last_used_at" field.
+func (u *CredentialUpsertOne) ClearLastUsedAt() *CredentialUpsertOne {
+	return u.Update(func(s *CredentialUpsert) {
+		s.ClearLastUsedAt()
+	})
+}
+
 // Exec executes the query.
 func (u *CredentialUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -557,7 +759,12 @@ func (u *CredentialUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *CredentialUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *CredentialUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("generate: CredentialUpsertOne.ID is not supported by MySQL driver. Use CredentialUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -566,17 +773,12 @@ func (u *CredentialUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *CredentialUpsertOne) IDX(ctx context.Context) int {
+func (u *CredentialUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return id
-}
-
-func (c *CredentialCreate) SetID(id int) *CredentialCreate {
-	c.mutation.id = &id
-	return c
 }
 
 // CredentialCreateBulk is the builder for creating many Credential entities in bulk.
@@ -626,10 +828,6 @@ func (_c *CredentialCreateBulk) Save(ctx context.Context) ([]*Credential, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -716,12 +914,18 @@ type CredentialUpsertBulk struct {
 //	client.Credential.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(credential.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *CredentialUpsertBulk) UpdateNewValues() *CredentialUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(credential.FieldID)
+			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(credential.FieldCreatedAt)
 			}
@@ -793,16 +997,9 @@ func (u *CredentialUpsertBulk) ClearDeletedAt() *CredentialUpsertBulk {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (u *CredentialUpsertBulk) SetDeletedBy(v int) *CredentialUpsertBulk {
+func (u *CredentialUpsertBulk) SetDeletedBy(v string) *CredentialUpsertBulk {
 	return u.Update(func(s *CredentialUpsert) {
 		s.SetDeletedBy(v)
-	})
-}
-
-// AddDeletedBy adds v to the "deleted_by" field.
-func (u *CredentialUpsertBulk) AddDeletedBy(v int) *CredentialUpsertBulk {
-	return u.Update(func(s *CredentialUpsert) {
-		s.AddDeletedBy(v)
 	})
 }
 
@@ -821,7 +1018,7 @@ func (u *CredentialUpsertBulk) ClearDeletedBy() *CredentialUpsertBulk {
 }
 
 // SetUserID sets the "user_id" field.
-func (u *CredentialUpsertBulk) SetUserID(v int) *CredentialUpsertBulk {
+func (u *CredentialUpsertBulk) SetUserID(v uuid.UUID) *CredentialUpsertBulk {
 	return u.Update(func(s *CredentialUpsert) {
 		s.SetUserID(v)
 	})
@@ -859,6 +1056,62 @@ func (u *CredentialUpsertBulk) SetCredentialData(v map[string]interface{}) *Cred
 func (u *CredentialUpsertBulk) UpdateCredentialData() *CredentialUpsertBulk {
 	return u.Update(func(s *CredentialUpsert) {
 		s.UpdateCredentialData()
+	})
+}
+
+// SetVersion sets the "version" field.
+func (u *CredentialUpsertBulk) SetVersion(v int64) *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.SetVersion(v)
+	})
+}
+
+// AddVersion adds v to the "version" field.
+func (u *CredentialUpsertBulk) AddVersion(v int64) *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.AddVersion(v)
+	})
+}
+
+// UpdateVersion sets the "version" field to the value that was provided on create.
+func (u *CredentialUpsertBulk) UpdateVersion() *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.UpdateVersion()
+	})
+}
+
+// SetActive sets the "active" field.
+func (u *CredentialUpsertBulk) SetActive(v bool) *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.SetActive(v)
+	})
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *CredentialUpsertBulk) UpdateActive() *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.UpdateActive()
+	})
+}
+
+// SetLastUsedAt sets the "last_used_at" field.
+func (u *CredentialUpsertBulk) SetLastUsedAt(v time.Time) *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.SetLastUsedAt(v)
+	})
+}
+
+// UpdateLastUsedAt sets the "last_used_at" field to the value that was provided on create.
+func (u *CredentialUpsertBulk) UpdateLastUsedAt() *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.UpdateLastUsedAt()
+	})
+}
+
+// ClearLastUsedAt clears the value of the "last_used_at" field.
+func (u *CredentialUpsertBulk) ClearLastUsedAt() *CredentialUpsertBulk {
+	return u.Update(func(s *CredentialUpsert) {
+		s.ClearLastUsedAt()
 	})
 }
 

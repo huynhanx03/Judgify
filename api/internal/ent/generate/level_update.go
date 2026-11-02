@@ -56,23 +56,16 @@ func (_u *LevelUpdate) ClearDeletedAt() *LevelUpdate {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *LevelUpdate) SetDeletedBy(v int) *LevelUpdate {
-	_u.mutation.ResetDeletedBy()
+func (_u *LevelUpdate) SetDeletedBy(v string) *LevelUpdate {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *LevelUpdate) SetNillableDeletedBy(v *int) *LevelUpdate {
+func (_u *LevelUpdate) SetNillableDeletedBy(v *string) *LevelUpdate {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *LevelUpdate) AddDeletedBy(v int) *LevelUpdate {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -214,7 +207,7 @@ func (_u *LevelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(level.Table, level.Columns, sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(level.Table, level.Columns, sqlgraph.NewFieldSpec(level.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -232,13 +225,10 @@ func (_u *LevelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(level.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(level.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(level.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(level.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(level.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(level.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(level.FieldName, field.TypeString, value)
@@ -304,23 +294,16 @@ func (_u *LevelUpdateOne) ClearDeletedAt() *LevelUpdateOne {
 }
 
 // SetDeletedBy sets the "deleted_by" field.
-func (_u *LevelUpdateOne) SetDeletedBy(v int) *LevelUpdateOne {
-	_u.mutation.ResetDeletedBy()
+func (_u *LevelUpdateOne) SetDeletedBy(v string) *LevelUpdateOne {
 	_u.mutation.SetDeletedBy(v)
 	return _u
 }
 
 // SetNillableDeletedBy sets the "deleted_by" field if the given value is not nil.
-func (_u *LevelUpdateOne) SetNillableDeletedBy(v *int) *LevelUpdateOne {
+func (_u *LevelUpdateOne) SetNillableDeletedBy(v *string) *LevelUpdateOne {
 	if v != nil {
 		_u.SetDeletedBy(*v)
 	}
-	return _u
-}
-
-// AddDeletedBy adds value to the "deleted_by" field.
-func (_u *LevelUpdateOne) AddDeletedBy(v int) *LevelUpdateOne {
-	_u.mutation.AddDeletedBy(v)
 	return _u
 }
 
@@ -475,7 +458,7 @@ func (_u *LevelUpdateOne) sqlSave(ctx context.Context) (_node *Level, err error)
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(level.Table, level.Columns, sqlgraph.NewFieldSpec(level.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(level.Table, level.Columns, sqlgraph.NewFieldSpec(level.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`generate: missing "Level.id" for update`)}
@@ -510,13 +493,10 @@ func (_u *LevelUpdateOne) sqlSave(ctx context.Context) (_node *Level, err error)
 		_spec.ClearField(level.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DeletedBy(); ok {
-		_spec.SetField(level.FieldDeletedBy, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedDeletedBy(); ok {
-		_spec.AddField(level.FieldDeletedBy, field.TypeInt, value)
+		_spec.SetField(level.FieldDeletedBy, field.TypeString, value)
 	}
 	if _u.mutation.DeletedByCleared() {
-		_spec.ClearField(level.FieldDeletedBy, field.TypeInt)
+		_spec.ClearField(level.FieldDeletedBy, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(level.FieldName, field.TypeString, value)

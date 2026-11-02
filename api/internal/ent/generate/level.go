@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/level"
 )
 
@@ -16,7 +17,7 @@ import (
 type Level struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,7 +25,7 @@ type Level struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
-	DeletedBy *int `json:"deleted_by,omitempty"`
+	DeletedBy *string `json:"deleted_by,omitempty"`
 	// Realm name: Luyen Khi, Truc Co, Kim Dan...
 	Name string `json:"name,omitempty"`
 	// Minimum EXP required to attempt breakthrough
@@ -39,12 +40,14 @@ func (*Level) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case level.FieldID, level.FieldDeletedBy, level.FieldMinExp:
+		case level.FieldMinExp:
 			values[i] = new(sql.NullInt64)
-		case level.FieldName, level.FieldDescription:
+		case level.FieldDeletedBy, level.FieldName, level.FieldDescription:
 			values[i] = new(sql.NullString)
 		case level.FieldCreatedAt, level.FieldUpdatedAt, level.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case level.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -61,11 +64,11 @@ func (_m *Level) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case level.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case level.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -86,11 +89,11 @@ func (_m *Level) assignValues(columns []string, values []any) error {
 				*_m.DeletedAt = value.Time
 			}
 		case level.FieldDeletedBy:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
-				_m.DeletedBy = new(int)
-				*_m.DeletedBy = int(value.Int64)
+				_m.DeletedBy = new(string)
+				*_m.DeletedBy = value.String
 			}
 		case level.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -159,7 +162,7 @@ func (_m *Level) String() string {
 	builder.WriteString(", ")
 	if v := _m.DeletedBy; v != nil {
 		builder.WriteString("deleted_by=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
@@ -172,14 +175,6 @@ func (_m *Level) String() string {
 	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-func (_m *Level) GetID() int {
-	return _m.ID
-}
-
-func (_m *Level) SetID(id int) {
-	_m.ID = id
 }
 
 // Levels is a parsable slice of Level.

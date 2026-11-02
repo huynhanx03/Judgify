@@ -1,0 +1,169 @@
+schema_version: 1
+alerts:
+  - id: api_fast_burn
+    severity: critical
+    metric: judgify_http_requests_total
+    expression: 'sum(rate(judgify_http_requests_total{role="api",status_class="5xx"}[5m])) / clamp_min(sum(rate(judgify_http_requests_total{role="api"}[5m])), 1) > 0.07'
+    for: 5m
+    threshold: 0.07
+    runbook: ops/runbooks/api-availability.md
+
+  - id: api_slow_burn
+    severity: warning
+    metric: judgify_http_requests_total
+    expression: 'sum(rate(judgify_http_requests_total{role="api",status_class="5xx"}[1h])) / clamp_min(sum(rate(judgify_http_requests_total{role="api"}[1h])), 1) > 0.015'
+    for: 30m
+    threshold: 0.015
+    runbook: ops/runbooks/api-availability.md
+
+  - id: api_latency_high
+    severity: warning
+    metric: judgify_http_request_duration_seconds
+    expression: 'histogram_quantile(0.95, sum by (le) (rate(judgify_http_request_duration_seconds_bucket{role="api"}[10m]))) > 0.5'
+    for: 10m
+    threshold: 0.5
+    runbook: ops/runbooks/api-availability.md
+
+  - id: judge_queue_age_high
+    severity: critical
+    metric: judgify_judge_oldest_ready_job_seconds
+    expression: 'max(judgify_judge_oldest_ready_job_seconds) > 120'
+    for: 5m
+    threshold: 120
+    runbook: ops/runbooks/judge-queue.md
+
+  - id: judge_capacity_unavailable
+    severity: critical
+    metric: judgify_judge_worker_capacity
+    expression: 'max(judgify_judge_worker_capacity{kind="claims_enabled"}) < 1 or max(judgify_judge_worker_capacity{kind="free"}) < 1'
+    for: 2m
+    threshold: 1
+    runbook: ops/runbooks/judge-queue.md
+
+  - id: judge_finalization_errors
+    severity: critical
+    metric: judgify_judge_finalizations_total
+    expression: 'sum(rate(judgify_judge_finalizations_total{outcome=~"error|dead"}[10m])) > 0'
+    for: 2m
+    threshold: 1
+    runbook: ops/runbooks/judge-queue.md
+
+  - id: outbox_lag
+    severity: critical
+    metric: judgify_outbox_oldest_pending_seconds
+    expression: 'max(judgify_outbox_oldest_pending_seconds) > 60'
+    for: 5m
+    threshold: 60
+    runbook: ops/runbooks/outbox-lag.md
+
+  - id: outbox_dead
+    severity: critical
+    metric: judgify_outbox_events
+    expression: 'max(judgify_outbox_events{state="dead"}) > 0'
+    for: 1m
+    threshold: 1
+    runbook: ops/runbooks/outbox-lag.md
+
+  - id: solve_reward_forge_lag
+    severity: warning
+    metric: judgify_solve_reward_forge_consumer_lag
+    expression: 'max(judgify_solve_reward_forge_consumer_lag) > 500'
+    for: 10m
+    threshold: 500
+    runbook: ops/runbooks/outbox-lag.md
+
+  - id: solve_reward_forge_dead
+    severity: critical
+    metric: judgify_solve_reward_forge_dlq_records
+    expression: 'max(judgify_solve_reward_forge_dlq_records) > 0'
+    for: 1m
+    threshold: 1
+    runbook: ops/runbooks/outbox-lag.md
+
+  - id: realtime_critical_closes
+    severity: warning
+    metric: judgify_websocket_closes_total
+    expression: 'sum(rate(judgify_websocket_closes_total{class=~"slow_client|protocol|internal"}[10m])) > 1'
+    for: 10m
+    threshold: 1
+    runbook: ops/runbooks/realtime-lag.md
+
+  - id: security_email_stale
+    severity: critical
+    metric: judgify_security_email_oldest_pending_seconds
+    expression: 'max(judgify_security_email_oldest_pending_seconds) > 120'
+    for: 5m
+    threshold: 120
+    runbook: ops/runbooks/security-email.md
+
+  - id: security_email_dead
+    severity: critical
+    metric: judgify_security_email_jobs
+    expression: 'max(judgify_security_email_jobs{state="dead"}) > 0'
+    for: 1m
+    threshold: 1
+    runbook: ops/runbooks/security-email.md
+
+  - id: authorization_revision_mismatch
+    severity: critical
+    metric: judgify_authorization_revision
+    expression: 'max(judgify_authorization_revision{kind="desired"}) != max(judgify_authorization_revision{kind="applied"})'
+    for: 2m
+    threshold: 1
+    runbook: ops/runbooks/authorization-stale.md
+
+  - id: backup_rpo_breached
+    severity: critical
+    metric: judgify_backup_last_success_timestamp_seconds
+    expression: 'time() - judgify_backup_last_success_timestamp_seconds > 300'
+    for: 1m
+    threshold: 300
+    runbook: ops/runbooks/database-restore.md
+
+  - id: backup_failed
+    severity: critical
+    metric: judgify_backup_failures_total
+    expression: 'increase(judgify_backup_failures_total[15m]) > 0'
+    for: 1m
+    threshold: 1
+    runbook: ops/runbooks/database-restore.md
+
+  - id: disk_safety_watermark
+    severity: critical
+    metric: judgify_host_disk_available_bytes
+    expression: 'min(judgify_host_disk_available_bytes) < 5368709120'
+    for: 2m
+    threshold: 5368709120
+    runbook: ops/runbooks/disk-pressure.md
+
+  - id: process_fd_pressure
+    severity: warning
+    metric: judgify_process_open_fds
+    expression: 'max(judgify_process_open_fds) > 8192'
+    for: 10m
+    threshold: 8192
+    runbook: ops/runbooks/capacity-pressure.md
+
+  - id: sandbox_oom
+    severity: critical
+    metric: judgify_sandbox_cgroup_events_total
+    expression: 'increase(judgify_sandbox_cgroup_events_total{event=~"oom|oom_kill"}[10m]) > 0'
+    for: 1m
+    threshold: 1
+    runbook: ops/runbooks/sandbox-incident.md
+
+  - id: contest_projection_lag
+    severity: warning
+    metric: judgify_contest_projection_lag_seconds
+    expression: 'max(judgify_contest_projection_lag_seconds) > 60'
+    for: 10m
+    threshold: 60
+    runbook: ops/runbooks/contest-rating.md
+
+  - id: contest_rating_lag
+    severity: warning
+    metric: judgify_contest_rating_lag_seconds
+    expression: 'max(judgify_contest_rating_lag_seconds) > 300'
+    for: 10m
+    threshold: 300
+    runbook: ops/runbooks/contest-rating.md
