@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -17,7 +18,8 @@ import (
 type NotificationCampaignExplicitUser struct{ ent.Schema }
 
 func (NotificationCampaignExplicitUser) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (NotificationCampaignExplicitUser) Fields() []ent.Field {

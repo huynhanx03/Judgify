@@ -35,15 +35,7 @@ func toElementResponses(results []*contract.ElementResponse) []*elementResponse 
 }
 
 func toElementPage(result *d.Paginated[*contract.ElementResponse]) *d.Paginated[*elementResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*elementResponse]{Pagination: result.Pagination}
-	if result.Records != nil {
-		values := toElementResponses(*result.Records)
-		page.Records = &values
-	}
-	return page
+	return d.MapPaginated(result, toElementResponse)
 }
 
 func toCreateElementCommand(request *createElementRequest) *contract.CreateElementCommand {

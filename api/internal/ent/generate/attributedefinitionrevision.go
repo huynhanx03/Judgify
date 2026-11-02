@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ type AttributeDefinitionRevision struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// DefinitionID holds the value of the "definition_id" field.
 	DefinitionID uuid.UUID `json:"definition_id,omitempty"`
 	// Revision holds the value of the "revision" field.
@@ -37,7 +40,7 @@ type AttributeDefinitionRevision struct {
 	// DisplayOrder holds the value of the "display_order" field.
 	DisplayOrder int `json:"display_order,omitempty"`
 	// Validation holds the value of the "validation" field.
-	Validation json.RawMessage `json:"validation,omitempty"`
+	Validation jsontext.Value `json:"validation,omitempty"`
 	// CreatedBy holds the value of the "created_by" field.
 	CreatedBy *uuid.UUID `json:"created_by,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -107,7 +110,7 @@ func (*AttributeDefinitionRevision) scanValues(columns []string) ([]any, error) 
 			values[i] = new(sql.NullString)
 		case attributedefinitionrevision.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case attributedefinitionrevision.FieldID, attributedefinitionrevision.FieldDefinitionID:
+		case attributedefinitionrevision.FieldID, attributedefinitionrevision.FieldTenantID, attributedefinitionrevision.FieldDefinitionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -129,6 +132,12 @@ func (_m *AttributeDefinitionRevision) assignValues(columns []string, values []a
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case attributedefinitionrevision.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case attributedefinitionrevision.FieldDefinitionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -250,6 +259,9 @@ func (_m *AttributeDefinitionRevision) String() string {
 	var builder strings.Builder
 	builder.WriteString("AttributeDefinitionRevision(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("definition_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DefinitionID))
 	builder.WriteString(", ")

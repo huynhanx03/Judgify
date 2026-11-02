@@ -55,6 +55,12 @@ func (_c *ContestClarificationCreate) SetNillableUpdatedAt(v *time.Time) *Contes
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestClarificationCreate) SetTenantID(v uuid.UUID) *ContestClarificationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetContestID sets the "contest_id" field.
 func (_c *ContestClarificationCreate) SetContestID(v uuid.UUID) *ContestClarificationCreate {
 	_c.mutation.SetContestID(v)
@@ -509,6 +515,9 @@ func (_c *ContestClarificationCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "ContestClarification.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestClarification.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`generate: missing required field "ContestClarification.contest_id"`)}
 	}
@@ -659,6 +668,10 @@ func (_c *ContestClarificationCreate) createSpec() (*ContestClarification, *sqlg
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(contestclarification.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestclarification.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(contestclarification.FieldStatus, field.TypeEnum, value)
@@ -1250,6 +1263,9 @@ func (u *ContestClarificationUpsertOne) UpdateNewValues() *ContestClarificationU
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contestclarification.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestclarification.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ContestID(); exists {
 			s.SetIgnore(contestclarification.FieldContestID)
@@ -1917,6 +1933,9 @@ func (u *ContestClarificationUpsertBulk) UpdateNewValues() *ContestClarification
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contestclarification.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestclarification.FieldTenantID)
 			}
 			if _, exists := b.mutation.ContestID(); exists {
 				s.SetIgnore(contestclarification.FieldContestID)

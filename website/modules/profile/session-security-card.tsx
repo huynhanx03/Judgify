@@ -233,7 +233,7 @@ export function SessionSecurityCard() {
       const query = cursor
         ? { limit: SESSION_PAGE_SIZE, cursor }
         : { limit: SESSION_PAGE_SIZE };
-      return sessionService.list(query, signal);
+      return sessionService.find(query, signal);
     },
     onSuccess: () => setActionError(null),
   });

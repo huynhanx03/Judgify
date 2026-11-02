@@ -21,6 +21,7 @@ import (
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
 	entity "github.com/huynhanx03/judgify/internal/submission/domain"
 	submissionservice "github.com/huynhanx03/judgify/internal/submission/usecase"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 type expectedTestcaseResult struct {
@@ -1450,7 +1451,7 @@ func (repository *FinalizationRepository) reconcileSolve(
 	if err := updateSolveProjection(ctx, tx, current, next, now.UTC()); err != nil {
 		return nil, nil, err
 	}
-	event, err := repository.solveTransitionEvent(*transition, eventID)
+	event, err := repository.solveTransitionEvent(ctx, *transition, eventID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -1678,14 +1679,17 @@ func updateSolveProjection(
 }
 
 func (repository *FinalizationRepository) solveTransitionEvent(
+	ctx context.Context,
 	value entity.SolveTransition,
 	eventID uuid.UUID,
 ) (eventing.Event, error) {
-	if eventID == uuid.Nil {
+	scope, ok := tenantctx.FromContext(ctx)
+	tenantID, concrete := scope.TenantID()
+	if eventID == uuid.Nil || !ok || !concrete {
 		return eventing.Event{}, ports.ErrFinalizationUnavailable
 	}
 	payload, err := json.Marshal(submissioncontract.ProblemSolveStatusChangedV1{
-		EventID: eventID, TransitionID: value.ID, SolveID: value.SolveID,
+		EventID: eventID, TenantID: tenantID, TransitionID: value.ID, SolveID: value.SolveID,
 		UserID: value.UserID, ProblemID: value.ProblemID,
 		From:       solveStateDTO(value.From, value.FromVersion),
 		To:         solveStateDTO(value.To, value.ToVersion),

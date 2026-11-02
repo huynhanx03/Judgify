@@ -14,10 +14,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/judge/checker"
 	"github.com/huynhanx03/judgify/internal/judge/executor"
@@ -273,8 +274,9 @@ func (worker *LeaseExecutor) ExecuteLease(
 
 	source := []byte(plan.SourceCode)
 	plan.SourceCode = ""
+	compileCtx, compileSpan := otel.Tracer("judgify/judge").Start(attemptCtx, "judge.compile")
 	compileOutcome, err := worker.dependencies.Compiler.Compile(
-		attemptCtx,
+		compileCtx,
 		executor.CompileRequest{
 			Identity:           executionIdentity(lease),
 			RuntimeProfile:     profile,
@@ -284,6 +286,7 @@ func (worker *LeaseExecutor) ExecuteLease(
 			Limits:             worker.compileLimits(plan),
 		},
 	)
+	compileSpan.End()
 	clear(source)
 	if err != nil {
 		clearCompileOutcome(&compileOutcome)
@@ -409,14 +412,16 @@ func (worker *LeaseExecutor) ExecuteLease(
 			err,
 		)
 	}
+	casesCtx, casesSpan := otel.Tracer("judgify/judge").Start(attemptCtx, "judge.case_execution")
 	evaluation, err := worker.executeCases(
-		attemptCtx,
+		casesCtx,
 		lease,
 		plan,
 		artifact,
 		builtinChecker,
 		baseCheckerPolicy,
 	)
+	casesSpan.End()
 	if err != nil {
 		return worker.handleInfrastructureFailure(
 			attemptCtx,
@@ -696,8 +701,9 @@ func (worker *LeaseExecutor) finalizeContestant(
 		CompletedAt:                     worker.now(),
 		OriginCID:                       plan.OriginCID,
 	}
+	finalizeCtx, finalizeSpan := otel.Tracer("judgify/judge").Start(ctx, "judge.finalize")
 	_, err = worker.dependencies.Finalizer.FinalizeContestantEvaluation(
-		ctx,
+		finalizeCtx,
 		submissionports.FinalizationRequest{
 			Lease:                     lease,
 			ExpectedSubmissionVersion: expectedVersion,
@@ -705,6 +711,7 @@ func (worker *LeaseExecutor) finalizeContestant(
 			TestResults:               results,
 		},
 	)
+	finalizeSpan.End()
 	if err != nil {
 		return worker.handleInfrastructureFailure(
 			ctx,

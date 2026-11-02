@@ -65,7 +65,7 @@ export const problemService = {
   },
 
   // Administrative reads include draft and published records.
-  async findAdmin(
+  async findForAdmin(
     query?: QueryOptions,
     signal?: AbortSignal,
   ): Promise<Paginated<Problem>> {

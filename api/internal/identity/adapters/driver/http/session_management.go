@@ -19,7 +19,7 @@ import (
 // handler: account security UI operations can evolve without expanding the
 // token issuance/authentication interface.
 type SessionManagementHandler interface {
-	List(context.Context, *sessionListQuery) (*sessionListResponse, error)
+	Find(context.Context, *sessionListQuery) (*sessionListResponse, error)
 	Revoke(context.Context, uuid.UUID, uuid.UUID) error
 	LogoutAll(context.Context, uuid.UUID) error
 }
@@ -32,7 +32,7 @@ func NewSessionManagementHandler(lifecycle ports.SessionManagementLifecycle) Ses
 	return &sessionManagementHandler{lifecycle: lifecycle}
 }
 
-func (handler *sessionManagementHandler) List(
+func (handler *sessionManagementHandler) Find(
 	ctx context.Context,
 	request *sessionListQuery,
 ) (*sessionListResponse, error) {
@@ -43,7 +43,7 @@ func (handler *sessionManagementHandler) List(
 	if handler == nil || handler.lifecycle == nil {
 		return nil, apperr.New(apperr.CodeInternalServer, "session management unavailable", nil)
 	}
-	result, err := handler.lifecycle.List(ctx, userID, sessionID, toSessionListRequest(request))
+	result, err := handler.lifecycle.Find(ctx, userID, sessionID, toSessionListRequest(request))
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +82,13 @@ func (h *IdentityHandler) registerSessionManagementRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/auth")
 	auth.Use(noStore)
 	{
-		auth.GET("/sessions", h.listSessions)
+		auth.GET("/sessions", h.findSessions)
 		auth.DELETE("/sessions/:id", h.revokeSession)
 		auth.POST("/logout-all", h.logoutAllSessions)
 	}
 }
 
-func (h *IdentityHandler) listSessions(c *gin.Context) {
+func (h *IdentityHandler) findSessions(c *gin.Context) {
 	if h == nil || h.SessionManagementHandler == nil {
 		identityHTTPFail(c, apperr.New(apperr.CodeInternalServer, "session management unavailable", nil))
 		return
@@ -98,7 +98,7 @@ func (h *IdentityHandler) listSessions(c *gin.Context) {
 		identityHTTPFail(c, err)
 		return
 	}
-	result, err := h.SessionManagementHandler.List(c.Request.Context(), request)
+	result, err := h.SessionManagementHandler.Find(c.Request.Context(), request)
 	if err != nil {
 		identityHTTPFail(c, err)
 		return

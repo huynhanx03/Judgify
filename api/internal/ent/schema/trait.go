@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/go-common/pkg/database/ent"
 
@@ -30,7 +31,6 @@ func (Trait) Mixin() []ent.Mixin {
 func (Trait) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("code").
-			Unique().
 			NotEmpty().
 			MaxLen(64).
 			Immutable(),
@@ -38,7 +38,6 @@ func (Trait) Fields() []ent.Field {
 			Values("root_bone", "talent").
 			Comment("ROOT_BONE = one offered slot; TALENT = weighted offer pool"),
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(100),
 		field.UUID("rarity_id", uuid.UUID{}),
@@ -54,6 +53,10 @@ func (Trait) Fields() []ent.Field {
 			Default(1).
 			Min(1),
 	}
+}
+
+func (Trait) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("code").Unique(), index.Fields("name").Unique()}
 }
 
 // Edges of the Trait.

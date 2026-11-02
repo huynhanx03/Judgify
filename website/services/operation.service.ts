@@ -24,7 +24,7 @@ import type {
 } from "@/types/operation";
 
 export const operationService = {
-  list(
+  find(
     query: OperationListQuery = {},
     signal?: AbortSignal,
   ): Promise<OperationPage> {
@@ -50,7 +50,7 @@ export const operationService = {
     );
   },
 
-  async listBatches(
+  async findBatches(
     id: string,
     cursor?: string,
     signal?: AbortSignal,

@@ -113,7 +113,7 @@ func (repository *ProfileSchemaRepository) Advance(
 	return ports.ProfileSchemaFence{ID: record.ID, Revision: record.Revision}, nil
 }
 
-func (repository *ProfileSchemaRepository) ListRequired(
+func (repository *ProfileSchemaRepository) FindRequired(
 	ctx context.Context,
 ) ([]*entity.AttributeDefinition, error) {
 	if repository == nil || repository.client == nil || ctx == nil || ctx.Err() != nil {

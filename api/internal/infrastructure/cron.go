@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 
 	problemPorts "github.com/huynhanx03/judgify/internal/ports"
 )

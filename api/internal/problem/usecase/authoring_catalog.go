@@ -9,7 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/ports"
 	problemcontract "github.com/huynhanx03/judgify/internal/problem/contract"

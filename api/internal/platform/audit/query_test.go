@@ -17,8 +17,8 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	internalent "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
@@ -170,7 +170,7 @@ func TestQueryUsesDeterministicKeysetAndDefensivelyRedactsStoredDocuments(t *tes
 
 	reader, err := NewQuery(client)
 	require.NoError(t, err)
-	page, err := reader.Search(context.Background(), Filter{
+	page, err := reader.Find(context.Background(), Filter{
 		ActorUserID:   &actorID,
 		Action:        "identity.role.replace",
 		Resource:      "authorization_policy",
@@ -217,7 +217,7 @@ func TestQueryFailsClosedForUnsafeStoredAuditDocument(t *testing.T) {
 
 	reader, err := NewQuery(client)
 	require.NoError(t, err)
-	_, err = reader.Search(context.Background(), Filter{Limit: 1})
+	_, err = reader.Find(context.Background(), Filter{Limit: 1})
 	require.ErrorIs(t, err, ErrUnsafeStoredRecord)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
@@ -236,7 +236,7 @@ func TestQueryLogsOnlyCorrelationIDCountsAndFilterPresence(t *testing.T) {
 	core, observed := observer.New(zap.DebugLevel)
 	ctx := logger.WithContext(context.Background(), zap.New(core))
 	ctx = correlation.WithContext(ctx, "018f5fbe-3d77-7e10-8fd1-8b6f1ca32e17")
-	page, err := reader.Search(ctx, Filter{
+	page, err := reader.Find(ctx, Filter{
 		Action: "identity.role.replace",
 		Limit:  1,
 	})

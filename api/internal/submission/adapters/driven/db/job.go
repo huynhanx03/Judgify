@@ -27,6 +27,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ports"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
 	entity "github.com/huynhanx03/judgify/internal/submission/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -111,6 +112,7 @@ func NewJobRepositoryFromEnt(client *dbent.EntClient, config JobRepositoryConfig
 }
 
 type claimCandidate struct {
+	tenantID          uuid.UUID
 	jobID             uuid.UUID
 	submissionID      uuid.UUID
 	generation        int64
@@ -121,6 +123,7 @@ type claimCandidate struct {
 	attempts          uint32
 	maxAttempts       uint32
 	originCID         string
+	originTraceparent sql.NullString
 	submissionVersion int64
 	spec              ports.JudgeSpecClaim
 }
@@ -149,6 +152,9 @@ func (repository *JobRepository) Claim(
 		return nil, fmt.Errorf("begin job claim: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return nil, err
+	}
 
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
@@ -269,8 +275,9 @@ func (repository *JobRepository) nextLane() int {
 
 const exactClaimCandidateSQL = `
 	SELECT
-		j.id, j.submission_id, j.generation, j.judge_spec_id, j.lane,
-		j.base_priority, j.created_at, j.attempts, j.max_attempts, j.origin_cid,
+		j.tenant_id, j.id, j.submission_id, j.generation, j.judge_spec_id, j.lane,
+		j.base_priority, j.created_at, j.attempts, j.max_attempts,
+		j.origin_cid, j.origin_traceparent,
 		sub.version,
 		s.id, s.submission_id, s.generation, s.user_id,
 			s.problem_revision_id, s.testset_revision_id, s.judge_spec_protocol,
@@ -292,6 +299,7 @@ const exactClaimCandidateSQL = `
 		AND sub.latest_generation = j.generation
 		AND sub.latest_generation_phase = 'queued'
 		AND sub.latest_generation_outcome IS NULL
+		AND sub.tenant_id = j.tenant_id
 	WHERE j.state = 'ready'
 		AND j.available_at <= $1
 		AND j.attempts < j.max_attempts
@@ -375,9 +383,9 @@ func queryClaimCandidate(
 		now, lane, request.WorkerID, request.WorkerBootID,
 		request.GlobalRunningLimit, request.PerUserRunningLimit,
 	).Scan(
-		&value.jobID, &value.submissionID, &value.generation, &value.judgeSpecID, &value.lane,
+		&value.tenantID, &value.jobID, &value.submissionID, &value.generation, &value.judgeSpecID, &value.lane,
 		&value.basePriority, &value.jobCreatedAt, &value.attempts, &value.maxAttempts,
-		&value.originCID, &value.submissionVersion,
+		&value.originCID, &value.originTraceparent, &value.submissionVersion,
 		&value.spec.ID, &value.spec.SubmissionID, &value.spec.Generation, &value.spec.UserID,
 		&value.spec.ProblemRevisionID, &value.spec.TestsetRevisionID,
 		&value.spec.JudgeSpecProtocol, &value.spec.RuntimeKey,
@@ -395,6 +403,9 @@ func queryClaimCandidate(
 	}
 	if err != nil {
 		return claimCandidate{}, false, fmt.Errorf("select compatible judge job: %w", err)
+	}
+	if value.tenantID == uuid.Nil {
+		return claimCandidate{}, false, fmt.Errorf("select compatible judge job: tenant ID missing")
 	}
 	return value, true, nil
 }
@@ -481,12 +492,14 @@ func (repository *JobRepository) leaseCandidate(
 	}
 	leaseHash := entity.LeaseTokenHash(hash)
 	lease := ports.JobLease{
+		TenantID: candidate.tenantID,
 		Job: entity.JudgeJob{
 			ID: candidate.jobID, SubmissionID: candidate.submissionID,
 			Generation: candidate.generation, JudgeSpecID: candidate.judgeSpecID,
 			Lane: candidate.lane, State: entity.JobLeased,
 			Attempts: attemptNumber, MaxAttempts: candidate.maxAttempts,
-			OriginCID: candidate.originCID,
+			OriginCID:         candidate.originCID,
+			OriginTraceparent: candidate.originTraceparent.String,
 		},
 		Attempt: entity.JudgeAttempt{
 			ID: attemptID, JobID: candidate.jobID, SubmissionID: candidate.submissionID,
@@ -591,6 +604,9 @@ func (repository *JobRepository) Heartbeat(
 		return time.Time{}, fmt.Errorf("begin job heartbeat: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return time.Time{}, err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return time.Time{}, err
@@ -770,6 +786,9 @@ func (repository *JobRepository) ReapExpired(
 		return ports.ReapResult{}, fmt.Errorf("begin expired lease reaper: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return ports.ReapResult{}, err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return ports.ReapResult{}, err
@@ -915,6 +934,9 @@ func (repository *JobRepository) AcknowledgeCancellation(
 		return fmt.Errorf("begin cancelled lease acknowledgement: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return err
@@ -1325,6 +1347,9 @@ func (repository *JobRepository) TransitionPhase(
 		return entity.SubmissionState{}, fmt.Errorf("begin judge phase transition: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return entity.SubmissionState{}, err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return entity.SubmissionState{}, err
@@ -1419,6 +1444,9 @@ func (repository *JobRepository) RecordRetry(
 		return fmt.Errorf("begin infrastructure retry: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return err

@@ -302,12 +302,12 @@ func (_q *NotificationCampaignConfirmationQuery) WithCampaign(opts ...func(*Noti
 // Example:
 //
 //	var v []struct {
-//		NonceHash []byte `json:"nonce_hash,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.NotificationCampaignConfirmation.Query().
-//		GroupBy(notificationcampaignconfirmation.FieldNonceHash).
+//		GroupBy(notificationcampaignconfirmation.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *NotificationCampaignConfirmationQuery) GroupBy(field string, fields ...string) *NotificationCampaignConfirmationGroupBy {
@@ -325,11 +325,11 @@ func (_q *NotificationCampaignConfirmationQuery) GroupBy(field string, fields ..
 // Example:
 //
 //	var v []struct {
-//		NonceHash []byte `json:"nonce_hash,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.NotificationCampaignConfirmation.Query().
-//		Select(notificationcampaignconfirmation.FieldNonceHash).
+//		Select(notificationcampaignconfirmation.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *NotificationCampaignConfirmationQuery) Select(fields ...string) *NotificationCampaignConfirmationSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

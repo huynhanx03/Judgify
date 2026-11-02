@@ -375,12 +375,12 @@ func (_q *ProblemRevisionQuery) WithContestProblemSnapshots(opts ...func(*Contes
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ProblemRevision.Query().
-//		GroupBy(problemrevision.FieldCreatedAt).
+//		GroupBy(problemrevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ProblemRevisionQuery) GroupBy(field string, fields ...string) *ProblemRevisionGroupBy {
@@ -398,11 +398,11 @@ func (_q *ProblemRevisionQuery) GroupBy(field string, fields ...string) *Problem
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ProblemRevision.Query().
-//		Select(problemrevision.FieldCreatedAt).
+//		Select(problemrevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ProblemRevisionQuery) Select(fields ...string) *ProblemRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

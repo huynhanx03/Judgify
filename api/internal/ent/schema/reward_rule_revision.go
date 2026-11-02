@@ -3,6 +3,7 @@ package schema
 import (
 	"encoding/json"
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,7 +27,8 @@ const maximumRewardRuleConfigurationBytes = 16 << 10
 type RewardRuleRevision struct{ ent.Schema }
 
 func (RewardRuleRevision) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (RewardRuleRevision) Fields() []ent.Field {
@@ -54,10 +56,10 @@ func (RewardRuleRevision) Edges() []ent.Edge {
 
 func (RewardRuleRevision) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("rule_key", "revision").Unique(),
-		index.Fields("rule_key", "effective_from"),
-		index.Fields("checksum").Unique(),
-		index.Fields("request_checksum").Unique(),
+		index.Fields("tenant_id", "rule_key", "revision").Unique(),
+		index.Fields("tenant_id", "rule_key", "effective_from"),
+		index.Fields("tenant_id", "checksum").Unique(),
+		index.Fields("tenant_id", "request_checksum").Unique(),
 	}
 }
 

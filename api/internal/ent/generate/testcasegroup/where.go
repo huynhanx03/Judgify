@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.TestcaseGroup {
 	return predicate.TestcaseGroup(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldEQ(FieldTenantID, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.TestcaseGroup {
 	return predicate.TestcaseGroup(sql.FieldEQ(FieldCreatedAt, v))
@@ -74,6 +79,46 @@ func GroupIndex(v int) predicate.TestcaseGroup {
 // StopOnFailure applies equality check predicate on the "stop_on_failure" field. It's identical to StopOnFailureEQ.
 func StopOnFailure(v bool) predicate.TestcaseGroup {
 	return predicate.TestcaseGroup(sql.FieldEQ(FieldStopOnFailure, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.TestcaseGroup {
+	return predicate.TestcaseGroup(sql.FieldLTE(FieldTenantID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

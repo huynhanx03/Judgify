@@ -38,7 +38,7 @@ type MaterialCategoryListCacheLoader func(context.Context) ([]*contract.Material
 // MaterialRepository defines the material data access interface.
 type MaterialRepository interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error)
-	FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error)
+	FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error)
 	Get(ctx context.Context, id uuid.UUID) (*entity.Material, error)
 	GetPublic(ctx context.Context, id uuid.UUID) (*entity.Material, error)
 	Create(ctx context.Context, e *entity.Material) error
@@ -62,9 +62,9 @@ type MaterialCategoryService interface {
 
 // MaterialService defines the material business logic interface.
 type MaterialService interface {
-	FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error)
+	FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error)
 	GetPublic(ctx context.Context, id uuid.UUID) (*contract.MaterialResponse, error)
-	FindAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error)
+	FindForAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error)
 	GetAdmin(ctx context.Context, id uuid.UUID) (*contract.MaterialResponse, error)
 	Create(ctx context.Context, authorID uuid.UUID, req *contract.CreateMaterialCommand) (*contract.MaterialResponse, error)
 	Update(ctx context.Context, id uuid.UUID, req *contract.UpdateMaterialCommand) (*contract.MaterialResponse, error)
@@ -205,11 +205,11 @@ type SearchResult struct {
 }
 
 type MaterialQueryRepository interface {
-	SearchPublic(context.Context, SearchQuery) (SearchResult, error)
-	SearchAdmin(context.Context, SearchQuery) (SearchResult, error)
+	FindForPublic(context.Context, SearchQuery) (SearchResult, error)
+	FindForAdmin(context.Context, SearchQuery) (SearchResult, error)
 	ResolvePublicSlug(context.Context, string, bool) (entity.SlugResolution, error)
 	RelatedPublic(context.Context, uuid.UUID, bool, int) ([]entity.PublicMaterial, error)
-	ListRevisions(context.Context, uuid.UUID, int64, int) ([]entity.MaterialRevisionSummary, error)
+	FindRevisions(context.Context, uuid.UUID, int64, int) ([]entity.MaterialRevisionSummary, error)
 	LoadRevision(context.Context, uuid.UUID, uuid.UUID) (entity.MaterialRevision, error)
 	LoadAdminProjection(context.Context, uuid.UUID) (entity.PublicMaterial, error)
 }
@@ -229,12 +229,12 @@ type MaterialEditorialService interface {
 }
 
 type MaterialQueryService interface {
-	Search(context.Context, SearchQuery) (*contract.MaterialSearchResponse, error)
-	SearchAdmin(context.Context, SearchQuery) (*contract.AdminMaterialSearchResponse, error)
+	FindForPublic(context.Context, SearchQuery) (*contract.MaterialSearchResponse, error)
+	FindForAdmin(context.Context, SearchQuery) (*contract.AdminMaterialSearchResponse, error)
 	GetAdmin(context.Context, uuid.UUID) (*contract.MaterialResponse, error)
 	Resolve(context.Context, string, bool) (*contract.MaterialSlugResponse, error)
 	Related(context.Context, string, bool, int) ([]*contract.MaterialResponse, error)
-	ListRevisions(context.Context, uuid.UUID, string, int) (*contract.MaterialRevisionPage, error)
+	FindRevisions(context.Context, uuid.UUID, string, int) (*contract.MaterialRevisionPage, error)
 	GetRevision(context.Context, uuid.UUID, uuid.UUID) (*contract.MaterialRevisionResponse, error)
 }
 

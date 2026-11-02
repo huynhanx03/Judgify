@@ -65,7 +65,7 @@ export default function AdminMaterialsPage() {
   const difficulties = difficultyCatalog.data;
   const allTags = tagCatalog.data;
   const service = useMemo(() => ({
-    find: materialService.findAdmin.bind(materialService),
+    find: materialService.findForAdmin.bind(materialService),
     create: materialService.create.bind(materialService),
     update: materialService.update.bind(materialService),
   }), []);

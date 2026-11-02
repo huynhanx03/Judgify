@@ -36,7 +36,7 @@ type MaterialContainer struct {
 // NewMaterialContainer creates a new MaterialContainer.
 func NewMaterialContainer(
 	client *internalent.EntClient,
-	localCache cache.LocalCache[string, any],
+	localCache *cache.Cache,
 	confirmationSecret []byte,
 	adminConfig settings.AdminCommand,
 ) (*MaterialContainer, error) {

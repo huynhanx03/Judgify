@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	contract "github.com/huynhanx03/judgify/internal/material/contract"
@@ -56,16 +56,12 @@ func (s *materialCategoryService) Find(ctx context.Context, opts *d.QueryOptions
 		return nil, err
 	}
 
-	records := *paginated.Records
-	dtos := make([]*contract.MaterialCategoryResult, len(records))
-	for i, e := range records {
-		dtos[i] = ToMaterialCategoryResult(e)
+	result := d.MapPaginated(paginated, ToMaterialCategoryResult)
+	if result.Records == nil || *result.Records == nil {
+		empty := []*contract.MaterialCategoryResult{}
+		result.Records = &empty
 	}
-
-	return &d.Paginated[*contract.MaterialCategoryResult]{
-		Records:    &dtos,
-		Pagination: paginated.Pagination,
-	}, nil
+	return result, nil
 }
 
 func (s *materialCategoryService) Get(ctx context.Context, id uuid.UUID) (*contract.MaterialCategoryResult, error) {

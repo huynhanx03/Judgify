@@ -13,10 +13,11 @@ import (
 )
 
 // New constructs the process root logger from validated configuration.
-func New(config settings.Config) (*commonlogger.LoggerZap, error) {
+func New(config settings.Config) (*commonlogger.Logger, error) {
 	initialized, err := commonlogger.NewLogger(commonlogger.LoggerConfig{
 		Mode:       config.Server.Mode,
 		Level:      config.Logger.LogLevel,
+		Service:    "judgify",
 		Version:    config.Observability.Version,
 		Filename:   config.Logger.FileLogName,
 		MaxSize:    config.Logger.MaxSize,
@@ -29,6 +30,5 @@ func New(config settings.Config) (*commonlogger.LoggerZap, error) {
 	}
 	// A root component keeps bootstrap and compatibility call sites compliant
 	// with the same structured schema as explicitly named child loggers.
-	initialized.Logger = initialized.Named("application")
-	return initialized, nil
+	return initialized.Named("application"), nil
 }

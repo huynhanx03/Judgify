@@ -40,7 +40,7 @@ func NewUserAttributeValueRepository(client *dbEnt.EntClient) ports.UserAttribut
 	return &UserAttributeValueRepository{client: client}
 }
 
-func (r *UserAttributeValueRepository) ListActiveProfileAttributes(
+func (r *UserAttributeValueRepository) FindActiveProfileAttributes(
 	ctx context.Context,
 	userID uuid.UUID,
 ) ([]ports.ActiveProfileAttributeValue, error) {

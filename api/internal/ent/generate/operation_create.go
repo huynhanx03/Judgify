@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -55,6 +55,20 @@ func (_c *OperationCreate) SetNillableUpdatedAt(v *time.Time) *OperationCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *OperationCreate) SetTenantID(v uuid.UUID) *OperationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *OperationCreate) SetNillableTenantID(v *uuid.UUID) *OperationCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetKind sets the "kind" field.
 func (_c *OperationCreate) SetKind(v string) *OperationCreate {
 	_c.mutation.SetKind(v)
@@ -74,7 +88,7 @@ func (_c *OperationCreate) SetRequestHash(v []byte) *OperationCreate {
 }
 
 // SetRequestPayload sets the "request_payload" field.
-func (_c *OperationCreate) SetRequestPayload(v json.RawMessage) *OperationCreate {
+func (_c *OperationCreate) SetRequestPayload(v jsontext.Value) *OperationCreate {
 	_c.mutation.SetRequestPayload(v)
 	return _c
 }
@@ -214,7 +228,7 @@ func (_c *OperationCreate) SetBatchSize(v int) *OperationCreate {
 }
 
 // SetCheckpoint sets the "checkpoint" field.
-func (_c *OperationCreate) SetCheckpoint(v json.RawMessage) *OperationCreate {
+func (_c *OperationCreate) SetCheckpoint(v jsontext.Value) *OperationCreate {
 	_c.mutation.SetCheckpoint(v)
 	return _c
 }
@@ -663,6 +677,10 @@ func (_c *OperationCreate) createSpec() (*Operation, *sqlgraph.CreateSpec) {
 		_spec.SetField(operation.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(operation.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = &value
+	}
 	if value, ok := _c.mutation.Kind(); ok {
 		_spec.SetField(operation.FieldKind, field.TypeString, value)
 		_node.Kind = value
@@ -968,7 +986,7 @@ func (u *OperationUpsert) AddNextBatchSequence(v int64) *OperationUpsert {
 }
 
 // SetCheckpoint sets the "checkpoint" field.
-func (u *OperationUpsert) SetCheckpoint(v json.RawMessage) *OperationUpsert {
+func (u *OperationUpsert) SetCheckpoint(v jsontext.Value) *OperationUpsert {
 	u.Set(operation.FieldCheckpoint, v)
 	return u
 }
@@ -1154,6 +1172,9 @@ func (u *OperationUpsertOne) UpdateNewValues() *OperationUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(operation.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(operation.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.Kind(); exists {
 			s.SetIgnore(operation.FieldKind)
@@ -1349,7 +1370,7 @@ func (u *OperationUpsertOne) UpdateNextBatchSequence() *OperationUpsertOne {
 }
 
 // SetCheckpoint sets the "checkpoint" field.
-func (u *OperationUpsertOne) SetCheckpoint(v json.RawMessage) *OperationUpsertOne {
+func (u *OperationUpsertOne) SetCheckpoint(v jsontext.Value) *OperationUpsertOne {
 	return u.Update(func(s *OperationUpsert) {
 		s.SetCheckpoint(v)
 	})
@@ -1730,6 +1751,9 @@ func (u *OperationUpsertBulk) UpdateNewValues() *OperationUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(operation.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(operation.FieldTenantID)
+			}
 			if _, exists := b.mutation.Kind(); exists {
 				s.SetIgnore(operation.FieldKind)
 			}
@@ -1925,7 +1949,7 @@ func (u *OperationUpsertBulk) UpdateNextBatchSequence() *OperationUpsertBulk {
 }
 
 // SetCheckpoint sets the "checkpoint" field.
-func (u *OperationUpsertBulk) SetCheckpoint(v json.RawMessage) *OperationUpsertBulk {
+func (u *OperationUpsertBulk) SetCheckpoint(v jsontext.Value) *OperationUpsertBulk {
 	return u.Update(func(s *OperationUpsert) {
 		s.SetCheckpoint(v)
 	})

@@ -21,6 +21,7 @@ import (
 	submissionentity "github.com/huynhanx03/judgify/internal/submission/domain"
 	"github.com/huynhanx03/judgify/pkg/judging"
 	"github.com/huynhanx03/judgify/pkg/settings"
+	"go.uber.org/zap"
 )
 
 var ErrInvalidWorker = errors.New("worker runtime: invalid configuration")
@@ -71,7 +72,7 @@ func Build(ctx context.Context, process *bootstrap.Process) ([]lifecycle.Compone
 	runtime, err := newProductionRuntime(
 		process.Config.Judge,
 		database,
-		process.Logger.Named("judge-worker"),
+		zap.New(process.Logger.Core()).Named("judge-worker"),
 		metrics,
 	)
 	if err != nil {
@@ -84,7 +85,7 @@ func Build(ctx context.Context, process *bootstrap.Process) ([]lifecycle.Compone
 		process.Config.Forge,
 		process.Config.Outbox,
 		database,
-		process.Logger.Named("solve-reward-delivery"),
+		zap.New(process.Logger.Core()).Named("solve-reward-delivery"),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("compose solve reward delivery: %w", err)

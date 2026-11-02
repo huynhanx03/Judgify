@@ -22,6 +22,8 @@ type JudgeJob struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// SubmissionID holds the value of the "submission_id" field.
 	SubmissionID uuid.UUID `json:"submission_id,omitempty"`
 	// Generation holds the value of the "generation" field.
@@ -61,8 +63,10 @@ type JudgeJob struct {
 	// CancelledAt holds the value of the "cancelled_at" field.
 	CancelledAt *time.Time `json:"cancelled_at,omitempty"`
 	// OriginCid holds the value of the "origin_cid" field.
-	OriginCid    string `json:"origin_cid,omitempty"`
-	selectValues sql.SelectValues
+	OriginCid string `json:"origin_cid,omitempty"`
+	// OriginTraceparent holds the value of the "origin_traceparent" field.
+	OriginTraceparent *string `json:"origin_traceparent,omitempty"`
+	selectValues      sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -74,11 +78,11 @@ func (*JudgeJob) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case judgejob.FieldGeneration, judgejob.FieldBasePriority, judgejob.FieldAttempts, judgejob.FieldMaxAttempts:
 			values[i] = new(sql.NullInt64)
-		case judgejob.FieldLane, judgejob.FieldState, judgejob.FieldLeaseOwner, judgejob.FieldLastErrorCode, judgejob.FieldLastErrorSummary, judgejob.FieldOriginCid:
+		case judgejob.FieldLane, judgejob.FieldState, judgejob.FieldLeaseOwner, judgejob.FieldLastErrorCode, judgejob.FieldLastErrorSummary, judgejob.FieldOriginCid, judgejob.FieldOriginTraceparent:
 			values[i] = new(sql.NullString)
 		case judgejob.FieldCreatedAt, judgejob.FieldUpdatedAt, judgejob.FieldAvailableAt, judgejob.FieldLeaseUntil, judgejob.FieldHeartbeatAt, judgejob.FieldStartedAt, judgejob.FieldCompletedAt, judgejob.FieldDeadAt, judgejob.FieldCancelledAt:
 			values[i] = new(sql.NullTime)
-		case judgejob.FieldID, judgejob.FieldSubmissionID, judgejob.FieldJudgeSpecID:
+		case judgejob.FieldID, judgejob.FieldTenantID, judgejob.FieldSubmissionID, judgejob.FieldJudgeSpecID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -112,6 +116,12 @@ func (_m *JudgeJob) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case judgejob.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case judgejob.FieldSubmissionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -242,6 +252,13 @@ func (_m *JudgeJob) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.OriginCid = value.String
 			}
+		case judgejob.FieldOriginTraceparent:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field origin_traceparent", values[i])
+			} else if value.Valid {
+				_m.OriginTraceparent = new(string)
+				*_m.OriginTraceparent = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -283,6 +300,9 @@ func (_m *JudgeJob) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("submission_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SubmissionID))
@@ -357,6 +377,11 @@ func (_m *JudgeJob) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("origin_cid=")
 	builder.WriteString(_m.OriginCid)
+	builder.WriteString(", ")
+	if v := _m.OriginTraceparent; v != nil {
+		builder.WriteString("origin_traceparent=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

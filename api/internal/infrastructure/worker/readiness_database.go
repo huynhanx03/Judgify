@@ -10,6 +10,7 @@ import (
 	commonhealth "github.com/huynhanx03/go-common/pkg/common/health"
 
 	"github.com/huynhanx03/judgify/internal/judge/capability"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const persistentReadinessSnapshotReuse = 100 * time.Millisecond
@@ -204,6 +205,9 @@ func (snapshotter *SQLPersistentReadinessSnapshotter) load(
 		return PersistentReadinessSnapshot{}, ErrWorkerReadiness
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindAllSQLScope(ctx, tx); err != nil {
+		return PersistentReadinessSnapshot{}, ErrWorkerReadiness
+	}
 	snapshot, workerFound, err := snapshotter.loadWorker(ctx, tx, binding)
 	if err != nil || !workerFound {
 		return snapshot, err

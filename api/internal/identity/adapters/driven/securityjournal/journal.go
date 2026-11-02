@@ -233,8 +233,8 @@ func validMutation(mutation entity.SecurityMutation) bool {
 	}
 	switch mutation.Kind {
 	case entity.SecurityMutationUserRegistered:
-		return mutation.SessionID == nil && mutation.TargetSessionID == nil && mutation.ContactID != nil && mutation.IntentID == nil &&
-			mutation.Version == 1 && mutation.SecurityVersion > 0
+		return mutation.SessionID == nil && mutation.TargetSessionID == nil && mutation.ContactID == nil && mutation.IntentID == nil &&
+			mutation.Version == 0 && mutation.SecurityVersion > 0
 	case entity.SecurityMutationOAuthUserRegistered:
 		return mutation.SessionID == nil && mutation.TargetSessionID == nil && mutation.ContactID == nil && mutation.IntentID == nil &&
 			mutation.FederatedIdentityID == nil && mutation.Provider == "" && mutation.Version == 0 && mutation.SecurityVersion > 0

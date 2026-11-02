@@ -53,7 +53,7 @@ func TestCalculateEstimatedReadTime(t *testing.T) {
 
 // --- Public/admin reads ---
 
-func TestFindAdminMaterials_Success(t *testing.T) {
+func TestFindForAdminMaterials_Success(t *testing.T) {
 	svc, repo := newMaterialTestEnv(t)
 	ctx := context.Background()
 
@@ -66,37 +66,37 @@ func TestFindAdminMaterials_Success(t *testing.T) {
 		Pagination: d.CalculatePagination(1, 10, 2),
 	}, nil)
 
-	resp, err := svc.FindAdmin(ctx, &d.QueryOptions{})
+	resp, err := svc.FindForAdmin(ctx, &d.QueryOptions{})
 
 	assert.NoError(t, err)
 	assert.Len(t, *resp.Records, 2)
 }
 
-func TestFindAdminMaterials_RepoError(t *testing.T) {
+func TestFindForAdminMaterials_RepoError(t *testing.T) {
 	svc, repo := newMaterialTestEnv(t)
 	ctx := context.Background()
 
 	repo.EXPECT().Find(ctx, gomock.Any()).Return(nil, apperr.New(apperr.CodeDatabaseError, "db error", nil))
 
-	resp, err := svc.FindAdmin(ctx, &d.QueryOptions{})
+	resp, err := svc.FindForAdmin(ctx, &d.QueryOptions{})
 
 	assert.Nil(t, resp)
 	assert.Error(t, err)
 }
 
-func TestFindPublicMaterials_UsesRestrictedRepository(t *testing.T) {
+func TestFindForPublicMaterials_UsesRestrictedRepository(t *testing.T) {
 	svc, repo := newMaterialTestEnv(t)
 	ctx := context.Background()
 	records := []*entity.Material{
 		{ID: testutil.ID(1), Title: "Published public", Status: "published", Visibility: "public"},
 	}
 	options := &d.QueryOptions{}
-	repo.EXPECT().FindPublic(ctx, options).Return(&d.Paginated[*entity.Material]{
+	repo.EXPECT().FindForPublic(ctx, options).Return(&d.Paginated[*entity.Material]{
 		Records:    &records,
 		Pagination: d.CalculatePagination(1, 10, 1),
 	}, nil)
 
-	resp, err := svc.FindPublic(ctx, options)
+	resp, err := svc.FindForPublic(ctx, options)
 
 	assert.NoError(t, err)
 	assert.Len(t, *resp.Records, 1)

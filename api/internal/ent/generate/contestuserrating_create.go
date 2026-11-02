@@ -54,6 +54,12 @@ func (_c *ContestUserRatingCreate) SetNillableUpdatedAt(v *time.Time) *ContestUs
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestUserRatingCreate) SetTenantID(v uuid.UUID) *ContestUserRatingCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetProjectionGenerationID sets the "projection_generation_id" field.
 func (_c *ContestUserRatingCreate) SetProjectionGenerationID(v uuid.UUID) *ContestUserRatingCreate {
 	_c.mutation.SetProjectionGenerationID(v)
@@ -171,6 +177,9 @@ func (_c *ContestUserRatingCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "ContestUserRating.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestUserRating.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ProjectionGenerationID(); !ok {
 		return &ValidationError{Name: "projection_generation_id", err: errors.New(`generate: missing required field "ContestUserRating.projection_generation_id"`)}
 	}
@@ -258,6 +267,10 @@ func (_c *ContestUserRatingCreate) createSpec() (*ContestUserRating, *sqlgraph.C
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(contestuserrating.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestuserrating.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Rating(); ok {
 		_spec.SetField(contestuserrating.FieldRating, field.TypeInt, value)
@@ -464,6 +477,9 @@ func (u *ContestUserRatingUpsertOne) UpdateNewValues() *ContestUserRatingUpsertO
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contestuserrating.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestuserrating.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ProjectionGenerationID(); exists {
 			s.SetIgnore(contestuserrating.FieldProjectionGenerationID)
@@ -785,6 +801,9 @@ func (u *ContestUserRatingUpsertBulk) UpdateNewValues() *ContestUserRatingUpsert
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contestuserrating.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestuserrating.FieldTenantID)
 			}
 			if _, exists := b.mutation.ProjectionGenerationID(); exists {
 				s.SetIgnore(contestuserrating.FieldProjectionGenerationID)

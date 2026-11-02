@@ -77,6 +77,18 @@ func DefaultRewardRuleRevision() RewardRuleRevision {
 	return value
 }
 
+func DefaultRewardRuleRevisionForTenant(tenantID uuid.UUID) RewardRuleRevision {
+	if tenantID == uuid.Nil {
+		return RewardRuleRevision{}
+	}
+	value := DefaultRewardRuleRevision()
+	value.ID = uuid.NewSHA1(uuid.NameSpaceURL, []byte(
+		"judgify/tenant/"+tenantID.String()+"/reward-rule/solve-reward/base-exp-v1/1",
+	))
+	value.Checksum, _ = value.CalculateChecksum()
+	return value
+}
+
 func (rule RewardRuleRevision) Valid() bool {
 	if rule.ID == uuid.Nil || rule.RuleKey != DefaultRewardRuleKey ||
 		rule.Revision < 1 || rule.AlgorithmVersion != DefaultRewardRuleAlgorithm ||

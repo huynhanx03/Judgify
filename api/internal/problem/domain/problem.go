@@ -19,6 +19,7 @@ type ProblemDifficulty struct {
 // Problem represents a programming problem.
 type Problem struct {
 	ID              uuid.UUID          `json:"id"`
+	TenantID        uuid.UUID          `json:"tenant_id"`
 	Slug            string             `json:"slug"`
 	Lifecycle       Lifecycle          `json:"lifecycle"`
 	Version         int64              `json:"version"`

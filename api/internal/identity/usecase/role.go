@@ -15,7 +15,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
@@ -30,7 +30,6 @@ import (
 type roleService struct {
 	roleRepo     ports.RoleRepository
 	authzService ports.AuthorizationService
-	cacheService ports.CacheService
 	txMgr        tx.Manager
 	audit        audit.Appender
 	outbox       eventing.OutboxAppender
@@ -50,7 +49,6 @@ func WithRoleLifecycle(auditAppender audit.Appender, outboxAppender eventing.Out
 func NewRoleService(
 	roleRepo ports.RoleRepository,
 	authzService ports.AuthorizationService,
-	cacheService ports.CacheService,
 	txMgr tx.Manager,
 	cache ports.RoleCache,
 	options ...RoleServiceOption,
@@ -58,7 +56,6 @@ func NewRoleService(
 	service := &roleService{
 		roleRepo:     roleRepo,
 		authzService: authzService,
-		cacheService: cacheService,
 		txMgr:        txMgr,
 		cache:        cache,
 	}
@@ -99,17 +96,7 @@ func (s *roleService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pagina
 			Pagination: roles.Pagination,
 		}, nil
 	}
-
-	entities := *roles.Records
-	responses := make([]*dto.RoleResponse, len(entities))
-	for i, role := range entities {
-		responses[i] = ToRoleResponse(role)
-	}
-
-	return &d.Paginated[*dto.RoleResponse]{
-		Records:    &responses,
-		Pagination: roles.Pagination,
-	}, nil
+	return d.MapPaginated(roles, ToRoleResponse), nil
 }
 
 // Get retrieves a role by ID.
@@ -426,7 +413,7 @@ type roleReceiptPayload struct {
 
 func (s *roleService) validateLifecycle(ctx context.Context) error {
 	if s == nil || s.roleRepo == nil || s.authzService == nil ||
-		s.cacheService == nil || s.txMgr == nil || s.audit == nil ||
+		s.txMgr == nil || s.audit == nil ||
 		s.outbox == nil || s.cache == nil || ctx == nil || ctx.Err() != nil {
 		return apperr.New(apperr.CodeInternalServer, "role lifecycle unavailable", nil)
 	}
@@ -585,12 +572,6 @@ func roleAudit(role *dto.RoleResponse) map[string]any {
 }
 
 func (s *roleService) invalidateRole(ctx context.Context, id uuid.UUID, roleKey string) {
-	if err := s.cacheService.InvalidatePermissionConfig(ctx); err != nil {
-		logger.FromContext(ctx).Warn(
-			"failed to invalidate permission config cache",
-			zap.Error(err),
-		)
-	}
 	if err := s.cache.Invalidate(ctx, id, roleKey); err != nil {
 		logger.FromContext(ctx).Warn("failed to invalidate role metadata cache", zap.Error(err))
 	}
@@ -681,9 +662,6 @@ func (s *roleService) SetPolicies(ctx context.Context, id uuid.UUID, req *dto.Ro
 		return nil, err
 	}
 
-	if err := s.cacheService.InvalidatePermissionConfig(ctx); err != nil {
-		logger.FromContext(ctx).Warn("failed to invalidate permission config cache", zap.Error(err))
-	}
 	if err := s.cache.Invalidate(ctx, id, ""); err != nil {
 		logger.FromContext(ctx).Warn("failed to invalidate role metadata cache", zap.Error(err))
 	}

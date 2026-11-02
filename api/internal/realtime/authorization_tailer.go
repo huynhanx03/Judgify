@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 )
 

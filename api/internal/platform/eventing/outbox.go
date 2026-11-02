@@ -16,12 +16,14 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	_ "github.com/huynhanx03/judgify/internal/ent/generate/runtime"
 	"github.com/huynhanx03/judgify/internal/platform/internal/boundedjson"
+	"github.com/huynhanx03/judgify/internal/platform/tracing"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -69,11 +71,13 @@ type SQLExecutor interface {
 
 type preparedEvent struct {
 	id               uuid.UUID
+	tenantID         *uuid.UUID
 	eventType        string
 	aggregateType    string
 	aggregateID      uuid.UUID
 	aggregateVersion int64
 	correlationID    string
+	traceparent      string
 	causationID      *uuid.UUID
 	payload          json.RawMessage
 	occurredAt       time.Time
@@ -102,11 +106,13 @@ func (*Outbox) Append(ctx context.Context, events ...Event) error {
 	for index, event := range prepared {
 		builders[index] = client.OutboxEvent.Create().
 			SetID(event.id).
+			SetNillableTenantID(event.tenantID).
 			SetEventType(event.eventType).
 			SetAggregateType(event.aggregateType).
 			SetAggregateID(event.aggregateID).
 			SetAggregateVersion(event.aggregateVersion).
 			SetCorrelationID(event.correlationID).
+			SetNillableTraceparent(optionalString(event.traceparent)).
 			SetNillableCausationID(event.causationID).
 			SetPayload(event.payload).
 			SetOccurredAt(event.occurredAt).
@@ -135,13 +141,13 @@ func AppendSQL(
 		return err
 	}
 	createdAt := time.Now().UTC()
-	const columnsPerEvent = 11
+	const columnsPerEvent = 13
 	arguments := make([]any, 0, len(prepared)*columnsPerEvent)
 	var statement strings.Builder
 	statement.WriteString(`
 		INSERT INTO outbox_events (
-			id, event_type, aggregate_type, aggregate_id, aggregate_version,
-			correlation_id, causation_id, payload, occurred_at, created_at,
+			id, tenant_id, event_type, aggregate_type, aggregate_id, aggregate_version,
+			correlation_id, traceparent, causation_id, payload, occurred_at, created_at,
 			next_attempt_at
 		) VALUES `)
 	for index, event := range prepared {
@@ -160,11 +166,13 @@ func AppendSQL(
 		arguments = append(
 			arguments,
 			event.id,
+			event.tenantID,
 			event.eventType,
 			event.aggregateType,
 			event.aggregateID,
 			event.aggregateVersion,
 			event.correlationID,
+			optionalString(event.traceparent),
 			event.causationID,
 			event.payload,
 			event.occurredAt,
@@ -200,12 +208,32 @@ func prepareEvents(ctx context.Context, events []Event) ([]preparedEvent, error)
 			(event.CausationID != nil && *event.CausationID == uuid.Nil) {
 			return nil, ErrInvalidEvent
 		}
+		tenantID := event.TenantID
+		if scope, ok := tenantctx.FromContext(ctx); ok {
+			if scope.IsTenant() {
+				scopedID, _ := scope.TenantID()
+				if tenantID != uuid.Nil && tenantID != scopedID {
+					return nil, ErrInvalidEvent
+				}
+				tenantID = scopedID
+			} else if tenantID == uuid.Nil || !containsTenant(scope.TenantIDs(), tenantID) {
+				return nil, ErrInvalidEvent
+			}
+		} else if tenantID != uuid.Nil {
+			return nil, ErrInvalidEvent
+		}
 		correlationID := event.CorrelationID
 		if correlationID == "" {
 			correlationID = correlation.FromContext(ctx)
 		}
 		if correlation.Validate(correlationID) != nil {
 			return nil, ErrInvalidEvent
+		}
+		traceparent := event.Traceparent
+		if traceparent == "" {
+			traceparent = tracing.CaptureTraceparent(ctx)
+		} else if _, valid := tracing.OriginLink(traceparent); !valid {
+			traceparent = ""
 		}
 		if _, duplicate := eventIDs[event.ID]; duplicate {
 			return nil, ErrDuplicateEvent
@@ -232,11 +260,13 @@ func prepareEvents(ctx context.Context, events []Event) ([]preparedEvent, error)
 		totalPayloadBytes += len(payload)
 		prepared[index] = preparedEvent{
 			id:               event.ID,
+			tenantID:         optionalUUID(tenantID),
 			eventType:        strings.Clone(event.Type),
 			aggregateType:    strings.Clone(event.AggregateType),
 			aggregateID:      event.AggregateID,
 			aggregateVersion: event.AggregateVersion,
 			correlationID:    strings.Clone(correlationID),
+			traceparent:      strings.Clone(traceparent),
 			causationID:      cloneEventUUID(event.CausationID),
 			payload:          append(json.RawMessage(nil), payload...),
 			occurredAt:       event.OccurredAt.UTC(),
@@ -264,4 +294,21 @@ func cloneEventUUID(value *uuid.UUID) *uuid.UUID {
 	}
 	cloned := *value
 	return &cloned
+}
+
+func optionalUUID(value uuid.UUID) *uuid.UUID {
+	if value == uuid.Nil {
+		return nil
+	}
+	copy := value
+	return &copy
+}
+
+func containsTenant(ids []uuid.UUID, target uuid.UUID) bool {
+	for _, id := range ids {
+		if id == target {
+			return true
+		}
+	}
+	return false
 }

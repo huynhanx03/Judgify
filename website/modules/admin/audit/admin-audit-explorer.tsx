@@ -131,7 +131,7 @@ export function AdminAuditExplorer() {
     initialData: null,
     keepPreviousData: true,
     load: async (signal) => ({
-      page: await auditService.list(
+      page: await auditService.find(
         { ...appliedQuery, ...(cursor ? { cursor } : {}) },
         signal,
       ),

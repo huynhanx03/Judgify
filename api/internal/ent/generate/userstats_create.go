@@ -81,6 +81,12 @@ func (_c *UserStatsCreate) SetNillableDeletedBy(v *string) *UserStatsCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserStatsCreate) SetTenantID(v uuid.UUID) *UserStatsCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserStatsCreate) SetUserID(v uuid.UUID) *UserStatsCreate {
 	_c.mutation.SetUserID(v)
@@ -311,6 +317,9 @@ func (_c *UserStatsCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "UserStats.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserStats.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserStats.user_id"`)}
 	}
@@ -416,6 +425,10 @@ func (_c *UserStatsCreate) createSpec() (*UserStats, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(userstats.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(userstats.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.TotalExp(); ok {
 		_spec.SetField(userstats.FieldTotalExp, field.TypeInt64, value)
@@ -741,6 +754,9 @@ func (u *UserStatsUpsertOne) UpdateNewValues() *UserStatsUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userstats.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(userstats.FieldTenantID)
 		}
 	}))
 	return u
@@ -1196,6 +1212,9 @@ func (u *UserStatsUpsertBulk) UpdateNewValues() *UserStatsUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userstats.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(userstats.FieldTenantID)
 			}
 		}
 	}))

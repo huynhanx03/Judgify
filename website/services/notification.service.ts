@@ -36,7 +36,7 @@ function normalizeLimit(limit: number | undefined): number {
   return value;
 }
 
-function listEndpoint(query: NotificationListQuery): string {
+function findEndpoint(query: NotificationListQuery): string {
   const params = new URLSearchParams();
   params.set("limit", String(normalizeLimit(query.limit)));
   const cursor = query.cursor?.trim();
@@ -59,11 +59,11 @@ function normalizeCategory(category: string): NotificationCategory {
 }
 
 export const notificationService = {
-  list(
+  find(
     query: NotificationListQuery = {},
     signal?: AbortSignal,
   ): Promise<NotificationListResponse> {
-    return api<NotificationListResponse, never>(listEndpoint(query), {
+    return api<NotificationListResponse, never>(findEndpoint(query), {
       method: "GET",
       signal,
       schema: notificationListResponseSchema,

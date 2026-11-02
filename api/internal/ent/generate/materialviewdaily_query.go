@@ -302,12 +302,12 @@ func (_q *MaterialViewDailyQuery) WithMaterial(opts ...func(*MaterialQuery)) *Ma
 // Example:
 //
 //	var v []struct {
-//		MaterialID uuid.UUID `json:"material_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.MaterialViewDaily.Query().
-//		GroupBy(materialviewdaily.FieldMaterialID).
+//		GroupBy(materialviewdaily.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *MaterialViewDailyQuery) GroupBy(field string, fields ...string) *MaterialViewDailyGroupBy {
@@ -325,11 +325,11 @@ func (_q *MaterialViewDailyQuery) GroupBy(field string, fields ...string) *Mater
 // Example:
 //
 //	var v []struct {
-//		MaterialID uuid.UUID `json:"material_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.MaterialViewDaily.Query().
-//		Select(materialviewdaily.FieldMaterialID).
+//		Select(materialviewdaily.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *MaterialViewDailyQuery) Select(fields ...string) *MaterialViewDailySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

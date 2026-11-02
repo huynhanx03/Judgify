@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
@@ -55,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.OutboxEvent {
 	return predicate.OutboxEvent(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldEQ(FieldTenantID, v))
+}
+
 // EventType applies equality check predicate on the "event_type" field. It's identical to EventTypeEQ.
 func EventType(v string) predicate.OutboxEvent {
 	return predicate.OutboxEvent(sql.FieldEQ(FieldEventType, v))
@@ -78,6 +84,11 @@ func AggregateVersion(v int64) predicate.OutboxEvent {
 // CorrelationID applies equality check predicate on the "correlation_id" field. It's identical to CorrelationIDEQ.
 func CorrelationID(v string) predicate.OutboxEvent {
 	return predicate.OutboxEvent(sql.FieldEQ(FieldCorrelationID, v))
+}
+
+// Traceparent applies equality check predicate on the "traceparent" field. It's identical to TraceparentEQ.
+func Traceparent(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldEQ(FieldTraceparent, v))
 }
 
 // CausationID applies equality check predicate on the "causation_id" field. It's identical to CausationIDEQ.
@@ -148,6 +159,36 @@ func LastErrorCode(v string) predicate.OutboxEvent {
 // Ambiguous applies equality check predicate on the "ambiguous" field. It's identical to AmbiguousEQ.
 func Ambiguous(v bool) predicate.OutboxEvent {
 	return predicate.OutboxEvent(sql.FieldEQ(FieldAmbiguous, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldNotNull(FieldTenantID))
 }
 
 // EventTypeEQ applies the EQ predicate on the "event_type" field.
@@ -423,6 +464,81 @@ func CorrelationIDEqualFold(v string) predicate.OutboxEvent {
 // CorrelationIDContainsFold applies the ContainsFold predicate on the "correlation_id" field.
 func CorrelationIDContainsFold(v string) predicate.OutboxEvent {
 	return predicate.OutboxEvent(sql.FieldContainsFold(FieldCorrelationID, v))
+}
+
+// TraceparentEQ applies the EQ predicate on the "traceparent" field.
+func TraceparentEQ(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldEQ(FieldTraceparent, v))
+}
+
+// TraceparentNEQ applies the NEQ predicate on the "traceparent" field.
+func TraceparentNEQ(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldNEQ(FieldTraceparent, v))
+}
+
+// TraceparentIn applies the In predicate on the "traceparent" field.
+func TraceparentIn(vs ...string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldIn(FieldTraceparent, vs...))
+}
+
+// TraceparentNotIn applies the NotIn predicate on the "traceparent" field.
+func TraceparentNotIn(vs ...string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldNotIn(FieldTraceparent, vs...))
+}
+
+// TraceparentGT applies the GT predicate on the "traceparent" field.
+func TraceparentGT(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldGT(FieldTraceparent, v))
+}
+
+// TraceparentGTE applies the GTE predicate on the "traceparent" field.
+func TraceparentGTE(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldGTE(FieldTraceparent, v))
+}
+
+// TraceparentLT applies the LT predicate on the "traceparent" field.
+func TraceparentLT(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldLT(FieldTraceparent, v))
+}
+
+// TraceparentLTE applies the LTE predicate on the "traceparent" field.
+func TraceparentLTE(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldLTE(FieldTraceparent, v))
+}
+
+// TraceparentContains applies the Contains predicate on the "traceparent" field.
+func TraceparentContains(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldContains(FieldTraceparent, v))
+}
+
+// TraceparentHasPrefix applies the HasPrefix predicate on the "traceparent" field.
+func TraceparentHasPrefix(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldHasPrefix(FieldTraceparent, v))
+}
+
+// TraceparentHasSuffix applies the HasSuffix predicate on the "traceparent" field.
+func TraceparentHasSuffix(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldHasSuffix(FieldTraceparent, v))
+}
+
+// TraceparentIsNil applies the IsNil predicate on the "traceparent" field.
+func TraceparentIsNil() predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldIsNull(FieldTraceparent))
+}
+
+// TraceparentNotNil applies the NotNil predicate on the "traceparent" field.
+func TraceparentNotNil() predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldNotNull(FieldTraceparent))
+}
+
+// TraceparentEqualFold applies the EqualFold predicate on the "traceparent" field.
+func TraceparentEqualFold(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldEqualFold(FieldTraceparent, v))
+}
+
+// TraceparentContainsFold applies the ContainsFold predicate on the "traceparent" field.
+func TraceparentContainsFold(v string) predicate.OutboxEvent {
+	return predicate.OutboxEvent(sql.FieldContainsFold(FieldTraceparent, v))
 }
 
 // CausationIDEQ applies the EQ predicate on the "causation_id" field.
@@ -1163,6 +1279,29 @@ func AmbiguousEQ(v bool) predicate.OutboxEvent {
 // AmbiguousNEQ applies the NEQ predicate on the "ambiguous" field.
 func AmbiguousNEQ(v bool) predicate.OutboxEvent {
 	return predicate.OutboxEvent(sql.FieldNEQ(FieldAmbiguous, v))
+}
+
+// HasTenant applies the HasEdge predicate on the "tenant" edge.
+func HasTenant() predicate.OutboxEvent {
+	return predicate.OutboxEvent(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, TenantTable, TenantColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTenantWith applies the HasEdge predicate on the "tenant" edge with a given conditions (other predicates).
+func HasTenantWith(preds ...predicate.Tenant) predicate.OutboxEvent {
+	return predicate.OutboxEvent(func(s *sql.Selector) {
+		step := newTenantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

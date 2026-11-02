@@ -24,14 +24,14 @@ func (UserStats) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the UserStats.
 func (UserStats) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("user_id", uuid.UUID{}).
-			Unique(),
+		field.UUID("user_id", uuid.UUID{}),
 		field.Int64("total_exp").
 			Default(0).
 			NonNegative(),
@@ -69,6 +69,6 @@ func (UserStats) Edges() []ent.Edge {
 // Indexes of the UserStats.
 func (UserStats) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id").Unique(),
+		index.Fields("tenant_id", "user_id").Unique(),
 	}
 }

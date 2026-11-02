@@ -2,7 +2,6 @@ package migration
 
 import (
 	"context"
-	"embed"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -11,6 +10,7 @@ import (
 	"strings"
 
 	atlasmigrate "ariga.io/atlas/sql/migrate"
+	migrationfiles "github.com/huynhanx03/judgify/migration"
 )
 
 const (
@@ -22,22 +22,11 @@ const (
 )
 
 var (
-	// Embedded migrations make the operator artifact self-contained. The
-	// checked-in atlas.sum remains authoritative and is validated before any
-	// database connection is opened.
-	//
-	//go:embed migrations/*.sql migrations/atlas.sum
-	embeddedMigrations embed.FS
-
 	errNoMigrationFiles = errors.New("migration: no checked-in SQL files")
 )
 
 func loadEmbeddedDirectory(ctx context.Context) (*atlasmigrate.MemDir, error) {
-	source, err := fs.Sub(embeddedMigrations, "migrations")
-	if err != nil {
-		return nil, fmt.Errorf("migration: open embedded directory: %w", err)
-	}
-	return loadDirectory(ctx, source)
+	return loadDirectory(ctx, migrationfiles.Embedded)
 }
 
 func loadDirectory(ctx context.Context, source fs.FS) (*atlasmigrate.MemDir, error) {

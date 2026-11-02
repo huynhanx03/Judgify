@@ -374,12 +374,12 @@ func (_q *RatingHistoryQuery) WithRatingRun(opts ...func(*ContestRatingRunQuery)
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.RatingHistory.Query().
-//		GroupBy(ratinghistory.FieldUserID).
+//		GroupBy(ratinghistory.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *RatingHistoryQuery) GroupBy(field string, fields ...string) *RatingHistoryGroupBy {
@@ -397,11 +397,11 @@ func (_q *RatingHistoryQuery) GroupBy(field string, fields ...string) *RatingHis
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.RatingHistory.Query().
-//		Select(ratinghistory.FieldUserID).
+//		Select(ratinghistory.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *RatingHistoryQuery) Select(fields ...string) *RatingHistorySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

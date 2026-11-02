@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -24,7 +25,8 @@ import (
 type NotificationCampaignRevision struct{ ent.Schema }
 
 func (NotificationCampaignRevision) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (NotificationCampaignRevision) Fields() []ent.Field {

@@ -10,8 +10,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { MAIN_NAV_ITEMS } from "@/constants/navigation";
-import { text } from "@/i18n/text";
 import { cn } from "@/lib/utils";
+import { TenantSelector } from "@/modules/layout/tenant-selector";
+import { useLocale } from "@/contexts/locale-context";
 
 interface MobileNavPanelProps {
   open: boolean;
@@ -26,6 +27,7 @@ export function MobileNavPanel({
   triggerId,
   pathname,
 }: MobileNavPanelProps) {
+  const { language, setLanguage, t } = useLocale();
   return (
     <Sheet open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
       <SheetContent
@@ -34,15 +36,21 @@ export function MobileNavPanel({
       >
         <SheetHeader className="border-b border-border/60 p-5 pr-14">
           <SheetTitle className="text-lg font-bold">
-            {text("NAV.MOBILE_MENU_TITLE")}
+            {t("NAV.MOBILE_MENU_TITLE")}
           </SheetTitle>
           <SheetDescription>
-            {text("NAV.MOBILE_MENU_DESCRIPTION")}
+            {t("NAV.MOBILE_MENU_DESCRIPTION")}
           </SheetDescription>
         </SheetHeader>
+        <TenantSelector mobile />
+        <div className="px-4 pt-3">
+          <button type="button" className="min-h-10 rounded-md border border-border px-3 text-sm" onClick={() => setLanguage(language === "vi" ? "en" : "vi")}>
+            {language === "vi" ? "English" : "Tiếng Việt"}
+          </button>
+        </div>
         <nav
           className="flex flex-col gap-1 p-3"
-          aria-label={text("NAV.MOBILE_MENU_TITLE")}
+          aria-label={t("NAV.MOBILE_MENU_TITLE")}
         >
           {MAIN_NAV_ITEMS.map((item) => {
             const isActive = pathname.startsWith(item.href);
@@ -63,7 +71,7 @@ export function MobileNavPanel({
                   />
                 }
               >
-                {item.label}
+                {t(item.labelKey)}
               </SheetClose>
             );
           })}

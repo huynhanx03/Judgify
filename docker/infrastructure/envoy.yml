@@ -1,0 +1,90 @@
+services:
+  ingress:
+    init: true
+    read_only: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 45s
+    image: ${JUDGIFY_ENVOY_IMAGE:?set a digest-pinned Envoy image}
+    user: "65532:65532"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--base-id", "1"]
+    configs:
+      - source: envoy_config
+        target: /etc/envoy/envoy.yaml
+        mode: 0444
+    secrets:
+      - source: tls_certificate
+        target: tls_certificate
+      - source: tls_private_key
+        target: tls_private_key
+      - source: authz_client_certificate
+        target: authz_client_certificate
+      - source: authz_client_private_key
+        target: authz_client_private_key
+      - source: authz_server_ca_certificate
+        target: authz_server_ca_certificate
+    tmpfs:
+      - /tmp:uid=65532,gid=65532,mode=1777
+    networks:
+      edge:
+        ipv4_address: 172.31.248.2
+      backend: {}
+      telemetry: {}
+    depends_on:
+      api:
+        condition: service_healthy
+      website:
+        condition: service_healthy
+    ports:
+      - name: https
+        target: 8443
+        published: ${JUDGIFY_HTTPS_PORT:-443}
+        protocol: tcp
+        mode: host
+    healthcheck:
+      test: ["CMD", "envoy", "--mode", "validate", "-c", "/etc/envoy/envoy.yaml"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: syslog
+      options:
+        syslog-address: tcp://127.0.0.1:1514
+        syslog-format: rfc5424
+        mode: non-blocking
+        max-buffer-size: 4m
+        tag: judgify-envoy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256m
+          pids: 128
+
+configs:
+  envoy_config:
+    file: ${JUDGIFY_ENVOY_CONFIG_FILE:?rendered immutable Envoy config file}
+
+secrets:
+  tls_certificate:
+    file: ${JUDGIFY_TLS_CERTIFICATE_FILE:?set the TLS certificate file}
+  tls_private_key:
+    file: ${JUDGIFY_TLS_PRIVATE_KEY_FILE:?set the TLS private key file}
+  authz_server_certificate:
+    file: ${JUDGIFY_AUTHZ_SERVER_CERTIFICATE_FILE:?set the ext_authz server certificate file}
+  authz_server_private_key:
+    file: ${JUDGIFY_AUTHZ_SERVER_PRIVATE_KEY_FILE:?set the ext_authz server private key file}
+  authz_client_ca_certificate:
+    file: ${JUDGIFY_AUTHZ_CLIENT_CA_CERTIFICATE_FILE:?set the CA that signs the Envoy ext_authz client certificate}
+  authz_client_certificate:
+    file: ${JUDGIFY_AUTHZ_CLIENT_CERTIFICATE_FILE:?set the Envoy ext_authz client certificate file}
+  authz_client_private_key:
+    file: ${JUDGIFY_AUTHZ_CLIENT_PRIVATE_KEY_FILE:?set the Envoy ext_authz client private key file}
+  authz_server_ca_certificate:
+    file: ${JUDGIFY_AUTHZ_SERVER_CA_CERTIFICATE_FILE:?set the CA that signs the ext_authz server certificate}

@@ -8,9 +8,11 @@ import (
 	"go.uber.org/zap"
 
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
+	"github.com/huynhanx03/judgify/internal/authctx"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 // EntUnitOfWork implements UnitOfWork with the generated Ent client.
@@ -71,6 +73,22 @@ func (unit *EntUnitOfWork) Within(ctx context.Context, fn func(context.Context) 
 		// WithTx has reported a successful physical commit.
 		current = scopeValue
 		txCtx := bind(ctx, scopeValue)
+		if tenantScope, ok := tenantctx.FromContext(ctx); ok {
+			if err := tenantctx.BindSQLScope(txCtx, tx); err != nil {
+				return err
+			}
+			tenantScope.MarkSQLBound()
+		}
+		if userID, ok := authctx.UserID(ctx); ok {
+			if err := tenantctx.BindPrincipalSQL(txCtx, userID, tx); err != nil {
+				return err
+			}
+		}
+		if tenantctx.IsOperationWorker(ctx) {
+			if err := tenantctx.BindOperationWorkerSQL(txCtx, tx); err != nil {
+				return err
+			}
+		}
 		defer scopeValue.close()
 		return fn(txCtx)
 	})

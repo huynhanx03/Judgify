@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
 )
@@ -17,7 +18,8 @@ import (
 type RatingProjectionGeneration struct{ ent.Schema }
 
 func (RatingProjectionGeneration) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (RatingProjectionGeneration) Edges() []ent.Edge {

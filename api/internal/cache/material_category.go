@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
-	"golang.org/x/sync/singleflight"
 
 	"github.com/huynhanx03/judgify/internal/constant"
 	contract "github.com/huynhanx03/judgify/internal/material/contract"
@@ -16,26 +15,26 @@ import (
 // MaterialCategory is the L1 cache adapter for material categories.
 type MaterialCategory struct {
 	store Store
-	loads singleflight.Group
 }
 
 func NewMaterialCategory(store Store) *MaterialCategory { return &MaterialCategory{store: store} }
 
 func (cache *MaterialCategory) Get(ctx context.Context, id uuid.UUID, load ports.MaterialCategoryCacheLoader) (*contract.MaterialCategoryResult, error) {
-	return commoncache.Fetch[*contract.MaterialCategoryResult](cache.store, &cache.loads, materialCategoryByIDKey(id), constant.MaterialCacheTTL, func() (*contract.MaterialCategoryResult, error) { return load(ctx) })
+	return commoncache.Fetch[*contract.MaterialCategoryResult](ctx, cache.store, tenantKey(ctx, materialCategoryByIDKey(id)), constant.MaterialCacheTTL, func(loadCtx context.Context) (*contract.MaterialCategoryResult, error) { return load(loadCtx) })
 }
 
 func (cache *MaterialCategory) FindAll(ctx context.Context, load ports.MaterialCategoryListCacheLoader) ([]*contract.MaterialCategoryResult, error) {
-	return commoncache.Fetch[[]*contract.MaterialCategoryResult](cache.store, &cache.loads, constant.MaterialCategoryAllKey, constant.MaterialCacheTTL, func() ([]*contract.MaterialCategoryResult, error) { return load(ctx) })
+	return commoncache.Fetch[[]*contract.MaterialCategoryResult](ctx, cache.store, tenantKey(ctx, constant.MaterialCategoryAllKey), constant.MaterialCacheTTL, func(loadCtx context.Context) ([]*contract.MaterialCategoryResult, error) { return load(loadCtx) })
 }
 
 func (cache *MaterialCategory) Invalidate(ctx context.Context, id uuid.UUID) error {
-	return platformtx.AfterCommitOrNow(ctx, func(context.Context) error {
+	return platformtx.AfterCommitOrNow(ctx, func(deleteCtx context.Context) error {
+		keys := make([]string, 0, 2)
 		if id != uuid.Nil {
-			commoncache.Delete(cache.store, materialCategoryByIDKey(id))
+			keys = append(keys, tenantKey(ctx, materialCategoryByIDKey(id)))
 		}
-		commoncache.Delete(cache.store, constant.MaterialCategoryAllKey)
-		return nil
+		keys = append(keys, tenantKey(ctx, constant.MaterialCategoryAllKey))
+		return cache.store.DeleteAll(deleteCtx, keys...)
 	})
 }
 

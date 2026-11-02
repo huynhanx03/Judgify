@@ -26,6 +26,12 @@ type RatingHistoryCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RatingHistoryCreate) SetTenantID(v uuid.UUID) *RatingHistoryCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *RatingHistoryCreate) SetUserID(v uuid.UUID) *RatingHistoryCreate {
 	_c.mutation.SetUserID(v)
@@ -284,6 +290,9 @@ func (_c *RatingHistoryCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *RatingHistoryCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "RatingHistory.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "RatingHistory.user_id"`)}
 	}
@@ -376,6 +385,10 @@ func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpe
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(ratinghistory.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.RatingSequence(); ok {
 		_spec.SetField(ratinghistory.FieldRatingSequence, field.TypeInt64, value)
@@ -475,7 +488,7 @@ func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpe
 // of the `INSERT` statement. For example:
 //
 //	client.RatingHistory.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -484,7 +497,7 @@ func (_c *RatingHistoryCreate) createSpec() (*RatingHistory, *sqlgraph.CreateSpe
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.RatingHistoryUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *RatingHistoryCreate) OnConflict(opts ...sql.ConflictOption) *RatingHistoryUpsertOne {
@@ -782,6 +795,9 @@ func (u *RatingHistoryUpsertOne) UpdateNewValues() *RatingHistoryUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(ratinghistory.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(ratinghistory.FieldTenantID)
 		}
 	}))
 	return u
@@ -1237,7 +1253,7 @@ func (_c *RatingHistoryCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.RatingHistoryUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *RatingHistoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *RatingHistoryUpsertBulk {
@@ -1283,6 +1299,9 @@ func (u *RatingHistoryUpsertBulk) UpdateNewValues() *RatingHistoryUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(ratinghistory.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(ratinghistory.FieldTenantID)
 			}
 		}
 	}))

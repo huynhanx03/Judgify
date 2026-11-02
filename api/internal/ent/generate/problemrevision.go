@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -21,6 +22,8 @@ type ProblemRevision struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
@@ -48,13 +51,13 @@ type ProblemRevision struct {
 	// TagMappingRevision holds the value of the "tag_mapping_revision" field.
 	TagMappingRevision int64 `json:"tag_mapping_revision,omitempty"`
 	// TagSnapshot holds the value of the "tag_snapshot" field.
-	TagSnapshot json.RawMessage `json:"tag_snapshot,omitempty"`
+	TagSnapshot jsontext.Value `json:"tag_snapshot,omitempty"`
 	// ElementMappingID holds the value of the "element_mapping_id" field.
 	ElementMappingID *uuid.UUID `json:"element_mapping_id,omitempty"`
 	// ElementMappingRevision holds the value of the "element_mapping_revision" field.
 	ElementMappingRevision *int64 `json:"element_mapping_revision,omitempty"`
 	// ElementSnapshot holds the value of the "element_snapshot" field.
-	ElementSnapshot json.RawMessage `json:"element_snapshot,omitempty"`
+	ElementSnapshot jsontext.Value `json:"element_snapshot,omitempty"`
 	// RewardSnapshotChecksum holds the value of the "reward_snapshot_checksum" field.
 	RewardSnapshotChecksum []byte `json:"reward_snapshot_checksum,omitempty"`
 	// CPUTimeLimitMs holds the value of the "cpu_time_limit_ms" field.
@@ -72,7 +75,7 @@ type ProblemRevision struct {
 	// CheckerVersion holds the value of the "checker_version" field.
 	CheckerVersion string `json:"checker_version,omitempty"`
 	// CheckerConfig holds the value of the "checker_config" field.
-	CheckerConfig json.RawMessage `json:"checker_config,omitempty"`
+	CheckerConfig jsontext.Value `json:"checker_config,omitempty"`
 	// TestsetRevisionID holds the value of the "testset_revision_id" field.
 	TestsetRevisionID uuid.UUID `json:"testset_revision_id,omitempty"`
 	// AllowedRuntimeKeys holds the value of the "allowed_runtime_keys" field.
@@ -146,7 +149,7 @@ func (*ProblemRevision) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case problemrevision.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case problemrevision.FieldID, problemrevision.FieldProblemID, problemrevision.FieldRenderSourceID, problemrevision.FieldDifficultyID, problemrevision.FieldTagMappingID, problemrevision.FieldTestsetRevisionID:
+		case problemrevision.FieldID, problemrevision.FieldTenantID, problemrevision.FieldProblemID, problemrevision.FieldRenderSourceID, problemrevision.FieldDifficultyID, problemrevision.FieldTagMappingID, problemrevision.FieldTestsetRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -168,6 +171,12 @@ func (_m *ProblemRevision) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case problemrevision.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case problemrevision.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -411,6 +420,9 @@ func (_m *ProblemRevision) String() string {
 	var builder strings.Builder
 	builder.WriteString("ProblemRevision(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

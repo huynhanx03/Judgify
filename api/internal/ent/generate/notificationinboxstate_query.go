@@ -266,12 +266,12 @@ func (_q *NotificationInboxStateQuery) Clone() *NotificationInboxStateQuery {
 // Example:
 //
 //	var v []struct {
-//		Version int64 `json:"version,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.NotificationInboxState.Query().
-//		GroupBy(notificationinboxstate.FieldVersion).
+//		GroupBy(notificationinboxstate.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *NotificationInboxStateQuery) GroupBy(field string, fields ...string) *NotificationInboxStateGroupBy {
@@ -289,11 +289,11 @@ func (_q *NotificationInboxStateQuery) GroupBy(field string, fields ...string) *
 // Example:
 //
 //	var v []struct {
-//		Version int64 `json:"version,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.NotificationInboxState.Query().
-//		Select(notificationinboxstate.FieldVersion).
+//		Select(notificationinboxstate.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *NotificationInboxStateQuery) Select(fields ...string) *NotificationInboxStateSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

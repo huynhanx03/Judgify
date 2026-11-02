@@ -6,6 +6,7 @@ import { AppToaster } from "@/components/app-toaster";
 import { text } from "@/i18n/text";
 import { APP_LANGUAGE } from "@/i18n/locale";
 import { BROWSER_THEME_COLORS } from "@/design/tokens";
+import { WebVitals } from "@/components/web-vitals";
 
 export const metadata: Metadata = {
   title: {
@@ -41,6 +42,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
+          <WebVitals />
           <AppProviders>
             {children}
             <AppToaster />

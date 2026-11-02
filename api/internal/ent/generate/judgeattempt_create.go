@@ -52,6 +52,12 @@ func (_c *JudgeAttemptCreate) SetNillableUpdatedAt(v *time.Time) *JudgeAttemptCr
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *JudgeAttemptCreate) SetTenantID(v uuid.UUID) *JudgeAttemptCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetJobID sets the "job_id" field.
 func (_c *JudgeAttemptCreate) SetJobID(v uuid.UUID) *JudgeAttemptCreate {
 	_c.mutation.SetJobID(v)
@@ -313,6 +319,9 @@ func (_c *JudgeAttemptCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "JudgeAttempt.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "JudgeAttempt.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.JobID(); !ok {
 		return &ValidationError{Name: "job_id", err: errors.New(`generate: missing required field "JudgeAttempt.job_id"`)}
 	}
@@ -485,6 +494,10 @@ func (_c *JudgeAttemptCreate) createSpec() (*JudgeAttempt, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(judgeattempt.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(judgeattempt.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.JobID(); ok {
 		_spec.SetField(judgeattempt.FieldJobID, field.TypeUUID, value)
@@ -763,6 +776,9 @@ func (u *JudgeAttemptUpsertOne) UpdateNewValues() *JudgeAttemptUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(judgeattempt.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(judgeattempt.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.JobID(); exists {
 			s.SetIgnore(judgeattempt.FieldJobID)
@@ -1164,6 +1180,9 @@ func (u *JudgeAttemptUpsertBulk) UpdateNewValues() *JudgeAttemptUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(judgeattempt.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(judgeattempt.FieldTenantID)
 			}
 			if _, exists := b.mutation.JobID(); exists {
 				s.SetIgnore(judgeattempt.FieldJobID)

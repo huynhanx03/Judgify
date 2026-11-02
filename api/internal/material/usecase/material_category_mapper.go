@@ -12,6 +12,7 @@ func ToMaterialCategoryResult(e *entity.MaterialCategory) *contract.MaterialCate
 	}
 	return &contract.MaterialCategoryResult{
 		ID:           e.ID,
+		TenantID:     e.TenantID,
 		Name:         e.Name,
 		Description:  e.Description,
 		ArticleCount: e.ArticleCount,

@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.UserRewardProfileTrait {
 	return predicate.UserRewardProfileTrait(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldEQ(FieldTenantID, v))
+}
+
 // ProfileRevisionID applies equality check predicate on the "profile_revision_id" field. It's identical to ProfileRevisionIDEQ.
 func ProfileRevisionID(v uuid.UUID) predicate.UserRewardProfileTrait {
 	return predicate.UserRewardProfileTrait(sql.FieldEQ(FieldProfileRevisionID, v))
@@ -104,6 +109,46 @@ func SlotOrder(v int) predicate.UserRewardProfileTrait {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.UserRewardProfileTrait {
 	return predicate.UserRewardProfileTrait(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.UserRewardProfileTrait {
+	return predicate.UserRewardProfileTrait(sql.FieldLTE(FieldTenantID, v))
 }
 
 // ProfileRevisionIDEQ applies the EQ predicate on the "profile_revision_id" field.

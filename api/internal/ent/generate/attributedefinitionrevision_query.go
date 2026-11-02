@@ -374,12 +374,12 @@ func (_q *AttributeDefinitionRevisionQuery) WithDerivedValues(opts ...func(*User
 // Example:
 //
 //	var v []struct {
-//		DefinitionID uuid.UUID `json:"definition_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.AttributeDefinitionRevision.Query().
-//		GroupBy(attributedefinitionrevision.FieldDefinitionID).
+//		GroupBy(attributedefinitionrevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *AttributeDefinitionRevisionQuery) GroupBy(field string, fields ...string) *AttributeDefinitionRevisionGroupBy {
@@ -397,11 +397,11 @@ func (_q *AttributeDefinitionRevisionQuery) GroupBy(field string, fields ...stri
 // Example:
 //
 //	var v []struct {
-//		DefinitionID uuid.UUID `json:"definition_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.AttributeDefinitionRevision.Query().
-//		Select(attributedefinitionrevision.FieldDefinitionID).
+//		Select(attributedefinitionrevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *AttributeDefinitionRevisionQuery) Select(fields ...string) *AttributeDefinitionRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

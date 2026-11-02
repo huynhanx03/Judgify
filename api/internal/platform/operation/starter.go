@@ -8,10 +8,11 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	"github.com/huynhanx03/judgify/internal/platform/audit"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var ErrInvalidStarter = errors.New("operation: invalid starter")
@@ -98,6 +99,23 @@ func (starter *Starter) prepare(
 		return nil, StartRequest{}, ErrInvalidStarter
 	}
 	ctx = correlation.EnsureContext(ctx)
+	if scope, scoped := tenantctx.FromContext(ctx); scoped {
+		if !scope.IsTenant() {
+			return nil, StartRequest{}, ErrInvalidStarter
+		}
+		tenantID, exists := scope.TenantID()
+		if !exists || request.Operation.TenantID != nil &&
+			*request.Operation.TenantID != tenantID {
+			return nil, StartRequest{}, ErrInvalidStarter
+		}
+		request.Operation.TenantID = &tenantID
+	} else if request.Operation.TenantID != nil {
+		return nil, StartRequest{}, ErrInvalidStarter
+	}
+	payloadTenantID, payloadTenantErr := tenantIDFromRequest(request.Operation.Request)
+	if payloadTenantErr != nil || !sameOptionalUUID(payloadTenantID, request.Operation.TenantID) {
+		return nil, StartRequest{}, ErrInvalidStarter
+	}
 	if request.Operation.ID == uuid.Nil {
 		generated, err := uuid.NewV7()
 		if err != nil {
@@ -172,6 +190,7 @@ func requireActiveTransaction(ctx context.Context) error {
 
 func sameStartIntent(existing Operation, command CreateCommand) bool {
 	if existing.Kind != command.Kind ||
+		!sameOptionalUUID(existing.TenantID, command.TenantID) ||
 		existing.IdempotencyKey != command.IdempotencyKey ||
 		existing.RequestHash != command.RequestHash ||
 		!bytes.Equal(existing.Request, command.Request) ||
@@ -190,6 +209,17 @@ func sameStartIntent(existing Operation, command CreateCommand) bool {
 		return false
 	default:
 		return *existing.ActorSessionID == *command.ActorSessionID
+	}
+}
+
+func sameOptionalUUID(left, right *uuid.UUID) bool {
+	switch {
+	case left == nil && right == nil:
+		return true
+	case left == nil || right == nil:
+		return false
+	default:
+		return *left == *right
 	}
 }
 

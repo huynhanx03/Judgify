@@ -32,7 +32,7 @@ type CultivationContainer struct {
 // NewCultivationContainer creates a new CultivationContainer.
 func NewCultivationContainer(
 	client *internalent.EntClient,
-	localCache cache.LocalCache[string, any],
+	localCache *cache.Cache,
 	offerOptions ports.TraitOfferServiceOptions,
 	operations *operation.Components,
 	operationRegistry *operation.Registry,

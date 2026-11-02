@@ -13,10 +13,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/go-common/pkg/algorithm"
-	"github.com/huynhanx03/go-common/pkg/logger"
 	"github.com/huynhanx03/go-common/pkg/mq/forge"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
 	outboxforge "github.com/huynhanx03/go-common/pkg/mq/outbox/forge"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	cultivationdb "github.com/huynhanx03/judgify/internal/cultivation/adapters/driven/db"
 	internalent "github.com/huynhanx03/judgify/internal/ent"
@@ -196,6 +196,7 @@ func (delivery *rewardDelivery) initialize(ctx context.Context) error {
 		return fmt.Errorf("compose solve reward outbox store: %w", err)
 	}
 	relay, err := commonoutbox.New(
+		logger.Wrap(delivery.logger),
 		store,
 		publisher,
 		nil,

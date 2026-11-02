@@ -189,7 +189,7 @@ func (r *UserRepository) LoadCommandReceipt(
 	if r == nil || r.client == nil || ctx == nil || commandID == uuid.Nil {
 		return ports.UserCommandReceipt{}, false, ports.ErrInvalidUserCommand
 	}
-	record, err := r.client.DB(ctx).OutboxEvent.Get(ctx, commandID)
+	record, err := r.client.GetOutboxEvent(ctx, commandID)
 	if generate.IsNotFound(err) {
 		return ports.UserCommandReceipt{}, false, nil
 	}

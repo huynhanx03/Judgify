@@ -12,6 +12,7 @@ func ToMaterialCategoryEntity(m *generate.MaterialCategory) *entity.MaterialCate
 	}
 	return &entity.MaterialCategory{
 		ID:          m.ID,
+		TenantID:    m.TenantID,
 		Name:        m.Name,
 		Description: m.Description,
 		CreatedAt:   m.CreatedAt,

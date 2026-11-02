@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -44,7 +45,7 @@ func TestAnonymousContestRoutesUseRestrictedPublicReads(t *testing.T) {
 	service := mocks.NewMockContestService(ctrl)
 	contestID := testutil.ID(1)
 	records := []*contract.ContestResponse{}
-	service.EXPECT().FindPublic(gomock.Any(), gomock.Any()).DoAndReturn(
+	service.EXPECT().FindForPublic(gomock.Any(), gomock.Any()).DoAndReturn(
 		func(_ context.Context, query *commonDTO.QueryOptions) (*commonDTO.Paginated[*contract.ContestResponse], error) {
 			require.Len(t, query.Filters, 1)
 			require.Equal(t, "status", query.Filters[0].Key)
@@ -110,7 +111,7 @@ func TestAdminContestReadsRequireReadCapability(t *testing.T) {
 				RatingHandler:       NewRatingHandler(nil),
 				ContentHandler:      NewContentHandler(nil),
 			}
-			group.RegisterProtected(router.Group(""), middlewares.NewAuthorizationChecker(authorizer))
+			group.RegisterProtected(router.Group(""), authmiddleware.NewAuthorizationChecker(authorizer))
 
 			request := httptest.NewRequest(tt.method, tt.path, strings.NewReader(tt.body))
 			request.Header.Set("Content-Type", "application/json")

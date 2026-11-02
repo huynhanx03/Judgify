@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -48,7 +49,7 @@ type RuntimeProfile struct {
 	// ManifestChecksum holds the value of the "manifest_checksum" field.
 	ManifestChecksum string `json:"manifest_checksum,omitempty"`
 	// ArtifactManifest holds the value of the "artifact_manifest" field.
-	ArtifactManifest json.RawMessage `json:"artifact_manifest,omitempty"`
+	ArtifactManifest jsontext.Value `json:"artifact_manifest,omitempty"`
 	// Active holds the value of the "active" field.
 	Active       bool `json:"active,omitempty"`
 	selectValues sql.SelectValues

@@ -24,6 +24,12 @@ type MaterialRevisionTagCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *MaterialRevisionTagCreate) SetTenantID(v uuid.UUID) *MaterialRevisionTagCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetRevisionID sets the "revision_id" field.
 func (_c *MaterialRevisionTagCreate) SetRevisionID(v uuid.UUID) *MaterialRevisionTagCreate {
 	_c.mutation.SetRevisionID(v)
@@ -86,6 +92,9 @@ func (_c *MaterialRevisionTagCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *MaterialRevisionTagCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "MaterialRevisionTag.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.RevisionID(); !ok {
 		return &ValidationError{Name: "revision_id", err: errors.New(`generate: missing required field "MaterialRevisionTag.revision_id"`)}
 	}
@@ -133,6 +142,10 @@ func (_c *MaterialRevisionTagCreate) createSpec() (*MaterialRevisionTag, *sqlgra
 		_spec = sqlgraph.NewCreateSpec(materialrevisiontag.Table, sqlgraph.NewFieldSpec(materialrevisiontag.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(materialrevisiontag.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.DisplayOrder(); ok {
 		_spec.SetField(materialrevisiontag.FieldDisplayOrder, field.TypeInt, value)
 		_node.DisplayOrder = value
@@ -178,7 +191,7 @@ func (_c *MaterialRevisionTagCreate) createSpec() (*MaterialRevisionTag, *sqlgra
 // of the `INSERT` statement. For example:
 //
 //	client.MaterialRevisionTag.Create().
-//		SetRevisionID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -187,7 +200,7 @@ func (_c *MaterialRevisionTagCreate) createSpec() (*MaterialRevisionTag, *sqlgra
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.MaterialRevisionTagUpsert) {
-//			SetRevisionID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *MaterialRevisionTagCreate) OnConflict(opts ...sql.ConflictOption) *MaterialRevisionTagUpsertOne {
@@ -234,6 +247,9 @@ type (
 func (u *MaterialRevisionTagUpsertOne) UpdateNewValues() *MaterialRevisionTagUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(materialrevisiontag.FieldTenantID)
+		}
 		if _, exists := u.create.mutation.RevisionID(); exists {
 			s.SetIgnore(materialrevisiontag.FieldRevisionID)
 		}
@@ -408,7 +424,7 @@ func (_c *MaterialRevisionTagCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.MaterialRevisionTagUpsert) {
-//			SetRevisionID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *MaterialRevisionTagCreateBulk) OnConflict(opts ...sql.ConflictOption) *MaterialRevisionTagUpsertBulk {
@@ -449,6 +465,9 @@ func (u *MaterialRevisionTagUpsertBulk) UpdateNewValues() *MaterialRevisionTagUp
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(materialrevisiontag.FieldTenantID)
+			}
 			if _, exists := b.mutation.RevisionID(); exists {
 				s.SetIgnore(materialrevisiontag.FieldRevisionID)
 			}

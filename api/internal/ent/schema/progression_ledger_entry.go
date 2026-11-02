@@ -3,6 +3,7 @@ package schema
 import (
 	"encoding/json"
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,7 +28,8 @@ const maximumProgressionLedgerJSONBytes = 64 << 10
 type ProgressionLedgerEntry struct{ ent.Schema }
 
 func (ProgressionLedgerEntry) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (ProgressionLedgerEntry) Edges() []ent.Edge {
@@ -103,7 +105,7 @@ func (ProgressionLedgerEntry) Indexes() []ent.Index {
 			"user_id", "source_aggregate_version", "kind",
 		).Unique(),
 		index.Fields("user_id", "occurred_at", "id"),
-		index.Fields("user_id", "progression_version").Unique(),
+		index.Fields("tenant_id", "user_id", "progression_version").Unique(),
 		index.Fields("source_type", "source_aggregate_id", "occurred_at", "id"),
 	}
 }

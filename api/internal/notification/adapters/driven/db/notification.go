@@ -142,7 +142,7 @@ func (repository *Repository) Create(
 	return &duplicate, inbox, false, err
 }
 
-func (repository *Repository) List(
+func (repository *Repository) Find(
 	ctx context.Context,
 	query ports.ListQuery,
 ) ([]entity.Notification, *string, entity.InboxState, error) {

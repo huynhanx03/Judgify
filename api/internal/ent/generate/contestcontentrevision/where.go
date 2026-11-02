@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.ContestContentRevision {
 	return predicate.ContestContentRevision(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
 // OwnerID applies equality check predicate on the "owner_id" field. It's identical to OwnerIDEQ.
 func OwnerID(v uuid.UUID) predicate.ContestContentRevision {
 	return predicate.ContestContentRevision(sql.FieldEQ(FieldOwnerID, v))
@@ -99,6 +104,46 @@ func RenderArtifactID(v uuid.UUID) predicate.ContestContentRevision {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.ContestContentRevision {
 	return predicate.ContestContentRevision(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.ContestContentRevision {
+	return predicate.ContestContentRevision(sql.FieldLTE(FieldTenantID, v))
 }
 
 // OwnerTypeEQ applies the EQ predicate on the "owner_type" field.

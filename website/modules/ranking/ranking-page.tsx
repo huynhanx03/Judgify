@@ -16,8 +16,8 @@ function fetchRankingPage(
   signal: AbortSignal,
 ): Promise<RankingPage> {
   return kind === "rating"
-    ? rankingService.pageByRating(RANKING_PAGE_SIZE, cursor, signal)
-    : rankingService.pageByExperience(RANKING_PAGE_SIZE, cursor, signal);
+    ? rankingService.findByRating(RANKING_PAGE_SIZE, cursor, signal)
+    : rankingService.findByExperience(RANKING_PAGE_SIZE, cursor, signal);
 }
 
 const rankingEntryKey = (entry: Cultivator) => entry.id;

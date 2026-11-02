@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -19,7 +20,8 @@ import (
 type ContestScoringAttempt struct{ ent.Schema }
 
 func (ContestScoringAttempt) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (ContestScoringAttempt) Edges() []ent.Edge {

@@ -123,7 +123,7 @@ test("problem service keeps public samples and administrative reads on distinct 
   const signal = new AbortController().signal;
 
   await exports.problemService.getPublicSamples("problem-1", signal);
-  await exports.problemService.findAdmin(query, signal);
+  await exports.problemService.findForAdmin(query, signal);
   await exports.problemService.getAdminById("problem-2", signal);
 
   assert.deepEqual(calls, [
@@ -159,7 +159,7 @@ test("problem pages use bounded public samples and unrestricted admin reads", as
 
   assert.match(detail, /problemService\.getPublicSamples\(problemId, signal\)/);
   assert.doesNotMatch(detail, /problemService\.getTestCases\(problemId\)/);
-  assert.match(adminList, /problemService\.findAdmin/);
+  assert.match(adminList, /problemService\.findForAdmin/);
   assert.match(adminEdit, /problemService\.getAdminById\(id, signal\)/);
   assert.match(adminEdit, /loadError\.status === 403/);
   assert.match(adminEdit, /loadError\.status === 404/);
@@ -181,7 +181,7 @@ test("contest service keeps public and administrative reads on distinct endpoint
 
   await exports.contestService.find(publicQuery, signal);
   await exports.contestService.getById("contest-public", signal);
-  await exports.contestService.findAdmin(adminQuery, signal);
+  await exports.contestService.findForAdmin(adminQuery, signal);
   await exports.contestService.getAdminById("contest-draft", signal);
 
   assert.deepEqual(calls, [
@@ -220,10 +220,10 @@ test("admin contest list and overview totals use protected all-status reads", as
     source("modules/admin/dashboard/dashboard-page.tsx"),
   ]);
 
-  assert.match(contestPage, /contestService\.findAdmin/);
+  assert.match(contestPage, /contestService\.findForAdmin/);
   assert.doesNotMatch(contestPage, /find:\s*contestService\.find\.bind/);
-  assert.match(dashboard, /problemService\.findAdmin\(countQuery, signal\)/);
-  assert.match(dashboard, /contestService\.findAdmin\(countQuery, signal\)/);
+  assert.match(dashboard, /problemService\.findForAdmin\(countQuery, signal\)/);
+  assert.match(dashboard, /contestService\.findForAdmin\(countQuery, signal\)/);
 });
 
 test("material service uses publication-aware slug and admin revision endpoints", async () => {
@@ -246,6 +246,6 @@ test("admin material pages use protected read services", async () => {
     source("modules/admin/materials/categories-page.tsx"),
   ]);
 
-  assert.match(materialsPage, /materialService\.findAdmin/);
+  assert.match(materialsPage, /materialService\.findForAdmin/);
   assert.match(categoriesPage, /materialService\.findCategories/);
 });

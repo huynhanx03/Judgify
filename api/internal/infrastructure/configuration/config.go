@@ -41,6 +41,11 @@ const (
 	maximumSecretBytes                = 64 << 10
 	maximumConfigBytes                = 1 << 20
 	minimumForgeEnvelopeHeadroomBytes = 32 << 10
+	maximumPort                       = 65_535
+	maximumConnectionPool             = 1_000_000
+	maximumTimeoutSeconds             = 86_400
+	maximumRequestBodyBytes           = 64 << 20
+	maximumRequestTimeoutSeconds      = 10 * 60
 )
 
 var (
@@ -294,13 +299,13 @@ func validateConfig(config settings.Config, profile Profile) error {
 	if !profile.valid() {
 		return configInvalid("profile")
 	}
-	if err := config.Server.Validate(); err != nil {
+	if err := validateServer(config.Server); err != nil {
 		return configInvalid("server")
 	}
 	if strings.ToLower(strings.TrimSpace(config.Database.Driver)) != "postgres" {
 		return configInvalid("database.driver")
 	}
-	if err := config.Database.Validate(); err != nil {
+	if err := validateDatabase(config.Database); err != nil {
 		return configInvalid("database")
 	}
 	if err := validateLogger(config); err != nil {
@@ -425,7 +430,7 @@ func validListenAddress(value string) bool {
 }
 
 func validateAPIConfig(config settings.Config) error {
-	if err := config.JWT.Validate(); err != nil ||
+	if !validJWT(config.JWT) ||
 		!validSecret(config.JWT.Secret, 32) ||
 		strings.TrimSpace(config.JWT.PrivateKeyPath) == "" ||
 		strings.TrimSpace(config.JWT.PublicKeyPath) == "" {
@@ -507,6 +512,76 @@ func validateAPIConfig(config settings.Config) error {
 	}
 	return validateAPIJudge(config.Judge, config.Server.Mode.IsProd())
 }
+
+func validateServer(config settings.Server) error {
+	switch config.Mode {
+	case settings.EnvDev, settings.EnvStaging, settings.EnvProd:
+	default:
+		return configInvalid("server.mode")
+	}
+	if strings.TrimSpace(config.Host) == "" {
+		return configInvalid("server.host")
+	}
+	if !validPort(config.Port) {
+		return configInvalid("server.port")
+	}
+	if config.GRPCPort != 0 && !validPort(config.GRPCPort) {
+		return configInvalid("server.grpc_port")
+	}
+	if config.RateLimit.Limit <= 0 || config.RateLimit.Burst <= 0 ||
+		config.RateLimit.Window <= 0 || config.RateLimit.Window > maximumTimeoutSeconds {
+		return configInvalid("server.rate_limit")
+	}
+	if config.CircuitBreaker.FailureThreshold <= 0 ||
+		config.CircuitBreaker.SuccessThreshold <= 0 ||
+		config.CircuitBreaker.OpenTimeout <= 0 ||
+		config.CircuitBreaker.OpenTimeout > maximumTimeoutSeconds {
+		return configInvalid("server.circuit_breaker")
+	}
+	if config.MaxRequestBodyBytes <= 0 || config.MaxRequestBodyBytes > maximumRequestBodyBytes {
+		return configInvalid("server.max_request_body_bytes")
+	}
+	if config.RequestTimeoutSeconds <= 0 ||
+		config.RequestTimeoutSeconds > maximumRequestTimeoutSeconds {
+		return configInvalid("server.request_timeout_seconds")
+	}
+	return nil
+}
+
+func validateDatabase(config settings.Database) error {
+	switch strings.ToLower(strings.TrimSpace(config.Driver)) {
+	case "postgres", "postgresql", "mysql":
+	default:
+		return configInvalid("database.driver")
+	}
+	if strings.TrimSpace(config.Host) == "" || strings.TrimSpace(config.Username) == "" ||
+		config.Password == "" || strings.TrimSpace(config.Database) == "" {
+		return configInvalid("database.connection")
+	}
+	if !validPort(config.Port) {
+		return configInvalid("database.port")
+	}
+	if config.MaxOpenConns <= 0 || config.MaxOpenConns > maximumConnectionPool ||
+		config.MaxIdleConns < 0 || config.MaxIdleConns > config.MaxOpenConns {
+		return configInvalid("database.pool")
+	}
+	if config.ConnMaxLifetime <= 0 || config.ConnMaxLifetime > maximumTimeoutSeconds ||
+		config.ConnMaxIdleTime <= 0 || config.ConnMaxIdleTime > config.ConnMaxLifetime {
+		return configInvalid("database.timeout")
+	}
+	return nil
+}
+
+func validJWT(config settings.JWT) bool {
+	hasSecret := len(config.Secret) >= 32 &&
+		!strings.Contains(config.Secret, "${") && !strings.Contains(config.Secret, "}")
+	hasKeyPaths := strings.TrimSpace(config.PrivateKeyPath) != "" &&
+		strings.TrimSpace(config.PublicKeyPath) != ""
+	hasParsedKeys := config.PrivateKey != nil && config.PublicKey != nil
+	return hasSecret || hasKeyPaths || hasParsedKeys
+}
+
+func validPort(port int) bool { return port > 0 && port <= maximumPort }
 
 func validateLogger(config settings.Config) error {
 	level := strings.ToLower(strings.TrimSpace(config.Logger.LogLevel))

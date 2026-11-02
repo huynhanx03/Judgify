@@ -26,19 +26,7 @@ func toMaterialResponse(result *contract.MaterialResponse) *MaterialResponse {
 }
 
 func toMaterialPage(result *d.Paginated[*contract.MaterialResponse]) *d.Paginated[*MaterialResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*MaterialResponse]{Pagination: result.Pagination}
-	if result.Records == nil {
-		return page
-	}
-	values := make([]*MaterialResponse, len(*result.Records))
-	for index, record := range *result.Records {
-		values[index] = toMaterialResponse(record)
-	}
-	page.Records = &values
-	return page
+	return d.MapPaginated(result, toMaterialResponse)
 }
 
 func toMaterialSearchResponse(result *contract.MaterialSearchResponse) *materialSearchResponse {

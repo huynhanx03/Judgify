@@ -27,6 +27,8 @@ type TestCase struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy *string `json:"deleted_by,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
 	ProblemID uuid.UUID `json:"problem_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -75,7 +77,7 @@ func (*TestCase) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case testcase.FieldCreatedAt, testcase.FieldUpdatedAt, testcase.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case testcase.FieldID, testcase.FieldProblemID:
+		case testcase.FieldID, testcase.FieldTenantID, testcase.FieldProblemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -123,6 +125,12 @@ func (_m *TestCase) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedBy = new(string)
 				*_m.DeletedBy = value.String
+			}
+		case testcase.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case testcase.FieldProblemID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -191,6 +199,9 @@ func (_m *TestCase) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("problem_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ProblemID))

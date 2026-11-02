@@ -231,7 +231,7 @@ func (repository *ContentRepository) WithdrawClarification(
 	return repository.GetOwnClarification(ctx, command.ContestID, command.ClarificationID, command.ActorUserID)
 }
 
-func (repository *ContentRepository) ListParticipantClarifications(
+func (repository *ContentRepository) FindClarificationsForParticipant(
 	ctx context.Context,
 	query ports.ContentListQuery,
 ) ([]ports.SharedClarificationView, *ports.ContentCursor, error) {
@@ -312,21 +312,21 @@ func (repository *ContentRepository) ListParticipantClarifications(
 	return items, next, nil
 }
 
-func (repository *ContentRepository) ListOwnClarifications(
+func (repository *ContentRepository) FindMyClarifications(
 	ctx context.Context,
 	query ports.ContentListQuery,
 ) ([]ports.ClarificationView, *ports.ContentCursor, error) {
-	return repository.listPrivateClarifications(ctx, query, true)
+	return repository.findPrivateClarifications(ctx, query, true)
 }
 
-func (repository *ContentRepository) ListAdminClarifications(
+func (repository *ContentRepository) FindClarificationsForAdmin(
 	ctx context.Context,
 	query ports.ContentListQuery,
 ) ([]ports.ClarificationView, *ports.ContentCursor, error) {
-	return repository.listPrivateClarifications(ctx, query, false)
+	return repository.findPrivateClarifications(ctx, query, false)
 }
 
-func (repository *ContentRepository) listPrivateClarifications(
+func (repository *ContentRepository) findPrivateClarifications(
 	ctx context.Context,
 	query ports.ContentListQuery,
 	own bool,
@@ -445,7 +445,7 @@ func (repository *ContentRepository) getPrivateClarification(ctx context.Context
 	return view, rows.Err()
 }
 
-func (repository *ContentRepository) ListRevisions(ctx context.Context, ownerType entity.ContentOwnerType, ownerID uuid.UUID) ([]entity.ContentRevision, error) {
+func (repository *ContentRepository) FindRevisions(ctx context.Context, ownerType entity.ContentOwnerType, ownerID uuid.UUID) ([]entity.ContentRevision, error) {
 	if repository == nil || repository.client == nil || ctx == nil || !ownerType.Valid() || ownerID == uuid.Nil {
 		return nil, ports.ErrInvalidContestContentCommand
 	}

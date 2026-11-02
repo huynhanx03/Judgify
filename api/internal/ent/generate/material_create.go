@@ -87,6 +87,12 @@ func (_c *MaterialCreate) SetNillableDeletedBy(v *string) *MaterialCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *MaterialCreate) SetTenantID(v uuid.UUID) *MaterialCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetTitle sets the "title" field.
 func (_c *MaterialCreate) SetTitle(v string) *MaterialCreate {
 	_c.mutation.SetTitle(v)
@@ -561,6 +567,9 @@ func (_c *MaterialCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Material.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "Material.tenant_id"`)}
+	}
 	if v, ok := _c.mutation.Title(); ok {
 		if err := material.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`generate: validator failed for field "Material.title": %w`, err)}
@@ -681,6 +690,10 @@ func (_c *MaterialCreate) createSpec() (*Material, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(material.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(material.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(material.FieldTitle, field.TypeString, value)
@@ -1370,6 +1383,9 @@ func (u *MaterialUpsertOne) UpdateNewValues() *MaterialUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(material.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(material.FieldTenantID)
 		}
 	}))
 	return u
@@ -2084,6 +2100,9 @@ func (u *MaterialUpsertBulk) UpdateNewValues() *MaterialUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(material.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(material.FieldTenantID)
 			}
 		}
 	}))

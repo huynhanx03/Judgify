@@ -17,7 +17,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-python3 "$root/scripts/deploy/render-envoy.py" --template "$root/deploy/envoy/envoy.yaml.tmpl" --output "$dir/envoy.yaml" --host example.test
+python3 "$root/scripts/deploy/render-envoy.py" --template "$root/docker/infrastructure/envoy.yaml.tmpl" --output "$dir/envoy.yaml" --host example.test
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=example.test -keyout "$dir/key.pem" -out "$dir/cert.pem" >/dev/null 2>&1
 cp "$dir/cert.pem" "$dir/authz_client_certificate"
 cp "$dir/key.pem" "$dir/authz_client_private_key"

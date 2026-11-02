@@ -85,6 +85,12 @@ func (_c *SubmissionCreate) SetNillableDeletedBy(v *string) *SubmissionCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *SubmissionCreate) SetTenantID(v uuid.UUID) *SubmissionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetProblemID sets the "problem_id" field.
 func (_c *SubmissionCreate) SetProblemID(v uuid.UUID) *SubmissionCreate {
 	_c.mutation.SetProblemID(v)
@@ -649,6 +655,9 @@ func (_c *SubmissionCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Submission.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "Submission.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem_id", err: errors.New(`generate: missing required field "Submission.problem_id"`)}
 	}
@@ -850,6 +859,10 @@ func (_c *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(submission.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(submission.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.ContestProblemID(); ok {
 		_spec.SetField(submission.FieldContestProblemID, field.TypeUUID, value)
@@ -1497,6 +1510,9 @@ func (u *SubmissionUpsertOne) UpdateNewValues() *SubmissionUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(submission.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(submission.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ProblemID(); exists {
 			s.SetIgnore(submission.FieldProblemID)
@@ -2193,6 +2209,9 @@ func (u *SubmissionUpsertBulk) UpdateNewValues() *SubmissionUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(submission.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(submission.FieldTenantID)
 			}
 			if _, exists := b.mutation.ProblemID(); exists {
 				s.SetIgnore(submission.FieldProblemID)

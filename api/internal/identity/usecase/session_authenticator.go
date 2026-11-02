@@ -13,8 +13,8 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"

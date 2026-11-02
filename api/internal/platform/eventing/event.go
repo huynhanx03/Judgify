@@ -11,11 +11,13 @@ import (
 // arbitrary transport attributes are not accepted at the domain boundary.
 type Event struct {
 	ID               uuid.UUID
+	TenantID         uuid.UUID
 	Type             string
 	AggregateType    string
 	AggregateID      uuid.UUID
 	AggregateVersion int64
 	CorrelationID    string
+	Traceparent      string
 	CausationID      *uuid.UUID
 	Payload          json.RawMessage
 	OccurredAt       time.Time

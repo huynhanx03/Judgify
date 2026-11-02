@@ -28,6 +28,7 @@ const (
 	contactPurposeRegistration = "registration"
 	contactPurposeReplacement  = "replacement"
 	contactPurposeInvitation   = "invitation"
+	contactPurposeOAuthLink    = "oauth_link"
 
 	deliveryStatusReady     = "ready"
 	deliveryStatusLeased    = "leased"

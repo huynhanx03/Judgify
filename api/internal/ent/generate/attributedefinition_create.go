@@ -82,6 +82,12 @@ func (_c *AttributeDefinitionCreate) SetNillableDeletedBy(v *string) *AttributeD
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *AttributeDefinitionCreate) SetTenantID(v uuid.UUID) *AttributeDefinitionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetKey sets the "key" field.
 func (_c *AttributeDefinitionCreate) SetKey(v string) *AttributeDefinitionCreate {
 	_c.mutation.SetKey(v)
@@ -311,6 +317,9 @@ func (_c *AttributeDefinitionCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "AttributeDefinition.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "AttributeDefinition.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Key(); !ok {
 		return &ValidationError{Name: "key", err: errors.New(`generate: missing required field "AttributeDefinition.key"`)}
 	}
@@ -397,6 +406,10 @@ func (_c *AttributeDefinitionCreate) createSpec() (*AttributeDefinition, *sqlgra
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(attributedefinition.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(attributedefinition.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Key(); ok {
 		_spec.SetField(attributedefinition.FieldKey, field.TypeString, value)
@@ -681,6 +694,9 @@ func (u *AttributeDefinitionUpsertOne) UpdateNewValues() *AttributeDefinitionUps
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(attributedefinition.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(attributedefinition.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.Key(); exists {
 			s.SetIgnore(attributedefinition.FieldKey)
@@ -1051,6 +1067,9 @@ func (u *AttributeDefinitionUpsertBulk) UpdateNewValues() *AttributeDefinitionUp
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(attributedefinition.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(attributedefinition.FieldTenantID)
 			}
 			if _, exists := b.mutation.Key(); exists {
 				s.SetIgnore(attributedefinition.FieldKey)

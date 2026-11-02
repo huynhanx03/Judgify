@@ -65,6 +65,11 @@ func UpdatedAt(v time.Time) predicate.JudgeJob {
 	return predicate.JudgeJob(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldEQ(FieldTenantID, v))
+}
+
 // SubmissionID applies equality check predicate on the "submission_id" field. It's identical to SubmissionIDEQ.
 func SubmissionID(v uuid.UUID) predicate.JudgeJob {
 	return predicate.JudgeJob(sql.FieldEQ(FieldSubmissionID, v))
@@ -155,6 +160,11 @@ func OriginCid(v string) predicate.JudgeJob {
 	return predicate.JudgeJob(sql.FieldEQ(FieldOriginCid, v))
 }
 
+// OriginTraceparent applies equality check predicate on the "origin_traceparent" field. It's identical to OriginTraceparentEQ.
+func OriginTraceparent(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldEQ(FieldOriginTraceparent, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.JudgeJob {
 	return predicate.JudgeJob(sql.FieldEQ(FieldCreatedAt, v))
@@ -233,6 +243,46 @@ func UpdatedAtLT(v time.Time) predicate.JudgeJob {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.JudgeJob {
 	return predicate.JudgeJob(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldLTE(FieldTenantID, v))
 }
 
 // SubmissionIDEQ applies the EQ predicate on the "submission_id" field.
@@ -1193,6 +1243,81 @@ func OriginCidEqualFold(v string) predicate.JudgeJob {
 // OriginCidContainsFold applies the ContainsFold predicate on the "origin_cid" field.
 func OriginCidContainsFold(v string) predicate.JudgeJob {
 	return predicate.JudgeJob(sql.FieldContainsFold(FieldOriginCid, v))
+}
+
+// OriginTraceparentEQ applies the EQ predicate on the "origin_traceparent" field.
+func OriginTraceparentEQ(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldEQ(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentNEQ applies the NEQ predicate on the "origin_traceparent" field.
+func OriginTraceparentNEQ(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldNEQ(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentIn applies the In predicate on the "origin_traceparent" field.
+func OriginTraceparentIn(vs ...string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldIn(FieldOriginTraceparent, vs...))
+}
+
+// OriginTraceparentNotIn applies the NotIn predicate on the "origin_traceparent" field.
+func OriginTraceparentNotIn(vs ...string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldNotIn(FieldOriginTraceparent, vs...))
+}
+
+// OriginTraceparentGT applies the GT predicate on the "origin_traceparent" field.
+func OriginTraceparentGT(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldGT(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentGTE applies the GTE predicate on the "origin_traceparent" field.
+func OriginTraceparentGTE(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldGTE(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentLT applies the LT predicate on the "origin_traceparent" field.
+func OriginTraceparentLT(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldLT(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentLTE applies the LTE predicate on the "origin_traceparent" field.
+func OriginTraceparentLTE(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldLTE(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentContains applies the Contains predicate on the "origin_traceparent" field.
+func OriginTraceparentContains(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldContains(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentHasPrefix applies the HasPrefix predicate on the "origin_traceparent" field.
+func OriginTraceparentHasPrefix(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldHasPrefix(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentHasSuffix applies the HasSuffix predicate on the "origin_traceparent" field.
+func OriginTraceparentHasSuffix(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldHasSuffix(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentIsNil applies the IsNil predicate on the "origin_traceparent" field.
+func OriginTraceparentIsNil() predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldIsNull(FieldOriginTraceparent))
+}
+
+// OriginTraceparentNotNil applies the NotNil predicate on the "origin_traceparent" field.
+func OriginTraceparentNotNil() predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldNotNull(FieldOriginTraceparent))
+}
+
+// OriginTraceparentEqualFold applies the EqualFold predicate on the "origin_traceparent" field.
+func OriginTraceparentEqualFold(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldEqualFold(FieldOriginTraceparent, v))
+}
+
+// OriginTraceparentContainsFold applies the ContainsFold predicate on the "origin_traceparent" field.
+func OriginTraceparentContainsFold(v string) predicate.JudgeJob {
+	return predicate.JudgeJob(sql.FieldContainsFold(FieldOriginTraceparent, v))
 }
 
 // And groups predicates with the AND operator between them.

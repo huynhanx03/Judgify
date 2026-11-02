@@ -65,9 +65,9 @@ immutable published version and contain no filesystem replace.
 ## Repository layout
 
 ```text
-api/        Go commands, domain modules, Ent schema, and migrations
-website/    Public/admin Next.js application and browser contracts
-docker/     Reproducible API, worker, website, migrator, and sandbox images
+api/        Go commands, domain modules, Ent schema, migrations, and Dockerfile
+website/    Next.js application, browser contracts, and Dockerfile
+docker/     Sandbox image and shared infrastructure configuration
 deploy/     Single-host production topology, role bootstrap, and runbook
 scripts/    Migration, verification, backup, restore, rollout, and smoke tools
 test/       Load, chaos, rollout, and backup/restore evidence scenarios
@@ -76,29 +76,28 @@ docs/       Architecture guides plus approved design and execution plans
 
 ## Local development
 
-Prerequisites are the pinned Go and Node versions, Docker with Compose/Buildx,
-Atlas for schema authoring, and a sibling `../go-common` checkout.
+Prepare the local environment, migrate the database, and create the local admin:
 
 ```sh
-make dev-bootstrap
-make docker-up
-make migrate-apply
-make run-api
-make run-website
+make local-setup
 ```
 
-`make dev-bootstrap` creates git-ignored, mode-restricted local database/JWT
-secrets and a 3072-bit RSA key pair without printing secret values. The local
-API exposes the code-owned runtime/checker authoring catalog, but that catalog
-has no executable image identity and cannot start a judge worker. Running a
-worker still requires an explicitly reviewed release manifest, a digest-pinned
-sandbox image, and a dedicated rootless Docker daemon as documented for the
-single-host deployment.
+This copies the env templates, generates a JWT secret and key pair, then
+starts PostgreSQL, applies migrations (including the baseline catalog data),
+and creates the local admin.
 
-Run `make seed` only when deterministic local catalog fixtures are wanted. It
-is never part of production startup. Local configuration lives in
-`api/config/local.yaml`; production uses operator-owned, file-backed secrets and
-the templates under `deploy/`.
+To build and start the server stack:
+
+```sh
+make run-local
+```
+
+Open <http://localhost:8080>. This command only builds and starts PostgreSQL,
+the API, website, and Envoy; it does not rerun migrations. Stop the
+stack with `docker compose down`; add `--volumes` to reset the database. After
+resetting volumes, run `make local-setup` again. Local settings
+live in `api/config/local.yaml`; the local admin is `admin` / `judgify-local-admin`.
+Production uses the templates under `deploy/`.
 
 ## Verification and release
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
-	"golang.org/x/sync/singleflight"
 
 	"github.com/huynhanx03/judgify/internal/constant"
 	contract "github.com/huynhanx03/judgify/internal/cultivation/contract"
@@ -15,23 +14,23 @@ import (
 
 type Trait struct {
 	store Store
-	loads singleflight.Group
 }
 
 func NewTrait(store Store) *Trait { return &Trait{store: store} }
 func (c *Trait) Get(ctx context.Context, id uuid.UUID, load ports.TraitCacheLoader) (*contract.TraitResponse, error) {
-	return commoncache.Fetch[*contract.TraitResponse](c.store, &c.loads, traitKey(id), constant.CultivationCacheTTL, func() (*contract.TraitResponse, error) { return load(ctx) })
+	return commoncache.Fetch[*contract.TraitResponse](ctx, c.store, traitKey(id), constant.CultivationCacheTTL, func(loadCtx context.Context) (*contract.TraitResponse, error) { return load(loadCtx) })
 }
 func (c *Trait) FindAll(ctx context.Context, load ports.TraitListCacheLoader) ([]*contract.TraitResponse, error) {
-	return commoncache.Fetch[[]*contract.TraitResponse](c.store, &c.loads, constant.CultivationTraitAllKey, constant.CultivationCacheTTL, func() ([]*contract.TraitResponse, error) { return load(ctx) })
+	return commoncache.Fetch[[]*contract.TraitResponse](ctx, c.store, constant.CultivationTraitAllKey, constant.CultivationCacheTTL, func(loadCtx context.Context) ([]*contract.TraitResponse, error) { return load(loadCtx) })
 }
 func (c *Trait) Invalidate(ctx context.Context, id uuid.UUID) error {
-	return platformtx.AfterCommitOrNow(ctx, func(context.Context) error {
+	return platformtx.AfterCommitOrNow(ctx, func(deleteCtx context.Context) error {
+		keys := make([]string, 0, 2)
 		if id != uuid.Nil {
-			commoncache.Delete(c.store, traitKey(id))
+			keys = append(keys, traitKey(id))
 		}
-		commoncache.Delete(c.store, constant.CultivationTraitAllKey)
-		return nil
+		keys = append(keys, constant.CultivationTraitAllKey)
+		return c.store.DeleteAll(deleteCtx, keys...)
 	})
 }
 func traitKey(id uuid.UUID) string { return constant.CultivationTraitByIDKeyPrefix + id.String() }

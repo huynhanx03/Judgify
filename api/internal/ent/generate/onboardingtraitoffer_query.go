@@ -447,12 +447,12 @@ func (_q *OnboardingTraitOfferQuery) WithIssuanceReceipts(opts ...func(*AuthSess
 // Example:
 //
 //	var v []struct {
-//		PreSessionID uuid.UUID `json:"pre_session_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.OnboardingTraitOffer.Query().
-//		GroupBy(onboardingtraitoffer.FieldPreSessionID).
+//		GroupBy(onboardingtraitoffer.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *OnboardingTraitOfferQuery) GroupBy(field string, fields ...string) *OnboardingTraitOfferGroupBy {
@@ -470,11 +470,11 @@ func (_q *OnboardingTraitOfferQuery) GroupBy(field string, fields ...string) *On
 // Example:
 //
 //	var v []struct {
-//		PreSessionID uuid.UUID `json:"pre_session_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.OnboardingTraitOffer.Query().
-//		Select(onboardingtraitoffer.FieldPreSessionID).
+//		Select(onboardingtraitoffer.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *OnboardingTraitOfferQuery) Select(fields ...string) *OnboardingTraitOfferSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

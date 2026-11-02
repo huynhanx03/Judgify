@@ -45,6 +45,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantinvitation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantmembership"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -852,6 +854,51 @@ func (_c *UserCreate) AddContestContentCommands(v ...*ContestContentCommand) *Us
 		ids[i] = v[i].ID
 	}
 	return _c.AddContestContentCommandIDs(ids...)
+}
+
+// AddTenantMembershipIDs adds the "tenant_memberships" edge to the TenantMembership entity by IDs.
+func (_c *UserCreate) AddTenantMembershipIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddTenantMembershipIDs(ids...)
+	return _c
+}
+
+// AddTenantMemberships adds the "tenant_memberships" edges to the TenantMembership entity.
+func (_c *UserCreate) AddTenantMemberships(v ...*TenantMembership) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTenantMembershipIDs(ids...)
+}
+
+// AddTenantInvitationIDs adds the "tenant_invitations" edge to the TenantInvitation entity by IDs.
+func (_c *UserCreate) AddTenantInvitationIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddTenantInvitationIDs(ids...)
+	return _c
+}
+
+// AddTenantInvitations adds the "tenant_invitations" edges to the TenantInvitation entity.
+func (_c *UserCreate) AddTenantInvitations(v ...*TenantInvitation) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTenantInvitationIDs(ids...)
+}
+
+// AddSentTenantInvitationIDs adds the "sent_tenant_invitations" edge to the TenantInvitation entity by IDs.
+func (_c *UserCreate) AddSentTenantInvitationIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddSentTenantInvitationIDs(ids...)
+	return _c
+}
+
+// AddSentTenantInvitations adds the "sent_tenant_invitations" edges to the TenantInvitation entity.
+func (_c *UserCreate) AddSentTenantInvitations(v ...*TenantInvitation) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSentTenantInvitationIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1727,6 +1774,54 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TenantMembershipsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.TenantInvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SentTenantInvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

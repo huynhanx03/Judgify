@@ -338,12 +338,12 @@ func (_q *TestAssetQuery) WithExpectedTestcaseRevisions(opts ...func(*TestcaseRe
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.TestAsset.Query().
-//		GroupBy(testasset.FieldCreatedAt).
+//		GroupBy(testasset.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *TestAssetQuery) GroupBy(field string, fields ...string) *TestAssetGroupBy {
@@ -361,11 +361,11 @@ func (_q *TestAssetQuery) GroupBy(field string, fields ...string) *TestAssetGrou
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.TestAsset.Query().
-//		Select(testasset.FieldCreatedAt).
+//		Select(testasset.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *TestAssetQuery) Select(fields ...string) *TestAssetSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

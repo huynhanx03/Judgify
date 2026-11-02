@@ -78,7 +78,7 @@ func TestCheckAcceptsConfiguredAccessCookie(t *testing.T) {
 }
 
 func checkRequest(method, path, credential string) *authv3.CheckRequest {
-	headers := map[string]string{"x-request-id": "019f6abb-8dd5-7581-8449-2b9ad77873e5", "x-correlation-id": "019f6abb-8dd5-7581-8449-2b9ad77873e5"}
+	headers := map[string]string{"x-request-id": "019f6abb-8dd5-7581-8449-2b9ad77873e5"}
 	if credential != "" {
 		headers["authorization"] = credential
 	}

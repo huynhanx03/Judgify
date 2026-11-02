@@ -16,7 +16,7 @@ import (
 const sha256Size = 32
 
 const canonicalSolveRewardTransitionSelect = `
-	SELECT transition.event_id, transition.id, transition.solve_id,
+	SELECT transition.tenant_id, transition.event_id, transition.id, transition.solve_id,
 		transition.user_id, transition.problem_id,
 		transition.from_version, transition.to_version,
 		transition.from_status, transition.to_status,
@@ -63,23 +63,23 @@ func scanCanonicalSolveRewardEvent(
 		return submissioncontract.ProblemSolveStatusChangedV1{}, ErrInvalidSolveRewardProjector
 	}
 	var (
-		eventID, transitionID, solveID, userID, problemID uuid.UUID
-		fromVersion, toVersion                            int64
-		fromStatus, toStatus                              string
-		fromSubmission, toSubmission                      uuid.NullUUID
-		fromJudgement, toJudgement                        uuid.NullUUID
-		fromGeneration, toGeneration                      stdsql.NullInt64
-		fromProblemRevision, toProblemRevision            uuid.NullUUID
-		fromRewardFacts, toRewardFacts                    []byte
-		fromRewardChecksum, toRewardChecksum              []byte
-		fromRewardGrantSource, toRewardGrantSource        uuid.NullUUID
-		fromRewardProvenance, toRewardProvenance          stdsql.NullString
-		fromSolvedAt, toSolvedAt                          stdsql.NullTime
-		provenance, correlationID                         string
-		occurredAt                                        time.Time
+		tenantID, eventID, transitionID, solveID, userID, problemID uuid.UUID
+		fromVersion, toVersion                                      int64
+		fromStatus, toStatus                                        string
+		fromSubmission, toSubmission                                uuid.NullUUID
+		fromJudgement, toJudgement                                  uuid.NullUUID
+		fromGeneration, toGeneration                                stdsql.NullInt64
+		fromProblemRevision, toProblemRevision                      uuid.NullUUID
+		fromRewardFacts, toRewardFacts                              []byte
+		fromRewardChecksum, toRewardChecksum                        []byte
+		fromRewardGrantSource, toRewardGrantSource                  uuid.NullUUID
+		fromRewardProvenance, toRewardProvenance                    stdsql.NullString
+		fromSolvedAt, toSolvedAt                                    stdsql.NullTime
+		provenance, correlationID                                   string
+		occurredAt                                                  time.Time
 	)
 	err := scanner.Scan(
-		&eventID, &transitionID, &solveID, &userID, &problemID,
+		&tenantID, &eventID, &transitionID, &solveID, &userID, &problemID,
 		&fromVersion, &toVersion, &fromStatus, &toStatus,
 		&fromSubmission, &toSubmission, &fromJudgement, &toJudgement,
 		&fromGeneration, &toGeneration, &fromProblemRevision, &toProblemRevision,
@@ -100,7 +100,7 @@ func scanCanonicalSolveRewardEvent(
 		return submissioncontract.ProblemSolveStatusChangedV1{}, err
 	}
 	event := submissioncontract.ProblemSolveStatusChangedV1{
-		EventID: eventID, TransitionID: transitionID, SolveID: solveID,
+		EventID: eventID, TenantID: tenantID, TransitionID: transitionID, SolveID: solveID,
 		UserID: userID, ProblemID: problemID, Provenance: provenance,
 		OccurredAt: occurredAt.UTC(), CorrelationID: correlationID,
 		From: submissioncontract.SolveStateV1{

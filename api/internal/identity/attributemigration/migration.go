@@ -19,6 +19,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/identity/attributevalue"
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
 	"github.com/huynhanx03/judgify/internal/platform/operation"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const OperationKind = "identity.attribute_value_migration.v1"
@@ -42,6 +43,7 @@ var (
 // so rows created at the same instant cannot be skipped or duplicated.
 type Request struct {
 	OperationID         uuid.UUID `json:"operation_id"`
+	TenantID            uuid.UUID `json:"tenant_id"`
 	CommandID           uuid.UUID `json:"command_id"`
 	DefinitionID        uuid.UUID `json:"definition_id"`
 	ExpectedVersion     int64     `json:"expected_version"`
@@ -166,6 +168,10 @@ func (executor *Executor) executeBatch(
 		ctx == nil || ctx.Err() != nil || input.OperationID != request.OperationID ||
 		input.Sequence < 1 || input.Limit < 1 || !validRequest(request) {
 		return operation.BatchResult{}, operation.Terminal("invalid_attribute_migration", ErrInvalidMigration)
+	}
+	ctx, err := tenantctx.WithTenantID(ctx, request.TenantID)
+	if err != nil {
+		return operation.BatchResult{}, operation.Terminal("invalid_attribute_migration_tenant", ErrInvalidMigration)
 	}
 	checkpoint, err := decodeCheckpoint(input.Checkpoint)
 	if err != nil {
@@ -336,7 +342,7 @@ func sameMigrationIntent(intent Request, prepared Request) bool {
 // ValidateIntent checks the immutable administrative command before a
 // repository captures its value-set high-water mark.
 func ValidateIntent(request Request) error {
-	if request.OperationID == uuid.Nil || request.CommandID == uuid.Nil ||
+	if request.OperationID == uuid.Nil || request.TenantID == uuid.Nil || request.CommandID == uuid.Nil ||
 		request.OperationID != request.CommandID || request.DefinitionID == uuid.Nil ||
 		request.ExpectedVersion < 1 || request.SourceRevisionID == uuid.Nil ||
 		request.CandidateRevisionID == uuid.Nil ||

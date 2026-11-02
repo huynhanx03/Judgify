@@ -302,12 +302,12 @@ func (_q *NotificationPreferenceQuery) WithUser(opts ...func(*UserQuery)) *Notif
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.NotificationPreference.Query().
-//		GroupBy(notificationpreference.FieldUserID).
+//		GroupBy(notificationpreference.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *NotificationPreferenceQuery) GroupBy(field string, fields ...string) *NotificationPreferenceGroupBy {
@@ -325,11 +325,11 @@ func (_q *NotificationPreferenceQuery) GroupBy(field string, fields ...string) *
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.NotificationPreference.Query().
-//		Select(notificationpreference.FieldUserID).
+//		Select(notificationpreference.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *NotificationPreferenceQuery) Select(fields ...string) *NotificationPreferenceSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

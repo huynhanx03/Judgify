@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -16,6 +17,10 @@ import (
 // OnboardingTraitOffer is the mutable lifecycle shell around one immutable
 // catalog selection. Only issued -> consumed/expired/superseded is allowed.
 type OnboardingTraitOffer struct{ ent.Schema }
+
+func (OnboardingTraitOffer) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
 
 func (OnboardingTraitOffer) Fields() []ent.Field {
 	return []ent.Field{

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactverificationtoken"
@@ -153,6 +154,26 @@ func (_u *UserRecoveryContactUpdate) ClearReplacedContactID() *UserRecoveryConta
 	return _u
 }
 
+// SetSourceFederatedIdentityID sets the "source_federated_identity_id" field.
+func (_u *UserRecoveryContactUpdate) SetSourceFederatedIdentityID(v uuid.UUID) *UserRecoveryContactUpdate {
+	_u.mutation.SetSourceFederatedIdentityID(v)
+	return _u
+}
+
+// SetNillableSourceFederatedIdentityID sets the "source_federated_identity_id" field if the given value is not nil.
+func (_u *UserRecoveryContactUpdate) SetNillableSourceFederatedIdentityID(v *uuid.UUID) *UserRecoveryContactUpdate {
+	if v != nil {
+		_u.SetSourceFederatedIdentityID(*v)
+	}
+	return _u
+}
+
+// ClearSourceFederatedIdentityID clears the value of the "source_federated_identity_id" field.
+func (_u *UserRecoveryContactUpdate) ClearSourceFederatedIdentityID() *UserRecoveryContactUpdate {
+	_u.mutation.ClearSourceFederatedIdentityID()
+	return _u
+}
+
 // AddVerificationTokenIDs adds the "verification_tokens" edge to the RecoveryContactVerificationToken entity by IDs.
 func (_u *UserRecoveryContactUpdate) AddVerificationTokenIDs(ids ...uuid.UUID) *UserRecoveryContactUpdate {
 	_u.mutation.AddVerificationTokenIDs(ids...)
@@ -181,6 +202,11 @@ func (_u *UserRecoveryContactUpdate) AddPasswordResetTokens(v ...*PasswordResetT
 		ids[i] = v[i].ID
 	}
 	return _u.AddPasswordResetTokenIDs(ids...)
+}
+
+// SetSourceFederatedIdentity sets the "source_federated_identity" edge to the FederatedIdentity entity.
+func (_u *UserRecoveryContactUpdate) SetSourceFederatedIdentity(v *FederatedIdentity) *UserRecoveryContactUpdate {
+	return _u.SetSourceFederatedIdentityID(v.ID)
 }
 
 // Mutation returns the UserRecoveryContactMutation object of the builder.
@@ -228,6 +254,12 @@ func (_u *UserRecoveryContactUpdate) RemovePasswordResetTokens(v ...*PasswordRes
 		ids[i] = v[i].ID
 	}
 	return _u.RemovePasswordResetTokenIDs(ids...)
+}
+
+// ClearSourceFederatedIdentity clears the "source_federated_identity" edge to the FederatedIdentity entity.
+func (_u *UserRecoveryContactUpdate) ClearSourceFederatedIdentity() *UserRecoveryContactUpdate {
+	_u.mutation.ClearSourceFederatedIdentity()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -438,6 +470,35 @@ func (_u *UserRecoveryContactUpdate) sqlSave(ctx context.Context) (_node int, er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.SourceFederatedIdentityCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userrecoverycontact.SourceFederatedIdentityTable,
+			Columns: []string{userrecoverycontact.SourceFederatedIdentityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SourceFederatedIdentityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userrecoverycontact.SourceFederatedIdentityTable,
+			Columns: []string{userrecoverycontact.SourceFederatedIdentityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -581,6 +642,26 @@ func (_u *UserRecoveryContactUpdateOne) ClearReplacedContactID() *UserRecoveryCo
 	return _u
 }
 
+// SetSourceFederatedIdentityID sets the "source_federated_identity_id" field.
+func (_u *UserRecoveryContactUpdateOne) SetSourceFederatedIdentityID(v uuid.UUID) *UserRecoveryContactUpdateOne {
+	_u.mutation.SetSourceFederatedIdentityID(v)
+	return _u
+}
+
+// SetNillableSourceFederatedIdentityID sets the "source_federated_identity_id" field if the given value is not nil.
+func (_u *UserRecoveryContactUpdateOne) SetNillableSourceFederatedIdentityID(v *uuid.UUID) *UserRecoveryContactUpdateOne {
+	if v != nil {
+		_u.SetSourceFederatedIdentityID(*v)
+	}
+	return _u
+}
+
+// ClearSourceFederatedIdentityID clears the value of the "source_federated_identity_id" field.
+func (_u *UserRecoveryContactUpdateOne) ClearSourceFederatedIdentityID() *UserRecoveryContactUpdateOne {
+	_u.mutation.ClearSourceFederatedIdentityID()
+	return _u
+}
+
 // AddVerificationTokenIDs adds the "verification_tokens" edge to the RecoveryContactVerificationToken entity by IDs.
 func (_u *UserRecoveryContactUpdateOne) AddVerificationTokenIDs(ids ...uuid.UUID) *UserRecoveryContactUpdateOne {
 	_u.mutation.AddVerificationTokenIDs(ids...)
@@ -609,6 +690,11 @@ func (_u *UserRecoveryContactUpdateOne) AddPasswordResetTokens(v ...*PasswordRes
 		ids[i] = v[i].ID
 	}
 	return _u.AddPasswordResetTokenIDs(ids...)
+}
+
+// SetSourceFederatedIdentity sets the "source_federated_identity" edge to the FederatedIdentity entity.
+func (_u *UserRecoveryContactUpdateOne) SetSourceFederatedIdentity(v *FederatedIdentity) *UserRecoveryContactUpdateOne {
+	return _u.SetSourceFederatedIdentityID(v.ID)
 }
 
 // Mutation returns the UserRecoveryContactMutation object of the builder.
@@ -656,6 +742,12 @@ func (_u *UserRecoveryContactUpdateOne) RemovePasswordResetTokens(v ...*Password
 		ids[i] = v[i].ID
 	}
 	return _u.RemovePasswordResetTokenIDs(ids...)
+}
+
+// ClearSourceFederatedIdentity clears the "source_federated_identity" edge to the FederatedIdentity entity.
+func (_u *UserRecoveryContactUpdateOne) ClearSourceFederatedIdentity() *UserRecoveryContactUpdateOne {
+	_u.mutation.ClearSourceFederatedIdentity()
+	return _u
 }
 
 // Where appends a list predicates to the UserRecoveryContactUpdate builder.
@@ -889,6 +981,35 @@ func (_u *UserRecoveryContactUpdateOne) sqlSave(ctx context.Context) (_node *Use
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(passwordresettoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SourceFederatedIdentityCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userrecoverycontact.SourceFederatedIdentityTable,
+			Columns: []string{userrecoverycontact.SourceFederatedIdentityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SourceFederatedIdentityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userrecoverycontact.SourceFederatedIdentityTable,
+			Columns: []string{userrecoverycontact.SourceFederatedIdentityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

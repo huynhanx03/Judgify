@@ -14,12 +14,13 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	dbent "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/platform/audit"
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
+	"github.com/huynhanx03/judgify/internal/platform/tracing"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	"github.com/huynhanx03/judgify/internal/ports"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
@@ -662,9 +663,11 @@ func insertRejudgeJob(
 	result, err := client.Submission.ExecContext(ctx, `
 		INSERT INTO judge_jobs (
 			id, created_at, updated_at, submission_id, generation, judge_spec_id,
-			lane, base_priority, state, available_at, attempts, max_attempts, origin_cid
-		) VALUES ($1, $2, $2, $3, $4, $5, $6, 0, 'ready', $2, 0, $7, $8)`,
+			lane, base_priority, state, available_at, attempts, max_attempts,
+			origin_cid, origin_traceparent
+		) VALUES ($1, $2, $2, $3, $4, $5, $6, 0, 'ready', $2, 0, $7, $8, NULLIF($9, ''))`,
 		jobID, now, submissionID, generation, specID, lane, maxAttempts, originCID,
+		tracing.CaptureTraceparent(ctx),
 	)
 	if err != nil {
 		return fmt.Errorf("insert rejudge job: %w", err)

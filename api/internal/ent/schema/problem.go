@@ -29,7 +29,8 @@ func (Problem) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the Problem.
@@ -38,7 +39,6 @@ func (Problem) Fields() []ent.Field {
 		field.String("slug").
 			NotEmpty().
 			Immutable().
-			Unique().
 			MaxLen(problemcontract.MaximumSlugBytes),
 		field.Enum("lifecycle").
 			Values(problemcontract.Lifecycles()...).
@@ -136,6 +136,7 @@ func (Problem) Edges() []ent.Edge {
 // Indexes of the Problem.
 func (Problem) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("tenant_id", "slug").Unique(),
 		index.Fields("lifecycle", "created_at", "id"),
 		index.Fields("author_id", "lifecycle", "created_at", "id"),
 		index.Fields("id", "tag_mapping_id").Unique(),

@@ -47,6 +47,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantinvitation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantmembership"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -107,6 +109,9 @@ type UserQuery struct {
 	withContestContentRevisions               *ContestContentRevisionQuery
 	withContestClarifications                 *ContestClarificationQuery
 	withContestContentCommands                *ContestContentCommandQuery
+	withTenantMemberships                     *TenantMembershipQuery
+	withTenantInvitations                     *TenantInvitationQuery
+	withSentTenantInvitations                 *TenantInvitationQuery
 	modifiers                                 []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -1046,6 +1051,72 @@ func (_q *UserQuery) QueryContestContentCommands() *ContestContentCommandQuery {
 	return query
 }
 
+// QueryTenantMemberships chains the current query on the "tenant_memberships" edge.
+func (_q *UserQuery) QueryTenantMemberships() *TenantMembershipQuery {
+	query := (&TenantMembershipClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(tenantmembership.Table, tenantmembership.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.TenantMembershipsTable, user.TenantMembershipsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTenantInvitations chains the current query on the "tenant_invitations" edge.
+func (_q *UserQuery) QueryTenantInvitations() *TenantInvitationQuery {
+	query := (&TenantInvitationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(tenantinvitation.Table, tenantinvitation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.TenantInvitationsTable, user.TenantInvitationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySentTenantInvitations chains the current query on the "sent_tenant_invitations" edge.
+func (_q *UserQuery) QuerySentTenantInvitations() *TenantInvitationQuery {
+	query := (&TenantInvitationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(tenantinvitation.Table, tenantinvitation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SentTenantInvitationsTable, user.SentTenantInvitationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first User entity from the query.
 // Returns a *NotFoundError when no User was found.
 func (_q *UserQuery) First(ctx context.Context) (*User, error) {
@@ -1279,6 +1350,9 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withContestContentRevisions:               _q.withContestContentRevisions.Clone(),
 		withContestClarifications:                 _q.withContestClarifications.Clone(),
 		withContestContentCommands:                _q.withContestContentCommands.Clone(),
+		withTenantMemberships:                     _q.withTenantMemberships.Clone(),
+		withTenantInvitations:                     _q.withTenantInvitations.Clone(),
+		withSentTenantInvitations:                 _q.withSentTenantInvitations.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -1737,6 +1811,39 @@ func (_q *UserQuery) WithContestContentCommands(opts ...func(*ContestContentComm
 	return _q
 }
 
+// WithTenantMemberships tells the query-builder to eager-load the nodes that are connected to
+// the "tenant_memberships" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithTenantMemberships(opts ...func(*TenantMembershipQuery)) *UserQuery {
+	query := (&TenantMembershipClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTenantMemberships = query
+	return _q
+}
+
+// WithTenantInvitations tells the query-builder to eager-load the nodes that are connected to
+// the "tenant_invitations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithTenantInvitations(opts ...func(*TenantInvitationQuery)) *UserQuery {
+	query := (&TenantInvitationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTenantInvitations = query
+	return _q
+}
+
+// WithSentTenantInvitations tells the query-builder to eager-load the nodes that are connected to
+// the "sent_tenant_invitations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithSentTenantInvitations(opts ...func(*TenantInvitationQuery)) *UserQuery {
+	query := (&TenantInvitationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSentTenantInvitations = query
+	return _q
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
@@ -1815,7 +1922,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [41]bool{
+		loadedTypes = [44]bool{
 			_q.withCredentials != nil,
 			_q.withAttributes != nil,
 			_q.withFederatedIdentities != nil,
@@ -1857,6 +1964,9 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			_q.withContestContentRevisions != nil,
 			_q.withContestClarifications != nil,
 			_q.withContestContentCommands != nil,
+			_q.withTenantMemberships != nil,
+			_q.withTenantInvitations != nil,
+			_q.withSentTenantInvitations != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -2367,6 +2477,42 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 				n.Edges.ContestContentCommands = append(n.Edges.ContestContentCommands, e)
 				if !e.Edges.loadedTypes[1] {
 					e.Edges.Actor = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTenantMemberships; query != nil {
+		if err := _q.loadTenantMemberships(ctx, query, nodes,
+			func(n *User) { n.Edges.TenantMemberships = []*TenantMembership{} },
+			func(n *User, e *TenantMembership) {
+				n.Edges.TenantMemberships = append(n.Edges.TenantMemberships, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.User = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withTenantInvitations; query != nil {
+		if err := _q.loadTenantInvitations(ctx, query, nodes,
+			func(n *User) { n.Edges.TenantInvitations = []*TenantInvitation{} },
+			func(n *User, e *TenantInvitation) {
+				n.Edges.TenantInvitations = append(n.Edges.TenantInvitations, e)
+				if !e.Edges.loadedTypes[1] {
+					e.Edges.Invitee = n
+				}
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSentTenantInvitations; query != nil {
+		if err := _q.loadSentTenantInvitations(ctx, query, nodes,
+			func(n *User) { n.Edges.SentTenantInvitations = []*TenantInvitation{} },
+			func(n *User, e *TenantInvitation) {
+				n.Edges.SentTenantInvitations = append(n.Edges.SentTenantInvitations, e)
+				if !e.Edges.loadedTypes[2] {
+					e.Edges.Inviter = n
 				}
 			}); err != nil {
 			return nil, err
@@ -3612,6 +3758,96 @@ func (_q *UserQuery) loadContestContentCommands(ctx context.Context, query *Cont
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "actor_user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadTenantMemberships(ctx context.Context, query *TenantMembershipQuery, nodes []*User, init func(*User), assign func(*User, *TenantMembership)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(tenantmembership.FieldUserID)
+	}
+	query.Where(predicate.TenantMembership(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.TenantMembershipsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadTenantInvitations(ctx context.Context, query *TenantInvitationQuery, nodes []*User, init func(*User), assign func(*User, *TenantInvitation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(tenantinvitation.FieldInvitedUserID)
+	}
+	query.Where(predicate.TenantInvitation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.TenantInvitationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.InvitedUserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "invited_user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadSentTenantInvitations(ctx context.Context, query *TenantInvitationQuery, nodes []*User, init func(*User), assign func(*User, *TenantInvitation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(tenantinvitation.FieldInvitedBy)
+	}
+	query.Where(predicate.TenantInvitation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.SentTenantInvitationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.InvitedBy
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "invited_by" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

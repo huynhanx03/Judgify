@@ -28,7 +28,7 @@ func (handler *Handler) RegisterProtected(router *gin.RouterGroup) {
 	notifications := router.Group("/notifications")
 	notifications.Use(noStore)
 	{
-		notifications.GET("", commonhandler.Wrap(handler.List))
+		notifications.GET("", commonhandler.Wrap(handler.Find))
 		notifications.GET("/unread", commonhandler.WrapNoReq(handler.Unread))
 		notifications.GET("/:id/content", commonhandler.Wrap(handler.CampaignContent))
 		notifications.POST("/read-all", commonhandler.WrapNoReq(handler.MarkAllRead))
@@ -44,12 +44,12 @@ func (handler *Handler) RegisterProtected(router *gin.RouterGroup) {
 	}
 }
 
-func (handler *Handler) List(ctx context.Context, request *notificationListRequest) (*notificationListResponse, error) {
+func (handler *Handler) Find(ctx context.Context, request *notificationListRequest) (*notificationListResponse, error) {
 	userID, err := authenticatedUserID(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result, err := handler.service.List(ctx, userID, toNotificationListQuery(request))
+	result, err := handler.service.Find(ctx, userID, toNotificationListQuery(request))
 	if err != nil {
 		return nil, err
 	}

@@ -302,12 +302,12 @@ func (_q *ContentRenderArtifactQuery) WithRenderSource(opts ...func(*ContentRend
 // Example:
 //
 //	var v []struct {
-//		RenderSourceID uuid.UUID `json:"render_source_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContentRenderArtifact.Query().
-//		GroupBy(contentrenderartifact.FieldRenderSourceID).
+//		GroupBy(contentrenderartifact.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ContentRenderArtifactQuery) GroupBy(field string, fields ...string) *ContentRenderArtifactGroupBy {
@@ -325,11 +325,11 @@ func (_q *ContentRenderArtifactQuery) GroupBy(field string, fields ...string) *C
 // Example:
 //
 //	var v []struct {
-//		RenderSourceID uuid.UUID `json:"render_source_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ContentRenderArtifact.Query().
-//		Select(contentrenderartifact.FieldRenderSourceID).
+//		Select(contentrenderartifact.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ContentRenderArtifactQuery) Select(fields ...string) *ContentRenderArtifactSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

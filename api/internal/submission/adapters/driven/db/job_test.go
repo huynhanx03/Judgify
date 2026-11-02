@@ -691,7 +691,7 @@ func jobClaimTestCandidate(now time.Time) claimTestCandidate {
 func (candidate claimTestCandidate) rows() *sqlmock.Rows {
 	return sqlmock.NewRows([]string{
 		"job_id", "submission_id", "generation", "judge_spec_id", "lane",
-		"base_priority", "created_at", "attempts", "max_attempts", "origin_cid",
+		"base_priority", "created_at", "attempts", "max_attempts", "origin_cid", "origin_traceparent",
 		"submission_version", "spec_id", "spec_submission_id", "spec_generation",
 		"user_id", "problem_revision_id", "testset_revision_id", "judge_spec_protocol",
 		"runtime_key", "runtime_profile_version", "compiler_version",
@@ -713,6 +713,7 @@ func (candidate claimTestCandidate) rows() *sqlmock.Rows {
 		uint32(0),
 		uint32(5),
 		candidate.originCID,
+		nil,
 		int64(7),
 		candidate.specID,
 		candidate.submissionID,

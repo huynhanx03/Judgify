@@ -15,6 +15,9 @@ import (
 
 	commonmetrics "github.com/huynhanx03/go-common/pkg/common/observability"
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Metric string
@@ -214,6 +217,18 @@ func (metrics *Metrics) ObserveDatabase(
 	duration := observation.Duration
 	if duration < 0 {
 		duration = 0
+	}
+	if parent := trace.SpanContextFromContext(ctx); parent.IsValid() && parent.IsSampled() {
+		ended := time.Now()
+		_, span := otel.Tracer("judgify/database").Start(
+			ctx, "db.query",
+			trace.WithTimestamp(ended.Add(-duration)),
+			trace.WithAttributes(
+				attribute.String("db.query_class", queryClass),
+				attribute.String("db.outcome", outcome),
+			),
+		)
+		span.End(trace.WithTimestamp(ended))
 	}
 	_ = metrics.Observe(ctx, MetricDatabaseQueryDuration, duration.Seconds(), commonmetrics.Labels{
 		"query_class": queryClass,

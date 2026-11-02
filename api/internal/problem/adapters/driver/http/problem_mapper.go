@@ -49,7 +49,7 @@ func toProblemResponse(result *contract.ProblemResult) *ProblemResponse {
 		return nil
 	}
 	response := &ProblemResponse{
-		ID: result.ID.String(), Slug: result.Slug, Lifecycle: result.Lifecycle, Version: result.Version,
+		ID: result.ID.String(), TenantID: result.TenantID.String(), Slug: result.Slug, Lifecycle: result.Lifecycle, Version: result.Version,
 		Title: result.Title, Description: result.Description, DifficultyID: result.DifficultyID.String(),
 		Difficulty: toDifficultyResponse(result.Difficulty), TimeLimitMs: result.TimeLimitMs,
 		MemoryLimitKb: result.MemoryLimitKb, AuthorID: result.AuthorID.String(), IsPublished: result.IsPublished,

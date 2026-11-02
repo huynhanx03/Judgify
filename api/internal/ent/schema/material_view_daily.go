@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,6 +19,10 @@ import (
 // MaterialViewDaily is a privacy-preserving daily idempotency record. It
 // stores only a keyed digest, never a raw IP, cookie, user, or session value.
 type MaterialViewDaily struct{ ent.Schema }
+
+func (MaterialViewDaily) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
 
 func (MaterialViewDaily) Fields() []ent.Field {
 	return []ent.Field{

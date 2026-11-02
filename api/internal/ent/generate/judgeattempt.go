@@ -22,6 +22,8 @@ type JudgeAttempt struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// JobID holds the value of the "job_id" field.
 	JobID uuid.UUID `json:"job_id,omitempty"`
 	// SubmissionID holds the value of the "submission_id" field.
@@ -84,7 +86,7 @@ func (*JudgeAttempt) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case judgeattempt.FieldCreatedAt, judgeattempt.FieldUpdatedAt, judgeattempt.FieldStartedAt, judgeattempt.FieldHeartbeatAt, judgeattempt.FieldFinishedAt:
 			values[i] = new(sql.NullTime)
-		case judgeattempt.FieldID, judgeattempt.FieldJobID, judgeattempt.FieldSubmissionID, judgeattempt.FieldJudgeSpecID, judgeattempt.FieldWorkerID, judgeattempt.FieldWorkerBootID:
+		case judgeattempt.FieldID, judgeattempt.FieldTenantID, judgeattempt.FieldJobID, judgeattempt.FieldSubmissionID, judgeattempt.FieldJudgeSpecID, judgeattempt.FieldWorkerID, judgeattempt.FieldWorkerBootID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -118,6 +120,12 @@ func (_m *JudgeAttempt) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case judgeattempt.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case judgeattempt.FieldJobID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -303,6 +311,9 @@ func (_m *JudgeAttempt) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("job_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.JobID))

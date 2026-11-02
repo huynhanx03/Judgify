@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,7 +21,8 @@ import (
 type UserRewardProfileRevision struct{ ent.Schema }
 
 func (UserRewardProfileRevision) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (UserRewardProfileRevision) Fields() []ent.Field {
@@ -55,7 +57,7 @@ func (UserRewardProfileRevision) Edges() []ent.Edge {
 
 func (UserRewardProfileRevision) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id", "revision").Unique(),
+		index.Fields("tenant_id", "user_id", "revision").Unique(),
 		index.Fields("user_id", "effective_at", "revision", "id").Unique(),
 		index.Fields("source_offer_id").Unique().
 			Annotations(entsql.IndexWhere("source_offer_id IS NOT NULL")),

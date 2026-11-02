@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -15,6 +16,8 @@ const (
 	Label = "outbox_event"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldEventType holds the string denoting the event_type field in the database.
 	FieldEventType = "event_type"
 	// FieldAggregateType holds the string denoting the aggregate_type field in the database.
@@ -25,6 +28,8 @@ const (
 	FieldAggregateVersion = "aggregate_version"
 	// FieldCorrelationID holds the string denoting the correlation_id field in the database.
 	FieldCorrelationID = "correlation_id"
+	// FieldTraceparent holds the string denoting the traceparent field in the database.
+	FieldTraceparent = "traceparent"
 	// FieldCausationID holds the string denoting the causation_id field in the database.
 	FieldCausationID = "causation_id"
 	// FieldPayload holds the string denoting the payload field in the database.
@@ -57,18 +62,29 @@ const (
 	FieldLastErrorCode = "last_error_code"
 	// FieldAmbiguous holds the string denoting the ambiguous field in the database.
 	FieldAmbiguous = "ambiguous"
+	// EdgeTenant holds the string denoting the tenant edge name in mutations.
+	EdgeTenant = "tenant"
 	// Table holds the table name of the outboxevent in the database.
 	Table = "outbox_events"
+	// TenantTable is the table that holds the tenant relation/edge.
+	TenantTable = "outbox_events"
+	// TenantInverseTable is the table name for the Tenant entity.
+	// It exists in this package in order to avoid circular dependency with the "tenant" package.
+	TenantInverseTable = "tenants"
+	// TenantColumn is the table column denoting the tenant relation/edge.
+	TenantColumn = "tenant_id"
 )
 
 // Columns holds all SQL columns for outboxevent fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldEventType,
 	FieldAggregateType,
 	FieldAggregateID,
 	FieldAggregateVersion,
 	FieldCorrelationID,
+	FieldTraceparent,
 	FieldCausationID,
 	FieldPayload,
 	FieldOccurredAt,
@@ -106,6 +122,8 @@ var (
 	AggregateVersionValidator func(int64) error
 	// CorrelationIDValidator is a validator for the "correlation_id" field. It is called by the builders before save.
 	CorrelationIDValidator func(string) error
+	// TraceparentValidator is a validator for the "traceparent" field. It is called by the builders before save.
+	TraceparentValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultAttemptCount holds the default value on creation for the "attempt_count" field.
@@ -160,6 +178,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
+}
+
 // ByEventType orders the results by the event_type field.
 func ByEventType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEventType, opts...).ToFunc()
@@ -183,6 +206,11 @@ func ByAggregateVersion(opts ...sql.OrderTermOption) OrderOption {
 // ByCorrelationID orders the results by the correlation_id field.
 func ByCorrelationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCorrelationID, opts...).ToFunc()
+}
+
+// ByTraceparent orders the results by the traceparent field.
+func ByTraceparent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTraceparent, opts...).ToFunc()
 }
 
 // ByCausationID orders the results by the causation_id field.
@@ -258,4 +286,18 @@ func ByLastErrorCode(opts ...sql.OrderTermOption) OrderOption {
 // ByAmbiguous orders the results by the ambiguous field.
 func ByAmbiguous(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAmbiguous, opts...).ToFunc()
+}
+
+// ByTenantField orders the results by tenant field.
+func ByTenantField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTenantStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newTenantStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TenantInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TenantTable, TenantColumn),
+	)
 }

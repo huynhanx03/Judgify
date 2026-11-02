@@ -338,12 +338,12 @@ func (_q *UserTagStatsQuery) WithTag(opts ...func(*TagQuery)) *UserTagStatsQuery
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserTagStats.Query().
-//		GroupBy(usertagstats.FieldUserID).
+//		GroupBy(usertagstats.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *UserTagStatsQuery) GroupBy(field string, fields ...string) *UserTagStatsGroupBy {
@@ -361,11 +361,11 @@ func (_q *UserTagStatsQuery) GroupBy(field string, fields ...string) *UserTagSta
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.UserTagStats.Query().
-//		Select(usertagstats.FieldUserID).
+//		Select(usertagstats.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *UserTagStatsQuery) Select(fields ...string) *UserTagStatsSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

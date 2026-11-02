@@ -2,8 +2,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-template="$root/deploy/envoy/envoy.yaml.tmpl"
-compose="$root/deploy/compose.production.yml"
+template="$root/docker/infrastructure/envoy.yaml.tmpl"
 api="$root/api/internal/infrastructure/authz/check_server.go"
 
 grep -Fq 'envoy.filters.http.ext_authz' "$template"
@@ -17,6 +16,6 @@ grep -Fq 'RequireAndVerifyClientCert' "$root/../go-common/pkg/common/grpc/server
 grep -Fq 'StatusCode_Unauthorized' "$api"
 grep -Fq 'StatusCode_Forbidden' "$api"
 grep -Fq 'StatusCode_ServiceUnavailable' "$api"
-grep -Fq 'authz_server_certificate' "$compose"
+grep -Fq 'authz_server_certificate' "$root/docker/infrastructure/envoy.yml"
 
 echo "Envoy ext_authz contract passed"

@@ -302,12 +302,12 @@ func (_q *MaterialSlugQuery) WithMaterial(opts ...func(*MaterialQuery)) *Materia
 // Example:
 //
 //	var v []struct {
-//		MaterialID uuid.UUID `json:"material_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.MaterialSlug.Query().
-//		GroupBy(materialslug.FieldMaterialID).
+//		GroupBy(materialslug.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *MaterialSlugQuery) GroupBy(field string, fields ...string) *MaterialSlugGroupBy {
@@ -325,11 +325,11 @@ func (_q *MaterialSlugQuery) GroupBy(field string, fields ...string) *MaterialSl
 // Example:
 //
 //	var v []struct {
-//		MaterialID uuid.UUID `json:"material_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.MaterialSlug.Query().
-//		Select(materialslug.FieldMaterialID).
+//		Select(materialslug.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *MaterialSlugQuery) Select(fields ...string) *MaterialSlugSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

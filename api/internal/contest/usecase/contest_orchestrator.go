@@ -10,11 +10,12 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/constant"
 	entity "github.com/huynhanx03/judgify/internal/contest/domain"
 	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var (
@@ -166,6 +167,32 @@ func (o *ContestOrchestrator) Shutdown(ctx context.Context) error {
 
 // transitionStatuses checks upcoming/running contests and updates their status.
 func (o *ContestOrchestrator) transitionStatuses(ctx context.Context) {
+	scopedRepository, ok := o.contestRepo.(interface {
+		FindActiveTenantIDs(context.Context) ([]uuid.UUID, error)
+	})
+	if !ok {
+		commonlogger.FromContext(ctx).Error("contest lifecycle worker cannot resolve tenant scopes")
+		return
+	}
+	tenantIDs, err := scopedRepository.FindActiveTenantIDs(ctx)
+	if err != nil {
+		commonlogger.FromContext(ctx).Error("failed to fetch active tenant scopes", zap.Error(err))
+		return
+	}
+	for _, tenantID := range tenantIDs {
+		if ctx.Err() != nil {
+			return
+		}
+		scope, scopeErr := tenantctx.Tenant(tenantID)
+		if scopeErr != nil {
+			commonlogger.FromContext(ctx).Error("invalid tenant scope in contest lifecycle worker", zap.Error(scopeErr))
+			continue
+		}
+		o.transitionTenantStatuses(tenantctx.WithContext(ctx, scope))
+	}
+}
+
+func (o *ContestOrchestrator) transitionTenantStatuses(ctx context.Context) {
 	now := time.Now()
 	log := commonlogger.FromContext(ctx)
 

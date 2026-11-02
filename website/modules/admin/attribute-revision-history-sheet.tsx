@@ -42,7 +42,7 @@ export function AttributeRevisionHistorySheet({
     enabled: open && Boolean(definition),
     load: async (cursor, signal) => {
       if (!definition) return { items: [] };
-      const page = await attributeDefinitionService.listRevisions(
+      const page = await attributeDefinitionService.findRevisions(
         definition.id,
         cursor,
         signal,

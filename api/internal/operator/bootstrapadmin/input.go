@@ -10,8 +10,6 @@ import (
 	"io"
 	"regexp"
 	"unicode/utf8"
-
-	commonpassword "github.com/huynhanx03/go-common/pkg/security/password"
 )
 
 const (
@@ -20,12 +18,12 @@ const (
 
 	maxUsernameBytes = 50
 	minPasswordBytes = 8
+	maxPasswordBytes = 1024
 )
 
 var (
-	ErrInvalidInput  = errors.New("bootstrap-admin: invalid input")
-	usernamePattern  = regexp.MustCompile(`\A[a-zA-Z0-9]{3,50}\z`)
-	maxPasswordBytes = commonpassword.DefaultPolicy().MaxPasswordBytes
+	ErrInvalidInput = errors.New("bootstrap-admin: invalid input")
+	usernamePattern = regexp.MustCompile(`\A[a-zA-Z0-9]{3,50}\z`)
 )
 
 // Input is the validated, ephemeral bootstrap credential. Callers must not

@@ -11,8 +11,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	internalent "github.com/huynhanx03/judgify/internal/ent"
@@ -326,7 +326,7 @@ func progressionDatabaseNow(ctx context.Context, executor rankingSQLExecutor) (t
 	return now.UTC(), nil
 }
 
-func (repository *ProgressionRepository) ListLedger(
+func (repository *ProgressionRepository) FindLedger(
 	ctx context.Context,
 	userID uuid.UUID,
 	cursor *uuid.UUID,

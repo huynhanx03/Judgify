@@ -5,12 +5,12 @@ package audithttp
 
 import (
 	"errors"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
 
 	"github.com/huynhanx03/judgify/internal/platform/audit"
@@ -50,7 +50,7 @@ func NewHandler(reader audit.Searcher) (*Handler, error) {
 
 func (handler *Handler) RegisterProtected(
 	router *gin.RouterGroup,
-	permissionChecker *middlewares.AuthorizationChecker,
+	permissionChecker *authmiddleware.AuthorizationChecker,
 ) {
 	if handler == nil || router == nil || permissionChecker == nil {
 		return
@@ -62,11 +62,11 @@ func (handler *Handler) RegisterProtected(
 			permissions.ResourceKeyAudit,
 			permissions.PermissionScopeRead,
 		),
-		handler.Search,
+		handler.Find,
 	)
 }
 
-func (handler *Handler) Search(c *gin.Context) {
+func (handler *Handler) Find(c *gin.Context) {
 	if handler == nil || handler.reader == nil || c == nil || c.Request == nil {
 		if c != nil {
 			fail(c, apperr.New(apperr.CodeInternalServer, "audit unavailable", ErrInvalidHandler))
@@ -83,7 +83,7 @@ func (handler *Handler) Search(c *gin.Context) {
 		fail(c, apperr.New(apperr.CodeParamInvalid, "invalid audit search", err))
 		return
 	}
-	page, err := handler.reader.Search(c.Request.Context(), filter)
+	page, err := handler.reader.Find(c.Request.Context(), filter)
 	if err != nil {
 		fail(c, err)
 		return

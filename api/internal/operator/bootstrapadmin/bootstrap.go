@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
+	commoncasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
 	commonpassword "github.com/huynhanx03/go-common/pkg/security/password"
 
 	identityconstant "github.com/huynhanx03/judgify/internal/constant"
@@ -20,6 +21,9 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/audit"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	identityports "github.com/huynhanx03/judgify/internal/ports"
+	tenantdb "github.com/huynhanx03/judgify/internal/tenant/adapters/driven/db"
+	tenantdomain "github.com/huynhanx03/judgify/internal/tenant/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -43,7 +47,7 @@ func Bootstrap(ctx context.Context, client *generate.Client, input Input) (uuid.
 		return uuid.Nil, ErrInvalidInput
 	}
 
-	passwordHasher, err := commonpassword.New(commonpassword.DefaultPolicy())
+	passwordHasher, err := commonpassword.New(commonpassword.DefaultPassword())
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("bootstrap-admin: configure password hasher: %w", err)
 	}
@@ -53,6 +57,11 @@ func Bootstrap(ctx context.Context, client *generate.Client, input Input) (uuid.
 	}
 
 	ctx = correlation.EnsureContext(ctx)
+	communityScope, err := tenantctx.Tenant(tenantdomain.CommunityID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("bootstrap-admin: create Community tenant scope: %w", err)
+	}
+	ctx = tenantctx.WithContext(ctx, communityScope)
 	var administratorID uuid.UUID
 	err = platformtx.NewEntUnitOfWork(client).Within(ctx, func(txCtx context.Context) error {
 		txClient, txErr := platformtx.Client(txCtx, nil)
@@ -81,6 +90,9 @@ func Bootstrap(ctx context.Context, client *generate.Client, input Input) (uuid.
 		if createErr := createProfileSchemaState(txCtx, txClient); createErr != nil {
 			return createErr
 		}
+		if createErr := createCultivationRankingState(txCtx, txClient); createErr != nil {
+			return createErr
+		}
 
 		var createErr error
 		administratorID, createErr = uuid.NewV7()
@@ -104,11 +116,15 @@ func Bootstrap(ctx context.Context, client *generate.Client, input Input) (uuid.
 			Exec(txCtx); createErr != nil {
 			return fmt.Errorf("bootstrap-admin: create password credential: %w", createErr)
 		}
+		if createErr = tenantdb.BootstrapCommunity(txCtx, txClient, administratorID); createErr != nil {
+			return fmt.Errorf("bootstrap-admin: initialize Judgify Community: %w", createErr)
+		}
 
 		if createErr = txClient.CasbinRule.Create().
 			SetPtype("g").
 			SetV0("user:" + administratorID.String()).
 			SetV1("role:" + protectedRoleKey).
+			SetV2(commoncasbin.SystemScope().Key()).
 			Exec(txCtx); createErr != nil {
 			return fmt.Errorf("bootstrap-admin: assign administrator role: %w", createErr)
 		}
@@ -117,6 +133,7 @@ func Bootstrap(ctx context.Context, client *generate.Client, input Input) (uuid.
 			SetV0("role:" + protectedRoleKey).
 			SetV1("*").
 			SetV2("*").
+			SetV3("*").
 			Exec(txCtx); createErr != nil {
 			return fmt.Errorf("bootstrap-admin: create administrator policy: %w", createErr)
 		}
@@ -165,6 +182,21 @@ func createProfileSchemaState(ctx context.Context, client *generate.Client) erro
 		SetRevision(profileSchemaRevision).
 		Exec(ctx); err != nil {
 		return fmt.Errorf("bootstrap-admin: create profile schema state: %w", err)
+	}
+	return nil
+}
+
+func createCultivationRankingState(ctx context.Context, client *generate.Client) error {
+	stateID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("bootstrap-admin: allocate cultivation ranking state: %w", err)
+	}
+	if err := client.CultivationRankingState.Create().
+		SetID(stateID).
+		SetKey("global").
+		SetRevision(0).
+		Exec(ctx); err != nil {
+		return fmt.Errorf("bootstrap-admin: create cultivation ranking state: %w", err)
 	}
 	return nil
 }

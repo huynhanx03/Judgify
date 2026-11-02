@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -23,6 +24,8 @@ type ContestProblem struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
@@ -40,7 +43,7 @@ type ContestProblem struct {
 	// Points holds the value of the "points" field.
 	Points *int `json:"points,omitempty"`
 	// PenaltyPolicy holds the value of the "penalty_policy" field.
-	PenaltyPolicy json.RawMessage `json:"penalty_policy,omitempty"`
+	PenaltyPolicy jsontext.Value `json:"penalty_policy,omitempty"`
 	// VisibleBeforeStart holds the value of the "visible_before_start" field.
 	VisibleBeforeStart bool `json:"visible_before_start,omitempty"`
 	// CheckerKey holds the value of the "checker_key" field.
@@ -48,7 +51,7 @@ type ContestProblem struct {
 	// CheckerVersion holds the value of the "checker_version" field.
 	CheckerVersion string `json:"checker_version,omitempty"`
 	// CheckerConfig holds the value of the "checker_config" field.
-	CheckerConfig json.RawMessage `json:"checker_config,omitempty"`
+	CheckerConfig jsontext.Value `json:"checker_config,omitempty"`
 	// AllowedRuntimeKeys holds the value of the "allowed_runtime_keys" field.
 	AllowedRuntimeKeys []string `json:"allowed_runtime_keys,omitempty"`
 	// SnapshotChecksum holds the value of the "snapshot_checksum" field.
@@ -166,7 +169,7 @@ func (*ContestProblem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case contestproblem.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case contestproblem.FieldID, contestproblem.FieldContestID, contestproblem.FieldProblemID, contestproblem.FieldProblemRevisionID, contestproblem.FieldTestsetRevisionID:
+		case contestproblem.FieldID, contestproblem.FieldTenantID, contestproblem.FieldContestID, contestproblem.FieldProblemID, contestproblem.FieldProblemRevisionID, contestproblem.FieldTestsetRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -188,6 +191,12 @@ func (_m *ContestProblem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case contestproblem.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contestproblem.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -357,6 +366,9 @@ func (_m *ContestProblem) String() string {
 	var builder strings.Builder
 	builder.WriteString("ContestProblem(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

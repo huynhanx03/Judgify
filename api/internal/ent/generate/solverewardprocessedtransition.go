@@ -18,6 +18,8 @@ type SolveRewardProcessedTransition struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// SolveID holds the value of the "solve_id" field.
 	SolveID uuid.UUID `json:"solve_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -60,7 +62,7 @@ func (*SolveRewardProcessedTransition) scanValues(columns []string) ([]any, erro
 			values[i] = new(sql.NullString)
 		case solverewardprocessedtransition.FieldOccurredAt, solverewardprocessedtransition.FieldProcessedAt:
 			values[i] = new(sql.NullTime)
-		case solverewardprocessedtransition.FieldID, solverewardprocessedtransition.FieldSolveID, solverewardprocessedtransition.FieldUserID, solverewardprocessedtransition.FieldProblemID, solverewardprocessedtransition.FieldTransitionID, solverewardprocessedtransition.FieldEventID:
+		case solverewardprocessedtransition.FieldID, solverewardprocessedtransition.FieldTenantID, solverewardprocessedtransition.FieldSolveID, solverewardprocessedtransition.FieldUserID, solverewardprocessedtransition.FieldProblemID, solverewardprocessedtransition.FieldTransitionID, solverewardprocessedtransition.FieldEventID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -82,6 +84,12 @@ func (_m *SolveRewardProcessedTransition) assignValues(columns []string, values 
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case solverewardprocessedtransition.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case solverewardprocessedtransition.FieldSolveID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -192,6 +200,9 @@ func (_m *SolveRewardProcessedTransition) String() string {
 	var builder strings.Builder
 	builder.WriteString("SolveRewardProcessedTransition(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("solve_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SolveID))
 	builder.WriteString(", ")

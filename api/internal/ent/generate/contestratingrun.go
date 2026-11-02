@@ -24,6 +24,8 @@ type ContestRatingRun struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
 	ContestID uuid.UUID `json:"contest_id,omitempty"`
 	// RatingSequenceSlotID holds the value of the "rating_sequence_slot_id" field.
@@ -139,7 +141,7 @@ func (*ContestRatingRun) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case contestratingrun.FieldCreatedAt, contestratingrun.FieldUpdatedAt, contestratingrun.FieldAppliedAt:
 			values[i] = new(sql.NullTime)
-		case contestratingrun.FieldID, contestratingrun.FieldContestID, contestratingrun.FieldRatingSequenceSlotID:
+		case contestratingrun.FieldID, contestratingrun.FieldTenantID, contestratingrun.FieldContestID, contestratingrun.FieldRatingSequenceSlotID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -173,6 +175,12 @@ func (_m *ContestRatingRun) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case contestratingrun.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contestratingrun.FieldContestID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -329,6 +337,9 @@ func (_m *ContestRatingRun) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ContestID))

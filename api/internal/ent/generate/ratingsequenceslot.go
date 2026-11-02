@@ -23,6 +23,8 @@ type RatingSequenceSlot struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// RatingSequence holds the value of the "rating_sequence" field.
 	RatingSequence int64 `json:"rating_sequence,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
@@ -77,7 +79,7 @@ func (*RatingSequenceSlot) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case ratingsequenceslot.FieldCreatedAt, ratingsequenceslot.FieldUpdatedAt, ratingsequenceslot.FieldEffectiveEndAt, ratingsequenceslot.FieldAssignedAt:
 			values[i] = new(sql.NullTime)
-		case ratingsequenceslot.FieldID, ratingsequenceslot.FieldContestID:
+		case ratingsequenceslot.FieldID, ratingsequenceslot.FieldTenantID, ratingsequenceslot.FieldContestID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -111,6 +113,12 @@ func (_m *RatingSequenceSlot) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case ratingsequenceslot.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case ratingsequenceslot.FieldRatingSequence:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -187,6 +195,9 @@ func (_m *RatingSequenceSlot) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("rating_sequence=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RatingSequence))

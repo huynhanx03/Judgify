@@ -34,11 +34,20 @@ while IFS= read -r base_image; do
   esac
   [[ "$base_image" =~ @sha256:[0-9a-f]{64}$ ]] ||
     die "every Docker base image must be digest pinned: $base_image"
-done < <(awk '/^[[:space:]]*FROM[[:space:]]+/ {print $2}' "$root"/docker/*/Dockerfile)
-if grep -n -E '^[[:space:]]+image:[[:space:]]+[^$][^[:space:]@]+(:[^[:space:]@]+)?$' \
-  "$root/deploy/compose.production.yml" >/dev/null; then
-  die "literal production images must be digest pinned"
-fi
+done < <(
+  awk '/^[[:space:]]*FROM[[:space:]]+/ {print $2}' \
+    "$root/api/Dockerfile" "$root/website/Dockerfile" \
+    "$root"/docker/*/Dockerfile
+)
+for compose_file in \
+  "$root/deploy/compose.production.yml" \
+  "$root/docker/infrastructure/postgres.yml" \
+  "$root/docker/infrastructure/envoy.yml"; do
+  if grep -n -E '^[[:space:]]+image:[[:space:]]+[^$][^[:space:]@]+(:[^[:space:]@]+)?$' \
+    "$compose_file" >/dev/null; then
+    die "literal production images must be digest pinned: $compose_file"
+  fi
+done
 
 [[ "$mode" == "--evidence" ]] || {
   printf '%s\n' "supply-chain source contracts verified"

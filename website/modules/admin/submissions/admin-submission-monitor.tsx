@@ -214,7 +214,7 @@ export function AdminSubmissionMonitor() {
       resetKey: `${authorizationRevision}:${JSON.stringify(query)}`,
       initialData: null,
       keepPreviousData: true,
-      load: (signal) => submissionService.findAdmin(query, signal),
+      load: (signal) => submissionService.findForAdmin(query, signal),
       onSuccess: () => setLastUpdatedAt(new Date().toISOString()),
     });
   const runtimeResource = useRetryableResource<readonly JudgeRuntime[]>({

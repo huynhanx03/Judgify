@@ -27,7 +27,7 @@ type rankingProjectionRepositoryStub struct {
 	updateErr  error
 }
 
-func (repository *rankingProjectionRepositoryStub) Page(
+func (repository *rankingProjectionRepositoryStub) Find(
 	_ context.Context,
 	query ports.RankingProjectionQuery,
 ) (entity.RankingProjectionPage, error) {
@@ -115,7 +115,7 @@ func TestRankingPageMapsPrivacySafeProjectionAndStableCursor(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	response, err := service.Page(context.Background(), entity.RankingByRating, "", 2)
+	response, err := service.Find(context.Background(), entity.RankingByRating, "", 2)
 	require.NoError(t, err)
 	require.Equal(t, entity.RankingByRating, projection.lastQuery.Kind)
 	require.Equal(t, 2, projection.lastQuery.Limit)
@@ -148,7 +148,7 @@ func TestRankingPageMapsProjectionRevisionConflict(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	response, err := service.Page(context.Background(), entity.RankingByRating, "", 20)
+	response, err := service.Find(context.Background(), entity.RankingByRating, "", 20)
 	require.Nil(t, response)
 	require.ErrorIs(t, err, entity.ErrRankingRevisionChanged)
 	var appError *apperr.AppError
@@ -238,7 +238,7 @@ func TestRankingPagePropagatesDecorationFailure(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	response, err := service.Page(context.Background(), entity.RankingByRating, "", 20)
+	response, err := service.Find(context.Background(), entity.RankingByRating, "", 20)
 	require.Nil(t, response)
 	require.ErrorIs(t, err, decorationErr)
 }

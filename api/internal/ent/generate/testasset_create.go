@@ -25,6 +25,12 @@ type TestAssetCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *TestAssetCreate) SetTenantID(v uuid.UUID) *TestAssetCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *TestAssetCreate) SetCreatedAt(v time.Time) *TestAssetCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -163,6 +169,9 @@ func (_c *TestAssetCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TestAssetCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "TestAsset.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "TestAsset.created_at"`)}
 	}
@@ -234,6 +243,10 @@ func (_c *TestAssetCreate) createSpec() (*TestAsset, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(testasset.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(testasset.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -293,7 +306,7 @@ func (_c *TestAssetCreate) createSpec() (*TestAsset, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.TestAsset.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -302,7 +315,7 @@ func (_c *TestAssetCreate) createSpec() (*TestAsset, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TestAssetUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TestAssetCreate) OnConflict(opts ...sql.ConflictOption) *TestAssetUpsertOne {
@@ -354,6 +367,9 @@ func (u *TestAssetUpsertOne) UpdateNewValues() *TestAssetUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(testasset.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(testasset.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(testasset.FieldCreatedAt)
@@ -537,7 +553,7 @@ func (_c *TestAssetCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TestAssetUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TestAssetCreateBulk) OnConflict(opts ...sql.ConflictOption) *TestAssetUpsertBulk {
@@ -583,6 +599,9 @@ func (u *TestAssetUpsertBulk) UpdateNewValues() *TestAssetUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(testasset.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(testasset.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(testasset.FieldCreatedAt)

@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -27,9 +28,9 @@ type TraitEffectRevision struct {
 	// SchemaVersion holds the value of the "schema_version" field.
 	SchemaVersion int `json:"schema_version,omitempty"`
 	// Effect holds the value of the "effect" field.
-	Effect json.RawMessage `json:"effect,omitempty"`
+	Effect jsontext.Value `json:"effect,omitempty"`
 	// TargetElementIds holds the value of the "target_element_ids" field.
-	TargetElementIds json.RawMessage `json:"target_element_ids,omitempty"`
+	TargetElementIds jsontext.Value `json:"target_element_ids,omitempty"`
 	// Checksum holds the value of the "checksum" field.
 	Checksum []byte `json:"checksum,omitempty"`
 	// EffectiveAt holds the value of the "effective_at" field.

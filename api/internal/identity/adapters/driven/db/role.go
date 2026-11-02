@@ -164,7 +164,7 @@ func (r *RoleRepository) LoadCommandReceipt(ctx context.Context, commandID uuid.
 	if r == nil || r.client == nil || ctx == nil || commandID == uuid.Nil {
 		return ports.RoleCommandReceipt{}, false, ports.ErrInvalidRoleCommand
 	}
-	record, err := r.client.DB(ctx).OutboxEvent.Get(ctx, commandID)
+	record, err := r.client.GetOutboxEvent(ctx, commandID)
 	if generate.IsNotFound(err) {
 		return ports.RoleCommandReceipt{}, false, nil
 	}

@@ -76,6 +76,11 @@ func DeletedBy(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldDeletedBy, v))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldEQ(FieldTenantID, v))
+}
+
 // ProblemID applies equality check predicate on the "problem_id" field. It's identical to ProblemIDEQ.
 func ProblemID(v uuid.UUID) predicate.TestCase {
 	return predicate.TestCase(sql.FieldEQ(FieldProblemID, v))
@@ -284,6 +289,46 @@ func DeletedByEqualFold(v string) predicate.TestCase {
 // DeletedByContainsFold applies the ContainsFold predicate on the "deleted_by" field.
 func DeletedByContainsFold(v string) predicate.TestCase {
 	return predicate.TestCase(sql.FieldContainsFold(FieldDeletedBy, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.TestCase {
+	return predicate.TestCase(sql.FieldLTE(FieldTenantID, v))
 }
 
 // ProblemIDEQ applies the EQ predicate on the "problem_id" field.

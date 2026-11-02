@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,6 +20,10 @@ import (
 // revision, so a later page can never silently mix two leaderboard snapshots.
 type CultivationRankingState struct{ ent.Schema }
 
+func (CultivationRankingState) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
+
 func (CultivationRankingState) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(commonent.NewUUID).Immutable(),
@@ -33,7 +38,7 @@ func (CultivationRankingState) Fields() []ent.Field {
 }
 
 func (CultivationRankingState) Indexes() []ent.Index {
-	return []ent.Index{index.Fields("key").Unique()}
+	return []ent.Index{index.Fields("tenant_id", "key").Unique()}
 }
 
 func (CultivationRankingState) Annotations() []entschema.Annotation {

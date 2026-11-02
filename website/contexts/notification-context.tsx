@@ -22,6 +22,7 @@ import {
 } from "@/constants/notification";
 import { useRealtime } from "@/contexts/realtime-context";
 import { useSession } from "@/contexts/session-context";
+import { useOptionalTenant } from "@/contexts/tenant-context";
 import { ApiError } from "@/lib/api/error";
 import { isoDateTimeSchema } from "@/lib/api/contracts";
 import { parseNotificationLivePayload } from "@/lib/notifications/notification-schema";
@@ -115,6 +116,7 @@ function mergePage(
 /** Canonical REST inbox with shared-WebSocket invalidation acceleration. */
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const session = useSession();
+  const selectedTenantId = useOptionalTenant()?.selectedTenantId ?? null;
   const {
     subscribe,
     subscribeToTopic,
@@ -177,7 +179,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setStatus((current) => (current === "ready" ? current : "loading"));
     setError(null);
     const request = notificationService
-      .list({ limit: NOTIFICATION_POLICY.DEFAULT_PAGE_SIZE }, controller.signal)
+      .find({ limit: NOTIFICATION_POLICY.DEFAULT_PAGE_SIZE }, controller.signal)
       .then((page) => {
         if (
           controller.signal.aborted ||
@@ -290,7 +292,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const versionAtStart = inboxVersionRef.current;
     setIsLoadingMore(true);
     try {
-      const page = await notificationService.list({
+      const page = await notificationService.find({
         cursor,
         limit: NOTIFICATION_POLICY.DEFAULT_PAGE_SIZE,
       });
@@ -407,8 +409,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [refresh, userID]);
 
   useEffect(() => {
-    if (!userID) return;
-    const topic = notificationsTopic(userID);
+    if (!userID || !selectedTenantId) return;
+    const topic = notificationsTopic(userID, selectedTenantId);
     const onLiveEvent = (
       data: unknown,
       envelope: RealtimeEnvelope<unknown>,
@@ -463,6 +465,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     scheduleReconciliation,
     subscribe,
     subscribeToTopic,
+    selectedTenantId,
     userID,
   ]);
 

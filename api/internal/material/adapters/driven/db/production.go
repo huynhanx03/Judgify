@@ -14,6 +14,7 @@ import (
 	"github.com/lib/pq"
 
 	internalent "github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/ent/generate"
 	entity "github.com/huynhanx03/judgify/internal/material/domain"
 	"github.com/huynhanx03/judgify/internal/platform/contentrender"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
@@ -388,7 +389,7 @@ type materialCursor struct {
 	ID    uuid.UUID `json:"id"`
 }
 
-func (repository *ProductionRepository) SearchPublic(ctx context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
+func (repository *ProductionRepository) FindForPublic(ctx context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
 	cursor, err := decodeMaterialCursor(query.Cursor, query.Sort)
 	if err != nil {
 		return ports.SearchResult{}, err
@@ -458,7 +459,7 @@ func (repository *ProductionRepository) SearchPublic(ctx context.Context, query 
 	return result, err
 }
 
-func (repository *ProductionRepository) SearchAdmin(ctx context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
+func (repository *ProductionRepository) FindForAdmin(ctx context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
 	cursor, err := decodeMaterialCursor(query.Cursor, query.Sort)
 	if err != nil {
 		return ports.SearchResult{}, err
@@ -622,7 +623,7 @@ func (repository *ProductionRepository) RelatedPublic(ctx context.Context, mater
 	return records, rows.Err()
 }
 
-func (repository *ProductionRepository) ListRevisions(ctx context.Context, materialID uuid.UUID, before int64, limit int) ([]entity.MaterialRevisionSummary, error) {
+func (repository *ProductionRepository) FindRevisions(ctx context.Context, materialID uuid.UUID, before int64, limit int) ([]entity.MaterialRevisionSummary, error) {
 	if limit < 1 || limit > 101 {
 		return nil, entity.ErrMaterialInvalidCommand
 	}
@@ -810,28 +811,25 @@ func (repository *ProductionRepository) LoadCommandReceipt(
 	ctx context.Context,
 	commandID uuid.UUID,
 ) (entity.MaterialCommandReceipt, bool, error) {
-	rows, err := repository.client.DB(ctx).Material.QueryContext(ctx, `
-		SELECT id, event_type, aggregate_type, aggregate_id, aggregate_version, payload, occurred_at
-		FROM outbox_events
-		WHERE id = $1`,
-		commandID)
+	if commandID == uuid.Nil {
+		return entity.MaterialCommandReceipt{}, false, entity.ErrMaterialInvalidCommand
+	}
+	record, err := repository.client.GetOutboxEvent(ctx, commandID)
+	if generate.IsNotFound(err) {
+		return entity.MaterialCommandReceipt{}, false, nil
+	}
 	if err != nil {
-		return entity.MaterialCommandReceipt{}, false, fmt.Errorf(
-			"load material command receipt: %w", err,
-		)
+		return entity.MaterialCommandReceipt{}, false, fmt.Errorf("load material command receipt: %w", err)
 	}
-	defer func() { _ = rows.Close() }()
-	if !rows.Next() {
-		return entity.MaterialCommandReceipt{}, false, rows.Err()
+	if record == nil {
+		return entity.MaterialCommandReceipt{}, false, entity.ErrMaterialInvalidCommand
 	}
-	var receipt entity.MaterialCommandReceipt
-	if err := rows.Scan(
-		&receipt.EventID, &receipt.EventType, &receipt.AggregateType, &receipt.AggregateID,
-		&receipt.Version, &receipt.Payload, &receipt.OccurredAt,
-	); err != nil {
-		return entity.MaterialCommandReceipt{}, false, err
+	receipt := entity.MaterialCommandReceipt{
+		EventID: record.ID, EventType: record.EventType, AggregateType: record.AggregateType,
+		AggregateID: record.AggregateID, Version: record.AggregateVersion,
+		Payload: append([]byte(nil), record.Payload...), OccurredAt: record.OccurredAt.UTC(),
 	}
-	return receipt, true, rows.Err()
+	return receipt, true, nil
 }
 
 func (repository *ProductionRepository) LoadAdminProjection(

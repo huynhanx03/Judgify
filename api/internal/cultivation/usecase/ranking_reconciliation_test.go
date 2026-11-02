@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
@@ -86,7 +86,7 @@ func (repository *rankingOperationReaderStub) Get(
 	return repository.Operation, nil
 }
 
-func (repository *rankingOperationReaderStub) List(
+func (repository *rankingOperationReaderStub) Find(
 	context.Context,
 	operation.ListFilter,
 ) (operation.Page, error) {

@@ -32,5 +32,5 @@ func toMaterialCategoryResponse(result *contract.MaterialCategoryResult) *Materi
 	if result == nil {
 		return nil
 	}
-	return &MaterialCategoryResponse{ID: result.ID.String(), Name: result.Name, Description: result.Description, ArticleCount: result.ArticleCount}
+	return &MaterialCategoryResponse{ID: result.ID.String(), TenantID: result.TenantID.String(), Name: result.Name, Description: result.Description, ArticleCount: result.ArticleCount}
 }

@@ -9,16 +9,12 @@ import { useAuth } from "@/contexts/auth-context";
 import { cultivationService } from "@/services/cultivation.service";
 import { notify } from "@/lib/toast";
 import { ApiError } from "@/lib/api/error";
-import { TEXT } from "@/constants/text";
+import { useLocale } from "@/contexts/locale-context";
 import { REGISTRATION_TRAIT_RULES } from "@/constants/registration";
 import {
   parseRegistrationTraitOffer,
   type RegistrationTraitOffer,
 } from "@/lib/auth/registration-trait-offer";
-import {
-  isRecoveryEmailValid,
-  normalizeRecoveryEmail,
-} from "@/lib/auth/recovery-email";
 import {
   isPasswordValid,
   isUsernameValid,
@@ -32,6 +28,7 @@ import { useRetryableResource } from "@/hooks/use-retryable-resource";
 import { APP_ROUTES } from "@/constants/routes";
 import { OnboardingProfileFields } from "@/modules/auth/onboarding-profile-fields";
 import { useOnboardingProfileForm } from "@/modules/auth/hooks/use-onboarding-profile-form";
+import { OnboardingStepper } from "@/modules/auth/onboarding-stepper";
 
 /**
  * The codex modal is deferred: it mounts closed (`showCodex` starts false), so
@@ -56,14 +53,15 @@ function isAbortError(error: unknown): boolean {
 
 export default function RegisterFlow() {
   const { register, retryBootstrap } = useAuth();
+  const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
 
   // Basic Info
   const [form, setForm] = useState({
     username: "",
     password: "",
-    recovery_email: "",
   });
   const profileForm = useOnboardingProfileForm();
 
@@ -76,6 +74,7 @@ export default function RegisterFlow() {
   const rollRequestSequence = useRef(0);
   const rollAbortControllerRef = useRef<AbortController | null>(null);
   const rollInFlightRef = useRef(false);
+  const traitStepRequested = useRef(false);
   const traitCatalog = useRetryableResource<TraitResponse[]>({
     resetKey: "registration-trait-catalog",
     enabled: showCodex,
@@ -123,7 +122,7 @@ export default function RegisterFlow() {
         requestSequence === rollRequestSequence.current &&
         !isAbortError(error)
       ) {
-        notify.error(TEXT.AUTH.TRAIT_FETCH_ERROR);
+        notify.error(t("AUTH.TRAIT_FETCH_ERROR"));
       }
     } finally {
       if (requestSequence === rollRequestSequence.current) {
@@ -171,7 +170,7 @@ export default function RegisterFlow() {
         return current.filter((talentID) => talentID !== id);
       }
       if (current.length >= REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT) {
-        notify.warning(TEXT.AUTH.TRAIT_MAX_TALENTS);
+        notify.warning(t("AUTH.TRAIT_MAX_TALENTS"));
         return current;
       }
       return [...current, id];
@@ -180,29 +179,33 @@ export default function RegisterFlow() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (
-      !isUsernameValid(form.username) ||
-      !isPasswordValid(form.password) ||
-      !isRecoveryEmailValid(form.recovery_email)
-    ) {
-      notify.warning(TEXT.AUTH.REGISTER_MISSING_INFO);
+    if (activeStep === 0) {
+      if (!isUsernameValid(form.username) || !isPasswordValid(form.password)) {
+        notify.warning(t("AUTH.REGISTER_MISSING_INFO"));
+        return;
+      }
+      setActiveStep(1);
       return;
     }
     const profileEvidence = profileForm.buildEvidence();
-    if (!profileEvidence) {
-      notify.warning(TEXT.ONBOARDING_PROFILE.COMPLETE_REQUIRED);
+    if (activeStep === 1 && profileEvidence) {
+      setActiveStep(2);
+      return;
+    }
+    if (activeStep !== 2 || !profileEvidence) {
+      notify.warning(t("ONBOARDING_PROFILE.COMPLETE_REQUIRED"));
       return;
     }
     if (!rolledRootBone) {
-      notify.warning(TEXT.AUTH.TRAIT_ROOT_BONE_REQUIRED);
+      notify.warning(t("AUTH.TRAIT_ROOT_BONE_REQUIRED"));
       return;
     }
     if (selectedTalents.length !== REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT) {
-      notify.warning(TEXT.AUTH.TRAIT_TALENTS_REQUIRED);
+      notify.warning(t("AUTH.TRAIT_TALENTS_REQUIRED"));
       return;
     }
     if (!traitOffer || rollExpired) {
-      notify.warning(TEXT.AUTH.TRAIT_ROLL_EXPIRED);
+      notify.warning(t("AUTH.TRAIT_ROLL_EXPIRED"));
       return;
     }
     setIsLoading(true);
@@ -210,7 +213,6 @@ export default function RegisterFlow() {
       await register({
         username: normalizeUsername(form.username),
         password: form.password,
-        recovery_email: normalizeRecoveryEmail(form.recovery_email),
         ...profileEvidence,
         root_bone_id: rolledRootBone.id,
         talent_ids: selectedTalents,
@@ -220,7 +222,7 @@ export default function RegisterFlow() {
         catalog_checksum: traitOffer.catalogChecksum,
         offer_checksum: traitOffer.offerChecksum,
       });
-      notify.success(TEXT.AUTH.REGISTER_SUCCESS);
+      notify.success(t("AUTH.REGISTER_SUCCESS"));
     } catch (error) {
       if (
         error instanceof ApiError &&
@@ -230,14 +232,25 @@ export default function RegisterFlow() {
         retryBootstrap();
       }
       if (profileForm.handleSubmissionError(error)) {
-        notify.warning(TEXT.ONBOARDING_PROFILE.SUBMISSION_REVIEW_REQUIRED);
+        notify.warning(t("ONBOARDING_PROFILE.SUBMISSION_REVIEW_REQUIRED"));
         return;
       }
-      notify.error(TEXT.AUTH.REGISTER_ERROR);
+      notify.error(t("AUTH.REGISTER_ERROR"));
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (activeStep !== 2) {
+      traitStepRequested.current = false;
+      return;
+    }
+    if (!traitOffer && !traitStepRequested.current) {
+      traitStepRequested.current = true;
+      void rollTraits();
+    }
+  }, [activeStep, rollTraits, traitOffer]);
 
   return (
     <form
@@ -248,61 +261,90 @@ export default function RegisterFlow() {
       {/* Header */}
       <div className="text-center space-y-1 mb-6">
         <h1 className="font-heading text-2xl font-black tracking-[0.12em] text-primary uppercase text-shadow-brand md:text-3xl">
-          {TEXT.AUTH.REGISTER_TITLE}
+          {t("AUTH.REGISTER_TITLE")}
         </h1>
         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
-          {TEXT.AUTH.REGISTER_SUBTITLE}
+          {t("AUTH.REGISTER_SUBTITLE")}
         </p>
       </div>
 
-      <PersonalInfoSection
-        form={form}
-        updateField={updateField}
-        showPassword={showPassword}
-        onTogglePassword={() => setShowPassword((p) => !p)}
-        disabled={isLoading}
-      />
-
-      <OnboardingProfileFields
-        form={profileForm}
-        disabled={isLoading}
-        className="mt-4"
-      />
-
-      <TraitSelectionSection
-        rolledRootBone={rolledRootBone}
-        rolledTalents={rolledTalents}
-        selectedTalents={selectedTalents}
-        rollTicketExpiresAt={traitOffer?.expiresAt ?? ""}
-        remainingOffers={traitOffer?.remainingOffers}
-        rollExpired={rollExpired}
-        isRolling={isRolling}
-        onRoll={rollTraits}
-        onToggleTalent={toggleTalent}
-        onOpenCodex={() => setShowCodex(true)}
-        disabled={isLoading}
-      />
+      <OnboardingStepper
+        steps={[
+          { id: "account", label: t("AUTH.ONBOARDING_ACCOUNT") },
+          { id: "profile", label: t("AUTH.ONBOARDING_PROFILE") },
+          { id: "character", label: t("AUTH.ONBOARDING_CHARACTER") },
+        ]}
+        activeStep={activeStep}
+        title={[
+          t("AUTH.ONBOARDING_ACCOUNT_TITLE"),
+          t("AUTH.ONBOARDING_PROFILE_TITLE"),
+          t("AUTH.ONBOARDING_CHARACTER_TITLE"),
+        ][activeStep]}
+      >
+        {activeStep === 0 ? (
+          <PersonalInfoSection
+            form={form}
+            updateField={updateField}
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword((p) => !p)}
+            disabled={isLoading}
+          />
+        ) : null}
+        {activeStep === 1 ? (
+          <OnboardingProfileFields form={profileForm} disabled={isLoading} />
+        ) : null}
+        {activeStep === 2 ? (
+          <TraitSelectionSection
+            rolledRootBone={rolledRootBone}
+            rolledTalents={rolledTalents}
+            selectedTalents={selectedTalents}
+            rollTicketExpiresAt={traitOffer?.expiresAt ?? ""}
+            remainingOffers={traitOffer?.remainingOffers}
+            rollExpired={rollExpired}
+            isRolling={isRolling}
+            onRoll={rollTraits}
+            onToggleTalent={toggleTalent}
+            onOpenCodex={() => setShowCodex(true)}
+            disabled={isLoading}
+          />
+        ) : null}
+      </OnboardingStepper>
 
       {/* Submit + Link to login */}
       <div className="mt-6 space-y-4">
         <Button
-          type="submit"
+          type={activeStep === 2 ? "submit" : "button"}
           size="lg"
           className="button-brand-elevation w-full text-base font-bold uppercase tracking-[0.16em] motion-reduce:transition-none"
           disabled={
             isLoading ||
-            profileForm.status !== "ready" ||
-            isRolling
+            isRolling ||
+            (activeStep === 0 && (!isUsernameValid(form.username) || !isPasswordValid(form.password))) ||
+            (activeStep === 1 && profileForm.status !== "ready") ||
+            (activeStep === 2 && (!traitOffer || rollExpired || selectedTalents.length !== REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT))
           }
+          onClick={activeStep < 2 ? () => {
+            if (activeStep === 1 && !profileForm.buildEvidence()) {
+              notify.warning(t("ONBOARDING_PROFILE.COMPLETE_REQUIRED"));
+              return;
+            }
+            setActiveStep((step) => Math.min(2, step + 1));
+          } : undefined}
         >
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : null}
-          {isLoading ? TEXT.COMMON.LOADING : TEXT.AUTH.REGISTER_SUBMIT}
+          {isLoading ? t("COMMON.LOADING") : activeStep === 2 ? t("AUTH.REGISTER_SUBMIT") : t("AUTH.ONBOARDING_CONTINUE")}
         </Button>
 
+        {activeStep > 0 ? (
+          <Button type="button" variant="outline" className="w-full" disabled={isLoading} onClick={() => setActiveStep((step) => Math.max(0, step - 1))}>
+            {t("AUTH.ONBOARDING_BACK")}
+          </Button>
+        ) : null}
+
         <p className="text-center text-sm text-muted-foreground">
-          {TEXT.AUTH.HAS_ACCOUNT}{" "}
+          {t("AUTH.HAS_ACCOUNT")}{" "}
           <Link href={APP_ROUTES.LOGIN} className="font-semibold text-primary hover:text-primary/80 transition-colors">
-            {TEXT.AUTH.TAB_LOGIN}
+            {t("AUTH.TAB_LOGIN")}
           </Link>
         </p>
       </div>

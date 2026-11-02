@@ -18,7 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/testutil"
 )
 
-func TestFindPublicSamplesUsesPublishedImmutableTestset(t *testing.T) {
+func TestFindSamplesForPublicUsesPublishedImmutableTestset(t *testing.T) {
 	problemID := testutil.ID(1)
 	repository := &publishedTestsetRepositoryStub{
 		testset: entity.TestsetRevision{
@@ -36,7 +36,7 @@ func TestFindPublicSamplesUsesPublishedImmutableTestset(t *testing.T) {
 	reader, err := NewPublicSampleReader(repository, entity.IdentityAssetDecoder{})
 	require.NoError(t, err)
 
-	response, err := reader.FindPublicSamples(context.Background(), problemID)
+	response, err := reader.FindSamplesForPublic(context.Background(), problemID)
 
 	require.NoError(t, err)
 	require.Len(t, response, 1)
@@ -45,7 +45,7 @@ func TestFindPublicSamplesUsesPublishedImmutableTestset(t *testing.T) {
 	require.Zero(t, response[0].OrderIndex)
 }
 
-func TestFindPublicSamplesRejectsUnpublishedProblem(t *testing.T) {
+func TestFindSamplesForPublicRejectsUnpublishedProblem(t *testing.T) {
 	problemID := testutil.ID(2)
 	notFound := apperr.New(apperr.CodeNotFound, "problem not found", nil)
 	reader, err := NewPublicSampleReader(
@@ -56,7 +56,7 @@ func TestFindPublicSamplesRejectsUnpublishedProblem(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	response, err := reader.FindPublicSamples(context.Background(), problemID)
+	response, err := reader.FindSamplesForPublic(context.Background(), problemID)
 
 	require.Nil(t, response)
 	require.ErrorIs(t, err, ports.ErrPublicationNotFound)

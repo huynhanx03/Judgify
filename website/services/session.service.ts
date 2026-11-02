@@ -83,7 +83,7 @@ export const sessionService = {
     }
   },
 
-  list(
+  find(
     query: AuthSessionListQuery = {},
     signal?: AbortSignal,
   ): Promise<AuthSessionListResponse> {

@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/constant"
@@ -42,17 +42,7 @@ func (s *tagService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginat
 			Pagination: tags.Pagination,
 		}, nil
 	}
-
-	entities := *tags.Records
-	responses := make([]*contract.TagResult, len(entities))
-	for i, t := range entities {
-		responses[i] = ToTagResult(t)
-	}
-
-	return &d.Paginated[*contract.TagResult]{
-		Records:    &responses,
-		Pagination: tags.Pagination,
-	}, nil
+	return d.MapPaginated(tags, ToTagResult), nil
 }
 
 // Get retrieves a tag by ID.

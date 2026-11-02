@@ -45,14 +45,12 @@ func (h *materialCategoryHandler) Find(ctx context.Context, req *d.QueryOptions)
 	if err != nil {
 		return nil, err
 	}
-	responses := make([]*MaterialCategoryResponse, 0)
-	if results.Records != nil {
-		responses = make([]*MaterialCategoryResponse, len(*results.Records))
-		for index, result := range *results.Records {
-			responses[index] = toMaterialCategoryResponse(result)
-		}
+	responses := d.MapPaginated(results, toMaterialCategoryResponse)
+	if responses.Records == nil || *responses.Records == nil {
+		empty := []*MaterialCategoryResponse{}
+		responses.Records = &empty
 	}
-	return &d.Paginated[*MaterialCategoryResponse]{Records: &responses, Pagination: results.Pagination}, nil
+	return responses, nil
 }
 
 func (h *materialCategoryHandler) Get(ctx context.Context, req *materialCategoryIDRequest) (*MaterialCategoryResponse, error) {

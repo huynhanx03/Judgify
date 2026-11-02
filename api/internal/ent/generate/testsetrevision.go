@@ -19,6 +19,8 @@ type TestsetRevision struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
@@ -116,7 +118,7 @@ func (*TestsetRevision) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case testsetrevision.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case testsetrevision.FieldID, testsetrevision.FieldProblemID:
+		case testsetrevision.FieldID, testsetrevision.FieldTenantID, testsetrevision.FieldProblemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -138,6 +140,12 @@ func (_m *TestsetRevision) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case testsetrevision.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case testsetrevision.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -243,6 +251,9 @@ func (_m *TestsetRevision) String() string {
 	var builder strings.Builder
 	builder.WriteString("TestsetRevision(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

@@ -6,14 +6,15 @@ package authz
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"strings"
-	"time"
 
 	corev3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	authv3 "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	typev3 "github.com/envoyproxy/go-control-plane/envoy/type/v3"
 	"github.com/google/uuid"
+	"github.com/huynhanx03/go-common/pkg/security"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"github.com/huynhanx03/go-common/pkg/security/authorization"
 	statuspb "google.golang.org/genproto/googleapis/rpc/status"
@@ -23,15 +24,20 @@ import (
 type CheckServer struct {
 	authv3.UnimplementedAuthorizationServer
 	policies         []RoutePolicy
-	verifier         authentication.Verifier
-	authorizer       authorization.Authorizer
+	checker          *security.Checker
 	accessCookieName string
-	now              func() time.Time
 }
 
 func NewCheckServer(policies []RoutePolicy, verifier authentication.Verifier, authorizer authorization.Authorizer, accessCookieName string) *CheckServer {
 	copyPolicies := append([]RoutePolicy(nil), policies...)
-	return &CheckServer{policies: copyPolicies, verifier: verifier, authorizer: authorizer, accessCookieName: accessCookieName, now: time.Now}
+	return &CheckServer{
+		policies: copyPolicies,
+		checker: security.NewChecker(security.Config{
+			Verifier:   verifier,
+			Authorizer: authorizer,
+		}),
+		accessCookieName: accessCookieName,
+	}
 }
 
 func (server *CheckServer) Check(ctx context.Context, request *authv3.CheckRequest) (*authv3.CheckResponse, error) {
@@ -51,24 +57,24 @@ func (server *CheckServer) Check(ctx context.Context, request *authv3.CheckReque
 		return allow(), nil
 	}
 	credential, ok := credentialFromHeaders(httpRequest.GetHeaders(), server.accessCookieName)
-	if !ok || server.verifier == nil {
+	if !ok || server.checker == nil {
 		return deny(typev3.StatusCode_Unauthorized), nil
 	}
-	principal, err := server.verifier.Verify(ctx, credential, authentication.PurposeAccess)
-	if err != nil || principal.Validate(server.now().UTC()) != nil {
+	principal, err := server.checker.Authenticate(ctx, credential, authentication.PurposeAccess)
+	if err != nil {
 		return deny(typev3.StatusCode_Unauthorized), nil
 	}
 	if policy.Class == Authenticated {
 		return allow(), nil
 	}
-	if server.authorizer == nil {
-		return deny(typev3.StatusCode_ServiceUnavailable), nil
-	}
-	decision, err := server.authorizer.Authorize(authentication.WithPrincipal(ctx, principal), authorization.Request{
-		Principal: principal,
-		Resource:  policy.Resource,
-		Action:    policy.Action,
+	decision, err := server.checker.Authorize(ctx, principal, security.Permission{
+		Scope:    authorization.DefaultSystemScope(),
+		Resource: policy.Resource,
+		Action:   policy.Action,
 	})
+	if errors.Is(err, security.ErrForbidden) {
+		return deny(typev3.StatusCode_Forbidden), nil
+	}
 	if err != nil {
 		return deny(typev3.StatusCode_ServiceUnavailable), nil
 	}
@@ -95,8 +101,7 @@ func canonicalPath(raw string) (string, bool) {
 
 func validGatewayIdentity(headers map[string]string) bool {
 	requestID, requestOK := header(headers, "x-request-id")
-	correlationID, correlationOK := header(headers, "x-correlation-id")
-	if !requestOK || !correlationOK || requestID != correlationID {
+	if !requestOK {
 		return false
 	}
 	parsed, err := uuid.Parse(requestID)

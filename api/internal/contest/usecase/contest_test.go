@@ -175,7 +175,7 @@ func TestGetPublicContestPreservesNotFound(t *testing.T) {
 	require.ErrorIs(t, err, notFound)
 }
 
-func TestFindPublicContestsUsesRestrictedBatchedReadModel(t *testing.T) {
+func TestFindForPublicContestsUsesRestrictedBatchedReadModel(t *testing.T) {
 	service, repository, _ := newContestTestEnv(t)
 	ctx := context.Background()
 	query := &d.QueryOptions{Filters: []d.SearchFilter{{
@@ -185,7 +185,7 @@ func TestFindPublicContestsUsesRestrictedBatchedReadModel(t *testing.T) {
 		ID: testutil.ID(1), Title: "Upcoming", State: entity.ContestUpcoming,
 	}
 	records := []*entity.Contest{contest}
-	repository.EXPECT().FindPublic(ctx, query).Return(
+	repository.EXPECT().FindForPublic(ctx, query).Return(
 		&d.Paginated[*entity.Contest]{Records: &records},
 		nil,
 	)
@@ -196,7 +196,7 @@ func TestFindPublicContestsUsesRestrictedBatchedReadModel(t *testing.T) {
 		nil,
 	)
 
-	page, err := service.FindPublic(ctx, query)
+	page, err := service.FindForPublic(ctx, query)
 
 	require.NoError(t, err)
 	require.Len(t, *page.Records, 1)

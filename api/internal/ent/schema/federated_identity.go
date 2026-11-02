@@ -64,6 +64,7 @@ func (FederatedIdentity) Edges() []ent.Edge {
 			Field("user_id").
 			Unique().
 			Required(),
+		edge.To("recovery_contacts", UserRecoveryContact.Type),
 	}
 }
 

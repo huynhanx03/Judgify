@@ -108,6 +108,10 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevisionelement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantinvitation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantmembership"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantrole"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testasset"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcasegroup"
@@ -2859,6 +2863,114 @@ func (f TraverseTagRevisionElement) Traverse(ctx context.Context, q generate.Que
 	return fmt.Errorf("unexpected query type %T. expect *generate.TagRevisionElementQuery", q)
 }
 
+// The TenantFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TenantFunc func(context.Context, *generate.TenantQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f TenantFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.TenantQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.TenantQuery", q)
+}
+
+// The TraverseTenant type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTenant func(context.Context, *generate.TenantQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTenant) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTenant) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.TenantQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.TenantQuery", q)
+}
+
+// The TenantInvitationFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TenantInvitationFunc func(context.Context, *generate.TenantInvitationQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f TenantInvitationFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.TenantInvitationQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.TenantInvitationQuery", q)
+}
+
+// The TraverseTenantInvitation type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTenantInvitation func(context.Context, *generate.TenantInvitationQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTenantInvitation) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTenantInvitation) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.TenantInvitationQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.TenantInvitationQuery", q)
+}
+
+// The TenantMembershipFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TenantMembershipFunc func(context.Context, *generate.TenantMembershipQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f TenantMembershipFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.TenantMembershipQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.TenantMembershipQuery", q)
+}
+
+// The TraverseTenantMembership type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTenantMembership func(context.Context, *generate.TenantMembershipQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTenantMembership) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTenantMembership) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.TenantMembershipQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.TenantMembershipQuery", q)
+}
+
+// The TenantRoleFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TenantRoleFunc func(context.Context, *generate.TenantRoleQuery) (generate.Value, error)
+
+// Query calls f(ctx, q).
+func (f TenantRoleFunc) Query(ctx context.Context, q generate.Query) (generate.Value, error) {
+	if q, ok := q.(*generate.TenantRoleQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generate.TenantRoleQuery", q)
+}
+
+// The TraverseTenantRole type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTenantRole func(context.Context, *generate.TenantRoleQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTenantRole) Intercept(next generate.Querier) generate.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTenantRole) Traverse(ctx context.Context, q generate.Query) error {
+	if q, ok := q.(*generate.TenantRoleQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generate.TenantRoleQuery", q)
+}
+
 // The TestAssetFunc type is an adapter to allow the use of ordinary function as a Querier.
 type TestAssetFunc func(context.Context, *generate.TestAssetQuery) (generate.Value, error)
 
@@ -3600,6 +3712,14 @@ func NewQuery(q generate.Query) (Query, error) {
 		return &query[*generate.TagRevisionQuery, predicate.TagRevision, tagrevision.OrderOption]{typ: generate.TypeTagRevision, tq: q}, nil
 	case *generate.TagRevisionElementQuery:
 		return &query[*generate.TagRevisionElementQuery, predicate.TagRevisionElement, tagrevisionelement.OrderOption]{typ: generate.TypeTagRevisionElement, tq: q}, nil
+	case *generate.TenantQuery:
+		return &query[*generate.TenantQuery, predicate.Tenant, tenant.OrderOption]{typ: generate.TypeTenant, tq: q}, nil
+	case *generate.TenantInvitationQuery:
+		return &query[*generate.TenantInvitationQuery, predicate.TenantInvitation, tenantinvitation.OrderOption]{typ: generate.TypeTenantInvitation, tq: q}, nil
+	case *generate.TenantMembershipQuery:
+		return &query[*generate.TenantMembershipQuery, predicate.TenantMembership, tenantmembership.OrderOption]{typ: generate.TypeTenantMembership, tq: q}, nil
+	case *generate.TenantRoleQuery:
+		return &query[*generate.TenantRoleQuery, predicate.TenantRole, tenantrole.OrderOption]{typ: generate.TypeTenantRole, tq: q}, nil
 	case *generate.TestAssetQuery:
 		return &query[*generate.TestAssetQuery, predicate.TestAsset, testasset.OrderOption]{typ: generate.TypeTestAsset, tq: q}, nil
 	case *generate.TestCaseQuery:

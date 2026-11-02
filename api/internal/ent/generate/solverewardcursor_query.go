@@ -266,12 +266,12 @@ func (_q *SolveRewardCursorQuery) Clone() *SolveRewardCursorQuery {
 // Example:
 //
 //	var v []struct {
-//		SolveID uuid.UUID `json:"solve_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.SolveRewardCursor.Query().
-//		GroupBy(solverewardcursor.FieldSolveID).
+//		GroupBy(solverewardcursor.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *SolveRewardCursorQuery) GroupBy(field string, fields ...string) *SolveRewardCursorGroupBy {
@@ -289,11 +289,11 @@ func (_q *SolveRewardCursorQuery) GroupBy(field string, fields ...string) *Solve
 // Example:
 //
 //	var v []struct {
-//		SolveID uuid.UUID `json:"solve_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.SolveRewardCursor.Query().
-//		Select(solverewardcursor.FieldSolveID).
+//		Select(solverewardcursor.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *SolveRewardCursorQuery) Select(fields ...string) *SolveRewardCursorSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

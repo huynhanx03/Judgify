@@ -25,7 +25,8 @@ func (UserTrait) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the UserTrait.

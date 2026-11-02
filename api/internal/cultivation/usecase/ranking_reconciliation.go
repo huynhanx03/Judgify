@@ -16,8 +16,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	contract "github.com/huynhanx03/judgify/internal/cultivation/contract"
 	cultivationcontract "github.com/huynhanx03/judgify/internal/cultivation/contract"
@@ -26,6 +26,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
 	"github.com/huynhanx03/judgify/internal/platform/operation"
 	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -52,6 +53,7 @@ type RankingReconciliationWorkflow struct {
 }
 
 type rankingReconciliationRequest struct {
+	TenantID           uuid.UUID `json:"tenant_id"`
 	OperationID        uuid.UUID `json:"operation_id"`
 	CommandID          uuid.UUID `json:"command_id"`
 	ActorUserID        uuid.UUID `json:"actor_user_id"`
@@ -157,6 +159,10 @@ func (workflow *RankingReconciliationWorkflow) Start(
 		return nil, entity.ErrInvalidRankingReconciliation
 	}
 	ctx = correlation.EnsureContext(ctx)
+	tenantID, err := tenantctx.RequireTenant(ctx)
+	if err != nil {
+		return nil, entity.ErrInvalidRankingReconciliation
+	}
 	operationID := deriveRankingReconciliationID(command.ID)
 	if existing, err := workflow.operations.Get(ctx, operationID); err == nil {
 		return workflow.replayStart(existing, command)
@@ -168,7 +174,7 @@ func (workflow *RankingReconciliationWorkflow) Start(
 		plan    entity.RankingReconciliationPlan
 		started operation.CreateResult
 	)
-	err := workflow.transactions.Within(ctx, func(txCtx context.Context) error {
+	err = workflow.transactions.Within(ctx, func(txCtx context.Context) error {
 		var prepareErr error
 		plan, prepareErr = workflow.repository.Prepare(txCtx, operationID, entity.RankingReconciliationPlan{
 			SourceCutoff:       command.SourceCutoff.UTC(),
@@ -191,6 +197,7 @@ func (workflow *RankingReconciliationWorkflow) Start(
 			return entity.ErrRankingReconciliationPreviewConflict
 		}
 		request := rankingReconciliationRequest{
+			TenantID:           tenantID,
 			OperationID:        operationID,
 			CommandID:          command.ID,
 			ActorUserID:        command.ActorUserID,
@@ -308,7 +315,7 @@ func (workflow *RankingReconciliationWorkflow) Status(
 		(state.LastReconciledAt != nil && state.LastReconciledAt.IsZero()) {
 		return nil, entity.ErrInvalidRankingReconciliation
 	}
-	page, err := workflow.operations.List(ctx, operation.ListFilter{
+	page, err := workflow.operations.Find(ctx, operation.ListFilter{
 		Kind:  RankingReconciliationOperationKind,
 		Limit: 1,
 	})
@@ -343,6 +350,14 @@ func (workflow *RankingReconciliationWorkflow) executeBatch(
 			entity.ErrInvalidRankingReconciliation,
 		)
 	}
+	tenantContext, err := tenantctx.WithTenantID(ctx, request.TenantID)
+	if err != nil {
+		return operation.BatchResult{}, operation.Terminal(
+			"invalid_ranking_reconciliation_tenant",
+			err,
+		)
+	}
+	ctx = tenantContext
 	checkpoint, err := decodeRankingReconciliationCheckpoint(input.Checkpoint)
 	if err != nil || !validRankingReconciliationCheckpoint(checkpoint, request) {
 		return operation.BatchResult{}, operation.Terminal(
@@ -490,7 +505,7 @@ func validRankingReconciliationPlan(plan entity.RankingReconciliationPlan) bool 
 }
 
 func validRankingReconciliationRequest(request rankingReconciliationRequest) bool {
-	return request.OperationID != uuid.Nil && request.CommandID != uuid.Nil &&
+	return request.TenantID != uuid.Nil && request.OperationID != uuid.Nil && request.CommandID != uuid.Nil &&
 		request.OperationID == deriveRankingReconciliationID(request.CommandID) &&
 		request.ActorUserID != uuid.Nil && request.ActorSessionID != uuid.Nil &&
 		validRankingReconciliationCommand(entity.RankingReconciliationCommand{

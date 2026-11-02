@@ -28,6 +28,12 @@ type UserRewardProfileRevisionCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserRewardProfileRevisionCreate) SetTenantID(v uuid.UUID) *UserRewardProfileRevisionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserRewardProfileRevisionCreate) SetUserID(v uuid.UUID) *UserRewardProfileRevisionCreate {
 	_c.mutation.SetUserID(v)
@@ -216,6 +222,9 @@ func (_c *UserRewardProfileRevisionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserRewardProfileRevisionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserRewardProfileRevision.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserRewardProfileRevision.user_id"`)}
 	}
@@ -295,6 +304,10 @@ func (_c *UserRewardProfileRevisionCreate) createSpec() (*UserRewardProfileRevis
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(userrewardprofilerevision.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Revision(); ok {
 		_spec.SetField(userrewardprofilerevision.FieldRevision, field.TypeInt64, value)
@@ -397,7 +410,7 @@ func (_c *UserRewardProfileRevisionCreate) createSpec() (*UserRewardProfileRevis
 // of the `INSERT` statement. For example:
 //
 //	client.UserRewardProfileRevision.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -406,7 +419,7 @@ func (_c *UserRewardProfileRevisionCreate) createSpec() (*UserRewardProfileRevis
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserRewardProfileRevisionUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserRewardProfileRevisionCreate) OnConflict(opts ...sql.ConflictOption) *UserRewardProfileRevisionUpsertOne {
@@ -458,6 +471,9 @@ func (u *UserRewardProfileRevisionUpsertOne) UpdateNewValues() *UserRewardProfil
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(userrewardprofilerevision.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(userrewardprofilerevision.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(userrewardprofilerevision.FieldUserID)
@@ -653,7 +669,7 @@ func (_c *UserRewardProfileRevisionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserRewardProfileRevisionUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserRewardProfileRevisionCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserRewardProfileRevisionUpsertBulk {
@@ -699,6 +715,9 @@ func (u *UserRewardProfileRevisionUpsertBulk) UpdateNewValues() *UserRewardProfi
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(userrewardprofilerevision.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(userrewardprofilerevision.FieldTenantID)
 			}
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(userrewardprofilerevision.FieldUserID)

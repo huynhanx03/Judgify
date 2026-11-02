@@ -25,7 +25,8 @@ func (Contest) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 func (Contest) Fields() []ent.Field {

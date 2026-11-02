@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,7 +22,8 @@ import (
 type UserRewardProfileTrait struct{ ent.Schema }
 
 func (UserRewardProfileTrait) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (UserRewardProfileTrait) Fields() []ent.Field {

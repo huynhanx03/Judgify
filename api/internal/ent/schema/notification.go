@@ -3,6 +3,7 @@ package schema
 import (
 	"encoding/json"
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -25,7 +26,8 @@ import (
 type Notification struct{ ent.Schema }
 
 func (Notification) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (Notification) Fields() []ent.Field {

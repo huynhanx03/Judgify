@@ -374,12 +374,12 @@ func (_q *UserRewardProfileTraitQuery) WithTraitEffectRevision(opts ...func(*Tra
 // Example:
 //
 //	var v []struct {
-//		ProfileRevisionID uuid.UUID `json:"profile_revision_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserRewardProfileTrait.Query().
-//		GroupBy(userrewardprofiletrait.FieldProfileRevisionID).
+//		GroupBy(userrewardprofiletrait.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *UserRewardProfileTraitQuery) GroupBy(field string, fields ...string) *UserRewardProfileTraitGroupBy {
@@ -397,11 +397,11 @@ func (_q *UserRewardProfileTraitQuery) GroupBy(field string, fields ...string) *
 // Example:
 //
 //	var v []struct {
-//		ProfileRevisionID uuid.UUID `json:"profile_revision_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.UserRewardProfileTrait.Query().
-//		Select(userrewardprofiletrait.FieldProfileRevisionID).
+//		Select(userrewardprofiletrait.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *UserRewardProfileTraitQuery) Select(fields ...string) *UserRewardProfileTraitSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

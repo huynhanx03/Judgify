@@ -11,13 +11,14 @@ import (
 	"github.com/google/uuid"
 
 	entsql "entgo.io/ent/dialect/sql"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
 
 	cultivationcontract "github.com/huynhanx03/judgify/internal/cultivation/contract"
 	dbent "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ports"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -94,6 +95,11 @@ func (projector *SolveRewardProjector) ApplySolveTransition(
 	if err := ctx.Err(); err != nil {
 		return ports.SolveRewardResult{}, err
 	}
+	scope, ok := tenantctx.FromContext(ctx)
+	tenantID, concrete := scope.TenantID()
+	if !ok || !concrete || tenantID != event.TenantID {
+		return ports.SolveRewardResult{}, permanentSolveReward(ErrSolveRewardConflict)
+	}
 	incoming, err := cultivationcontract.DecodeSolveRewardTransition(event)
 	if err != nil {
 		return ports.SolveRewardResult{}, ports.PermanentSolveReward(err)
@@ -104,6 +110,9 @@ func (projector *SolveRewardProjector) ApplySolveTransition(
 		return ports.SolveRewardResult{}, fmt.Errorf("begin solve reward projection: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return ports.SolveRewardResult{}, err
+	}
 	now, err := solveRewardDatabaseNow(ctx, tx)
 	if err != nil {
 		return ports.SolveRewardResult{}, err
@@ -185,8 +194,41 @@ func (projector *SolveRewardProjector) ReconcileSolveRewards(
 	if err := ctx.Err(); err != nil {
 		return 0, err
 	}
-	rows, err := projector.db.QueryContext(
-		ctx,
+	tx, err := projector.db.BeginTx(ctx, &stdsql.TxOptions{Isolation: stdsql.LevelReadCommitted})
+	if err != nil {
+		return 0, fmt.Errorf("begin solve reward reconciliation: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	tenantRows, err := tx.QueryContext(ctx, `SELECT id FROM tenants ORDER BY id`)
+	if err != nil {
+		return 0, fmt.Errorf("load active tenant scopes for solve reward reconciliation: %w", err)
+	}
+	tenantIDs := make([]uuid.UUID, 0, 16)
+	for tenantRows.Next() {
+		var id uuid.UUID
+		if err := tenantRows.Scan(&id); err != nil {
+			_ = tenantRows.Close()
+			return 0, fmt.Errorf("scan tenant scope for solve reward reconciliation: %w", err)
+		}
+		tenantIDs = append(tenantIDs, id)
+	}
+	if err := tenantRows.Err(); err != nil {
+		_ = tenantRows.Close()
+		return 0, fmt.Errorf("iterate tenant scopes for solve reward reconciliation: %w", err)
+	}
+	if err := tenantRows.Close(); err != nil {
+		return 0, fmt.Errorf("close tenant scopes for solve reward reconciliation: %w", err)
+	}
+	scope, err := tenantctx.All(tenantIDs)
+	if err != nil {
+		return 0, fmt.Errorf("build tenant scopes for solve reward reconciliation: %w", err)
+	}
+	scopeCtx := tenantctx.WithContext(ctx, scope)
+	if err := tenantctx.BindSQLScope(scopeCtx, tx); err != nil {
+		return 0, err
+	}
+	rows, err := tx.QueryContext(
+		scopeCtx,
 		canonicalSolveRewardTransitionSelect+`
 		LEFT JOIN solve_reward_cursors AS cursor
 		  ON cursor.solve_id = transition.solve_id
@@ -230,10 +272,21 @@ func (projector *SolveRewardProjector) ReconcileSolveRewards(
 	if err := rows.Close(); err != nil {
 		return 0, fmt.Errorf("close solve reward reconciliation rows: %w", err)
 	}
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit solve reward reconciliation read: %w", err)
+	}
 
 	processed := 0
 	for _, event := range events {
 		eventCtx := correlation.WithContext(ctx, event.CorrelationID)
+		if !tenantInScope(scope, event.TenantID) {
+			return processed, permanentSolveReward(ErrSolveRewardConflict)
+		}
+		tenantScope, err := tenantctx.Tenant(event.TenantID)
+		if err != nil {
+			return processed, permanentSolveReward(ErrSolveRewardConflict)
+		}
+		eventCtx = tenantctx.WithContext(eventCtx, tenantScope)
 		_, applyErr := projector.ApplySolveTransition(eventCtx, event)
 		if applyErr != nil {
 			return processed, fmt.Errorf("apply reconciled solve reward transition: %w", applyErr)
@@ -241,6 +294,15 @@ func (projector *SolveRewardProjector) ReconcileSolveRewards(
 		processed++
 	}
 	return processed, nil
+}
+
+func tenantInScope(scope tenantctx.Scope, tenantID uuid.UUID) bool {
+	for _, id := range scope.TenantIDs() {
+		if id == tenantID {
+			return true
+		}
+	}
+	return false
 }
 
 func solveRewardDatabaseNow(ctx context.Context, tx *stdsql.Tx) (time.Time, error) {

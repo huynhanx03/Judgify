@@ -338,12 +338,12 @@ func (_q *UserSolvedProblemQuery) WithProblem(opts ...func(*ProblemQuery)) *User
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserSolvedProblem.Query().
-//		GroupBy(usersolvedproblem.FieldUserID).
+//		GroupBy(usersolvedproblem.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *UserSolvedProblemQuery) GroupBy(field string, fields ...string) *UserSolvedProblemGroupBy {
@@ -361,11 +361,11 @@ func (_q *UserSolvedProblemQuery) GroupBy(field string, fields ...string) *UserS
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.UserSolvedProblem.Query().
-//		Select(usersolvedproblem.FieldUserID).
+//		Select(usersolvedproblem.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *UserSolvedProblemQuery) Select(fields ...string) *UserSolvedProblemSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

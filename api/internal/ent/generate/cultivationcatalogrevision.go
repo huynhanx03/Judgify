@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -26,9 +27,9 @@ type CultivationCatalogRevision struct {
 	// CatalogChecksum holds the value of the "catalog_checksum" field.
 	CatalogChecksum []byte `json:"catalog_checksum,omitempty"`
 	// RootPool holds the value of the "root_pool" field.
-	RootPool json.RawMessage `json:"-"`
+	RootPool jsontext.Value `json:"-"`
 	// TalentPool holds the value of the "talent_pool" field.
-	TalentPool json.RawMessage `json:"-"`
+	TalentPool jsontext.Value `json:"-"`
 	// MaximumOffers holds the value of the "maximum_offers" field.
 	MaximumOffers int `json:"maximum_offers,omitempty"`
 	// OfferTTLSeconds holds the value of the "offer_ttl_seconds" field.

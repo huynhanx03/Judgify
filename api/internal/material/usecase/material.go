@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	d "github.com/huynhanx03/go-common/pkg/dto"
@@ -44,29 +44,23 @@ func calculateEstimatedReadTime(content string) int {
 }
 
 func mapMaterialPage(paginated *d.Paginated[*entity.Material]) *d.Paginated[*contract.MaterialResponse] {
-	records := []*entity.Material{}
-	if paginated.Records != nil {
-		records = *paginated.Records
+	responses := d.MapPaginated(paginated, ToMaterialResponse)
+	if responses.Records == nil || *responses.Records == nil {
+		empty := []*contract.MaterialResponse{}
+		responses.Records = &empty
 	}
-	responses := make([]*contract.MaterialResponse, len(records))
-	for i, record := range records {
-		responses[i] = ToMaterialResponse(record)
-	}
-	return &d.Paginated[*contract.MaterialResponse]{
-		Records:    &responses,
-		Pagination: paginated.Pagination,
-	}
+	return responses
 }
 
-func (s *materialService) FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error) {
-	paginated, err := s.repo.FindPublic(ctx, opts)
+func (s *materialService) FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error) {
+	paginated, err := s.repo.FindForPublic(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
 	return mapMaterialPage(paginated), nil
 }
 
-func (s *materialService) FindAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error) {
+func (s *materialService) FindForAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.MaterialResponse], error) {
 	paginated, err := s.repo.Find(ctx, opts)
 	if err != nil {
 		return nil, err

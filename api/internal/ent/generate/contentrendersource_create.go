@@ -25,6 +25,12 @@ type ContentRenderSourceCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContentRenderSourceCreate) SetTenantID(v uuid.UUID) *ContentRenderSourceCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetOwnerRevisionID sets the "owner_revision_id" field.
 func (_c *ContentRenderSourceCreate) SetOwnerRevisionID(v uuid.UUID) *ContentRenderSourceCreate {
 	_c.mutation.SetOwnerRevisionID(v)
@@ -156,6 +162,9 @@ func (_c *ContentRenderSourceCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ContentRenderSourceCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContentRenderSource.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.OwnerRevisionID(); !ok {
 		return &ValidationError{Name: "owner_revision_id", err: errors.New(`generate: missing required field "ContentRenderSource.owner_revision_id"`)}
 	}
@@ -214,6 +223,10 @@ func (_c *ContentRenderSourceCreate) createSpec() (*ContentRenderSource, *sqlgra
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contentrendersource.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.OwnerRevisionID(); ok {
 		_spec.SetField(contentrendersource.FieldOwnerRevisionID, field.TypeUUID, value)
 		_node.OwnerRevisionID = value
@@ -257,7 +270,7 @@ func (_c *ContentRenderSourceCreate) createSpec() (*ContentRenderSource, *sqlgra
 // of the `INSERT` statement. For example:
 //
 //	client.ContentRenderSource.Create().
-//		SetOwnerRevisionID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -266,7 +279,7 @@ func (_c *ContentRenderSourceCreate) createSpec() (*ContentRenderSource, *sqlgra
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContentRenderSourceUpsert) {
-//			SetOwnerRevisionID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContentRenderSourceCreate) OnConflict(opts ...sql.ConflictOption) *ContentRenderSourceUpsertOne {
@@ -318,6 +331,9 @@ func (u *ContentRenderSourceUpsertOne) UpdateNewValues() *ContentRenderSourceUps
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(contentrendersource.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contentrendersource.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.OwnerRevisionID(); exists {
 			s.SetIgnore(contentrendersource.FieldOwnerRevisionID)
@@ -501,7 +517,7 @@ func (_c *ContentRenderSourceCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContentRenderSourceUpsert) {
-//			SetOwnerRevisionID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContentRenderSourceCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContentRenderSourceUpsertBulk {
@@ -547,6 +563,9 @@ func (u *ContentRenderSourceUpsertBulk) UpdateNewValues() *ContentRenderSourceUp
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(contentrendersource.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contentrendersource.FieldTenantID)
 			}
 			if _, exists := b.mutation.OwnerRevisionID(); exists {
 				s.SetIgnore(contentrendersource.FieldOwnerRevisionID)

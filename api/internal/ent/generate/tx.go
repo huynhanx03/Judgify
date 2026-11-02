@@ -212,6 +212,14 @@ type Tx struct {
 	TagRevision *TagRevisionClient
 	// TagRevisionElement is the client for interacting with the TagRevisionElement builders.
 	TagRevisionElement *TagRevisionElementClient
+	// Tenant is the client for interacting with the Tenant builders.
+	Tenant *TenantClient
+	// TenantInvitation is the client for interacting with the TenantInvitation builders.
+	TenantInvitation *TenantInvitationClient
+	// TenantMembership is the client for interacting with the TenantMembership builders.
+	TenantMembership *TenantMembershipClient
+	// TenantRole is the client for interacting with the TenantRole builders.
+	TenantRole *TenantRoleClient
 	// TestAsset is the client for interacting with the TestAsset builders.
 	TestAsset *TestAssetClient
 	// TestCase is the client for interacting with the TestCase builders.
@@ -482,6 +490,10 @@ func (tx *Tx) init() {
 	tx.Tag = NewTagClient(tx.config)
 	tx.TagRevision = NewTagRevisionClient(tx.config)
 	tx.TagRevisionElement = NewTagRevisionElementClient(tx.config)
+	tx.Tenant = NewTenantClient(tx.config)
+	tx.TenantInvitation = NewTenantInvitationClient(tx.config)
+	tx.TenantMembership = NewTenantMembershipClient(tx.config)
+	tx.TenantRole = NewTenantRoleClient(tx.config)
 	tx.TestAsset = NewTestAssetClient(tx.config)
 	tx.TestCase = NewTestCaseClient(tx.config)
 	tx.TestcaseGroup = NewTestcaseGroupClient(tx.config)

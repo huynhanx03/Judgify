@@ -24,7 +24,8 @@ func (UserElementExp) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the UserElementExp.

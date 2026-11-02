@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -25,6 +25,12 @@ type ProgressionLedgerEntryCreate struct {
 	mutation *ProgressionLedgerEntryMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *ProgressionLedgerEntryCreate) SetTenantID(v uuid.UUID) *ProgressionLedgerEntryCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
@@ -136,19 +142,19 @@ func (_c *ProgressionLedgerEntryCreate) SetProgressionVersion(v int64) *Progress
 }
 
 // SetElementDeltas sets the "element_deltas" field.
-func (_c *ProgressionLedgerEntryCreate) SetElementDeltas(v json.RawMessage) *ProgressionLedgerEntryCreate {
+func (_c *ProgressionLedgerEntryCreate) SetElementDeltas(v jsontext.Value) *ProgressionLedgerEntryCreate {
 	_c.mutation.SetElementDeltas(v)
 	return _c
 }
 
 // SetDifficultyDeltas sets the "difficulty_deltas" field.
-func (_c *ProgressionLedgerEntryCreate) SetDifficultyDeltas(v json.RawMessage) *ProgressionLedgerEntryCreate {
+func (_c *ProgressionLedgerEntryCreate) SetDifficultyDeltas(v jsontext.Value) *ProgressionLedgerEntryCreate {
 	_c.mutation.SetDifficultyDeltas(v)
 	return _c
 }
 
 // SetTagDeltas sets the "tag_deltas" field.
-func (_c *ProgressionLedgerEntryCreate) SetTagDeltas(v json.RawMessage) *ProgressionLedgerEntryCreate {
+func (_c *ProgressionLedgerEntryCreate) SetTagDeltas(v jsontext.Value) *ProgressionLedgerEntryCreate {
 	_c.mutation.SetTagDeltas(v)
 	return _c
 }
@@ -160,7 +166,7 @@ func (_c *ProgressionLedgerEntryCreate) SetSourceChecksum(v []byte) *Progression
 }
 
 // SetProvenance sets the "provenance" field.
-func (_c *ProgressionLedgerEntryCreate) SetProvenance(v json.RawMessage) *ProgressionLedgerEntryCreate {
+func (_c *ProgressionLedgerEntryCreate) SetProvenance(v jsontext.Value) *ProgressionLedgerEntryCreate {
 	_c.mutation.SetProvenance(v)
 	return _c
 }
@@ -295,6 +301,9 @@ func (_c *ProgressionLedgerEntryCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ProgressionLedgerEntryCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ProgressionLedgerEntry.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "ProgressionLedgerEntry.user_id"`)}
 	}
@@ -422,6 +431,10 @@ func (_c *ProgressionLedgerEntryCreate) createSpec() (*ProgressionLedgerEntry, *
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(progressionledgerentry.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(progressionledgerentry.FieldUserID, field.TypeUUID, value)
@@ -573,7 +586,7 @@ func (_c *ProgressionLedgerEntryCreate) createSpec() (*ProgressionLedgerEntry, *
 // of the `INSERT` statement. For example:
 //
 //	client.ProgressionLedgerEntry.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -582,7 +595,7 @@ func (_c *ProgressionLedgerEntryCreate) createSpec() (*ProgressionLedgerEntry, *
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ProgressionLedgerEntryUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ProgressionLedgerEntryCreate) OnConflict(opts ...sql.ConflictOption) *ProgressionLedgerEntryUpsertOne {
@@ -634,6 +647,9 @@ func (u *ProgressionLedgerEntryUpsertOne) UpdateNewValues() *ProgressionLedgerEn
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(progressionledgerentry.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(progressionledgerentry.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(progressionledgerentry.FieldUserID)
@@ -868,7 +884,7 @@ func (_c *ProgressionLedgerEntryCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ProgressionLedgerEntryUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ProgressionLedgerEntryCreateBulk) OnConflict(opts ...sql.ConflictOption) *ProgressionLedgerEntryUpsertBulk {
@@ -914,6 +930,9 @@ func (u *ProgressionLedgerEntryUpsertBulk) UpdateNewValues() *ProgressionLedgerE
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(progressionledgerentry.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(progressionledgerentry.FieldTenantID)
 			}
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(progressionledgerentry.FieldUserID)

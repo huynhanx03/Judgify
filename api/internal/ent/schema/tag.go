@@ -6,6 +6,7 @@ import (
 	entschema "entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/go-common/pkg/database/ent"
 
@@ -30,13 +31,16 @@ func (Tag) Mixin() []ent.Mixin {
 func (Tag) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(50),
 		field.Int64("version").
 			Min(1).
 			Default(1),
 	}
+}
+
+func (Tag) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("name").Unique()}
 }
 
 // Edges of the Tag.

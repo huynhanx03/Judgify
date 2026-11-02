@@ -338,12 +338,12 @@ func (_q *UserDifficultyStatsQuery) WithDifficulty(opts ...func(*DifficultyQuery
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserDifficultyStats.Query().
-//		GroupBy(userdifficultystats.FieldUserID).
+//		GroupBy(userdifficultystats.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *UserDifficultyStatsQuery) GroupBy(field string, fields ...string) *UserDifficultyStatsGroupBy {
@@ -361,11 +361,11 @@ func (_q *UserDifficultyStatsQuery) GroupBy(field string, fields ...string) *Use
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.UserDifficultyStats.Query().
-//		Select(userdifficultystats.FieldUserID).
+//		Select(userdifficultystats.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *UserDifficultyStatsQuery) Select(fields ...string) *UserDifficultyStatsSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

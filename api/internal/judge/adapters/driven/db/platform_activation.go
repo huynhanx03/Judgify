@@ -17,6 +17,7 @@ import (
 	generatedworker "github.com/huynhanx03/judgify/internal/ent/generate/judgeworkerinstance"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/judge/capability"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var ErrInvalidPlatformActivationStore = errors.New("platform activation store: denied")
@@ -159,6 +160,9 @@ func (store *PlatformActivationStore) Retire(
 		return ErrInvalidPlatformActivationStore
 	}
 	err := store.client.DoInTx(ctx, func(txCtx context.Context) error {
+		if err := tenantctx.BindAllSQLScope(txCtx, store.client.DB(txCtx)); err != nil {
+			return fmt.Errorf("bind tenant scope for activation retirement: %w", err)
+		}
 		client := store.client.DB(txCtx)
 		// Updating the activation first takes a row lock. Submission intake
 		// holds a FOR SHARE lock on this same row while it resolves a

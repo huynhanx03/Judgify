@@ -66,6 +66,11 @@ func UpdatedAt(v time.Time) predicate.Operation {
 	return predicate.Operation(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldEQ(FieldTenantID, v))
+}
+
 // Kind applies equality check predicate on the "kind" field. It's identical to KindEQ.
 func Kind(v string) predicate.Operation {
 	return predicate.Operation(sql.FieldEQ(FieldKind, v))
@@ -264,6 +269,56 @@ func UpdatedAtLT(v time.Time) predicate.Operation {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Operation {
 	return predicate.Operation(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.Operation {
+	return predicate.Operation(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.Operation {
+	return predicate.Operation(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.Operation {
+	return predicate.Operation(sql.FieldNotNull(FieldTenantID))
 }
 
 // KindEQ applies the EQ predicate on the "kind" field.

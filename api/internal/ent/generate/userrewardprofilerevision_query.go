@@ -411,12 +411,12 @@ func (_q *UserRewardProfileRevisionQuery) WithLedgerEntries(opts ...func(*Progre
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserRewardProfileRevision.Query().
-//		GroupBy(userrewardprofilerevision.FieldUserID).
+//		GroupBy(userrewardprofilerevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *UserRewardProfileRevisionQuery) GroupBy(field string, fields ...string) *UserRewardProfileRevisionGroupBy {
@@ -434,11 +434,11 @@ func (_q *UserRewardProfileRevisionQuery) GroupBy(field string, fields ...string
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.UserRewardProfileRevision.Query().
-//		Select(userrewardprofilerevision.FieldUserID).
+//		Select(userrewardprofilerevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *UserRewardProfileRevisionQuery) Select(fields ...string) *UserRewardProfileRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

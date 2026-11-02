@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"entgo.io/ent/dialect"
+	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
 	"github.com/huynhanx03/go-common/pkg/database/ent"
+	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 
 	"github.com/huynhanx03/judgify/pkg/settings"
 
@@ -16,6 +19,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	_ "github.com/huynhanx03/judgify/internal/ent/generate/runtime"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 // EntClient wraps the generated client and resolves the single platform
@@ -37,15 +41,17 @@ func NewEntClient(dbSettings settings.Database, debug bool, log *zap.Logger) (*E
 		// Ent's generated Debug logger includes raw query text and arguments.
 		// The shared driver wrapper retains contextual timing while exposing
 		// only a statement hash and operation name.
-		driver = ent.WrapLogging(driver, 0)
+		driver = ent.WrapLogging(commonlogger.Wrap(log), driver, 0)
 	}
 	client := generate.NewClient(generate.Driver(driver))
+	installTenantIsolation(client)
 
 	return &EntClient{client: client, driver: driver, log: log}, nil
 }
 
 // WrapClient wraps an existing generated client.
 func WrapClient(client *generate.Client, log *zap.Logger) *EntClient {
+	installTenantIsolation(client)
 	return &EntClient{client: client, log: log}
 }
 
@@ -57,6 +63,7 @@ func WrapClientWithDriver(
 	driver dialect.Driver,
 	log *zap.Logger,
 ) *EntClient {
+	installTenantIsolation(client)
 	return &EntClient{client: client, driver: driver, log: log}
 }
 
@@ -93,7 +100,74 @@ func (c *EntClient) DB(ctx context.Context) *generate.Client {
 		// turn a post-rollback write into an independent committed mutation.
 		panic(err)
 	}
+	if scope, ok := tenantctx.FromContext(ctx); ok && !scope.SQLBound() {
+		if _, transactionErr := platformtx.Client(ctx, nil); transactionErr == nil {
+			arrayValue, arrayErr := scope.PostgreSQLUUIDArray()
+			if arrayErr != nil {
+				panic(arrayErr)
+			}
+			if _, bindErr := client.ExecContext(ctx,
+				"SELECT pg_catalog.set_config('app.tenant_ids', $1, true)", arrayValue); bindErr != nil {
+				panic(fmt.Errorf("install tenant transaction scope: %w", bindErr))
+			}
+			scope.MarkSQLBound()
+		}
+	}
 	return client
+}
+
+// GetOutboxEvent reads an idempotency receipt through a tenant-bound short
+// transaction when the caller is outside a UnitOfWork. Outbox RLS uses the
+// transaction-local tenant setting, so a tenant predicate alone is not enough.
+func (c *EntClient) GetOutboxEvent(ctx context.Context, id uuid.UUID) (*generate.OutboxEvent, error) {
+	if c == nil || c.client == nil || ctx == nil || id == uuid.Nil {
+		return nil, platformtx.ErrInvalidUnitOfWork
+	}
+	if _, err := platformtx.Client(ctx, nil); err == nil {
+		return c.DB(ctx).OutboxEvent.Get(ctx, id)
+	} else if !errors.Is(err, platformtx.ErrTransactionRequired) {
+		return nil, err
+	}
+	var record *generate.OutboxEvent
+	err := ent.WithTx(ctx, c.client.Tx, func(transaction *generate.Tx) error {
+		if _, scoped := tenantctx.FromContext(ctx); scoped {
+			if err := tenantctx.BindSQLScope(ctx, transaction); err != nil {
+				return err
+			}
+		}
+		var err error
+		record, err = transaction.Client().OutboxEvent.Get(ctx, id)
+		return err
+	})
+	return record, err
+}
+
+// WithPrincipalRead runs an account-scoped control-plane read with the
+// authenticated principal bound to transaction-local RLS settings.
+func (c *EntClient) WithPrincipalRead(ctx context.Context, userID uuid.UUID, fn func(*generate.Client) error) error {
+	if c == nil || c.client == nil || ctx == nil || userID == uuid.Nil || fn == nil {
+		return platformtx.ErrInvalidUnitOfWork
+	}
+	if _, err := platformtx.Client(ctx, nil); err == nil {
+		client := c.DB(ctx)
+		if err := tenantctx.BindPrincipalSQL(ctx, userID, client); err != nil {
+			return err
+		}
+		return fn(client)
+	} else if !errors.Is(err, platformtx.ErrTransactionRequired) {
+		return err
+	}
+	return ent.WithTx(ctx, c.client.Tx, func(transaction *generate.Tx) error {
+		if _, scoped := tenantctx.FromContext(ctx); scoped {
+			if err := tenantctx.BindSQLScope(ctx, transaction); err != nil {
+				return err
+			}
+		}
+		if err := tenantctx.BindPrincipalSQL(ctx, userID, transaction); err != nil {
+			return err
+		}
+		return fn(transaction.Client())
+	})
 }
 
 // DoInTx executes fn within a transaction.

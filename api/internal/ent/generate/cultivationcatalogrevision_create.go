@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -45,13 +45,13 @@ func (_c *CultivationCatalogRevisionCreate) SetCatalogChecksum(v []byte) *Cultiv
 }
 
 // SetRootPool sets the "root_pool" field.
-func (_c *CultivationCatalogRevisionCreate) SetRootPool(v json.RawMessage) *CultivationCatalogRevisionCreate {
+func (_c *CultivationCatalogRevisionCreate) SetRootPool(v jsontext.Value) *CultivationCatalogRevisionCreate {
 	_c.mutation.SetRootPool(v)
 	return _c
 }
 
 // SetTalentPool sets the "talent_pool" field.
-func (_c *CultivationCatalogRevisionCreate) SetTalentPool(v json.RawMessage) *CultivationCatalogRevisionCreate {
+func (_c *CultivationCatalogRevisionCreate) SetTalentPool(v jsontext.Value) *CultivationCatalogRevisionCreate {
 	_c.mutation.SetTalentPool(v)
 	return _c
 }

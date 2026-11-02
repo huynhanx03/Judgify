@@ -29,7 +29,7 @@ var errPublicStandingAccessUnavailable = errors.New("contest standing: public ac
 // production repository implements it; test and alternate repositories retain
 // their existing contract without opening an unbounded public endpoint.
 type limitedStandingRepository interface {
-	FindByContestLimit(ctx context.Context, contestID uuid.UUID, limit int) ([]*entity.ContestStanding, error)
+	FindByContestIDWithLimit(ctx context.Context, contestID uuid.UUID, limit int) ([]*entity.ContestStanding, error)
 }
 
 type standingService struct {
@@ -213,9 +213,9 @@ func (s *standingService) findStandings(
 	limit int,
 ) ([]*entity.ContestStanding, error) {
 	if repository, ok := s.standingRepo.(limitedStandingRepository); ok {
-		return repository.FindByContestLimit(ctx, contestID, limit)
+		return repository.FindByContestIDWithLimit(ctx, contestID, limit)
 	}
-	standings, err := s.standingRepo.FindByContest(ctx, contestID)
+	standings, err := s.standingRepo.FindByContestID(ctx, contestID)
 	if err != nil || limit <= 0 || len(standings) <= limit {
 		return standings, err
 	}

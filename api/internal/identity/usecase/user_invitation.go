@@ -15,7 +15,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonpassword "github.com/huynhanx03/go-common/pkg/security/password"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -68,7 +68,7 @@ func NewUserInvitationService(
 	auditAppender audit.Appender,
 	outboxAppender eventing.OutboxAppender,
 ) (ports.UserInvitationService, error) {
-	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPolicy())
+	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPassword())
 	service := &userInvitationService{
 		users: users, credentials: credentials, roles: roles,
 		authorization: authorization, attributes: attributes,

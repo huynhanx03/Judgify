@@ -367,7 +367,7 @@ export function AdminOperations() {
     resetKey: `${authorizationRevision}:${JSON.stringify(query)}`,
     initialData: null,
     keepPreviousData: true,
-    load: (signal) => operationService.list(query, signal),
+    load: (signal) => operationService.find(query, signal),
     onSuccess: (next) => {
       if (!next) return;
       setSelected((current) =>

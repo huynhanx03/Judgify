@@ -6,9 +6,9 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	casbinmodel "github.com/casbin/casbin/v3/model"
-	adapter "github.com/casbin/ent-adapter"
-	adapterent "github.com/casbin/ent-adapter/ent"
 	authcasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
+	commonentadapter "github.com/huynhanx03/go-common/pkg/security/authorization/casbin/ent"
+	"github.com/huynhanx03/go-common/pkg/settings"
 	"github.com/stretchr/testify/require"
 
 	"entgo.io/ent/dialect"
@@ -31,52 +31,41 @@ e = some(where (p.eft == allow))
 m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
 `
 
-func TestPinnedEntAdapterCanStartWithoutRuntimeDDL(t *testing.T) {
+func TestSharedEntAdapterCanStartWithoutRuntimeDDL(t *testing.T) {
 	t.Parallel()
 	database, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = database.Close() })
 
 	driver := entsql.OpenDB(dialect.Postgres, database)
-	client := adapterent.NewClient(adapterent.Driver(driver))
-	loaded, err := adapter.NewAdapterWithClient(
-		client,
-		adapter.SkipSchemaCreate(),
-		adapter.WithContext(context.Background()),
-	)
+	loaded, err := commonentadapter.NewAdapter(driver, settings.Casbin{})
 	require.NoError(t, err)
 	require.NotNil(t, loaded)
 	require.NoError(t, sqlMock.ExpectationsWereMet(), "constructor must execute no schema SQL")
 }
 
-func TestPinnedEntAdapterRejectsPolicySnapshotsOverConfiguredLimit(t *testing.T) {
+func TestSharedEntAdapterRejectsPolicySnapshotsOverConfiguredLimit(t *testing.T) {
 	t.Parallel()
 	database, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = database.Close() })
 
 	driver := entsql.OpenDB(dialect.Postgres, database)
-	client := adapterent.NewClient(adapterent.Driver(driver))
-	loaded, err := adapter.NewAdapterWithClient(
-		client,
-		adapter.SkipSchemaCreate(),
-		adapter.WithContext(context.Background()),
-		adapter.WithPolicyLimit(1),
-	)
+	loaded, err := commonentadapter.NewAdapter(driver, settings.Casbin{PolicyLimit: 1})
 	require.NoError(t, err)
 
 	parsed, err := casbinmodel.NewModelFromString(adapterTestModel)
 	require.NoError(t, err)
 	sqlMock.ExpectQuery(`SELECT .* FROM "casbin_rules"`).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "ptype", "v0", "v1", "v2", "v3", "v4", "v5"}).
-			AddRow(1, "p", "role:teacher", "problem", "read", "", "", "").
-			AddRow(2, "p", "role:teacher", "problem", "update", "", "", ""))
+		WillReturnRows(sqlmock.NewRows([]string{"ptype", "v0", "v1", "v2", "v3", "v4", "v5"}).
+			AddRow("p", "role:teacher", "problem", "read", "", "", "").
+			AddRow("p", "role:teacher", "problem", "update", "", "", ""))
 
-	require.ErrorIs(t, loaded.LoadPolicy(parsed), adapter.ErrPolicyLimitExceeded)
+	require.ErrorIs(t, loaded.LoadPolicyContext(context.Background(), parsed), commonentadapter.ErrPolicyLimit)
 	require.NoError(t, sqlMock.ExpectationsWereMet())
 }
 
-func TestAuthorizationRepositoryLoadsStartupSnapshotThroughPinnedAdapter(t *testing.T) {
+func TestAuthorizationRepositoryLoadsStartupSnapshotThroughSharedAdapter(t *testing.T) {
 	t.Parallel()
 	database, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
@@ -88,9 +77,9 @@ func TestAuthorizationRepositoryLoadsStartupSnapshotThroughPinnedAdapter(t *test
 	repository := NewAuthorizationPolicyRepository(client)
 
 	sqlMock.ExpectQuery(`SELECT .* FROM "casbin_rules"`).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "ptype", "v0", "v1", "v2", "v3", "v4", "v5"}).
-			AddRow(1, "p", "role:teacher", "problem", "read", "", "", "").
-			AddRow(2, "g", "user:018f6abb-8dd5-7581-8449-2b9ad77873e5", "role:teacher", "", "", "", ""))
+		WillReturnRows(sqlmock.NewRows([]string{"ptype", "v0", "v1", "v2", "v3", "v4", "v5"}).
+			AddRow("p", "role:teacher", "problem", "read", "", "", "").
+			AddRow("g", "user:018f6abb-8dd5-7581-8449-2b9ad77873e5", "role:teacher", "", "", "", ""))
 
 	rules, err := repository.LoadRules(context.Background(), adapterTestModel)
 	require.NoError(t, err)

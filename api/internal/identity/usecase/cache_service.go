@@ -10,16 +10,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/common/cache"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/huynhanx03/judgify/internal/constant"
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
 	"github.com/huynhanx03/judgify/internal/ports"
 )
 
 const (
-	defaultPermissionConfigVersion = 1
 	defaultSessionCacheMaximumTTL  = 30 * time.Second
 	defaultSessionCacheEntries     = 20_000
 	maximumSessionCacheEntries     = 100_000
@@ -33,10 +30,6 @@ var (
 	errInvalidSessionCache     = errors.New("identity: invalid session cache configuration")
 	errSessionCacheInvalidated = errors.New("identity: session cache invalidated during load")
 )
-
-type cacheService struct {
-	cache cache.LocalCache[string, any]
-}
 
 // SessionStateCacheConfig configures the defensive process-local session
 // cache. Zero values select production defaults.
@@ -71,11 +64,6 @@ type sessionStateCache struct {
 	loads          singleflight.Group
 }
 
-// NewCacheService creates a new CacheService instance.
-func NewCacheService(cache cache.LocalCache[string, any]) ports.CacheService {
-	return &cacheService{cache: cache}
-}
-
 // NewSessionStateCache builds the session-specific revalidation cache.
 func NewSessionStateCache(config SessionStateCacheConfig) (ports.SessionStateCache, error) {
 	if config.MaximumTTL == 0 {
@@ -106,25 +94,6 @@ func NewSessionStateCache(config SessionStateCacheConfig) (ports.SessionStateCac
 		loadTimeout:    config.LoadTimeout,
 		clock:          config.Clock,
 	}, nil
-}
-
-// InvalidatePermissionConfig increments the permission config version.
-func (s *cacheService) InvalidatePermissionConfig(ctx context.Context) error {
-	version, _ := s.GetPermissionConfigVersion(ctx)
-	newVersion := version + 1
-	// No TTL: this is the invalidation anchor for permission caches, not a
-	// cached entity — it must persist so a bump is never silently forgotten.
-	cache.Set(s.cache, constant.CacheKeyPermissionConfigVersion, newVersion)
-	return nil
-}
-
-// GetPermissionConfigVersion retrieves the current permission config version.
-func (s *cacheService) GetPermissionConfigVersion(ctx context.Context) (int64, error) {
-	if v, found := cache.Get[int64](s.cache, constant.CacheKeyPermissionConfigVersion); found {
-		return v, nil
-	}
-
-	return defaultPermissionConfigVersion, nil
 }
 
 func (sessionCache *sessionStateCache) Resolve(

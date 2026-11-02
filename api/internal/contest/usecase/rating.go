@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	contract "github.com/huynhanx03/judgify/internal/contest/contract"
@@ -203,7 +203,7 @@ func (s *ratingService) GetContestRatingChanges(ctx context.Context, contestID u
 		contestID == uuid.Nil {
 		return nil, errors.New("rating service dependencies are required")
 	}
-	run, err := s.ledger.FindActiveByContest(ctx, contestID)
+	run, err := s.ledger.FindActiveByContestID(ctx, contestID)
 	if err != nil {
 		if errors.Is(err, ports.ErrRatingNotAvailable) {
 			return []*contract.RatingChangeResponse{}, nil

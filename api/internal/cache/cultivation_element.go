@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
-	"golang.org/x/sync/singleflight"
 
 	"github.com/huynhanx03/judgify/internal/constant"
 	contract "github.com/huynhanx03/judgify/internal/cultivation/contract"
@@ -15,23 +14,23 @@ import (
 
 type Element struct {
 	store Store
-	loads singleflight.Group
 }
 
 func NewElement(store Store) *Element { return &Element{store: store} }
 func (c *Element) Get(ctx context.Context, id uuid.UUID, load ports.ElementCacheLoader) (*contract.ElementResponse, error) {
-	return commoncache.Fetch[*contract.ElementResponse](c.store, &c.loads, elementKey(id), constant.CultivationCacheTTL, func() (*contract.ElementResponse, error) { return load(ctx) })
+	return commoncache.Fetch[*contract.ElementResponse](ctx, c.store, elementKey(id), constant.CultivationCacheTTL, func(loadCtx context.Context) (*contract.ElementResponse, error) { return load(loadCtx) })
 }
 func (c *Element) FindAll(ctx context.Context, load ports.ElementListCacheLoader) ([]*contract.ElementResponse, error) {
-	return commoncache.Fetch[[]*contract.ElementResponse](c.store, &c.loads, constant.CultivationElementAllKey, constant.CultivationCacheTTL, func() ([]*contract.ElementResponse, error) { return load(ctx) })
+	return commoncache.Fetch[[]*contract.ElementResponse](ctx, c.store, constant.CultivationElementAllKey, constant.CultivationCacheTTL, func(loadCtx context.Context) ([]*contract.ElementResponse, error) { return load(loadCtx) })
 }
 func (c *Element) Invalidate(ctx context.Context, id uuid.UUID) error {
-	return platformtx.AfterCommitOrNow(ctx, func(context.Context) error {
+	return platformtx.AfterCommitOrNow(ctx, func(deleteCtx context.Context) error {
+		keys := make([]string, 0, 2)
 		if id != uuid.Nil {
-			commoncache.Delete(c.store, elementKey(id))
+			keys = append(keys, elementKey(id))
 		}
-		commoncache.Delete(c.store, constant.CultivationElementAllKey)
-		return nil
+		keys = append(keys, constant.CultivationElementAllKey)
+		return c.store.DeleteAll(deleteCtx, keys...)
 	})
 }
 func elementKey(id uuid.UUID) string { return constant.CultivationElementByIDKeyPrefix + id.String() }

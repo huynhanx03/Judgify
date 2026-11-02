@@ -52,8 +52,8 @@ func (r *RatingHistoryRepository) CreateBulk(ctx context.Context, records []*ent
 	return nil
 }
 
-// FindByContest returns all rating history records for a contest.
-func (r *RatingHistoryRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.RatingHistory, error) {
+// FindByContestID returns all rating history records for a contest.
+func (r *RatingHistoryRepository) FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*entity.RatingHistory, error) {
 	records, err := r.client.DB(ctx).RatingHistory.Query().
 		Where(ratinghistory.ContestIDEQ(contestID)).
 		WithUser().

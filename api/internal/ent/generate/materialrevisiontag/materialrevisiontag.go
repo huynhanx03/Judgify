@@ -13,6 +13,8 @@ const (
 	Label = "material_revision_tag"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldRevisionID holds the string denoting the revision_id field in the database.
 	FieldRevisionID = "revision_id"
 	// FieldTagID holds the string denoting the tag_id field in the database.
@@ -44,6 +46,7 @@ const (
 // Columns holds all SQL columns for materialrevisiontag fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldRevisionID,
 	FieldTagID,
 	FieldDisplayOrder,
@@ -76,6 +79,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByRevisionID orders the results by the revision_id field.

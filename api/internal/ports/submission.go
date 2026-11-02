@@ -271,6 +271,7 @@ type JobClaimRequest struct {
 }
 
 type JobLease struct {
+	TenantID          uuid.UUID
 	Job               entity.JudgeJob
 	Attempt           entity.JudgeAttempt
 	JudgeSpec         JudgeSpecClaim
@@ -412,16 +413,16 @@ type SubmissionRepository interface {
 	// Summary queries return the newest bounded window in deterministic order.
 	// They must never load an unbounded submission history into API memory.
 	FindByProblemID(ctx context.Context, problemID uuid.UUID) ([]*entity.Submission, error)
-	FindMyByProblem(ctx context.Context, query MySubmissionQuery) (MySubmissionPage, error)
-	FindAdmin(ctx context.Context, query entity.AdminSubmissionQuery) (*commondto.Paginated[*entity.Submission], error)
+	FindMySubmissionsByProblem(ctx context.Context, query MySubmissionQuery) (MySubmissionPage, error)
+	FindForAdmin(ctx context.Context, query entity.AdminSubmissionQuery) (*commondto.Paginated[*entity.Submission], error)
 }
 
 // SubmissionService defines the submission business logic interface.
 type SubmissionService interface {
 	Get(ctx context.Context, userID, id uuid.UUID) (*contract.SubmissionResponse, error)
 	FindByProblemID(ctx context.Context, problemID uuid.UUID) ([]*contract.SubmissionSummaryResponse, error)
-	FindMyByProblem(ctx context.Context, userID uuid.UUID, req *contract.MySubmissionsRequest) (*contract.MySubmissionsPageResponse, error)
-	FindAdmin(ctx context.Context, req *contract.AdminSubmissionFindRequest) (*commondto.Paginated[*contract.AdminSubmissionSummaryResponse], error)
+	FindMySubmissionsByProblem(ctx context.Context, userID uuid.UUID, req *contract.MySubmissionsRequest) (*contract.MySubmissionsPageResponse, error)
+	FindForAdmin(ctx context.Context, req *contract.AdminSubmissionFindRequest) (*commondto.Paginated[*contract.AdminSubmissionSummaryResponse], error)
 	GetAdmin(ctx context.Context, id uuid.UUID) (*contract.AdminSubmissionDetailResponse, error)
 }
 

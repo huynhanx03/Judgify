@@ -13,9 +13,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
+	commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"github.com/huynhanx03/go-common/pkg/security/authorization"
 	authcasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
+	"github.com/huynhanx03/judgify/internal/testutil"
 	"go.uber.org/zap"
 
 	dto "github.com/huynhanx03/judgify/internal/identity/contract"
@@ -108,6 +110,7 @@ func TestAuthorizationStartupNeverInitializesMissingPolicyState(t *testing.T) {
 		&authorizationAuditAppender{},
 		&authorizationOutboxAppender{},
 		zap.NewNop(),
+		authorizationCache(t),
 	)
 	if err == nil || service != nil {
 		t.Fatalf("startup without bootstrap = service %#v, error %v", service, err)
@@ -878,7 +881,7 @@ func newAuthorizationFixture(t *testing.T) *authorizationFixture {
 	}
 	manager := &authorizationTestTransaction{repository: repository}
 	auditAppender := &authorizationAuditAppender{}
-	service, err := NewAuthorizationService(context.Background(), repository, manager, auditAppender, &authorizationOutboxAppender{}, zap.NewNop())
+	service, err := NewAuthorizationService(context.Background(), repository, manager, auditAppender, &authorizationOutboxAppender{}, zap.NewNop(), authorizationCache(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -925,6 +928,7 @@ func newDeferredAuthorizationFixture(t *testing.T) *deferredAuthorizationFixture
 		&authorizationAuditAppender{},
 		&authorizationOutboxAppender{},
 		zap.NewNop(),
+		authorizationCache(t),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -934,6 +938,13 @@ func newDeferredAuthorizationFixture(t *testing.T) *deferredAuthorizationFixture
 		manager:        manager,
 		adminPrincipal: authorizationPrincipal(adminID),
 	}
+}
+
+func authorizationCache(t *testing.T) *commoncache.Cache {
+	t.Helper()
+	shared := testutil.NewCache()
+	t.Cleanup(shared.Close)
+	return shared
 }
 
 func authorizationPrincipal(userID uuid.UUID) authentication.Principal {
@@ -1121,14 +1132,87 @@ func (repository *authorizationMemoryRepository) LoadRules(
 	ctx context.Context,
 	_ string,
 ) ([]authcasbin.PolicyRule, error) {
-	return repository.ListRules(ctx)
+	return repository.FindRules(ctx)
+}
+
+func (repository *authorizationMemoryRepository) LoadScopedRules(
+	ctx context.Context,
+	_ string,
+	scope authorization.Scope,
+	revision int64,
+) ([]authcasbin.PolicyRule, error) {
+	state, rules := repository.snapshot()
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	result := make([]authcasbin.PolicyRule, 0, len(rules))
+	for _, rule := range rules {
+		switch rule.Type {
+		case "p":
+			if rule.V1 == scope.Key() || rule.V1 == authcasbin.SystemScope().Key() || rule.V1 == "*" {
+				result = append(result, rule)
+			}
+		case "g":
+			_, childRole := parseRoleSubject(rule.V0)
+			_, parentRole := parseRoleSubject(rule.V1)
+			if childRole && parentRole && (rule.V2 == scope.Key() || rule.V2 == authcasbin.SystemScope().Key()) {
+				result = append(result, rule)
+			}
+		case "g3":
+			if rule.V0 == scope.Key() {
+				result = append(result, rule)
+			}
+		}
+	}
+	return result, nil
+}
+
+func (repository *authorizationMemoryRepository) LoadSubjectRelations(
+	ctx context.Context,
+	revision int64,
+	scope authorization.Scope,
+	subject string,
+) ([]authcasbin.PolicyRule, error) {
+	state, rules := repository.snapshot()
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	result := make([]authcasbin.PolicyRule, 0)
+	for _, rule := range rules {
+		if rule.V0 != subject {
+			continue
+		}
+		if rule.Type == "g" && (rule.V2 == scope.Key() || rule.V2 == authcasbin.SystemScope().Key()) {
+			result = append(result, rule)
+		}
+	}
+	return result, nil
+}
+
+func (repository *authorizationMemoryRepository) LoadResourceRelations(
+	ctx context.Context,
+	revision int64,
+	scope authorization.Scope,
+	subject, resourceID string,
+) ([]authcasbin.PolicyRule, error) {
+	state, rules := repository.snapshot()
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	result := make([]authcasbin.PolicyRule, 0)
+	for _, rule := range rules {
+		if rule.Type == "g2" && rule.V0 == subject && rule.V2 == resourceID {
+			result = append(result, rule)
+		}
+	}
+	return result, nil
 }
 
 func (repository *authorizationMemoryRepository) LockState(ctx context.Context) (ports.AuthorizationState, error) {
 	return repository.State(ctx)
 }
 
-func (repository *authorizationMemoryRepository) ListRules(context.Context) ([]authcasbin.PolicyRule, error) {
+func (repository *authorizationMemoryRepository) FindRules(context.Context) ([]authcasbin.PolicyRule, error) {
 	repository.mu.Lock()
 	defer repository.mu.Unlock()
 	return append([]authcasbin.PolicyRule(nil), repository.rules...), nil
@@ -1165,7 +1249,7 @@ func (repository *authorizationMemoryRepository) ReplaceUserRoles(
 		}
 	}
 	for _, role := range roles {
-		kept = append(kept, authcasbin.PolicyRule{Type: "g", V0: subject, V1: role})
+		kept = append(kept, authcasbin.PolicyRule{Type: "g", V0: subject, V1: role, V2: authcasbin.SystemScope().Key()})
 	}
 	repository.rules = kept
 	return nil

@@ -8,6 +8,7 @@ import (
 	entschema "entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/go-common/pkg/database/ent"
 
@@ -33,11 +34,9 @@ func (Difficulty) Mixin() []ent.Mixin {
 func (Difficulty) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(50),
 		field.Int("level").
-			Unique().
 			Positive(),
 		field.Int64("exp_reward").
 			Default(0).
@@ -50,6 +49,10 @@ func (Difficulty) Fields() []ent.Field {
 			Min(1).
 			Default(1),
 	}
+}
+
+func (Difficulty) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("name").Unique(), index.Fields("level").Unique()}
 }
 
 // Edges of the Difficulty.

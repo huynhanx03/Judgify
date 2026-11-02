@@ -24,6 +24,8 @@ type ContestUserRating struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ProjectionGenerationID holds the value of the "projection_generation_id" field.
 	ProjectionGenerationID uuid.UUID `json:"projection_generation_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -84,7 +86,7 @@ func (*ContestUserRating) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case contestuserrating.FieldCreatedAt, contestuserrating.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case contestuserrating.FieldID, contestuserrating.FieldProjectionGenerationID, contestuserrating.FieldUserID:
+		case contestuserrating.FieldID, contestuserrating.FieldTenantID, contestuserrating.FieldProjectionGenerationID, contestuserrating.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -118,6 +120,12 @@ func (_m *ContestUserRating) assignValues(columns []string, values []any) error 
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case contestuserrating.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contestuserrating.FieldProjectionGenerationID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -206,6 +214,9 @@ func (_m *ContestUserRating) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("projection_generation_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ProjectionGenerationID))

@@ -59,12 +59,12 @@ func TestContestFindMapsGenericNameSearchToTitle(t *testing.T) {
 	}
 }
 
-func TestContestFindPublicCannotBeWidenedByDraftStatusFilter(t *testing.T) {
+func TestContestFindForPublicCannotBeWidenedByDraftStatusFilter(t *testing.T) {
 	repository, mock, captured := newContestQuerySafetyRepository(t)
 	mock.ExpectQuery("count").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 	mock.ExpectQuery("records").WillReturnRows(sqlmock.NewRows(contest.Columns))
 
-	_, err := repository.FindPublic(context.Background(), &commondto.QueryOptions{
+	_, err := repository.FindForPublic(context.Background(), &commondto.QueryOptions{
 		Filters: []commondto.SearchFilter{{
 			Key: "status", Value: contest.StatusDraft.String(), Type: commonent.SearchTypeExact,
 		}},
@@ -94,7 +94,7 @@ func TestContestGetPublicRejectsDirectDraftIDAtDatabaseBoundary(t *testing.T) {
 	require.Contains(t, queries[0], `"status" <>`, "direct-ID public reads must carry the non-draft predicate")
 }
 
-func TestContestFindAdminDoesNotApplyPublicVisibilityPredicate(t *testing.T) {
+func TestContestFindForAdminDoesNotApplyPublicVisibilityPredicate(t *testing.T) {
 	repository, mock, captured := newContestQuerySafetyRepository(t)
 	mock.ExpectQuery("count").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 	mock.ExpectQuery("records").WillReturnRows(sqlmock.NewRows(contest.Columns))

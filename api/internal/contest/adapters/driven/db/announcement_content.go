@@ -216,14 +216,14 @@ func (repository *ContentRepository) WithdrawAnnouncement(
 	return repository.getAdminAnnouncement(ctx, command.ContestID, command.AnnouncementID)
 }
 
-func (repository *ContentRepository) ListPublicAnnouncements(
+func (repository *ContentRepository) FindAnnouncementsForPublic(
 	ctx context.Context,
 	query ports.ContentListQuery,
 ) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
-	return repository.listAnnouncements(ctx, query, "public", false)
+	return repository.findAnnouncements(ctx, query, "public", false)
 }
 
-func (repository *ContentRepository) ListParticipantAnnouncements(
+func (repository *ContentRepository) FindAnnouncementsForParticipant(
 	ctx context.Context,
 	query ports.ContentListQuery,
 ) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
@@ -233,14 +233,14 @@ func (repository *ContentRepository) ListParticipantAnnouncements(
 	if err := repository.requireRegisteredParticipant(ctx, query.ContestID, query.ActorID); err != nil {
 		return nil, nil, err
 	}
-	return repository.listAnnouncements(ctx, query, "participant", false)
+	return repository.findAnnouncements(ctx, query, "participant", false)
 }
 
-func (repository *ContentRepository) ListAdminAnnouncements(
+func (repository *ContentRepository) FindAnnouncementsForAdmin(
 	ctx context.Context,
 	query ports.ContentListQuery,
 ) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
-	return repository.listAnnouncements(ctx, query, "admin", true)
+	return repository.findAnnouncements(ctx, query, "admin", true)
 }
 
 func (repository *ContentRepository) FindDueAnnouncements(ctx context.Context, limit int) ([]ports.DueAnnouncement, error) {
@@ -276,7 +276,7 @@ func (repository *ContentRepository) FindDueAnnouncements(ctx context.Context, l
 	return items, rows.Err()
 }
 
-func (repository *ContentRepository) listAnnouncements(
+func (repository *ContentRepository) findAnnouncements(
 	ctx context.Context,
 	query ports.ContentListQuery,
 	visibility string,

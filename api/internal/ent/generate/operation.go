@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -23,6 +24,8 @@ type Operation struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// Kind holds the value of the "kind" field.
 	Kind string `json:"kind,omitempty"`
 	// IdempotencyKey holds the value of the "idempotency_key" field.
@@ -30,7 +33,7 @@ type Operation struct {
 	// RequestHash holds the value of the "request_hash" field.
 	RequestHash []byte `json:"-"`
 	// RequestPayload holds the value of the "request_payload" field.
-	RequestPayload json.RawMessage `json:"-"`
+	RequestPayload jsontext.Value `json:"-"`
 	// ActorUserID holds the value of the "actor_user_id" field.
 	ActorUserID uuid.UUID `json:"actor_user_id,omitempty"`
 	// ActorSessionID holds the value of the "actor_session_id" field.
@@ -58,7 +61,7 @@ type Operation struct {
 	// BatchSize holds the value of the "batch_size" field.
 	BatchSize int `json:"batch_size,omitempty"`
 	// Checkpoint holds the value of the "checkpoint" field.
-	Checkpoint json.RawMessage `json:"checkpoint,omitempty"`
+	Checkpoint jsontext.Value `json:"checkpoint,omitempty"`
 	// Version holds the value of the "version" field.
 	Version int64 `json:"version,omitempty"`
 	// LeaseOwner holds the value of the "lease_owner" field.
@@ -119,7 +122,7 @@ func (*Operation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case operation.FieldActorSessionID, operation.FieldLeaseToken:
+		case operation.FieldTenantID, operation.FieldActorSessionID, operation.FieldLeaseToken:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case operation.FieldRequestHash, operation.FieldRequestPayload, operation.FieldCheckpoint:
 			values[i] = new([]byte)
@@ -163,6 +166,13 @@ func (_m *Operation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case operation.FieldTenantID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = new(uuid.UUID)
+				*_m.TenantID = *value.S.(*uuid.UUID)
 			}
 		case operation.FieldKind:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -395,6 +405,11 @@ func (_m *Operation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("kind=")
 	builder.WriteString(_m.Kind)

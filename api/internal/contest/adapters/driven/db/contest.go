@@ -22,6 +22,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/contestregistration"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/problem"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 	"github.com/huynhanx03/judgify/internal/ports"
 )
 
@@ -63,10 +64,10 @@ func (r *ContestRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d.
 	return r.find(ctx, opts)
 }
 
-// FindPublic returns only contests whose publication lifecycle has started.
+// FindForPublic returns only contests whose publication lifecycle has started.
 // This repository-owned predicate is deliberately separate from caller-owned
 // query filters so a crafted status filter can only narrow the public set.
-func (r *ContestRepository) FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Contest], error) {
+func (r *ContestRepository) FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Contest], error) {
 	return r.find(
 		ctx,
 		opts,
@@ -666,6 +667,19 @@ LIMIT 2`,
 func (r *ContestRepository) FindIDsByStatus(ctx context.Context, status string) ([]uuid.UUID, error) {
 	ids, err := r.client.DB(ctx).Contest.Query().
 		Where(contest.StatusEQ(contest.Status(status))).
+		IDs(ctx)
+	if err != nil {
+		return nil, commonEnt.MapEntError(err, contestRepoName)
+	}
+	return ids, nil
+}
+
+// FindActiveTenantIDs is used by the system lifecycle worker to execute its
+// tenant-owned scans under one concrete tenant scope at a time.
+func (r *ContestRepository) FindActiveTenantIDs(ctx context.Context) ([]uuid.UUID, error) {
+	ids, err := r.client.DB(ctx).Tenant.Query().
+		Where(tenant.StatusEQ(tenant.StatusActive)).
+		Order(generate.Asc(tenant.FieldID)).
 		IDs(ctx)
 	if err != nil {
 		return nil, commonEnt.MapEntError(err, contestRepoName)

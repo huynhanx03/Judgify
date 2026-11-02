@@ -54,6 +54,11 @@ func IDLTE(id int) predicate.OnboardingTraitOfferTalent {
 	return predicate.OnboardingTraitOfferTalent(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldEQ(FieldTenantID, v))
+}
+
 // OfferID applies equality check predicate on the "offer_id" field. It's identical to OfferIDEQ.
 func OfferID(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
 	return predicate.OnboardingTraitOfferTalent(sql.FieldEQ(FieldOfferID, v))
@@ -72,6 +77,46 @@ func TraitRevision(v int64) predicate.OnboardingTraitOfferTalent {
 // DisplayOrder applies equality check predicate on the "display_order" field. It's identical to DisplayOrderEQ.
 func DisplayOrder(v int) predicate.OnboardingTraitOfferTalent {
 	return predicate.OnboardingTraitOfferTalent(sql.FieldEQ(FieldDisplayOrder, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.OnboardingTraitOfferTalent {
+	return predicate.OnboardingTraitOfferTalent(sql.FieldLTE(FieldTenantID, v))
 }
 
 // OfferIDEQ applies the EQ predicate on the "offer_id" field.

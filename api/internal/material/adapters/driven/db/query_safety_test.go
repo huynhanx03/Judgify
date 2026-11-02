@@ -39,13 +39,13 @@ func (c *capturedMaterialQueries) snapshot() []string {
 	return append([]string(nil), c.queries...)
 }
 
-func TestMaterialFindPublicPreservesSearchAndCategoryWithoutVirtualColumn(t *testing.T) {
+func TestMaterialFindForPublicPreservesSearchAndCategoryWithoutVirtualColumn(t *testing.T) {
 	repository, mock, captured := newMaterialQuerySafetyRepository(t)
 	mock.ExpectQuery("count").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 	mock.ExpectQuery("records").WillReturnRows(sqlmock.NewRows(material.Columns))
 	categoryID := uuid.New()
 
-	_, err := repository.FindPublic(context.Background(), &commondto.QueryOptions{
+	_, err := repository.FindForPublic(context.Background(), &commondto.QueryOptions{
 		Filters: []commondto.SearchFilter{
 			{Key: "search", Value: "binary tree", Type: commonent.SearchTypeSearch},
 			{Key: material.FieldCategoryID, Value: categoryID.String(), Type: commonent.SearchTypeExact},
@@ -66,7 +66,7 @@ func TestMaterialFindPublicPreservesSearchAndCategoryWithoutVirtualColumn(t *tes
 	require.Contains(t, strings.ToUpper(queries[1]), "LIMIT 10")
 }
 
-func TestMaterialFindAdminMapsGenericNameSearchToArticleText(t *testing.T) {
+func TestMaterialFindForAdminMapsGenericNameSearchToArticleText(t *testing.T) {
 	repository, mock, captured := newMaterialQuerySafetyRepository(t)
 	mock.ExpectQuery("count").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 	mock.ExpectQuery("records").WillReturnRows(sqlmock.NewRows(material.Columns))

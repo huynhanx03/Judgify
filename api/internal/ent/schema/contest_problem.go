@@ -3,6 +3,7 @@ package schema
 import (
 	"encoding/json"
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -22,7 +23,10 @@ import (
 // official submission after this row is published.
 type ContestProblem struct{ ent.Schema }
 
-func (ContestProblem) Mixin() []ent.Mixin { return []ent.Mixin{commonent.AppendOnlyMixin{}} }
+func (ContestProblem) Mixin() []ent.Mixin {
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
+}
 
 func (ContestProblem) Fields() []ent.Field {
 	return append(problemAppendOnlyRecordFields(),

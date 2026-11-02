@@ -9,6 +9,7 @@ import (
 // MaterialCategory represents a category for learning materials.
 type MaterialCategory struct {
 	ID           uuid.UUID
+	TenantID     uuid.UUID
 	Name         string
 	Description  string
 	ArticleCount int

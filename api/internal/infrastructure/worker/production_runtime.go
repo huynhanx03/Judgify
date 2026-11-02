@@ -17,6 +17,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
 
 	"github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 	"github.com/huynhanx03/judgify/internal/judge"
 	judgedb "github.com/huynhanx03/judgify/internal/judge/adapters/driven/db"
 	judgeassets "github.com/huynhanx03/judgify/internal/judge/assets"
@@ -27,6 +28,7 @@ import (
 	problemdb "github.com/huynhanx03/judgify/internal/problem/adapters/driven/db"
 	submissiondb "github.com/huynhanx03/judgify/internal/submission/adapters/driven/db"
 	submissionservice "github.com/huynhanx03/judgify/internal/submission/usecase"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/judging"
 	"github.com/huynhanx03/judgify/pkg/settings"
 )
@@ -141,12 +143,27 @@ func (runtime *productionRuntime) Run(ctx context.Context) error {
 	defer cancel()
 	defer runtime.readiness.BeginDrain()
 
+	activeTenantIDs, err := runtime.database.Client().Tenant.Query().
+		Where(tenant.StatusEQ(tenant.StatusActive)).
+		IDs(runCtx)
+	if err != nil {
+		return fmt.Errorf("load active tenant scopes for judge worker: %w", err)
+	}
+	if len(activeTenantIDs) == 0 {
+		return errors.New("judge worker cannot start without an active tenant")
+	}
+	workerScope, err := tenantctx.All(activeTenantIDs)
+	if err != nil {
+		return fmt.Errorf("build judge worker tenant scope: %w", err)
+	}
+	runCtx = tenantctx.WithContext(runCtx, workerScope)
+
 	if err := runtime.initialize(runCtx); err != nil {
 		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cleanupCancel()
 		return errors.Join(err, runtime.disableClaims(cleanupCtx), runtime.shutdownOwned(cleanupCtx))
 	}
-	err := runtime.durable.Run(runCtx)
+	err = runtime.durable.Run(runCtx)
 	if ctx.Err() != nil {
 		return nil
 	}

@@ -204,7 +204,7 @@ export const submissionService = {
       },
     );
   },
-  async findAdmin(
+  async findForAdmin(
     query: AdminSubmissionFindRequest,
     signal?: AbortSignal,
   ): Promise<Paginated<AdminSubmissionSummary>> {

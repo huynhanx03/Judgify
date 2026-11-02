@@ -10,7 +10,7 @@ import (
 
 // TestCaseHandler defines the test case HTTP handler interface.
 type TestCaseHandler interface {
-	FindPublicSamples(ctx context.Context, req *publicSamplesRequest) ([]*SampleTestCaseResponse, error)
+	FindSamplesForPublic(ctx context.Context, req *publicSamplesRequest) ([]*SampleTestCaseResponse, error)
 }
 
 type testCaseHandler struct {
@@ -23,12 +23,12 @@ func NewTestCaseHandler(publicSamples ports.PublicSampleReader) TestCaseHandler 
 	return &testCaseHandler{publicSamples: publicSamples}
 }
 
-func (h *testCaseHandler) FindPublicSamples(ctx context.Context, req *publicSamplesRequest) ([]*SampleTestCaseResponse, error) {
+func (h *testCaseHandler) FindSamplesForPublic(ctx context.Context, req *publicSamplesRequest) ([]*SampleTestCaseResponse, error) {
 	problemID, err := toPublicSamplesProblemID(req)
 	if err != nil {
 		return nil, err
 	}
-	results, err := h.publicSamples.FindPublicSamples(ctx, problemID)
+	results, err := h.publicSamples.FindSamplesForPublic(ctx, problemID)
 	if err != nil {
 		return nil, err
 	}

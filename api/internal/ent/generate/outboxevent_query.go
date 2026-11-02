@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/outboxevent"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 )
 
 // OutboxEventQuery is the builder for querying OutboxEvent entities.
@@ -24,6 +25,7 @@ type OutboxEventQuery struct {
 	order      []outboxevent.OrderOption
 	inters     []Interceptor
 	predicates []predicate.OutboxEvent
+	withTenant *TenantQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -59,6 +61,28 @@ func (_q *OutboxEventQuery) Unique(unique bool) *OutboxEventQuery {
 func (_q *OutboxEventQuery) Order(o ...outboxevent.OrderOption) *OutboxEventQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryTenant chains the current query on the "tenant" edge.
+func (_q *OutboxEventQuery) QueryTenant() *TenantQuery {
+	query := (&TenantClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(outboxevent.Table, outboxevent.FieldID, selector),
+			sqlgraph.To(tenant.Table, tenant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, outboxevent.TenantTable, outboxevent.TenantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first OutboxEvent entity from the query.
@@ -253,11 +277,23 @@ func (_q *OutboxEventQuery) Clone() *OutboxEventQuery {
 		order:      append([]outboxevent.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.OutboxEvent{}, _q.predicates...),
+		withTenant: _q.withTenant.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
+}
+
+// WithTenant tells the query-builder to eager-load the nodes that are connected to
+// the "tenant" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *OutboxEventQuery) WithTenant(opts ...func(*TenantQuery)) *OutboxEventQuery {
+	query := (&TenantClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTenant = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -266,12 +302,12 @@ func (_q *OutboxEventQuery) Clone() *OutboxEventQuery {
 // Example:
 //
 //	var v []struct {
-//		EventType string `json:"event_type,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.OutboxEvent.Query().
-//		GroupBy(outboxevent.FieldEventType).
+//		GroupBy(outboxevent.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *OutboxEventQuery) GroupBy(field string, fields ...string) *OutboxEventGroupBy {
@@ -289,11 +325,11 @@ func (_q *OutboxEventQuery) GroupBy(field string, fields ...string) *OutboxEvent
 // Example:
 //
 //	var v []struct {
-//		EventType string `json:"event_type,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.OutboxEvent.Query().
-//		Select(outboxevent.FieldEventType).
+//		Select(outboxevent.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *OutboxEventQuery) Select(fields ...string) *OutboxEventSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -336,8 +372,11 @@ func (_q *OutboxEventQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *OutboxEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OutboxEvent, error) {
 	var (
-		nodes = []*OutboxEvent{}
-		_spec = _q.querySpec()
+		nodes       = []*OutboxEvent{}
+		_spec       = _q.querySpec()
+		loadedTypes = [1]bool{
+			_q.withTenant != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*OutboxEvent).scanValues(nil, columns)
@@ -345,6 +384,7 @@ func (_q *OutboxEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &OutboxEvent{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(_q.modifiers) > 0 {
@@ -359,7 +399,46 @@ func (_q *OutboxEventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withTenant; query != nil {
+		if err := _q.loadTenant(ctx, query, nodes, nil,
+			func(n *OutboxEvent, e *Tenant) { n.Edges.Tenant = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *OutboxEventQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*OutboxEvent, init func(*OutboxEvent), assign func(*OutboxEvent, *Tenant)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*OutboxEvent)
+	for i := range nodes {
+		if nodes[i].TenantID == nil {
+			continue
+		}
+		fk := *nodes[i].TenantID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(tenant.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "tenant_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *OutboxEventQuery) sqlCount(ctx context.Context) (int, error) {
@@ -389,6 +468,9 @@ func (_q *OutboxEventQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != outboxevent.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withTenant != nil {
+			_spec.Node.AddColumnOnce(outboxevent.FieldTenantID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

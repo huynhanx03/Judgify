@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -23,7 +24,8 @@ import (
 type TestcaseRevision struct{ ent.Schema }
 
 func (TestcaseRevision) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (TestcaseRevision) Fields() []ent.Field {

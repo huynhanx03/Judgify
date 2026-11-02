@@ -25,6 +25,12 @@ type ContestContentRevisionCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestContentRevisionCreate) SetTenantID(v uuid.UUID) *ContestContentRevisionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetOwnerType sets the "owner_type" field.
 func (_c *ContestContentRevisionCreate) SetOwnerType(v contestcontentrevision.OwnerType) *ContestContentRevisionCreate {
 	_c.mutation.SetOwnerType(v)
@@ -188,6 +194,9 @@ func (_c *ContestContentRevisionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ContestContentRevisionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestContentRevision.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.OwnerType(); !ok {
 		return &ValidationError{Name: "owner_type", err: errors.New(`generate: missing required field "ContestContentRevision.owner_type"`)}
 	}
@@ -295,6 +304,10 @@ func (_c *ContestContentRevisionCreate) createSpec() (*ContestContentRevision, *
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestcontentrevision.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.OwnerType(); ok {
 		_spec.SetField(contestcontentrevision.FieldOwnerType, field.TypeEnum, value)
 		_node.OwnerType = value
@@ -363,7 +376,7 @@ func (_c *ContestContentRevisionCreate) createSpec() (*ContestContentRevision, *
 // of the `INSERT` statement. For example:
 //
 //	client.ContestContentRevision.Create().
-//		SetOwnerType(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -372,7 +385,7 @@ func (_c *ContestContentRevisionCreate) createSpec() (*ContestContentRevision, *
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestContentRevisionUpsert) {
-//			SetOwnerType(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestContentRevisionCreate) OnConflict(opts ...sql.ConflictOption) *ContestContentRevisionUpsertOne {
@@ -424,6 +437,9 @@ func (u *ContestContentRevisionUpsertOne) UpdateNewValues() *ContestContentRevis
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(contestcontentrevision.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestcontentrevision.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.OwnerType(); exists {
 			s.SetIgnore(contestcontentrevision.FieldOwnerType)
@@ -628,7 +644,7 @@ func (_c *ContestContentRevisionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestContentRevisionUpsert) {
-//			SetOwnerType(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestContentRevisionCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContestContentRevisionUpsertBulk {
@@ -674,6 +690,9 @@ func (u *ContestContentRevisionUpsertBulk) UpdateNewValues() *ContestContentRevi
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(contestcontentrevision.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestcontentrevision.FieldTenantID)
 			}
 			if _, exists := b.mutation.OwnerType(); exists {
 				s.SetIgnore(contestcontentrevision.FieldOwnerType)

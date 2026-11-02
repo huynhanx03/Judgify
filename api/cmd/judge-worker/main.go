@@ -39,6 +39,6 @@ func run(ctx context.Context) (resultErr error) {
 	defer func() { resultErr = errors.Join(resultErr, process.Close(), process.Sync()) }()
 	config := judgifyruntime.NewConfig(string(process.Config.Server.Mode), judgifyruntime.Builders{
 		JudgeWorker: process.Builder(workerInfrastructure.Build),
-	})
+	}, process.Logger)
 	return judgifyruntime.Run(ctx, judgifyruntime.RoleJudgeWorker, config)
 }

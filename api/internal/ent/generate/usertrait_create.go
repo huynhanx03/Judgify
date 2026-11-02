@@ -82,6 +82,12 @@ func (_c *UserTraitCreate) SetNillableDeletedBy(v *string) *UserTraitCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserTraitCreate) SetTenantID(v uuid.UUID) *UserTraitCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserTraitCreate) SetUserID(v uuid.UUID) *UserTraitCreate {
 	_c.mutation.SetUserID(v)
@@ -187,6 +193,9 @@ func (_c *UserTraitCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "UserTrait.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserTrait.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserTrait.user_id"`)}
 	}
@@ -250,6 +259,10 @@ func (_c *UserTraitCreate) createSpec() (*UserTrait, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(usertrait.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(usertrait.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -428,6 +441,9 @@ func (u *UserTraitUpsertOne) UpdateNewValues() *UserTraitUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(usertrait.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(usertrait.FieldTenantID)
 		}
 	}))
 	return u
@@ -729,6 +745,9 @@ func (u *UserTraitUpsertBulk) UpdateNewValues() *UserTraitUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(usertrait.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(usertrait.FieldTenantID)
 			}
 		}
 	}))

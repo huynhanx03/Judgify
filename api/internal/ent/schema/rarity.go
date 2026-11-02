@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/go-common/pkg/database/ent"
 
@@ -28,11 +29,9 @@ func (Rarity) Mixin() []ent.Mixin {
 func (Rarity) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(50),
 		field.String("code").
-			Unique().
 			NotEmpty().
 			MaxLen(20).
 			Comment("Unique code: mortal, earth, heaven, divine"),
@@ -44,6 +43,10 @@ func (Rarity) Fields() []ent.Field {
 			Optional().
 			MaxLen(255),
 	}
+}
+
+func (Rarity) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("name").Unique(), index.Fields("code").Unique()}
 }
 
 // Edges of the Rarity.

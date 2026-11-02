@@ -57,6 +57,12 @@ func (_c *ContestScoringAttemptCreate) SetNillableUpdatedAt(v *time.Time) *Conte
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestScoringAttemptCreate) SetTenantID(v uuid.UUID) *ContestScoringAttemptCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetContestID sets the "contest_id" field.
 func (_c *ContestScoringAttemptCreate) SetContestID(v uuid.UUID) *ContestScoringAttemptCreate {
 	_c.mutation.SetContestID(v)
@@ -243,6 +249,9 @@ func (_c *ContestScoringAttemptCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "ContestScoringAttempt.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestScoringAttempt.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`generate: missing required field "ContestScoringAttempt.contest_id"`)}
 	}
@@ -370,6 +379,10 @@ func (_c *ContestScoringAttemptCreate) createSpec() (*ContestScoringAttempt, *sq
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(contestscoringattempt.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestscoringattempt.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.SubmittedAt(); ok {
 		_spec.SetField(contestscoringattempt.FieldSubmittedAt, field.TypeTime, value)
@@ -649,6 +662,9 @@ func (u *ContestScoringAttemptUpsertOne) UpdateNewValues() *ContestScoringAttemp
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contestscoringattempt.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestscoringattempt.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ContestID(); exists {
 			s.SetIgnore(contestscoringattempt.FieldContestID)
@@ -995,6 +1011,9 @@ func (u *ContestScoringAttemptUpsertBulk) UpdateNewValues() *ContestScoringAttem
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contestscoringattempt.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestscoringattempt.FieldTenantID)
 			}
 			if _, exists := b.mutation.ContestID(); exists {
 				s.SetIgnore(contestscoringattempt.FieldContestID)

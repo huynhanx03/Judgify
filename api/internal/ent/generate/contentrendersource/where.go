@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.ContentRenderSource {
 	return predicate.ContentRenderSource(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldEQ(FieldTenantID, v))
+}
+
 // OwnerRevisionID applies equality check predicate on the "owner_revision_id" field. It's identical to OwnerRevisionIDEQ.
 func OwnerRevisionID(v uuid.UUID) predicate.ContentRenderSource {
 	return predicate.ContentRenderSource(sql.FieldEQ(FieldOwnerRevisionID, v))
@@ -74,6 +79,46 @@ func CreatedBy(v uuid.UUID) predicate.ContentRenderSource {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.ContentRenderSource {
 	return predicate.ContentRenderSource(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.ContentRenderSource {
+	return predicate.ContentRenderSource(sql.FieldLTE(FieldTenantID, v))
 }
 
 // OwnerRevisionIDEQ applies the EQ predicate on the "owner_revision_id" field.

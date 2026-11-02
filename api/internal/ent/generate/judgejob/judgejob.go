@@ -19,6 +19,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldSubmissionID holds the string denoting the submission_id field in the database.
 	FieldSubmissionID = "submission_id"
 	// FieldGeneration holds the string denoting the generation field in the database.
@@ -59,6 +61,8 @@ const (
 	FieldCancelledAt = "cancelled_at"
 	// FieldOriginCid holds the string denoting the origin_cid field in the database.
 	FieldOriginCid = "origin_cid"
+	// FieldOriginTraceparent holds the string denoting the origin_traceparent field in the database.
+	FieldOriginTraceparent = "origin_traceparent"
 	// Table holds the table name of the judgejob in the database.
 	Table = "judge_jobs"
 )
@@ -68,6 +72,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldTenantID,
 	FieldSubmissionID,
 	FieldGeneration,
 	FieldJudgeSpecID,
@@ -88,6 +93,7 @@ var Columns = []string{
 	FieldDeadAt,
 	FieldCancelledAt,
 	FieldOriginCid,
+	FieldOriginTraceparent,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -127,6 +133,8 @@ var (
 	LastErrorSummaryValidator func(string) error
 	// OriginCidValidator is a validator for the "origin_cid" field. It is called by the builders before save.
 	OriginCidValidator func(string) error
+	// OriginTraceparentValidator is a validator for the "origin_traceparent" field. It is called by the builders before save.
+	OriginTraceparentValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -201,6 +209,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // BySubmissionID orders the results by the submission_id field.
@@ -296,4 +309,9 @@ func ByCancelledAt(opts ...sql.OrderTermOption) OrderOption {
 // ByOriginCid orders the results by the origin_cid field.
 func ByOriginCid(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOriginCid, opts...).ToFunc()
+}
+
+// ByOriginTraceparent orders the results by the origin_traceparent field.
+func ByOriginTraceparent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOriginTraceparent, opts...).ToFunc()
 }

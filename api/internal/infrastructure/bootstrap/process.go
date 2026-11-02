@@ -17,7 +17,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/cache/ristretto"
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
 	pkgEnt "github.com/huynhanx03/go-common/pkg/database/ent"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
 	internalEnt "github.com/huynhanx03/judgify/internal/ent"
@@ -47,11 +47,11 @@ type MigrationRunner interface {
 // not create duplicate database pools or caches.
 type Process struct {
 	Config settings.Config
-	Logger *commonlogger.LoggerZap
+	Logger *commonlogger.Logger
 
 	mu                sync.RWMutex
 	database          *internalEnt.EntClient
-	cache             cache.LocalCache[string, any]
+	cache             *cache.Cache
 	keys              bool
 	closed            bool
 	composed          bool
@@ -65,8 +65,8 @@ type Process struct {
 func (process *Process) Builder(builders ...Builder) func(context.Context) ([]lifecycle.Component, error) {
 	bound := append([]Builder(nil), builders...)
 	return func(ctx context.Context) ([]lifecycle.Component, error) {
-		if ctx != nil && process != nil && process.Logger != nil && process.Logger.Logger != nil {
-			ctx = commonlogger.WithContext(ctx, process.Logger.Logger)
+		if ctx != nil && process != nil && process.Logger != nil {
+			ctx = commonlogger.WithLogger(ctx, process.Logger)
 		}
 		return process.Compose(ctx, bound...)
 	}
@@ -121,7 +121,7 @@ func (process *Process) Compose(ctx context.Context, builders ...Builder) ([]lif
 func (process *Process) bindLifecycleContexts(
 	components []lifecycle.Component,
 ) []lifecycle.Component {
-	if process == nil || process.Logger == nil || process.Logger.Logger == nil {
+	if process == nil || process.Logger == nil {
 		return components
 	}
 	bound := make([]lifecycle.Component, len(components))
@@ -139,7 +139,7 @@ func (process *Process) bindLifecycleContexts(
 
 // OpenDatabase opens or returns the one process-local Ent client.
 func (process *Process) OpenDatabase() (*internalEnt.EntClient, error) {
-	if process == nil || process.Logger == nil || process.Logger.Logger == nil {
+	if process == nil || process.Logger == nil {
 		return nil, ErrInvalidProcess
 	}
 	process.mu.Lock()
@@ -155,7 +155,7 @@ func (process *Process) OpenDatabase() (*internalEnt.EntClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open database driver: %w", err)
 	}
-	driver := pkgEnt.WrapObservedLogging(baseDriver, 0, process.observeDatabase)
+	driver := pkgEnt.WrapObservedLogging(process.Logger, baseDriver, 0, process.observeDatabase)
 	client := generate.NewClient(generate.Driver(driver))
 	pkgEnt.RegisterErrorPredicates(pkgEnt.ErrorPredicates{
 		IsNotFound:        generate.IsNotFound,
@@ -171,8 +171,8 @@ func (process *Process) OpenDatabase() (*internalEnt.EntClient, error) {
 		}
 		return actorID.String(), true
 	})
-	process.database = internalEnt.WrapClientWithDriver(client, driver, process.Logger.Logger)
-	process.Logger.Named("database").Info("database connected")
+	process.database = internalEnt.WrapClientWithDriver(client, driver, commonlogger.Zap(process.Logger))
+	process.Logger.Named("database").Info(context.Background(), "database connected")
 	return process.database, nil
 }
 
@@ -218,7 +218,7 @@ func callDatabaseObserver(
 }
 
 // OpenCache opens or returns the one process-local cache.
-func (process *Process) OpenCache() (cache.LocalCache[string, any], error) {
+func (process *Process) OpenCache() (*cache.Cache, error) {
 	if process == nil {
 		return nil, ErrInvalidProcess
 	}
@@ -230,14 +230,19 @@ func (process *Process) OpenCache() (cache.LocalCache[string, any], error) {
 	if process.cache != nil {
 		return process.cache, nil
 	}
-	local, err := ristretto.New[string, any](
+	l1, err := ristretto.New[string, any](
 		ristretto.WithMaxCost(10_000),
 		ristretto.WithNumCounters(100_000),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("open local cache: %w", err)
+		return nil, fmt.Errorf("open L1 cache: %w", err)
 	}
-	process.cache = local
+	shared, err := cache.New(cache.Config{L1: l1, Logger: process.Logger})
+	if err != nil {
+		l1.Close()
+		return nil, fmt.Errorf("open shared cache: %w", err)
+	}
+	process.cache = shared
 	return process.cache, nil
 }
 
@@ -419,7 +424,7 @@ type resourceComponent struct {
 
 type contextualComponent struct {
 	component lifecycle.Component
-	logger    *commonlogger.LoggerZap
+	logger    *commonlogger.Logger
 }
 
 func (component contextualComponent) Name() string {
@@ -435,10 +440,10 @@ func (component contextualComponent) Shutdown(ctx context.Context) error {
 }
 
 func (component contextualComponent) bind(ctx context.Context) context.Context {
-	if ctx == nil || component.logger == nil || component.logger.Logger == nil {
+	if ctx == nil || component.logger == nil {
 		return ctx
 	}
-	return commonlogger.WithContext(ctx, component.logger.Logger)
+	return commonlogger.WithLogger(ctx, component.logger)
 }
 
 func (component *resourceComponent) Name() string { return component.name }

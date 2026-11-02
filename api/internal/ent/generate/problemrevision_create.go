@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -26,6 +26,12 @@ type ProblemRevisionCreate struct {
 	mutation *ProblemRevisionMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *ProblemRevisionCreate) SetTenantID(v uuid.UUID) *ProblemRevisionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -115,7 +121,7 @@ func (_c *ProblemRevisionCreate) SetTagMappingRevision(v int64) *ProblemRevision
 }
 
 // SetTagSnapshot sets the "tag_snapshot" field.
-func (_c *ProblemRevisionCreate) SetTagSnapshot(v json.RawMessage) *ProblemRevisionCreate {
+func (_c *ProblemRevisionCreate) SetTagSnapshot(v jsontext.Value) *ProblemRevisionCreate {
 	_c.mutation.SetTagSnapshot(v)
 	return _c
 }
@@ -149,7 +155,7 @@ func (_c *ProblemRevisionCreate) SetNillableElementMappingRevision(v *int64) *Pr
 }
 
 // SetElementSnapshot sets the "element_snapshot" field.
-func (_c *ProblemRevisionCreate) SetElementSnapshot(v json.RawMessage) *ProblemRevisionCreate {
+func (_c *ProblemRevisionCreate) SetElementSnapshot(v jsontext.Value) *ProblemRevisionCreate {
 	_c.mutation.SetElementSnapshot(v)
 	return _c
 }
@@ -203,7 +209,7 @@ func (_c *ProblemRevisionCreate) SetCheckerVersion(v string) *ProblemRevisionCre
 }
 
 // SetCheckerConfig sets the "checker_config" field.
-func (_c *ProblemRevisionCreate) SetCheckerConfig(v json.RawMessage) *ProblemRevisionCreate {
+func (_c *ProblemRevisionCreate) SetCheckerConfig(v jsontext.Value) *ProblemRevisionCreate {
 	_c.mutation.SetCheckerConfig(v)
 	return _c
 }
@@ -335,6 +341,9 @@ func (_c *ProblemRevisionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ProblemRevisionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ProblemRevision.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "ProblemRevision.created_at"`)}
 	}
@@ -545,6 +554,10 @@ func (_c *ProblemRevisionCreate) createSpec() (*ProblemRevision, *sqlgraph.Creat
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(problemrevision.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(problemrevision.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -714,7 +727,7 @@ func (_c *ProblemRevisionCreate) createSpec() (*ProblemRevision, *sqlgraph.Creat
 // of the `INSERT` statement. For example:
 //
 //	client.ProblemRevision.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -723,7 +736,7 @@ func (_c *ProblemRevisionCreate) createSpec() (*ProblemRevision, *sqlgraph.Creat
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ProblemRevisionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ProblemRevisionCreate) OnConflict(opts ...sql.ConflictOption) *ProblemRevisionUpsertOne {
@@ -775,6 +788,9 @@ func (u *ProblemRevisionUpsertOne) UpdateNewValues() *ProblemRevisionUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(problemrevision.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(problemrevision.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(problemrevision.FieldCreatedAt)
@@ -1033,7 +1049,7 @@ func (_c *ProblemRevisionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ProblemRevisionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ProblemRevisionCreateBulk) OnConflict(opts ...sql.ConflictOption) *ProblemRevisionUpsertBulk {
@@ -1079,6 +1095,9 @@ func (u *ProblemRevisionUpsertBulk) UpdateNewValues() *ProblemRevisionUpsertBulk
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(problemrevision.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(problemrevision.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(problemrevision.FieldCreatedAt)

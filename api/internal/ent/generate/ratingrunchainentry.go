@@ -24,6 +24,8 @@ type RatingRunChainEntry struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ChainID holds the value of the "chain_id" field.
 	ChainID uuid.UUID `json:"chain_id,omitempty"`
 	// RatingSequence holds the value of the "rating_sequence" field.
@@ -78,7 +80,7 @@ func (*RatingRunChainEntry) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case ratingrunchainentry.FieldCreatedAt, ratingrunchainentry.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case ratingrunchainentry.FieldID, ratingrunchainentry.FieldChainID, ratingrunchainentry.FieldRatingRunID:
+		case ratingrunchainentry.FieldID, ratingrunchainentry.FieldTenantID, ratingrunchainentry.FieldChainID, ratingrunchainentry.FieldRatingRunID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -112,6 +114,12 @@ func (_m *RatingRunChainEntry) assignValues(columns []string, values []any) erro
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case ratingrunchainentry.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case ratingrunchainentry.FieldChainID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -182,6 +190,9 @@ func (_m *RatingRunChainEntry) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("chain_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ChainID))

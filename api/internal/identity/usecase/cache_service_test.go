@@ -7,46 +7,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
 	"github.com/huynhanx03/judgify/internal/ports"
-	"github.com/huynhanx03/judgify/internal/testutil"
 )
-
-func TestGetPermissionConfigVersion_Default(t *testing.T) {
-	c := testutil.NewCache()
-	svc := NewCacheService(c).(*cacheService)
-
-	v, err := svc.GetPermissionConfigVersion(context.Background())
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), v)
-}
-
-func TestInvalidatePermissionConfig_Increments(t *testing.T) {
-	c := testutil.NewCache()
-	svc := NewCacheService(c).(*cacheService)
-
-	err := svc.InvalidatePermissionConfig(context.Background())
-	assert.NoError(t, err)
-
-	v, _ := svc.GetPermissionConfigVersion(context.Background())
-	assert.Equal(t, int64(2), v)
-}
-
-func TestInvalidatePermissionConfig_Multiple(t *testing.T) {
-	c := testutil.NewCache()
-	svc := NewCacheService(c).(*cacheService)
-
-	for i := 0; i < 5; i++ {
-		if err := svc.InvalidatePermissionConfig(context.Background()); err != nil {
-			t.Fatalf("InvalidatePermissionConfig: %v", err)
-		}
-	}
-	v, _ := svc.GetPermissionConfigVersion(context.Background())
-	assert.Equal(t, int64(6), v)
-}
 
 func TestSessionStateCacheLeaderCancellationDoesNotPoisonWaiters(t *testing.T) {
 	now := time.Date(2026, 7, 19, 6, 0, 0, 0, time.UTC)

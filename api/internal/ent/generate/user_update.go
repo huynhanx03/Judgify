@@ -45,6 +45,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/ratinghistory"
 	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactcommandreceipt"
 	"github.com/huynhanx03/judgify/internal/ent/generate/submission"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantinvitation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantmembership"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userattributevalue"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userdifficultystats"
@@ -868,6 +870,51 @@ func (_u *UserUpdate) AddContestContentCommands(v ...*ContestContentCommand) *Us
 		ids[i] = v[i].ID
 	}
 	return _u.AddContestContentCommandIDs(ids...)
+}
+
+// AddTenantMembershipIDs adds the "tenant_memberships" edge to the TenantMembership entity by IDs.
+func (_u *UserUpdate) AddTenantMembershipIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddTenantMembershipIDs(ids...)
+	return _u
+}
+
+// AddTenantMemberships adds the "tenant_memberships" edges to the TenantMembership entity.
+func (_u *UserUpdate) AddTenantMemberships(v ...*TenantMembership) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTenantMembershipIDs(ids...)
+}
+
+// AddTenantInvitationIDs adds the "tenant_invitations" edge to the TenantInvitation entity by IDs.
+func (_u *UserUpdate) AddTenantInvitationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddTenantInvitationIDs(ids...)
+	return _u
+}
+
+// AddTenantInvitations adds the "tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdate) AddTenantInvitations(v ...*TenantInvitation) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTenantInvitationIDs(ids...)
+}
+
+// AddSentTenantInvitationIDs adds the "sent_tenant_invitations" edge to the TenantInvitation entity by IDs.
+func (_u *UserUpdate) AddSentTenantInvitationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.AddSentTenantInvitationIDs(ids...)
+	return _u
+}
+
+// AddSentTenantInvitations adds the "sent_tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdate) AddSentTenantInvitations(v ...*TenantInvitation) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSentTenantInvitationIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1734,6 +1781,69 @@ func (_u *UserUpdate) RemoveContestContentCommands(v ...*ContestContentCommand) 
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveContestContentCommandIDs(ids...)
+}
+
+// ClearTenantMemberships clears all "tenant_memberships" edges to the TenantMembership entity.
+func (_u *UserUpdate) ClearTenantMemberships() *UserUpdate {
+	_u.mutation.ClearTenantMemberships()
+	return _u
+}
+
+// RemoveTenantMembershipIDs removes the "tenant_memberships" edge to TenantMembership entities by IDs.
+func (_u *UserUpdate) RemoveTenantMembershipIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveTenantMembershipIDs(ids...)
+	return _u
+}
+
+// RemoveTenantMemberships removes "tenant_memberships" edges to TenantMembership entities.
+func (_u *UserUpdate) RemoveTenantMemberships(v ...*TenantMembership) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTenantMembershipIDs(ids...)
+}
+
+// ClearTenantInvitations clears all "tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdate) ClearTenantInvitations() *UserUpdate {
+	_u.mutation.ClearTenantInvitations()
+	return _u
+}
+
+// RemoveTenantInvitationIDs removes the "tenant_invitations" edge to TenantInvitation entities by IDs.
+func (_u *UserUpdate) RemoveTenantInvitationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveTenantInvitationIDs(ids...)
+	return _u
+}
+
+// RemoveTenantInvitations removes "tenant_invitations" edges to TenantInvitation entities.
+func (_u *UserUpdate) RemoveTenantInvitations(v ...*TenantInvitation) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTenantInvitationIDs(ids...)
+}
+
+// ClearSentTenantInvitations clears all "sent_tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdate) ClearSentTenantInvitations() *UserUpdate {
+	_u.mutation.ClearSentTenantInvitations()
+	return _u
+}
+
+// RemoveSentTenantInvitationIDs removes the "sent_tenant_invitations" edge to TenantInvitation entities by IDs.
+func (_u *UserUpdate) RemoveSentTenantInvitationIDs(ids ...uuid.UUID) *UserUpdate {
+	_u.mutation.RemoveSentTenantInvitationIDs(ids...)
+	return _u
+}
+
+// RemoveSentTenantInvitations removes "sent_tenant_invitations" edges to TenantInvitation entities.
+func (_u *UserUpdate) RemoveSentTenantInvitations(v ...*TenantInvitation) *UserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSentTenantInvitationIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -3727,6 +3837,141 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.TenantMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTenantMembershipsIDs(); len(nodes) > 0 && !_u.mutation.TenantMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TenantMembershipsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTenantInvitationsIDs(); len(nodes) > 0 && !_u.mutation.TenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TenantInvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SentTenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSentTenantInvitationsIDs(); len(nodes) > 0 && !_u.mutation.SentTenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SentTenantInvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -4546,6 +4791,51 @@ func (_u *UserUpdateOne) AddContestContentCommands(v ...*ContestContentCommand) 
 		ids[i] = v[i].ID
 	}
 	return _u.AddContestContentCommandIDs(ids...)
+}
+
+// AddTenantMembershipIDs adds the "tenant_memberships" edge to the TenantMembership entity by IDs.
+func (_u *UserUpdateOne) AddTenantMembershipIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddTenantMembershipIDs(ids...)
+	return _u
+}
+
+// AddTenantMemberships adds the "tenant_memberships" edges to the TenantMembership entity.
+func (_u *UserUpdateOne) AddTenantMemberships(v ...*TenantMembership) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTenantMembershipIDs(ids...)
+}
+
+// AddTenantInvitationIDs adds the "tenant_invitations" edge to the TenantInvitation entity by IDs.
+func (_u *UserUpdateOne) AddTenantInvitationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddTenantInvitationIDs(ids...)
+	return _u
+}
+
+// AddTenantInvitations adds the "tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdateOne) AddTenantInvitations(v ...*TenantInvitation) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTenantInvitationIDs(ids...)
+}
+
+// AddSentTenantInvitationIDs adds the "sent_tenant_invitations" edge to the TenantInvitation entity by IDs.
+func (_u *UserUpdateOne) AddSentTenantInvitationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.AddSentTenantInvitationIDs(ids...)
+	return _u
+}
+
+// AddSentTenantInvitations adds the "sent_tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdateOne) AddSentTenantInvitations(v ...*TenantInvitation) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSentTenantInvitationIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -5412,6 +5702,69 @@ func (_u *UserUpdateOne) RemoveContestContentCommands(v ...*ContestContentComman
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveContestContentCommandIDs(ids...)
+}
+
+// ClearTenantMemberships clears all "tenant_memberships" edges to the TenantMembership entity.
+func (_u *UserUpdateOne) ClearTenantMemberships() *UserUpdateOne {
+	_u.mutation.ClearTenantMemberships()
+	return _u
+}
+
+// RemoveTenantMembershipIDs removes the "tenant_memberships" edge to TenantMembership entities by IDs.
+func (_u *UserUpdateOne) RemoveTenantMembershipIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveTenantMembershipIDs(ids...)
+	return _u
+}
+
+// RemoveTenantMemberships removes "tenant_memberships" edges to TenantMembership entities.
+func (_u *UserUpdateOne) RemoveTenantMemberships(v ...*TenantMembership) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTenantMembershipIDs(ids...)
+}
+
+// ClearTenantInvitations clears all "tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdateOne) ClearTenantInvitations() *UserUpdateOne {
+	_u.mutation.ClearTenantInvitations()
+	return _u
+}
+
+// RemoveTenantInvitationIDs removes the "tenant_invitations" edge to TenantInvitation entities by IDs.
+func (_u *UserUpdateOne) RemoveTenantInvitationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveTenantInvitationIDs(ids...)
+	return _u
+}
+
+// RemoveTenantInvitations removes "tenant_invitations" edges to TenantInvitation entities.
+func (_u *UserUpdateOne) RemoveTenantInvitations(v ...*TenantInvitation) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTenantInvitationIDs(ids...)
+}
+
+// ClearSentTenantInvitations clears all "sent_tenant_invitations" edges to the TenantInvitation entity.
+func (_u *UserUpdateOne) ClearSentTenantInvitations() *UserUpdateOne {
+	_u.mutation.ClearSentTenantInvitations()
+	return _u
+}
+
+// RemoveSentTenantInvitationIDs removes the "sent_tenant_invitations" edge to TenantInvitation entities by IDs.
+func (_u *UserUpdateOne) RemoveSentTenantInvitationIDs(ids ...uuid.UUID) *UserUpdateOne {
+	_u.mutation.RemoveSentTenantInvitationIDs(ids...)
+	return _u
+}
+
+// RemoveSentTenantInvitations removes "sent_tenant_invitations" edges to TenantInvitation entities.
+func (_u *UserUpdateOne) RemoveSentTenantInvitations(v ...*TenantInvitation) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSentTenantInvitationIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -7428,6 +7781,141 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contestcontentcommand.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TenantMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTenantMembershipsIDs(); len(nodes) > 0 && !_u.mutation.TenantMembershipsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TenantMembershipsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantMembershipsTable,
+			Columns: []string{user.TenantMembershipsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmembership.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.TenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTenantInvitationsIDs(); len(nodes) > 0 && !_u.mutation.TenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TenantInvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.TenantInvitationsTable,
+			Columns: []string{user.TenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SentTenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSentTenantInvitationsIDs(); len(nodes) > 0 && !_u.mutation.SentTenantInvitationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SentTenantInvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SentTenantInvitationsTable,
+			Columns: []string{user.SentTenantInvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantinvitation.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

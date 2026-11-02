@@ -2,7 +2,6 @@ package schema
 
 import (
 	"fmt"
-
 	"github.com/google/uuid"
 
 	"entgo.io/ent"

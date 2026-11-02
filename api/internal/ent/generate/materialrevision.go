@@ -22,6 +22,8 @@ type MaterialRevision struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// MaterialID holds the value of the "material_id" field.
 	MaterialID uuid.UUID `json:"material_id,omitempty"`
 	// RevisionNumber holds the value of the "revision_number" field.
@@ -141,7 +143,7 @@ func (*MaterialRevision) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case materialrevision.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case materialrevision.FieldID, materialrevision.FieldMaterialID, materialrevision.FieldCategoryID, materialrevision.FieldDifficultyID, materialrevision.FieldAuthorID, materialrevision.FieldRenderSourceID, materialrevision.FieldRenderArtifactID:
+		case materialrevision.FieldID, materialrevision.FieldTenantID, materialrevision.FieldMaterialID, materialrevision.FieldCategoryID, materialrevision.FieldDifficultyID, materialrevision.FieldAuthorID, materialrevision.FieldRenderSourceID, materialrevision.FieldRenderArtifactID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -163,6 +165,12 @@ func (_m *MaterialRevision) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case materialrevision.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case materialrevision.FieldMaterialID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -315,6 +323,9 @@ func (_m *MaterialRevision) String() string {
 	var builder strings.Builder
 	builder.WriteString("MaterialRevision(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("material_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.MaterialID))
 	builder.WriteString(", ")

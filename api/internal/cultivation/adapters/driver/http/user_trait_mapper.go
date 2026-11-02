@@ -21,16 +21,5 @@ func toUserTraitResponse(result *contract.UserTraitResponse) *userTraitResponse 
 	return &userTraitResponse{ID: result.ID.String(), UserID: result.UserID.String(), TraitID: result.TraitID.String()}
 }
 func toUserTraitPage(result *d.Paginated[*contract.UserTraitResponse]) *d.Paginated[*userTraitResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*userTraitResponse]{Pagination: result.Pagination}
-	if result.Records != nil {
-		values := make([]*userTraitResponse, len(*result.Records))
-		for index, value := range *result.Records {
-			values[index] = toUserTraitResponse(value)
-		}
-		page.Records = &values
-	}
-	return page
+	return d.MapPaginated(result, toUserTraitResponse)
 }

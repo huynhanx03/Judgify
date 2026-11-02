@@ -12,11 +12,11 @@ export const MATERIAL_CATEGORY_API = {
 
 /** Material article endpoints (Material module). */
 export const MATERIAL_API = {
-  SEARCH: "/materials/search",
+  FIND: "/materials/find",
   GET_BY_SLUG: (slug: string) => `/materials/slug/${encodeURIComponent(slug)}`,
   RELATED: (slug: string) => `/materials/slug/${encodeURIComponent(slug)}/related`,
   RECORD_VIEW: (id: EntityID) => `/materials/${encodeURIComponent(id)}/views`,
-  ADMIN_SEARCH: "/admin/materials/search",
+  FIND_ADMIN: "/admin/materials/find",
   GET_ADMIN: (id: EntityID) =>
     `/admin/materials/${encodeURIComponent(id)}`,
   REVISIONS: (id: EntityID) =>

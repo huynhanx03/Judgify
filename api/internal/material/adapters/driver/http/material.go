@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/application/workflow/admincommand"
@@ -20,18 +20,18 @@ import (
 
 // MaterialHandler defines the material HTTP handler interface.
 type MaterialHandler interface {
-	FindPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error)
+	FindMaterialsForPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error)
 	GetPublic(ctx context.Context, req *materialIDRequest) (*MaterialResponse, error)
-	FindAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error)
+	FindMaterialsForAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error)
 	GetAdmin(ctx context.Context, req *materialIDRequest) (*MaterialResponse, error)
 	Create(ctx context.Context, req *createMaterialRequest) (*MaterialResponse, error)
 	Update(ctx context.Context, req *updateMaterialRequest) (*MaterialResponse, error)
 	Delete(ctx context.Context, req *materialIDRequest) (*MaterialResponse, error)
-	Search(ctx context.Context, req *materialSearchRequest) (*materialSearchResponse, error)
-	SearchAdmin(ctx context.Context, req *adminMaterialSearchRequest) (*adminMaterialSearchResponse, error)
+	FindForPublic(ctx context.Context, req *materialSearchRequest) (*materialSearchResponse, error)
+	FindForAdmin(ctx context.Context, req *adminMaterialSearchRequest) (*adminMaterialSearchResponse, error)
 	ResolveSlug(ctx context.Context, req *GetMaterialBySlugRequest) (*materialSlugResponse, error)
 	Related(ctx context.Context, req *RelatedMaterialRequest) ([]*MaterialResponse, error)
-	ListRevisions(ctx context.Context, req *ListMaterialRevisionsRequest) (*materialRevisionPage, error)
+	FindRevisions(ctx context.Context, req *ListMaterialRevisionsRequest) (*materialRevisionPage, error)
 	GetRevision(ctx context.Context, req *GetMaterialRevisionRequest) (*materialRevisionResponse, error)
 	RecordView(ctx context.Context, req *RecordMaterialViewRequest) (*RecordMaterialViewResponse, error)
 	CreateDraft(ctx context.Context, req *createMaterialRequest) (*materialMutationReceipt, error)
@@ -75,8 +75,8 @@ func NewProductionMaterialHandler(
 	}
 }
 
-func (h *materialHandler) FindPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error) {
-	result, err := h.materialService.FindPublic(ctx, req)
+func (h *materialHandler) FindMaterialsForPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error) {
+	result, err := h.materialService.FindForPublic(ctx, req)
 	return toMaterialPage(result), err
 }
 
@@ -89,8 +89,8 @@ func (h *materialHandler) GetPublic(ctx context.Context, req *materialIDRequest)
 	return toMaterialResponse(result), err
 }
 
-func (h *materialHandler) FindAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error) {
-	result, err := h.materialService.FindAdmin(ctx, req)
+func (h *materialHandler) FindMaterialsForAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*MaterialResponse], error) {
+	result, err := h.materialService.FindForAdmin(ctx, req)
 	return toMaterialPage(result), err
 }
 
@@ -136,22 +136,22 @@ func (h *materialHandler) Delete(ctx context.Context, req *materialIDRequest) (*
 	return nil, nil
 }
 
-func (h *materialHandler) Search(ctx context.Context, req *materialSearchRequest) (*materialSearchResponse, error) {
+func (h *materialHandler) FindForPublic(ctx context.Context, req *materialSearchRequest) (*materialSearchResponse, error) {
 	_, authenticated := authctx.UserID(ctx)
 	query, err := toMaterialSearchQuery(req, authenticated)
 	if err != nil {
 		return nil, err
 	}
-	result, err := h.query.Search(ctx, query)
+	result, err := h.query.FindForPublic(ctx, query)
 	return toMaterialSearchResponse(result), err
 }
 
-func (h *materialHandler) SearchAdmin(ctx context.Context, req *adminMaterialSearchRequest) (*adminMaterialSearchResponse, error) {
+func (h *materialHandler) FindForAdmin(ctx context.Context, req *adminMaterialSearchRequest) (*adminMaterialSearchResponse, error) {
 	query, err := toAdminMaterialSearchQuery(req)
 	if err != nil {
 		return nil, err
 	}
-	result, err := h.query.SearchAdmin(ctx, query)
+	result, err := h.query.FindForAdmin(ctx, query)
 	return toAdminMaterialSearchResponse(result), err
 }
 
@@ -167,12 +167,12 @@ func (h *materialHandler) Related(ctx context.Context, req *RelatedMaterialReque
 	return toMaterialResponses(result), err
 }
 
-func (h *materialHandler) ListRevisions(ctx context.Context, req *ListMaterialRevisionsRequest) (*materialRevisionPage, error) {
+func (h *materialHandler) FindRevisions(ctx context.Context, req *ListMaterialRevisionsRequest) (*materialRevisionPage, error) {
 	id, err := parseMaterialID(req.ID)
 	if err != nil {
 		return nil, err
 	}
-	result, err := h.query.ListRevisions(ctx, id, req.Cursor, req.Limit)
+	result, err := h.query.FindRevisions(ctx, id, req.Cursor, req.Limit)
 	return toMaterialRevisionPage(result), err
 }
 

@@ -135,8 +135,6 @@ export interface RegisterRequest
     ProfileSchemaEvidence {
   username: string;
   password: string;
-  /** Address used only for account recovery and security notifications. */
-  recovery_email: string;
 }
 
 /** POST /auth/register response data. */

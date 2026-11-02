@@ -18,6 +18,8 @@ type TestAsset struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Sha256 holds the value of the "sha256" field.
@@ -76,7 +78,7 @@ func (*TestAsset) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case testasset.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case testasset.FieldID:
+		case testasset.FieldID, testasset.FieldTenantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -98,6 +100,12 @@ func (_m *TestAsset) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case testasset.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case testasset.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -175,6 +183,9 @@ func (_m *TestAsset) String() string {
 	var builder strings.Builder
 	builder.WriteString("TestAsset(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

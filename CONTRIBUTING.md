@@ -17,19 +17,14 @@ development.
 ## Local setup
 
 ```sh
-export POSTGRES_USER=judgify_dev
-export POSTGRES_PASSWORD='local-development-only'
-export POSTGRES_DB=judgify
-export DATABASE_USERNAME="$POSTGRES_USER"
-export DATABASE_PASSWORD="$POSTGRES_PASSWORD"
-export DATABASE_DATABASE="$POSTGRES_DB"
-make docker-up
-make migrate-apply
-make run-api
+make local-setup
+make run-local
 ```
 
-Run `make run-website` in another terminal. `make seed` is optional local
-fixture setup and must not be used as an application-startup dependency.
+`make local-setup` prepares local secrets, keys, and database data. `make
+run-local` only builds and starts PostgreSQL, the API, website, and Envoy. Open
+<http://localhost:8080>. Stop the stack with `docker compose down`; add
+`--volumes` to reset its database.
 
 ## Architecture rules
 

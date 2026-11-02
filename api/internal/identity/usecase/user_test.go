@@ -86,7 +86,7 @@ func TestGetProfileUsesActiveRevisionedAttributeProjection(t *testing.T) {
 	userRepo.EXPECT().Get(ctx, userID).Return(&entity.User{
 		ID: userID, Username: "judge-user", CreatedAt: joinedAt,
 	}, nil)
-	attributeValues.EXPECT().ListActiveProfileAttributes(ctx, userID).Return(
+	attributeValues.EXPECT().FindActiveProfileAttributes(ctx, userID).Return(
 		[]ports.ActiveProfileAttributeValue{attribute},
 		nil,
 	)
@@ -118,7 +118,7 @@ func TestUpdateProfileAttributesWritesCanonicalValueAgainstReviewedRevision(t *t
 		ID: userID, Username: "judge-user", CreatedAt: time.Now().UTC(),
 	}, nil)
 	gomock.InOrder(
-		attributeValues.EXPECT().ListActiveProfileAttributes(ctx, userID).Return(
+		attributeValues.EXPECT().FindActiveProfileAttributes(ctx, userID).Return(
 			[]ports.ActiveProfileAttributeValue{current},
 			nil,
 		),
@@ -132,7 +132,7 @@ func TestUpdateProfileAttributesWritesCanonicalValueAgainstReviewedRevision(t *t
 				CanonicalValue:               json.RawMessage(`"Jerry"`),
 			},
 		).Return(&entity.UserAttributeValue{}, nil),
-		attributeValues.EXPECT().ListActiveProfileAttributes(ctx, userID).Return(
+		attributeValues.EXPECT().FindActiveProfileAttributes(ctx, userID).Return(
 			[]ports.ActiveProfileAttributeValue{updated},
 			nil,
 		),

@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -19,6 +20,8 @@ type RewardRuleRevision struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// RuleKey holds the value of the "rule_key" field.
 	RuleKey string `json:"rule_key,omitempty"`
 	// Revision holds the value of the "revision" field.
@@ -26,7 +29,7 @@ type RewardRuleRevision struct {
 	// AlgorithmVersion holds the value of the "algorithm_version" field.
 	AlgorithmVersion string `json:"algorithm_version,omitempty"`
 	// Configuration holds the value of the "configuration" field.
-	Configuration json.RawMessage `json:"configuration,omitempty"`
+	Configuration jsontext.Value `json:"configuration,omitempty"`
 	// Checksum holds the value of the "checksum" field.
 	Checksum []byte `json:"checksum,omitempty"`
 	// RequestChecksum holds the value of the "request_checksum" field.
@@ -72,7 +75,7 @@ func (*RewardRuleRevision) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case rewardrulerevision.FieldEffectiveFrom, rewardrulerevision.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case rewardrulerevision.FieldID:
+		case rewardrulerevision.FieldID, rewardrulerevision.FieldTenantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -94,6 +97,12 @@ func (_m *RewardRuleRevision) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case rewardrulerevision.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case rewardrulerevision.FieldRuleKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -186,6 +195,9 @@ func (_m *RewardRuleRevision) String() string {
 	var builder strings.Builder
 	builder.WriteString("RewardRuleRevision(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("rule_key=")
 	builder.WriteString(_m.RuleKey)
 	builder.WriteString(", ")

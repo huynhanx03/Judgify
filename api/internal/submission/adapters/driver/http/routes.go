@@ -2,10 +2,10 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 
 	"github.com/huynhanx03/judgify/pkg/judging"
 	"github.com/huynhanx03/judgify/pkg/permissions"
@@ -42,7 +42,7 @@ func (h *SubmissionHandlerGroup) readRuntimeCatalog(
 
 func (h *SubmissionHandlerGroup) RegisterProtected(
 	r *gin.RouterGroup,
-	permissionChecker *middlewares.AuthorizationChecker,
+	permissionChecker *authmiddleware.AuthorizationChecker,
 ) {
 	adminSubmissions := r.Group("/admin/submissions")
 	{
@@ -53,7 +53,7 @@ func (h *SubmissionHandlerGroup) RegisterProtected(
 				permissions.ResourceKeySubmission,
 				permissions.PermissionScopeRead,
 			),
-			handler.Wrap(h.SubmissionHandler.FindAdmin),
+			handler.Wrap(h.SubmissionHandler.FindForAdmin),
 		)
 		adminSubmissions.GET(
 			"/:id",
@@ -90,14 +90,14 @@ func (h *SubmissionHandlerGroup) RegisterProtected(
 		submissions.GET("/:id", handler.Wrap(h.SubmissionHandler.Get))
 	}
 
-	// List submissions by problem (nested under problems)
+	// Find submissions by problem (nested under problems)
 	r.GET(
 		"/problems/:id/submissions",
 		permissionChecker.RequirePermission(
 			permissions.ResourceKeySubmission,
 			permissions.PermissionScopeRead,
 		),
-		handler.Wrap(h.SubmissionHandler.FindByProblem),
+		handler.Wrap(h.SubmissionHandler.FindByProblemID),
 	)
 	r.GET(
 		"/problems/:id/my-submissions",

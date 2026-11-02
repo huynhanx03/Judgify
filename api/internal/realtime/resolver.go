@@ -6,6 +6,9 @@ import (
 	"net/url"
 
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
+
+	"github.com/huynhanx03/judgify/internal/tenant/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -24,6 +27,8 @@ func (store *TicketStore) PrincipalResolver(
 		return authentication.Principal{}, ErrInvalidConfig
 	}
 	if request.URL.RawQuery == "" {
+		communityScope, _ := tenantctx.Tenant(domain.CommunityID)
+		*request = *request.WithContext(tenantctx.WithContext(ctx, communityScope))
 		return authentication.Anonymous(), nil
 	}
 	if len(request.URL.RawQuery) > maximumTicketQueryBytes {
@@ -37,5 +42,14 @@ func (store *TicketStore) PrincipalResolver(
 	if !exists || len(values) != 1 || values[0] == "" {
 		return authentication.Principal{}, ErrTicketUnavailable
 	}
-	return store.Consume(ctx, values[0])
+	principal, scope, hasScope, err := store.ConsumeScoped(ctx, values[0])
+	if err != nil {
+		return authentication.Principal{}, err
+	}
+	if hasScope {
+		*request = *request.WithContext(tenantctx.WithContext(ctx, scope))
+	} else {
+		*request = *request.WithContext(tenantctx.WithoutScope(ctx))
+	}
+	return principal, nil
 }

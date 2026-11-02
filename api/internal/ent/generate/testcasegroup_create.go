@@ -26,6 +26,12 @@ type TestcaseGroupCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *TestcaseGroupCreate) SetTenantID(v uuid.UUID) *TestcaseGroupCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *TestcaseGroupCreate) SetCreatedAt(v time.Time) *TestcaseGroupCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -160,6 +166,9 @@ func (_c *TestcaseGroupCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TestcaseGroupCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "TestcaseGroup.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "TestcaseGroup.created_at"`)}
 	}
@@ -216,6 +225,10 @@ func (_c *TestcaseGroupCreate) createSpec() (*TestcaseGroup, *sqlgraph.CreateSpe
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(testcasegroup.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(testcasegroup.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -268,7 +281,7 @@ func (_c *TestcaseGroupCreate) createSpec() (*TestcaseGroup, *sqlgraph.CreateSpe
 // of the `INSERT` statement. For example:
 //
 //	client.TestcaseGroup.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -277,7 +290,7 @@ func (_c *TestcaseGroupCreate) createSpec() (*TestcaseGroup, *sqlgraph.CreateSpe
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TestcaseGroupUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TestcaseGroupCreate) OnConflict(opts ...sql.ConflictOption) *TestcaseGroupUpsertOne {
@@ -329,6 +342,9 @@ func (u *TestcaseGroupUpsertOne) UpdateNewValues() *TestcaseGroupUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(testcasegroup.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(testcasegroup.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(testcasegroup.FieldCreatedAt)
@@ -509,7 +525,7 @@ func (_c *TestcaseGroupCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TestcaseGroupUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TestcaseGroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *TestcaseGroupUpsertBulk {
@@ -555,6 +571,9 @@ func (u *TestcaseGroupUpsertBulk) UpdateNewValues() *TestcaseGroupUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(testcasegroup.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(testcasegroup.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(testcasegroup.FieldCreatedAt)

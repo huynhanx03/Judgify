@@ -51,7 +51,7 @@ function normalizedConfiguration(value: RewardRuleConfiguration): RewardRuleConf
 }
 
 export const progressionService = {
-	listLedger(userID: string, cursor?: string, signal?: AbortSignal): Promise<ProgressionLedgerPage> {
+	findLedger(userID: string, cursor?: string, signal?: AbortSignal): Promise<ProgressionLedgerPage> {
 		return api<ProgressionLedgerPage, never>(
 			ADMIN_CULTIVATION_API.LEDGER(ledgerQuery(userID, cursor)),
 			{ method: "GET", signal, schema: progressionLedgerPageSchema },
@@ -93,7 +93,7 @@ export const progressionService = {
 		);
 	},
 
-	listRewardRules(cursor?: number, signal?: AbortSignal): Promise<RewardRulePage> {
+	findRewardRules(cursor?: number, signal?: AbortSignal): Promise<RewardRulePage> {
 		const parameters = new URLSearchParams({ limit: "25" });
 		if (cursor) parameters.set("cursor", String(cursor));
 		return api<RewardRulePage, never>(

@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
@@ -12,6 +13,10 @@ import (
 // primary key is stored as user_id so every inbox mutation takes the same row
 // lock before changing unread count or the monotonic client version.
 type NotificationInboxState struct{ ent.Schema }
+
+func (NotificationInboxState) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
 
 func (NotificationInboxState) Fields() []ent.Field {
 	return []ent.Field{

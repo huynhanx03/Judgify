@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
 )
 
-func TestRequestIdentityLogContextEnrichesDownstreamLogsWithoutTokenID(t *testing.T) {
+func TestRequestLoggerContextKeepsIdentityOutOfAmbientLogs(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	core, logs := observer.New(zap.DebugLevel)
 	root := zap.New(core)
@@ -30,13 +31,13 @@ func TestRequestIdentityLogContextEnrichesDownstreamLogsWithoutTokenID(t *testin
 	}
 
 	router := gin.New()
+	router.Use(middlewares.RequestID())
+	router.Use(requestLoggerContext(root, false))
 	router.Use(func(c *gin.Context) {
-		ctx := commonlogger.WithContext(c.Request.Context(), root)
-		ctx = authentication.WithPrincipal(ctx, principal)
+		ctx := authentication.WithPrincipal(c.Request.Context(), principal)
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	})
-	router.Use(requestIdentityLogContext())
 	router.GET("/resource", func(c *gin.Context) {
 		commonlogger.FromContext(c.Request.Context()).Info("domain operation")
 		c.Status(http.StatusNoContent)
@@ -52,8 +53,14 @@ func TestRequestIdentityLogContextEnrichesDownstreamLogsWithoutTokenID(t *testin
 		t.Fatalf("entries = %d, want 1", len(entries))
 	}
 	fields := entries[0].ContextMap()
-	if fields["user_id"] != principal.UserID || fields["session_id"] != principal.SessionID {
-		t.Fatalf("identity fields = %+v", fields)
+	if fields["correlation_id"] == "" {
+		t.Fatal("correlation identity missing from request log")
+	}
+	if _, exists := fields["user_id"]; exists {
+		t.Fatal("user identity was attached to ambient logs")
+	}
+	if _, exists := fields["session_id"]; exists {
+		t.Fatal("session identity was attached to ambient logs")
 	}
 	if _, exists := fields["token_id"]; exists {
 		t.Fatal("token identity was attached to ambient logs")

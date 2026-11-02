@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -50,6 +50,12 @@ func (_c *UserProblemSolveCreate) SetNillableUpdatedAt(v *time.Time) *UserProble
 	if v != nil {
 		_c.SetUpdatedAt(*v)
 	}
+	return _c
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserProblemSolveCreate) SetTenantID(v uuid.UUID) *UserProblemSolveCreate {
+	_c.mutation.SetTenantID(v)
 	return _c
 }
 
@@ -136,7 +142,7 @@ func (_c *UserProblemSolveCreate) SetNillableActiveProblemRevisionID(v *uuid.UUI
 }
 
 // SetRewardFacts sets the "reward_facts" field.
-func (_c *UserProblemSolveCreate) SetRewardFacts(v json.RawMessage) *UserProblemSolveCreate {
+func (_c *UserProblemSolveCreate) SetRewardFacts(v jsontext.Value) *UserProblemSolveCreate {
 	_c.mutation.SetRewardFacts(v)
 	return _c
 }
@@ -282,6 +288,9 @@ func (_c *UserProblemSolveCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "UserProblemSolve.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserProblemSolve.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserProblemSolve.user_id"`)}
 	}
@@ -357,6 +366,10 @@ func (_c *UserProblemSolveCreate) createSpec() (*UserProblemSolve, *sqlgraph.Cre
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(userproblemsolve.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(userproblemsolve.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(userproblemsolve.FieldUserID, field.TypeUUID, value)
@@ -565,7 +578,7 @@ func (u *UserProblemSolveUpsert) ClearActiveProblemRevisionID() *UserProblemSolv
 }
 
 // SetRewardFacts sets the "reward_facts" field.
-func (u *UserProblemSolveUpsert) SetRewardFacts(v json.RawMessage) *UserProblemSolveUpsert {
+func (u *UserProblemSolveUpsert) SetRewardFacts(v jsontext.Value) *UserProblemSolveUpsert {
 	u.Set(userproblemsolve.FieldRewardFacts, v)
 	return u
 }
@@ -691,6 +704,9 @@ func (u *UserProblemSolveUpsertOne) UpdateNewValues() *UserProblemSolveUpsertOne
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userproblemsolve.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(userproblemsolve.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(userproblemsolve.FieldUserID)
@@ -849,7 +865,7 @@ func (u *UserProblemSolveUpsertOne) ClearActiveProblemRevisionID() *UserProblemS
 }
 
 // SetRewardFacts sets the "reward_facts" field.
-func (u *UserProblemSolveUpsertOne) SetRewardFacts(v json.RawMessage) *UserProblemSolveUpsertOne {
+func (u *UserProblemSolveUpsertOne) SetRewardFacts(v jsontext.Value) *UserProblemSolveUpsertOne {
 	return u.Update(func(s *UserProblemSolveUpsert) {
 		s.SetRewardFacts(v)
 	})
@@ -1160,6 +1176,9 @@ func (u *UserProblemSolveUpsertBulk) UpdateNewValues() *UserProblemSolveUpsertBu
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userproblemsolve.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(userproblemsolve.FieldTenantID)
+			}
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(userproblemsolve.FieldUserID)
 			}
@@ -1318,7 +1337,7 @@ func (u *UserProblemSolveUpsertBulk) ClearActiveProblemRevisionID() *UserProblem
 }
 
 // SetRewardFacts sets the "reward_facts" field.
-func (u *UserProblemSolveUpsertBulk) SetRewardFacts(v json.RawMessage) *UserProblemSolveUpsertBulk {
+func (u *UserProblemSolveUpsertBulk) SetRewardFacts(v jsontext.Value) *UserProblemSolveUpsertBulk {
 	return u.Update(func(s *UserProblemSolveUpsert) {
 		s.SetRewardFacts(v)
 	})

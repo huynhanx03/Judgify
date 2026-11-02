@@ -302,12 +302,12 @@ func (_q *CultivationRankingProjectionQuery) WithUser(opts ...func(*UserQuery)) 
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.CultivationRankingProjection.Query().
-//		GroupBy(cultivationrankingprojection.FieldUserID).
+//		GroupBy(cultivationrankingprojection.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *CultivationRankingProjectionQuery) GroupBy(field string, fields ...string) *CultivationRankingProjectionGroupBy {
@@ -325,11 +325,11 @@ func (_q *CultivationRankingProjectionQuery) GroupBy(field string, fields ...str
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.CultivationRankingProjection.Query().
-//		Select(cultivationrankingprojection.FieldUserID).
+//		Select(cultivationrankingprojection.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *CultivationRankingProjectionQuery) Select(fields ...string) *CultivationRankingProjectionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

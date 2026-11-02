@@ -24,6 +24,8 @@ type ContestRatingResult struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// RatingRunID holds the value of the "rating_run_id" field.
 	RatingRunID uuid.UUID `json:"rating_run_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -92,7 +94,7 @@ func (*ContestRatingResult) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case contestratingresult.FieldCreatedAt, contestratingresult.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case contestratingresult.FieldID, contestratingresult.FieldRatingRunID, contestratingresult.FieldUserID:
+		case contestratingresult.FieldID, contestratingresult.FieldTenantID, contestratingresult.FieldRatingRunID, contestratingresult.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -126,6 +128,12 @@ func (_m *ContestRatingResult) assignValues(columns []string, values []any) erro
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case contestratingresult.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contestratingresult.FieldRatingRunID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -232,6 +240,9 @@ func (_m *ContestRatingResult) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("rating_run_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RatingRunID))

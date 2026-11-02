@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,6 +22,10 @@ const materialMaximumSlugBytes = 160
 // MaterialSlug retains every canonical slug permanently. A retired slug
 // resolves through its material's one current pointer; no redirect chain exists.
 type MaterialSlug struct{ ent.Schema }
+
+func (MaterialSlug) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
 
 func (MaterialSlug) Fields() []ent.Field {
 	return []ent.Field{
@@ -47,11 +52,11 @@ func (MaterialSlug) Edges() []ent.Edge {
 
 func (MaterialSlug) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("slug").Unique(),
+		index.Fields("tenant_id", "slug").Unique(),
 		index.Fields("id", "material_id").Unique(),
 		index.Fields("id", "material_id", "state").Unique(),
 		index.Fields("material_id", "state"),
-		index.Fields("material_id").Unique().Annotations(entsql.IndexWhere("state = 'current'")),
+		index.Fields("tenant_id", "material_id").Unique().Annotations(entsql.IndexWhere("state = 'current'")),
 	}
 }
 

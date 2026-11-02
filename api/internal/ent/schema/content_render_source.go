@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"strings"
 	"time"
 
@@ -32,7 +33,8 @@ type ContentRenderSource struct{ ent.Schema }
 func (ContentRenderSource) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		commonent.AppendOnlyMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 func (ContentRenderSource) Fields() []ent.Field {

@@ -9,6 +9,7 @@ import (
 // Generic config blocks are shared via go-common; aliases keep existing
 // references (settings.Server, settings.JWT, ...) working unchanged.
 type (
+	Env                  = gcsettings.Env
 	Server               = gcsettings.Server
 	RateLimitConfig      = gcsettings.RateLimitConfig
 	CircuitBreakerConfig = gcsettings.CircuitBreakerConfig
@@ -17,6 +18,12 @@ type (
 	JWT                  = gcsettings.JWT
 	Snowflake            = gcsettings.Snowflake
 	SnowflakeNode        = gcsettings.SnowflakeNode
+)
+
+const (
+	EnvDev     = gcsettings.EnvDev
+	EnvStaging = gcsettings.EnvStaging
+	EnvProd    = gcsettings.EnvProd
 )
 
 // Config is the application configuration for the Judgify API,

@@ -302,12 +302,12 @@ func (_q *ContestTransitionQuery) WithContest(opts ...func(*ContestQuery)) *Cont
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContestTransition.Query().
-//		GroupBy(contesttransition.FieldCreatedAt).
+//		GroupBy(contesttransition.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ContestTransitionQuery) GroupBy(field string, fields ...string) *ContestTransitionGroupBy {
@@ -325,11 +325,11 @@ func (_q *ContestTransitionQuery) GroupBy(field string, fields ...string) *Conte
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ContestTransition.Query().
-//		Select(contesttransition.FieldCreatedAt).
+//		Select(contesttransition.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ContestTransitionQuery) Select(fields ...string) *ContestTransitionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

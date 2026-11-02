@@ -34,7 +34,7 @@ func (r *MaterialRepository) Find(ctx context.Context, opts *d.QueryOptions) (*d
 	return r.find(ctx, opts)
 }
 
-func (r *MaterialRepository) FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error) {
+func (r *MaterialRepository) FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Material], error) {
 	return r.find(
 		ctx,
 		opts,

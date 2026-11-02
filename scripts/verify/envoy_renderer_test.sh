@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 renderer="${repo_root}/scripts/deploy/render-envoy.py"
-template="${repo_root}/deploy/envoy/envoy.yaml.tmpl"
+template="${repo_root}/docker/infrastructure/envoy.yaml.tmpl"
 output="$(mktemp)"
 trap 'rm -f "$output"' EXIT
 

@@ -638,19 +638,19 @@ func (mr *MockProblemServiceMockRecorder) Find(ctx, opts any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockProblemService)(nil).Find), ctx, opts)
 }
 
-// FindAdmin mocks base method.
-func (m *MockProblemService) FindAdmin(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.ProblemResult], error) {
+// FindForAdmin mocks base method.
+func (m *MockProblemService) FindForAdmin(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.ProblemResult], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAdmin", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForAdmin", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*contract.ProblemResult])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindAdmin indicates an expected call of FindAdmin.
-func (mr *MockProblemServiceMockRecorder) FindAdmin(ctx, opts any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockProblemServiceMockRecorder) FindForAdmin(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAdmin", reflect.TypeOf((*MockProblemService)(nil).FindAdmin), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockProblemService)(nil).FindForAdmin), ctx, opts)
 }
 
 // Get mocks base method.
@@ -1901,17 +1901,17 @@ func (m *MockPublicSampleReader) EXPECT() *MockPublicSampleReaderMockRecorder {
 	return m.recorder
 }
 
-// FindPublicSamples mocks base method.
-func (m *MockPublicSampleReader) FindPublicSamples(ctx context.Context, problemID uuid.UUID) ([]*contract.SampleTestCaseResult, error) {
+// FindSamplesForPublic mocks base method.
+func (m *MockPublicSampleReader) FindSamplesForPublic(ctx context.Context, problemID uuid.UUID) ([]*contract.SampleTestCaseResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindPublicSamples", ctx, problemID)
+	ret := m.ctrl.Call(m, "FindSamplesForPublic", ctx, problemID)
 	ret0, _ := ret[0].([]*contract.SampleTestCaseResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindPublicSamples indicates an expected call of FindPublicSamples.
-func (mr *MockPublicSampleReaderMockRecorder) FindPublicSamples(ctx, problemID any) *gomock.Call {
+// FindSamplesForPublic indicates an expected call of FindSamplesForPublic.
+func (mr *MockPublicSampleReaderMockRecorder) FindSamplesForPublic(ctx, problemID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublicSamples", reflect.TypeOf((*MockPublicSampleReader)(nil).FindPublicSamples), ctx, problemID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindSamplesForPublic", reflect.TypeOf((*MockPublicSampleReader)(nil).FindSamplesForPublic), ctx, problemID)
 }

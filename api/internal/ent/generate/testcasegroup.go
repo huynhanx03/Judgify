@@ -19,6 +19,8 @@ type TestcaseGroup struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// TestsetRevisionID holds the value of the "testset_revision_id" field.
@@ -75,7 +77,7 @@ func (*TestcaseGroup) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case testcasegroup.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case testcasegroup.FieldID, testcasegroup.FieldTestsetRevisionID:
+		case testcasegroup.FieldID, testcasegroup.FieldTenantID, testcasegroup.FieldTestsetRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -97,6 +99,12 @@ func (_m *TestcaseGroup) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case testcasegroup.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case testcasegroup.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -168,6 +176,9 @@ func (_m *TestcaseGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("TestcaseGroup(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

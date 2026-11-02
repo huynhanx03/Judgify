@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -18,9 +19,9 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	commonhandler "github.com/huynhanx03/go-common/pkg/common/http/handler"
 	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"github.com/huynhanx03/go-common/pkg/security/authorization"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	"github.com/huynhanx03/judgify/internal/ports"
 	problemmocks "github.com/huynhanx03/judgify/internal/testutil/mocks"
@@ -41,7 +42,7 @@ func (a *recordingAuthorizer) Authorize(_ context.Context, request authorization
 
 type testCaseHandlerStub struct{}
 
-func (testCaseHandlerStub) FindPublicSamples(context.Context, *publicSamplesRequest) ([]*SampleTestCaseResponse, error) {
+func (testCaseHandlerStub) FindSamplesForPublic(context.Context, *publicSamplesRequest) ([]*SampleTestCaseResponse, error) {
 	return []*SampleTestCaseResponse{}, nil
 }
 
@@ -218,7 +219,7 @@ func TestLegacyProblemDeleteRouteIsNotRegistered(t *testing.T) {
 	}
 	group.RegisterProtected(
 		router.Group(""),
-		middlewares.NewAuthorizationChecker(authorizer),
+		authmiddleware.NewAuthorizationChecker(authorizer),
 	)
 
 	request := httptest.NewRequest(
@@ -264,7 +265,7 @@ func TestAdminProblemReadsRequireReadCapability(t *testing.T) {
 				TagHandler:        NewTagHandler(nil),
 				DifficultyHandler: NewDifficultyHandler(nil),
 			}
-			group.RegisterProtected(router.Group(""), middlewares.NewAuthorizationChecker(authorizer))
+			group.RegisterProtected(router.Group(""), authmiddleware.NewAuthorizationChecker(authorizer))
 
 			request := httptest.NewRequest(tt.method, tt.path, strings.NewReader(tt.body))
 			request.Header.Set("Content-Type", "application/json")
@@ -297,7 +298,7 @@ func TestProblemAuthoringCommandsRequireUpdateCapability(t *testing.T) {
 			c.Next()
 		})
 		group := &ProblemHandlerGroup{ProblemHandler: NewProblemHandler(nil), TestCaseHandler: testCaseHandlerStub{}, TagHandler: NewTagHandler(nil), DifficultyHandler: NewDifficultyHandler(nil)}
-		group.RegisterProtected(router.Group(""), middlewares.NewAuthorizationChecker(authorizer))
+		group.RegisterProtected(router.Group(""), authmiddleware.NewAuthorizationChecker(authorizer))
 		request := httptest.NewRequest(http.MethodPost, requestSpec.path, strings.NewReader(requestSpec.body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
@@ -339,7 +340,7 @@ func TestAdminTaxonomyReadsRequireReadCapability(t *testing.T) {
 				ProblemHandler: NewProblemHandler(nil), TestCaseHandler: testCaseHandlerStub{},
 				TagHandler: NewTagHandler(nil), DifficultyHandler: NewDifficultyHandler(nil),
 			}
-			group.RegisterProtected(router.Group(""), middlewares.NewAuthorizationChecker(authorizer))
+			group.RegisterProtected(router.Group(""), authmiddleware.NewAuthorizationChecker(authorizer))
 
 			request := httptest.NewRequest(test.method, test.path, strings.NewReader(test.body))
 			request.Header.Set("Content-Type", "application/json")

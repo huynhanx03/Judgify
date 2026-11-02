@@ -13,6 +13,7 @@ export type ProblemLifecycle = "draft" | "published" | "archived";
 /** Problem entity returned by GET /problems/:id and POST /problems/find. */
 export interface Problem {
   id: EntityID;
+  tenant_id?: EntityID;
   slug: string;
   lifecycle: ProblemLifecycle;
   version: number;

@@ -73,7 +73,7 @@ export function MaterialLifecycleActions({
     resetKey: material.id,
     enabled: action === "rollback",
     load: async (cursor, signal) => {
-      const page = await materialService.listRevisions(
+      const page = await materialService.findRevisions(
         material.id,
         cursor,
         signal,

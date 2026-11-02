@@ -8,6 +8,7 @@ import (
 	entschema "entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/go-common/pkg/database/ent"
 
@@ -25,14 +26,14 @@ func (AttributeDefinition) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the AttributeDefinition.
 func (AttributeDefinition) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("key").
-			Unique().
 			NotEmpty().
 			MaxLen(50).
 			Immutable(),
@@ -55,6 +56,10 @@ func (AttributeDefinition) Fields() []ent.Field {
 			Min(1).
 			Default(1),
 	}
+}
+
+func (AttributeDefinition) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("tenant_id", "key").Unique()}
 }
 
 // Edges of the AttributeDefinition.

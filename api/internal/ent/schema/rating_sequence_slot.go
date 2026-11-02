@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -19,7 +20,8 @@ import (
 type RatingSequenceSlot struct{ ent.Schema }
 
 func (RatingSequenceSlot) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (RatingSequenceSlot) Edges() []ent.Edge {
@@ -46,9 +48,9 @@ func (RatingSequenceSlot) Fields() []ent.Field {
 
 func (RatingSequenceSlot) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("rating_sequence").Unique(),
-		index.Fields("contest_id").Unique(),
-		index.Fields("effective_end_at", "contest_id").Unique(),
+		index.Fields("tenant_id", "rating_sequence").Unique(),
+		index.Fields("tenant_id", "contest_id").Unique(),
+		index.Fields("tenant_id", "effective_end_at", "contest_id").Unique(),
 	}
 }
 

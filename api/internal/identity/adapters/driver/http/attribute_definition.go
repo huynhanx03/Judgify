@@ -20,7 +20,7 @@ import (
 type AttributeDefinitionHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*attributeDefinitionResponse], error)
 	Get(ctx context.Context, req *getAttributeDefinitionRequest) (*attributeDefinitionResponse, error)
-	ListRevisions(ctx context.Context, req *listAttributeDefinitionRevisionsRequest) (*attributeDefinitionRevisionPageResponse, error)
+	FindRevisions(ctx context.Context, req *listAttributeDefinitionRevisionsRequest) (*attributeDefinitionRevisionPageResponse, error)
 	Create(ctx context.Context, req *createAttributeDefinitionRequest) (*attributeDefinitionResponse, error)
 	Update(ctx context.Context, req *updateAttributeDefinitionRequest) (*attributeDefinitionResponse, error)
 	PreviewActivation(ctx context.Context, req *attributeLifecycleCommandRequest) (*attributeLifecyclePreviewResponse, error)
@@ -62,7 +62,7 @@ func (h *attributeDefinitionHandler) Get(ctx context.Context, req *getAttributeD
 	return toAttributeDefinitionResponse(result), err
 }
 
-func (h *attributeDefinitionHandler) ListRevisions(
+func (h *attributeDefinitionHandler) FindRevisions(
 	ctx context.Context,
 	req *listAttributeDefinitionRevisionsRequest,
 ) (*attributeDefinitionRevisionPageResponse, error) {
@@ -70,7 +70,7 @@ func (h *attributeDefinitionHandler) ListRevisions(
 	if err != nil {
 		return nil, apperr.New(apperr.CodeParamInvalid, "attribute revision query is required", nil)
 	}
-	result, err := h.attrDefService.ListRevisions(ctx, request.ID, request.Cursor, request.Limit)
+	result, err := h.attrDefService.FindRevisions(ctx, request.ID, request.Cursor, request.Limit)
 	return toAttributeDefinitionRevisionPageResponse(result), err
 }
 

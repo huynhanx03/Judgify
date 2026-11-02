@@ -6,6 +6,7 @@ package operationhttp
 import (
 	"context"
 	"errors"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/url"
 	"strconv"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
 
@@ -28,7 +28,7 @@ var ErrInvalidHandler = errors.New("operation http: invalid handler")
 
 type Reader interface {
 	Get(context.Context, uuid.UUID) (operation.Operation, error)
-	List(context.Context, operation.ListFilter) (operation.Page, error)
+	Find(context.Context, operation.ListFilter) (operation.Page, error)
 }
 
 type Controller interface {
@@ -55,7 +55,7 @@ func NewHandler(reader Reader, controller Controller) (*Handler, error) {
 
 func (handler *Handler) RegisterProtected(
 	router *gin.RouterGroup,
-	permissionChecker *middlewares.AuthorizationChecker,
+	permissionChecker *authmiddleware.AuthorizationChecker,
 ) {
 	if handler == nil || router == nil || permissionChecker == nil {
 		return
@@ -68,7 +68,7 @@ func (handler *Handler) RegisterProtected(
 			permissions.ResourceKeyOperation,
 			permissions.PermissionScopeRead,
 		),
-		handler.list,
+		handler.find,
 	)
 	group.GET(
 		"/:id",
@@ -84,7 +84,7 @@ func (handler *Handler) RegisterProtected(
 			permissions.ResourceKeyOperation,
 			permissions.PermissionScopeRead,
 		),
-		handler.listBatches,
+		handler.findBatches,
 	)
 	group.POST(
 		"/:id/control",
@@ -107,7 +107,7 @@ type controlRequest struct {
 	Reason          string                  `json:"reason" validate:"required,max=1024"`
 }
 
-func (handler *Handler) listBatches(c *gin.Context) {
+func (handler *Handler) findBatches(c *gin.Context) {
 	if handler == nil || handler.reader == nil || handler.batchReader == nil ||
 		c == nil || c.Request == nil {
 		fail(c, ErrInvalidHandler)
@@ -132,7 +132,7 @@ func (handler *Handler) listBatches(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	page, err := handler.batchReader.ListBatches(c.Request.Context(), operationID, filter)
+	page, err := handler.batchReader.FindBatches(c.Request.Context(), operationID, filter)
 	if err != nil {
 		fail(c, err)
 		return
@@ -168,7 +168,7 @@ func (handler *Handler) get(c *gin.Context) {
 	response.SuccessResponse(c, apperr.CodeSuccess, projected)
 }
 
-func (handler *Handler) list(c *gin.Context) {
+func (handler *Handler) find(c *gin.Context) {
 	if handler == nil || handler.reader == nil || c == nil || c.Request == nil {
 		fail(c, ErrInvalidHandler)
 		return
@@ -178,7 +178,7 @@ func (handler *Handler) list(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	page, err := handler.reader.List(c.Request.Context(), filter)
+	page, err := handler.reader.Find(c.Request.Context(), filter)
 	if err != nil {
 		fail(c, err)
 		return

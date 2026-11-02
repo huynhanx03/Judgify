@@ -15,6 +15,8 @@ const (
 	Label = "onboarding_trait_offer"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldPreSessionID holds the string denoting the pre_session_id field in the database.
 	FieldPreSessionID = "pre_session_id"
 	// FieldIdempotencyKey holds the string denoting the idempotency_key field in the database.
@@ -93,6 +95,7 @@ const (
 // Columns holds all SQL columns for onboardingtraitoffer fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldPreSessionID,
 	FieldIdempotencyKey,
 	FieldOfferSequence,
@@ -165,6 +168,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByPreSessionID orders the results by the pre_session_id field.

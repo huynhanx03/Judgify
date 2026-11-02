@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"github.com/stretchr/testify/require"
 

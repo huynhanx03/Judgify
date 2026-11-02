@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
@@ -34,6 +35,10 @@ func (AuditLog) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(commonent.NewUUID).
+			Immutable(),
+		field.UUID("tenant_id", uuid.UUID{}).
+			Optional().
+			Nillable().
 			Immutable(),
 		field.UUID("actor_user_id", uuid.UUID{}).
 			Optional().
@@ -83,6 +88,17 @@ func (AuditLog) Fields() []ent.Field {
 	}
 }
 
+func (AuditLog) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.From("tenant", Tenant.Type).
+			Ref("audit_logs").
+			Field("tenant_id").
+			Unique().
+			Immutable().
+			Annotations(entsql.OnDelete(entsql.Restrict)),
+	}
+}
+
 // Indexes support authorized audit search without allowing an unbounded scan.
 func (AuditLog) Indexes() []ent.Index {
 	return []ent.Index{
@@ -92,5 +108,6 @@ func (AuditLog) Indexes() []ent.Index {
 		index.Fields("resource_id", "occurred_at", "id"),
 		index.Fields("actor_user_id", "occurred_at", "id"),
 		index.Fields("correlation_id", "occurred_at", "id"),
+		index.Fields("tenant_id", "occurred_at", "id"),
 	}
 }

@@ -303,6 +303,18 @@ type TagRevision func(*sql.Selector)
 // TagRevisionElement is the predicate function for tagrevisionelement builders.
 type TagRevisionElement func(*sql.Selector)
 
+// Tenant is the predicate function for tenant builders.
+type Tenant func(*sql.Selector)
+
+// TenantInvitation is the predicate function for tenantinvitation builders.
+type TenantInvitation func(*sql.Selector)
+
+// TenantMembership is the predicate function for tenantmembership builders.
+type TenantMembership func(*sql.Selector)
+
+// TenantRole is the predicate function for tenantrole builders.
+type TenantRole func(*sql.Selector)
+
 // TestAsset is the predicate function for testasset builders.
 type TestAsset func(*sql.Selector)
 

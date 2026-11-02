@@ -10,6 +10,7 @@ import (
 	grpcserver "github.com/huynhanx03/go-common/pkg/common/grpc/server"
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/huynhanx03/judgify/internal/di"
@@ -18,6 +19,8 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/observability"
 	"github.com/huynhanx03/judgify/internal/platform/processhealth"
 	"github.com/huynhanx03/judgify/internal/platform/tracing"
+	tenantdomain "github.com/huynhanx03/judgify/internal/tenant/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 // BuildAPI composes API-only dependencies. It never constructs Forge, Docker,
@@ -26,6 +29,11 @@ func BuildAPI(ctx context.Context, process *bootstrap.Process) ([]lifecycle.Comp
 	if ctx == nil || process == nil {
 		return nil, fmt.Errorf("compose API: invalid dependencies")
 	}
+	communityScope, err := tenantctx.Tenant(tenantdomain.CommunityID)
+	if err != nil {
+		return nil, fmt.Errorf("compose API Community tenant scope: %w", err)
+	}
+	ctx = tenantctx.WithContext(ctx, communityScope)
 	metrics, err := observability.New(observability.Config{
 		Role:        "api",
 		Environment: string(process.Config.Server.Mode),
@@ -78,7 +86,7 @@ func BuildAPI(ctx context.Context, process *bootstrap.Process) ([]lifecycle.Comp
 	}
 	scheduler, err := NewScheduler(
 		container.Problem.ProblemRepo,
-		process.Logger.Named("stats-scheduler"),
+		zap.New(process.Logger.Core()).Named("stats-scheduler"),
 	)
 	if err != nil {
 		return nil, err
@@ -163,7 +171,7 @@ func BuildAPI(ctx context.Context, process *bootstrap.Process) ([]lifecycle.Comp
 		Name:         "envoy-ext-authz-grpc-server",
 		Address:      process.Config.Observability.EnvoyAuthzAddress,
 		TLS:          authzTLS,
-		Logger:       process.Logger.Logger,
+		Logger:       process.Logger,
 		StatsHandler: otelgrpc.NewServerHandler(),
 	}, func(server *grpc.Server) {
 		authv3.RegisterAuthorizationServer(server, envoyauthz.NewCheckServer(

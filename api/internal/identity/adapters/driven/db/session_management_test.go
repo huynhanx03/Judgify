@@ -140,7 +140,7 @@ func TestSessionManagementRepositoryRejectsInvalidInputsBeforeDatabase(t *testin
 	repository := NewSessionManagementRepository(dbent.WrapClient(client, zap.NewNop())).(*SessionManagementRepository)
 	now := time.Date(2026, 7, 22, 10, 0, 0, 0, time.UTC)
 
-	_, err := repository.List(context.Background(), ports.SessionListQuery{UserID: uuid.New(), Limit: 51})
+	_, err := repository.Find(context.Background(), ports.SessionListQuery{UserID: uuid.New(), Limit: 51})
 	require.ErrorIs(t, err, ports.ErrInvalidSessionManagementPersistence)
 	_, err = repository.RevokeOwned(context.Background(), ports.SessionRevokeCommand{}, now, now.Add(time.Hour))
 	require.ErrorIs(t, err, ports.ErrInvalidSessionManagementPersistence)

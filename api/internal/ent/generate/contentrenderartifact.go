@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ type ContentRenderArtifact struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// RenderSourceID holds the value of the "render_source_id" field.
 	RenderSourceID uuid.UUID `json:"render_source_id,omitempty"`
 	// RenderSourceKind holds the value of the "render_source_kind" field.
@@ -37,7 +40,7 @@ type ContentRenderArtifact struct {
 	// Status holds the value of the "status" field.
 	Status contentrenderartifact.Status `json:"status,omitempty"`
 	// Diagnostics holds the value of the "diagnostics" field.
-	Diagnostics json.RawMessage `json:"-"`
+	Diagnostics jsontext.Value `json:"-"`
 	// CreatedBy holds the value of the "created_by" field.
 	CreatedBy *uuid.UUID `json:"created_by,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -81,7 +84,7 @@ func (*ContentRenderArtifact) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case contentrenderartifact.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case contentrenderartifact.FieldID, contentrenderartifact.FieldRenderSourceID:
+		case contentrenderartifact.FieldID, contentrenderartifact.FieldTenantID, contentrenderartifact.FieldRenderSourceID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -103,6 +106,12 @@ func (_m *ContentRenderArtifact) assignValues(columns []string, values []any) er
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case contentrenderartifact.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contentrenderartifact.FieldRenderSourceID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -215,6 +224,9 @@ func (_m *ContentRenderArtifact) String() string {
 	var builder strings.Builder
 	builder.WriteString("ContentRenderArtifact(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("render_source_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RenderSourceID))
 	builder.WriteString(", ")

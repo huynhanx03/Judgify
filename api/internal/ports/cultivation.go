@@ -89,13 +89,13 @@ type ProgressionRepository interface {
 	Snapshot(context.Context, uuid.UUID) (entity.ProgressionSnapshot, error)
 	AdjustmentDelta(context.Context, uuid.UUID, uuid.UUID) (int64, error)
 	ApplyAdjustment(context.Context, entity.AdjustmentCommand) (entity.AdjustmentResult, error)
-	ListLedger(context.Context, uuid.UUID, *uuid.UUID, int) (ProgressionLedgerPage, error)
+	FindLedger(context.Context, uuid.UUID, *uuid.UUID, int) (ProgressionLedgerPage, error)
 }
 
 type ProgressionService interface {
 	PreviewAdjustment(context.Context, uuid.UUID, int64, *uuid.UUID) (entity.AdjustmentPreview, error)
 	ApplyAdjustment(context.Context, entity.AdjustmentCommand) (entity.AdjustmentResult, error)
-	ListLedger(context.Context, uuid.UUID, *uuid.UUID, int) (ProgressionLedgerPage, error)
+	FindLedger(context.Context, uuid.UUID, *uuid.UUID, int) (ProgressionLedgerPage, error)
 }
 
 // RankRepository defines the rank data access interface.
@@ -135,13 +135,13 @@ type RankingProjectionQuery struct {
 }
 
 type RankingProjectionRepository interface {
-	Page(context.Context, RankingProjectionQuery) (entity.RankingProjectionPage, error)
+	Find(context.Context, RankingProjectionQuery) (entity.RankingProjectionPage, error)
 	Privacy(context.Context, uuid.UUID) (entity.RankingPrivacy, error)
 	UpdatePrivacy(context.Context, entity.RankingPrivacyCommand) (entity.RankingPrivacyResult, error)
 }
 
 type RankingService interface {
-	Page(context.Context, entity.RankingKind, string, int) (*contract.RankingPageResponse, error)
+	Find(context.Context, entity.RankingKind, string, int) (*contract.RankingPageResponse, error)
 	Privacy(context.Context, uuid.UUID) (*contract.RankingPrivacyResponse, error)
 	UpdatePrivacy(context.Context, entity.RankingPrivacyCommand) (*contract.RankingPrivacyResponse, error)
 }
@@ -159,7 +159,7 @@ type RankingOperationStarter interface {
 
 type RankingOperationReader interface {
 	Get(context.Context, uuid.UUID) (operation.Operation, error)
-	List(context.Context, operation.ListFilter) (operation.Page, error)
+	Find(context.Context, operation.ListFilter) (operation.Page, error)
 }
 
 type RankingReconciliationService interface {
@@ -222,13 +222,13 @@ type RewardRulePage struct {
 
 type RewardRuleRepository interface {
 	Current(context.Context, time.Time) (entity.RewardRuleRevision, error)
-	List(context.Context, *int64, int) (RewardRulePage, error)
+	Find(context.Context, *int64, int) (RewardRulePage, error)
 	Publish(context.Context, entity.RewardRulePublicationCommand) (entity.RewardRulePublicationResult, error)
 }
 
 type RewardRuleService interface {
 	Current(context.Context) (entity.RewardRuleRevision, error)
-	List(context.Context, *int64, int) (RewardRulePage, error)
+	Find(context.Context, *int64, int) (RewardRulePage, error)
 	PreviewPublication(context.Context, entity.RewardRuleConfiguration) (entity.RewardRulePublicationPreview, error)
 	Publish(context.Context, entity.RewardRulePublicationCommand) (entity.RewardRulePublicationResult, error)
 }

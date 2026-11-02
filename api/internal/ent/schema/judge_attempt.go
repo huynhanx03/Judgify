@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -25,7 +26,8 @@ var judgeAttemptStates = []string{
 type JudgeAttempt struct{ ent.Schema }
 
 func (JudgeAttempt) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (JudgeAttempt) Fields() []ent.Field {

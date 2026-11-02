@@ -14,34 +14,25 @@ server:
     success_threshold: 2
     open_timeout: 30 # seconds
 
+logger:
+  log_level: debug
+  file_log_name: "./storages/logs/app.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true
+
 database:
   driver: "postgres"
   host: "localhost"
   port: 5432
-  username: "judgify_dev"
-  # Bound from DATABASE_PASSWORD in api/.env by the bootstrap loader.
-  password: ""
+  username: "admin"
+  password: "admin"
   database: "judgify"
   max_open_conns: 10
   max_idle_conns: 5
   conn_max_lifetime: 1800
   conn_max_idle_time: 300
-
-migration:
-  apply_timeout_seconds: 900
-  lock_timeout_seconds: 30
-  connect_timeout_seconds: 10
-
-observability:
-  version: "development"
-  api_probe_address: "127.0.0.1:9090"
-  worker_probe_address: "127.0.0.1:9091"
-  envoy_authz_address: "127.0.0.1:9000"
-  envoy_authz_certificate_path: ""
-  envoy_authz_private_key_path: ""
-  envoy_authz_client_ca_path: ""
-  debug_maximum_duration: "15m"
-  debug_recent_authentication_ttl: "10m"
 
 jwt:
   secret: "${JWT_SECRET}"
@@ -128,13 +119,8 @@ security_email:
 
 judge:
   release_id: "judge-release.development"
-  # Local API authoring uses code-owned runtime/checker metadata only. It has
-  # no executable image identity or worker capability. Production is forced
-  # to approved_release by configuration validation.
   api_authoring_catalog_mode: "code_owned_development"
   release_manifest_path: ""
-  # A local worker still requires explicit digest-pinned image, approved
-  # manifest, and isolated rootless daemon overrides before it can start.
   docker_socket_path: "/run/docker.sock"
   staging_root: "/tmp/judgify/staging"
   maximum_active_submissions_per_user: 8
@@ -208,10 +194,18 @@ notification_campaign:
   confirmation_ttl: "5m"
   recent_authentication_ttl: "10m"
 
-logger:
-  log_level: debug
-  file_log_name: "./storages/logs/app.log"
-  max_backups: 30
-  max_age: 7
-  max_size: 1024
-  compress: true
+migration:
+  apply_timeout_seconds: 900
+  lock_timeout_seconds: 30
+  connect_timeout_seconds: 10
+
+observability:
+  version: "development"
+  api_probe_address: "127.0.0.1:9090"
+  worker_probe_address: "127.0.0.1:9091"
+  envoy_authz_address: "127.0.0.1:9000"
+  envoy_authz_certificate_path: ""
+  envoy_authz_private_key_path: ""
+  envoy_authz_client_ca_path: ""
+  debug_maximum_duration: "15m"
+  debug_recent_authentication_ttl: "10m"

@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
 
 	dbent "github.com/huynhanx03/judgify/internal/ent"

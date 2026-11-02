@@ -200,7 +200,7 @@ func (repository *CampaignRepository) Get(
 	return oneCampaignView(rows, "get notification campaign")
 }
 
-func (repository *CampaignRepository) List(
+func (repository *CampaignRepository) Find(
 	ctx context.Context,
 	query ports.CampaignListQuery,
 ) (ports.CampaignPage, error) {
@@ -734,7 +734,7 @@ func (repository *CampaignRepository) MarkTerminal(
 	return repository.Get(ctx, campaignID)
 }
 
-func (repository *CampaignRepository) ListRecipients(
+func (repository *CampaignRepository) FindRecipients(
 	ctx context.Context,
 	query ports.RecipientListQuery,
 ) (ports.RecipientPage, error) {

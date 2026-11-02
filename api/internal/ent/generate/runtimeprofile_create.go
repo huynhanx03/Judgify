@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -126,7 +126,7 @@ func (_c *RuntimeProfileCreate) SetManifestChecksum(v string) *RuntimeProfileCre
 }
 
 // SetArtifactManifest sets the "artifact_manifest" field.
-func (_c *RuntimeProfileCreate) SetArtifactManifest(v json.RawMessage) *RuntimeProfileCreate {
+func (_c *RuntimeProfileCreate) SetArtifactManifest(v jsontext.Value) *RuntimeProfileCreate {
 	_c.mutation.SetArtifactManifest(v)
 	return _c
 }

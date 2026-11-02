@@ -338,9 +338,9 @@ type ContentRepository interface {
 	EditAnnouncement(context.Context, AnnouncementDraftCommand) (AnnouncementView, error)
 	PublishAnnouncement(context.Context, AnnouncementStateCommand) (AnnouncementView, error)
 	WithdrawAnnouncement(context.Context, AnnouncementStateCommand) (AnnouncementView, error)
-	ListPublicAnnouncements(context.Context, ContentListQuery) ([]AnnouncementView, *ContentCursor, error)
-	ListParticipantAnnouncements(context.Context, ContentListQuery) ([]AnnouncementView, *ContentCursor, error)
-	ListAdminAnnouncements(context.Context, ContentListQuery) ([]AnnouncementView, *ContentCursor, error)
+	FindAnnouncementsForPublic(context.Context, ContentListQuery) ([]AnnouncementView, *ContentCursor, error)
+	FindAnnouncementsForParticipant(context.Context, ContentListQuery) ([]AnnouncementView, *ContentCursor, error)
+	FindAnnouncementsForAdmin(context.Context, ContentListQuery) ([]AnnouncementView, *ContentCursor, error)
 	GetAdminAnnouncement(context.Context, uuid.UUID, uuid.UUID) (AnnouncementView, error)
 	FindDueAnnouncements(context.Context, int) ([]DueAnnouncement, error)
 
@@ -348,12 +348,12 @@ type ContentRepository interface {
 	AnswerClarification(context.Context, ClarificationAnswerCommand) (ClarificationView, error)
 	CloseClarification(context.Context, ClarificationStateCommand) (ClarificationView, error)
 	WithdrawClarification(context.Context, ClarificationStateCommand) (ClarificationView, error)
-	ListParticipantClarifications(context.Context, ContentListQuery) ([]SharedClarificationView, *ContentCursor, error)
-	ListOwnClarifications(context.Context, ContentListQuery) ([]ClarificationView, *ContentCursor, error)
+	FindClarificationsForParticipant(context.Context, ContentListQuery) ([]SharedClarificationView, *ContentCursor, error)
+	FindMyClarifications(context.Context, ContentListQuery) ([]ClarificationView, *ContentCursor, error)
 	GetOwnClarification(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) (ClarificationView, error)
-	ListAdminClarifications(context.Context, ContentListQuery) ([]ClarificationView, *ContentCursor, error)
+	FindClarificationsForAdmin(context.Context, ContentListQuery) ([]ClarificationView, *ContentCursor, error)
 	GetAdminClarification(context.Context, uuid.UUID, uuid.UUID) (ClarificationView, error)
-	ListRevisions(context.Context, entity.ContentOwnerType, uuid.UUID) ([]entity.ContentRevision, error)
+	FindRevisions(context.Context, entity.ContentOwnerType, uuid.UUID) ([]entity.ContentRevision, error)
 }
 
 type ContentService interface {
@@ -361,9 +361,9 @@ type ContentService interface {
 	EditAnnouncement(context.Context, uuid.UUID, uuid.UUID, *contract.EditAnnouncementRequest) (*contract.AnnouncementResponse, error)
 	PublishAnnouncement(context.Context, uuid.UUID, uuid.UUID, *contract.AnnouncementCommandRequest) (*contract.AnnouncementResponse, error)
 	WithdrawAnnouncement(context.Context, uuid.UUID, uuid.UUID, *contract.AnnouncementCommandRequest) (*contract.AnnouncementResponse, error)
-	ListPublicAnnouncements(context.Context, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error)
-	ListParticipantAnnouncements(context.Context, uuid.UUID, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error)
-	ListAdminAnnouncements(context.Context, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error)
+	FindAnnouncementsForPublic(context.Context, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error)
+	FindAnnouncementsForParticipant(context.Context, uuid.UUID, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error)
+	FindAnnouncementsForAdmin(context.Context, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error)
 	GetAdminAnnouncement(context.Context, uuid.UUID, uuid.UUID) (*contract.AnnouncementResponse, error)
 	PublishDueAnnouncements(context.Context, int) (int, error)
 
@@ -371,18 +371,18 @@ type ContentService interface {
 	AnswerClarification(context.Context, uuid.UUID, uuid.UUID, *contract.AnswerClarificationRequest) (*contract.ClarificationResponse, error)
 	CloseClarification(context.Context, uuid.UUID, uuid.UUID, *contract.ClarificationCommandRequest) (*contract.ClarificationResponse, error)
 	WithdrawClarification(context.Context, uuid.UUID, uuid.UUID, *contract.ClarificationCommandRequest) (*contract.ClarificationResponse, error)
-	ListParticipantClarifications(context.Context, uuid.UUID, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error)
-	ListOwnClarifications(context.Context, uuid.UUID, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error)
+	FindClarificationsForParticipant(context.Context, uuid.UUID, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error)
+	FindMyClarifications(context.Context, uuid.UUID, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error)
 	GetOwnClarification(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) (*contract.ClarificationResponse, error)
-	ListAdminClarifications(context.Context, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error)
+	FindClarificationsForAdmin(context.Context, *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error)
 	GetAdminClarification(context.Context, uuid.UUID, uuid.UUID) (*contract.ClarificationResponse, error)
-	ListRevisions(context.Context, entity.ContentOwnerType, uuid.UUID) ([]contract.ContentRevisionResponse, error)
+	FindRevisions(context.Context, entity.ContentOwnerType, uuid.UUID) ([]contract.ContentRevisionResponse, error)
 }
 
 // ContestRepository defines the contest data access interface.
 type ContestRepository interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Contest], error)
-	FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Contest], error)
+	FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*entity.Contest], error)
 	Get(ctx context.Context, id uuid.UUID) (*entity.Contest, error)
 	GetPublic(ctx context.Context, id uuid.UUID) (*entity.Contest, error)
 	CreateDraft(ctx context.Context, e *entity.Contest, problems []entity.ContestDraftProblem) error
@@ -440,10 +440,10 @@ type ContestProblemSnapshotRef struct {
 
 // ContestService defines the contest business logic interface.
 type ContestService interface {
-	FindPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ContestResponse], error)
+	FindForPublic(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ContestResponse], error)
 	GetPublic(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*contract.ContestResponse, error)
 	GetProblem(ctx context.Context, contestID uuid.UUID, contestProblemID uuid.UUID) (*contract.ContestProblemDetailResponse, error)
-	FindAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ContestResponse], error)
+	FindForAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ContestResponse], error)
 	GetAdmin(ctx context.Context, id uuid.UUID) (*contract.ContestResponse, error)
 	Create(ctx context.Context, authorID uuid.UUID, req *contract.CreateContestRequest) (*contract.ContestResponse, error)
 	Update(ctx context.Context, id uuid.UUID, req *contract.UpdateContestRequest) (*contract.ContestResponse, error)
@@ -470,7 +470,7 @@ type RatingSettlementRepository interface {
 // RatingHistoryRepository defines the rating history data access interface.
 type RatingHistoryRepository interface {
 	CreateBulk(ctx context.Context, records []*entity.RatingHistory) error
-	FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.RatingHistory, error)
+	FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*entity.RatingHistory, error)
 	CountByUser(ctx context.Context, userID uuid.UUID) (int, error)
 	CountByUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID]int, error)
 }
@@ -488,7 +488,7 @@ type RatingLedgerRepository interface {
 		ctx context.Context,
 		command entity.ApplyRatingRun,
 	) (*entity.RatingRun, error)
-	FindActiveByContest(
+	FindActiveByContestID(
 		ctx context.Context,
 		contestID uuid.UUID,
 	) (*entity.RatingRun, error)
@@ -558,7 +558,7 @@ type RegistrationRepository interface {
 	Unregister(ctx context.Context, contestID, userID uuid.UUID) error
 	Exists(ctx context.Context, contestID, userID uuid.UUID) (bool, error)
 	CountByContest(ctx context.Context, contestID uuid.UUID) (int, error)
-	FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestRegistration, error)
+	FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestRegistration, error)
 	GetProjection(ctx context.Context, contestID, userID uuid.UUID) (*RegistrationProjection, error)
 }
 
@@ -585,7 +585,7 @@ type RegistrationService interface {
 type StandingRepository interface {
 	Get(ctx context.Context, contestID, userID uuid.UUID) (*entity.ContestStanding, error)
 	Upsert(ctx context.Context, e *entity.ContestStanding) error
-	FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestStanding, error)
+	FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestStanding, error)
 }
 
 // StandingService defines the standing business logic interface.

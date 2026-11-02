@@ -24,6 +24,12 @@ type OnboardingTraitOfferTalentCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *OnboardingTraitOfferTalentCreate) SetTenantID(v uuid.UUID) *OnboardingTraitOfferTalentCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetOfferID sets the "offer_id" field.
 func (_c *OnboardingTraitOfferTalentCreate) SetOfferID(v uuid.UUID) *OnboardingTraitOfferTalentCreate {
 	_c.mutation.SetOfferID(v)
@@ -92,6 +98,9 @@ func (_c *OnboardingTraitOfferTalentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *OnboardingTraitOfferTalentCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "OnboardingTraitOfferTalent.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.OfferID(); !ok {
 		return &ValidationError{Name: "offer_id", err: errors.New(`generate: missing required field "OnboardingTraitOfferTalent.offer_id"`)}
 	}
@@ -147,6 +156,10 @@ func (_c *OnboardingTraitOfferTalentCreate) createSpec() (*OnboardingTraitOfferT
 		_spec = sqlgraph.NewCreateSpec(onboardingtraitoffertalent.Table, sqlgraph.NewFieldSpec(onboardingtraitoffertalent.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(onboardingtraitoffertalent.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.TraitRevision(); ok {
 		_spec.SetField(onboardingtraitoffertalent.FieldTraitRevision, field.TypeInt64, value)
 		_node.TraitRevision = value
@@ -196,7 +209,7 @@ func (_c *OnboardingTraitOfferTalentCreate) createSpec() (*OnboardingTraitOfferT
 // of the `INSERT` statement. For example:
 //
 //	client.OnboardingTraitOfferTalent.Create().
-//		SetOfferID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -205,7 +218,7 @@ func (_c *OnboardingTraitOfferTalentCreate) createSpec() (*OnboardingTraitOfferT
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OnboardingTraitOfferTalentUpsert) {
-//			SetOfferID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OnboardingTraitOfferTalentCreate) OnConflict(opts ...sql.ConflictOption) *OnboardingTraitOfferTalentUpsertOne {
@@ -252,6 +265,9 @@ type (
 func (u *OnboardingTraitOfferTalentUpsertOne) UpdateNewValues() *OnboardingTraitOfferTalentUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(onboardingtraitoffertalent.FieldTenantID)
+		}
 		if _, exists := u.create.mutation.OfferID(); exists {
 			s.SetIgnore(onboardingtraitoffertalent.FieldOfferID)
 		}
@@ -429,7 +445,7 @@ func (_c *OnboardingTraitOfferTalentCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OnboardingTraitOfferTalentUpsert) {
-//			SetOfferID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OnboardingTraitOfferTalentCreateBulk) OnConflict(opts ...sql.ConflictOption) *OnboardingTraitOfferTalentUpsertBulk {
@@ -470,6 +486,9 @@ func (u *OnboardingTraitOfferTalentUpsertBulk) UpdateNewValues() *OnboardingTrai
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(onboardingtraitoffertalent.FieldTenantID)
+			}
 			if _, exists := b.mutation.OfferID(); exists {
 				s.SetIgnore(onboardingtraitoffertalent.FieldOfferID)
 			}

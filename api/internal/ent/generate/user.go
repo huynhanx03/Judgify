@@ -132,9 +132,15 @@ type UserEdges struct {
 	ContestClarifications []*ContestClarification `json:"contest_clarifications,omitempty"`
 	// ContestContentCommands holds the value of the contest_content_commands edge.
 	ContestContentCommands []*ContestContentCommand `json:"contest_content_commands,omitempty"`
+	// TenantMemberships holds the value of the tenant_memberships edge.
+	TenantMemberships []*TenantMembership `json:"tenant_memberships,omitempty"`
+	// TenantInvitations holds the value of the tenant_invitations edge.
+	TenantInvitations []*TenantInvitation `json:"tenant_invitations,omitempty"`
+	// SentTenantInvitations holds the value of the sent_tenant_invitations edge.
+	SentTenantInvitations []*TenantInvitation `json:"sent_tenant_invitations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [41]bool
+	loadedTypes [44]bool
 }
 
 // CredentialsOrErr returns the Credentials value or an error if the edge
@@ -506,6 +512,33 @@ func (e UserEdges) ContestContentCommandsOrErr() ([]*ContestContentCommand, erro
 	return nil, &NotLoadedError{edge: "contest_content_commands"}
 }
 
+// TenantMembershipsOrErr returns the TenantMemberships value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) TenantMembershipsOrErr() ([]*TenantMembership, error) {
+	if e.loadedTypes[41] {
+		return e.TenantMemberships, nil
+	}
+	return nil, &NotLoadedError{edge: "tenant_memberships"}
+}
+
+// TenantInvitationsOrErr returns the TenantInvitations value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) TenantInvitationsOrErr() ([]*TenantInvitation, error) {
+	if e.loadedTypes[42] {
+		return e.TenantInvitations, nil
+	}
+	return nil, &NotLoadedError{edge: "tenant_invitations"}
+}
+
+// SentTenantInvitationsOrErr returns the SentTenantInvitations value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SentTenantInvitationsOrErr() ([]*TenantInvitation, error) {
+	if e.loadedTypes[43] {
+		return e.SentTenantInvitations, nil
+	}
+	return nil, &NotLoadedError{edge: "sent_tenant_invitations"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -832,6 +865,21 @@ func (_m *User) QueryContestClarifications() *ContestClarificationQuery {
 // QueryContestContentCommands queries the "contest_content_commands" edge of the User entity.
 func (_m *User) QueryContestContentCommands() *ContestContentCommandQuery {
 	return NewUserClient(_m.config).QueryContestContentCommands(_m)
+}
+
+// QueryTenantMemberships queries the "tenant_memberships" edge of the User entity.
+func (_m *User) QueryTenantMemberships() *TenantMembershipQuery {
+	return NewUserClient(_m.config).QueryTenantMemberships(_m)
+}
+
+// QueryTenantInvitations queries the "tenant_invitations" edge of the User entity.
+func (_m *User) QueryTenantInvitations() *TenantInvitationQuery {
+	return NewUserClient(_m.config).QueryTenantInvitations(_m)
+}
+
+// QuerySentTenantInvitations queries the "sent_tenant_invitations" edge of the User entity.
+func (_m *User) QuerySentTenantInvitations() *TenantInvitationQuery {
+	return NewUserClient(_m.config).QuerySentTenantInvitations(_m)
 }
 
 // Update returns a builder for updating this User.

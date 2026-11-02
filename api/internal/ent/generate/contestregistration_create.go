@@ -55,6 +55,12 @@ func (_c *ContestRegistrationCreate) SetNillableUpdatedAt(v *time.Time) *Contest
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestRegistrationCreate) SetTenantID(v uuid.UUID) *ContestRegistrationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetContestID sets the "contest_id" field.
 func (_c *ContestRegistrationCreate) SetContestID(v uuid.UUID) *ContestRegistrationCreate {
 	_c.mutation.SetContestID(v)
@@ -279,6 +285,9 @@ func (_c *ContestRegistrationCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "ContestRegistration.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestRegistration.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`generate: missing required field "ContestRegistration.contest_id"`)}
 	}
@@ -371,6 +380,10 @@ func (_c *ContestRegistrationCreate) createSpec() (*ContestRegistration, *sqlgra
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(contestregistration.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestregistration.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(contestregistration.FieldStatus, field.TypeEnum, value)
@@ -693,6 +706,9 @@ func (u *ContestRegistrationUpsertOne) UpdateNewValues() *ContestRegistrationUps
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contestregistration.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestregistration.FieldTenantID)
 		}
 	}))
 	return u
@@ -1106,6 +1122,9 @@ func (u *ContestRegistrationUpsertBulk) UpdateNewValues() *ContestRegistrationUp
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contestregistration.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestregistration.FieldTenantID)
 			}
 		}
 	}))

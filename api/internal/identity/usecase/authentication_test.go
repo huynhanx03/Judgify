@@ -247,7 +247,6 @@ func newAuthTestEnv(t *testing.T) *authenticationTestEnv {
 	authzSvc := idMocks.NewMockAuthorizationService(ctrl)
 	attrValRepo := idMocks.NewMockUserAttributeValueRepository(ctrl)
 	fedRepo := idMocks.NewMockFederatedIdentityRepository(ctrl)
-	cacheSvc := idMocks.NewMockCacheService(ctrl)
 	txMgr := testutil.TxManager{}
 	registration := &authenticationRegistrationLifecycle{}
 	recovery := &authenticationRecoveryContactLifecycle{}
@@ -263,7 +262,6 @@ func newAuthTestEnv(t *testing.T) *authenticationTestEnv {
 		nil, // oauthProviders — not needed for basic tests
 		appcache.New(localCache).IdentityRole,
 		localCache,
-		cacheSvc,
 		txMgr,
 		WithTokenLifecycle(authenticationTestTokenLifecycle{}),
 		WithPasswordResetLifecycle(authenticationTestPasswordReset{}),
@@ -794,7 +792,7 @@ func TestRegisterRejectsLifecycleValidationBeforeUserMutation(t *testing.T) {
 	require.Zero(t, env.recovery.persistCalls.Load())
 }
 
-func TestRegisterPreparesRecoveryOutsideAndPersistsItInsideAccountTransaction(t *testing.T) {
+func TestRegisterDoesNotRequireOrPersistRecoveryEmail(t *testing.T) {
 	env := newAuthTestEnv(t)
 	env.service.txMgr = registrationMarkerTx{}
 	request := validRegistrationRequest()
@@ -804,10 +802,7 @@ func TestRegisterPreparesRecoveryOutsideAndPersistsItInsideAccountTransaction(t 
 		ID: uuid.New(), Key: defaultRoleKey, Name: "Student",
 	}, nil)
 	env.users.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(
-		func(_ context.Context, user *entity.User) error {
-			require.Equal(t, env.recovery.preparedUserID, user.ID)
-			return nil
-		},
+		func(context.Context, *entity.User) error { return nil },
 	)
 	env.credentials.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(
 		func(_ context.Context, credential *entity.Credential) error {
@@ -832,17 +827,15 @@ func TestRegisterPreparesRecoveryOutsideAndPersistsItInsideAccountTransaction(t 
 
 	require.NoError(t, err)
 	require.NotNil(t, response)
-	require.Equal(t, int64(1), env.recovery.prepareCalls.Load())
-	require.Equal(t, "owner@example.com", env.recovery.preparedEmail)
-	require.Equal(t, int64(1), env.recovery.persistCalls.Load())
-	require.True(t, env.recovery.persistInTx.Load())
+	require.Zero(t, env.recovery.prepareCalls.Load())
+	require.Zero(t, env.recovery.persistCalls.Load())
 	require.Equal(t, int64(1), env.registration.consumeCalls.Load())
 	require.Equal(t, int64(1), env.registration.provisionCalls.Load())
 	mutations := env.journal.snapshot()
 	require.Len(t, mutations, 1)
 	require.Equal(t, entity.SecurityMutationUserRegistered, mutations[0].Kind)
 	require.Equal(t, env.recovery.preparedUserID, mutations[0].UserID)
-	require.Equal(t, uint64(1), mutations[0].Version)
+	require.Zero(t, mutations[0].Version)
 	require.Equal(t, uint64(1), mutations[0].SecurityVersion)
 }
 
@@ -858,12 +851,10 @@ func expectRegistrationPreparationReads(
 	}, nil)
 }
 
-func TestRegistrationFingerprintExcludesPasswordAndBindsNormalizedRecoveryEmail(t *testing.T) {
+func TestRegistrationFingerprintExcludesPasswordAndCanonicalizesEvidence(t *testing.T) {
 	first := validRegistrationRequest()
-	first.RecoveryEmail = " Owner@Example.COM "
 	second := *first
 	second.Password = "different-password"
-	second.RecoveryEmail = "owner@example.com"
 	second.CatalogChecksum = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 
 	firstFingerprint, err := registrationFingerprint(first)
@@ -877,10 +868,6 @@ func TestRegistrationFingerprintExcludesPasswordAndBindsNormalizedRecoveryEmail(
 	require.NoError(t, err)
 	require.Equal(t, firstFingerprint, reorderedFingerprint)
 
-	second.RecoveryEmail = "other@example.com"
-	otherFingerprint, err := registrationFingerprint(&second)
-	require.NoError(t, err)
-	require.NotEqual(t, firstFingerprint, otherFingerprint)
 }
 
 type authenticationConcurrentWinnerTokenLifecycle struct {
@@ -965,7 +952,6 @@ func (lifecycle authenticationRecoveredTokenLifecycle) RecoverRegistration(
 func validRegistrationRequest() *dto.RegisterRequest {
 	return &dto.RegisterRequest{
 		Username: "newuser", Password: "password123",
-		RecoveryEmail: "owner@example.com",
 		ProfileSchemaEvidence: dto.ProfileSchemaEvidence{
 			ProfileSchemaRevision: 1,
 			ProfileSchemaChecksum: "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",

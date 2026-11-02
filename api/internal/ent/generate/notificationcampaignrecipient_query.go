@@ -410,12 +410,12 @@ func (_q *NotificationCampaignRecipientQuery) WithNotification(opts ...func(*Not
 // Example:
 //
 //	var v []struct {
-//		CampaignID uuid.UUID `json:"campaign_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.NotificationCampaignRecipient.Query().
-//		GroupBy(notificationcampaignrecipient.FieldCampaignID).
+//		GroupBy(notificationcampaignrecipient.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *NotificationCampaignRecipientQuery) GroupBy(field string, fields ...string) *NotificationCampaignRecipientGroupBy {
@@ -433,11 +433,11 @@ func (_q *NotificationCampaignRecipientQuery) GroupBy(field string, fields ...st
 // Example:
 //
 //	var v []struct {
-//		CampaignID uuid.UUID `json:"campaign_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.NotificationCampaignRecipient.Query().
-//		Select(notificationcampaignrecipient.FieldCampaignID).
+//		Select(notificationcampaignrecipient.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *NotificationCampaignRecipientQuery) Select(fields ...string) *NotificationCampaignRecipientSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

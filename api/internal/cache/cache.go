@@ -1,13 +1,10 @@
-// Package cache owns Judgify's cache policy adapters. It delegates storage,
-// eviction, and singleflight mechanics to go-common; use cases only depend on
-// their narrow cache ports.
+// Package cache binds domain cache ports to the shared cache facade.
 package cache
 
 import commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
 
-// Store is the process-local cache capability supplied by infrastructure.
-// Keeping the alias here prevents use cases from importing go-common directly.
-type Store = commoncache.LocalCache[string, any]
+// Store is the shared cache coordinator supplied by infrastructure.
+type Store = *commoncache.Cache
 
 // Registry is built once at composition time. It is a DI convenience only:
 // services receive their specific cache port, never this whole registry.
@@ -24,7 +21,7 @@ type Registry struct {
 	IdentityAttributeDefinition *AttributeDefinition
 }
 
-// New builds all L1 cache adapters from one shared process-local store.
+// New builds domain cache adapters over one shared cache coordinator.
 func New(store Store) Registry {
 	return Registry{
 		ProblemTag:                  NewTag(store),

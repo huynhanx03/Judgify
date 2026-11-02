@@ -5,6 +5,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/tx"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/contest/adapters/driven/db"
 	contestHttp "github.com/huynhanx03/judgify/internal/contest/adapters/driver/http"
@@ -45,13 +46,13 @@ type ContestContainer struct {
 // NewContestContainer creates a new ContestContainer.
 func NewContestContainer(
 	client *internalent.EntClient,
-	logger *commonlogger.LoggerZap,
+	logger *commonlogger.Logger,
 	txMgr tx.Manager,
 	immutableProblems problemPorts.ImmutableProblemReader,
 	operations *operation.Components,
 	operationRegistry *operation.Registry,
 ) (*ContestContainer, error) {
-	if client == nil || client.Client() == nil || logger == nil || logger.Logger == nil ||
+	if client == nil || client.Client() == nil || logger == nil ||
 		operations == nil || operations.Repository == nil ||
 		operations.Starter == nil || operationRegistry == nil {
 		return nil, fmt.Errorf(
@@ -156,7 +157,7 @@ func NewContestContainer(
 		contestRepo,
 		ratingSvc,
 		ratingSettlementRepo,
-		logger.Named("contest-orchestrator"),
+		zap.New(logger.Core()).Named("contest-orchestrator"),
 		lifecycleService,
 	)
 

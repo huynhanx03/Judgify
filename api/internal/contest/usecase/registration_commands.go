@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	contestcontract "github.com/huynhanx03/judgify/internal/contest/contract"
 	entity "github.com/huynhanx03/judgify/internal/contest/domain"

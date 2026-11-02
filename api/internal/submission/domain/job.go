@@ -41,16 +41,17 @@ type LeaseTokenHash [32]byte
 func (hash LeaseTokenHash) Valid() bool { return hash != (LeaseTokenHash{}) }
 
 type JudgeJob struct {
-	ID           uuid.UUID
-	SubmissionID uuid.UUID
-	Generation   int64
-	JudgeSpecID  uuid.UUID
-	Lane         string
-	State        JobState
-	AvailableAt  time.Time
-	Attempts     uint32
-	MaxAttempts  uint32
-	OriginCID    string
+	ID                uuid.UUID
+	SubmissionID      uuid.UUID
+	Generation        int64
+	JudgeSpecID       uuid.UUID
+	Lane              string
+	State             JobState
+	AvailableAt       time.Time
+	Attempts          uint32
+	MaxAttempts       uint32
+	OriginCID         string
+	OriginTraceparent string
 }
 
 type JudgeAttempt struct {

@@ -21,6 +21,8 @@ type OnboardingTraitOffer struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// PreSessionID holds the value of the "pre_session_id" field.
 	PreSessionID uuid.UUID `json:"pre_session_id,omitempty"`
 	// IdempotencyKey holds the value of the "idempotency_key" field.
@@ -136,7 +138,7 @@ func (*OnboardingTraitOffer) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case onboardingtraitoffer.FieldIssuedAt, onboardingtraitoffer.FieldExpiresAt, onboardingtraitoffer.FieldConsumedAt:
 			values[i] = new(sql.NullTime)
-		case onboardingtraitoffer.FieldID, onboardingtraitoffer.FieldPreSessionID, onboardingtraitoffer.FieldIdempotencyKey, onboardingtraitoffer.FieldCatalogRevisionID, onboardingtraitoffer.FieldRootBoneTraitID:
+		case onboardingtraitoffer.FieldID, onboardingtraitoffer.FieldTenantID, onboardingtraitoffer.FieldPreSessionID, onboardingtraitoffer.FieldIdempotencyKey, onboardingtraitoffer.FieldCatalogRevisionID, onboardingtraitoffer.FieldRootBoneTraitID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -158,6 +160,12 @@ func (_m *OnboardingTraitOffer) assignValues(columns []string, values []any) err
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case onboardingtraitoffer.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case onboardingtraitoffer.FieldPreSessionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -300,6 +308,9 @@ func (_m *OnboardingTraitOffer) String() string {
 	var builder strings.Builder
 	builder.WriteString("OnboardingTraitOffer(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("pre_session_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PreSessionID))
 	builder.WriteString(", ")

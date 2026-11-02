@@ -35,15 +35,7 @@ func toLevelResponses(results []*contract.LevelResponse) []*levelResponse {
 }
 
 func toLevelPage(result *d.Paginated[*contract.LevelResponse]) *d.Paginated[*levelResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*levelResponse]{Pagination: result.Pagination}
-	if result.Records != nil {
-		values := toLevelResponses(*result.Records)
-		page.Records = &values
-	}
-	return page
+	return d.MapPaginated(result, toLevelResponse)
 }
 
 func toCreateLevelCommand(request *createLevelRequest) *contract.CreateLevelCommand {

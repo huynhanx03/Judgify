@@ -34,9 +34,9 @@ func NewPublicSampleReader(
 	}, nil
 }
 
-// FindPublicSamples returns only visible examples from the exact immutable
+// FindSamplesForPublic returns only visible examples from the exact immutable
 // testset selected by the currently published problem revision.
-func (reader *publicSampleReader) FindPublicSamples(
+func (reader *publicSampleReader) FindSamplesForPublic(
 	ctx context.Context,
 	problemID uuid.UUID,
 ) ([]*contract.SampleTestCaseResult, error) {

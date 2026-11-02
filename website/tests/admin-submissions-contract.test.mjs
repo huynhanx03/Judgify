@@ -102,7 +102,7 @@ test("admin submission service uses the dedicated safe-list and sensitive-detail
   const query = { pagination: { page: 2, page_size: 25 }, status: "judging" };
   const signal = new AbortController().signal;
 
-  await submissionService.findAdmin(query, signal);
+  await submissionService.findForAdmin(query, signal);
   await submissionService.getAdminById(validId, signal);
 
   assert.deepEqual(calls, [
@@ -204,9 +204,9 @@ test("admin submission monitor is real-data, recoverable, responsive, and manual
   ]);
 
   assert.match(page, /AdminSubmissionMonitor/);
-  assert.match(monitor, /submissionService[\s\S]*?\.findAdmin/);
+  assert.match(monitor, /submissionService[\s\S]*?\.findForAdmin/);
   assert.match(monitor, /submissionService[\s\S]*?\.getRuntimeCatalog/);
-  assert.match(monitor, /useRetryableResource<[\s\S]*load:\s*\(signal\)\s*=>\s*submissionService\.findAdmin\(query, signal\)/);
+  assert.match(monitor, /useRetryableResource<[\s\S]*load:\s*\(signal\)\s*=>\s*submissionService\.findForAdmin\(query, signal\)/);
   assert.match(detail, /useRetryableResource<[\s\S]*submissionService\.getAdminById\(submissionId, signal\)/);
   assert.match(monitor, /role="alert"/);
   assert.match(monitor, /aria-live="polite"/);

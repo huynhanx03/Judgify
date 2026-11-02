@@ -13,7 +13,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	commonwebsocket "github.com/huynhanx03/go-common/pkg/common/websocket"
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
 
 	identitycontract "github.com/huynhanx03/judgify/internal/identity/contract"
@@ -23,6 +23,7 @@ import (
 	notificationports "github.com/huynhanx03/judgify/internal/ports"
 	"github.com/huynhanx03/judgify/internal/realtime"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -34,6 +35,10 @@ const (
 )
 
 const authorizationAggregateID = "00000000-0000-5000-8000-000000000001"
+
+type authorizationRuntimeReconciler interface {
+	ReconcileNow(context.Context) error
+}
 
 var authorizationRealtimeEvents = map[string]struct {
 	Action   string
@@ -123,6 +128,7 @@ func eventNotificationRoutes(
 	revoker realtime.ConnectionRevoker,
 	publisher realtime.RoutedPublisher,
 	authorizationSource realtime.AuthorizationRevisionSource,
+	authorizationReconciler authorizationRuntimeReconciler,
 ) ([]commonoutbox.Route, error) {
 	authorizationPublisher, ok := publisher.(realtime.AuthorizationChangePublisher)
 	if consumer == nil || revoker == nil || publisher == nil ||
@@ -303,6 +309,7 @@ func eventNotificationRoutes(
 			authorizationSource,
 			authorizationPublisher,
 			revoker,
+			authorizationReconciler,
 		))
 	}
 	return routes, nil
@@ -319,7 +326,12 @@ func publishSubmissionOutboxProjection(
 	publisher realtime.RoutedPublisher,
 	event submissioncontract.SubmissionJudgedV1,
 ) error {
-	messages, err := realtime.MessagesForSubmissionOutbox(event)
+	scope, scoped := tenantctx.FromContext(ctx)
+	if !scoped || !scope.IsTenant() {
+		return permanentEventFailure("submission_realtime_tenant_scope_missing", realtime.ErrInvalidChange)
+	}
+	tenantID, _ := scope.TenantID()
+	messages, err := realtime.MessagesForTenantSubmissionOutbox(event, tenantID)
 	if err != nil {
 		return permanentEventFailure("invalid_submission_projection", err)
 	}
@@ -358,7 +370,12 @@ func notificationRealtimeRoute(
 			if err != nil {
 				return permanentEventFailure("invalid_event_envelope", err)
 			}
-			topic, err := realtime.NotificationTopic(event.UserID)
+			scope, scoped := tenantctx.FromContext(ctx)
+			if !scoped || !scope.IsTenant() {
+				return permanentEventFailure("notification_realtime_tenant_scope_missing", realtime.ErrInvalidChange)
+			}
+			tenantID, _ := scope.TenantID()
+			topic, err := realtime.TenantNotificationTopic(tenantID, event.UserID)
 			if err != nil {
 				return permanentEventFailure("invalid_notification_projection", err)
 			}
@@ -510,6 +527,7 @@ func authorizationRealtimeRoute(
 	source realtime.AuthorizationRevisionSource,
 	publisher realtime.AuthorizationChangePublisher,
 	revoker realtime.ConnectionRevoker,
+	reconciler authorizationRuntimeReconciler,
 ) commonoutbox.Route {
 	definition := authorizationRealtimeEvents[eventType]
 	return strictJSONRoute(
@@ -528,6 +546,11 @@ func authorizationRealtimeRoute(
 			)
 		},
 		func(ctx context.Context, event authorizationMutationProjection) error {
+			if reconciler != nil {
+				if err := reconciler.ReconcileNow(ctx); err != nil {
+					return retryableEventFailure("authorization_runtime_reconcile_failed", err)
+				}
+			}
 			change, err := source.Current(ctx)
 			if err != nil {
 				return retryableEventFailure("authorization_revision_unavailable", err)

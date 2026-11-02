@@ -329,7 +329,7 @@ func (r *RegistrationRepository) CountByContest(ctx context.Context, contestID u
 	return count, nil
 }
 
-func (r *RegistrationRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestRegistration, error) {
+func (r *RegistrationRepository) FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestRegistration, error) {
 	records, err := r.client.DB(ctx).ContestRegistration.Query().
 		Where(contestregistration.ContestIDEQ(contestID)).
 		All(ctx)

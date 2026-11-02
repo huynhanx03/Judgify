@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -84,6 +84,12 @@ func (_c *UserAttributeValueCreate) SetNillableDeletedBy(v *string) *UserAttribu
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserAttributeValueCreate) SetTenantID(v uuid.UUID) *UserAttributeValueCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserAttributeValueCreate) SetUserID(v uuid.UUID) *UserAttributeValueCreate {
 	_c.mutation.SetUserID(v)
@@ -109,7 +115,7 @@ func (_c *UserAttributeValueCreate) SetSourceRevisionID(v uuid.UUID) *UserAttrib
 }
 
 // SetCanonicalValue sets the "canonical_value" field.
-func (_c *UserAttributeValueCreate) SetCanonicalValue(v json.RawMessage) *UserAttributeValueCreate {
+func (_c *UserAttributeValueCreate) SetCanonicalValue(v jsontext.Value) *UserAttributeValueCreate {
 	_c.mutation.SetCanonicalValue(v)
 	return _c
 }
@@ -265,6 +271,9 @@ func (_c *UserAttributeValueCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "UserAttributeValue.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserAttributeValue.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserAttributeValue.user_id"`)}
 	}
@@ -362,6 +371,10 @@ func (_c *UserAttributeValueCreate) createSpec() (*UserAttributeValue, *sqlgraph
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(userattributevalue.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(userattributevalue.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.CanonicalValue(); ok {
 		_spec.SetField(userattributevalue.FieldCanonicalValue, field.TypeJSON, value)
@@ -596,7 +609,7 @@ func (u *UserAttributeValueUpsert) UpdateSourceRevisionID() *UserAttributeValueU
 }
 
 // SetCanonicalValue sets the "canonical_value" field.
-func (u *UserAttributeValueUpsert) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpsert {
+func (u *UserAttributeValueUpsert) SetCanonicalValue(v jsontext.Value) *UserAttributeValueUpsert {
 	u.Set(userattributevalue.FieldCanonicalValue, v)
 	return u
 }
@@ -674,6 +687,9 @@ func (u *UserAttributeValueUpsertOne) UpdateNewValues() *UserAttributeValueUpser
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userattributevalue.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(userattributevalue.FieldTenantID)
 		}
 	}))
 	return u
@@ -819,7 +835,7 @@ func (u *UserAttributeValueUpsertOne) UpdateSourceRevisionID() *UserAttributeVal
 }
 
 // SetCanonicalValue sets the "canonical_value" field.
-func (u *UserAttributeValueUpsertOne) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpsertOne {
+func (u *UserAttributeValueUpsertOne) SetCanonicalValue(v jsontext.Value) *UserAttributeValueUpsertOne {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetCanonicalValue(v)
 	})
@@ -1074,6 +1090,9 @@ func (u *UserAttributeValueUpsertBulk) UpdateNewValues() *UserAttributeValueUpse
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userattributevalue.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(userattributevalue.FieldTenantID)
+			}
 		}
 	}))
 	return u
@@ -1219,7 +1238,7 @@ func (u *UserAttributeValueUpsertBulk) UpdateSourceRevisionID() *UserAttributeVa
 }
 
 // SetCanonicalValue sets the "canonical_value" field.
-func (u *UserAttributeValueUpsertBulk) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpsertBulk {
+func (u *UserAttributeValueUpsertBulk) SetCanonicalValue(v jsontext.Value) *UserAttributeValueUpsertBulk {
 	return u.Update(func(s *UserAttributeValueUpsert) {
 		s.SetCanonicalValue(v)
 	})

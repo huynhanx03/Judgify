@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	commonhandler "github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
 
@@ -43,7 +43,7 @@ func NewCampaignHandler(
 
 func (handler *CampaignHandler) RegisterProtected(
 	router *gin.RouterGroup,
-	permissionChecker *middlewares.AuthorizationChecker,
+	permissionChecker *authmiddleware.AuthorizationChecker,
 ) {
 	if handler == nil || router == nil || permissionChecker == nil {
 		return
@@ -58,7 +58,7 @@ func (handler *CampaignHandler) RegisterProtected(
 		permissions.ResourceKeyNotification,
 		permissions.PermissionScopeReadDelivery,
 	)
-	group.GET("", compose, commonhandler.Wrap(handler.List))
+	group.GET("", compose, commonhandler.Wrap(handler.Find))
 	group.POST("", compose, commonhandler.Wrap(handler.Create))
 	group.GET("/:id", compose, commonhandler.Wrap(handler.Get))
 	group.PUT("/:id", compose, commonhandler.Wrap(handler.Revise))
@@ -68,7 +68,7 @@ func (handler *CampaignHandler) RegisterProtected(
 	group.GET(
 		"/:id/recipients",
 		readDelivery,
-		commonhandler.Wrap(handler.ListRecipients),
+		commonhandler.Wrap(handler.FindRecipients),
 	)
 }
 
@@ -101,11 +101,11 @@ func (handler *CampaignHandler) Get(
 	return handler.service.Get(ctx, request.ID)
 }
 
-func (handler *CampaignHandler) List(
+func (handler *CampaignHandler) Find(
 	ctx context.Context,
 	request *contract.CampaignListRequest,
 ) (*contract.CampaignListResponse, error) {
-	return handler.service.List(ctx, request)
+	return handler.service.Find(ctx, request)
 }
 
 func (handler *CampaignHandler) DryRun(
@@ -123,11 +123,11 @@ func (handler *CampaignHandler) DryRun(
 	return handler.service.DryRun(ctx, actorID, sessionID, request)
 }
 
-func (handler *CampaignHandler) ListRecipients(
+func (handler *CampaignHandler) FindRecipients(
 	ctx context.Context,
 	request *contract.CampaignRecipientListRequest,
 ) (*contract.CampaignRecipientListResponse, error) {
-	return handler.service.ListRecipients(ctx, request)
+	return handler.service.FindRecipients(ctx, request)
 }
 
 func (handler *CampaignHandler) Schedule(c *gin.Context) {

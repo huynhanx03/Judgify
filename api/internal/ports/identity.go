@@ -188,7 +188,7 @@ type AttributeDefinitionRepository interface {
 	GetByKey(ctx context.Context, key string) (*entity.AttributeDefinition, error)
 	Create(ctx context.Context, e *entity.AttributeDefinition) error
 	GetRevision(ctx context.Context, id uuid.UUID) (*entity.AttributeDefinitionRevision, error)
-	ListRevisions(ctx context.Context, definitionID uuid.UUID, before int64, limit int) ([]*entity.AttributeDefinitionRevision, error)
+	FindRevisions(ctx context.Context, definitionID uuid.UUID, before int64, limit int) ([]*entity.AttributeDefinitionRevision, error)
 	CreateRevision(ctx context.Context, revision *entity.AttributeDefinitionRevision) error
 	SetInitialRevision(ctx context.Context, definitionID, revisionID uuid.UUID) error
 	SetDraftRevision(ctx context.Context, definitionID uuid.UUID, expectedVersion int64, revision *entity.AttributeDefinitionRevision, requiredOnOnboarding *bool) (*entity.AttributeDefinition, error)
@@ -210,7 +210,7 @@ type AttributeDefinitionCacheLoader func(context.Context) (*entity.AttributeDefi
 type AttributeDefinitionService interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*dto.AttributeDefinitionResponse], error)
 	Get(ctx context.Context, id uuid.UUID) (*dto.AttributeDefinitionResponse, error)
-	ListRevisions(ctx context.Context, id uuid.UUID, cursor string, limit int) (*dto.AttributeDefinitionRevisionPage, error)
+	FindRevisions(ctx context.Context, id uuid.UUID, cursor string, limit int) (*dto.AttributeDefinitionRevisionPage, error)
 	Create(ctx context.Context, req *dto.CreateAttributeDefinitionRequest) (*dto.AttributeDefinitionResponse, error)
 	Update(ctx context.Context, id uuid.UUID, req *dto.UpdateAttributeDefinitionRequest) (*dto.AttributeDefinitionResponse, error)
 	PreviewLifecycle(ctx context.Context, command PreviewAttributeLifecycleCommand) (AttributeLifecyclePreview, error)
@@ -321,12 +321,21 @@ type AuthorizationCommandReceipt struct {
 // ctx so every operation joins an enclosing platform transaction.
 type AuthorizationPolicyRepository interface {
 	EnsureState(ctx context.Context, initialRevision int64) error
-	// LoadRules loads the committed startup snapshot through the pinned Casbin
+	// LoadRules loads the committed startup snapshot through the shared Casbin
 	// Ent adapter. Implementations must perform no runtime DDL or AutoSave.
 	LoadRules(ctx context.Context, model string) ([]authcasbin.PolicyRule, error)
+	// LoadScopedRules returns only the static policy and role graph needed by
+	// one scope at the requested durable revision; user relations are excluded.
+	LoadScopedRules(ctx context.Context, model string, scope authorization.Scope, revision int64) ([]authcasbin.PolicyRule, error)
+	// LoadSubjectRelations loads one user's memberships only if the durable
+	// authorization revision still matches.
+	LoadSubjectRelations(ctx context.Context, revision int64, scope authorization.Scope, subject string) ([]authcasbin.PolicyRule, error)
+	// LoadResourceRelations loads one user's relations for one resource only if
+	// the durable authorization revision still matches.
+	LoadResourceRelations(ctx context.Context, revision int64, scope authorization.Scope, subject, resourceID string) ([]authcasbin.PolicyRule, error)
 	State(ctx context.Context) (AuthorizationState, error)
 	LockState(ctx context.Context) (AuthorizationState, error)
-	ListRules(ctx context.Context) ([]authcasbin.PolicyRule, error)
+	FindRules(ctx context.Context) ([]authcasbin.PolicyRule, error)
 	ReplaceRolePolicies(ctx context.Context, roleSubject string, rules []authcasbin.PolicyRule) error
 	ReplaceUserRoles(ctx context.Context, userSubject string, roleSubjects []string) error
 	DeleteRoleReferences(ctx context.Context, roleSubject string) error
@@ -344,15 +353,6 @@ type AuthorizationPolicyRepository interface {
 	// invariants such as retaining at least one effective superadministrator.
 	ActiveUserIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]bool, error)
 	LoadCommandReceipt(ctx context.Context, commandID uuid.UUID) (AuthorizationCommandReceipt, bool, error)
-}
-
-// CacheService defines the interface for cache-related operations.
-type CacheService interface {
-	// InvalidatePermissionConfig increments the permission config version, invalidating all role permission caches.
-	InvalidatePermissionConfig(ctx context.Context) error
-
-	// GetPermissionConfigVersion retrieves the current permission config version.
-	GetPermissionConfigVersion(ctx context.Context) (int64, error)
 }
 
 var (
@@ -395,7 +395,7 @@ type FederatedIdentityRepository interface {
 	Get(ctx context.Context, id uuid.UUID) (*entity.FederatedIdentity, error)
 	GetByProviderAndSubject(ctx context.Context, provider, providerSubject string) (*entity.FederatedIdentity, error)
 	GetByUserAndProvider(ctx context.Context, userID uuid.UUID, provider string) (*entity.FederatedIdentity, error)
-	ListByUser(ctx context.Context, userID uuid.UUID) ([]*entity.FederatedIdentity, error)
+	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*entity.FederatedIdentity, error)
 	Create(ctx context.Context, e *entity.FederatedIdentity) error
 	RecordAuthentication(ctx context.Context, e *entity.FederatedIdentity, at time.Time) error
 	Unlink(ctx context.Context, userID, sessionID uuid.UUID, provider string, at time.Time) (*entity.FederatedIdentity, error)
@@ -572,7 +572,7 @@ type ProfileSchemaRepository interface {
 	LockShared(context.Context) (ProfileSchemaFence, error)
 	LockExclusive(context.Context) (ProfileSchemaFence, error)
 	Advance(context.Context, ProfileSchemaFence) (ProfileSchemaFence, error)
-	ListRequired(context.Context) ([]*entity.AttributeDefinition, error)
+	FindRequired(context.Context) ([]*entity.AttributeDefinition, error)
 }
 
 type ProfileSchemaService interface {
@@ -740,6 +740,14 @@ type RecoveryContactIssue struct {
 	Token           entity.KeyedTokenHash
 	IssuedAt        time.Time
 	ExpiresAt       time.Time
+}
+
+// PreparedOAuthRecoveryContact contains only protected material for an
+// already-verified email claim from a linked federated identity.
+type PreparedOAuthRecoveryContact struct {
+	Contact         entity.RecoveryContact
+	LookupHash      []byte
+	FingerprintHash []byte
 }
 
 // PreparedRecoveryContactRegistration is a fully protected write plan. It is
@@ -924,6 +932,11 @@ type RecoveryContactStore interface {
 	RecoveryContactMutationRepository
 }
 
+type OAuthRecoveryContactStore interface {
+	CreateOAuthVerifiedIfAbsent(context.Context, PreparedOAuthRecoveryContact) (bool, error)
+	RevokeOAuthVerified(context.Context, uuid.UUID, uuid.UUID, time.Time) error
+}
+
 // RecoveryContactSessionRepository is intentionally narrower than the shared
 // session lifecycle port so unrelated authentication consumers are not forced
 // to depend on recovery-specific capabilities.
@@ -943,6 +956,12 @@ type RecoveryContactLifecycle interface {
 	PrepareRegistration(uuid.UUID, string) (*PreparedRecoveryContactRegistration, error)
 	PersistRegistration(context.Context, *PreparedRecoveryContactRegistration) error
 	Verify(context.Context, string) (*entity.RecoveryContactVerificationResult, error)
+}
+
+type OAuthRecoveryContactLifecycle interface {
+	PrepareOAuthVerifiedContact(uuid.UUID, uuid.UUID, string, bool) (*PreparedOAuthRecoveryContact, error)
+	PersistOAuthVerifiedContact(context.Context, *PreparedOAuthRecoveryContact) error
+	RevokeOAuthRecoveryContact(context.Context, uuid.UUID, uuid.UUID, time.Time) error
 }
 
 // AccountInvitationLifecycle is the narrower preparation boundary consumed by
@@ -1244,7 +1263,7 @@ type SessionManagementMutation struct {
 // SessionRepository: account UI queries and security commands must not expand
 // the latency-sensitive token authentication contract.
 type SessionManagementRepository interface {
-	List(context.Context, SessionListQuery) (SessionListResult, error)
+	Find(context.Context, SessionListQuery) (SessionListResult, error)
 	RevokeOwned(
 		ctx context.Context,
 		command SessionRevokeCommand,
@@ -1267,7 +1286,7 @@ type SessionManagementInvalidator interface {
 }
 
 type SessionManagementLifecycle interface {
-	List(
+	Find(
 		ctx context.Context,
 		userID, currentSessionID uuid.UUID,
 		request *dto.SessionListRequest,
@@ -1528,7 +1547,7 @@ type ActiveProfileAttributeValue struct {
 // Implementations must enforce the active definition/revision relationship in
 // the database query rather than filtering a stale superset in memory.
 type ActiveProfileAttributeValueReader interface {
-	ListActiveProfileAttributes(
+	FindActiveProfileAttributes(
 		ctx context.Context,
 		userID uuid.UUID,
 	) ([]ActiveProfileAttributeValue, error)

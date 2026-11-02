@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { CircleAlert, RefreshCw, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TEXT } from "@/constants/text";
+import { useLocale } from "@/contexts/locale-context";
 import { cn } from "@/lib/utils";
 import type { OnboardingProfileFormController } from "@/modules/auth/hooks/use-onboarding-profile-form";
 
@@ -37,6 +37,7 @@ export function OnboardingProfileFields({
   disabled = false,
   className,
 }: OnboardingProfileFieldsProps) {
+  const { t } = useLocale();
   const headingID = useId();
   const sectionRef = useRef<HTMLElement | null>(null);
   const refreshing = form.status === "loading" && Boolean(form.schema);
@@ -62,7 +63,7 @@ export function OnboardingProfileFields({
           className,
         )}
         aria-busy="true"
-        aria-label={TEXT.ONBOARDING_PROFILE.LOADING}
+        aria-label={t("ONBOARDING_PROFILE.LOADING")}
       >
         <div className="h-4 w-40 animate-pulse rounded bg-muted motion-reduce:animate-none" />
         <div className="mt-3 h-3 w-4/5 animate-pulse rounded bg-muted/80 motion-reduce:animate-none" />
@@ -74,7 +75,7 @@ export function OnboardingProfileFields({
             />
           ))}
         </div>
-        <span className="sr-only">{TEXT.ONBOARDING_PROFILE.LOADING}</span>
+        <span className="sr-only">{t("ONBOARDING_PROFILE.LOADING")}</span>
       </section>
     );
   }
@@ -91,9 +92,9 @@ export function OnboardingProfileFields({
         <div className="flex items-start gap-3">
           <CircleAlert className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold">{TEXT.ONBOARDING_PROFILE.LOAD_ERROR_TITLE}</h3>
+            <h3 className="font-semibold">{t("ONBOARDING_PROFILE.LOAD_ERROR_TITLE")}</h3>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              {TEXT.ONBOARDING_PROFILE.LOAD_ERROR_DESCRIPTION}
+              {t("ONBOARDING_PROFILE.LOAD_ERROR_DESCRIPTION")}
             </p>
             <Button
               type="button"
@@ -103,7 +104,7 @@ export function OnboardingProfileFields({
               className="mt-4 min-h-11 gap-2 bg-background"
             >
               <RefreshCw className="size-4" aria-hidden="true" />
-              {TEXT.COMMON.RETRY}
+              {t("COMMON.RETRY")}
             </Button>
           </div>
         </div>
@@ -125,14 +126,14 @@ export function OnboardingProfileFields({
         <div className="min-w-0">
           <h3 id={headingID} className="flex items-center gap-2 font-semibold">
             <ShieldCheck className="size-4 text-primary" aria-hidden="true" />
-            {TEXT.ONBOARDING_PROFILE.TITLE}
+            {t("ONBOARDING_PROFILE.TITLE")}
           </h3>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
-            {TEXT.ONBOARDING_PROFILE.DESCRIPTION}
+            {t("ONBOARDING_PROFILE.DESCRIPTION")}
           </p>
         </div>
         <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
-          {TEXT.ONBOARDING_PROFILE.REVISION(form.schema.revision)}
+          {t("ONBOARDING_PROFILE.REVISION", { args: [form.schema.revision] })}
         </Badge>
       </div>
 
@@ -148,8 +149,8 @@ export function OnboardingProfileFields({
           aria-live="polite"
         >
           {form.notice === "schema_reloaded"
-            ? TEXT.ONBOARDING_PROFILE.SCHEMA_RELOADED
-            : TEXT.ONBOARDING_PROFILE.INVALID_VALUE}
+            ? t("ONBOARDING_PROFILE.SCHEMA_RELOADED")
+            : t("ONBOARDING_PROFILE.INVALID_VALUE")}
         </div>
       ) : null}
 
@@ -163,7 +164,7 @@ export function OnboardingProfileFields({
             className="size-4 shrink-0 animate-spin text-primary motion-reduce:animate-none"
             aria-hidden="true"
           />
-          {TEXT.ONBOARDING_PROFILE.REFRESHING}
+          {t("ONBOARDING_PROFILE.REFRESHING")}
         </div>
       ) : null}
 
@@ -173,7 +174,7 @@ export function OnboardingProfileFields({
           role="alert"
         >
           <span className="text-muted-foreground">
-            {TEXT.ONBOARDING_PROFILE.REFRESH_ERROR}
+            {t("ONBOARDING_PROFILE.REFRESH_ERROR")}
           </span>
           <Button
             type="button"
@@ -183,7 +184,7 @@ export function OnboardingProfileFields({
             className="min-h-11 gap-2 bg-background"
           >
             <RefreshCw className="size-4" aria-hidden="true" />
-            {TEXT.COMMON.RETRY}
+            {t("COMMON.RETRY")}
           </Button>
         </div>
       ) : null}
@@ -192,7 +193,7 @@ export function OnboardingProfileFields({
         disabled={disabled || form.status !== "ready"}
         className="mt-4 grid min-w-0 gap-3 md:grid-cols-2"
       >
-        <legend className="sr-only">{TEXT.ONBOARDING_PROFILE.TITLE}</legend>
+        <legend className="sr-only">{t("ONBOARDING_PROFILE.TITLE")}</legend>
         {form.attributes.map((attribute) => (
           <div
             key={attribute.definition_id}
@@ -219,7 +220,7 @@ export function OnboardingProfileFields({
       </fieldset>
 
       <p className="mt-4 text-xs leading-5 text-muted-foreground">
-        {TEXT.ONBOARDING_PROFILE.SCHEMA_NOTE}
+        {t("ONBOARDING_PROFILE.SCHEMA_NOTE")}
       </p>
     </section>
   );

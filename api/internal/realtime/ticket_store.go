@@ -11,10 +11,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"go.uber.org/zap"
+
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -77,6 +79,8 @@ type IssuedTicket struct {
 type ticketRecord struct {
 	principal authentication.Principal
 	expiresAt time.Time
+	tenant    tenantctx.Scope
+	hasTenant bool
 }
 
 // TicketStore holds only SHA-256 lookup keys. Tickets are short-lived,
@@ -223,7 +227,13 @@ func (store *TicketStore) Issue(
 		store.mu.Unlock()
 		return IssuedTicket{}, fmt.Errorf("issue realtime ticket: entropy collision")
 	}
-	store.tickets[digest] = ticketRecord{principal: principal, expiresAt: expiresAt}
+	tenant, hasTenant := cloneTenantScope(ctx)
+	store.tickets[digest] = ticketRecord{
+		principal: principal,
+		expiresAt: expiresAt,
+		tenant:    tenant,
+		hasTenant: hasTenant,
+	}
 	store.byPrincipal[principal.Subject]++
 	store.mu.Unlock()
 
@@ -251,19 +261,29 @@ func (store *TicketStore) Consume(
 	ctx context.Context,
 	rawTicket string,
 ) (authentication.Principal, error) {
+	principal, _, _, err := store.ConsumeScoped(ctx, rawTicket)
+	return principal, err
+}
+
+// ConsumeScoped returns the tenant scope captured by the authenticated ticket
+// request so WebSocket authorization and replay queries retain the same RLS boundary.
+func (store *TicketStore) ConsumeScoped(
+	ctx context.Context,
+	rawTicket string,
+) (authentication.Principal, tenantctx.Scope, bool, error) {
 	if store == nil || ctx == nil {
-		return authentication.Principal{}, ErrInvalidConfig
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrInvalidConfig
 	}
 	if store.life.stopped() {
-		return authentication.Principal{}, ErrTicketStoreClosed
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrTicketStoreClosed
 	}
 	logContext := correlation.EnsureContext(ctx)
 	if len(rawTicket) != encodedTicketBytes {
-		return authentication.Principal{}, ErrTicketUnavailable
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrTicketUnavailable
 	}
 	decoded, err := base64.RawURLEncoding.DecodeString(rawTicket)
 	if err != nil || len(decoded) != ticketEntropyBytes {
-		return authentication.Principal{}, ErrTicketUnavailable
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrTicketUnavailable
 	}
 	digest := sha256.Sum256(decoded)
 	for index := range decoded {
@@ -273,7 +293,7 @@ func (store *TicketStore) Consume(
 	store.mu.Lock()
 	if store.closed {
 		store.mu.Unlock()
-		return authentication.Principal{}, ErrTicketStoreClosed
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrTicketStoreClosed
 	}
 	record, exists := store.tickets[digest]
 	if exists {
@@ -282,16 +302,29 @@ func (store *TicketStore) Consume(
 	}
 	store.mu.Unlock()
 	if !exists {
-		return authentication.Principal{}, ErrTicketUnavailable
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrTicketUnavailable
 	}
 	now := store.now().UTC()
 	if !record.expiresAt.After(now) || validateTicketPrincipal(record.principal, now) != nil {
-		return authentication.Principal{}, ErrTicketUnavailable
+		return authentication.Principal{}, tenantctx.Scope{}, false, ErrTicketUnavailable
 	}
 	commonlogger.FromContext(logContext).Debug("realtime ticket consumed",
 		zap.String("principal_subject", record.principal.Subject),
 	)
-	return record.principal, nil
+	return record.principal, record.tenant, record.hasTenant, nil
+}
+
+func cloneTenantScope(ctx context.Context) (tenantctx.Scope, bool) {
+	scope, ok := tenantctx.FromContext(ctx)
+	if !ok {
+		return tenantctx.Scope{}, false
+	}
+	if id, single := scope.TenantID(); single {
+		cloned, err := tenantctx.Tenant(id)
+		return cloned, err == nil
+	}
+	cloned, err := tenantctx.All(scope.TenantIDs())
+	return cloned, err == nil
 }
 
 func (store *TicketStore) cleanupExpired(now time.Time) int {

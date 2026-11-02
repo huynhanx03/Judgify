@@ -18,6 +18,7 @@ import { materialService } from "@/services/material.service";
 import { TEXT } from "@/constants/text";
 import { ADMIN_TEXT } from "@/constants/admin-text";
 import type { MaterialCategory } from "@/types/material";
+import { TenantRowLabel } from "@/modules/layout/tenant-row-label";
 
 export default function AdminMaterialCategoriesPage() {
   const { can } = useAuth();
@@ -41,7 +42,7 @@ export default function AdminMaterialCategoriesPage() {
     {
       key: "name",
       label: ADMIN_TEXT.MATERIAL_CATEGORIES.COL_NAME,
-      render: (r) => <span className="font-medium">{r.name}</span>,
+      render: (r) => <><span className="font-medium">{r.name}</span><TenantRowLabel tenantID={r.tenant_id} /></>,
     },
     {
       key: "description",

@@ -8,13 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 )
 
 const (
 	// HeaderRequestID is minted by the public Envoy listener for every HTTP attempt.
-	HeaderRequestID = "X-Request-ID"
+	HeaderRequestID = commonlogger.RequestIDHeader
 
 	GatewayIdentityLegacy = "legacy"
 	GatewayIdentityEnvoy  = "envoy"
@@ -45,18 +44,10 @@ func GatewayIdentity(mode string) gin.HandlerFunc {
 			gatewayIdentityFailure(c)
 			return
 		}
-		correlationID, ok := exactlyOneHeader(c.Request.Header.Values(correlation.Header))
-		if !ok || !validGatewayUUID(correlationID) || requestID != correlationID {
-			gatewayIdentityFailure(c)
-			return
-		}
-
-		ctx := correlation.WithContext(c.Request.Context(), correlationID)
+		ctx := commonlogger.WithRequestID(c.Request.Context(), requestID)
 		ctx = context.WithValue(ctx, requestIDContextKey{}, requestID)
-		ctx = commonlogger.WithFields(ctx, commonlogger.String("request_id", requestID))
 		c.Request = c.Request.WithContext(ctx)
 		c.Header(HeaderRequestID, requestID)
-		c.Header(correlation.Header, correlationID)
 		c.Next()
 	}
 }

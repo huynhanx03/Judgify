@@ -82,6 +82,12 @@ func (_c *UserElementExpCreate) SetNillableDeletedBy(v *string) *UserElementExpC
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserElementExpCreate) SetTenantID(v uuid.UUID) *UserElementExpCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserElementExpCreate) SetUserID(v uuid.UUID) *UserElementExpCreate {
 	_c.mutation.SetUserID(v)
@@ -205,6 +211,9 @@ func (_c *UserElementExpCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "UserElementExp.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserElementExp.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserElementExp.user_id"`)}
 	}
@@ -276,6 +285,10 @@ func (_c *UserElementExpCreate) createSpec() (*UserElementExp, *sqlgraph.CreateS
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(userelementexp.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(userelementexp.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Exp(); ok {
 		_spec.SetField(userelementexp.FieldExp, field.TypeInt64, value)
@@ -476,6 +489,9 @@ func (u *UserElementExpUpsertOne) UpdateNewValues() *UserElementExpUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userelementexp.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(userelementexp.FieldTenantID)
 		}
 	}))
 	return u
@@ -798,6 +814,9 @@ func (u *UserElementExpUpsertBulk) UpdateNewValues() *UserElementExpUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userelementexp.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(userelementexp.FieldTenantID)
 			}
 		}
 	}))

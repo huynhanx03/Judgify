@@ -6,6 +6,7 @@ import (
 	entschema "entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
 )
@@ -20,7 +21,8 @@ const profileSchemaStateKey = "onboarding"
 type ProfileSchemaState struct{ ent.Schema }
 
 func (ProfileSchemaState) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (ProfileSchemaState) Fields() []ent.Field {
@@ -36,7 +38,7 @@ func (ProfileSchemaState) Fields() []ent.Field {
 }
 
 func (ProfileSchemaState) Indexes() []ent.Index {
-	return []ent.Index{index.Fields("key").Unique()}
+	return []ent.Index{index.Fields("tenant_id", "key").Unique()}
 }
 
 func (ProfileSchemaState) Annotations() []entschema.Annotation {

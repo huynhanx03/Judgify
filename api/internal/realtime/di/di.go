@@ -5,6 +5,7 @@ import (
 
 	commonhealth "github.com/huynhanx03/go-common/pkg/common/health"
 	commonwebsocket "github.com/huynhanx03/go-common/pkg/common/websocket"
+	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 	"github.com/huynhanx03/go-common/pkg/security/authorization"
 	"go.uber.org/zap"
 
@@ -42,7 +43,7 @@ func NewRealtimeContainer(
 		return nil, realtime.ErrInvalidConfig
 	}
 	options := buildHubOptions(browserOrigins, trustedProxies)
-	hub, err := commonwebsocket.NewHub(options)
+	hub, err := commonwebsocket.NewHub(commonlogger.Wrap(log), options)
 	if err != nil {
 		return nil, fmt.Errorf("initialize realtime websocket hub: %w", err)
 	}

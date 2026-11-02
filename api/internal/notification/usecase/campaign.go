@@ -11,8 +11,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
 	notificationdb "github.com/huynhanx03/judgify/internal/notification/adapters/driven/db"
@@ -265,7 +265,7 @@ func (service *campaignService) Get(
 	return service.response(ctx, view)
 }
 
-func (service *campaignService) List(
+func (service *campaignService) Find(
 	ctx context.Context,
 	request *contract.CampaignListRequest,
 ) (*contract.CampaignListResponse, error) {
@@ -286,7 +286,7 @@ func (service *campaignService) List(
 			query.Cursor = &cursor
 		}
 	}
-	page, err := service.repository.List(ctx, query)
+	page, err := service.repository.Find(ctx, query)
 	if err != nil {
 		return nil, campaignError(err)
 	}
@@ -462,7 +462,7 @@ func (service *campaignService) DryRun(
 	}, nil
 }
 
-func (service *campaignService) ListRecipients(
+func (service *campaignService) FindRecipients(
 	ctx context.Context,
 	request *contract.CampaignRecipientListRequest,
 ) (*contract.CampaignRecipientListResponse, error) {
@@ -483,7 +483,7 @@ func (service *campaignService) ListRecipients(
 		}
 		query.Cursor = &cursor
 	}
-	page, err := service.repository.ListRecipients(ctx, query)
+	page, err := service.repository.FindRecipients(ctx, query)
 	if err != nil {
 		return nil, campaignError(err)
 	}

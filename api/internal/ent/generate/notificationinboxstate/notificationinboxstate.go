@@ -11,6 +11,8 @@ const (
 	Label = "notification_inbox_state"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "user_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldVersion holds the string denoting the version field in the database.
 	FieldVersion = "version"
 	// FieldUnreadCount holds the string denoting the unread_count field in the database.
@@ -24,6 +26,7 @@ const (
 // Columns holds all SQL columns for notificationinboxstate fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldVersion,
 	FieldUnreadCount,
 	FieldUpdatedAt,
@@ -56,6 +59,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByVersion orders the results by the version field.

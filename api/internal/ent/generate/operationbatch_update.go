@@ -86,6 +86,9 @@ func (_u *OperationBatchUpdate) sqlSave(ctx context.Context) (_node int, err err
 			}
 		}
 	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(operationbatch.FieldTenantID, field.TypeUUID)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -195,6 +198,9 @@ func (_u *OperationBatchUpdateOne) sqlSave(ctx context.Context) (_node *Operatio
 				ps[i](selector)
 			}
 		}
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(operationbatch.FieldTenantID, field.TypeUUID)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &OperationBatch{config: _u.config}

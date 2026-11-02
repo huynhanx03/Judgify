@@ -20,6 +20,7 @@ type materialCategoryIDRequest struct {
 // MaterialCategoryResponse is the HTTP representation of a category.
 type MaterialCategoryResponse struct {
 	ID           string `json:"id"`
+	TenantID     string `json:"tenant_id"`
 	Name         string `json:"name"`
 	Description  string `json:"description,omitempty"`
 	ArticleCount int    `json:"article_count"`

@@ -220,7 +220,7 @@ func (repository *PublicProfileRepository) LoadPrivacyCommandReceipt(
 		return ports.ProfilePrivacyCommandReceipt{}, false,
 			ports.ErrInvalidProfilePrivacyCommand
 	}
-	record, err := repository.client.DB(ctx).OutboxEvent.Get(ctx, commandID)
+	record, err := repository.client.GetOutboxEvent(ctx, commandID)
 	if generate.IsNotFound(err) {
 		return ports.ProfilePrivacyCommandReceipt{}, false, nil
 	}

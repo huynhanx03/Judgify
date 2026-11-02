@@ -15,7 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/identity/attributevalue"
@@ -54,7 +54,7 @@ func (service *profileSchemaService) ResolveRequiredValues(
 	if err != nil {
 		return nil, err
 	}
-	definitions, err := service.repository.ListRequired(ctx)
+	definitions, err := service.repository.FindRequired(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func (service *profileSchemaService) GetOnboardingSchema(
 		if err != nil {
 			return err
 		}
-		definitions, err := service.repository.ListRequired(txCtx)
+		definitions, err := service.repository.FindRequired(txCtx)
 		if err != nil {
 			return err
 		}

@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"io"
 	nethttp "net/http"
 	"net/url"
@@ -706,14 +707,14 @@ func (verifier browserCSRFVerifier) Verify(
 	ctx context.Context,
 	request *nethttp.Request,
 ) error {
-	source, ok := middlewares.CredentialSourceFromContext(ctx)
+	source, ok := authmiddleware.CredentialSourceFromContext(ctx)
 	if !ok {
 		return errors.New("missing credential source")
 	}
-	if source == middlewares.CredentialBearer {
+	if source == authmiddleware.CredentialBearer {
 		return nil
 	}
-	if source != middlewares.CredentialCookie {
+	if source != authmiddleware.CredentialCookie {
 		return errors.New("unsupported credential source")
 	}
 	if err := verifier.config.requireTrustedBrowserMutation(request); err != nil {

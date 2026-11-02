@@ -22,6 +22,8 @@ type RatingProjectionGeneration struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// Status holds the value of the "status" field.
 	Status ratingprojectiongeneration.Status `json:"status,omitempty"`
 	// BasedOnProjectionRevision holds the value of the "based_on_projection_revision" field.
@@ -82,7 +84,7 @@ func (*RatingProjectionGeneration) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case ratingprojectiongeneration.FieldCreatedAt, ratingprojectiongeneration.FieldUpdatedAt, ratingprojectiongeneration.FieldVerifiedAt, ratingprojectiongeneration.FieldActivatedAt:
 			values[i] = new(sql.NullTime)
-		case ratingprojectiongeneration.FieldID:
+		case ratingprojectiongeneration.FieldID, ratingprojectiongeneration.FieldTenantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -116,6 +118,12 @@ func (_m *RatingProjectionGeneration) assignValues(columns []string, values []an
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case ratingprojectiongeneration.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case ratingprojectiongeneration.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -206,6 +214,9 @@ func (_m *RatingProjectionGeneration) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))

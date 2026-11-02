@@ -144,29 +144,35 @@ func validateAuthorizationSnapshot(
 	hasSuperadminWildcard := false
 
 	for _, rule := range snapshot.Rules {
-		if rule.V3 != "" || rule.V4 != "" || rule.V5 != "" {
+		if rule.V4 != "" || rule.V5 != "" {
 			return ErrInvalidAuthorizationMutation
+		}
+		if strings.HasPrefix(rule.V1, "tenant:") || strings.HasPrefix(rule.V2, "tenant:") {
+			if !validTenantAuthorizationRule(rule) {
+				return ErrInvalidAuthorizationMutation
+			}
+			continue
 		}
 		switch rule.Type {
 		case "p":
-			if rule.V2 == "" {
-				return ErrInvalidAuthorizationMutation
-			}
 			roleKey, ok := parseRoleSubject(rule.V0)
-			if !ok || rule.V1 == "" {
+			if !ok || rule.V3 == "" ||
+				(rule.V1 != authcasbin.SystemScope().Key() &&
+					!(roleKey == protectedSuperadminRoleKey && rule.V1 == "*" &&
+						rule.V2 == "*" && rule.V3 == "*")) {
 				return ErrInvalidAuthorizationMutation
 			}
 			roles[roleKey] = struct{}{}
-			if rule.V1 == "*" || rule.V2 == "*" {
-				if roleKey != protectedSuperadminRoleKey || rule.V1 != "*" || rule.V2 != "*" {
+			if rule.V2 == "*" || rule.V3 == "*" {
+				if roleKey != protectedSuperadminRoleKey || rule.V2 != "*" || rule.V3 != "*" {
 					return ErrInvalidAuthorizationMutation
 				}
 				hasSuperadminWildcard = true
-			} else if !permissions.Contains(rule.V1, rule.V2) {
+			} else if !permissions.Contains(rule.V2, rule.V3) {
 				return ErrInvalidAuthorizationMutation
 			}
 		case "g":
-			if rule.V2 != "" {
+			if rule.V2 != authcasbin.SystemScope().Key() || rule.V3 != "" {
 				return ErrInvalidAuthorizationMutation
 			}
 			parentKey, ok := parseRoleSubject(rule.V1)
@@ -189,6 +195,21 @@ func validateAuthorizationSnapshot(
 			users[userID] = struct{}{}
 			if parentKey == protectedSuperadminRoleKey {
 				superadminUsers[userID] = struct{}{}
+			}
+		case "g2":
+			roleKey, roleOK := parseRoleSubject(rule.V1)
+			userID, userOK := parseUserSubject(rule.V0)
+			if !roleOK || roleKey == protectedSuperadminRoleKey || !userOK || rule.V2 == "" ||
+				rule.V3 != "" || rule.V4 != "" || rule.V5 != "" ||
+				!validAuthorizationScopeValue(rule.V2) {
+				return ErrInvalidAuthorizationMutation
+			}
+			roles[roleKey] = struct{}{}
+			users[userID] = struct{}{}
+		case "g3":
+			if !validAuthorizationScopeKey(rule.V0) || !validAuthorizationScopeKey(rule.V1) ||
+				rule.V0 == rule.V1 || rule.V2 != "" || rule.V3 != "" {
+				return ErrInvalidAuthorizationMutation
 			}
 		default:
 			return ErrInvalidAuthorizationMutation
@@ -245,6 +266,43 @@ func validateAuthorizationSnapshot(
 	return nil
 }
 
+func validTenantAuthorizationRule(rule authcasbin.PolicyRule) bool {
+	validDomain := func(value string) bool {
+		if !strings.HasPrefix(value, "tenant:") {
+			return false
+		}
+		id, err := uuid.Parse(strings.TrimPrefix(value, "tenant:"))
+		return err == nil && id != uuid.Nil && id.String() == strings.TrimPrefix(value, "tenant:")
+	}
+	switch rule.Type {
+	case "p":
+		roleKey, ok := parseRoleSubject(rule.V0)
+		return ok && roleKey != protectedSuperadminRoleKey && validDomain(rule.V1) &&
+			permissions.Contains(rule.V2, rule.V3) && rule.V4 == "" && rule.V5 == ""
+	case "g":
+		_, userOK := parseUserSubject(rule.V0)
+		roleKey, roleOK := parseRoleSubject(rule.V1)
+		return userOK && roleOK && roleKey != protectedSuperadminRoleKey && validDomain(rule.V2) &&
+			rule.V3 == "" && rule.V4 == "" && rule.V5 == ""
+	default:
+		return false
+	}
+}
+
+func validAuthorizationScopeKey(value string) bool {
+	typeEnd := strings.IndexByte(value, ':')
+	if typeEnd <= 0 || typeEnd == len(value)-1 {
+		return false
+	}
+	scope := authorization.Scope{Type: value[:typeEnd], ID: value[typeEnd+1:]}
+	return scope.Validate() == nil && scope.Key() == value
+}
+
+func validAuthorizationScopeValue(value string) bool {
+	return len(value) <= 256 && strings.TrimSpace(value) == value &&
+		!strings.ContainsAny(value, "\r\n\x00")
+}
+
 // validateAuthorizationTransition applies actor-relative invariants that a
 // structurally valid Casbin snapshot cannot express by itself. Middleware is
 // only the first guard: every service mutation must independently prove that
@@ -295,6 +353,13 @@ func validateAuthorizationTransition(
 	}
 
 	added, removed := authorizationRuleDelta(before.Rules, after.Rules)
+	for _, rule := range append(append([]authcasbin.PolicyRule(nil), added...), removed...) {
+		if rule.Type == "g2" || rule.Type == "g3" {
+			// Relationship and scope-tree writes need resource-aware authorization
+			// workflows; the generic role-policy admin surface cannot mutate them.
+			return ErrAuthorizationPrivilegeEscalation
+		}
+	}
 	directSuperadmin := hasDirectRole(before.Rules, principal.Subject, protectedSuperadminRoleKey)
 	if touchesProtectedSuperadmin(added) || touchesProtectedSuperadmin(removed) {
 		if !directSuperadmin {
@@ -306,13 +371,13 @@ func validateAuthorizationTransition(
 		if rule.Type != "p" {
 			continue
 		}
-		if rule.V1 == "*" || rule.V2 == "*" {
+		if rule.V2 == "*" || rule.V3 == "*" {
 			if !directSuperadmin {
 				return ErrAuthorizationPrivilegeEscalation
 			}
 			continue
 		}
-		allowed, authorizeErr := runtimeAllows(ctx, beforeRuntime, principal, rule.V1, rule.V2)
+		allowed, authorizeErr := runtimeAllows(ctx, beforeRuntime, principal, rule.V2, rule.V3)
 		if authorizeErr != nil || !allowed {
 			return ErrAuthorizationPrivilegeEscalation
 		}
@@ -373,7 +438,8 @@ func validateSystemInitialRoleAssignment(
 	added, removed := authorizationRuleDelta(before.Rules, after.Rules)
 	if len(removed) != 0 || len(added) != 1 ||
 		added[0].Type != "g" || added[0].V0 != subject ||
-		added[0].V1 != roleSubject(defaultRoleKey) || added[0].V2 != "" {
+		added[0].V1 != roleSubject(defaultRoleKey) ||
+		added[0].V2 != authcasbin.SystemScope().Key() || added[0].V3 != "" {
 		return ErrUnauthorizedSystemAuthorizationMutation
 	}
 	return nil
@@ -406,7 +472,9 @@ func touchesProtectedSuperadmin(rules []authcasbin.PolicyRule) bool {
 	protected := roleSubject(protectedSuperadminRoleKey)
 	for _, rule := range rules {
 		if rule.Type == "p" && rule.V0 == protected ||
-			rule.Type == "g" && (rule.V0 == protected || rule.V1 == protected) {
+			rule.Type == "g2" && rule.V1 == protected ||
+			rule.Type == "g" && rule.V2 == authcasbin.SystemScope().Key() &&
+				(rule.V0 == protected || rule.V1 == protected) {
 			return true
 		}
 	}
@@ -416,7 +484,8 @@ func touchesProtectedSuperadmin(rules []authcasbin.PolicyRule) bool {
 func hasDirectRole(rules []authcasbin.PolicyRule, subject string, roleKey string) bool {
 	role := roleSubject(roleKey)
 	for _, rule := range rules {
-		if rule.Type == "g" && rule.V0 == subject && rule.V1 == role && rule.V2 == "" {
+		if rule.Type == "g" && rule.V0 == subject && rule.V1 == role &&
+			rule.V2 == authcasbin.SystemScope().Key() {
 			return true
 		}
 	}
@@ -430,7 +499,7 @@ func directRoleUserIDs(
 	role := roleSubject(roleKey)
 	seen := make(map[uuid.UUID]struct{})
 	for _, rule := range rules {
-		if rule.Type != "g" || rule.V1 != role || rule.V2 != "" {
+		if rule.Type != "g" || rule.V1 != role || rule.V2 != authcasbin.SystemScope().Key() {
 			continue
 		}
 		userID, ok := parseUserSubject(rule.V0)
@@ -444,7 +513,7 @@ func directRoleUserIDs(
 func subjectsWithAddedGrouping(rules []authcasbin.PolicyRule) []string {
 	seen := make(map[string]struct{})
 	for _, rule := range rules {
-		if rule.Type == "g" {
+		if rule.Type == "g" && rule.V2 == authcasbin.SystemScope().Key() {
 			seen[rule.V0] = struct{}{}
 		}
 	}
@@ -454,7 +523,7 @@ func subjectsWithAddedGrouping(rules []authcasbin.PolicyRule) []string {
 func roleKeysForSubject(rules []authcasbin.PolicyRule, subject string) []string {
 	roles := make([]string, 0)
 	for _, rule := range rules {
-		if rule.Type != "g" || rule.V0 != subject {
+		if rule.Type != "g" || rule.V0 != subject || rule.V2 != authcasbin.SystemScope().Key() {
 			continue
 		}
 		if role, ok := parseRoleSubject(rule.V1); ok {
@@ -482,6 +551,7 @@ func runtimeAllows(
 ) (bool, error) {
 	decision, err := runtime.Authorize(ctx, authorization.Request{
 		Principal: principal,
+		Scope:     authcasbin.SystemScope(),
 		Resource:  resource,
 		Action:    action,
 	})

@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ type OperationControlReceipt struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// OperationID holds the value of the "operation_id" field.
 	OperationID uuid.UUID `json:"operation_id,omitempty"`
 	// IdempotencyKey holds the value of the "idempotency_key" field.
@@ -35,7 +38,7 @@ type OperationControlReceipt struct {
 	// ResultingStatus holds the value of the "resulting_status" field.
 	ResultingStatus operationcontrolreceipt.ResultingStatus `json:"resulting_status,omitempty"`
 	// ResultProjection holds the value of the "result_projection" field.
-	ResultProjection json.RawMessage `json:"result_projection,omitempty"`
+	ResultProjection jsontext.Value `json:"result_projection,omitempty"`
 	// ActorUserID holds the value of the "actor_user_id" field.
 	ActorUserID uuid.UUID `json:"actor_user_id,omitempty"`
 	// ActorSessionID holds the value of the "actor_session_id" field.
@@ -75,6 +78,8 @@ func (*OperationControlReceipt) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case operationcontrolreceipt.FieldTenantID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case operationcontrolreceipt.FieldRequestHash, operationcontrolreceipt.FieldResultProjection:
 			values[i] = new([]byte)
 		case operationcontrolreceipt.FieldExpectedVersion, operationcontrolreceipt.FieldResultingVersion:
@@ -105,6 +110,13 @@ func (_m *OperationControlReceipt) assignValues(columns []string, values []any) 
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case operationcontrolreceipt.FieldTenantID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = new(uuid.UUID)
+				*_m.TenantID = *value.S.(*uuid.UUID)
 			}
 		case operationcontrolreceipt.FieldOperationID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -221,6 +233,11 @@ func (_m *OperationControlReceipt) String() string {
 	var builder strings.Builder
 	builder.WriteString("OperationControlReceipt(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("operation_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OperationID))
 	builder.WriteString(", ")

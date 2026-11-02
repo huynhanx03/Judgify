@@ -409,12 +409,12 @@ func (_q *ProgressionLedgerEntryQuery) WithRewardProfileRevision(opts ...func(*U
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ProgressionLedgerEntry.Query().
-//		GroupBy(progressionledgerentry.FieldUserID).
+//		GroupBy(progressionledgerentry.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ProgressionLedgerEntryQuery) GroupBy(field string, fields ...string) *ProgressionLedgerEntryGroupBy {
@@ -432,11 +432,11 @@ func (_q *ProgressionLedgerEntryQuery) GroupBy(field string, fields ...string) *
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ProgressionLedgerEntry.Query().
-//		Select(progressionledgerentry.FieldUserID).
+//		Select(progressionledgerentry.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ProgressionLedgerEntryQuery) Select(fields ...string) *ProgressionLedgerEntrySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

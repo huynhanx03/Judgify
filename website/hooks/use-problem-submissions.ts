@@ -4,6 +4,7 @@ import {
   userSubmissionsTopic,
 } from "@/constants/realtime";
 import { useRealtime } from "@/contexts/realtime-context";
+import { useOptionalTenant } from "@/contexts/tenant-context";
 import {
   REALTIME_TOPIC_STATE,
   type RealtimeTopicState,
@@ -125,6 +126,7 @@ export function useProblemSubmissions(
   userId: EntityID | null,
   contestId: EntityID | null = null,
 ): UseProblemSubmissionsResult {
+  const selectedTenantId = useOptionalTenant()?.selectedTenantId ?? null;
   const {
     subscribe,
     subscribeToTopic,
@@ -133,10 +135,12 @@ export function useProblemSubmissions(
     onTopicStateChange,
   } = useRealtime();
   const queryKey =
-    userId && problemId
-      ? JSON.stringify([userId, problemId, contestId])
+    userId && problemId && selectedTenantId
+      ? JSON.stringify([userId, problemId, contestId, selectedTenantId])
       : null;
-  const topic = userId && queryKey ? userSubmissionsTopic(userId) : null;
+  const topic = userId && queryKey && selectedTenantId
+    ? userSubmissionsTopic(userId, selectedTenantId)
+    : null;
   const [snapshot, setSnapshot] = useState<SubmissionSnapshot>({
     key: "",
     submissions: [],

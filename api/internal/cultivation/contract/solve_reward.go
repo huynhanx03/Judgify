@@ -14,7 +14,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
 
 	problementity "github.com/huynhanx03/judgify/internal/problem/domain"
@@ -53,6 +53,7 @@ type SolveRewardState struct {
 // reward facts, so stale duplicates can be distinguished from conflicts.
 type SolveRewardTransition struct {
 	EventID       uuid.UUID
+	TenantID      uuid.UUID
 	TransitionID  uuid.UUID
 	SolveID       uuid.UUID
 	UserID        uuid.UUID
@@ -69,7 +70,7 @@ type SolveRewardTransition struct {
 func DecodeSolveRewardTransition(
 	event submissioncontract.ProblemSolveStatusChangedV1,
 ) (SolveRewardTransition, error) {
-	if event.EventID == uuid.Nil || event.TransitionID == uuid.Nil ||
+	if event.EventID == uuid.Nil || event.TenantID == uuid.Nil || event.TransitionID == uuid.Nil ||
 		event.SolveID == uuid.Nil || event.UserID == uuid.Nil ||
 		event.ProblemID == uuid.Nil || event.Provenance != "live" ||
 		event.OccurredAt.IsZero() || correlation.Validate(event.CorrelationID) != nil {
@@ -92,7 +93,7 @@ func DecodeSolveRewardTransition(
 		return SolveRewardTransition{}, err
 	}
 	transition := SolveRewardTransition{
-		EventID: event.EventID, TransitionID: event.TransitionID,
+		EventID: event.EventID, TenantID: event.TenantID, TransitionID: event.TransitionID,
 		SolveID: event.SolveID, UserID: event.UserID, ProblemID: event.ProblemID,
 		Kind: kind, From: from, To: to, Provenance: event.Provenance,
 		OccurredAt: event.OccurredAt.UTC(), CorrelationID: event.CorrelationID,
@@ -256,6 +257,7 @@ func transitionDigest(value SolveRewardTransition) ([32]byte, error) {
 	document := struct {
 		Domain        string                    `json:"domain"`
 		EventID       uuid.UUID                 `json:"event_id"`
+		TenantID      uuid.UUID                 `json:"tenant_id"`
 		TransitionID  uuid.UUID                 `json:"transition_id"`
 		SolveID       uuid.UUID                 `json:"solve_id"`
 		UserID        uuid.UUID                 `json:"user_id"`
@@ -268,7 +270,7 @@ func transitionDigest(value SolveRewardTransition) ([32]byte, error) {
 		CorrelationID string                    `json:"correlation_id"`
 	}{
 		Domain:  "judgify.cultivation.solve-reward-transition.v1",
-		EventID: value.EventID, TransitionID: value.TransitionID,
+		EventID: value.EventID, TenantID: value.TenantID, TransitionID: value.TransitionID,
 		SolveID: value.SolveID, UserID: value.UserID, ProblemID: value.ProblemID,
 		Kind: value.Kind, From: state(value.From), To: state(value.To),
 		Provenance: value.Provenance, OccurredAt: value.OccurredAt.UTC(),

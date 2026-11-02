@@ -15,6 +15,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ports"
 	problementity "github.com/huynhanx03/judgify/internal/problem/domain"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/judging"
 )
 
@@ -47,6 +48,9 @@ func (repository *JobRepository) ReadJudgePlan(
 		return ports.JudgePlan{}, fmt.Errorf("begin judge plan read: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return ports.JudgePlan{}, err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return ports.JudgePlan{}, err
@@ -516,6 +520,9 @@ func (repository *JobRepository) ReadJudgeCase(
 		return ports.JudgeCasePayload{}, fmt.Errorf("begin judge case read: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return ports.JudgeCasePayload{}, err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return ports.JudgeCasePayload{}, err

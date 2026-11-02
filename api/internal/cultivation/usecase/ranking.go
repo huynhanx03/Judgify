@@ -47,7 +47,7 @@ func NewRankingService(
 	}, nil
 }
 
-func (service *rankingService) Page(
+func (service *rankingService) Find(
 	ctx context.Context,
 	kind entity.RankingKind,
 	encodedCursor string,
@@ -66,7 +66,7 @@ func (service *rankingService) Page(
 	if err != nil {
 		return nil, invalidRankingQuery(err)
 	}
-	page, err := service.projection.Page(ctx, ports.RankingProjectionQuery{
+	page, err := service.projection.Find(ctx, ports.RankingProjectionQuery{
 		Kind: kind, Cursor: cursor, Limit: limit,
 	})
 	if err != nil {

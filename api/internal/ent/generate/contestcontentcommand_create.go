@@ -26,6 +26,12 @@ type ContestContentCommandCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestContentCommandCreate) SetTenantID(v uuid.UUID) *ContestContentCommandCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetContestID sets the "contest_id" field.
 func (_c *ContestContentCommandCreate) SetContestID(v uuid.UUID) *ContestContentCommandCreate {
 	_c.mutation.SetContestID(v)
@@ -203,6 +209,9 @@ func (_c *ContestContentCommandCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ContestContentCommandCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestContentCommand.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`generate: missing required field "ContestContentCommand.contest_id"`)}
 	}
@@ -280,6 +289,10 @@ func (_c *ContestContentCommandCreate) createSpec() (*ContestContentCommand, *sq
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestcontentcommand.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.CommandKind(); ok {
 		_spec.SetField(contestcontentcommand.FieldCommandKind, field.TypeEnum, value)
@@ -362,7 +375,7 @@ func (_c *ContestContentCommandCreate) createSpec() (*ContestContentCommand, *sq
 // of the `INSERT` statement. For example:
 //
 //	client.ContestContentCommand.Create().
-//		SetContestID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -371,7 +384,7 @@ func (_c *ContestContentCommandCreate) createSpec() (*ContestContentCommand, *sq
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestContentCommandUpsert) {
-//			SetContestID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestContentCommandCreate) OnConflict(opts ...sql.ConflictOption) *ContestContentCommandUpsertOne {
@@ -519,6 +532,9 @@ func (u *ContestContentCommandUpsertOne) UpdateNewValues() *ContestContentComman
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(contestcontentcommand.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestcontentcommand.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ContestID(); exists {
 			s.SetIgnore(contestcontentcommand.FieldContestID)
@@ -820,7 +836,7 @@ func (_c *ContestContentCommandCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestContentCommandUpsert) {
-//			SetContestID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestContentCommandCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContestContentCommandUpsertBulk {
@@ -866,6 +882,9 @@ func (u *ContestContentCommandUpsertBulk) UpdateNewValues() *ContestContentComma
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(contestcontentcommand.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestcontentcommand.FieldTenantID)
 			}
 			if _, exists := b.mutation.ContestID(); exists {
 				s.SetIgnore(contestcontentcommand.FieldContestID)

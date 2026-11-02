@@ -54,6 +54,12 @@ func (_c *RatingRunChainCreate) SetNillableUpdatedAt(v *time.Time) *RatingRunCha
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RatingRunChainCreate) SetTenantID(v uuid.UUID) *RatingRunChainCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *RatingRunChainCreate) SetStatus(v ratingrunchain.Status) *RatingRunChainCreate {
 	_c.mutation.SetStatus(v)
@@ -239,6 +245,9 @@ func (_c *RatingRunChainCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "RatingRunChain.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "RatingRunChain.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "RatingRunChain.status"`)}
 	}
@@ -303,6 +312,10 @@ func (_c *RatingRunChainCreate) createSpec() (*RatingRunChain, *sqlgraph.CreateS
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(ratingrunchain.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(ratingrunchain.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(ratingrunchain.FieldStatus, field.TypeEnum, value)
@@ -527,6 +540,9 @@ func (u *RatingRunChainUpsertOne) UpdateNewValues() *RatingRunChainUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(ratingrunchain.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(ratingrunchain.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.BasedOnChainID(); exists {
 			s.SetIgnore(ratingrunchain.FieldBasedOnChainID)
@@ -859,6 +875,9 @@ func (u *RatingRunChainUpsertBulk) UpdateNewValues() *RatingRunChainUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(ratingrunchain.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(ratingrunchain.FieldTenantID)
 			}
 			if _, exists := b.mutation.BasedOnChainID(); exists {
 				s.SetIgnore(ratingrunchain.FieldBasedOnChainID)

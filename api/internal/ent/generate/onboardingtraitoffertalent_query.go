@@ -338,12 +338,12 @@ func (_q *OnboardingTraitOfferTalentQuery) WithTrait(opts ...func(*TraitQuery)) 
 // Example:
 //
 //	var v []struct {
-//		OfferID uuid.UUID `json:"offer_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.OnboardingTraitOfferTalent.Query().
-//		GroupBy(onboardingtraitoffertalent.FieldOfferID).
+//		GroupBy(onboardingtraitoffertalent.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *OnboardingTraitOfferTalentQuery) GroupBy(field string, fields ...string) *OnboardingTraitOfferTalentGroupBy {
@@ -361,11 +361,11 @@ func (_q *OnboardingTraitOfferTalentQuery) GroupBy(field string, fields ...strin
 // Example:
 //
 //	var v []struct {
-//		OfferID uuid.UUID `json:"offer_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.OnboardingTraitOfferTalent.Query().
-//		Select(onboardingtraitoffertalent.FieldOfferID).
+//		Select(onboardingtraitoffertalent.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *OnboardingTraitOfferTalentQuery) Select(fields ...string) *OnboardingTraitOfferTalentSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

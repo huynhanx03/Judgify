@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	intake "github.com/huynhanx03/judgify/internal/application/workflow/submissionintake"
 	contestcontract "github.com/huynhanx03/judgify/internal/contest/contract"
@@ -18,6 +18,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/platform/audit"
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
+	"github.com/huynhanx03/judgify/internal/platform/tracing"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
 	entity "github.com/huynhanx03/judgify/internal/submission/domain"
@@ -614,10 +615,10 @@ func insertReadyJudgeJob(
 	result, err := client.Submission.ExecContext(ctx, `
 INSERT INTO judge_jobs
     (id, submission_id, generation, judge_spec_id, lane, base_priority,
-     state, available_at, attempts, max_attempts, origin_cid,
+     state, available_at, attempts, max_attempts, origin_cid, origin_traceparent,
      created_at, updated_at)
 VALUES
-    ($1, $2, 1, $3, $4, 0, 'ready', $5, 0, $6, $7, $5, $5)`,
+    ($1, $2, 1, $3, $4, 0, 'ready', $5, 0, $6, $7, NULLIF($8, ''), $5, $5)`,
 		jobID,
 		submissionID,
 		judgeSpecID,
@@ -625,6 +626,7 @@ VALUES
 		accepted.SubmittedAt,
 		int64(maxAttempts),
 		accepted.Command.CorrelationID,
+		tracing.CaptureTraceparent(ctx),
 	)
 	if err != nil {
 		return fmt.Errorf("insert ready judge job: %w", err)

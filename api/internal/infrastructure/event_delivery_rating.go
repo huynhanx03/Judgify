@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
 
 	contestcontract "github.com/huynhanx03/judgify/internal/contest/contract"

@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -153,13 +153,13 @@ func (_u *OperationUpdate) AddNextBatchSequence(v int64) *OperationUpdate {
 }
 
 // SetCheckpoint sets the "checkpoint" field.
-func (_u *OperationUpdate) SetCheckpoint(v json.RawMessage) *OperationUpdate {
+func (_u *OperationUpdate) SetCheckpoint(v jsontext.Value) *OperationUpdate {
 	_u.mutation.SetCheckpoint(v)
 	return _u
 }
 
 // AppendCheckpoint appends value to the "checkpoint" field.
-func (_u *OperationUpdate) AppendCheckpoint(v json.RawMessage) *OperationUpdate {
+func (_u *OperationUpdate) AppendCheckpoint(v jsontext.Value) *OperationUpdate {
 	_u.mutation.AppendCheckpoint(v)
 	return _u
 }
@@ -524,6 +524,9 @@ func (_u *OperationUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(operation.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(operation.FieldTenantID, field.TypeUUID)
+	}
 	if _u.mutation.ActorSessionIDCleared() {
 		_spec.ClearField(operation.FieldActorSessionID, field.TypeUUID)
 	}
@@ -850,13 +853,13 @@ func (_u *OperationUpdateOne) AddNextBatchSequence(v int64) *OperationUpdateOne 
 }
 
 // SetCheckpoint sets the "checkpoint" field.
-func (_u *OperationUpdateOne) SetCheckpoint(v json.RawMessage) *OperationUpdateOne {
+func (_u *OperationUpdateOne) SetCheckpoint(v jsontext.Value) *OperationUpdateOne {
 	_u.mutation.SetCheckpoint(v)
 	return _u
 }
 
 // AppendCheckpoint appends value to the "checkpoint" field.
-func (_u *OperationUpdateOne) AppendCheckpoint(v json.RawMessage) *OperationUpdateOne {
+func (_u *OperationUpdateOne) AppendCheckpoint(v jsontext.Value) *OperationUpdateOne {
 	_u.mutation.AppendCheckpoint(v)
 	return _u
 }
@@ -1250,6 +1253,9 @@ func (_u *OperationUpdateOne) sqlSave(ctx context.Context) (_node *Operation, er
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(operation.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(operation.FieldTenantID, field.TypeUUID)
 	}
 	if _u.mutation.ActorSessionIDCleared() {
 		_spec.ClearField(operation.FieldActorSessionID, field.TypeUUID)

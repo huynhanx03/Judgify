@@ -16,6 +16,8 @@ const (
 	Label = "cultivation_ranking_projection"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldPublicID holds the string denoting the public_id field in the database.
@@ -58,6 +60,7 @@ const (
 // Columns holds all SQL columns for cultivationrankingprojection fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldUserID,
 	FieldPublicID,
 	FieldVisibility,
@@ -149,6 +152,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByUserID orders the results by the user_id field.

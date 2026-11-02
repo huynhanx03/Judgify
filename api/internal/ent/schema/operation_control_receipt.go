@@ -28,6 +28,7 @@ func (OperationControlReceipt) Mixin() []ent.Mixin {
 func (OperationControlReceipt) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(commonent.NewUUID).Immutable(),
+		field.UUID("tenant_id", uuid.UUID{}).Optional().Nillable().Immutable(),
 		field.UUID("operation_id", uuid.UUID{}).Immutable(),
 		field.UUID("idempotency_key", uuid.UUID{}).Immutable(),
 		field.Bytes("request_hash").NotEmpty().MaxLen(32).Immutable().Sensitive(),

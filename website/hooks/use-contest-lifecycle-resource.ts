@@ -2,10 +2,12 @@
 
 import { useEffect } from "react";
 import {
-  contestLifecycleTopic,
+  COMMUNITY_TENANT_ID,
   EVENT_CONTEST_LIFECYCLE_CHANGED_V1,
+  tenantContestLifecycleTopic,
 } from "@/constants/realtime";
 import { useRealtime } from "@/contexts/realtime-context";
+import { useOptionalTenant } from "@/contexts/tenant-context";
 import { useRetryableResource } from "@/hooks/use-retryable-resource";
 import { parseContestInvalidationV1Envelope } from "@/lib/realtime/contest-event-schema";
 import { REALTIME_TOPIC_STATE } from "@/lib/realtime/websocket-client";
@@ -28,6 +30,7 @@ export function useContestLifecycleResource<T>({
   initialData,
   load,
 }: UseContestLifecycleResourceOptions<T>) {
+  const tenantID = useOptionalTenant()?.selectedTenantId ?? COMMUNITY_TENANT_ID;
   const {
     subscribe,
     subscribeToTopic,
@@ -50,7 +53,7 @@ export function useContestLifecycleResource<T>({
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") retry();
     };
-    const topic = contestLifecycleTopic();
+    const topic = tenantContestLifecycleTopic(tenantID);
     const allowedTopics = new Set([topic]);
     const removeEvent = subscribe<unknown>(
       EVENT_CONTEST_LIFECYCLE_CHANGED_V1,
@@ -101,6 +104,7 @@ export function useContestLifecycleResource<T>({
     retry,
     subscribe,
     subscribeToTopic,
+    tenantID,
   ]);
 
   return resource;

@@ -2,11 +2,11 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 
 	"github.com/huynhanx03/judgify/pkg/permissions"
 )
@@ -63,14 +63,14 @@ func (h *CultivationHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 }
 
 // RegisterProtected registers all cultivation protected routes.
-func (h *CultivationHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.AuthorizationChecker) {
+func (h *CultivationHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *authmiddleware.AuthorizationChecker) {
 	rewardProfile := r.Group("/reward-profile")
 	{
 		rewardProfile.GET("", cultivationNoStore, handler.WrapNoReq(h.RewardProfileHandler.CurrentSelf))
 	}
 	progression := r.Group("/progression")
 	{
-		progression.GET("/ledger", cultivationNoStore, handler.Wrap(h.ProgressionHandler.ListMyLedger))
+		progression.GET("/ledger", cultivationNoStore, handler.Wrap(h.ProgressionHandler.FindMyLedger))
 	}
 	rankingPrivacy := r.Group("/ranking/privacy")
 	{
@@ -84,7 +84,7 @@ func (h *CultivationHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChec
 		adminCultivation.GET(
 			"/progression/ledger",
 			permChecker.RequirePermission(permissions.ResourceKeyCultivationLedger, permissions.PermissionScopeRead),
-			handler.Wrap(h.ProgressionHandler.ListLedger),
+			handler.Wrap(h.ProgressionHandler.FindLedger),
 		)
 		adminCultivation.POST(
 			"/ranking/reconciliation/preview",
@@ -114,7 +114,7 @@ func (h *CultivationHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChec
 		adminCultivation.GET(
 			"/reward-rules",
 			permChecker.RequirePermission(permissions.ResourceKeyCultivationReward, permissions.PermissionScopeRead),
-			handler.Wrap(h.RewardRuleHandler.List),
+			handler.Wrap(h.RewardRuleHandler.Find),
 		)
 		adminCultivation.POST(
 			"/reward-rules/preview",

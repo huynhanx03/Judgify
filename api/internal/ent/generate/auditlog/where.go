@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 )
@@ -55,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEQ(FieldTenantID, v))
+}
+
 // ActorUserID applies equality check predicate on the "actor_user_id" field. It's identical to ActorUserIDEQ.
 func ActorUserID(v uuid.UUID) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldEQ(FieldActorUserID, v))
@@ -98,6 +104,36 @@ func OccurredAt(v time.Time) predicate.AuditLog {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNotNull(FieldTenantID))
 }
 
 // ActorUserIDEQ applies the EQ predicate on the "actor_user_id" field.
@@ -603,6 +639,29 @@ func CreatedAtLT(v time.Time) predicate.AuditLog {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// HasTenant applies the HasEdge predicate on the "tenant" edge.
+func HasTenant() predicate.AuditLog {
+	return predicate.AuditLog(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, TenantTable, TenantColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTenantWith applies the HasEdge predicate on the "tenant" edge with a given conditions (other predicates).
+func HasTenantWith(preds ...predicate.Tenant) predicate.AuditLog {
+	return predicate.AuditLog(func(s *sql.Selector) {
+		step := newTenantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

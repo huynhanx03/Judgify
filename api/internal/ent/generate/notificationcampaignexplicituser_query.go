@@ -338,12 +338,12 @@ func (_q *NotificationCampaignExplicitUserQuery) WithUser(opts ...func(*UserQuer
 // Example:
 //
 //	var v []struct {
-//		CampaignRevisionID uuid.UUID `json:"campaign_revision_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.NotificationCampaignExplicitUser.Query().
-//		GroupBy(notificationcampaignexplicituser.FieldCampaignRevisionID).
+//		GroupBy(notificationcampaignexplicituser.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *NotificationCampaignExplicitUserQuery) GroupBy(field string, fields ...string) *NotificationCampaignExplicitUserGroupBy {
@@ -361,11 +361,11 @@ func (_q *NotificationCampaignExplicitUserQuery) GroupBy(field string, fields ..
 // Example:
 //
 //	var v []struct {
-//		CampaignRevisionID uuid.UUID `json:"campaign_revision_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.NotificationCampaignExplicitUser.Query().
-//		Select(notificationcampaignexplicituser.FieldCampaignRevisionID).
+//		Select(notificationcampaignexplicituser.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *NotificationCampaignExplicitUserQuery) Select(fields ...string) *NotificationCampaignExplicitUserSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

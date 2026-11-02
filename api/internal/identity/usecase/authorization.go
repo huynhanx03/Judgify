@@ -8,14 +8,15 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
+	commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	"github.com/huynhanx03/go-common/pkg/logger"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"github.com/huynhanx03/go-common/pkg/security/authorization"
@@ -27,25 +28,13 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/audit"
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
 	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/permissions"
 )
 
-const casbinRBACModel = `
-[request_definition]
-r = sub, obj, act
+var casbinRBACModel = authcasbin.SharedModel()
 
-[policy_definition]
-p = sub, obj, act
-
-[role_definition]
-g = _, _
-
-[policy_effect]
-e = some(where (p.eft == allow))
-
-[matchers]
-m = g(r.sub, p.sub) && (p.obj == "*" || r.obj == p.obj) && (p.act == "*" || r.act == p.act)
-`
+const authorizationRuntimeCacheTTL = 15 * time.Minute
 
 var authorizationAggregateID = uuid.MustParse("00000000-0000-5000-8000-000000000001")
 
@@ -54,23 +43,24 @@ type transactionCompletionRegistrar interface {
 }
 
 type authorizationView struct {
-	revision              int64
-	rolePolicies          map[string][]dto.PolicyRule
-	userRoles             map[uuid.UUID][]string
-	effectiveCapabilities map[uuid.UUID][]dto.CapabilityGrant
+	revision     int64
+	rolePolicies map[string][]dto.PolicyRule
+	roleParents  map[string][]string
 }
 
 type authorizationService struct {
 	authorizationReconcilerState
-	repository   ports.AuthorizationPolicyRepository
-	txManager    tx.Manager
-	completion   transactionCompletionRegistrar
-	audit        audit.Appender
-	outbox       eventing.OutboxAppender
-	runtime      *authcasbin.Runtime
-	view         atomic.Pointer[authorizationView]
-	mutationGate sync.Mutex
-	log          *zap.Logger
+	repository    ports.AuthorizationPolicyRepository
+	txManager     tx.Manager
+	completion    transactionCompletionRegistrar
+	audit         audit.Appender
+	outbox        eventing.OutboxAppender
+	runtime       *authcasbin.Runtime
+	runtimeCache  *authcasbin.RuntimeCache
+	relationCache *authorizationRelationCache
+	view          atomic.Pointer[authorizationView]
+	mutationGate  sync.Mutex
+	log           *zap.Logger
 }
 
 type authorizationMutation struct {
@@ -98,9 +88,10 @@ func NewAuthorizationService(
 	auditAppender audit.Appender,
 	outboxAppender eventing.OutboxAppender,
 	log *zap.Logger,
+	sharedCache *commoncache.Cache,
 ) (*authorizationService, error) {
 	if ctx == nil || repository == nil || txManager == nil || auditAppender == nil ||
-		outboxAppender == nil || log == nil {
+		outboxAppender == nil || log == nil || sharedCache == nil {
 		return nil, ErrInvalidAuthorizationMutation
 	}
 	completion, ok := txManager.(transactionCompletionRegistrar)
@@ -123,21 +114,30 @@ func NewAuthorizationService(
 	if err := validateAuthorizationSnapshot(ctx, repository, snapshot, nil); err != nil {
 		return nil, fmt.Errorf("validate persisted authorization snapshot: %w", err)
 	}
-	runtime, err := authcasbin.NewRuntime(snapshot)
+	runtime, err := authcasbin.NewRuntime(systemAuthorizationSnapshot(snapshot))
 	if err != nil {
 		return nil, fmt.Errorf("initialize authorization runtime: %w", err)
+	}
+	runtimeCache, err := authcasbin.NewRuntimeCache(sharedCache, authorizationRuntimeCacheTTL)
+	if err != nil {
+		return nil, fmt.Errorf("initialize authorization runtime cache: %w", err)
 	}
 	service := &authorizationService{
 		authorizationReconcilerState: authorizationReconcilerState{
 			reconcilerStop: make(chan struct{}),
 		},
-		repository: repository,
-		txManager:  txManager,
-		completion: completion,
-		audit:      auditAppender,
-		outbox:     outboxAppender,
-		runtime:    runtime,
-		log:        log,
+		repository:   repository,
+		txManager:    txManager,
+		completion:   completion,
+		audit:        auditAppender,
+		outbox:       outboxAppender,
+		runtime:      runtime,
+		runtimeCache: runtimeCache,
+		relationCache: newAuthorizationRelationCache(
+			authorizationMembershipCacheCapacity,
+			authorizationResourceCacheCapacity,
+		),
+		log: log,
 	}
 	service.view.Store(newAuthorizationView(snapshot.Revision, snapshot.Rules))
 	return service, nil
@@ -164,7 +164,131 @@ func (service *authorizationService) Authorize(
 		}
 		request.Principal.Subject = userSubject(userID)
 	}
-	return service.runtime.Authorize(ctx, request)
+	var aggregateTenantScope tenantctx.Scope
+	if request.Scope == (authorization.Scope{}) {
+		if scope, ok := tenantctx.FromContext(ctx); ok {
+			if scope.IsTenant() {
+				if tenantID, exists := scope.TenantID(); exists {
+					request.Scope = authorization.Scope{Type: "tenant", ID: tenantID.String()}
+				}
+			} else if scope.IsAll() {
+				aggregateTenantScope = scope
+			}
+		}
+		if request.Scope == (authorization.Scope{}) {
+			if !aggregateTenantScope.IsAll() {
+				request.Scope = authcasbin.SystemScope()
+			}
+		}
+	}
+	if aggregateTenantScope.IsAll() {
+		var decision authorization.Decision
+		var err error
+		for _, tenantID := range aggregateTenantScope.TenantIDs() {
+			scopedRequest := request
+			scopedRequest.Scope = authorization.Scope{Type: "tenant", ID: tenantID.String()}
+			decision, err = service.authorizeInScope(ctx, scopedRequest)
+			if err != nil || !decision.Allowed {
+				return decision, err
+			}
+		}
+		return decision, nil
+	}
+	return service.authorizeInScope(ctx, request)
+}
+
+func (service *authorizationService) authorizeInScope(
+	ctx context.Context,
+	request authorization.Request,
+) (authorization.Decision, error) {
+	runtime, err := service.runtimeForScope(ctx, request.Scope)
+	if err != nil {
+		reason := authorization.ReasonEvaluationError
+		if errors.Is(err, authorization.ErrInvalidRequest) {
+			reason = authorization.ReasonInvalidRequest
+		}
+		return authorization.Decision{
+			Allowed:  false,
+			Reason:   reason,
+			Revision: service.runtime.AppliedRevision(),
+		}, err
+	}
+	var relations []authcasbin.PolicyRule
+	if request.Principal.Authenticated {
+		userID, parseErr := uuid.Parse(request.Principal.UserID)
+		if request.Principal.UserID == "" {
+			userID, parseErr = uuid.Parse(strings.TrimPrefix(request.Principal.Subject, "user:"))
+		}
+		if parseErr != nil || userID == uuid.Nil {
+			return authorization.Decision{Allowed: false, Reason: authorization.ReasonInvalidRequest, Revision: runtime.AppliedRevision()}, authorization.ErrInvalidRequest
+		}
+		relations, err = service.subjectRelations(
+			ctx,
+			request.Scope,
+			userID,
+			request.ResourceID,
+			runtime.AppliedRevision(),
+		)
+		if err != nil {
+			return authorization.Decision{Allowed: false, Reason: authorization.ReasonEvaluationError, Revision: runtime.AppliedRevision()}, err
+		}
+	}
+	decision, err := runtime.AuthorizeWithRelations(ctx, request, relations)
+	if err != nil {
+		return decision, err
+	}
+	if service.runtime.Healthy() != nil || service.runtime.AppliedRevision() != runtime.AppliedRevision() {
+		return authorization.Decision{
+			Allowed:  false,
+			Reason:   authorization.ReasonEvaluationError,
+			Revision: runtime.AppliedRevision(),
+		}, authcasbin.ErrUnhealthy
+	}
+	return decision, nil
+}
+
+func (service *authorizationService) runtimeForScope(
+	ctx context.Context,
+	scope authorization.Scope,
+) (*authcasbin.Runtime, error) {
+	if service == nil || service.runtime == nil || service.repository == nil || ctx == nil || scope.Validate() != nil {
+		return nil, authorization.ErrInvalidRequest
+	}
+	if scope.Type != "tenant" && scope != authcasbin.SystemScope() {
+		return nil, authorization.ErrInvalidRequest
+	}
+	if err := service.runtime.Healthy(); err != nil {
+		return nil, err
+	}
+	if scope == authcasbin.SystemScope() {
+		return service.runtime, nil
+	}
+	if service.runtimeCache == nil {
+		return nil, authcasbin.ErrUnhealthy
+	}
+	revision := service.runtime.AppliedRevision()
+	runtime, err := service.runtimeCache.Fetch(ctx, scope, revision, func(ctx context.Context) (authcasbin.Snapshot, error) {
+		rules, err := service.repository.LoadScopedRules(ctx, casbinRBACModel, scope, revision)
+		if err != nil {
+			return authcasbin.Snapshot{}, err
+		}
+		return authcasbin.Snapshot{Revision: revision, Model: casbinRBACModel, Rules: rules}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if service.runtime.AppliedRevision() != revision || service.runtime.Healthy() != nil {
+		return nil, authcasbin.ErrUnhealthy
+	}
+	return runtime, nil
+}
+
+func (service *authorizationService) refreshRuntimeCache() error {
+	if service == nil || service.runtime == nil || service.runtimeCache == nil || service.relationCache == nil {
+		return authcasbin.ErrUnhealthy
+	}
+	service.relationCache.invalidateAll()
+	return nil
 }
 
 func canonicalUserID(principal authentication.Principal) (string, error) {
@@ -208,8 +332,20 @@ func (service *authorizationService) EffectiveCapabilities(
 	if err != nil {
 		return nil, err
 	}
-	snapshot := effectiveCapabilitiesSnapshot(view, userID)
-	logger.FromContext(ctx).Debug(
+	relations, err := service.subjectRelations(ctx, authcasbin.SystemScope(), userID, "", view.revision)
+	if err != nil {
+		return nil, err
+	}
+	roles := roleKeysFromRelations(relations, authcasbin.SystemScope().Key())
+	capabilities := catalogCapabilitiesForRoles(
+		expandInheritedRoles(roles, view.roleParents),
+		view.rolePolicies,
+	)
+	snapshot := &dto.EffectiveCapabilitiesResponse{
+		Revision:     view.revision,
+		Capabilities: capabilities,
+	}
+	logger.Wrap(service.log).Debug(ctx,
 		"effective authorization capabilities resolved",
 		zap.String("user_id", userID.String()),
 		zap.Int64("authorization_revision", snapshot.Revision),
@@ -275,7 +411,7 @@ func (service *authorizationService) PreviewRolePolicies(
 			state.DesiredRevision,
 		)
 	}
-	existing, err := service.repository.ListRules(ctx)
+	existing, err := service.repository.FindRules(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -338,8 +474,9 @@ func replaceRolePolicyRules(
 		result = append(result, authcasbin.PolicyRule{
 			Type: "p",
 			V0:   subject,
-			V1:   rule.Resource,
-			V2:   rule.Action,
+			V1:   authcasbin.SystemScope().Key(),
+			V2:   rule.Resource,
+			V3:   rule.Action,
 		})
 	}
 	return result
@@ -362,6 +499,7 @@ func replaceUserRoleRules(
 			Type: "g",
 			V0:   subject,
 			V1:   roleSubject(role),
+			V2:   authcasbin.SystemScope().Key(),
 		})
 	}
 	return result
@@ -417,7 +555,11 @@ func (service *authorizationService) GetUserRoleSnapshot(
 	if err != nil {
 		return nil, err
 	}
-	return userRoleSnapshot(view, userID), nil
+	relations, err := service.subjectRelations(ctx, authcasbin.SystemScope(), userID, "", view.revision)
+	if err != nil {
+		return nil, err
+	}
+	return userRoleSnapshot(view.revision, roleKeysFromRelations(relations, authcasbin.SystemScope().Key())), nil
 }
 
 // EnsureCanDeactivateUser serializes account deactivation against policy
@@ -436,7 +578,7 @@ func (service *authorizationService) EnsureCanDeactivateUser(
 	if err != nil {
 		return err
 	}
-	rules, err := service.repository.ListRules(ctx)
+	rules, err := service.repository.FindRules(ctx)
 	if err != nil {
 		return err
 	}
@@ -498,7 +640,7 @@ func (service *authorizationService) PreviewUserRoles(
 			state.DesiredRevision,
 		)
 	}
-	existing, err := service.repository.ListRules(ctx)
+	existing, err := service.repository.FindRules(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -529,7 +671,7 @@ func (service *authorizationService) PreviewUserRoles(
 	if err := validateAuthorizationTransition(ctx, base, candidate, actor, nil); err != nil {
 		return nil, mapAuthorizationMutationError(err, expectedRevision)
 	}
-	before := userRoleSnapshot(view, userID)
+	before := userRoleSnapshot(expectedRevision, roleKeysForUser(existing, userID))
 	afterRoles := append([]string(nil), normalized...)
 	return &dto.UserRolePreview{
 		UserID:            userID,
@@ -666,8 +808,9 @@ func (service *authorizationService) replaceRolePolicies(
 				persisted = append(persisted, authcasbin.PolicyRule{
 					Type: "p",
 					V0:   roleSubject(roleKey),
-					V1:   rule.Resource,
-					V2:   rule.Action,
+					V1:   authcasbin.SystemScope().Key(),
+					V2:   rule.Resource,
+					V3:   rule.Action,
 				})
 			}
 			if err := service.repository.ReplaceRolePolicies(txCtx, roleSubject(roleKey), persisted); err != nil {
@@ -1001,7 +1144,7 @@ func (service *authorizationService) setUserRoles(
 	if err != nil {
 		return nil, err
 	}
-	return userRoleSnapshot(view, userID), nil
+	return userRoleSnapshot(view.revision, normalized), nil
 }
 
 func (service *authorizationService) DeleteRole(ctx context.Context, roleKey string) error {
@@ -1052,7 +1195,6 @@ func (service *authorizationService) mutate(
 			service.mutationGate.Unlock()
 		}
 	}()
-	ctx = correlation.EnsureContext(ctx)
 	var committedView *authorizationView
 	err := service.txManager.DoInTx(ctx, func(txCtx context.Context) error {
 		state, err := service.repository.LockState(txCtx)
@@ -1065,7 +1207,7 @@ func (service *authorizationService) mutate(
 		if mutation.expectedRevision != nil && *mutation.expectedRevision != state.DesiredRevision {
 			return conflictAuthorization(ErrAuthorizationRevisionConflict, state.DesiredRevision)
 		}
-		existing, err := service.repository.ListRules(txCtx)
+		existing, err := service.repository.FindRules(txCtx)
 		if err != nil {
 			return fmt.Errorf("load authorization mutation base: %w", err)
 		}
@@ -1073,7 +1215,7 @@ func (service *authorizationService) mutate(
 		if err != nil {
 			return err
 		}
-		candidateRules, err := service.repository.ListRules(txCtx)
+		candidateRules, err := service.repository.FindRules(txCtx)
 		if err != nil {
 			return fmt.Errorf("load authorization candidate: %w", err)
 		}
@@ -1100,7 +1242,7 @@ func (service *authorizationService) mutate(
 		); err != nil {
 			return mapAuthorizationMutationError(err, state.DesiredRevision)
 		}
-		prepared, err := service.runtime.Prepare(txCtx, candidate)
+		prepared, err := service.runtime.Prepare(txCtx, systemAuthorizationSnapshot(candidate))
 		if err != nil {
 			return fmt.Errorf("prepare authorization snapshot: %w", err)
 		}
@@ -1182,8 +1324,11 @@ func (service *authorizationService) mutate(
 					}
 					return fmt.Errorf("publish authorization revision: %w", err)
 				}
+				if err := service.refreshRuntimeCache(); err != nil {
+					return fmt.Errorf("refresh authorization runtime cache: %w", err)
+				}
 				service.storeViewIfNewer(publishedView)
-				logger.FromContext(callbackCtx).Info(
+				logger.Wrap(service.log).Info(callbackCtx,
 					"authorization snapshot published",
 					zap.Int64("authorization_revision", nextRevision),
 				)
@@ -1307,6 +1452,25 @@ func cloneAuthorizationRules(rules []authcasbin.PolicyRule) []authcasbin.PolicyR
 	return append([]authcasbin.PolicyRule(nil), rules...)
 }
 
+func systemAuthorizationSnapshot(snapshot authcasbin.Snapshot) authcasbin.Snapshot {
+	rules := make([]authcasbin.PolicyRule, 0, len(snapshot.Rules))
+	for _, rule := range snapshot.Rules {
+		switch rule.Type {
+		case "p":
+			if rule.V1 == authcasbin.SystemScope().Key() || rule.V1 == "*" {
+				rules = append(rules, rule)
+			}
+		case "g":
+			_, childRole := parseRoleSubject(rule.V0)
+			_, parentRole := parseRoleSubject(rule.V1)
+			if childRole && parentRole && rule.V2 == authcasbin.SystemScope().Key() {
+				rules = append(rules, rule)
+			}
+		}
+	}
+	return authcasbin.Snapshot{Revision: snapshot.Revision, Model: snapshot.Model, Rules: rules}
+}
+
 func rolePolicySnapshot(view *authorizationView, roleKey string) *dto.RolePolicySnapshot {
 	rules := view.rolePolicies[roleKey]
 	return &dto.RolePolicySnapshot{
@@ -1315,59 +1479,52 @@ func rolePolicySnapshot(view *authorizationView, roleKey string) *dto.RolePolicy
 	}
 }
 
-func userRoleSnapshot(view *authorizationView, userID uuid.UUID) *dto.UserRoleSnapshot {
-	roles := view.userRoles[userID]
+func userRoleSnapshot(revision int64, roles []string) *dto.UserRoleSnapshot {
 	return &dto.UserRoleSnapshot{
-		Revision: view.revision,
+		Revision: revision,
 		Roles:    append([]string(nil), roles...),
 	}
 }
 
 func newAuthorizationView(revision int64, rules []authcasbin.PolicyRule) *authorizationView {
 	view := &authorizationView{
-		revision:              revision,
-		rolePolicies:          make(map[string][]dto.PolicyRule),
-		userRoles:             make(map[uuid.UUID][]string),
-		effectiveCapabilities: make(map[uuid.UUID][]dto.CapabilityGrant),
+		revision:     revision,
+		rolePolicies: make(map[string][]dto.PolicyRule),
+		roleParents:  make(map[string][]string),
 	}
-	roleParents := make(map[string][]string)
 	for _, rule := range rules {
 		switch rule.Type {
 		case "p":
+			if rule.V1 != authcasbin.SystemScope().Key() && rule.V1 != "*" {
+				continue
+			}
 			roleKey, ok := parseRoleSubject(rule.V0)
 			if !ok {
 				continue
 			}
 			view.rolePolicies[roleKey] = append(view.rolePolicies[roleKey], dto.PolicyRule{
 				RoleKey:  roleKey,
-				Resource: rule.V1,
-				Action:   rule.V2,
+				Resource: rule.V2,
+				Action:   rule.V3,
 			})
 		case "g":
+			if rule.V2 != authcasbin.SystemScope().Key() {
+				continue
+			}
 			parentRole, parentOK := parseRoleSubject(rule.V1)
 			if !parentOK {
 				continue
 			}
 			if childRole, childOK := parseRoleSubject(rule.V0); childOK {
-				roleParents[childRole] = append(roleParents[childRole], parentRole)
-				continue
+				view.roleParents[childRole] = append(view.roleParents[childRole], parentRole)
 			}
-			userID, userOK := parseUserSubject(rule.V0)
-			if !userOK {
-				continue
-			}
-			view.userRoles[userID] = append(view.userRoles[userID], parentRole)
 		}
 	}
 	for roleKey := range view.rolePolicies {
 		slices.SortFunc(view.rolePolicies[roleKey], comparePolicyDTO)
 	}
-	for userID := range view.userRoles {
-		slices.Sort(view.userRoles[userID])
-		view.effectiveCapabilities[userID] = catalogCapabilitiesForRoles(
-			expandInheritedRoles(view.userRoles[userID], roleParents),
-			view.rolePolicies,
-		)
+	for roleKey := range view.roleParents {
+		slices.Sort(view.roleParents[roleKey])
 	}
 	return view
 }
@@ -1430,33 +1587,29 @@ func rolesGrantCapability(
 	return false
 }
 
-func effectiveCapabilitiesSnapshot(
-	view *authorizationView,
-	userID uuid.UUID,
-) *dto.EffectiveCapabilitiesResponse {
-	capabilities := view.effectiveCapabilities[userID]
-	cloned := make([]dto.CapabilityGrant, len(capabilities))
-	for index, capability := range capabilities {
-		cloned[index] = dto.CapabilityGrant{
-			Resource: capability.Resource,
-			Actions:  append([]string(nil), capability.Actions...),
+func roleKeysFromRelations(relations []authcasbin.PolicyRule, scope string) []string {
+	roles := make([]string, 0, len(relations))
+	for _, relation := range relations {
+		if relation.Type == "g" && relation.V2 == scope {
+			if role, ok := parseRoleSubject(relation.V1); ok {
+				roles = append(roles, role)
+			}
 		}
 	}
-	return &dto.EffectiveCapabilitiesResponse{
-		Revision:     view.revision,
-		Capabilities: cloned,
-	}
+	slices.Sort(roles)
+	return slices.Compact(roles)
 }
 
 func policyDTOsForRole(rules []authcasbin.PolicyRule, roleKey string) []dto.PolicyRule {
 	result := make([]dto.PolicyRule, 0)
 	subject := roleSubject(roleKey)
 	for _, rule := range rules {
-		if rule.Type == "p" && rule.V0 == subject {
+		if rule.Type == "p" && rule.V0 == subject &&
+			(rule.V1 == authcasbin.SystemScope().Key() || rule.V1 == "*") {
 			result = append(result, dto.PolicyRule{
 				RoleKey:  roleKey,
-				Resource: rule.V1,
-				Action:   rule.V2,
+				Resource: rule.V2,
+				Action:   rule.V3,
 			})
 		}
 	}
@@ -1468,7 +1621,7 @@ func roleKeysForUser(rules []authcasbin.PolicyRule, userID uuid.UUID) []string {
 	result := make([]string, 0)
 	subject := userSubject(userID.String())
 	for _, rule := range rules {
-		if rule.Type == "g" && rule.V0 == subject {
+		if rule.Type == "g" && rule.V0 == subject && rule.V2 == authcasbin.SystemScope().Key() {
 			if role, ok := parseRoleSubject(rule.V1); ok {
 				result = append(result, role)
 			}

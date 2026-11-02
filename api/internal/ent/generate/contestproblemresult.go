@@ -27,6 +27,8 @@ type ContestProblemResult struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
 	ContestID uuid.UUID `json:"contest_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -140,7 +142,7 @@ func (*ContestProblemResult) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case contestproblemresult.FieldCreatedAt, contestproblemresult.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case contestproblemresult.FieldID, contestproblemresult.FieldContestID, contestproblemresult.FieldUserID, contestproblemresult.FieldProblemID, contestproblemresult.FieldContestProblemID:
+		case contestproblemresult.FieldID, contestproblemresult.FieldTenantID, contestproblemresult.FieldContestID, contestproblemresult.FieldUserID, contestproblemresult.FieldProblemID, contestproblemresult.FieldContestProblemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -174,6 +176,12 @@ func (_m *ContestProblemResult) assignValues(columns []string, values []any) err
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case contestproblemresult.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contestproblemresult.FieldContestID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -310,6 +318,9 @@ func (_m *ContestProblemResult) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ContestID))

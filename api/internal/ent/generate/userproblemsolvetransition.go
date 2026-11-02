@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -19,6 +20,8 @@ type UserProblemSolveTransition struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// EventID holds the value of the "event_id" field.
@@ -54,9 +57,9 @@ type UserProblemSolveTransition struct {
 	// ToProblemRevisionID holds the value of the "to_problem_revision_id" field.
 	ToProblemRevisionID *uuid.UUID `json:"to_problem_revision_id,omitempty"`
 	// FromRewardFacts holds the value of the "from_reward_facts" field.
-	FromRewardFacts json.RawMessage `json:"from_reward_facts,omitempty"`
+	FromRewardFacts jsontext.Value `json:"from_reward_facts,omitempty"`
 	// ToRewardFacts holds the value of the "to_reward_facts" field.
-	ToRewardFacts json.RawMessage `json:"to_reward_facts,omitempty"`
+	ToRewardFacts jsontext.Value `json:"to_reward_facts,omitempty"`
 	// FromRewardFactsChecksum holds the value of the "from_reward_facts_checksum" field.
 	FromRewardFactsChecksum *[]byte `json:"from_reward_facts_checksum,omitempty"`
 	// ToRewardFactsChecksum holds the value of the "to_reward_facts_checksum" field.
@@ -97,7 +100,7 @@ func (*UserProblemSolveTransition) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case userproblemsolvetransition.FieldCreatedAt, userproblemsolvetransition.FieldFromSolvedAt, userproblemsolvetransition.FieldToSolvedAt, userproblemsolvetransition.FieldOccurredAt:
 			values[i] = new(sql.NullTime)
-		case userproblemsolvetransition.FieldID, userproblemsolvetransition.FieldEventID, userproblemsolvetransition.FieldSolveID, userproblemsolvetransition.FieldUserID, userproblemsolvetransition.FieldProblemID:
+		case userproblemsolvetransition.FieldID, userproblemsolvetransition.FieldTenantID, userproblemsolvetransition.FieldEventID, userproblemsolvetransition.FieldSolveID, userproblemsolvetransition.FieldUserID, userproblemsolvetransition.FieldProblemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -119,6 +122,12 @@ func (_m *UserProblemSolveTransition) assignValues(columns []string, values []an
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case userproblemsolvetransition.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case userproblemsolvetransition.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -354,6 +363,9 @@ func (_m *UserProblemSolveTransition) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserProblemSolveTransition(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

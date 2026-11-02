@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 
 	"github.com/huynhanx03/judgify/pkg/permissions"
 )
@@ -20,7 +20,7 @@ func (h *ProblemHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 	problems := r.Group("/problems")
 	{
 		problems.POST("/find", handler.Wrap(h.ProblemHandler.Find))
-		problems.GET("/:id/samples", handler.Wrap(h.TestCaseHandler.FindPublicSamples))
+		problems.GET("/:id/samples", handler.Wrap(h.TestCaseHandler.FindSamplesForPublic))
 		problems.GET("/:id", handler.Wrap(h.ProblemHandler.Get))
 	}
 
@@ -35,18 +35,18 @@ func (h *ProblemHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 	}
 }
 
-func (h *ProblemHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.AuthorizationChecker) {
+func (h *ProblemHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *authmiddleware.AuthorizationChecker) {
 	adminProblems := r.Group("/admin/problems")
 	{
-		adminProblems.POST("/find", permChecker.RequirePermission(permissions.ResourceKeyProblem, permissions.PermissionScopeRead), handler.Wrap(h.ProblemHandler.FindAdmin))
+		adminProblems.POST("/find", permChecker.RequirePermission(permissions.ResourceKeyProblem, permissions.PermissionScopeRead), handler.Wrap(h.ProblemHandler.FindForAdmin))
 		adminProblems.GET(
 			"/authoring/catalog",
 			permChecker.RequireAnyPermission(
-				middlewares.PermissionRequirement{
+				authmiddleware.PermissionRequirement{
 					Resource: permissions.ResourceKeyProblem,
 					Action:   permissions.PermissionScopeCreate,
 				},
-				middlewares.PermissionRequirement{
+				authmiddleware.PermissionRequirement{
 					Resource: permissions.ResourceKeyProblem,
 					Action:   permissions.PermissionScopeUpdate,
 				},

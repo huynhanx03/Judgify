@@ -14,7 +14,8 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/tx"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 	"github.com/huynhanx03/go-common/pkg/oauth"
-	authenticationjwt "github.com/huynhanx03/go-common/pkg/security/authentication/jwt"
+	authenticationjwt "github.com/huynhanx03/go-common/pkg/security/authentication"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/application/workflow/admincommand"
 	"github.com/huynhanx03/judgify/internal/application/workflow/attributeadmin"
@@ -35,6 +36,11 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/operation"
 	"github.com/huynhanx03/judgify/internal/ports"
 	rootports "github.com/huynhanx03/judgify/internal/ports"
+	tenantdb "github.com/huynhanx03/judgify/internal/tenant/adapters/driven/db"
+	tenanthttp "github.com/huynhanx03/judgify/internal/tenant/adapters/driver/http"
+	"github.com/huynhanx03/judgify/internal/tenant/domain"
+	tenantusecase "github.com/huynhanx03/judgify/internal/tenant/usecase"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/settings"
 )
 
@@ -44,8 +50,8 @@ type RegistrationLifecycleFactory func() (rootports.RegistrationLifecycle, error
 // by identity composition. The domain never reads ambient mutable state.
 type IdentityDependencies struct {
 	Database       *internalent.EntClient
-	Cache          cache.LocalCache[string, any]
-	Logger         *commonlogger.LoggerZap
+	Cache          *cache.Cache
+	Logger         *commonlogger.Logger
 	Authentication settings.Authentication
 	JWT            settings.JWT
 	AdminCommand   settings.AdminCommand
@@ -95,7 +101,6 @@ type IdentityContainer struct {
 	UserInvitation       ports.UserInvitationService
 	ProfileSchemaService ports.ProfileSchemaService
 	PublicProfileService ports.PublicProfileService
-	CacheService         ports.CacheService
 }
 
 // NewIdentityContainer creates a new IdentityContainer.
@@ -111,7 +116,7 @@ func NewIdentityContainer(
 		return nil, fmt.Errorf("initialize identity: nil context")
 	}
 	if dependencies.Database == nil || dependencies.Database.Client() == nil ||
-		dependencies.Cache == nil || dependencies.Logger == nil || dependencies.Logger.Logger == nil ||
+		dependencies.Cache == nil || dependencies.Logger == nil ||
 		txMgr == nil || registrationFactory == nil || operationComponents == nil ||
 		operationComponents.Starter == nil || operationRegistry == nil {
 		return nil, fmt.Errorf("initialize identity: required application dependencies are unavailable")
@@ -125,7 +130,11 @@ func NewIdentityContainer(
 	roleRepo := db.NewRoleRepository(client)
 	attrDefRepo := db.NewAttributeDefinitionRepository(client)
 	profileSchemaRepo := db.NewProfileSchemaRepository(client)
-	if err := profileSchemaRepo.Ensure(ctx); err != nil {
+	communityScope, err := tenantctx.Tenant(domain.CommunityID)
+	if err != nil {
+		return nil, fmt.Errorf("initialize Community tenant scope: %w", err)
+	}
+	if err := profileSchemaRepo.Ensure(tenantctx.WithContext(ctx, communityScope)); err != nil {
 		return nil, fmt.Errorf("initialize profile schema fence: %w", err)
 	}
 	publicProfileRepo, err := db.NewPublicProfileRepository(client)
@@ -155,7 +164,6 @@ func NewIdentityContainer(
 	}
 
 	// Services
-	cacheService := service.NewCacheService(localCache)
 	auditRepository := audit.NewRepository()
 	securityMutationJournal, err := securityjournal.New(
 		auditRepository,
@@ -187,7 +195,8 @@ func NewIdentityContainer(
 		txMgr,
 		auditRepository,
 		eventing.NewOutbox(),
-		dependencies.Logger.Named("authorization"),
+		zap.New(dependencies.Logger.Core()).Named("authorization"),
+		dependencies.Cache,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("initialize authorization service: %w", err)
@@ -387,7 +396,6 @@ func NewIdentityContainer(
 		oauthProviders,
 		caches.IdentityRole,
 		localCache,
-		cacheService,
 		txMgr,
 		service.WithTokenLifecycle(tokenLifecycle),
 		service.WithPasswordResetLifecycle(passwordReset),
@@ -398,7 +406,7 @@ func NewIdentityContainer(
 		service.WithOAuthDurableLifecycle(oauthDurableRepo, oauthProtector),
 	)
 	roleService := service.NewRoleService(
-		roleRepo, authzService, cacheService, txMgr, caches.IdentityRole,
+		roleRepo, authzService, txMgr, caches.IdentityRole,
 		service.WithRoleLifecycle(auditRepository, eventing.NewOutbox()),
 	)
 	authorizationConfirmations, err := admincommand.NewConfirmationProtector(
@@ -514,6 +522,8 @@ func NewIdentityContainer(
 	}
 
 	// Handlers
+	tenantRepository := tenantdb.NewTenantRepository(client)
+	tenantService := tenantusecase.NewTenant(tenantRepository, nil)
 	identityHandler := &http.IdentityHandler{
 		AuthorizationHandler:       http.NewAuthorizationHandler(authorizationRuntime),
 		RoleHandler:                http.NewRoleHandler(roleService, authorizationWorkflow, roleMetadataWorkflow),
@@ -530,6 +540,7 @@ func NewIdentityContainer(
 		ProfileSchemaHandler: http.NewProfileSchemaHandler(profileSchemaService),
 		PublicProfileHandler: publicProfileHandler,
 		UserInvitation:       userInvitationService,
+		TenantHandler:        tenanthttp.NewHandler(tenantService),
 		BrowserSession:       browserSession,
 	}
 
@@ -571,7 +582,6 @@ func NewIdentityContainer(
 		UserInvitation:       userInvitationService,
 		ProfileSchemaService: profileSchemaService,
 		PublicProfileService: publicProfileService,
-		CacheService:         cacheService,
 	}, nil
 }
 
@@ -622,7 +632,7 @@ func browserSessionConfig(
 func accessTokenCodec(
 	config settings.Authentication,
 	jwtConfig settings.JWT,
-) (*authenticationjwt.Issuer, *authenticationjwt.Verifier, error) {
+) (*authenticationjwt.Issuer, *authenticationjwt.JWTVerifier, error) {
 	issuer, err := authenticationjwt.NewIssuer(authenticationjwt.IssuerOptions{
 		Issuer:     config.Issuer,
 		Audience:   config.Audience,
@@ -635,7 +645,7 @@ func accessTokenCodec(
 	}
 	verifier, err := authenticationjwt.NewVerifier(
 		authenticationjwt.KeySet{
-			Active: map[string]*rsa.PublicKey{config.SigningKeyID: jwtConfig.PublicKey},
+			VerificationKeys: map[string]*rsa.PublicKey{config.SigningKeyID: jwtConfig.PublicKey},
 		},
 		authenticationjwt.VerifierOptions{
 			Issuer:   config.Issuer,

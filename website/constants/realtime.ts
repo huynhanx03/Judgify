@@ -107,6 +107,12 @@ export function contestLifecycleTopic(): string {
   ].join(":");
 }
 
+export const COMMUNITY_TENANT_ID = "00000000-0000-5000-8000-000000000001";
+
+export function tenantContestLifecycleTopic(tenantId: string): string {
+  return [REALTIME_PROTOCOL.TOPIC_CONTEST, "lifecycle", tenantId].join(":");
+}
+
 export function contestPublicTopic(contestId: string): string {
   return [REALTIME_PROTOCOL.TOPIC_CONTEST, contestId, "public"].join(":");
 }
@@ -135,7 +141,15 @@ export function contestPrivateUserTopic(
   ].join(":");
 }
 
-export function userSubmissionsTopic(userId: string): string {
+export function userSubmissionsTopic(userId: string, tenantId?: string): string {
+  if (tenantId) {
+    return [
+      REALTIME_PROTOCOL.TOPIC_USER,
+      tenantId,
+      userId,
+      REALTIME_PROTOCOL.TOPIC_SUBMISSIONS,
+    ].join(":");
+  }
   return [
     REALTIME_PROTOCOL.TOPIC_USER,
     userId,
@@ -150,8 +164,10 @@ export function authorizationCapabilitiesTopic(): string {
   ].join(":");
 }
 
-export function notificationsTopic(userId: string): string {
-  return [REALTIME_PROTOCOL.TOPIC_NOTIFICATIONS, userId].join(":");
+export function notificationsTopic(userId: string, tenantId?: string): string {
+  return tenantId
+    ? [REALTIME_PROTOCOL.TOPIC_NOTIFICATIONS, tenantId, userId].join(":")
+    : [REALTIME_PROTOCOL.TOPIC_NOTIFICATIONS, userId].join(":");
 }
 
 /** Shared realtime behavior policy; feature hooks do not own timing constants. */

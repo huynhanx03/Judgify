@@ -1,14 +1,104 @@
 groups:
+  - name: judgify-telemetry
+    rules:
+      - alert: JudgifyApplicationTargetUnavailable
+        expr: up{job=~"judgify-api|judgify-worker|judgify-envoy|judgify-website|judgify-alloy"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} scrape target is unavailable"
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/telemetry-coverage.md
+          threshold: "up = 0 for 2m"
+          receiver: local-null
+      - alert: JudgifyApplicationTargetMissing
+        expr: absent(up{job="judgify-api"}) or absent(up{job="judgify-worker"}) or absent(up{job="judgify-envoy"}) or absent(up{job="judgify-website"}) or absent(up{job="judgify-alloy"})
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Required Judgify scrape target is missing from Prometheus
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/telemetry-coverage.md
+          threshold: "target absent for 2m"
+          receiver: local-null
+      - alert: JudgifyWebsiteUnavailable
+        expr: judgify_website_up{job="judgify-website"} == 0 or absent(judgify_website_up{job="judgify-website"})
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Website metrics are missing or the website reports unavailable
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/api-availability.md
+          threshold: "website unavailable for 2m"
+          receiver: local-null
+      - alert: JudgifyOutboxLagHigh
+        expr: max(judgify_outbox_oldest_pending_seconds) > 60
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Oldest deliverable outbox event exceeds 60 seconds
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/outbox-lag.md
+          threshold: "60 seconds for 5m"
+          receiver: local-null
+      - alert: JudgifyOutboxDeadEvents
+        expr: max(judgify_outbox_events{state="dead"}) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Durable outbox has dead events
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/outbox-lag.md
+          threshold: "at least one for 1m"
+          receiver: local-null
+      - alert: JudgifyDatabasePoolWaits
+        expr: increase(judgify_database_pool_connections{state="wait_count"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Database pool wait count increased repeatedly
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/capacity-pressure.md
+          threshold: "more than 10 waits per 5m for 5m"
+          receiver: local-null
+      - alert: JudgifyTraceExportFailures
+        expr: sum(increase(otelcol_exporter_send_failed_spans_total[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Alloy failed to export spans to Tempo
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
+          runbook: ops/runbooks/telemetry-coverage.md
+          threshold: "at least one failed span over 5m for 5m"
+          receiver: local-null
   - name: judgify-core
     rules:
       - alert: JudgifyAPIHighErrorRate
-        expr: sum(rate(judgify_http_requests_total{status_class="5xx"}[5m])) / clamp_min(sum(rate(judgify_http_requests_total[5m])), 1) > 0.01
+        expr: (sum(rate(judgify_http_requests_total{status_class="5xx"}[5m])) / clamp_min(sum(rate(judgify_http_requests_total[5m])), 1e-9) > 0.01) and (sum(increase(judgify_http_requests_total[5m])) >= 20)
         for: 5m
         labels:
           severity: critical
         annotations:
           summary: Judgify API 5xx error rate exceeds 1%
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
           runbook: ops/runbooks/api-availability.md
+          threshold: "1% with at least 20 requests per 5m, sustained for 5m"
+          receiver: local-null
       - alert: JudgifyAPIHighLatency
         expr: histogram_quantile(0.95, sum by (le) (rate(judgify_http_request_duration_seconds_bucket[10m]))) > 0.5
         for: 10m
@@ -16,7 +106,11 @@ groups:
           severity: warning
         annotations:
           summary: Judgify API p95 exceeds 500 ms
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
           runbook: ops/runbooks/api-availability.md
+          threshold: "500 ms for 10m"
+          receiver: local-null
       - alert: JudgifyJudgeQueueAgeHigh
         expr: max(judgify_judge_oldest_ready_job_seconds) > 120
         for: 5m
@@ -24,7 +118,11 @@ groups:
           severity: critical
         annotations:
           summary: Judgify judge queue age exceeds 120 seconds
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
           runbook: ops/runbooks/judge-queue.md
+          threshold: "120 seconds for 5m"
+          receiver: local-null
       - alert: JudgifyJudgeCapacityUnavailable
         expr: max(judgify_judge_worker_capacity{kind="free"}) < 1
         for: 2m
@@ -32,5 +130,8 @@ groups:
           severity: critical
         annotations:
           summary: Judgify has no free judge worker capacity
+          owner: Judgify operator
+          dashboard: /d/judgify-service-overview
           runbook: ops/runbooks/judge-queue.md
-
+          threshold: "no free capacity for 2m"
+          receiver: local-null

@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -32,7 +33,7 @@ type RealtimeEvent struct {
 	// OccurredAt holds the value of the "occurred_at" field.
 	OccurredAt time.Time `json:"occurred_at,omitempty"`
 	// Data holds the value of the "data" field.
-	Data json.RawMessage `json:"data,omitempty"`
+	Data jsontext.Value `json:"data,omitempty"`
 	// DeliveryClass holds the value of the "delivery_class" field.
 	DeliveryClass realtimeevent.DeliveryClass `json:"delivery_class,omitempty"`
 	// CoalesceKey holds the value of the "coalesce_key" field.

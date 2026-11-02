@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -140,13 +140,13 @@ func (_u *UserProblemSolveUpdate) ClearActiveProblemRevisionID() *UserProblemSol
 }
 
 // SetRewardFacts sets the "reward_facts" field.
-func (_u *UserProblemSolveUpdate) SetRewardFacts(v json.RawMessage) *UserProblemSolveUpdate {
+func (_u *UserProblemSolveUpdate) SetRewardFacts(v jsontext.Value) *UserProblemSolveUpdate {
 	_u.mutation.SetRewardFacts(v)
 	return _u
 }
 
 // AppendRewardFacts appends value to the "reward_facts" field.
-func (_u *UserProblemSolveUpdate) AppendRewardFacts(v json.RawMessage) *UserProblemSolveUpdate {
+func (_u *UserProblemSolveUpdate) AppendRewardFacts(v jsontext.Value) *UserProblemSolveUpdate {
 	_u.mutation.AppendRewardFacts(v)
 	return _u
 }
@@ -538,13 +538,13 @@ func (_u *UserProblemSolveUpdateOne) ClearActiveProblemRevisionID() *UserProblem
 }
 
 // SetRewardFacts sets the "reward_facts" field.
-func (_u *UserProblemSolveUpdateOne) SetRewardFacts(v json.RawMessage) *UserProblemSolveUpdateOne {
+func (_u *UserProblemSolveUpdateOne) SetRewardFacts(v jsontext.Value) *UserProblemSolveUpdateOne {
 	_u.mutation.SetRewardFacts(v)
 	return _u
 }
 
 // AppendRewardFacts appends value to the "reward_facts" field.
-func (_u *UserProblemSolveUpdateOne) AppendRewardFacts(v json.RawMessage) *UserProblemSolveUpdateOne {
+func (_u *UserProblemSolveUpdateOne) AppendRewardFacts(v jsontext.Value) *UserProblemSolveUpdateOne {
 	_u.mutation.AppendRewardFacts(v)
 	return _u
 }

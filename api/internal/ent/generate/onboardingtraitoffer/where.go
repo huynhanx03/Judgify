@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.OnboardingTraitOffer {
 	return predicate.OnboardingTraitOffer(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldEQ(FieldTenantID, v))
+}
+
 // PreSessionID applies equality check predicate on the "pre_session_id" field. It's identical to PreSessionIDEQ.
 func PreSessionID(v uuid.UUID) predicate.OnboardingTraitOffer {
 	return predicate.OnboardingTraitOffer(sql.FieldEQ(FieldPreSessionID, v))
@@ -114,6 +119,46 @@ func ConsumedByUserID(v uuid.UUID) predicate.OnboardingTraitOffer {
 // ConsumedAt applies equality check predicate on the "consumed_at" field. It's identical to ConsumedAtEQ.
 func ConsumedAt(v time.Time) predicate.OnboardingTraitOffer {
 	return predicate.OnboardingTraitOffer(sql.FieldEQ(FieldConsumedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.OnboardingTraitOffer {
+	return predicate.OnboardingTraitOffer(sql.FieldLTE(FieldTenantID, v))
 }
 
 // PreSessionIDEQ applies the EQ predicate on the "pre_session_id" field.

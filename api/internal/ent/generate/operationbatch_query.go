@@ -302,12 +302,12 @@ func (_q *OperationBatchQuery) WithOperation(opts ...func(*OperationQuery)) *Ope
 // Example:
 //
 //	var v []struct {
-//		OperationID uuid.UUID `json:"operation_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.OperationBatch.Query().
-//		GroupBy(operationbatch.FieldOperationID).
+//		GroupBy(operationbatch.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *OperationBatchQuery) GroupBy(field string, fields ...string) *OperationBatchGroupBy {
@@ -325,11 +325,11 @@ func (_q *OperationBatchQuery) GroupBy(field string, fields ...string) *Operatio
 // Example:
 //
 //	var v []struct {
-//		OperationID uuid.UUID `json:"operation_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.OperationBatch.Query().
-//		Select(operationbatch.FieldOperationID).
+//		Select(operationbatch.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *OperationBatchQuery) Select(fields ...string) *OperationBatchSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

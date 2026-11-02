@@ -7,7 +7,8 @@ data "external_schema" "judgify" {
   program = [
     "go",
     "run",
-    "./cmd/atlas-schema",
+    "./cmd/migrate",
+    "schema",
   ]
   working_dir = "."
 }
@@ -17,6 +18,6 @@ env "local" {
   dev = var.dev_url
 
   migration {
-    dir = "file://internal/ent/migrate/migrations"
+    dir = "file://migration"
   }
 }

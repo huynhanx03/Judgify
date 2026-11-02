@@ -38,8 +38,8 @@ loki.write "default" {
   }
 }
 
-// Applications export OTLP only to this host-local collector. Alloy owns the
-// retry queue and forwards traces across the private ops network to Tempo.
+// Applications export OTLP to this collector on the private telemetry network.
+// The queue is bounded so a Tempo outage cannot grow exporter memory without limit.
 otelcol.receiver.otlp "judgify" {
   grpc {}
   http {}
@@ -55,5 +55,15 @@ otelcol.exporter.otlp "tempo" {
     tls {
       insecure = true
     }
+  }
+  sending_queue {
+    enabled           = true
+    queue_size        = 256
+    num_consumers     = 2
+    block_on_overflow = false
+  }
+  retry_on_failure {
+    enabled          = true
+    max_elapsed_time = "2m"
   }
 }

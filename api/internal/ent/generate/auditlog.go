@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/auditlog"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 )
 
 // AuditLog is the model entity for the AuditLog schema.
@@ -19,6 +21,8 @@ type AuditLog struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// ActorUserID holds the value of the "actor_user_id" field.
 	ActorUserID *uuid.UUID `json:"actor_user_id,omitempty"`
 	// ActorSessionID holds the value of the "actor_session_id" field.
@@ -32,16 +36,39 @@ type AuditLog struct {
 	// Reason holds the value of the "reason" field.
 	Reason string `json:"reason,omitempty"`
 	// BeforeData holds the value of the "before_data" field.
-	BeforeData json.RawMessage `json:"before_data,omitempty"`
+	BeforeData jsontext.Value `json:"before_data,omitempty"`
 	// AfterData holds the value of the "after_data" field.
-	AfterData json.RawMessage `json:"after_data,omitempty"`
+	AfterData jsontext.Value `json:"after_data,omitempty"`
 	// CorrelationID holds the value of the "correlation_id" field.
 	CorrelationID string `json:"correlation_id,omitempty"`
 	// OccurredAt holds the value of the "occurred_at" field.
 	OccurredAt time.Time `json:"occurred_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AuditLogQuery when eager-loading is set.
+	Edges        AuditLogEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// AuditLogEdges holds the relations/edges for other nodes in the graph.
+type AuditLogEdges struct {
+	// Tenant holds the value of the tenant edge.
+	Tenant *Tenant `json:"tenant,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// TenantOrErr returns the Tenant value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AuditLogEdges) TenantOrErr() (*Tenant, error) {
+	if e.Tenant != nil {
+		return e.Tenant, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: tenant.Label}
+	}
+	return nil, &NotLoadedError{edge: "tenant"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -49,7 +76,7 @@ func (*AuditLog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case auditlog.FieldActorUserID, auditlog.FieldActorSessionID:
+		case auditlog.FieldTenantID, auditlog.FieldActorUserID, auditlog.FieldActorSessionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case auditlog.FieldBeforeData, auditlog.FieldAfterData:
 			values[i] = new([]byte)
@@ -79,6 +106,13 @@ func (_m *AuditLog) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case auditlog.FieldTenantID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = new(uuid.UUID)
+				*_m.TenantID = *value.S.(*uuid.UUID)
 			}
 		case auditlog.FieldActorUserID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -165,6 +199,11 @@ func (_m *AuditLog) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
+// QueryTenant queries the "tenant" edge of the AuditLog entity.
+func (_m *AuditLog) QueryTenant() *TenantQuery {
+	return NewAuditLogClient(_m.config).QueryTenant(_m)
+}
+
 // Update returns a builder for updating this AuditLog.
 // Note that you need to call AuditLog.Unwrap() before calling this method if this AuditLog
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -188,6 +227,11 @@ func (_m *AuditLog) String() string {
 	var builder strings.Builder
 	builder.WriteString("AuditLog(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	if v := _m.ActorUserID; v != nil {
 		builder.WriteString("actor_user_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))

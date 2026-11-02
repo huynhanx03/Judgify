@@ -73,7 +73,7 @@ export default function AdminProgressionPage() {
 		if (!canReadLedger || !userID.trim()) return;
 		setLedgerLoading(true);
 		try {
-			const page = await progressionService.listLedger(userID.trim(), cursor);
+			const page = await progressionService.findLedger(userID.trim(), cursor);
 			setEntries((current) => cursor ? [...current, ...page.entries] : page.entries);
 			setLedgerCursor(page.next_cursor);
 			setLedgerLoaded(true);
@@ -89,7 +89,7 @@ export default function AdminProgressionPage() {
 		setRulesLoading(true);
 		setRulesError(null);
 		try {
-			const page = await progressionService.listRewardRules(cursor);
+			const page = await progressionService.findRewardRules(cursor);
 			setRules((current) => cursor ? [...current, ...page.rules] : page.rules);
 			setRulesCursor(page.next_cursor);
 		} catch (error) {

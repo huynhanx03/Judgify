@@ -28,7 +28,7 @@ export function AdminRecentAudit() {
     initialData: [],
     keepPreviousData: true,
     load: async (signal) =>
-      (await auditService.list({ limit: AUDIT_RECENT_LIMIT }, signal)).items,
+      (await auditService.find({ limit: AUDIT_RECENT_LIMIT }, signal)).items,
   });
   const items = recentResource.data;
   const error = recentResource.error

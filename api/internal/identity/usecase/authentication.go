@@ -15,7 +15,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/cache"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"github.com/huynhanx03/go-common/pkg/oauth"
 	commonpassword "github.com/huynhanx03/go-common/pkg/security/password"
 	"go.uber.org/zap"
@@ -37,27 +37,26 @@ const (
 )
 
 type authenticationService struct {
-	userRepo        ports.UserRepository
-	credentialRepo  ports.CredentialRepository
-	roleRepo        ports.RoleRepository
-	authzService    ports.AuthorizationService
-	attrValueRepo   ports.UserAttributeValueRepository
-	fedIdentityRepo ports.FederatedIdentityRepository
-	oauthProviders  map[string]ConfiguredOAuthProvider
-	oauthDurable    ports.OAuthDurableRepository
-	oauthProtector  *OAuthDurableProtector
-	passwordResetMu sync.Mutex
-	roleCache       ports.RoleCache
-	cache           cache.LocalCache[string, any]
-	cacheService    ports.CacheService
-	passwordHasher  *commonpassword.Hasher
-	txMgr           tx.Manager
-	tokenLifecycle  ports.TokenLifecycle
-	passwordReset   ports.PasswordResetLifecycle
-	registration    rootports.RegistrationLifecycle
-	profileSchema   ports.ProfileSchemaService
-	recoveryContact ports.RecoveryContactLifecycle
-	journal         ports.SecurityMutationJournal
+	userRepo             ports.UserRepository
+	credentialRepo       ports.CredentialRepository
+	roleRepo             ports.RoleRepository
+	authzService         ports.AuthorizationService
+	attrValueRepo        ports.UserAttributeValueRepository
+	fedIdentityRepo      ports.FederatedIdentityRepository
+	oauthProviders       map[string]ConfiguredOAuthProvider
+	oauthDurable         ports.OAuthDurableRepository
+	oauthProtector       *OAuthDurableProtector
+	passwordResetMu      sync.Mutex
+	roleCache            ports.RoleCache
+	cache                *cache.Cache
+	passwordHasher       *commonpassword.Hasher
+	txMgr                tx.Manager
+	tokenLifecycle       ports.TokenLifecycle
+	passwordReset        ports.PasswordResetLifecycle
+	registration         rootports.RegistrationLifecycle
+	profileSchema        ports.ProfileSchemaService
+	oauthRecoveryContact ports.OAuthRecoveryContactLifecycle
+	journal              ports.SecurityMutationJournal
 }
 
 // ConfiguredOAuthProvider binds a validated provider client to its exact
@@ -77,12 +76,11 @@ func NewAuthenticationService(
 	fedIdentityRepo ports.FederatedIdentityRepository,
 	oauthProviders map[string]ConfiguredOAuthProvider,
 	roleCache ports.RoleCache,
-	cache cache.LocalCache[string, any],
-	cacheService ports.CacheService,
+	cache *cache.Cache,
 	txMgr tx.Manager,
 	options ...AuthenticationServiceOption,
 ) ports.AuthenticationService {
-	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPolicy())
+	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPassword())
 	service := &authenticationService{
 		userRepo:        userRepo,
 		credentialRepo:  credentialRepo,
@@ -93,7 +91,6 @@ func NewAuthenticationService(
 		oauthProviders:  oauthProviders,
 		roleCache:       roleCache,
 		cache:           cache,
-		cacheService:    cacheService,
 		txMgr:           txMgr,
 		passwordHasher:  defaultHasher,
 	}
@@ -126,7 +123,11 @@ func WithProfileSchema(service ports.ProfileSchemaService) AuthenticationService
 }
 
 func WithRecoveryContactLifecycle(lifecycle ports.RecoveryContactLifecycle) AuthenticationServiceOption {
-	return func(authentication *authenticationService) { authentication.recoveryContact = lifecycle }
+	return func(authentication *authenticationService) {
+		if oauthLifecycle, ok := lifecycle.(ports.OAuthRecoveryContactLifecycle); ok {
+			authentication.oauthRecoveryContact = oauthLifecycle
+		}
+	}
 }
 
 func WithPasswordHasher(hasher *commonpassword.Hasher) AuthenticationServiceOption {
@@ -174,7 +175,7 @@ func WithOAuthDurableLifecycle(
 
 // Register creates a new user with default "student" role and optional trait assignments.
 func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterRequest) (*dto.RegisterResponse, error) {
-	if s.tokenLifecycle == nil || s.registration == nil || s.recoveryContact == nil ||
+	if s.tokenLifecycle == nil || s.registration == nil ||
 		s.profileSchema == nil ||
 		isNilTokenDependency(s.journal) ||
 		req == nil || req.IdempotencyKey == uuid.Nil {
@@ -233,22 +234,6 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 	if err != nil {
 		return recoverExact(err)
 	}
-	preparedRecovery, err := s.recoveryContact.PrepareRegistration(
-		preparedUser.user.ID,
-		req.RecoveryEmail,
-	)
-	if err != nil {
-		return recoverExact(err)
-	}
-	if preparedRecovery == nil || preparedRecovery.Issue.Contact.ID == uuid.Nil ||
-		preparedRecovery.Issue.Contact.UserID != preparedUser.user.ID ||
-		preparedRecovery.Issue.Contact.Version == 0 {
-		return recoverExact(apperr.New(
-			apperr.CodeInternalServer,
-			"authentication service unavailable",
-			ErrInvalidRecoveryContactLifecycle,
-		))
-	}
 	mutationID, err := uuid.NewV7()
 	if err != nil {
 		return recoverExact(apperr.New(
@@ -258,8 +243,6 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 		))
 	}
 	mutationOccurredAt := time.Now().UTC()
-	contactID := preparedRecovery.Issue.Contact.ID
-	contactVersion := preparedRecovery.Issue.Contact.Version
 
 	var credentials entity.SessionCredentials
 	err = s.txMgr.DoInTx(ctx, func(ctx context.Context) error {
@@ -282,10 +265,6 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 		if err := s.registration.Provision(ctx, preparedUser.user.ID, authorizedOffer); err != nil {
 			return err
 		}
-		if err := s.recoveryContact.PersistRegistration(ctx, preparedRecovery); err != nil {
-			return err
-		}
-
 		credentials, err = s.tokenLifecycle.Establish(ctx, ports.SessionEstablishment{
 			Purpose:            entity.SessionIssuancePasswordRegistration,
 			RequestOrTicketID:  req.PreSessionID,
@@ -303,8 +282,7 @@ func (s *authenticationService) Register(ctx context.Context, req *dto.RegisterR
 		}
 		if err := s.journal.Append(ctx, entity.SecurityMutation{
 			ID: mutationID, Kind: entity.SecurityMutationUserRegistered,
-			UserID: preparedUser.user.ID, ContactID: &contactID,
-			Version: contactVersion, SecurityVersion: preparedUser.user.SecurityVersion,
+			UserID: preparedUser.user.ID, SecurityVersion: preparedUser.user.SecurityVersion,
 			OccurredAt: mutationOccurredAt,
 		}); err != nil {
 			return apperr.New(
@@ -643,10 +621,6 @@ func registrationFingerprint(req *dto.RegisterRequest) ([]byte, error) {
 	if offerChecksum, err := hex.DecodeString(req.OfferChecksum); err != nil || len(offerChecksum) != 32 {
 		return nil, ErrInvalidRegistrationOfferEvidence
 	}
-	recoveryEmail, err := NormalizeRecoveryEmail(req.RecoveryEmail, defaultMaximumRecoveryEmailBytes)
-	if err != nil {
-		return nil, err
-	}
 	profileSchema, err := canonicalProfileSchemaEvidence(req.ProfileSchemaEvidence)
 	if err != nil {
 		return nil, err
@@ -657,7 +631,6 @@ func registrationFingerprint(req *dto.RegisterRequest) ([]byte, error) {
 	})
 	return json.Marshal(struct {
 		Username          string                        `json:"username"`
-		RecoveryEmail     string                        `json:"recovery_email"`
 		PreSessionID      uuid.UUID                     `json:"pre_session_id"`
 		OfferID           uuid.UUID                     `json:"offer_id"`
 		OfferSequence     int64                         `json:"offer_sequence"`
@@ -668,7 +641,7 @@ func registrationFingerprint(req *dto.RegisterRequest) ([]byte, error) {
 		TalentIDs         []uuid.UUID                   `json:"talent_ids"`
 		ProfileSchema     profileSchemaFingerprintValue `json:"profile_schema"`
 	}{
-		Username: req.Username, RecoveryEmail: recoveryEmail,
+		Username:     req.Username,
 		PreSessionID: req.PreSessionID, OfferID: req.OfferID,
 		OfferSequence: req.OfferSequence, CatalogRevisionID: req.CatalogRevisionID,
 		CatalogChecksum: strings.ToLower(req.CatalogChecksum),

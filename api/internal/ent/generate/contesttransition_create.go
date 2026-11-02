@@ -25,6 +25,12 @@ type ContestTransitionCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestTransitionCreate) SetTenantID(v uuid.UUID) *ContestTransitionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *ContestTransitionCreate) SetCreatedAt(v time.Time) *ContestTransitionCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -190,6 +196,9 @@ func (_c *ContestTransitionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ContestTransitionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestTransition.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "ContestTransition.created_at"`)}
 	}
@@ -281,6 +290,10 @@ func (_c *ContestTransitionCreate) createSpec() (*ContestTransition, *sqlgraph.C
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contesttransition.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(contesttransition.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -345,7 +358,7 @@ func (_c *ContestTransitionCreate) createSpec() (*ContestTransition, *sqlgraph.C
 // of the `INSERT` statement. For example:
 //
 //	client.ContestTransition.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -354,7 +367,7 @@ func (_c *ContestTransitionCreate) createSpec() (*ContestTransition, *sqlgraph.C
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestTransitionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestTransitionCreate) OnConflict(opts ...sql.ConflictOption) *ContestTransitionUpsertOne {
@@ -406,6 +419,9 @@ func (u *ContestTransitionUpsertOne) UpdateNewValues() *ContestTransitionUpsertO
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(contesttransition.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contesttransition.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contesttransition.FieldCreatedAt)
@@ -607,7 +623,7 @@ func (_c *ContestTransitionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContestTransitionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContestTransitionCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContestTransitionUpsertBulk {
@@ -653,6 +669,9 @@ func (u *ContestTransitionUpsertBulk) UpdateNewValues() *ContestTransitionUpsert
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(contesttransition.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contesttransition.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contesttransition.FieldCreatedAt)

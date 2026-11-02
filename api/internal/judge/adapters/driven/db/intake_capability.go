@@ -20,6 +20,7 @@ import (
 	judgecapability "github.com/huynhanx03/judgify/internal/judge/capability"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/judging"
 )
 
@@ -239,6 +240,15 @@ func lockBacklogAdmission(
 }
 
 func (resolver *SubmissionCapabilityResolver) requireBacklogCapacity(
+	ctx context.Context,
+	client *generate.Client,
+) error {
+	return tenantctx.WithAllSQLScope(ctx, client.ActivatedJudgeCapability, func() error {
+		return resolver.readBacklogCapacity(ctx, client)
+	})
+}
+
+func (resolver *SubmissionCapabilityResolver) readBacklogCapacity(
 	ctx context.Context,
 	client *generate.Client,
 ) error {

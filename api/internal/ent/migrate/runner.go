@@ -26,8 +26,8 @@ import (
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 	commonsettings "github.com/huynhanx03/go-common/pkg/settings"
 
 	"github.com/huynhanx03/judgify/pkg/settings"

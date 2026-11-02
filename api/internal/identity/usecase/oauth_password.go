@@ -15,7 +15,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/cache"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/go-common/pkg/oauth"
 
@@ -61,17 +61,18 @@ func (s *authenticationService) ForgotPassword(ctx context.Context, req *dto.For
 	}
 	rateLimitKey := constant.CacheKeyAuthRateLimitForgot + hex.EncodeToString(req.IPHash)
 	s.passwordResetMu.Lock()
-	if _, found := cache.Get[string](s.cache, rateLimitKey); found {
-		s.passwordResetMu.Unlock()
-		return successResp, nil
-	}
-	stored := cache.SetWithTTL(s.cache, rateLimitKey, "1", constant.ForgotRateLimitTTL)
+	loaded := false
+	_, cacheErr := cache.Fetch(ctx, s.cache, rateLimitKey, constant.ForgotRateLimitTTL,
+		func(context.Context) (string, error) {
+			loaded = true
+			return "1", nil
+		},
+	)
 	s.passwordResetMu.Unlock()
-	if !stored {
-		logger.FromContext(ctx).Warn(
-			"password reset request could not be rate limited",
-			zap.String("error_class", "cache"),
-		)
+	if cacheErr != nil || !loaded {
+		if cacheErr != nil {
+			logger.FromContext(ctx).Warn("password reset rate limit cache failed", zap.String("error_class", "cache"))
+		}
 		return successResp, nil
 	}
 
@@ -121,6 +122,7 @@ func (s *authenticationService) createOAuthUser(
 	ctx context.Context,
 	providerName string,
 	providerProfile oauth.Profile,
+	userID, federatedIdentityID uuid.UUID,
 	profile oauthProfile,
 	profileEvidence dto.ProfileSchemaEvidence,
 	authenticatedAt time.Time,
@@ -146,8 +148,11 @@ func (s *authenticationService) createOAuthUser(
 		return nil, apperr.New(apperr.CodeConflict, constant.MsgUsernameExists, nil)
 	}
 
+	if userID == uuid.Nil || federatedIdentityID == uuid.Nil {
+		return nil, oauthInternalFailure()
+	}
 	user := &entity.User{
-		ID:              uuid.Must(uuid.NewV7()),
+		ID:              userID,
 		Username:        username,
 		SecurityStatus:  entity.UserSecurityStatusActive,
 		SecurityVersion: 1,
@@ -180,9 +185,9 @@ func (s *authenticationService) createOAuthUser(
 	if err := s.authzService.SetUserRoles(ctx, user.ID, []string{defaultRoleKey}); err != nil {
 		return nil, apperr.New(apperr.CodeDatabaseError, "failed to assign user roles", err)
 	}
-	if err := s.fedIdentityRepo.Create(ctx, federatedIdentityFromProfile(
-		user.ID, providerName, providerProfile, authenticatedAt,
-	)); err != nil {
+	identity := federatedIdentityFromProfile(user.ID, providerName, providerProfile, authenticatedAt)
+	identity.ID = federatedIdentityID
+	if err := s.fedIdentityRepo.Create(ctx, identity); err != nil {
 		return nil, err
 	}
 

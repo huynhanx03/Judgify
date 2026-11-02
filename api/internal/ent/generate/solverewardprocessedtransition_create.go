@@ -24,6 +24,12 @@ type SolveRewardProcessedTransitionCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *SolveRewardProcessedTransitionCreate) SetTenantID(v uuid.UUID) *SolveRewardProcessedTransitionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetSolveID sets the "solve_id" field.
 func (_c *SolveRewardProcessedTransitionCreate) SetSolveID(v uuid.UUID) *SolveRewardProcessedTransitionCreate {
 	_c.mutation.SetSolveID(v)
@@ -182,6 +188,9 @@ func (_c *SolveRewardProcessedTransitionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *SolveRewardProcessedTransitionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "SolveRewardProcessedTransition.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.SolveID(); !ok {
 		return &ValidationError{Name: "solve_id", err: errors.New(`generate: missing required field "SolveRewardProcessedTransition.solve_id"`)}
 	}
@@ -266,6 +275,10 @@ func (_c *SolveRewardProcessedTransitionCreate) createSpec() (*SolveRewardProces
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(solverewardprocessedtransition.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SolveID(); ok {
 		_spec.SetField(solverewardprocessedtransition.FieldSolveID, field.TypeUUID, value)
 		_node.SolveID = value
@@ -321,7 +334,7 @@ func (_c *SolveRewardProcessedTransitionCreate) createSpec() (*SolveRewardProces
 // of the `INSERT` statement. For example:
 //
 //	client.SolveRewardProcessedTransition.Create().
-//		SetSolveID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -330,7 +343,7 @@ func (_c *SolveRewardProcessedTransitionCreate) createSpec() (*SolveRewardProces
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.SolveRewardProcessedTransitionUpsert) {
-//			SetSolveID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *SolveRewardProcessedTransitionCreate) OnConflict(opts ...sql.ConflictOption) *SolveRewardProcessedTransitionUpsertOne {
@@ -382,6 +395,9 @@ func (u *SolveRewardProcessedTransitionUpsertOne) UpdateNewValues() *SolveReward
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(solverewardprocessedtransition.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(solverewardprocessedtransition.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.SolveID(); exists {
 			s.SetIgnore(solverewardprocessedtransition.FieldSolveID)
@@ -586,7 +602,7 @@ func (_c *SolveRewardProcessedTransitionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.SolveRewardProcessedTransitionUpsert) {
-//			SetSolveID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *SolveRewardProcessedTransitionCreateBulk) OnConflict(opts ...sql.ConflictOption) *SolveRewardProcessedTransitionUpsertBulk {
@@ -632,6 +648,9 @@ func (u *SolveRewardProcessedTransitionUpsertBulk) UpdateNewValues() *SolveRewar
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(solverewardprocessedtransition.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(solverewardprocessedtransition.FieldTenantID)
 			}
 			if _, exists := b.mutation.SolveID(); exists {
 				s.SetIgnore(solverewardprocessedtransition.FieldSolveID)

@@ -11,7 +11,8 @@ import (
 	"time"
 
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 )
 
 // Role is the independently deployable responsibility of one process.
@@ -54,15 +55,17 @@ type Config struct {
 	ShutdownTimeout          time.Duration
 	ComponentShutdownTimeout time.Duration
 	Builders                 Builders
+	Logger                   *logger.Logger
 }
 
 // NewConfig applies the same production shutdown budgets to every binary.
-func NewConfig(mode string, builders Builders) Config {
+func NewConfig(mode string, builders Builders, log *logger.Logger) Config {
 	return Config{
 		Mode:                     mode,
 		ShutdownTimeout:          defaultShutdownTimeout,
 		ComponentShutdownTimeout: defaultComponentShutdownTimeout,
 		Builders:                 builders,
+		Logger:                   log,
 	}
 }
 
@@ -107,7 +110,7 @@ func Run(ctx context.Context, role Role, config Config) error {
 	if config.ComponentShutdownTimeout < 0 {
 		return fmt.Errorf("%w: component shutdown timeout", ErrInvalidConfig)
 	}
-	runner, err := lifecycle.New(lifecycle.Options{
+	runner, err := lifecycle.New(config.Logger, lifecycle.Options{
 		ShutdownTimeout: config.ShutdownTimeout,
 		MaxComponents:   maxComponents,
 	})

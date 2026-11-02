@@ -30,6 +30,8 @@ type Submission struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy *string `json:"deleted_by,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
 	ProblemID uuid.UUID `json:"problem_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -187,7 +189,7 @@ func (*Submission) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case submission.FieldCreatedAt, submission.FieldUpdatedAt, submission.FieldDeletedAt, submission.FieldSubmittedAt, submission.FieldLatestGenerationQueuedAt, submission.FieldLatestGenerationStartedAt, submission.FieldLatestGenerationCompletedAt, submission.FieldJudgedAt:
 			values[i] = new(sql.NullTime)
-		case submission.FieldID, submission.FieldProblemID, submission.FieldUserID:
+		case submission.FieldID, submission.FieldTenantID, submission.FieldProblemID, submission.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -235,6 +237,12 @@ func (_m *Submission) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedBy = new(string)
 				*_m.DeletedBy = value.String
+			}
+		case submission.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case submission.FieldProblemID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -525,6 +533,9 @@ func (_m *Submission) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("problem_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ProblemID))

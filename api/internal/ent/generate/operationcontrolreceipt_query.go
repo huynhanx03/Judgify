@@ -302,12 +302,12 @@ func (_q *OperationControlReceiptQuery) WithOperation(opts ...func(*OperationQue
 // Example:
 //
 //	var v []struct {
-//		OperationID uuid.UUID `json:"operation_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.OperationControlReceipt.Query().
-//		GroupBy(operationcontrolreceipt.FieldOperationID).
+//		GroupBy(operationcontrolreceipt.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *OperationControlReceiptQuery) GroupBy(field string, fields ...string) *OperationControlReceiptGroupBy {
@@ -325,11 +325,11 @@ func (_q *OperationControlReceiptQuery) GroupBy(field string, fields ...string) 
 // Example:
 //
 //	var v []struct {
-//		OperationID uuid.UUID `json:"operation_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.OperationControlReceipt.Query().
-//		Select(operationcontrolreceipt.FieldOperationID).
+//		Select(operationcontrolreceipt.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *OperationControlReceiptQuery) Select(fields ...string) *OperationControlReceiptSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

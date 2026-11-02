@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"os"
 	"strconv"
@@ -14,11 +15,11 @@ import (
 
 	commonhealth "github.com/huynhanx03/go-common/pkg/common/health"
 	commonhttp "github.com/huynhanx03/go-common/pkg/common/http"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/di"
 	"github.com/huynhanx03/judgify/internal/platform/observability"
+	tenanthttp "github.com/huynhanx03/judgify/internal/tenant/adapters/driver/http"
 	"github.com/huynhanx03/judgify/pkg/settings"
 )
 
@@ -62,7 +63,7 @@ func NewHTTPServer(
 	metrics *observability.Metrics,
 	serverConfig settings.Server,
 	authenticationConfig settings.Authentication,
-	logger *commonlogger.LoggerZap,
+	logger *commonlogger.Logger,
 ) (*Server, error) {
 	if container == nil || container.Audit == nil || container.Identity == nil || container.Problem == nil ||
 		container.Cultivation == nil || container.Submission == nil ||
@@ -72,10 +73,10 @@ func NewHTTPServer(
 		container.Operation == nil || container.OperationHTTP == nil ||
 		container.OperationRunner == nil || container.Judge == nil ||
 		container.DebugLevel == nil || container.DebugWindow == nil ||
-		logger == nil || logger.Logger == nil {
+		logger == nil {
 		return nil, fmt.Errorf("http server: invalid container")
 	}
-	authzChecker := middlewares.NewAuthorizationChecker(container.Identity.AuthorizationService)
+	authzChecker := authmiddleware.NewAuthorizationChecker(container.Identity.AuthorizationService)
 	routerGroup := NewRouterGroup(
 		container.Audit,
 		container.Identity.IdentityHandler,
@@ -92,6 +93,11 @@ func NewHTTPServer(
 		container.DebugLevel,
 		authzChecker,
 		container.Identity.SessionAuthenticator,
+		tenanthttp.ScopeMiddleware(container.Database),
+		tenanthttp.OptionalScopeMiddleware(container.Database),
+		tenanthttp.RequestTransactionMiddleware(container.Database, false),
+		tenanthttp.RequestTransactionMiddleware(container.Database, true),
+		tenanthttp.RequestTransactionMiddleware(container.Database, false),
 	)
 
 	host := os.Getenv("SERVER_HOST")
@@ -113,7 +119,7 @@ func NewHTTPServer(
 	if err != nil {
 		return nil, err
 	}
-	return NewServer(engine, fmt.Sprintf("%s:%s", host, port), logger.Named("http"))
+	return NewServer(engine, fmt.Sprintf("%s:%s", host, port), commonlogger.Zap(logger).Named("http"))
 }
 
 func (*Server) Name() string { return "http-server" }

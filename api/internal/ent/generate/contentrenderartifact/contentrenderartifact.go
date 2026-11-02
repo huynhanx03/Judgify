@@ -17,6 +17,8 @@ const (
 	Label = "content_render_artifact"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldRenderSourceID holds the string denoting the render_source_id field in the database.
 	FieldRenderSourceID = "render_source_id"
 	// FieldRenderSourceKind holds the string denoting the render_source_kind field in the database.
@@ -55,6 +57,7 @@ const (
 // Columns holds all SQL columns for contentrenderartifact fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldRenderSourceID,
 	FieldRenderSourceKind,
 	FieldSourceChecksum,
@@ -153,6 +156,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByRenderSourceID orders the results by the render_source_id field.

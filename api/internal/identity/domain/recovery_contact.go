@@ -28,6 +28,7 @@ const (
 	RecoveryContactPurposeRegistration RecoveryContactPurpose = "registration"
 	RecoveryContactPurposeReplacement  RecoveryContactPurpose = "replacement"
 	RecoveryContactPurposeInvitation   RecoveryContactPurpose = "invitation"
+	RecoveryContactPurposeOAuthLink    RecoveryContactPurpose = "oauth_link"
 )
 
 // RecoveryContactDeliveryState is the deliberately small, provider-neutral
@@ -44,19 +45,20 @@ const (
 // RecoveryContact is the protected domain projection. AddressCiphertext and
 // blind indexes never cross the service/adapter boundary into transport DTOs.
 type RecoveryContact struct {
-	ID                uuid.UUID
-	UserID            uuid.UUID
-	Kind              string
-	Purpose           RecoveryContactPurpose
-	Status            RecoveryContactStatus
-	Version           uint64
-	AddressCiphertext []byte `json:"-"`
-	KeyID             string
-	VerifiedAt        *time.Time
-	RevokedAt         *time.Time
-	ReplacedContactID *uuid.UUID
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID                        uuid.UUID
+	UserID                    uuid.UUID
+	Kind                      string
+	Purpose                   RecoveryContactPurpose
+	Status                    RecoveryContactStatus
+	Version                   uint64
+	AddressCiphertext         []byte `json:"-"`
+	KeyID                     string
+	VerifiedAt                *time.Time
+	RevokedAt                 *time.Time
+	ReplacedContactID         *uuid.UUID
+	SourceFederatedIdentityID *uuid.UUID `json:"-"`
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
 }
 
 // RecoveryContactVerificationResult contains only non-secret identifiers from

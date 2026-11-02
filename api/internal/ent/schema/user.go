@@ -107,6 +107,9 @@ func (User) Edges() []ent.Edge {
 		edge.To("contest_content_revisions", ContestContentRevision.Type),
 		edge.To("contest_clarifications", ContestClarification.Type),
 		edge.To("contest_content_commands", ContestContentCommand.Type),
+		edge.To("tenant_memberships", TenantMembership.Type),
+		edge.To("tenant_invitations", TenantInvitation.Type),
+		edge.To("sent_tenant_invitations", TenantInvitation.Type),
 	}
 }
 

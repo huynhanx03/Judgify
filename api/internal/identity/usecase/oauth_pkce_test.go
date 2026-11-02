@@ -108,7 +108,7 @@ func TestOAuthDurableProtectorRejectsExpiredOrTamperedFlow(t *testing.T) {
 	}
 }
 
-func TestFederatedIdentityProjectionNeverPromotesProviderEmailToRecoveryAuthority(t *testing.T) {
+func TestFederatedIdentityProjectionDoesNotPersistProviderEmail(t *testing.T) {
 	t.Parallel()
 
 	userID := uuid.New()

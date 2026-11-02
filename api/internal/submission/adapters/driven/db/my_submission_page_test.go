@@ -13,7 +13,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ports"
 )
 
-func TestFindMyByProblemUsesCompositeSeekAndLimitPlusOne(t *testing.T) {
+func TestFindMySubmissionsByProblemUsesCompositeSeekAndLimitPlusOne(t *testing.T) {
 	repository, mock, captured := newAdminSubmissionRepository(t)
 	userID := uuid.MustParse("00000000-0000-7000-8000-000000000031")
 	problemID := uuid.MustParse("00000000-0000-7000-8000-000000000021")
@@ -40,7 +40,7 @@ func TestFindMyByProblemUsesCompositeSeekAndLimitPlusOne(t *testing.T) {
 	}
 	mock.ExpectQuery("my submissions").WillReturnRows(rows)
 
-	page, err := repository.FindMyByProblem(
+	page, err := repository.FindMySubmissionsByProblem(
 		context.Background(),
 		ports.MySubmissionQuery{
 			UserID: userID, ProblemID: problemID, ContestID: &contestID,
@@ -74,9 +74,9 @@ func TestFindMyByProblemUsesCompositeSeekAndLimitPlusOne(t *testing.T) {
 	}
 }
 
-func TestFindMyByProblemRejectsInvalidQueryBeforeDatabase(t *testing.T) {
+func TestFindMySubmissionsByProblemRejectsInvalidQueryBeforeDatabase(t *testing.T) {
 	repository, mock, captured := newAdminSubmissionRepository(t)
-	_, err := repository.FindMyByProblem(
+	_, err := repository.FindMySubmissionsByProblem(
 		context.Background(),
 		ports.MySubmissionQuery{Limit: ports.MaximumMySubmissionPageLimit + 1},
 	)

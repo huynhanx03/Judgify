@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	entsql "entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 
 	"github.com/huynhanx03/go-common/pkg/encoding/json"
@@ -17,6 +16,8 @@ import (
 	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	dbent "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ports"
+	tenantdomain "github.com/huynhanx03/judgify/internal/tenant/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -39,43 +40,47 @@ var _ ports.RewardRuleRepository = (*RewardRuleRepository)(nil)
 
 // InstallDefaultRewardRule verifies or installs the code-owned initial rule.
 // It never mutates an existing immutable revision with different bytes.
-func InstallDefaultRewardRule(ctx context.Context, client *dbent.EntClient) error {
-	if ctx == nil || client == nil || ctx.Err() != nil {
+func InstallDefaultRewardRule(ctx context.Context, client *dbent.EntClient, tenantID uuid.UUID) error {
+	if ctx == nil || client == nil || tenantID == uuid.Nil || ctx.Err() != nil {
 		return entity.ErrInvalidRewardRule
 	}
-	driver, ok := client.DialectDriver()
-	if !ok {
+	scopedCtx, err := tenantctx.WithTenantID(ctx, tenantID)
+	if err != nil {
 		return entity.ErrInvalidRewardRule
 	}
-	sqlDriver, ok := driver.(*entsql.Driver)
-	if !ok || sqlDriver.DB() == nil {
-		return entity.ErrInvalidRewardRule
+	rule := entity.DefaultRewardRuleRevisionForTenant(tenantID)
+	if tenantID == tenantdomain.CommunityID {
+		// Keep the original immutable ID for Community so existing reward ledger
+		// references remain valid after tenant ownership is introduced.
+		rule = entity.DefaultRewardRuleRevision()
 	}
-	rule := entity.DefaultRewardRuleRevision()
 	configuration, err := stdjson.Marshal(rule.Configuration)
 	if err != nil {
 		return fmt.Errorf("encode default reward rule: %w", err)
 	}
-	_, err = sqlDriver.DB().ExecContext(ctx, `
-		INSERT INTO reward_rule_revisions (
-			id, rule_key, revision, algorithm_version, configuration,
-			checksum, request_checksum, effective_from, created_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,CURRENT_TIMESTAMP)
-		ON CONFLICT (rule_key, revision) DO NOTHING`,
-		rule.ID, rule.RuleKey, rule.Revision, rule.AlgorithmVersion,
-		configuration, rule.Checksum[:], rule.RequestChecksum[:], rule.EffectiveFrom,
-	)
-	if err != nil {
-		return fmt.Errorf("install default reward rule: %w", err)
-	}
-	loaded, err := loadRewardRuleByID(ctx, sqlDriver.DB(), rule.ID)
-	if err != nil {
-		return fmt.Errorf("verify default reward rule: %w", err)
-	}
-	if loaded.Checksum != rule.Checksum || loaded.RequestChecksum != rule.RequestChecksum || !loaded.Valid() {
-		return entity.ErrInvalidRewardRule
-	}
-	return nil
+	return client.DoInTx(scopedCtx, func(txCtx context.Context) error {
+		database := client.DB(txCtx)
+		_, err := database.ExecContext(txCtx, `
+			INSERT INTO reward_rule_revisions (
+				tenant_id, id, rule_key, revision, algorithm_version, configuration,
+				checksum, request_checksum, effective_from, created_at
+			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,CURRENT_TIMESTAMP)
+			ON CONFLICT (tenant_id, rule_key, revision) DO NOTHING`,
+			tenantID, rule.ID, rule.RuleKey, rule.Revision, rule.AlgorithmVersion,
+			configuration, rule.Checksum[:], rule.RequestChecksum[:], rule.EffectiveFrom,
+		)
+		if err != nil {
+			return fmt.Errorf("install default reward rule: %w", err)
+		}
+		loaded, err := loadRewardRuleByID(txCtx, database, rule.ID)
+		if err != nil {
+			return fmt.Errorf("verify default reward rule: %w", err)
+		}
+		if loaded.Checksum != rule.Checksum || loaded.RequestChecksum != rule.RequestChecksum || !loaded.Valid() {
+			return entity.ErrInvalidRewardRule
+		}
+		return nil
+	})
 }
 
 func (repository *RewardRuleRepository) Current(
@@ -91,7 +96,7 @@ func (repository *RewardRuleRepository) Current(
 	return loadEffectiveRewardRule(ctx, repository.client.DB(ctx).RewardRuleRevision, at)
 }
 
-func (repository *RewardRuleRepository) List(
+func (repository *RewardRuleRepository) Find(
 	ctx context.Context,
 	cursor *int64,
 	limit int,
@@ -139,7 +144,11 @@ func (repository *RewardRuleRepository) Publish(
 	if repository == nil || repository.client == nil || ctx == nil {
 		return entity.RewardRulePublicationResult{}, entity.ErrInvalidRewardRule
 	}
-	command, err := entity.NormalizeRewardRulePublicationCommand(command)
+	tenantID, err := tenantctx.RequireTenant(ctx)
+	if err != nil {
+		return entity.RewardRulePublicationResult{}, entity.ErrInvalidRewardRule
+	}
+	command, err = entity.NormalizeRewardRulePublicationCommand(command)
 	if err != nil {
 		return entity.RewardRulePublicationResult{}, err
 	}
@@ -185,10 +194,10 @@ func (repository *RewardRuleRepository) Publish(
 	}
 	_, err = executor.ExecContext(ctx, `
 		INSERT INTO reward_rule_revisions (
-			id, rule_key, revision, algorithm_version, configuration,
+		tenant_id, id, rule_key, revision, algorithm_version, configuration,
 			checksum, request_checksum, effective_from, created_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$8)`,
-		rule.ID, rule.RuleKey, rule.Revision, rule.AlgorithmVersion,
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$9)`,
+		tenantID, rule.ID, rule.RuleKey, rule.Revision, rule.AlgorithmVersion,
 		configuration, rule.Checksum[:], rule.RequestChecksum[:], rule.EffectiveFrom,
 	)
 	if err != nil {

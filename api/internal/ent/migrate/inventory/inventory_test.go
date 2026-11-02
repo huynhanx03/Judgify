@@ -367,7 +367,7 @@ func TestCheckedInMigrationInventoryReceiptIsCurrent(t *testing.T) {
 	if !bytes.Equal(checkedIn, generated.Bytes()) {
 		t.Fatalf(
 			"migration inventory receipt is stale; regenerate it with:\n" +
-				"  cd api && go run ./cmd/judgify inventory --format markdown > " +
+			"  cd api && go run ./cmd/migrate inventory --format markdown > " +
 				"../docs/superpowers/baseline/2026-07-18-migration-inventory.md",
 		)
 	}

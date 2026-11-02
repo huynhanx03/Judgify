@@ -22,6 +22,8 @@ type ProfileSchemaState struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// Key holds the value of the "key" field.
 	Key string `json:"key,omitempty"`
 	// Revision holds the value of the "revision" field.
@@ -40,7 +42,7 @@ func (*ProfileSchemaState) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case profileschemastate.FieldCreatedAt, profileschemastate.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case profileschemastate.FieldID:
+		case profileschemastate.FieldID, profileschemastate.FieldTenantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -74,6 +76,12 @@ func (_m *ProfileSchemaState) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case profileschemastate.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case profileschemastate.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -128,6 +136,9 @@ func (_m *ProfileSchemaState) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("key=")
 	builder.WriteString(_m.Key)

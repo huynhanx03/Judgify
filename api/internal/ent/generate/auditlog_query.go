@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/auditlog"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 )
 
 // AuditLogQuery is the builder for querying AuditLog entities.
@@ -24,6 +25,7 @@ type AuditLogQuery struct {
 	order      []auditlog.OrderOption
 	inters     []Interceptor
 	predicates []predicate.AuditLog
+	withTenant *TenantQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -59,6 +61,28 @@ func (_q *AuditLogQuery) Unique(unique bool) *AuditLogQuery {
 func (_q *AuditLogQuery) Order(o ...auditlog.OrderOption) *AuditLogQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryTenant chains the current query on the "tenant" edge.
+func (_q *AuditLogQuery) QueryTenant() *TenantQuery {
+	query := (&TenantClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(auditlog.Table, auditlog.FieldID, selector),
+			sqlgraph.To(tenant.Table, tenant.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, auditlog.TenantTable, auditlog.TenantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first AuditLog entity from the query.
@@ -253,11 +277,23 @@ func (_q *AuditLogQuery) Clone() *AuditLogQuery {
 		order:      append([]auditlog.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.AuditLog{}, _q.predicates...),
+		withTenant: _q.withTenant.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
+}
+
+// WithTenant tells the query-builder to eager-load the nodes that are connected to
+// the "tenant" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AuditLogQuery) WithTenant(opts ...func(*TenantQuery)) *AuditLogQuery {
+	query := (&TenantClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withTenant = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -266,12 +302,12 @@ func (_q *AuditLogQuery) Clone() *AuditLogQuery {
 // Example:
 //
 //	var v []struct {
-//		ActorUserID uuid.UUID `json:"actor_user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.AuditLog.Query().
-//		GroupBy(auditlog.FieldActorUserID).
+//		GroupBy(auditlog.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *AuditLogQuery) GroupBy(field string, fields ...string) *AuditLogGroupBy {
@@ -289,11 +325,11 @@ func (_q *AuditLogQuery) GroupBy(field string, fields ...string) *AuditLogGroupB
 // Example:
 //
 //	var v []struct {
-//		ActorUserID uuid.UUID `json:"actor_user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.AuditLog.Query().
-//		Select(auditlog.FieldActorUserID).
+//		Select(auditlog.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *AuditLogQuery) Select(fields ...string) *AuditLogSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -336,8 +372,11 @@ func (_q *AuditLogQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *AuditLogQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AuditLog, error) {
 	var (
-		nodes = []*AuditLog{}
-		_spec = _q.querySpec()
+		nodes       = []*AuditLog{}
+		_spec       = _q.querySpec()
+		loadedTypes = [1]bool{
+			_q.withTenant != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AuditLog).scanValues(nil, columns)
@@ -345,6 +384,7 @@ func (_q *AuditLogQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Aud
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &AuditLog{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(_q.modifiers) > 0 {
@@ -359,7 +399,46 @@ func (_q *AuditLogQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Aud
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withTenant; query != nil {
+		if err := _q.loadTenant(ctx, query, nodes, nil,
+			func(n *AuditLog, e *Tenant) { n.Edges.Tenant = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *AuditLogQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*AuditLog, init func(*AuditLog), assign func(*AuditLog, *Tenant)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*AuditLog)
+	for i := range nodes {
+		if nodes[i].TenantID == nil {
+			continue
+		}
+		fk := *nodes[i].TenantID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(tenant.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "tenant_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *AuditLogQuery) sqlCount(ctx context.Context) (int, error) {
@@ -389,6 +468,9 @@ func (_q *AuditLogQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != auditlog.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withTenant != nil {
+			_spec.Node.AddColumnOnce(auditlog.FieldTenantID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -19,6 +20,8 @@ type JudgeTestResult struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// AttemptID holds the value of the "attempt_id" field.
@@ -58,7 +61,7 @@ type JudgeTestResult struct {
 	// SafeDiagnostic holds the value of the "safe_diagnostic" field.
 	SafeDiagnostic *string `json:"-"`
 	// CheckerMetadata holds the value of the "checker_metadata" field.
-	CheckerMetadata json.RawMessage `json:"checker_metadata,omitempty"`
+	CheckerMetadata jsontext.Value `json:"checker_metadata,omitempty"`
 	// ExecutionStartedAt holds the value of the "execution_started_at" field.
 	ExecutionStartedAt time.Time `json:"execution_started_at,omitempty"`
 	// ExecutionCompletedAt holds the value of the "execution_completed_at" field.
@@ -81,7 +84,7 @@ func (*JudgeTestResult) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case judgetestresult.FieldCreatedAt, judgetestresult.FieldExecutionStartedAt, judgetestresult.FieldExecutionCompletedAt:
 			values[i] = new(sql.NullTime)
-		case judgetestresult.FieldID, judgetestresult.FieldAttemptID, judgetestresult.FieldJudgeSpecID, judgetestresult.FieldTestsetRevisionID, judgetestresult.FieldGroupID, judgetestresult.FieldTestcaseRevisionID:
+		case judgetestresult.FieldID, judgetestresult.FieldTenantID, judgetestresult.FieldAttemptID, judgetestresult.FieldJudgeSpecID, judgetestresult.FieldTestsetRevisionID, judgetestresult.FieldGroupID, judgetestresult.FieldTestcaseRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -103,6 +106,12 @@ func (_m *JudgeTestResult) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case judgetestresult.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case judgetestresult.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -277,6 +286,9 @@ func (_m *JudgeTestResult) String() string {
 	var builder strings.Builder
 	builder.WriteString("JudgeTestResult(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

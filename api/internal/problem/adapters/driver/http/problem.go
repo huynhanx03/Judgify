@@ -17,7 +17,7 @@ import (
 type ProblemHandler interface {
 	Find(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*ProblemResponse], error)
 	Get(ctx context.Context, req *problemIDRequest) (*ProblemResponse, error)
-	FindAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*ProblemResponse], error)
+	FindForAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*ProblemResponse], error)
 	GetAdmin(ctx context.Context, req *problemIDRequest) (*ProblemResponse, error)
 	Create(ctx context.Context, req *CreateProblemRequest) (*ProblemResponse, error)
 	GetAuthoringCatalog(ctx context.Context) (*ProblemAuthoringCatalogResponse, error)
@@ -62,14 +62,12 @@ func (h *problemHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Pagi
 	if err != nil {
 		return nil, err
 	}
-	responses := make([]*ProblemResponse, 0)
-	if results.Records != nil {
-		responses = make([]*ProblemResponse, len(*results.Records))
-		for index, result := range *results.Records {
-			responses[index] = toProblemResponse(result)
-		}
+	responses := d.MapPaginated(results, toProblemResponse)
+	if responses.Records == nil || *responses.Records == nil {
+		empty := []*ProblemResponse{}
+		responses.Records = &empty
 	}
-	return &d.Paginated[*ProblemResponse]{Records: &responses, Pagination: results.Pagination}, nil
+	return responses, nil
 }
 
 func (h *problemHandler) Get(ctx context.Context, req *problemIDRequest) (*ProblemResponse, error) {
@@ -81,19 +79,17 @@ func (h *problemHandler) Get(ctx context.Context, req *problemIDRequest) (*Probl
 	return toProblemResponse(result), err
 }
 
-func (h *problemHandler) FindAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*ProblemResponse], error) {
-	results, err := h.problemService.FindAdmin(ctx, req)
+func (h *problemHandler) FindForAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*ProblemResponse], error) {
+	results, err := h.problemService.FindForAdmin(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	responses := make([]*ProblemResponse, 0)
-	if results.Records != nil {
-		responses = make([]*ProblemResponse, len(*results.Records))
-		for index, result := range *results.Records {
-			responses[index] = toProblemResponse(result)
-		}
+	responses := d.MapPaginated(results, toProblemResponse)
+	if responses.Records == nil || *responses.Records == nil {
+		empty := []*ProblemResponse{}
+		responses.Records = &empty
 	}
-	return &d.Paginated[*ProblemResponse]{Records: &responses, Pagination: results.Pagination}, nil
+	return responses, nil
 }
 
 func (h *problemHandler) GetAdmin(ctx context.Context, req *problemIDRequest) (*ProblemResponse, error) {

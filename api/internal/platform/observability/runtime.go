@@ -14,7 +14,7 @@ import (
 
 	commonmetrics "github.com/huynhanx03/go-common/pkg/common/observability"
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 )
 
 const (

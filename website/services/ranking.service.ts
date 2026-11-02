@@ -40,7 +40,7 @@ function rankingQuery(limit: number, cursor?: string): string {
   return parameters.toString();
 }
 
-async function page(
+async function find(
   kind: "rating" | "experience",
   limit: number,
   cursor?: string,
@@ -62,12 +62,12 @@ async function page(
 }
 
 export const rankingService = {
-  pageByRating(limit = 20, cursor?: string, signal?: AbortSignal) {
-    return page("rating", limit, cursor, signal);
+  findByRating(limit = 20, cursor?: string, signal?: AbortSignal) {
+    return find("rating", limit, cursor, signal);
   },
 
-  pageByExperience(limit = 20, cursor?: string, signal?: AbortSignal) {
-    return page("experience", limit, cursor, signal);
+  findByExperience(limit = 20, cursor?: string, signal?: AbortSignal) {
+    return find("experience", limit, cursor, signal);
   },
 
   privacy(signal?: AbortSignal): Promise<RankingPrivacy> {

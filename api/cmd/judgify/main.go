@@ -1,110 +1,80 @@
-// Command judgify is the developer/operator multiplexer. Production deploys
-// the role-pure cmd/server, cmd/judge-worker, and cmd/migrate artifacts.
+// Command judgify holds developer and operator tools used by migrations and judge operations.
 package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/signal"
 	"syscall"
-
-	migration "github.com/huynhanx03/judgify/internal/ent/migrate"
-	"github.com/huynhanx03/judgify/internal/infrastructure"
-	"github.com/huynhanx03/judgify/internal/infrastructure/bootstrap"
-	workerInfrastructure "github.com/huynhanx03/judgify/internal/infrastructure/worker"
-	judgifyruntime "github.com/huynhanx03/judgify/internal/runtime"
 )
 
-func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	exitCode := run(ctx, os.Args[1:], os.Stdout, os.Stderr)
-	stop()
-	os.Exit(exitCode)
+type command struct {
+	name string
+	run  func(context.Context, []string, io.Reader, io.Writer, io.Writer) int
 }
 
-func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 {
-		writeUsage(stderr)
-		return 2
+func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	code := run(ctx, os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
+	stop()
+	os.Exit(code)
+}
+
+func run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
+	if len(args) == 0 || isHelp(args[0]) {
+		writeUsage(stdout)
+		if len(args) == 0 {
+			return 2
+		}
+		return 0
 	}
 
-	switch args[0] {
-	case "inventory":
-		return runInventory(ctx, args[1:], stdout, stderr)
-	case "release-manifest":
-		return runReleaseManifest(ctx, args[1:], stdout, stderr)
-	case "judge-capability":
-		return runJudgeCapability(ctx, args[1:], stdout, stderr)
-	case string(judgifyruntime.RoleAPI),
-		string(judgifyruntime.RoleJudgeWorker),
-		string(judgifyruntime.RoleMigrate),
-		string(judgifyruntime.RoleAll):
-		if len(args) != 1 {
-			_, _ = fmt.Fprintf(stderr, "judgify %s: unexpected arguments\n", args[0])
-			return 2
+	for _, command := range commands() {
+		if command.name == args[0] {
+			return command.run(ctx, args[1:], stdin, stdout, stderr)
 		}
-		role, err := judgifyruntime.ParseRole(args[0])
-		if err != nil {
-			_, _ = fmt.Fprintf(stderr, "judgify: %v\n", err)
-			return 2
-		}
-		if err := runRole(ctx, role); err != nil {
-			_, _ = fmt.Fprintf(stderr, "judgify %s: %v\n", role, err)
-			return 1
-		}
-		return 0
-	case "help", "-h", "--help":
-		writeUsage(stdout)
-		return 0
-	default:
-		_, _ = fmt.Fprintf(stderr, "judgify: unknown command %q\n", args[0])
-		writeUsage(stderr)
-		return 2
 	}
+
+	_, _ = fmt.Fprintf(stderr, "judgify: unknown command %q\n", args[0])
+	writeUsage(stderr)
+	return 2
+}
+
+func commands() []command {
+	return []command{
+		{name: "bootstrap-admin", run: bootstrapAdminCommand},
+		{name: "release-manifest", run: releaseManifestCommand},
+		{name: "judge-capability", run: judgeCapabilityCommand},
+	}
+}
+
+func releaseManifestCommand(
+	ctx context.Context,
+	args []string,
+	_ io.Reader,
+	stdout, stderr io.Writer,
+) int {
+	return runReleaseManifest(ctx, args, stdout, stderr)
+}
+
+func judgeCapabilityCommand(
+	ctx context.Context,
+	args []string,
+	_ io.Reader,
+	stdout, stderr io.Writer,
+) int {
+	return runJudgeCapability(ctx, args, stdout, stderr)
 }
 
 func writeUsage(writer io.Writer) {
-	_, _ = fmt.Fprintln(writer, "Usage: judgify <api|judge-worker|migrate|all|inventory|release-manifest|judge-capability>")
-	_, _ = fmt.Fprintln(writer, "       judgify inventory [--format markdown|json] [--migrations path]")
+	_, _ = fmt.Fprintln(writer, "Usage: judgify <bootstrap-admin|release-manifest|judge-capability>")
+	_, _ = fmt.Fprintln(writer, "       judgify bootstrap-admin [options]")
 	_, _ = fmt.Fprintln(writer, "       judgify release-manifest <template|sandbox-env|approve|verify> [options]")
 	_, _ = fmt.Fprintln(writer, "       judgify judge-capability <activate|retire> [options]")
 }
 
-func runRole(ctx context.Context, role judgifyruntime.Role) (resultErr error) {
-	profile := bootstrap.ProfileAPI
-	switch role {
-	case judgifyruntime.RoleJudgeWorker:
-		profile = bootstrap.ProfileJudgeWorker
-	case judgifyruntime.RoleMigrate:
-		profile = bootstrap.ProfileMigrate
-	case judgifyruntime.RoleAll:
-		profile = bootstrap.ProfileAll
-	}
-	process, err := bootstrap.PrepareForRole(profile)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		resultErr = errors.Join(resultErr, process.Close(), process.Sync())
-	}()
-	if role == judgifyruntime.RoleMigrate {
-		runner, err := migration.New(process.Logger.Logger, process.Config.Migration)
-		if err != nil {
-			return fmt.Errorf("configure migration runner: %w", err)
-		}
-		if err := process.SetMigrationRunner(runner); err != nil {
-			return fmt.Errorf("install migration runner: %w", err)
-		}
-	}
-
-	config := judgifyruntime.NewConfig(string(process.Config.Server.Mode), judgifyruntime.Builders{
-		API:         process.Builder(infrastructure.BuildAPI),
-		JudgeWorker: process.Builder(workerInfrastructure.Build),
-		All:         process.Builder(infrastructure.BuildAPI, workerInfrastructure.Build),
-		Migrate:     process.Migrate,
-	})
-	return judgifyruntime.Run(ctx, role, config)
+func isHelp(value string) bool {
+	return value == "help" || value == "-h" || value == "--help"
 }

@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ type OperationBatch struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// OperationID holds the value of the "operation_id" field.
 	OperationID uuid.UUID `json:"operation_id,omitempty"`
 	// Sequence holds the value of the "sequence" field.
@@ -27,9 +30,9 @@ type OperationBatch struct {
 	// LeaseToken holds the value of the "lease_token" field.
 	LeaseToken uuid.UUID `json:"lease_token,omitempty"`
 	// InputCheckpoint holds the value of the "input_checkpoint" field.
-	InputCheckpoint json.RawMessage `json:"input_checkpoint,omitempty"`
+	InputCheckpoint jsontext.Value `json:"input_checkpoint,omitempty"`
 	// OutputCheckpoint holds the value of the "output_checkpoint" field.
-	OutputCheckpoint json.RawMessage `json:"output_checkpoint,omitempty"`
+	OutputCheckpoint jsontext.Value `json:"output_checkpoint,omitempty"`
 	// ProcessedCount holds the value of the "processed_count" field.
 	ProcessedCount int64 `json:"processed_count,omitempty"`
 	// SucceededCount holds the value of the "succeeded_count" field.
@@ -37,7 +40,7 @@ type OperationBatch struct {
 	// FailedCount holds the value of the "failed_count" field.
 	FailedCount int64 `json:"failed_count,omitempty"`
 	// FailureSummary holds the value of the "failure_summary" field.
-	FailureSummary json.RawMessage `json:"failure_summary,omitempty"`
+	FailureSummary jsontext.Value `json:"failure_summary,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
 	StartedAt time.Time `json:"started_at,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
@@ -75,6 +78,8 @@ func (*OperationBatch) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case operationbatch.FieldTenantID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case operationbatch.FieldInputCheckpoint, operationbatch.FieldOutputCheckpoint, operationbatch.FieldFailureSummary:
 			values[i] = new([]byte)
 		case operationbatch.FieldSequence, operationbatch.FieldProcessedCount, operationbatch.FieldSucceededCount, operationbatch.FieldFailedCount:
@@ -103,6 +108,13 @@ func (_m *OperationBatch) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case operationbatch.FieldTenantID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = new(uuid.UUID)
+				*_m.TenantID = *value.S.(*uuid.UUID)
 			}
 		case operationbatch.FieldOperationID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -223,6 +235,11 @@ func (_m *OperationBatch) String() string {
 	var builder strings.Builder
 	builder.WriteString("OperationBatch(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("operation_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OperationID))
 	builder.WriteString(", ")

@@ -11,14 +11,15 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	"github.com/huynhanx03/go-common/pkg/encoding/json"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"github.com/huynhanx03/go-common/pkg/mq/forge"
 	outboxforge "github.com/huynhanx03/go-common/pkg/mq/outbox/forge"
 
 	"github.com/huynhanx03/judgify/internal/ports"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -340,6 +341,11 @@ func (worker *SolveRewardWorker) apply(
 		return errors.New("solve reward worker: missing run context")
 	}
 	ctx := correlation.EnsureContext(correlation.WithContext(base, event.CorrelationID))
+	scope, scopeErr := tenantctx.Tenant(event.TenantID)
+	if scopeErr != nil {
+		return fmt.Errorf("solve reward event has invalid tenant scope: %w", scopeErr)
+	}
+	ctx = tenantctx.WithContext(ctx, scope)
 	ctx = logger.WithFields(
 		ctx,
 		logger.String("event_id", event.EventID.String()),

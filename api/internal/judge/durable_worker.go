@@ -7,12 +7,16 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 
+	"github.com/huynhanx03/judgify/internal/platform/tracing"
 	submissionports "github.com/huynhanx03/judgify/internal/ports"
 	submissionservice "github.com/huynhanx03/judgify/internal/submission/usecase"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const consecutiveHeartbeatFailureLimit = 3
@@ -220,7 +224,9 @@ func (worker *DurableWorker) runClaimLoop(ctx context.Context) {
 }
 
 func (worker *DurableWorker) claimAndSchedule(ctx context.Context) {
-	claimed, err := worker.jobs.ClaimAndSchedule(ctx)
+	claimCtx, claimSpan := otel.Tracer("judgify/judge").Start(ctx, "judge.claim")
+	claimed, err := worker.jobs.ClaimAndSchedule(claimCtx)
+	claimSpan.End()
 	if err != nil {
 		if ctx.Err() != nil {
 			return
@@ -324,8 +330,26 @@ func (worker *DurableWorker) executeLease(
 	lease submissionports.JobLease,
 	fatal chan<- error,
 ) {
-	leaseCtx := leaseLogContext(parent, lease)
+	scope, err := tenantctx.Tenant(lease.TenantID)
+	if err != nil {
+		fatal <- fmt.Errorf("invalid tenant scope on durable lease: %w", err)
+		return
+	}
+	leaseCtx := tenantctx.WithContext(leaseLogContext(parent, lease), scope)
 	leaseCtx = commonlogger.WithContext(leaseCtx, worker.logger)
+	leaseCtx, attemptSpan := tracing.StartDurableWork(leaseCtx, "judge.attempt", lease.Job.OriginTraceparent)
+	defer attemptSpan.End()
+	started := time.Now()
+	defer func() {
+		durationMS := time.Since(started).Milliseconds()
+		commonlogger.Event(leaseCtx, zapcore.InfoLevel, "Judge attempt finished", &durationMS,
+			zap.String("job_id", lease.Job.ID.String()),
+			zap.String("submission_id", lease.Job.SubmissionID.String()),
+			zap.String("attempt_id", lease.Attempt.ID.String()),
+			zap.Int64("generation", lease.Job.Generation),
+			zap.Uint32("attempt", lease.Attempt.AttemptNumber),
+		)
+	}()
 	executionCtx, cancelExecution := context.WithCancel(leaseCtx)
 	leaseDeadlineUpdates := make(chan time.Time, 1)
 	heartbeatDone := make(chan error, 1)

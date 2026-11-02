@@ -175,7 +175,7 @@ function recipientQuery(query: CampaignRecipientListQuery): string {
 }
 
 export const notificationCampaignService = {
-  async list(
+  async find(
     query: CampaignListQuery = {},
     signal?: AbortSignal,
   ): Promise<CampaignPage> {

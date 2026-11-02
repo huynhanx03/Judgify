@@ -110,7 +110,7 @@ cmd_prepare() {
     host_port=$(docker port "$container" 5432/tcp | awk -F: 'NR==1{print $NF}')
     _state_set host_port "$host_port"
 
-    # Bootstrap roles from the production init-roles.sql.
+    # Bootstrap database roles.
     docker exec \
         --interactive \
         --env "POSTGRES_DB=$src_db" \
@@ -123,7 +123,7 @@ cmd_prepare() {
             --set ON_ERROR_STOP=1 \
             --username postgres \
             --dbname "$src_db" \
-            <"$ROOT/deploy/postgres/init-roles.sql" >/dev/null
+            <"$ROOT/scripts/init-roles.sql" >/dev/null
 
     # Create the target database empty (restore proves blank-target DR).
     docker exec "$container" \
@@ -161,14 +161,14 @@ cmd_prepare() {
     # Run bootstrap-admin so the source carries real authorization state,
     # system attribute definitions, profile schema state, roles, casbin rules
     # and an audit record.
-    admin_binary="$(ops_temp_root)/judgify-brt-bootstrap-admin-$$"
-    _state_set admin_binary "$admin_binary"
+    judgify_binary="$(ops_temp_root)/judgify-brt-$$"
+    _state_set judgify_binary "$judgify_binary"
 
     (
         cd "$ROOT/api"
         env GOPROXY=off go build -trimpath \
-            -o "$admin_binary" \
-            ./cmd/bootstrap-admin
+            -o "$judgify_binary" \
+            ./cmd/judgify
     )
 
     admin_log="$(ops_temp_root)/judgify-brt-bootstrap-admin-$$.log"
@@ -192,7 +192,7 @@ cmd_prepare() {
             JUDGIFY_BOOTSTRAP_ADMIN_USERNAME=brtadmin \
             JUDGIFY_BOOTSTRAP_ADMIN_PASSWORD="$admin_pw" \
             LOGGER_FILE_LOG_NAME="$admin_log" \
-            "$admin_binary" >"$admin_stdout"
+            "$judgify_binary" bootstrap-admin >"$admin_stdout"
     )
 
     # Write a pgpassfile so psql/pg_dump can authenticate without a prompt.
@@ -400,7 +400,7 @@ cmd_cleanup() {
     container=$(_state_get container) || true
     pgpassfile=$(_state_get pgpassfile) || true
     migrator_binary=$(_state_get migrator_binary) || true
-    admin_binary=$(_state_get admin_binary) || true
+    judgify_binary=$(_state_get judgify_binary) || true
 
     # Stop container.
     if [ -n "$container" ]; then
@@ -408,7 +408,7 @@ cmd_cleanup() {
     fi
 
     # Remove temporary binaries and the pgpass file.
-    for f in "$pgpassfile" "$migrator_binary" "$admin_binary"; do
+    for f in "$pgpassfile" "$migrator_binary" "$judgify_binary"; do
         [ -n "$f" ] && rm -f "$f" 2>/dev/null || true
     done
 

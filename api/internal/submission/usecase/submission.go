@@ -12,7 +12,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	commondto "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/ports"
@@ -58,7 +58,7 @@ const (
 	submissionCursorBytes   = 1 + 8 + 16
 )
 
-func (s *submissionService) FindMyByProblem(
+func (s *submissionService) FindMySubmissionsByProblem(
 	ctx context.Context,
 	userID uuid.UUID,
 	req *contract.MySubmissionsRequest,
@@ -85,7 +85,7 @@ func (s *submissionService) FindMyByProblem(
 	if err := query.Validate(); err != nil {
 		return nil, invalidMySubmissionPage()
 	}
-	page, err := s.submissionRepo.FindMyByProblem(ctx, query)
+	page, err := s.submissionRepo.FindMySubmissionsByProblem(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +238,7 @@ func invalidMySubmissionPageProjection() error {
 	)
 }
 
-func (s *submissionService) FindAdmin(
+func (s *submissionService) FindForAdmin(
 	ctx context.Context,
 	req *contract.AdminSubmissionFindRequest,
 ) (*commondto.Paginated[*contract.AdminSubmissionSummaryResponse], error) {
@@ -267,19 +267,12 @@ func (s *submissionService) FindAdmin(
 			err,
 		)
 	}
-	page, err := s.submissionRepo.FindAdmin(ctx, normalized)
+	page, err := s.submissionRepo.FindForAdmin(ctx, normalized)
 	if err != nil {
 		return nil, err
 	}
 
-	responses := make([]*contract.AdminSubmissionSummaryResponse, len(*page.Records))
-	for index, submission := range *page.Records {
-		responses[index] = ToAdminSubmissionSummaryResponse(submission)
-	}
-	return &commondto.Paginated[*contract.AdminSubmissionSummaryResponse]{
-		Records:    &responses,
-		Pagination: page.Pagination,
-	}, nil
+	return commondto.MapPaginated(page, ToAdminSubmissionSummaryResponse), nil
 }
 
 func (s *submissionService) GetAdmin(

@@ -183,7 +183,7 @@ export const authService = {
     });
   },
 
-  async listOAuthIdentities(
+  async findOAuthIdentities(
     signal?: AbortSignal,
   ): Promise<OAuthIdentityListResponse> {
     return api<OAuthIdentityListResponse, never>(AUTH_API.OAUTH_IDENTITIES, {

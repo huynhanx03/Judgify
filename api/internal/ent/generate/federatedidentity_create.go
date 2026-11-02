@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
 )
 
 // FederatedIdentityCreate is the builder for creating a FederatedIdentity entity.
@@ -158,6 +159,21 @@ func (_c *FederatedIdentityCreate) SetNillableID(v *uuid.UUID) *FederatedIdentit
 // SetUser sets the "user" edge to the User entity.
 func (_c *FederatedIdentityCreate) SetUser(v *User) *FederatedIdentityCreate {
 	return _c.SetUserID(v.ID)
+}
+
+// AddRecoveryContactIDs adds the "recovery_contacts" edge to the UserRecoveryContact entity by IDs.
+func (_c *FederatedIdentityCreate) AddRecoveryContactIDs(ids ...uuid.UUID) *FederatedIdentityCreate {
+	_c.mutation.AddRecoveryContactIDs(ids...)
+	return _c
+}
+
+// AddRecoveryContacts adds the "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_c *FederatedIdentityCreate) AddRecoveryContacts(v ...*UserRecoveryContact) *FederatedIdentityCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddRecoveryContactIDs(ids...)
 }
 
 // Mutation returns the FederatedIdentityMutation object of the builder.
@@ -348,6 +364,22 @@ func (_c *FederatedIdentityCreate) createSpec() (*FederatedIdentity, *sqlgraph.C
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RecoveryContactsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

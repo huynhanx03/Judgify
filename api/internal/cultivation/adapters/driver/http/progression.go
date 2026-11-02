@@ -18,8 +18,8 @@ type cultivationCommandIDContextKey struct{}
 type ProgressionHandler interface {
 	PreviewAdjustment(context.Context, *previewProgressionAdjustmentRequest) (*progressionAdjustmentPreviewResponse, error)
 	ApplyAdjustment(context.Context, *applyProgressionAdjustmentRequest) (*progressionAdjustmentResponse, error)
-	ListLedger(context.Context, *progressionLedgerRequest) (*progressionLedgerPageResponse, error)
-	ListMyLedger(context.Context, *myProgressionLedgerRequest) (*progressionLedgerPageResponse, error)
+	FindLedger(context.Context, *progressionLedgerRequest) (*progressionLedgerPageResponse, error)
+	FindMyLedger(context.Context, *myProgressionLedgerRequest) (*progressionLedgerPageResponse, error)
 }
 
 type progressionHandler struct {
@@ -92,7 +92,7 @@ func (handler *progressionHandler) ApplyAdjustment(
 	}, nil
 }
 
-func (handler *progressionHandler) ListLedger(
+func (handler *progressionHandler) FindLedger(
 	ctx context.Context,
 	request *progressionLedgerRequest,
 ) (*progressionLedgerPageResponse, error) {
@@ -104,14 +104,14 @@ func (handler *progressionHandler) ListLedger(
 	if err != nil {
 		return nil, err
 	}
-	page, err := handler.service.ListLedger(ctx, userID, cursor, request.Limit)
+	page, err := handler.service.FindLedger(ctx, userID, cursor, request.Limit)
 	if err != nil {
 		return nil, err
 	}
 	return toProgressionLedgerPageResponse(page), nil
 }
 
-func (handler *progressionHandler) ListMyLedger(
+func (handler *progressionHandler) FindMyLedger(
 	ctx context.Context,
 	request *myProgressionLedgerRequest,
 ) (*progressionLedgerPageResponse, error) {
@@ -123,7 +123,7 @@ func (handler *progressionHandler) ListMyLedger(
 	if err != nil {
 		return nil, err
 	}
-	page, err := handler.service.ListLedger(ctx, userID, cursor, request.Limit)
+	page, err := handler.service.FindLedger(ctx, userID, cursor, request.Limit)
 	if err != nil {
 		return nil, err
 	}

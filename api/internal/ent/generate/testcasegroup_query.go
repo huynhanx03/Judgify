@@ -339,12 +339,12 @@ func (_q *TestcaseGroupQuery) WithTestcaseRevisions(opts ...func(*TestcaseRevisi
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.TestcaseGroup.Query().
-//		GroupBy(testcasegroup.FieldCreatedAt).
+//		GroupBy(testcasegroup.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *TestcaseGroupQuery) GroupBy(field string, fields ...string) *TestcaseGroupGroupBy {
@@ -362,11 +362,11 @@ func (_q *TestcaseGroupQuery) GroupBy(field string, fields ...string) *TestcaseG
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.TestcaseGroup.Query().
-//		Select(testcasegroup.FieldCreatedAt).
+//		Select(testcasegroup.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *TestcaseGroupQuery) Select(fields ...string) *TestcaseGroupSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

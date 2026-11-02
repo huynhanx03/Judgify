@@ -17,7 +17,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { APP_ROUTES } from "@/constants/routes";
-import { text } from "@/i18n/text";
+import { TenantSelector } from "@/modules/layout/tenant-selector";
+import { useLocale } from "@/contexts/locale-context";
 
 const MOBILE_NAV_TRIGGER_ID = "mobile-nav-trigger";
 
@@ -46,6 +47,7 @@ function preloadAuthenticatedActions() {
 export function Header() {
   const pathname = usePathname();
   const { isAuthenticated, isLoading } = useAuth();
+  const { language, setLanguage, t } = useLocale();
 
   return (
     <div className="sticky top-0 z-40 flex w-full justify-center border-b border-border bg-surface/95 backdrop-blur-lg">
@@ -58,13 +60,13 @@ export function Header() {
           >
             <BrandMark className="size-8" priority />
             <span className="hidden text-lg font-semibold tracking-tight text-foreground transition-colors duration-150 group-hover:text-primary sm:block">
-              {text("APP_NAME")}
+              {t("APP_NAME")}
             </span>
           </Link>
 
           <nav
             className="no-scrollbar mask-edges hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex"
-            aria-label={text("NAV.PRIMARY_LABEL")}
+            aria-label={t("NAV.PRIMARY_LABEL")}
           >
             {MAIN_NAV_ITEMS.map((item) => {
               const isActive = pathname.startsWith(item.href);
@@ -80,7 +82,7 @@ export function Header() {
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                   {isActive && (
                     <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary" />
                   )}
@@ -94,6 +96,12 @@ export function Header() {
 
         {/* Right: Actions */}
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <button type="button" className="min-h-10 rounded-md px-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={() => setLanguage(language === "vi" ? "en" : "vi")} aria-label={language === "vi" ? "Switch language to English" : "Chuyển ngôn ngữ sang tiếng Việt"}>
+            {language.toUpperCase()}
+          </button>
+          {!isLoading && isAuthenticated && (
+            <div className="hidden md:block"><TenantSelector /></div>
+          )}
           {!isLoading &&
             (isAuthenticated ? (
               <AuthenticatedActions />
@@ -108,6 +116,7 @@ export function Header() {
 }
 
 function MobileNavigation({ pathname }: { pathname: string }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [panelMounted, setPanelMounted] = useState(false);
 
@@ -128,7 +137,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
         variant="ghost"
         size="icon"
         className="size-11 cursor-pointer md:hidden"
-        aria-label={text("NAV.OPEN_MENU")}
+        aria-label={t("NAV.OPEN_MENU")}
         aria-expanded={open}
         aria-controls={open ? "mobile-nav-panel" : undefined}
         onClick={handleOpen}
@@ -151,6 +160,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
 
 /** Login + Register buttons for guests. */
 function GuestActions({ onPointerEnter }: { onPointerEnter?: () => void }) {
+  const { t } = useLocale();
   return (
     <>
       <Link
@@ -162,7 +172,7 @@ function GuestActions({ onPointerEnter }: { onPointerEnter?: () => void }) {
         onPointerEnter={onPointerEnter}
       >
         <LogIn className="size-4" aria-hidden="true" />
-        <span>{text("AUTH.LOGIN")}</span>
+        <span>{t("AUTH.LOGIN")}</span>
       </Link>
 
       <Link
@@ -170,7 +180,7 @@ function GuestActions({ onPointerEnter }: { onPointerEnter?: () => void }) {
         className={buttonVariants({ size: "sm" })}
       >
         <UserPlus className="size-4" aria-hidden="true" />
-        <span>{text("AUTH.REGISTER")}</span>
+        <span>{t("AUTH.REGISTER")}</span>
       </Link>
     </>
   );

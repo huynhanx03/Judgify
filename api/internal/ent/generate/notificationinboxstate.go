@@ -18,6 +18,8 @@ type NotificationInboxState struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// Version holds the value of the "version" field.
 	Version int64 `json:"version,omitempty"`
 	// UnreadCount holds the value of the "unread_count" field.
@@ -36,7 +38,7 @@ func (*NotificationInboxState) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case notificationinboxstate.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case notificationinboxstate.FieldID:
+		case notificationinboxstate.FieldID, notificationinboxstate.FieldTenantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -58,6 +60,12 @@ func (_m *NotificationInboxState) assignValues(columns []string, values []any) e
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case notificationinboxstate.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case notificationinboxstate.FieldVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -113,6 +121,9 @@ func (_m *NotificationInboxState) String() string {
 	var builder strings.Builder
 	builder.WriteString("NotificationInboxState(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("version=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Version))
 	builder.WriteString(", ")

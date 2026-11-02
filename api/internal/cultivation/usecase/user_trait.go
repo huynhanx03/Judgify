@@ -29,14 +29,7 @@ func (s *userTraitService) Find(ctx context.Context, opts *d.QueryOptions) (*d.P
 	if result.Records == nil {
 		return &d.Paginated[*contract.UserTraitResponse]{Records: &[]*contract.UserTraitResponse{}, Pagination: result.Pagination}, nil
 	}
-
-	entities := *result.Records
-	responses := make([]*contract.UserTraitResponse, len(entities))
-	for i, e := range entities {
-		responses[i] = ToUserTraitResponse(e)
-	}
-
-	return &d.Paginated[*contract.UserTraitResponse]{Records: &responses, Pagination: result.Pagination}, nil
+	return d.MapPaginated(result, ToUserTraitResponse), nil
 }
 
 func (s *userTraitService) Get(ctx context.Context, id uuid.UUID) (*contract.UserTraitResponse, error) {

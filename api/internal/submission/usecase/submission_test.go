@@ -76,7 +76,7 @@ func TestFindByProblemIDDoesNotExposeSource(t *testing.T) {
 	assert.NotContains(t, string(encoded), "must not leak")
 }
 
-func TestFindMyByProblemReturnsOpaqueCursorPage(t *testing.T) {
+func TestFindMySubmissionsByProblemReturnsOpaqueCursorPage(t *testing.T) {
 	service, repository := newSubmissionTestEnv(t)
 	ctx := context.Background()
 	createdAt := time.Date(2026, time.July, 29, 8, 0, 0, 0, time.UTC)
@@ -88,7 +88,7 @@ func TestFindMyByProblemReturnsOpaqueCursorPage(t *testing.T) {
 		ID: testutil.ID(2), ProblemID: testutil.ID(10), UserID: testutil.ID(42),
 		Language: "go", ContestID: &contestID, Status: "accepted", CreatedAt: createdAt,
 	}
-	repository.EXPECT().FindMyByProblem(ctx, ports.MySubmissionQuery{
+	repository.EXPECT().FindMySubmissionsByProblem(ctx, ports.MySubmissionQuery{
 		UserID: testutil.ID(42), ProblemID: testutil.ID(10),
 		ContestID: &contestID, After: &after, Limit: 2,
 	}).Return(ports.MySubmissionPage{
@@ -103,7 +103,7 @@ func TestFindMyByProblemReturnsOpaqueCursorPage(t *testing.T) {
 		Next: &ports.SubmissionCursor{CreatedAt: last.CreatedAt, ID: last.ID},
 	}, nil)
 
-	response, err := service.FindMyByProblem(ctx, testutil.ID(42), &submissionDTO.MySubmissionsRequest{
+	response, err := service.FindMySubmissionsByProblem(ctx, testutil.ID(42), &submissionDTO.MySubmissionsRequest{
 		ProblemID: testutil.ID(10), ContestID: &contestID, Cursor: cursor, Limit: 2,
 	})
 
@@ -117,15 +117,15 @@ func TestFindMyByProblemReturnsOpaqueCursorPage(t *testing.T) {
 	}
 }
 
-func TestFindMyByProblemDefaultsBoundAndReturnsExplicitEmptyPage(t *testing.T) {
+func TestFindMySubmissionsByProblemDefaultsBoundAndReturnsExplicitEmptyPage(t *testing.T) {
 	service, repository := newSubmissionTestEnv(t)
 	ctx := context.Background()
-	repository.EXPECT().FindMyByProblem(ctx, ports.MySubmissionQuery{
+	repository.EXPECT().FindMySubmissionsByProblem(ctx, ports.MySubmissionQuery{
 		UserID: testutil.ID(42), ProblemID: testutil.ID(999),
 		Limit: ports.DefaultMySubmissionPageLimit,
 	}).Return(ports.MySubmissionPage{Submissions: []*entity.Submission{}}, nil)
 
-	response, err := service.FindMyByProblem(ctx, testutil.ID(42), &submissionDTO.MySubmissionsRequest{
+	response, err := service.FindMySubmissionsByProblem(ctx, testutil.ID(42), &submissionDTO.MySubmissionsRequest{
 		ProblemID: testutil.ID(999),
 	})
 
@@ -137,9 +137,9 @@ func TestFindMyByProblemDefaultsBoundAndReturnsExplicitEmptyPage(t *testing.T) {
 	}
 }
 
-func TestFindMyByProblemRejectsInvalidCursorBeforeRepository(t *testing.T) {
+func TestFindMySubmissionsByProblemRejectsInvalidCursorBeforeRepository(t *testing.T) {
 	service, _ := newSubmissionTestEnv(t)
-	response, err := service.FindMyByProblem(
+	response, err := service.FindMySubmissionsByProblem(
 		context.Background(),
 		testutil.ID(42),
 		&submissionDTO.MySubmissionsRequest{ProblemID: testutil.ID(10), Cursor: "forged"},
@@ -152,14 +152,14 @@ func TestFindMyByProblemRejectsInvalidCursorBeforeRepository(t *testing.T) {
 	}
 }
 
-func TestFindMyByProblemRejectsOutOfOrderRepositoryProjection(t *testing.T) {
+func TestFindMySubmissionsByProblemRejectsOutOfOrderRepositoryProjection(t *testing.T) {
 	service, repository := newSubmissionTestEnv(t)
 	ctx := context.Background()
 	createdAt := time.Date(2026, time.July, 29, 8, 0, 0, 0, time.UTC)
 	query := ports.MySubmissionQuery{
 		UserID: testutil.ID(42), ProblemID: testutil.ID(10), Limit: 2,
 	}
-	repository.EXPECT().FindMyByProblem(ctx, query).Return(
+	repository.EXPECT().FindMySubmissionsByProblem(ctx, query).Return(
 		ports.MySubmissionPage{Submissions: []*entity.Submission{
 			{
 				ID: testutil.ID(1), ProblemID: query.ProblemID, UserID: query.UserID,
@@ -173,7 +173,7 @@ func TestFindMyByProblemRejectsOutOfOrderRepositoryProjection(t *testing.T) {
 		nil,
 	)
 
-	response, err := service.FindMyByProblem(
+	response, err := service.FindMySubmissionsByProblem(
 		ctx,
 		query.UserID,
 		&submissionDTO.MySubmissionsRequest{ProblemID: query.ProblemID, Limit: query.Limit},

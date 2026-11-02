@@ -14,7 +14,7 @@ type Repository interface {
 	LockStart(context.Context, CreateCommand) (Operation, bool, error)
 	Create(context.Context, CreateCommand) (CreateResult, error)
 	Get(context.Context, uuid.UUID) (Operation, error)
-	List(context.Context, ListFilter) (Page, error)
+	Find(context.Context, ListFilter) (Page, error)
 
 	Claim(context.Context, ClaimCommand) (Operation, bool, error)
 	LockClaim(context.Context, Lease) (Operation, error)

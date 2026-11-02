@@ -11,8 +11,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var ErrRunnerUnavailable = errors.New("operation runner: unavailable")
@@ -242,8 +243,15 @@ func (runner *Runner) RunOnce(ctx context.Context) (bool, error) {
 		runner.registry == nil || ctx == nil || ctx.Err() != nil {
 		return false, ErrInvalidOperation
 	}
-	current, found, err := runner.repository.Claim(ctx, ClaimCommand{
-		Owner: runner.owner, LeaseDuration: runner.leaseDuration,
+	ctx = tenantctx.WithOperationWorker(ctx)
+	var current Operation
+	var found bool
+	err := runner.transactions.Within(ctx, func(txCtx context.Context) error {
+		var claimErr error
+		current, found, claimErr = runner.repository.Claim(txCtx, ClaimCommand{
+			Owner: runner.owner, LeaseDuration: runner.leaseDuration,
+		})
+		return claimErr
 	})
 	if err != nil || !found {
 		return found, err
@@ -262,17 +270,28 @@ func (runner *Runner) RunOnce(ctx context.Context) (bool, error) {
 	lease := *current.Lease
 	executor, exists := runner.registry.Lookup(current.Kind)
 	if !exists {
-		if failErr := runner.repository.MarkFailed(
-			operationContext,
-			lease,
-			"executor_not_registered",
-		); failErr != nil {
+		if failErr := runner.transactions.Within(operationContext, func(txCtx context.Context) error {
+			return runner.repository.MarkFailed(txCtx, lease, "executor_not_registered")
+		}); failErr != nil {
 			return true, errors.Join(ErrExecutorNotFound, failErr)
 		}
 		logger.FromContext(operationContext).Error(
 			"operation failed because executor is not registered",
 		)
 		return true, nil
+	}
+	payloadTenantID, err := tenantIDFromRequest(current.Request)
+	if err != nil || !sameOptionalUUID(payloadTenantID, current.TenantID) {
+		failureErr := runner.transactions.Within(operationContext, func(txCtx context.Context) error {
+			return runner.repository.MarkFailed(txCtx, lease, "invalid_operation_tenant")
+		})
+		return true, failureErr
+	}
+	if current.TenantID != nil {
+		operationContext, err = tenantctx.WithTenantID(operationContext, *current.TenantID)
+		if err != nil {
+			return true, err
+		}
 	}
 
 	startedAt := runner.now().UTC()
@@ -352,12 +371,9 @@ func (runner *Runner) RunOnce(ctx context.Context) (bool, error) {
 		// must never issue a new write through an already-cancelled context.
 		return true, nil
 	}
-	return true, runner.handleBatchFailure(
-		operationContext,
-		current,
-		lease,
-		err,
-	)
+	return true, runner.transactions.Within(operationContext, func(txCtx context.Context) error {
+		return runner.handleBatchFailure(txCtx, current, lease, err)
+	})
 }
 
 func (runner *Runner) handleBatchFailure(

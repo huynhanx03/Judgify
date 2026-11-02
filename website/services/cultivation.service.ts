@@ -75,7 +75,6 @@ export const cultivationService = {
   ): Promise<Paginated<TraitResponse>> {
     return api<Paginated<TraitResponse>, QueryOptions>(TRAIT_API.FIND, {
       method: "POST",
-      auth: "none",
       body: query,
       signal,
       schema: traitPageSchema,

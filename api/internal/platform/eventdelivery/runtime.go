@@ -19,7 +19,7 @@ import (
 
 	commonhealth "github.com/huynhanx03/go-common/pkg/common/health"
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
 )

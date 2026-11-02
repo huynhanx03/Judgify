@@ -88,7 +88,7 @@ export const contestService = {
   },
 
   // Administrative reads include draft and published lifecycle states.
-  async findAdmin(
+  async findForAdmin(
     query?: QueryOptions,
     signal?: AbortSignal,
   ): Promise<Paginated<Contest>> {

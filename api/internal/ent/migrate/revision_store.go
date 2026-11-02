@@ -12,7 +12,7 @@ import (
 
 	atlasmigrate "ariga.io/atlas/sql/migrate"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 )
 
 const (

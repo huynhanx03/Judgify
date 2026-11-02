@@ -14,6 +14,9 @@ services:
       - ./data/prometheus:/prometheus
     extra_hosts:
       - host.docker.internal:host-gateway
+    networks:
+      - default
+      - telemetry
 
   alertmanager:
     image: quay.io/prometheus/alertmanager@sha256:27c475db5fb156cab31d5c18a4251ac7ed567746a2483ff264516437a39b15ba
@@ -45,6 +48,9 @@ services:
       - "127.0.0.1:${ALLOY_OTLP_HTTP_PORT:-4318}:4318"
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+    networks:
+      - default
+      - telemetry
 
   grafana:
     image: grafana/grafana@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
@@ -65,3 +71,8 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
       - ../provisioning/grafana-dashboards:/var/lib/grafana/judgify-dashboards:ro
       - ./data/grafana:/var/lib/grafana
+
+networks:
+  telemetry:
+    name: judgify_telemetry
+    internal: true

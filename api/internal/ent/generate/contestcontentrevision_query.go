@@ -302,12 +302,12 @@ func (_q *ContestContentRevisionQuery) WithAuthor(opts ...func(*UserQuery)) *Con
 // Example:
 //
 //	var v []struct {
-//		OwnerType contestcontentrevision.OwnerType `json:"owner_type,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContestContentRevision.Query().
-//		GroupBy(contestcontentrevision.FieldOwnerType).
+//		GroupBy(contestcontentrevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ContestContentRevisionQuery) GroupBy(field string, fields ...string) *ContestContentRevisionGroupBy {
@@ -325,11 +325,11 @@ func (_q *ContestContentRevisionQuery) GroupBy(field string, fields ...string) *
 // Example:
 //
 //	var v []struct {
-//		OwnerType contestcontentrevision.OwnerType `json:"owner_type,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ContestContentRevision.Query().
-//		Select(contestcontentrevision.FieldOwnerType).
+//		Select(contestcontentrevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ContestContentRevisionQuery) Select(fields ...string) *ContestContentRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

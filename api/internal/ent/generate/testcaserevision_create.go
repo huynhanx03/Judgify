@@ -28,6 +28,12 @@ type TestcaseRevisionCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *TestcaseRevisionCreate) SetTenantID(v uuid.UUID) *TestcaseRevisionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *TestcaseRevisionCreate) SetCreatedAt(v time.Time) *TestcaseRevisionCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -227,6 +233,9 @@ func (_c *TestcaseRevisionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TestcaseRevisionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "TestcaseRevision.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "TestcaseRevision.created_at"`)}
 	}
@@ -328,6 +337,10 @@ func (_c *TestcaseRevisionCreate) createSpec() (*TestcaseRevision, *sqlgraph.Cre
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(testcaserevision.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(testcaserevision.FieldCreatedAt, field.TypeTime, value)
@@ -449,7 +462,7 @@ func (_c *TestcaseRevisionCreate) createSpec() (*TestcaseRevision, *sqlgraph.Cre
 // of the `INSERT` statement. For example:
 //
 //	client.TestcaseRevision.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -458,7 +471,7 @@ func (_c *TestcaseRevisionCreate) createSpec() (*TestcaseRevision, *sqlgraph.Cre
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TestcaseRevisionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TestcaseRevisionCreate) OnConflict(opts ...sql.ConflictOption) *TestcaseRevisionUpsertOne {
@@ -510,6 +523,9 @@ func (u *TestcaseRevisionUpsertOne) UpdateNewValues() *TestcaseRevisionUpsertOne
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(testcaserevision.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(testcaserevision.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(testcaserevision.FieldCreatedAt)
@@ -714,7 +730,7 @@ func (_c *TestcaseRevisionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.TestcaseRevisionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *TestcaseRevisionCreateBulk) OnConflict(opts ...sql.ConflictOption) *TestcaseRevisionUpsertBulk {
@@ -760,6 +776,9 @@ func (u *TestcaseRevisionUpsertBulk) UpdateNewValues() *TestcaseRevisionUpsertBu
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(testcaserevision.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(testcaserevision.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(testcaserevision.FieldCreatedAt)

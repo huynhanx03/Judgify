@@ -82,6 +82,12 @@ func (_c *TestCaseCreate) SetNillableDeletedBy(v *string) *TestCaseCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *TestCaseCreate) SetTenantID(v uuid.UUID) *TestCaseCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetProblemID sets the "problem_id" field.
 func (_c *TestCaseCreate) SetProblemID(v uuid.UUID) *TestCaseCreate {
 	_c.mutation.SetProblemID(v)
@@ -191,6 +197,9 @@ func (_c *TestCaseCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "TestCase.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "TestCase.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem_id", err: errors.New(`generate: missing required field "TestCase.problem_id"`)}
 	}
@@ -248,6 +257,10 @@ func (_c *TestCaseCreate) createSpec() (*TestCase, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(testcase.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(testcase.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if nodes := _c.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -401,6 +414,9 @@ func (u *TestCaseUpsertOne) UpdateNewValues() *TestCaseUpsertOne {
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(testcase.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(testcase.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ProblemID(); exists {
 			s.SetIgnore(testcase.FieldProblemID)
@@ -677,6 +693,9 @@ func (u *TestCaseUpsertBulk) UpdateNewValues() *TestCaseUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(testcase.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(testcase.FieldTenantID)
 			}
 			if _, exists := b.mutation.ProblemID(); exists {
 				s.SetIgnore(testcase.FieldProblemID)

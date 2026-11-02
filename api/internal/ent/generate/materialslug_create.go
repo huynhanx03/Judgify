@@ -25,6 +25,12 @@ type MaterialSlugCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *MaterialSlugCreate) SetTenantID(v uuid.UUID) *MaterialSlugCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetMaterialID sets the "material_id" field.
 func (_c *MaterialSlugCreate) SetMaterialID(v uuid.UUID) *MaterialSlugCreate {
 	_c.mutation.SetMaterialID(v)
@@ -149,6 +155,9 @@ func (_c *MaterialSlugCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *MaterialSlugCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "MaterialSlug.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.MaterialID(); !ok {
 		return &ValidationError{Name: "material_id", err: errors.New(`generate: missing required field "MaterialSlug.material_id"`)}
 	}
@@ -210,6 +219,10 @@ func (_c *MaterialSlugCreate) createSpec() (*MaterialSlug, *sqlgraph.CreateSpec)
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(materialslug.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(materialslug.FieldSlug, field.TypeString, value)
 		_node.Slug = value
@@ -250,7 +263,7 @@ func (_c *MaterialSlugCreate) createSpec() (*MaterialSlug, *sqlgraph.CreateSpec)
 // of the `INSERT` statement. For example:
 //
 //	client.MaterialSlug.Create().
-//		SetMaterialID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -259,7 +272,7 @@ func (_c *MaterialSlugCreate) createSpec() (*MaterialSlug, *sqlgraph.CreateSpec)
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.MaterialSlugUpsert) {
-//			SetMaterialID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *MaterialSlugCreate) OnConflict(opts ...sql.ConflictOption) *MaterialSlugUpsertOne {
@@ -341,6 +354,9 @@ func (u *MaterialSlugUpsertOne) UpdateNewValues() *MaterialSlugUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(materialslug.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(materialslug.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.MaterialID(); exists {
 			s.SetIgnore(materialslug.FieldMaterialID)
@@ -553,7 +569,7 @@ func (_c *MaterialSlugCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.MaterialSlugUpsert) {
-//			SetMaterialID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *MaterialSlugCreateBulk) OnConflict(opts ...sql.ConflictOption) *MaterialSlugUpsertBulk {
@@ -599,6 +615,9 @@ func (u *MaterialSlugUpsertBulk) UpdateNewValues() *MaterialSlugUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(materialslug.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(materialslug.FieldTenantID)
 			}
 			if _, exists := b.mutation.MaterialID(); exists {
 				s.SetIgnore(materialslug.FieldMaterialID)

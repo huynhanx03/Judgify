@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
 
 	contestcontract "github.com/huynhanx03/judgify/internal/contest/contract"

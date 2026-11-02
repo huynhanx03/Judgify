@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/auditlog"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 )
 
 // AuditLogCreate is the builder for creating a AuditLog entity.
@@ -23,6 +24,20 @@ type AuditLogCreate struct {
 	mutation *AuditLogMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *AuditLogCreate) SetTenantID(v uuid.UUID) *AuditLogCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *AuditLogCreate) SetNillableTenantID(v *uuid.UUID) *AuditLogCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
 }
 
 // SetActorUserID sets the "actor_user_id" field.
@@ -78,13 +93,13 @@ func (_c *AuditLogCreate) SetReason(v string) *AuditLogCreate {
 }
 
 // SetBeforeData sets the "before_data" field.
-func (_c *AuditLogCreate) SetBeforeData(v json.RawMessage) *AuditLogCreate {
+func (_c *AuditLogCreate) SetBeforeData(v jsontext.Value) *AuditLogCreate {
 	_c.mutation.SetBeforeData(v)
 	return _c
 }
 
 // SetAfterData sets the "after_data" field.
-func (_c *AuditLogCreate) SetAfterData(v json.RawMessage) *AuditLogCreate {
+func (_c *AuditLogCreate) SetAfterData(v jsontext.Value) *AuditLogCreate {
 	_c.mutation.SetAfterData(v)
 	return _c
 }
@@ -127,6 +142,11 @@ func (_c *AuditLogCreate) SetNillableID(v *uuid.UUID) *AuditLogCreate {
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetTenant sets the "tenant" edge to the Tenant entity.
+func (_c *AuditLogCreate) SetTenant(v *Tenant) *AuditLogCreate {
+	return _c.SetTenantID(v.ID)
 }
 
 // Mutation returns the AuditLogMutation object of the builder.
@@ -317,6 +337,23 @@ func (_c *AuditLogCreate) createSpec() (*AuditLog, *sqlgraph.CreateSpec) {
 		_spec.SetField(auditlog.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
+	if nodes := _c.mutation.TenantIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditlog.TenantTable,
+			Columns: []string{auditlog.TenantColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TenantID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -324,7 +361,7 @@ func (_c *AuditLogCreate) createSpec() (*AuditLog, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.AuditLog.Create().
-//		SetActorUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -333,7 +370,7 @@ func (_c *AuditLogCreate) createSpec() (*AuditLog, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.AuditLogUpsert) {
-//			SetActorUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *AuditLogCreate) OnConflict(opts ...sql.ConflictOption) *AuditLogUpsertOne {
@@ -385,6 +422,9 @@ func (u *AuditLogUpsertOne) UpdateNewValues() *AuditLogUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(auditlog.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(auditlog.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.ActorUserID(); exists {
 			s.SetIgnore(auditlog.FieldActorUserID)
@@ -586,7 +626,7 @@ func (_c *AuditLogCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.AuditLogUpsert) {
-//			SetActorUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *AuditLogCreateBulk) OnConflict(opts ...sql.ConflictOption) *AuditLogUpsertBulk {
@@ -632,6 +672,9 @@ func (u *AuditLogUpsertBulk) UpdateNewValues() *AuditLogUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(auditlog.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(auditlog.FieldTenantID)
 			}
 			if _, exists := b.mutation.ActorUserID(); exists {
 				s.SetIgnore(auditlog.FieldActorUserID)

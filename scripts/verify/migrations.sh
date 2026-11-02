@@ -2,7 +2,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-migrations="$root/api/internal/ent/migrate/migrations"
+migrations="$root/api/migration"
 mode="${1:---check}"
 
 case "$mode" in

@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"github.com/huynhanx03/go-common/pkg/oauth"
 
 	"github.com/huynhanx03/judgify/internal/constant"
@@ -303,6 +303,25 @@ func (s *authenticationService) OAuthFinalizeLogin(
 			return nil, apperr.New(apperr.CodeConflict, "oauth onboarding conflict", nil)
 		}
 	}
+	var preparedOAuthRecovery *ports.PreparedOAuthRecoveryContact
+	var newOAuthUserID, newFederatedIdentityID uuid.UUID
+	if expectedRegistration {
+		newOAuthUserID, err = uuid.NewV7()
+		if err == nil {
+			newFederatedIdentityID, err = uuid.NewV7()
+		}
+		if err != nil {
+			return nil, oauthInternalFailure()
+		}
+		if s.oauthRecoveryContact != nil {
+			preparedOAuthRecovery, err = s.oauthRecoveryContact.PrepareOAuthVerifiedContact(
+				newOAuthUserID, newFederatedIdentityID, profile.Email, profile.EmailVerified,
+			)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	if expectedRegistration {
 		if isNilTokenDependency(s.journal) ||
 			isNilTokenDependency(s.credentialRepo) || isNilTokenDependency(s.roleRepo) ||
@@ -372,12 +391,18 @@ func (s *authenticationService) OAuthFinalizeLogin(
 				transactionContext,
 				claim.Ticket.Provider,
 				claimedProfile,
+				newOAuthUserID, newFederatedIdentityID,
 				s.profileFromOAuthProvider(claim.Ticket.Provider, claimedProfile),
 				req.Onboarding.ProfileSchemaEvidence,
 				now,
 			)
 			if identityErr != nil {
 				return identityErr
+			}
+			if preparedOAuthRecovery != nil {
+				if identityErr = s.oauthRecoveryContact.PersistOAuthVerifiedContact(transactionContext, preparedOAuthRecovery); identityErr != nil {
+					return identityErr
+				}
 			}
 			if identityErr = s.registration.Provision(transactionContext, user.ID, authorizedOffer); identityErr != nil {
 				return identityErr
@@ -406,6 +431,11 @@ func (s *authenticationService) OAuthFinalizeLogin(
 			updated.ID = identity.ID
 			if identityErr = s.fedIdentityRepo.RecordAuthentication(transactionContext, updated, now); identityErr != nil {
 				return identityErr
+			}
+			if preparedOAuthRecovery != nil {
+				if identityErr = s.oauthRecoveryContact.PersistOAuthVerifiedContact(transactionContext, preparedOAuthRecovery); identityErr != nil {
+					return identityErr
+				}
 			}
 		}
 		establishedUserID = user.ID
@@ -457,7 +487,7 @@ func (s *authenticationService) OAuthFinalizeLink(
 		return nil, apperr.New(apperr.CodeBadRequest, "invalid oauth finalize request", nil)
 	}
 	now := time.Now().UTC()
-	ticketHash, snapshot, _, err := s.oauthCompletionSnapshot(
+	ticketHash, snapshot, providerProfile, err := s.oauthCompletionSnapshot(
 		ctx, req.CompletionTicket, entity.OAuthPurposeLink, now,
 	)
 	if err != nil {
@@ -471,6 +501,28 @@ func (s *authenticationService) OAuthFinalizeLink(
 			zap.String("ticket_id", snapshot.ID.String()),
 		)
 		return nil, apperr.New(apperr.CodeForbidden, "oauth link authority changed", nil)
+	}
+	existingBefore, err := s.oauthIdentity(ctx, snapshot.Provider, providerProfile.Subject)
+	if err != nil {
+		return nil, err
+	}
+	identityID := uuid.Nil
+	if existingBefore != nil {
+		identityID = existingBefore.ID
+	} else {
+		identityID, err = uuid.NewV7()
+		if err != nil {
+			return nil, oauthInternalFailure()
+		}
+	}
+	var preparedOAuthRecovery *ports.PreparedOAuthRecoveryContact
+	if s.oauthRecoveryContact != nil {
+		preparedOAuthRecovery, err = s.oauthRecoveryContact.PrepareOAuthVerifiedContact(
+			req.UserID, identityID, providerProfile.Email, providerProfile.EmailVerified,
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 	mutationID, err := uuid.NewV7()
 	if err != nil {
@@ -511,13 +563,25 @@ func (s *authenticationService) OAuthFinalizeLink(
 		if existing != nil {
 			updated := federatedIdentityFromProfile(existing.UserID, existing.Provider, providerProfile, now)
 			updated.ID = existing.ID
-			return s.fedIdentityRepo.RecordAuthentication(transactionContext, updated, now)
+			if updateErr := s.fedIdentityRepo.RecordAuthentication(transactionContext, updated, now); updateErr != nil {
+				return updateErr
+			}
+			if preparedOAuthRecovery != nil {
+				return s.oauthRecoveryContact.PersistOAuthVerifiedContact(transactionContext, preparedOAuthRecovery)
+			}
+			return nil
 		}
 		linked := federatedIdentityFromProfile(
 			claim.Ticket.Binding.UserID, claim.Ticket.Provider, providerProfile, now,
 		)
+		linked.ID = identityID
 		if createErr := s.fedIdentityRepo.Create(transactionContext, linked); createErr != nil {
 			return createErr
+		}
+		if preparedOAuthRecovery != nil {
+			if createErr := s.oauthRecoveryContact.PersistOAuthVerifiedContact(transactionContext, preparedOAuthRecovery); createErr != nil {
+				return createErr
+			}
 		}
 		identityID := linked.ID
 		sessionID := claim.Ticket.Binding.SessionID

@@ -519,12 +519,12 @@ func (_q *ContestProblemQuery) WithScoringResults(opts ...func(*ContestProblemRe
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContestProblem.Query().
-//		GroupBy(contestproblem.FieldCreatedAt).
+//		GroupBy(contestproblem.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ContestProblemQuery) GroupBy(field string, fields ...string) *ContestProblemGroupBy {
@@ -542,11 +542,11 @@ func (_q *ContestProblemQuery) GroupBy(field string, fields ...string) *ContestP
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ContestProblem.Query().
-//		Select(contestproblem.FieldCreatedAt).
+//		Select(contestproblem.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ContestProblemQuery) Select(fields ...string) *ContestProblemSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

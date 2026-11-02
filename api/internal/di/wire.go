@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 
 	commonobservability "github.com/huynhanx03/go-common/pkg/common/observability"
 
@@ -32,6 +33,8 @@ import (
 	profiledb "github.com/huynhanx03/judgify/internal/profile/adapters/driven/db"
 	profilehttp "github.com/huynhanx03/judgify/internal/profile/adapters/driver/http"
 	realtimeDi "github.com/huynhanx03/judgify/internal/realtime/di"
+	tenantdb "github.com/huynhanx03/judgify/internal/tenant/adapters/driven/db"
+	tenantdomain "github.com/huynhanx03/judgify/internal/tenant/domain"
 )
 
 // SetupDependencies initializes API domain dependencies without starting
@@ -81,7 +84,7 @@ func SetupDependencies(ctx context.Context, dependencies Dependencies) (*Contain
 	if err != nil {
 		return nil, fmt.Errorf("initialize cultivation domain: %w", err)
 	}
-	if err := cultivationdb.InstallDefaultRewardRule(ctx, database); err != nil {
+	if err := cultivationdb.InstallDefaultRewardRule(ctx, database, tenantdomain.CommunityID); err != nil {
 		return nil, fmt.Errorf("initialize cultivation reward rule: %w", err)
 	}
 
@@ -115,15 +118,17 @@ func SetupDependencies(ctx context.Context, dependencies Dependencies) (*Contain
 		},
 		txMgr,
 		func() (identityports.RegistrationLifecycle, error) {
+			tenantMemberships := tenantdb.NewTenantRepository(database)
 			return onboarding.NewRegistrationLifecycle(onboarding.RegistrationDependencies{
-				OfferRepository: cultivationContainer.TraitOfferRepository,
-				RewardProfiles:  cultivationContainer.RewardProfileRepository,
-				UserStats:       cultivationContainer.UserStatsRepo,
-				UserElementExp:  cultivationContainer.UserElementExpRepo,
-				Elements:        cultivationContainer.ElementRepo,
-				UserDifficulty:  cultivationContainer.UserDifficultyStatsRepo,
-				Difficulties:    problemContainer.DifficultyRepo,
-				Clock:           time.Now,
+				OfferRepository:  cultivationContainer.TraitOfferRepository,
+				RewardProfiles:   cultivationContainer.RewardProfileRepository,
+				UserStats:        cultivationContainer.UserStatsRepo,
+				UserElementExp:   cultivationContainer.UserElementExpRepo,
+				Elements:         cultivationContainer.ElementRepo,
+				UserDifficulty:   cultivationContainer.UserDifficultyStatsRepo,
+				Difficulties:     problemContainer.DifficultyRepo,
+				TenantMembership: tenantMemberships,
+				Clock:            time.Now,
 			})
 		},
 		operationComponents,
@@ -216,7 +221,7 @@ func SetupDependencies(ctx context.Context, dependencies Dependencies) (*Contain
 		identityContainer.AuthorizationService,
 		config.Authentication.BrowserOrigins,
 		config.Server.TrustedProxies,
-		logger.Named("realtime"),
+		zap.New(logger.Core()).Named("realtime"),
 	)
 	if err != nil {
 		return nil, err
@@ -314,6 +319,7 @@ func SetupDependencies(ctx context.Context, dependencies Dependencies) (*Contain
 	}
 
 	container := &Container{
+		Database:             database,
 		Audit:                auditHandler,
 		Identity:             identityContainer,
 		Judge:                judgeOperationsHandler,
@@ -332,7 +338,7 @@ func SetupDependencies(ctx context.Context, dependencies Dependencies) (*Contain
 		DebugWindow:          debugWindow,
 	}
 
-	logger.Named("di").Info("Dependencies initialized successfully")
+	logger.Named("di").Info(ctx, "Dependencies initialized successfully")
 	return container, nil
 }
 

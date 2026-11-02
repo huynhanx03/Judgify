@@ -375,115 +375,115 @@ func (mr *MockContentRepositoryMockRecorder) GetOwnClarification(arg0, arg1, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOwnClarification", reflect.TypeOf((*MockContentRepository)(nil).GetOwnClarification), arg0, arg1, arg2, arg3)
 }
 
-// ListAdminAnnouncements mocks base method.
-func (m *MockContentRepository) ListAdminAnnouncements(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
+// FindAnnouncementsForAdmin mocks base method.
+func (m *MockContentRepository) FindAnnouncementsForAdmin(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAdminAnnouncements", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindAnnouncementsForAdmin", arg0, arg1)
 	ret0, _ := ret[0].([]ports.AnnouncementView)
 	ret1, _ := ret[1].(*ports.ContentCursor)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// ListAdminAnnouncements indicates an expected call of ListAdminAnnouncements.
-func (mr *MockContentRepositoryMockRecorder) ListAdminAnnouncements(arg0, arg1 any) *gomock.Call {
+// FindAnnouncementsForAdmin indicates an expected call of FindAnnouncementsForAdmin.
+func (mr *MockContentRepositoryMockRecorder) FindAnnouncementsForAdmin(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAdminAnnouncements", reflect.TypeOf((*MockContentRepository)(nil).ListAdminAnnouncements), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAnnouncementsForAdmin", reflect.TypeOf((*MockContentRepository)(nil).FindAnnouncementsForAdmin), arg0, arg1)
 }
 
-// ListAdminClarifications mocks base method.
-func (m *MockContentRepository) ListAdminClarifications(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.ClarificationView, *ports.ContentCursor, error) {
+// FindClarificationsForAdmin mocks base method.
+func (m *MockContentRepository) FindClarificationsForAdmin(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.ClarificationView, *ports.ContentCursor, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAdminClarifications", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindClarificationsForAdmin", arg0, arg1)
 	ret0, _ := ret[0].([]ports.ClarificationView)
 	ret1, _ := ret[1].(*ports.ContentCursor)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// ListAdminClarifications indicates an expected call of ListAdminClarifications.
-func (mr *MockContentRepositoryMockRecorder) ListAdminClarifications(arg0, arg1 any) *gomock.Call {
+// FindClarificationsForAdmin indicates an expected call of FindClarificationsForAdmin.
+func (mr *MockContentRepositoryMockRecorder) FindClarificationsForAdmin(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAdminClarifications", reflect.TypeOf((*MockContentRepository)(nil).ListAdminClarifications), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindClarificationsForAdmin", reflect.TypeOf((*MockContentRepository)(nil).FindClarificationsForAdmin), arg0, arg1)
 }
 
-// ListOwnClarifications mocks base method.
-func (m *MockContentRepository) ListOwnClarifications(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.ClarificationView, *ports.ContentCursor, error) {
+// FindMyClarifications mocks base method.
+func (m *MockContentRepository) FindMyClarifications(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.ClarificationView, *ports.ContentCursor, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListOwnClarifications", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindMyClarifications", arg0, arg1)
 	ret0, _ := ret[0].([]ports.ClarificationView)
 	ret1, _ := ret[1].(*ports.ContentCursor)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// ListOwnClarifications indicates an expected call of ListOwnClarifications.
-func (mr *MockContentRepositoryMockRecorder) ListOwnClarifications(arg0, arg1 any) *gomock.Call {
+// FindMyClarifications indicates an expected call of FindMyClarifications.
+func (mr *MockContentRepositoryMockRecorder) FindMyClarifications(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOwnClarifications", reflect.TypeOf((*MockContentRepository)(nil).ListOwnClarifications), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMyClarifications", reflect.TypeOf((*MockContentRepository)(nil).FindMyClarifications), arg0, arg1)
 }
 
-// ListParticipantAnnouncements mocks base method.
-func (m *MockContentRepository) ListParticipantAnnouncements(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
+// FindAnnouncementsForParticipant mocks base method.
+func (m *MockContentRepository) FindAnnouncementsForParticipant(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListParticipantAnnouncements", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindAnnouncementsForParticipant", arg0, arg1)
 	ret0, _ := ret[0].([]ports.AnnouncementView)
 	ret1, _ := ret[1].(*ports.ContentCursor)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// ListParticipantAnnouncements indicates an expected call of ListParticipantAnnouncements.
-func (mr *MockContentRepositoryMockRecorder) ListParticipantAnnouncements(arg0, arg1 any) *gomock.Call {
+// FindAnnouncementsForParticipant indicates an expected call of FindAnnouncementsForParticipant.
+func (mr *MockContentRepositoryMockRecorder) FindAnnouncementsForParticipant(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListParticipantAnnouncements", reflect.TypeOf((*MockContentRepository)(nil).ListParticipantAnnouncements), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAnnouncementsForParticipant", reflect.TypeOf((*MockContentRepository)(nil).FindAnnouncementsForParticipant), arg0, arg1)
 }
 
-// ListParticipantClarifications mocks base method.
-func (m *MockContentRepository) ListParticipantClarifications(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.SharedClarificationView, *ports.ContentCursor, error) {
+// FindClarificationsForParticipant mocks base method.
+func (m *MockContentRepository) FindClarificationsForParticipant(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.SharedClarificationView, *ports.ContentCursor, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListParticipantClarifications", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindClarificationsForParticipant", arg0, arg1)
 	ret0, _ := ret[0].([]ports.SharedClarificationView)
 	ret1, _ := ret[1].(*ports.ContentCursor)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// ListParticipantClarifications indicates an expected call of ListParticipantClarifications.
-func (mr *MockContentRepositoryMockRecorder) ListParticipantClarifications(arg0, arg1 any) *gomock.Call {
+// FindClarificationsForParticipant indicates an expected call of FindClarificationsForParticipant.
+func (mr *MockContentRepositoryMockRecorder) FindClarificationsForParticipant(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListParticipantClarifications", reflect.TypeOf((*MockContentRepository)(nil).ListParticipantClarifications), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindClarificationsForParticipant", reflect.TypeOf((*MockContentRepository)(nil).FindClarificationsForParticipant), arg0, arg1)
 }
 
-// ListPublicAnnouncements mocks base method.
-func (m *MockContentRepository) ListPublicAnnouncements(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
+// FindAnnouncementsForPublic mocks base method.
+func (m *MockContentRepository) FindAnnouncementsForPublic(arg0 context.Context, arg1 ports.ContentListQuery) ([]ports.AnnouncementView, *ports.ContentCursor, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPublicAnnouncements", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindAnnouncementsForPublic", arg0, arg1)
 	ret0, _ := ret[0].([]ports.AnnouncementView)
 	ret1, _ := ret[1].(*ports.ContentCursor)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// ListPublicAnnouncements indicates an expected call of ListPublicAnnouncements.
-func (mr *MockContentRepositoryMockRecorder) ListPublicAnnouncements(arg0, arg1 any) *gomock.Call {
+// FindAnnouncementsForPublic indicates an expected call of FindAnnouncementsForPublic.
+func (mr *MockContentRepositoryMockRecorder) FindAnnouncementsForPublic(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicAnnouncements", reflect.TypeOf((*MockContentRepository)(nil).ListPublicAnnouncements), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAnnouncementsForPublic", reflect.TypeOf((*MockContentRepository)(nil).FindAnnouncementsForPublic), arg0, arg1)
 }
 
-// ListRevisions mocks base method.
-func (m *MockContentRepository) ListRevisions(arg0 context.Context, arg1 domain.ContentOwnerType, arg2 uuid.UUID) ([]domain.ContentRevision, error) {
+// FindRevisions mocks base method.
+func (m *MockContentRepository) FindRevisions(arg0 context.Context, arg1 domain.ContentOwnerType, arg2 uuid.UUID) ([]domain.ContentRevision, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRevisions", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "FindRevisions", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]domain.ContentRevision)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRevisions indicates an expected call of ListRevisions.
-func (mr *MockContentRepositoryMockRecorder) ListRevisions(arg0, arg1, arg2 any) *gomock.Call {
+// FindRevisions indicates an expected call of FindRevisions.
+func (mr *MockContentRepositoryMockRecorder) FindRevisions(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisions", reflect.TypeOf((*MockContentRepository)(nil).ListRevisions), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindRevisions", reflect.TypeOf((*MockContentRepository)(nil).FindRevisions), arg0, arg1, arg2)
 }
 
 // PublishAnnouncement mocks base method.
@@ -690,109 +690,109 @@ func (mr *MockContentServiceMockRecorder) GetOwnClarification(arg0, arg1, arg2, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOwnClarification", reflect.TypeOf((*MockContentService)(nil).GetOwnClarification), arg0, arg1, arg2, arg3)
 }
 
-// ListAdminAnnouncements mocks base method.
-func (m *MockContentService) ListAdminAnnouncements(arg0 context.Context, arg1 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
+// FindAnnouncementsForAdmin mocks base method.
+func (m *MockContentService) FindAnnouncementsForAdmin(arg0 context.Context, arg1 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAdminAnnouncements", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindAnnouncementsForAdmin", arg0, arg1)
 	ret0, _ := ret[0].(*contract.ContestContentPage[contract.AnnouncementResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListAdminAnnouncements indicates an expected call of ListAdminAnnouncements.
-func (mr *MockContentServiceMockRecorder) ListAdminAnnouncements(arg0, arg1 any) *gomock.Call {
+// FindAnnouncementsForAdmin indicates an expected call of FindAnnouncementsForAdmin.
+func (mr *MockContentServiceMockRecorder) FindAnnouncementsForAdmin(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAdminAnnouncements", reflect.TypeOf((*MockContentService)(nil).ListAdminAnnouncements), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAnnouncementsForAdmin", reflect.TypeOf((*MockContentService)(nil).FindAnnouncementsForAdmin), arg0, arg1)
 }
 
-// ListAdminClarifications mocks base method.
-func (m *MockContentService) ListAdminClarifications(arg0 context.Context, arg1 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
+// FindClarificationsForAdmin mocks base method.
+func (m *MockContentService) FindClarificationsForAdmin(arg0 context.Context, arg1 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAdminClarifications", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindClarificationsForAdmin", arg0, arg1)
 	ret0, _ := ret[0].(*contract.ContestContentPage[contract.ClarificationResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListAdminClarifications indicates an expected call of ListAdminClarifications.
-func (mr *MockContentServiceMockRecorder) ListAdminClarifications(arg0, arg1 any) *gomock.Call {
+// FindClarificationsForAdmin indicates an expected call of FindClarificationsForAdmin.
+func (mr *MockContentServiceMockRecorder) FindClarificationsForAdmin(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAdminClarifications", reflect.TypeOf((*MockContentService)(nil).ListAdminClarifications), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindClarificationsForAdmin", reflect.TypeOf((*MockContentService)(nil).FindClarificationsForAdmin), arg0, arg1)
 }
 
-// ListOwnClarifications mocks base method.
-func (m *MockContentService) ListOwnClarifications(arg0 context.Context, arg1 uuid.UUID, arg2 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
+// FindMyClarifications mocks base method.
+func (m *MockContentService) FindMyClarifications(arg0 context.Context, arg1 uuid.UUID, arg2 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListOwnClarifications", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "FindMyClarifications", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*contract.ContestContentPage[contract.ClarificationResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListOwnClarifications indicates an expected call of ListOwnClarifications.
-func (mr *MockContentServiceMockRecorder) ListOwnClarifications(arg0, arg1, arg2 any) *gomock.Call {
+// FindMyClarifications indicates an expected call of FindMyClarifications.
+func (mr *MockContentServiceMockRecorder) FindMyClarifications(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOwnClarifications", reflect.TypeOf((*MockContentService)(nil).ListOwnClarifications), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMyClarifications", reflect.TypeOf((*MockContentService)(nil).FindMyClarifications), arg0, arg1, arg2)
 }
 
-// ListParticipantAnnouncements mocks base method.
-func (m *MockContentService) ListParticipantAnnouncements(arg0 context.Context, arg1 uuid.UUID, arg2 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
+// FindAnnouncementsForParticipant mocks base method.
+func (m *MockContentService) FindAnnouncementsForParticipant(arg0 context.Context, arg1 uuid.UUID, arg2 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListParticipantAnnouncements", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "FindAnnouncementsForParticipant", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*contract.ContestContentPage[contract.AnnouncementResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListParticipantAnnouncements indicates an expected call of ListParticipantAnnouncements.
-func (mr *MockContentServiceMockRecorder) ListParticipantAnnouncements(arg0, arg1, arg2 any) *gomock.Call {
+// FindAnnouncementsForParticipant indicates an expected call of FindAnnouncementsForParticipant.
+func (mr *MockContentServiceMockRecorder) FindAnnouncementsForParticipant(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListParticipantAnnouncements", reflect.TypeOf((*MockContentService)(nil).ListParticipantAnnouncements), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAnnouncementsForParticipant", reflect.TypeOf((*MockContentService)(nil).FindAnnouncementsForParticipant), arg0, arg1, arg2)
 }
 
-// ListParticipantClarifications mocks base method.
-func (m *MockContentService) ListParticipantClarifications(arg0 context.Context, arg1 uuid.UUID, arg2 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
+// FindClarificationsForParticipant mocks base method.
+func (m *MockContentService) FindClarificationsForParticipant(arg0 context.Context, arg1 uuid.UUID, arg2 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListParticipantClarifications", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "FindClarificationsForParticipant", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*contract.ContestContentPage[contract.ClarificationResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListParticipantClarifications indicates an expected call of ListParticipantClarifications.
-func (mr *MockContentServiceMockRecorder) ListParticipantClarifications(arg0, arg1, arg2 any) *gomock.Call {
+// FindClarificationsForParticipant indicates an expected call of FindClarificationsForParticipant.
+func (mr *MockContentServiceMockRecorder) FindClarificationsForParticipant(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListParticipantClarifications", reflect.TypeOf((*MockContentService)(nil).ListParticipantClarifications), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindClarificationsForParticipant", reflect.TypeOf((*MockContentService)(nil).FindClarificationsForParticipant), arg0, arg1, arg2)
 }
 
-// ListPublicAnnouncements mocks base method.
-func (m *MockContentService) ListPublicAnnouncements(arg0 context.Context, arg1 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
+// FindAnnouncementsForPublic mocks base method.
+func (m *MockContentService) FindAnnouncementsForPublic(arg0 context.Context, arg1 *contract.ContestContentListRequest) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPublicAnnouncements", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindAnnouncementsForPublic", arg0, arg1)
 	ret0, _ := ret[0].(*contract.ContestContentPage[contract.AnnouncementResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListPublicAnnouncements indicates an expected call of ListPublicAnnouncements.
-func (mr *MockContentServiceMockRecorder) ListPublicAnnouncements(arg0, arg1 any) *gomock.Call {
+// FindAnnouncementsForPublic indicates an expected call of FindAnnouncementsForPublic.
+func (mr *MockContentServiceMockRecorder) FindAnnouncementsForPublic(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPublicAnnouncements", reflect.TypeOf((*MockContentService)(nil).ListPublicAnnouncements), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAnnouncementsForPublic", reflect.TypeOf((*MockContentService)(nil).FindAnnouncementsForPublic), arg0, arg1)
 }
 
-// ListRevisions mocks base method.
-func (m *MockContentService) ListRevisions(arg0 context.Context, arg1 domain.ContentOwnerType, arg2 uuid.UUID) ([]contract.ContentRevisionResponse, error) {
+// FindRevisions mocks base method.
+func (m *MockContentService) FindRevisions(arg0 context.Context, arg1 domain.ContentOwnerType, arg2 uuid.UUID) ([]contract.ContentRevisionResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRevisions", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "FindRevisions", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]contract.ContentRevisionResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRevisions indicates an expected call of ListRevisions.
-func (mr *MockContentServiceMockRecorder) ListRevisions(arg0, arg1, arg2 any) *gomock.Call {
+// FindRevisions indicates an expected call of FindRevisions.
+func (mr *MockContentServiceMockRecorder) FindRevisions(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisions", reflect.TypeOf((*MockContentService)(nil).ListRevisions), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindRevisions", reflect.TypeOf((*MockContentService)(nil).FindRevisions), arg0, arg1, arg2)
 }
 
 // PublishAnnouncement mocks base method.
@@ -952,19 +952,19 @@ func (mr *MockContestRepositoryMockRecorder) FindIDsByStatus(ctx, status any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindIDsByStatus", reflect.TypeOf((*MockContestRepository)(nil).FindIDsByStatus), ctx, status)
 }
 
-// FindPublic mocks base method.
-func (m *MockContestRepository) FindPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*domain.Contest], error) {
+// FindForPublic mocks base method.
+func (m *MockContestRepository) FindForPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*domain.Contest], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindPublic", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForPublic", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*domain.Contest])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindPublic indicates an expected call of FindPublic.
-func (mr *MockContestRepositoryMockRecorder) FindPublic(ctx, opts any) *gomock.Call {
+// FindForPublic indicates an expected call of FindForPublic.
+func (mr *MockContestRepositoryMockRecorder) FindForPublic(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublic", reflect.TypeOf((*MockContestRepository)(nil).FindPublic), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForPublic", reflect.TypeOf((*MockContestRepository)(nil).FindForPublic), ctx, opts)
 }
 
 // Get mocks base method.
@@ -1123,34 +1123,34 @@ func (mr *MockContestServiceMockRecorder) Delete(ctx, id, reason any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockContestService)(nil).Delete), ctx, id, reason)
 }
 
-// FindAdmin mocks base method.
-func (m *MockContestService) FindAdmin(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.ContestResponse], error) {
+// FindForAdmin mocks base method.
+func (m *MockContestService) FindForAdmin(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.ContestResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAdmin", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForAdmin", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*contract.ContestResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindAdmin indicates an expected call of FindAdmin.
-func (mr *MockContestServiceMockRecorder) FindAdmin(ctx, opts any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockContestServiceMockRecorder) FindForAdmin(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAdmin", reflect.TypeOf((*MockContestService)(nil).FindAdmin), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockContestService)(nil).FindForAdmin), ctx, opts)
 }
 
-// FindPublic mocks base method.
-func (m *MockContestService) FindPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.ContestResponse], error) {
+// FindForPublic mocks base method.
+func (m *MockContestService) FindForPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.ContestResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindPublic", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForPublic", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*contract.ContestResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindPublic indicates an expected call of FindPublic.
-func (mr *MockContestServiceMockRecorder) FindPublic(ctx, opts any) *gomock.Call {
+// FindForPublic indicates an expected call of FindForPublic.
+func (mr *MockContestServiceMockRecorder) FindForPublic(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublic", reflect.TypeOf((*MockContestService)(nil).FindPublic), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForPublic", reflect.TypeOf((*MockContestService)(nil).FindForPublic), ctx, opts)
 }
 
 // GetAdmin mocks base method.
@@ -1349,19 +1349,19 @@ func (mr *MockRatingHistoryRepositoryMockRecorder) CreateBulk(ctx, records any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulk", reflect.TypeOf((*MockRatingHistoryRepository)(nil).CreateBulk), ctx, records)
 }
 
-// FindByContest mocks base method.
-func (m *MockRatingHistoryRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*domain.RatingHistory, error) {
+// FindByContestID mocks base method.
+func (m *MockRatingHistoryRepository) FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*domain.RatingHistory, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByContest", ctx, contestID)
+	ret := m.ctrl.Call(m, "FindByContestID", ctx, contestID)
 	ret0, _ := ret[0].([]*domain.RatingHistory)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByContest indicates an expected call of FindByContest.
-func (mr *MockRatingHistoryRepositoryMockRecorder) FindByContest(ctx, contestID any) *gomock.Call {
+// FindByContestID indicates an expected call of FindByContestID.
+func (mr *MockRatingHistoryRepositoryMockRecorder) FindByContestID(ctx, contestID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByContest", reflect.TypeOf((*MockRatingHistoryRepository)(nil).FindByContest), ctx, contestID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByContestID", reflect.TypeOf((*MockRatingHistoryRepository)(nil).FindByContestID), ctx, contestID)
 }
 
 // MockRatingLedgerRepository is a mock of RatingLedgerRepository interface.
@@ -1403,19 +1403,19 @@ func (mr *MockRatingLedgerRepositoryMockRecorder) Apply(ctx, command any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockRatingLedgerRepository)(nil).Apply), ctx, command)
 }
 
-// FindActiveByContest mocks base method.
-func (m *MockRatingLedgerRepository) FindActiveByContest(ctx context.Context, contestID uuid.UUID) (*domain.RatingRun, error) {
+// FindActiveByContestID mocks base method.
+func (m *MockRatingLedgerRepository) FindActiveByContestID(ctx context.Context, contestID uuid.UUID) (*domain.RatingRun, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindActiveByContest", ctx, contestID)
+	ret := m.ctrl.Call(m, "FindActiveByContestID", ctx, contestID)
 	ret0, _ := ret[0].(*domain.RatingRun)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindActiveByContest indicates an expected call of FindActiveByContest.
-func (mr *MockRatingLedgerRepositoryMockRecorder) FindActiveByContest(ctx, contestID any) *gomock.Call {
+// FindActiveByContestID indicates an expected call of FindActiveByContestID.
+func (mr *MockRatingLedgerRepositoryMockRecorder) FindActiveByContestID(ctx, contestID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindActiveByContest", reflect.TypeOf((*MockRatingLedgerRepository)(nil).FindActiveByContest), ctx, contestID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindActiveByContestID", reflect.TypeOf((*MockRatingLedgerRepository)(nil).FindActiveByContestID), ctx, contestID)
 }
 
 // Prepare mocks base method.
@@ -1691,19 +1691,19 @@ func (mr *MockRegistrationRepositoryMockRecorder) Exists(ctx, contestID, userID 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockRegistrationRepository)(nil).Exists), ctx, contestID, userID)
 }
 
-// FindByContest mocks base method.
-func (m *MockRegistrationRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*domain.ContestRegistration, error) {
+// FindByContestID mocks base method.
+func (m *MockRegistrationRepository) FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*domain.ContestRegistration, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByContest", ctx, contestID)
+	ret := m.ctrl.Call(m, "FindByContestID", ctx, contestID)
 	ret0, _ := ret[0].([]*domain.ContestRegistration)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByContest indicates an expected call of FindByContest.
-func (mr *MockRegistrationRepositoryMockRecorder) FindByContest(ctx, contestID any) *gomock.Call {
+// FindByContestID indicates an expected call of FindByContestID.
+func (mr *MockRegistrationRepositoryMockRecorder) FindByContestID(ctx, contestID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByContest", reflect.TypeOf((*MockRegistrationRepository)(nil).FindByContest), ctx, contestID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByContestID", reflect.TypeOf((*MockRegistrationRepository)(nil).FindByContestID), ctx, contestID)
 }
 
 // GetProjection mocks base method.
@@ -1879,19 +1879,19 @@ func (m *MockStandingRepository) EXPECT() *MockStandingRepositoryMockRecorder {
 	return m.recorder
 }
 
-// FindByContest mocks base method.
-func (m *MockStandingRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*domain.ContestStanding, error) {
+// FindByContestID mocks base method.
+func (m *MockStandingRepository) FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*domain.ContestStanding, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByContest", ctx, contestID)
+	ret := m.ctrl.Call(m, "FindByContestID", ctx, contestID)
 	ret0, _ := ret[0].([]*domain.ContestStanding)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByContest indicates an expected call of FindByContest.
-func (mr *MockStandingRepositoryMockRecorder) FindByContest(ctx, contestID any) *gomock.Call {
+// FindByContestID indicates an expected call of FindByContestID.
+func (mr *MockStandingRepositoryMockRecorder) FindByContestID(ctx, contestID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByContest", reflect.TypeOf((*MockStandingRepository)(nil).FindByContest), ctx, contestID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByContestID", reflect.TypeOf((*MockStandingRepository)(nil).FindByContestID), ctx, contestID)
 }
 
 // Get mocks base method.

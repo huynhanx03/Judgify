@@ -119,7 +119,7 @@ export default function AdminContestsPage() {
     [reratingReason],
   );
   const service = useMemo(() => ({
-    find: contestService.findAdmin.bind(contestService),
+    find: contestService.findForAdmin.bind(contestService),
     create: (input: ContestEditorInput) => {
       const { expected_version: expectedVersion, ...draft } = input;
       if (expectedVersion !== undefined) {

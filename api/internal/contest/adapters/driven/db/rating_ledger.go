@@ -358,7 +358,7 @@ func (repository *RatingLedgerRepository) Apply(
 	return repository.loadRunByID(ctx, client, runRecord.ID)
 }
 
-func (repository *RatingLedgerRepository) FindActiveByContest(
+func (repository *RatingLedgerRepository) FindActiveByContestID(
 	ctx context.Context,
 	contestID uuid.UUID,
 ) (*entity.RatingRun, error) {

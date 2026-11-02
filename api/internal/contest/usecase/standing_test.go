@@ -40,7 +40,7 @@ func TestGetStandingsUsesPublicBoundaryAndCanonicalRanking(t *testing.T) {
 		State:                      entity.ContestRunning,
 		StandingsProjectionVersion: 4,
 	}, nil)
-	standings.EXPECT().FindByContest(ctx, contestID).Return([]*entity.ContestStanding{
+	standings.EXPECT().FindByContestID(ctx, contestID).Return([]*entity.ContestStanding{
 		{ContestID: contestID, UserID: testutil.ID(10), Username: "carol", SolvedCount: 3, Penalty: 500},
 		{ContestID: contestID, UserID: testutil.ID(20), Username: "alice", SolvedCount: 5, Penalty: 300},
 		{ContestID: contestID, UserID: testutil.ID(30), Username: "bob", SolvedCount: 5, Penalty: 600},
@@ -77,7 +77,7 @@ func TestGetStandingsReturnsFrozenSnapshotOnlyDuringFreezeWindow(t *testing.T) {
 		FreezeStandingsAt:          &freezeAt,
 		StandingsProjectionVersion: 9,
 	}, nil)
-	standings.EXPECT().FindByContest(ctx, contestID).Return([]*entity.ContestStanding{{
+	standings.EXPECT().FindByContestID(ctx, contestID).Return([]*entity.ContestStanding{{
 		ID:                        testutil.ID(50),
 		ContestID:                 contestID,
 		UserID:                    testutil.ID(10),
@@ -126,7 +126,7 @@ func TestGetOfficialStandingsUsesAdminContestBoundary(t *testing.T) {
 	contests.EXPECT().Get(ctx, contestID).Return(&entity.Contest{
 		ID: contestID, State: entity.ContestDraft, StandingsProjectionVersion: 2,
 	}, nil)
-	standings.EXPECT().FindByContest(ctx, contestID).Return([]*entity.ContestStanding{{
+	standings.EXPECT().FindByContestID(ctx, contestID).Return([]*entity.ContestStanding{{
 		ContestID: contestID, UserID: testutil.ID(10), SolvedCount: 1,
 	}}, nil)
 
@@ -145,7 +145,7 @@ func TestGetMyStandingReturnsOnlyAuthenticatedParticipant(t *testing.T) {
 	contests.EXPECT().GetPublic(ctx, contestID).Return(&entity.Contest{
 		ID: contestID, State: entity.ContestRunning, StandingsProjectionVersion: 6,
 	}, nil)
-	standings.EXPECT().FindByContest(ctx, contestID).Return([]*entity.ContestStanding{
+	standings.EXPECT().FindByContestID(ctx, contestID).Return([]*entity.ContestStanding{
 		{ContestID: contestID, UserID: testutil.ID(10), Username: "alice", SolvedCount: 2},
 		{ContestID: contestID, UserID: userID, Username: "bob", SolvedCount: 1},
 	}, nil)
@@ -162,7 +162,7 @@ func TestGetMyStandingReturnsOnlyAuthenticatedParticipant(t *testing.T) {
 func TestGetFinalStandingsPreservesRepositoryFailure(t *testing.T) {
 	service, standings, _ := newStandingTestEnv(t)
 	databaseError := errors.New("database unavailable")
-	standings.EXPECT().FindByContest(gomock.Any(), testutil.ID(1)).Return(nil, databaseError)
+	standings.EXPECT().FindByContestID(gomock.Any(), testutil.ID(1)).Return(nil, databaseError)
 
 	response, err := service.GetFinalStandings(context.Background(), testutil.ID(1))
 

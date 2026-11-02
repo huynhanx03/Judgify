@@ -24,6 +24,8 @@ type RatingState struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// NextSequence holds the value of the "next_sequence" field.
 	NextSequence int64 `json:"next_sequence,omitempty"`
 	// AppliedSequence holds the value of the "applied_sequence" field.
@@ -84,7 +86,7 @@ func (*RatingState) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case ratingstate.FieldCreatedAt, ratingstate.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case ratingstate.FieldActiveProjectionGenerationID, ratingstate.FieldActiveRunChainID:
+		case ratingstate.FieldTenantID, ratingstate.FieldActiveProjectionGenerationID, ratingstate.FieldActiveRunChainID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -118,6 +120,12 @@ func (_m *RatingState) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case ratingstate.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case ratingstate.FieldNextSequence:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -200,6 +208,9 @@ func (_m *RatingState) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("next_sequence=")
 	builder.WriteString(fmt.Sprintf("%v", _m.NextSequence))

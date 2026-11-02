@@ -9,7 +9,7 @@ import (
 	atlasmigrate "ariga.io/atlas/sql/migrate"
 	"go.uber.org/zap"
 
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 )
 
 // atlasLogger intentionally never records raw SQL. Migration files can later

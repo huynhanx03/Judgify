@@ -20,6 +20,8 @@ type NotificationCampaignRevision struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CampaignID holds the value of the "campaign_id" field.
 	CampaignID uuid.UUID `json:"campaign_id,omitempty"`
 	// RevisionNumber holds the value of the "revision_number" field.
@@ -133,7 +135,7 @@ func (*NotificationCampaignRevision) scanValues(columns []string) ([]any, error)
 			values[i] = new(sql.NullString)
 		case notificationcampaignrevision.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case notificationcampaignrevision.FieldID, notificationcampaignrevision.FieldCampaignID, notificationcampaignrevision.FieldBodyRenderSourceID, notificationcampaignrevision.FieldBodyRenderArtifactID, notificationcampaignrevision.FieldAuthorID:
+		case notificationcampaignrevision.FieldID, notificationcampaignrevision.FieldTenantID, notificationcampaignrevision.FieldCampaignID, notificationcampaignrevision.FieldBodyRenderSourceID, notificationcampaignrevision.FieldBodyRenderArtifactID, notificationcampaignrevision.FieldAuthorID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -155,6 +157,12 @@ func (_m *NotificationCampaignRevision) assignValues(columns []string, values []
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case notificationcampaignrevision.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case notificationcampaignrevision.FieldCampaignID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -297,6 +305,9 @@ func (_m *NotificationCampaignRevision) String() string {
 	var builder strings.Builder
 	builder.WriteString("NotificationCampaignRevision(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("campaign_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CampaignID))
 	builder.WriteString(", ")

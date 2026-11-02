@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -22,6 +23,8 @@ type Notification struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// Type holds the value of the "type" field.
@@ -35,7 +38,7 @@ type Notification struct {
 	// BodyKey holds the value of the "body_key" field.
 	BodyKey *string `json:"body_key,omitempty"`
 	// Params holds the value of the "params" field.
-	Params json.RawMessage `json:"params,omitempty"`
+	Params jsontext.Value `json:"params,omitempty"`
 	// CampaignRevisionID holds the value of the "campaign_revision_id" field.
 	CampaignRevisionID *uuid.UUID `json:"campaign_revision_id,omitempty"`
 	// ActionPath holds the value of the "action_path" field.
@@ -119,7 +122,7 @@ func (*Notification) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case notification.FieldCreatedAt, notification.FieldReadAt, notification.FieldArchivedAt, notification.FieldExpiresAt:
 			values[i] = new(sql.NullTime)
-		case notification.FieldID, notification.FieldUserID, notification.FieldSourceEventID:
+		case notification.FieldID, notification.FieldTenantID, notification.FieldUserID, notification.FieldSourceEventID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -141,6 +144,12 @@ func (_m *Notification) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case notification.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case notification.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -292,6 +301,9 @@ func (_m *Notification) String() string {
 	var builder strings.Builder
 	builder.WriteString("Notification(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

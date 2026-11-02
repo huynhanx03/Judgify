@@ -464,8 +464,9 @@ func recoveryContactEntity(record *generate.UserRecoveryContact) *entity.Recover
 		Status:  entity.RecoveryContactStatus(record.Status), Version: uint64(record.Version),
 		AddressCiphertext: append([]byte(nil), record.AddressCiphertext...), KeyID: record.KeyID,
 		VerifiedAt: record.VerifiedAt, RevokedAt: record.RevokedAt,
-		ReplacedContactID: record.ReplacedContactID,
-		CreatedAt:         record.CreatedAt.UTC(), UpdatedAt: record.UpdatedAt.UTC(),
+		ReplacedContactID:         record.ReplacedContactID,
+		SourceFederatedIdentityID: record.SourceFederatedIdentityID,
+		CreatedAt:                 record.CreatedAt.UTC(), UpdatedAt: record.UpdatedAt.UTC(),
 	}
 	return result
 }

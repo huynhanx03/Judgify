@@ -18,7 +18,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	dto "github.com/huynhanx03/judgify/internal/identity/contract"
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
@@ -72,7 +72,7 @@ func NewSessionManagementService(
 	}, nil
 }
 
-func (service *SessionManagementService) List(
+func (service *SessionManagementService) Find(
 	ctx context.Context,
 	userID, currentSessionID uuid.UUID,
 	request *dto.SessionListRequest,
@@ -95,7 +95,7 @@ func (service *SessionManagementService) List(
 		}
 		after = &decoded
 	}
-	page, err := service.repository.List(ctx, ports.SessionListQuery{
+	page, err := service.repository.Find(ctx, ports.SessionListQuery{
 		UserID: userID, After: after, Limit: limit,
 	})
 	if err != nil {

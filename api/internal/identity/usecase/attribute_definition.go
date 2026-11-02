@@ -16,9 +16,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
@@ -31,6 +31,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
 	"github.com/huynhanx03/judgify/internal/platform/operation"
 	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var attributeDefinitionKeyPattern = regexp.MustCompile(`^[a-z][a-z0-9_.-]{1,49}$`)
@@ -126,17 +127,7 @@ func (s *attributeDefinitionService) Find(ctx context.Context, opts *d.QueryOpti
 			Pagination: result.Pagination,
 		}, nil
 	}
-
-	entities := *result.Records
-	responses := make([]*dto.AttributeDefinitionResponse, len(entities))
-	for i, e := range entities {
-		responses[i] = ToAttributeDefinitionResponse(e)
-	}
-
-	return &d.Paginated[*dto.AttributeDefinitionResponse]{
-		Records:    &responses,
-		Pagination: result.Pagination,
-	}, nil
+	return d.MapPaginated(result, ToAttributeDefinitionResponse), nil
 }
 
 // Get retrieves an attribute definition by ID.
@@ -151,7 +142,7 @@ func (s *attributeDefinitionService) Get(ctx context.Context, id uuid.UUID) (*dt
 	return ToAttributeDefinitionResponse(attrDef), nil
 }
 
-func (s *attributeDefinitionService) ListRevisions(
+func (s *attributeDefinitionService) FindRevisions(
 	ctx context.Context,
 	id uuid.UUID,
 	cursor string,
@@ -175,7 +166,7 @@ func (s *attributeDefinitionService) ListRevisions(
 	if _, err := s.attrDefRepo.Get(ctx, id); err != nil {
 		return nil, err
 	}
-	revisions, err := s.attrDefRepo.ListRevisions(ctx, id, before, limit+1)
+	revisions, err := s.attrDefRepo.FindRevisions(ctx, id, before, limit+1)
 	if err != nil {
 		return nil, err
 	}
@@ -468,7 +459,7 @@ func (s *attributeDefinitionService) Update(ctx context.Context, id uuid.UUID, r
 	if err != nil {
 		return nil, err
 	}
-	latest, err := s.attrDefRepo.ListRevisions(ctx, id, 0, 1)
+	latest, err := s.attrDefRepo.FindRevisions(ctx, id, 0, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -985,12 +976,16 @@ func (s *attributeDefinitionService) scheduleAttributeMigration(
 			nil,
 		)
 	}
+	tenantID, err := tenantctx.RequireTenant(ctx)
+	if err != nil {
+		return nil, apperr.New(apperr.CodeConflict, "select one tenant before migrating profile attributes", err)
+	}
 	var (
 		definition *entity.AttributeDefinition
 		started    operation.CreateResult
 		prepared   attributemigration.Request
 	)
-	err := s.txMgr.DoInTx(ctx, func(txCtx context.Context) error {
+	err = s.txMgr.DoInTx(ctx, func(txCtx context.Context) error {
 		var loadErr error
 		definition, loadErr = s.attrDefRepo.Get(txCtx, command.DefinitionID)
 		if loadErr != nil {
@@ -1007,6 +1002,7 @@ func (s *attributeDefinitionService) scheduleAttributeMigration(
 			s.migration,
 			attributemigration.Request{
 				OperationID:         command.CommandID,
+				TenantID:            tenantID,
 				CommandID:           command.CommandID,
 				DefinitionID:        command.DefinitionID,
 				ExpectedVersion:     command.ExpectedVersion,

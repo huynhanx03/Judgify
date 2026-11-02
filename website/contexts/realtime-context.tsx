@@ -19,6 +19,7 @@ import {
   resolveTicketedRealtimeWebSocketUrl,
 } from "@/constants/realtime";
 import { useSession } from "@/contexts/session-context";
+import { useTenant } from "@/contexts/tenant-context";
 import { ApiError } from "@/lib/api/error";
 import {
   AuthorizationRevisionSync,
@@ -71,6 +72,7 @@ function validSubscriptionValue(value: string, maximumLength: number): boolean {
  */
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   const session = useSession();
+  const tenant = useTenant();
   const [state, setState] = useState<RealtimeConnectionState>("idle");
   const stateRef = useRef<RealtimeConnectionState>("idle");
   const clientRef = useRef<WebSocketClient | null>(null);
@@ -158,7 +160,9 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
   const connectionKey =
     session.state.status === "authenticated"
-      ? `authenticated:${session.state.session.user.id}:${session.state.session.session.id}`
+      ? tenant.loading || !tenant.selectedTenantId
+        ? null
+        : `authenticated:${session.state.session.user.id}:${session.state.session.session.id}:${tenant.selectedTenantId}`
       : session.state.status === "anonymous"
         ? "anonymous"
         : null;

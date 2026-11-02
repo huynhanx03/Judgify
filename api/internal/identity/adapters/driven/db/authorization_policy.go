@@ -9,16 +9,20 @@ import (
 	"unicode/utf8"
 
 	casbinmodel "github.com/casbin/casbin/v3/model"
-	entadapter "github.com/casbin/ent-adapter"
-	adapterent "github.com/casbin/ent-adapter/ent"
 	"github.com/google/uuid"
+	commonauthz "github.com/huynhanx03/go-common/pkg/security/authorization"
 	authcasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
+	commonentadapter "github.com/huynhanx03/go-common/pkg/security/authorization/casbin/ent"
+	"github.com/huynhanx03/go-common/pkg/settings"
 
 	dbent "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/authorizationstate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/casbinrule"
+	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/role"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantmembership"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	"github.com/huynhanx03/judgify/internal/ports"
@@ -32,10 +36,12 @@ const (
 	maxAuthorizationRulesPerMutation     = 8_192
 	maxAuthorizationReferenceLookupItems = 10_000
 	maxAuthorizationRoleKeyBytes         = 64
+	maxSubjectAuthorizationRelations     = 128
+	maxScopeParentsPerLevel              = 1024
 )
 
 // AuthorizationPolicyRepository persists canonical Casbin rules and the
-// single-tenant desired-revision fence. It deliberately owns no connection or
+// global desired-revision fence. It deliberately owns no connection or
 // schema lifecycle and never delegates writes to Casbin AutoSave.
 type AuthorizationPolicyRepository struct {
 	client *dbent.EntClient
@@ -63,9 +69,9 @@ func (repository *AuthorizationPolicyRepository) EnsureState(
 	return authorizationPersistenceError("ensure state", err)
 }
 
-// LoadRules uses the pinned Ent adapter for the committed startup snapshot.
-// The local adapter patch disables Schema.Create; writes remain exclusively in
-// this repository so they can join Judgify's transaction and revision fence.
+// LoadRules uses the shared, read-only go-common Ent adapter for the committed
+// startup snapshot. Writes remain exclusively in this repository so they can
+// join Judgify's transaction and revision fence.
 func (repository *AuthorizationPolicyRepository) LoadRules(
 	ctx context.Context,
 	modelText string,
@@ -81,20 +87,281 @@ func (repository *AuthorizationPolicyRepository) LoadRules(
 	if err != nil {
 		return nil, authorizationPersistenceError("parse policy model", err)
 	}
-	adapterClient := adapterent.NewClient(adapterent.Driver(driver))
-	loader, err := entadapter.NewAdapterWithClient(
-		adapterClient,
-		entadapter.SkipSchemaCreate(),
-		entadapter.WithContext(ctx),
-		entadapter.WithPolicyLimit(maxAuthorizationRules),
-	)
+	loader, err := commonentadapter.NewAdapter(driver, settings.Casbin{PolicyLimit: maxAuthorizationRules})
 	if err != nil {
 		return nil, authorizationPersistenceError("initialize policy adapter", err)
 	}
-	if err := loader.LoadPolicy(parsed); err != nil {
-		return nil, authorizationPersistenceError("load rules through Ent adapter", err)
+	if err := loader.LoadPolicyContext(ctx, parsed); err != nil {
+		return nil, authorizationPersistenceError("load rules through shared Ent adapter", err)
 	}
 	return authorizationRulesFromModel(parsed)
+}
+
+func (repository *AuthorizationPolicyRepository) LoadScopedRules(
+	ctx context.Context,
+	modelText string,
+	scope commonauthz.Scope,
+	revision int64,
+) ([]authcasbin.PolicyRule, error) {
+	if !repository.validContext(ctx) || strings.TrimSpace(modelText) == "" ||
+		scope.Validate() != nil || revision <= 0 ||
+		(scope.Type != "tenant" && scope != authcasbin.SystemScope()) {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	state, err := repository.State(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	driver, ok := repository.client.DialectDriver()
+	if !ok {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	ancestors, err := repository.loadScopeAncestors(ctx, scope)
+	if err != nil {
+		return nil, err
+	}
+	filter, err := commonentadapter.ScopeFilter(scope, ancestors)
+	if err != nil {
+		return nil, authorizationPersistenceError("build scoped policy filter", err)
+	}
+	filter.GroupSubjectPrefixes = []string{"role:"}
+	parsed, err := casbinmodel.NewModelFromString(modelText)
+	if err != nil {
+		return nil, authorizationPersistenceError("parse scoped policy model", err)
+	}
+	loader, err := commonentadapter.NewAdapter(driver, settings.Casbin{PolicyLimit: maxAuthorizationRules})
+	if err != nil {
+		return nil, authorizationPersistenceError("initialize scoped policy adapter", err)
+	}
+	if err := loader.LoadFilteredPolicyContext(ctx, parsed, filter); err != nil {
+		return nil, authorizationPersistenceError("load scoped policy rules", err)
+	}
+	rules, err := authorizationRulesFromModel(parsed)
+	if err != nil {
+		return nil, err
+	}
+	state, err = repository.State(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	return rules, nil
+}
+
+func (repository *AuthorizationPolicyRepository) loadScopeAncestors(
+	ctx context.Context,
+	scope commonauthz.Scope,
+) ([]commonauthz.Scope, error) {
+	if scope.Type != "tenant" {
+		return nil, nil
+	}
+	frontier := []string{scope.Key()}
+	seen := map[string]struct{}{scope.Key(): {}}
+	ancestors := make([]commonauthz.Scope, 0)
+	for depth := 0; len(frontier) != 0 && depth < authcasbin.DefaultMaxScopeHierarchyDepth; depth++ {
+		records, err := repository.client.DB(ctx).CasbinRule.Query().
+			Where(casbinrule.PtypeEQ("g3"), casbinrule.V0In(frontier...)).
+			Limit(maxScopeParentsPerLevel + 1).
+			All(ctx)
+		if err != nil {
+			return nil, authorizationPersistenceError("load scope parents", err)
+		}
+		if len(records) > maxScopeParentsPerLevel {
+			return nil, ports.ErrInvalidAuthorizationPolicy
+		}
+		next := make([]string, 0, len(records))
+		for _, record := range records {
+			if record.V2 != "" || record.V3 != "" || record.V4 != "" || record.V5 != "" {
+				return nil, ports.ErrInvalidAuthorizationPolicy
+			}
+			parent, err := authorizationScopeFromKey(record.V1)
+			if err != nil || parent == scope {
+				return nil, ports.ErrInvalidAuthorizationPolicy
+			}
+			if _, exists := seen[parent.Key()]; exists {
+				continue
+			}
+			seen[parent.Key()] = struct{}{}
+			ancestors = append(ancestors, parent)
+			next = append(next, parent.Key())
+		}
+		frontier = next
+	}
+	if len(frontier) != 0 {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	return ancestors, nil
+}
+
+func (repository *AuthorizationPolicyRepository) LoadSubjectRelations(
+	ctx context.Context,
+	revision int64,
+	scope commonauthz.Scope,
+	subject string,
+) ([]authcasbin.PolicyRule, error) {
+	if !repository.validContext(ctx) || revision <= 0 || scope.Validate() != nil ||
+		(scope.Type != "tenant" && scope != authcasbin.SystemScope()) ||
+		!validUserSubject(subject) {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	state, err := repository.State(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	userID, err := canonicalAuthorizationUserID(subject)
+	if err != nil {
+		return nil, err
+	}
+	includeTenantRelations := false
+	if scope.Type == "tenant" {
+		active, membershipErr := repository.hasActiveTenantMembership(ctx, scope, userID)
+		if membershipErr != nil {
+			return nil, membershipErr
+		}
+		includeTenantRelations = active
+	}
+	groups := []predicate.CasbinRule{
+		casbinrule.And(casbinrule.PtypeEQ("g"), casbinrule.V0EQ(subject), casbinrule.V2EQ(authcasbin.SystemScope().Key())),
+	}
+	if includeTenantRelations {
+		groups = append(groups, casbinrule.And(casbinrule.PtypeEQ("g"), casbinrule.V0EQ(subject), casbinrule.V2EQ(scope.Key())))
+	}
+	query := repository.client.DB(ctx).CasbinRule.Query().Where(casbinrule.Or(groups...)).Limit(maxSubjectAuthorizationRelations + 1)
+	records, err := query.All(ctx)
+	if err != nil {
+		return nil, authorizationPersistenceError("load subject authorization relations", err)
+	}
+	if len(records) > maxSubjectAuthorizationRelations {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	rules := make([]authcasbin.PolicyRule, len(records))
+	seen := make(map[authcasbin.PolicyRule]struct{}, len(records))
+	for index, record := range records {
+		rule, conversionErr := authorizationPolicyRuleFromRecord(record)
+		if conversionErr != nil || !validSubjectAuthorizationRelation(rule, subject, scope, "", includeTenantRelations) {
+			return nil, ports.ErrInvalidAuthorizationPolicy
+		}
+		if _, duplicate := seen[rule]; duplicate {
+			return nil, ports.ErrInvalidAuthorizationPolicy
+		}
+		seen[rule] = struct{}{}
+		rules[index] = rule
+	}
+	return repository.confirmAuthorizationRevision(ctx, revision, rules)
+}
+
+func (repository *AuthorizationPolicyRepository) LoadResourceRelations(
+	ctx context.Context,
+	revision int64,
+	scope commonauthz.Scope,
+	subject string,
+	resourceID string,
+) ([]authcasbin.PolicyRule, error) {
+	if !repository.validContext(ctx) || revision <= 0 || scope.Validate() != nil ||
+		(scope.Type != "tenant" && scope != authcasbin.SystemScope()) ||
+		!validUserSubject(subject) || !validAuthorizationPolicyValue(resourceID) {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	state, err := repository.State(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	userID, err := canonicalAuthorizationUserID(subject)
+	if err != nil {
+		return nil, err
+	}
+	if scope.Type == "tenant" {
+		active, membershipErr := repository.hasActiveTenantMembership(ctx, scope, userID)
+		if membershipErr != nil {
+			return nil, membershipErr
+		}
+		if !active {
+			return repository.confirmAuthorizationRevision(ctx, revision, nil)
+		}
+	}
+	records, err := repository.client.DB(ctx).CasbinRule.Query().Where(
+		casbinrule.PtypeEQ("g2"),
+		casbinrule.V0EQ(subject),
+		casbinrule.V2EQ(resourceID),
+	).Limit(maxSubjectAuthorizationRelations + 1).All(ctx)
+	if err != nil {
+		return nil, authorizationPersistenceError("load resource authorization relations", err)
+	}
+	if len(records) > maxSubjectAuthorizationRelations {
+		return nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	rules := make([]authcasbin.PolicyRule, len(records))
+	seen := make(map[authcasbin.PolicyRule]struct{}, len(records))
+	for index, record := range records {
+		rule, conversionErr := authorizationPolicyRuleFromRecord(record)
+		if conversionErr != nil || !validSubjectAuthorizationRelation(rule, subject, scope, resourceID, true) {
+			return nil, ports.ErrInvalidAuthorizationPolicy
+		}
+		if _, duplicate := seen[rule]; duplicate {
+			return nil, ports.ErrInvalidAuthorizationPolicy
+		}
+		seen[rule] = struct{}{}
+		rules[index] = rule
+	}
+	return repository.confirmAuthorizationRevision(ctx, revision, rules)
+}
+
+func (repository *AuthorizationPolicyRepository) hasActiveTenantMembership(
+	ctx context.Context,
+	scope commonauthz.Scope,
+	userID uuid.UUID,
+) (bool, error) {
+	tenantID, err := uuid.Parse(scope.ID)
+	if err != nil || tenantID == uuid.Nil || tenantID.String() != scope.ID {
+		return false, ports.ErrInvalidAuthorizationPolicy
+	}
+	active, err := repository.client.DB(ctx).TenantMembership.Query().
+		Where(
+			tenantmembership.TenantIDEQ(tenantID),
+			tenantmembership.UserIDEQ(userID),
+			tenantmembership.StatusEQ(tenantmembership.StatusActive),
+			tenantmembership.HasTenantWith(tenant.StatusEQ(tenant.StatusActive)),
+		).
+		Exist(ctx)
+	if err != nil {
+		return false, authorizationPersistenceError("check active subject membership", err)
+	}
+	return active, nil
+}
+
+func canonicalAuthorizationUserID(subject string) (uuid.UUID, error) {
+	userID, err := uuid.Parse(strings.TrimPrefix(subject, "user:"))
+	if err != nil || userID == uuid.Nil || userID.String() != strings.TrimPrefix(subject, "user:") {
+		return uuid.Nil, ports.ErrInvalidAuthorizationPolicy
+	}
+	return userID, nil
+}
+
+func (repository *AuthorizationPolicyRepository) confirmAuthorizationRevision(
+	ctx context.Context,
+	revision int64,
+	rules []authcasbin.PolicyRule,
+) ([]authcasbin.PolicyRule, error) {
+	state, err := repository.State(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if state.DesiredRevision != revision {
+		return nil, ports.ErrAuthorizationRevisionConflict
+	}
+	sortAuthorizationPolicyRules(rules)
+	return rules, nil
 }
 
 func (repository *AuthorizationPolicyRepository) State(
@@ -133,7 +400,7 @@ func (repository *AuthorizationPolicyRepository) LockState(
 	return authorizationStateFromRecord(record)
 }
 
-func (repository *AuthorizationPolicyRepository) ListRules(
+func (repository *AuthorizationPolicyRepository) FindRules(
 	ctx context.Context,
 ) ([]authcasbin.PolicyRule, error) {
 	if !repository.validContext(ctx) {
@@ -191,6 +458,7 @@ func (repository *AuthorizationPolicyRepository) ReplaceRolePolicies(
 	if _, err = client.CasbinRule.Delete().Where(
 		casbinrule.PtypeEQ("p"),
 		casbinrule.V0EQ(roleSubject),
+		casbinrule.V1EQ(authcasbin.SystemScope().Key()),
 	).Exec(ctx); err != nil {
 		return authorizationPersistenceError("replace role policies", err)
 	}
@@ -213,6 +481,7 @@ func (repository *AuthorizationPolicyRepository) ReplaceUserRoles(
 	if _, err = client.CasbinRule.Delete().Where(
 		casbinrule.PtypeEQ("g"),
 		casbinrule.V0EQ(userSubject),
+		casbinrule.V2EQ(authcasbin.SystemScope().Key()),
 	).Exec(ctx); err != nil {
 		return authorizationPersistenceError("replace user roles", err)
 	}
@@ -239,6 +508,7 @@ func (repository *AuthorizationPolicyRepository) DeleteRoleReferences(
 					casbinrule.V1EQ(roleSubject),
 				),
 			),
+			casbinrule.And(casbinrule.PtypeEQ("g2"), casbinrule.V1EQ(roleSubject)),
 		),
 	).Exec(ctx)
 	return authorizationPersistenceError("delete role references", err)
@@ -252,8 +522,10 @@ func (repository *AuthorizationPolicyRepository) DeleteUserReferences(
 		return ports.ErrInvalidAuthorizationPolicy
 	}
 	_, err := repository.client.DB(ctx).CasbinRule.Delete().Where(
-		casbinrule.PtypeEQ("g"),
-		casbinrule.V0EQ(userSubject),
+		casbinrule.Or(
+			casbinrule.And(casbinrule.PtypeEQ("g"), casbinrule.V0EQ(userSubject)),
+			casbinrule.And(casbinrule.PtypeEQ("g2"), casbinrule.V0EQ(userSubject)),
+		),
 	).Exec(ctx)
 	return authorizationPersistenceError("delete user references", err)
 }
@@ -396,7 +668,7 @@ func (repository *AuthorizationPolicyRepository) LoadCommandReceipt(
 	if !repository.validContext(ctx) || commandID == uuid.Nil {
 		return ports.AuthorizationCommandReceipt{}, false, ports.ErrInvalidAuthorizationPolicy
 	}
-	record, err := repository.client.DB(ctx).OutboxEvent.Get(ctx, commandID)
+	record, err := repository.client.GetOutboxEvent(ctx, commandID)
 	if generate.IsNotFound(err) {
 		return ports.AuthorizationCommandReceipt{}, false, nil
 	}
@@ -547,6 +819,7 @@ func normalizeUserRoleRules(
 			Type: "g",
 			V0:   userSubject,
 			V1:   roleSubject,
+			V2:   authcasbin.SystemScope().Key(),
 		}
 	}
 	return rules, nil
@@ -559,12 +832,71 @@ func validCanonicalAuthorizationRule(rule authcasbin.PolicyRule) bool {
 	switch rule.Type {
 	case "p":
 		return validRoleSubject(rule.V0) &&
-			validAuthorizationPolicyValue(rule.V1) &&
+			(rule.V1 == authcasbin.SystemScope().Key() || validScopeKey(rule.V1) ||
+				rule.V0 == "role:superadmin" && rule.V1 == "*" && rule.V2 == "*" && rule.V3 == "*") &&
 			validAuthorizationPolicyValue(rule.V2) &&
-			rule.V3 == "" && rule.V4 == "" && rule.V5 == ""
+			validAuthorizationPolicyValue(rule.V3) &&
+			rule.V4 == "" && rule.V5 == ""
 	case "g":
 		return validUserSubject(rule.V0) && validRoleSubject(rule.V1) &&
+			(rule.V2 == authcasbin.SystemScope().Key() || validScopeKey(rule.V2)) &&
+			rule.V3 == "" && rule.V4 == "" && rule.V5 == ""
+	case "g2":
+		return validUserSubject(rule.V0) && validRoleSubject(rule.V1) &&
+			rule.V1 != "role:superadmin" &&
+			validAuthorizationPolicyValue(rule.V2) &&
+			rule.V3 == "" && rule.V4 == "" && rule.V5 == ""
+	case "g3":
+		return validScopeKey(rule.V0) && validScopeKey(rule.V1) && rule.V0 != rule.V1 &&
 			rule.V2 == "" && rule.V3 == "" && rule.V4 == "" && rule.V5 == ""
+	default:
+		return false
+	}
+}
+
+func validScopeKey(value string) bool {
+	typeEnd := strings.IndexByte(value, ':')
+	if typeEnd <= 0 || typeEnd == len(value)-1 {
+		return false
+	}
+	scope := commonauthz.Scope{Type: value[:typeEnd], ID: value[typeEnd+1:]}
+	return scope.Validate() == nil && scope.Key() == value
+}
+
+func authorizationScopeFromKey(value string) (commonauthz.Scope, error) {
+	separator := strings.IndexByte(value, ':')
+	if separator <= 0 || separator == len(value)-1 {
+		return commonauthz.Scope{}, ports.ErrInvalidAuthorizationPolicy
+	}
+	scope := commonauthz.Scope{Type: value[:separator], ID: value[separator+1:]}
+	if scope.Validate() != nil || scope.Key() != value {
+		return commonauthz.Scope{}, ports.ErrInvalidAuthorizationPolicy
+	}
+	return scope, nil
+}
+
+func validSubjectAuthorizationRelation(
+	rule authcasbin.PolicyRule,
+	subject string,
+	scope commonauthz.Scope,
+	resourceID string,
+	includeTenantRelations bool,
+) bool {
+	switch rule.Type {
+	case "g":
+		if rule.V0 != subject || !validRoleSubject(rule.V1) ||
+			rule.V3 != "" || rule.V4 != "" || rule.V5 != "" {
+			return false
+		}
+		if rule.V2 == authcasbin.SystemScope().Key() {
+			return true
+		}
+		return scope.Type == "tenant" && includeTenantRelations && rule.V2 == scope.Key()
+	case "g2":
+		return (scope.Type != "tenant" || includeTenantRelations) &&
+			rule.V0 == subject && validRoleSubject(rule.V1) &&
+			rule.V2 == resourceID && resourceID != "" &&
+			rule.V3 == "" && rule.V4 == "" && rule.V5 == ""
 	default:
 		return false
 	}

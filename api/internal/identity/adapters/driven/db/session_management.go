@@ -39,7 +39,7 @@ func NewSessionManagementRepository(client *dbent.EntClient) ports.SessionManage
 	return &SessionManagementRepository{client: client}
 }
 
-func (repository *SessionManagementRepository) List(
+func (repository *SessionManagementRepository) Find(
 	ctx context.Context,
 	query ports.SessionListQuery,
 ) (ports.SessionListResult, error) {

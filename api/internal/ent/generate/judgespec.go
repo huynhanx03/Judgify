@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -19,6 +20,8 @@ type JudgeSpec struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// SubmissionID holds the value of the "submission_id" field.
@@ -54,7 +57,7 @@ type JudgeSpec struct {
 	// ArtifactManifestChecksum holds the value of the "artifact_manifest_checksum" field.
 	ArtifactManifestChecksum string `json:"artifact_manifest_checksum,omitempty"`
 	// ArtifactManifest holds the value of the "artifact_manifest" field.
-	ArtifactManifest json.RawMessage `json:"artifact_manifest,omitempty"`
+	ArtifactManifest jsontext.Value `json:"artifact_manifest,omitempty"`
 	// SupervisorProtocolVersion holds the value of the "supervisor_protocol_version" field.
 	SupervisorProtocolVersion string `json:"supervisor_protocol_version,omitempty"`
 	// CheckerKey holds the value of the "checker_key" field.
@@ -62,7 +65,7 @@ type JudgeSpec struct {
 	// CheckerVersion holds the value of the "checker_version" field.
 	CheckerVersion string `json:"checker_version,omitempty"`
 	// CheckerConfig holds the value of the "checker_config" field.
-	CheckerConfig json.RawMessage `json:"checker_config,omitempty"`
+	CheckerConfig jsontext.Value `json:"checker_config,omitempty"`
 	// ReleaseID holds the value of the "release_id" field.
 	ReleaseID string `json:"release_id,omitempty"`
 	// ApprovedReleaseManifestChecksum holds the value of the "approved_release_manifest_checksum" field.
@@ -72,7 +75,7 @@ type JudgeSpec struct {
 	// CapabilityProfileHash holds the value of the "capability_profile_hash" field.
 	CapabilityProfileHash string `json:"capability_profile_hash,omitempty"`
 	// RewardSnapshot holds the value of the "reward_snapshot" field.
-	RewardSnapshot json.RawMessage `json:"reward_snapshot,omitempty"`
+	RewardSnapshot jsontext.Value `json:"reward_snapshot,omitempty"`
 	// RewardSnapshotChecksum holds the value of the "reward_snapshot_checksum" field.
 	RewardSnapshotChecksum []byte `json:"reward_snapshot_checksum,omitempty"`
 	// CPUTimeLimitMs holds the value of the "cpu_time_limit_ms" field.
@@ -113,7 +116,7 @@ func (*JudgeSpec) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case judgespec.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case judgespec.FieldID, judgespec.FieldSubmissionID, judgespec.FieldUserID, judgespec.FieldProblemID, judgespec.FieldProblemRevisionID, judgespec.FieldTestsetRevisionID:
+		case judgespec.FieldID, judgespec.FieldTenantID, judgespec.FieldSubmissionID, judgespec.FieldUserID, judgespec.FieldProblemID, judgespec.FieldProblemRevisionID, judgespec.FieldTestsetRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -135,6 +138,12 @@ func (_m *JudgeSpec) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case judgespec.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case judgespec.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -412,6 +421,9 @@ func (_m *JudgeSpec) String() string {
 	var builder strings.Builder
 	builder.WriteString("JudgeSpec(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")

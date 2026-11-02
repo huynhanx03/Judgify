@@ -19,6 +19,8 @@ type UserTagStats struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// TagID holds the value of the "tag_id" field.
@@ -71,7 +73,7 @@ func (*UserTagStats) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case usertagstats.FieldSolvedCount:
 			values[i] = new(sql.NullInt64)
-		case usertagstats.FieldID, usertagstats.FieldUserID, usertagstats.FieldTagID:
+		case usertagstats.FieldID, usertagstats.FieldTenantID, usertagstats.FieldUserID, usertagstats.FieldTagID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -93,6 +95,12 @@ func (_m *UserTagStats) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case usertagstats.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case usertagstats.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -158,6 +166,9 @@ func (_m *UserTagStats) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserTagStats(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

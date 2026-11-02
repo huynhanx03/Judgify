@@ -447,12 +447,12 @@ func (_q *TestsetRevisionQuery) WithContestProblemSnapshots(opts ...func(*Contes
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.TestsetRevision.Query().
-//		GroupBy(testsetrevision.FieldCreatedAt).
+//		GroupBy(testsetrevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *TestsetRevisionQuery) GroupBy(field string, fields ...string) *TestsetRevisionGroupBy {
@@ -470,11 +470,11 @@ func (_q *TestsetRevisionQuery) GroupBy(field string, fields ...string) *Testset
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.TestsetRevision.Query().
-//		Select(testsetrevision.FieldCreatedAt).
+//		Select(testsetrevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *TestsetRevisionQuery) Select(fields ...string) *TestsetRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

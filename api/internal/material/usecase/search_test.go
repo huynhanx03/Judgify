@@ -20,11 +20,11 @@ type searchRepositoryStub struct {
 	admin    entity.PublicMaterial
 }
 
-func (stub *searchRepositoryStub) SearchPublic(_ context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
+func (stub *searchRepositoryStub) FindForPublic(_ context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
 	stub.query = query
 	return stub.result, nil
 }
-func (stub *searchRepositoryStub) SearchAdmin(_ context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
+func (stub *searchRepositoryStub) FindForAdmin(_ context.Context, query ports.SearchQuery) (ports.SearchResult, error) {
 	stub.query = query
 	return stub.result, nil
 }
@@ -34,7 +34,7 @@ func (*searchRepositoryStub) ResolvePublicSlug(context.Context, string, bool) (e
 func (*searchRepositoryStub) RelatedPublic(context.Context, uuid.UUID, bool, int) ([]entity.PublicMaterial, error) {
 	return nil, nil
 }
-func (*searchRepositoryStub) ListRevisions(context.Context, uuid.UUID, int64, int) ([]entity.MaterialRevisionSummary, error) {
+func (*searchRepositoryStub) FindRevisions(context.Context, uuid.UUID, int64, int) ([]entity.MaterialRevisionSummary, error) {
 	return nil, nil
 }
 func (stub *searchRepositoryStub) LoadRevision(context.Context, uuid.UUID, uuid.UUID) (entity.MaterialRevision, error) {
@@ -49,13 +49,13 @@ func TestSearchAppliesBoundedDefaultsAndClosedSort(t *testing.T) {
 	service, err := NewSearchService(repository)
 	require.NoError(t, err)
 
-	_, err = service.Search(context.Background(), ports.SearchQuery{Text: "  cây đoạn  "})
+	_, err = service.FindForPublic(context.Background(), ports.SearchQuery{Text: "  cây đoạn  "})
 	require.NoError(t, err)
 	require.Equal(t, "cây đoạn", repository.query.Text)
 	require.Equal(t, "relevance", repository.query.Sort)
 	require.Equal(t, 24, repository.query.Limit)
 
-	_, err = service.Search(context.Background(), ports.SearchQuery{Sort: "random"})
+	_, err = service.FindForPublic(context.Background(), ports.SearchQuery{Sort: "random"})
 	require.ErrorIs(t, err, entity.ErrMaterialInvalidCommand)
 }
 
@@ -63,7 +63,7 @@ func TestSearchNeverRequestsHiddenProjectionForAnonymousCaller(t *testing.T) {
 	repository := &searchRepositoryStub{}
 	service, err := NewSearchService(repository)
 	require.NoError(t, err)
-	_, err = service.Search(context.Background(), ports.SearchQuery{Authenticated: false})
+	_, err = service.FindForPublic(context.Background(), ports.SearchQuery{Authenticated: false})
 	require.NoError(t, err)
 	require.False(t, repository.query.Authenticated)
 }

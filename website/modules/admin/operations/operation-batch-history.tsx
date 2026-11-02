@@ -21,7 +21,7 @@ export function OperationBatchHistory({
   const feed = useCursorFeed<OperationBatch>({
     resetKey: `${operationID}:${operationVersion}`,
     load: async (cursor, signal) => {
-      const page = await operationService.listBatches(operationID, cursor, signal);
+      const page = await operationService.findBatches(operationID, cursor, signal);
       return { items: page.items, next_cursor: page.next_cursor };
     },
     keyOf: (batch) => `${batch.operation_id}:${batch.sequence}`,

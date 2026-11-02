@@ -11,7 +11,7 @@ import (
 )
 
 type RewardRuleHandler interface {
-	List(context.Context, *rewardRuleListRequest) (*rewardRulePageResponse, error)
+	Find(context.Context, *rewardRuleListRequest) (*rewardRulePageResponse, error)
 	PreviewPublication(context.Context, *previewRewardRulePublicationRequest) (*rewardRulePublicationPreviewResponse, error)
 	Publish(context.Context, *publishRewardRuleRequest) (*rewardRuleResponse, error)
 }
@@ -24,11 +24,11 @@ func NewRewardRuleHandler(service ports.RewardRuleService) RewardRuleHandler {
 	return &rewardRuleHandler{service: service}
 }
 
-func (handler *rewardRuleHandler) List(
+func (handler *rewardRuleHandler) Find(
 	ctx context.Context,
 	request *rewardRuleListRequest,
 ) (*rewardRulePageResponse, error) {
-	page, err := handler.service.List(ctx, request.Cursor, request.Limit)
+	page, err := handler.service.Find(ctx, request.Cursor, request.Limit)
 	if err != nil {
 		return nil, err
 	}

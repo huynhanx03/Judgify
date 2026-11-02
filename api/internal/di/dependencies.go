@@ -15,15 +15,14 @@ import (
 // references for the lifetime of the composed API role.
 type Dependencies struct {
 	Database *internalent.EntClient
-	Cache    cache.LocalCache[string, any]
+	Cache    *cache.Cache
 	Config   settings.Config
-	Logger   *commonlogger.LoggerZap
+	Logger   *commonlogger.Logger
 }
 
 func (dependencies Dependencies) validate() error {
 	if dependencies.Database == nil || dependencies.Database.Client() == nil ||
-		dependencies.Cache == nil || dependencies.Logger == nil ||
-		dependencies.Logger.Logger == nil {
+		dependencies.Cache == nil || dependencies.Logger == nil {
 		return fmt.Errorf("setup dependencies: invalid process resources")
 	}
 	return nil

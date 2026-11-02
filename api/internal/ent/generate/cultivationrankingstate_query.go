@@ -266,12 +266,12 @@ func (_q *CultivationRankingStateQuery) Clone() *CultivationRankingStateQuery {
 // Example:
 //
 //	var v []struct {
-//		Key string `json:"key,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.CultivationRankingState.Query().
-//		GroupBy(cultivationrankingstate.FieldKey).
+//		GroupBy(cultivationrankingstate.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *CultivationRankingStateQuery) GroupBy(field string, fields ...string) *CultivationRankingStateGroupBy {
@@ -289,11 +289,11 @@ func (_q *CultivationRankingStateQuery) GroupBy(field string, fields ...string) 
 // Example:
 //
 //	var v []struct {
-//		Key string `json:"key,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.CultivationRankingState.Query().
-//		Select(cultivationrankingstate.FieldKey).
+//		Select(cultivationrankingstate.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *CultivationRankingStateQuery) Select(fields ...string) *CultivationRankingStateSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

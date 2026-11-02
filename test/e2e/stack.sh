@@ -408,7 +408,7 @@ cmd_up() {
   log "PostgreSQL listening on 127.0.0.1:$host_port"
 
   # ------------------------------------------------------------------
-  # 3. Bootstrap roles from deploy/postgres/init-roles.sql.
+  # 3. Bootstrap database roles.
   # ------------------------------------------------------------------
   log "bootstrapping database roles"
   docker exec \
@@ -423,21 +423,21 @@ cmd_up() {
       --set ON_ERROR_STOP=1 \
       --username "postgres" \
       --dbname "judgify" \
-      <"$root_dir/deploy/postgres/init-roles.sql" >/dev/null
+      <"$root_dir/scripts/init-roles.sql" >/dev/null
 
   # ------------------------------------------------------------------
-  # 4. Build binaries: cmd/migrate and cmd/bootstrap-admin and cmd/server.
+  # 4. Build binaries: cmd/migrate, cmd/judgify, and cmd/server.
   # ------------------------------------------------------------------
-  log "building cmd/migrate, cmd/bootstrap-admin, and cmd/server"
+  log "building cmd/migrate, cmd/judgify, and cmd/server"
 
   local migrate_bin="$state_root/judgify-migrate"
-  local bootstrap_bin="$state_root/judgify-bootstrap-admin"
+  local judgify_bin="$state_root/judgify"
   # server_bin already declared above for the double-up guard.
 
   (
     cd "$api_dir"
     env GOPROXY=off go build -trimpath -o "$migrate_bin" ./cmd/migrate
-    env GOPROXY=off go build -trimpath -o "$bootstrap_bin" ./cmd/bootstrap-admin
+    env GOPROXY=off go build -trimpath -o "$judgify_bin" ./cmd/judgify
     env GOPROXY=off go build -trimpath -o "$server_bin" ./cmd/server
   )
 
@@ -578,7 +578,7 @@ cmd_up() {
       DATABASE_DATABASE=judgify \
       JUDGIFY_BOOTSTRAP_ADMIN_USERNAME="$e2e_admin_username" \
       JUDGIFY_BOOTSTRAP_ADMIN_PASSWORD="$e2e_admin_password" \
-      "$bootstrap_bin"
+      "$judgify_bin" bootstrap-admin
   )
   log "administrator account created"
 
@@ -936,7 +936,10 @@ PROXYEOF
 
   chmod 600 "$env_file"
 
+  local base_url
+  base_url="$(read_env_value "$env_file" "JUDGIFY_E2E_BASE_URL")" || fail "could not read local URL"
   log "stack is up"
+  log "open in browser: $base_url"
   log "env file:   $env_file"
   log "api log:    $api_log"
   log "next log:   $next_log"

@@ -26,6 +26,12 @@ type UserSolvedProblemCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserSolvedProblemCreate) SetTenantID(v uuid.UUID) *UserSolvedProblemCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserSolvedProblemCreate) SetUserID(v uuid.UUID) *UserSolvedProblemCreate {
 	_c.mutation.SetUserID(v)
@@ -123,6 +129,9 @@ func (_c *UserSolvedProblemCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserSolvedProblemCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserSolvedProblem.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserSolvedProblem.user_id"`)}
 	}
@@ -174,6 +183,10 @@ func (_c *UserSolvedProblemCreate) createSpec() (*UserSolvedProblem, *sqlgraph.C
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(usersolvedproblem.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SolvedAt(); ok {
 		_spec.SetField(usersolvedproblem.FieldSolvedAt, field.TypeTime, value)
 		_node.SolvedAt = value
@@ -219,7 +232,7 @@ func (_c *UserSolvedProblemCreate) createSpec() (*UserSolvedProblem, *sqlgraph.C
 // of the `INSERT` statement. For example:
 //
 //	client.UserSolvedProblem.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -228,7 +241,7 @@ func (_c *UserSolvedProblemCreate) createSpec() (*UserSolvedProblem, *sqlgraph.C
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserSolvedProblemUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserSolvedProblemCreate) OnConflict(opts ...sql.ConflictOption) *UserSolvedProblemUpsertOne {
@@ -316,6 +329,9 @@ func (u *UserSolvedProblemUpsertOne) UpdateNewValues() *UserSolvedProblemUpsertO
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(usersolvedproblem.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(usersolvedproblem.FieldTenantID)
 		}
 	}))
 	return u
@@ -526,7 +542,7 @@ func (_c *UserSolvedProblemCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserSolvedProblemUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserSolvedProblemCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserSolvedProblemUpsertBulk {
@@ -572,6 +588,9 @@ func (u *UserSolvedProblemUpsertBulk) UpdateNewValues() *UserSolvedProblemUpsert
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(usersolvedproblem.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(usersolvedproblem.FieldTenantID)
 			}
 		}
 	}))

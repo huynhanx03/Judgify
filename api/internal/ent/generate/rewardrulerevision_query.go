@@ -303,12 +303,12 @@ func (_q *RewardRuleRevisionQuery) WithLedgerEntries(opts ...func(*ProgressionLe
 // Example:
 //
 //	var v []struct {
-//		RuleKey string `json:"rule_key,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.RewardRuleRevision.Query().
-//		GroupBy(rewardrulerevision.FieldRuleKey).
+//		GroupBy(rewardrulerevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *RewardRuleRevisionQuery) GroupBy(field string, fields ...string) *RewardRuleRevisionGroupBy {
@@ -326,11 +326,11 @@ func (_q *RewardRuleRevisionQuery) GroupBy(field string, fields ...string) *Rewa
 // Example:
 //
 //	var v []struct {
-//		RuleKey string `json:"rule_key,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.RewardRuleRevision.Query().
-//		Select(rewardrulerevision.FieldRuleKey).
+//		Select(rewardrulerevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *RewardRuleRevisionQuery) Select(fields ...string) *RewardRuleRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

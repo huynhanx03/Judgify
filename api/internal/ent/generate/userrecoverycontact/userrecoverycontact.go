@@ -44,12 +44,16 @@ const (
 	FieldRevokedAt = "revoked_at"
 	// FieldReplacedContactID holds the string denoting the replaced_contact_id field in the database.
 	FieldReplacedContactID = "replaced_contact_id"
+	// FieldSourceFederatedIdentityID holds the string denoting the source_federated_identity_id field in the database.
+	FieldSourceFederatedIdentityID = "source_federated_identity_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeVerificationTokens holds the string denoting the verification_tokens edge name in mutations.
 	EdgeVerificationTokens = "verification_tokens"
 	// EdgePasswordResetTokens holds the string denoting the password_reset_tokens edge name in mutations.
 	EdgePasswordResetTokens = "password_reset_tokens"
+	// EdgeSourceFederatedIdentity holds the string denoting the source_federated_identity edge name in mutations.
+	EdgeSourceFederatedIdentity = "source_federated_identity"
 	// Table holds the table name of the userrecoverycontact in the database.
 	Table = "user_recovery_contacts"
 	// UserTable is the table that holds the user relation/edge.
@@ -73,6 +77,13 @@ const (
 	PasswordResetTokensInverseTable = "password_reset_tokens"
 	// PasswordResetTokensColumn is the table column denoting the password_reset_tokens relation/edge.
 	PasswordResetTokensColumn = "contact_id"
+	// SourceFederatedIdentityTable is the table that holds the source_federated_identity relation/edge.
+	SourceFederatedIdentityTable = "user_recovery_contacts"
+	// SourceFederatedIdentityInverseTable is the table name for the FederatedIdentity entity.
+	// It exists in this package in order to avoid circular dependency with the "federatedidentity" package.
+	SourceFederatedIdentityInverseTable = "federated_identities"
+	// SourceFederatedIdentityColumn is the table column denoting the source_federated_identity relation/edge.
+	SourceFederatedIdentityColumn = "source_federated_identity_id"
 )
 
 // Columns holds all SQL columns for userrecoverycontact fields.
@@ -92,6 +103,7 @@ var Columns = []string{
 	FieldVerifiedAt,
 	FieldRevokedAt,
 	FieldReplacedContactID,
+	FieldSourceFederatedIdentityID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -157,6 +169,7 @@ const (
 	PurposeRegistration Purpose = "registration"
 	PurposeReplacement  Purpose = "replacement"
 	PurposeInvitation   Purpose = "invitation"
+	PurposeOauthLink    Purpose = "oauth_link"
 )
 
 func (pu Purpose) String() string {
@@ -166,7 +179,7 @@ func (pu Purpose) String() string {
 // PurposeValidator is a validator for the "purpose" field enum values. It is called by the builders before save.
 func PurposeValidator(pu Purpose) error {
 	switch pu {
-	case PurposeRegistration, PurposeReplacement, PurposeInvitation:
+	case PurposeRegistration, PurposeReplacement, PurposeInvitation, PurposeOauthLink:
 		return nil
 	default:
 		return fmt.Errorf("userrecoverycontact: invalid enum value for purpose field: %q", pu)
@@ -263,6 +276,11 @@ func ByReplacedContactID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReplacedContactID, opts...).ToFunc()
 }
 
+// BySourceFederatedIdentityID orders the results by the source_federated_identity_id field.
+func BySourceFederatedIdentityID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSourceFederatedIdentityID, opts...).ToFunc()
+}
+
 // ByUserField orders the results by user field.
 func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -297,6 +315,13 @@ func ByPasswordResetTokens(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpti
 		sqlgraph.OrderByNeighborTerms(s, newPasswordResetTokensStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySourceFederatedIdentityField orders the results by source_federated_identity field.
+func BySourceFederatedIdentityField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSourceFederatedIdentityStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -316,5 +341,12 @@ func newPasswordResetTokensStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PasswordResetTokensInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, PasswordResetTokensTable, PasswordResetTokensColumn),
+	)
+}
+func newSourceFederatedIdentityStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SourceFederatedIdentityInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, SourceFederatedIdentityTable, SourceFederatedIdentityColumn),
 	)
 }

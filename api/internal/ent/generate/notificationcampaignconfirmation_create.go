@@ -25,6 +25,12 @@ type NotificationCampaignConfirmationCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *NotificationCampaignConfirmationCreate) SetTenantID(v uuid.UUID) *NotificationCampaignConfirmationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetNonceHash sets the "nonce_hash" field.
 func (_c *NotificationCampaignConfirmationCreate) SetNonceHash(v []byte) *NotificationCampaignConfirmationCreate {
 	_c.mutation.SetNonceHash(v)
@@ -239,6 +245,9 @@ func (_c *NotificationCampaignConfirmationCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *NotificationCampaignConfirmationCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "NotificationCampaignConfirmation.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.NonceHash(); !ok {
 		return &ValidationError{Name: "nonce_hash", err: errors.New(`generate: missing required field "NotificationCampaignConfirmation.nonce_hash"`)}
 	}
@@ -353,6 +362,10 @@ func (_c *NotificationCampaignConfirmationCreate) createSpec() (*NotificationCam
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(notificationcampaignconfirmation.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.NonceHash(); ok {
 		_spec.SetField(notificationcampaignconfirmation.FieldNonceHash, field.TypeBytes, value)
 		_node.NonceHash = value
@@ -453,7 +466,7 @@ func (_c *NotificationCampaignConfirmationCreate) createSpec() (*NotificationCam
 // of the `INSERT` statement. For example:
 //
 //	client.NotificationCampaignConfirmation.Create().
-//		SetNonceHash(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -462,7 +475,7 @@ func (_c *NotificationCampaignConfirmationCreate) createSpec() (*NotificationCam
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationCampaignConfirmationUpsert) {
-//			SetNonceHash(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationCampaignConfirmationCreate) OnConflict(opts ...sql.ConflictOption) *NotificationCampaignConfirmationUpsertOne {
@@ -586,6 +599,9 @@ func (u *NotificationCampaignConfirmationUpsertOne) UpdateNewValues() *Notificat
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(notificationcampaignconfirmation.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(notificationcampaignconfirmation.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.NonceHash(); exists {
 			s.SetIgnore(notificationcampaignconfirmation.FieldNonceHash)
@@ -886,7 +902,7 @@ func (_c *NotificationCampaignConfirmationCreateBulk) ExecX(ctx context.Context)
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationCampaignConfirmationUpsert) {
-//			SetNonceHash(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationCampaignConfirmationCreateBulk) OnConflict(opts ...sql.ConflictOption) *NotificationCampaignConfirmationUpsertBulk {
@@ -932,6 +948,9 @@ func (u *NotificationCampaignConfirmationUpsertBulk) UpdateNewValues() *Notifica
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(notificationcampaignconfirmation.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(notificationcampaignconfirmation.FieldTenantID)
 			}
 			if _, exists := b.mutation.NonceHash(); exists {
 				s.SetIgnore(notificationcampaignconfirmation.FieldNonceHash)

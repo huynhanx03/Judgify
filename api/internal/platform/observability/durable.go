@@ -13,6 +13,7 @@ import (
 
 	contestcontract "github.com/huynhanx03/judgify/internal/contest/contract"
 	submissioncontract "github.com/huynhanx03/judgify/internal/submission/contract"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var judgeMetricStates = []string{"ready", "leased", "completed", "cancelled", "dead"}
@@ -51,44 +52,51 @@ func (metrics *Metrics) RegisterJudgeQueueCollector(pool *sql.DB) error {
 		return ErrInvalidMetrics
 	}
 	return metrics.RegisterCollector("judge-queue", CollectorFunc(func(ctx context.Context) error {
-		rows, err := pool.QueryContext(ctx, `
+		counts := make(map[string]float64, len(judgeMetricStates))
+		var oldest float64
+		err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			rows, err := tx.QueryContext(ctx, `
 			SELECT state, COUNT(*)
 			FROM judge_jobs
 			GROUP BY state`)
-		if err != nil {
-			return err
-		}
-		counts := make(map[string]float64, len(judgeMetricStates))
-		for rows.Next() {
-			var state string
-			var count int64
-			if err := rows.Scan(&state, &count); err != nil {
+			if err != nil {
+				return err
+			}
+			for rows.Next() {
+				var state string
+				var count int64
+				if err := rows.Scan(&state, &count); err != nil {
+					_ = rows.Close()
+					return err
+				}
+				switch state {
+				case "ready", "retry_wait":
+					counts["ready"] += float64(count)
+				case "leased":
+					counts["leased"] += float64(count)
+				case "done":
+					counts["completed"] += float64(count)
+				case "cancelled", "dead":
+					counts[state] += float64(count)
+				}
+			}
+			if err := rows.Err(); err != nil {
 				_ = rows.Close()
 				return err
 			}
-			switch state {
-			case "ready", "retry_wait":
-				counts["ready"] += float64(count)
-			case "leased":
-				counts["leased"] += float64(count)
-			case "done":
-				counts["completed"] += float64(count)
-			case "cancelled", "dead":
-				counts[state] += float64(count)
+			if err := rows.Close(); err != nil {
+				return err
 			}
-		}
-		if err := rows.Err(); err != nil {
-			_ = rows.Close()
-			return err
-		}
-		if err := rows.Close(); err != nil {
-			return err
-		}
-		var oldest float64
-		if err := pool.QueryRowContext(ctx, `
+			var oldest float64
+			if err := tx.QueryRowContext(ctx, `
 			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - available_at)), 0)), 0)::double precision
 			FROM judge_jobs
 			WHERE state IN ('ready', 'retry_wait') AND available_at <= CURRENT_TIMESTAMP`).Scan(&oldest); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
 			return err
 		}
 		var failures []error
@@ -116,35 +124,37 @@ func (metrics *Metrics) RegisterSolveRewardDeliveryCollectors(
 		{
 			name: "solve-reward-outbox-state",
 			collect: CollectorFunc(func(ctx context.Context) error {
-				rows, err := pool.QueryContext(ctx, `
+				counts := make(map[string]float64, len(outboxMetricStates))
+				var oldest float64
+				err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+					rows, err := tx.QueryContext(ctx, `
 					SELECT state, COUNT(*)
 					FROM outbox_events
 					WHERE event_type = $1
 					GROUP BY state`,
-					submissioncontract.EventProblemSolveStatusChangedV1,
-				)
-				if err != nil {
-					return err
-				}
-				counts := make(map[string]float64, len(outboxMetricStates))
-				for rows.Next() {
-					var state string
-					var count int64
-					if err := rows.Scan(&state, &count); err != nil {
+						submissioncontract.EventProblemSolveStatusChangedV1,
+					)
+					if err != nil {
+						return err
+					}
+					for rows.Next() {
+						var state string
+						var count int64
+						if err := rows.Scan(&state, &count); err != nil {
+							_ = rows.Close()
+							return err
+						}
+						counts[state] = float64(count)
+					}
+					if err := rows.Err(); err != nil {
 						_ = rows.Close()
 						return err
 					}
-					counts[state] = float64(count)
-				}
-				if err := rows.Err(); err != nil {
-					_ = rows.Close()
-					return err
-				}
-				if err := rows.Close(); err != nil {
-					return err
-				}
-				var oldest float64
-				if err := pool.QueryRowContext(ctx, `
+					if err := rows.Close(); err != nil {
+						return err
+					}
+					var oldest float64
+					if err := tx.QueryRowContext(ctx, `
 					SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (
 						CURRENT_TIMESTAMP - occurred_at
 					)), 0)), 0)::double precision
@@ -152,8 +162,13 @@ func (metrics *Metrics) RegisterSolveRewardDeliveryCollectors(
 					WHERE event_type = $1
 					  AND state = 'pending'
 					  AND next_attempt_at <= CURRENT_TIMESTAMP`,
-					submissioncontract.EventProblemSolveStatusChangedV1,
-				).Scan(&oldest); err != nil {
+						submissioncontract.EventProblemSolveStatusChangedV1,
+					).Scan(&oldest); err != nil {
+						return err
+					}
+					return nil
+				})
+				if err != nil {
 					return err
 				}
 				var failures []error
@@ -178,7 +193,8 @@ func (metrics *Metrics) RegisterSolveRewardDeliveryCollectors(
 			name: "solve-reward-reconciliation-lag",
 			collect: CollectorFunc(func(ctx context.Context) error {
 				var lag float64
-				if err := pool.QueryRowContext(ctx, `
+				if err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+					return tx.QueryRowContext(ctx, `
 					SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (
 						CURRENT_TIMESTAMP - transition.occurred_at
 					)), 0)), 0)::double precision
@@ -189,7 +205,8 @@ func (metrics *Metrics) RegisterSolveRewardDeliveryCollectors(
 						WHERE processed.solve_id = transition.solve_id
 						  AND processed.aggregate_version = transition.to_version
 					)`,
-				).Scan(&lag); err != nil {
+					).Scan(&lag)
+				}); err != nil {
 					return err
 				}
 				return metrics.Set(ctx, MetricOutboxReplayLag, lag, nil)
@@ -212,15 +229,20 @@ func (metrics *Metrics) registerOutboxCollector(pool *sql.DB) error {
 		return ErrInvalidMetrics
 	}
 	return metrics.RegisterCollector("outbox-state", CollectorFunc(func(ctx context.Context) error {
-		counts, err := groupedCounts(ctx, pool, `SELECT state, COUNT(*) FROM outbox_events GROUP BY state`)
-		if err != nil {
-			return err
-		}
+		var counts map[string]float64
 		var oldest float64
-		if err := pool.QueryRowContext(ctx, `
+		err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			var err error
+			counts, err = groupedCounts(ctx, tx, `SELECT state, COUNT(*) FROM outbox_events GROUP BY state`)
+			if err != nil {
+				return err
+			}
+			return tx.QueryRowContext(ctx, `
 			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - occurred_at)), 0)), 0)::double precision
 			FROM outbox_events
-			WHERE state = 'pending' AND next_attempt_at <= CURRENT_TIMESTAMP`).Scan(&oldest); err != nil {
+			WHERE state = 'pending' AND next_attempt_at <= CURRENT_TIMESTAMP`).Scan(&oldest)
+		})
+		if err != nil {
 			return err
 		}
 		var failures []error
@@ -237,7 +259,19 @@ func (metrics *Metrics) registerSecurityEmailCollector(pool *sql.DB) error {
 		return ErrInvalidMetrics
 	}
 	return metrics.RegisterCollector("security-email-state", CollectorFunc(func(ctx context.Context) error {
-		stored, err := groupedCounts(ctx, pool, `SELECT status, COUNT(*) FROM security_email_deliveries GROUP BY status`)
+		var stored map[string]float64
+		var oldest float64
+		err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			var err error
+			stored, err = groupedCounts(ctx, tx, `SELECT status, COUNT(*) FROM security_email_deliveries GROUP BY status`)
+			if err != nil {
+				return err
+			}
+			return tx.QueryRowContext(ctx, `
+			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - created_at)), 0)), 0)::double precision
+			FROM security_email_deliveries
+			WHERE status = 'ready' AND next_attempt_at <= CURRENT_TIMESTAMP`).Scan(&oldest)
+		})
 		if err != nil {
 			return err
 		}
@@ -247,13 +281,6 @@ func (metrics *Metrics) registerSecurityEmailCollector(pool *sql.DB) error {
 			"sent":      stored["sent"],
 			"dead":      stored["dead"],
 			"cancelled": stored["cancelled"],
-		}
-		var oldest float64
-		if err := pool.QueryRowContext(ctx, `
-			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - created_at)), 0)), 0)::double precision
-			FROM security_email_deliveries
-			WHERE status = 'ready' AND next_attempt_at <= CURRENT_TIMESTAMP`).Scan(&oldest); err != nil {
-			return err
 		}
 		var failures []error
 		for _, state := range securityEmailMetricStates {
@@ -269,7 +296,10 @@ func (metrics *Metrics) registerCampaignCollector(pool *sql.DB) error {
 		return ErrInvalidMetrics
 	}
 	return metrics.RegisterCollector("notification-campaign-state", CollectorFunc(func(ctx context.Context) error {
-		counts, err := groupedCounts(ctx, pool, `
+		var counts map[string]float64
+		err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			var err error
+			counts, err = groupedCounts(ctx, tx, `
 			SELECT CASE
 				WHEN operation.status = 'paused' THEN 'paused'
 				WHEN campaign.status = 'sending' THEN 'running'
@@ -279,6 +309,8 @@ func (metrics *Metrics) registerCampaignCollector(pool *sql.DB) error {
 			LEFT JOIN operations AS operation ON operation.id = campaign.operation_id
 			WHERE campaign.status <> 'draft'
 			GROUP BY metric_state`)
+			return err
+		})
 		if err != nil {
 			return err
 		}
@@ -323,37 +355,43 @@ func (metrics *Metrics) registerOperationCollector(pool *sql.DB, operationKinds 
 		GROUP BY 1, 2`
 	frozenKinds = append(frozenKinds, "other")
 	return metrics.RegisterCollector("operation-state", CollectorFunc(func(ctx context.Context) error {
-		rows, err := pool.QueryContext(ctx, query, arguments...)
-		if err != nil {
-			return err
-		}
 		counts := make(map[string]map[string]float64, len(frozenKinds))
-		for rows.Next() {
-			var kind, state string
-			var count int64
-			if err := rows.Scan(&kind, &state, &count); err != nil {
+		err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			rows, err := tx.QueryContext(ctx, query, arguments...)
+			if err != nil {
+				return err
+			}
+			for rows.Next() {
+				var kind, state string
+				var count int64
+				if err := rows.Scan(&kind, &state, &count); err != nil {
+					_ = rows.Close()
+					return err
+				}
+				if _, known := allowed[kind]; !known {
+					kind = "other"
+				}
+				if state == "pending" {
+					state = "scheduled"
+				}
+				if !contains(operationMetricStates, state) {
+					continue
+				}
+				if counts[kind] == nil {
+					counts[kind] = make(map[string]float64, len(operationMetricStates))
+				}
+				counts[kind][state] += float64(count)
+			}
+			if err := rows.Err(); err != nil {
 				_ = rows.Close()
 				return err
 			}
-			if _, known := allowed[kind]; !known {
-				kind = "other"
+			if err := rows.Close(); err != nil {
+				return err
 			}
-			if state == "pending" {
-				state = "scheduled"
-			}
-			if !contains(operationMetricStates, state) {
-				continue
-			}
-			if counts[kind] == nil {
-				counts[kind] = make(map[string]float64, len(operationMetricStates))
-			}
-			counts[kind][state] += float64(count)
-		}
-		if err := rows.Err(); err != nil {
-			_ = rows.Close()
-			return err
-		}
-		if err := rows.Close(); err != nil {
+			return nil
+		})
+		if err != nil {
 			return err
 		}
 		var failures []error
@@ -390,7 +428,8 @@ func (metrics *Metrics) registerContestCollector(pool *sql.DB) error {
 	}
 	return metrics.RegisterCollector("contest-projection-state", CollectorFunc(func(ctx context.Context) error {
 		lag := make(map[string]float64, len(contestProjectionClasses))
-		rows, err := pool.QueryContext(ctx, `
+		err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			rows, err := tx.QueryContext(ctx, `
 			SELECT CASE
 				WHEN event_type = $1 THEN 'standing'
 				WHEN event_type IN (
@@ -407,61 +446,68 @@ func (metrics *Metrics) registerContestCollector(pool *sql.DB) error {
 				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 			)
 			GROUP BY projection`,
-			submissioncontract.EventSubmissionJudgedV1,
-			contestcontract.EventAnnouncementPublishedV1,
-			contestcontract.EventAnnouncementWithdrawnV1,
-			contestcontract.EventClarificationSubmittedV1,
-			contestcontract.EventClarificationAnsweredV1,
-			contestcontract.EventClarificationClosedV1,
-			contestcontract.EventClarificationWithdrawnV1,
-			contestcontract.EventRegistrationChangedV1,
-			contestcontract.EventRatingCalculatedV1,
-			contestcontract.EventRatingSkippedV1,
-			contestcontract.EventRatingProjectionActivatedV1,
-			contestcontract.EventLifecycleChangedV1,
-		)
-		if err != nil {
-			return err
-		}
-		for rows.Next() {
-			var projection string
-			var seconds float64
-			if err := rows.Scan(&projection, &seconds); err != nil {
+				submissioncontract.EventSubmissionJudgedV1,
+				contestcontract.EventAnnouncementPublishedV1,
+				contestcontract.EventAnnouncementWithdrawnV1,
+				contestcontract.EventClarificationSubmittedV1,
+				contestcontract.EventClarificationAnsweredV1,
+				contestcontract.EventClarificationClosedV1,
+				contestcontract.EventClarificationWithdrawnV1,
+				contestcontract.EventRegistrationChangedV1,
+				contestcontract.EventRatingCalculatedV1,
+				contestcontract.EventRatingSkippedV1,
+				contestcontract.EventRatingProjectionActivatedV1,
+				contestcontract.EventLifecycleChangedV1,
+			)
+			if err != nil {
+				return err
+			}
+			for rows.Next() {
+				var projection string
+				var seconds float64
+				if err := rows.Scan(&projection, &seconds); err != nil {
+					_ = rows.Close()
+					return err
+				}
+				if contains(contestProjectionClasses, projection) {
+					lag[projection] = seconds
+				}
+			}
+			if err := rows.Err(); err != nil {
 				_ = rows.Close()
 				return err
 			}
-			if contains(contestProjectionClasses, projection) {
-				lag[projection] = seconds
+			if err := rows.Close(); err != nil {
+				return err
 			}
-		}
-		if err := rows.Err(); err != nil {
-			_ = rows.Close()
-			return err
-		}
-		if err := rows.Close(); err != nil {
+			return nil
+		})
+		if err != nil {
 			return err
 		}
 		var lifecycleLag float64
-		if err := pool.QueryRowContext(ctx, `
+		var ratingLag float64
+		if err := withMetricsScope(ctx, pool, func(tx *sql.Tx) error {
+			if err := tx.QueryRowContext(ctx, `
 			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (
 				CURRENT_TIMESTAMP - CASE WHEN status = 'upcoming' THEN start_time ELSE end_time END
 			)), 0)), 0)::double precision
 			FROM contests
 			WHERE deleted_at IS NULL AND (
 				(status = 'upcoming' AND start_time <= CURRENT_TIMESTAMP) OR
-				(status = 'running' AND end_time <= CURRENT_TIMESTAMP)
+			(status = 'running' AND end_time <= CURRENT_TIMESTAMP)
 			)`).Scan(&lifecycleLag); err != nil {
+				return err
+			}
+			return tx.QueryRowContext(ctx, `
+			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - COALESCE(ended_at, end_time))), 0)), 0)::double precision
+			FROM contests
+			WHERE deleted_at IS NULL AND status = 'ended' AND rated = true AND rating_completed_at IS NULL`).Scan(&ratingLag)
+		}); err != nil {
 			return err
 		}
 		if lifecycleLag > lag["lifecycle"] {
 			lag["lifecycle"] = lifecycleLag
-		}
-		var ratingLag float64
-		if err := pool.QueryRowContext(ctx, `
-			SELECT COALESCE(MAX(GREATEST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - COALESCE(ended_at, end_time))), 0)), 0)::double precision
-			FROM contests
-			WHERE deleted_at IS NULL AND status = 'ended' AND rated = true AND rating_completed_at IS NULL`).Scan(&ratingLag); err != nil {
-			return err
 		}
 		var failures []error
 		for _, projection := range contestProjectionClasses {
@@ -472,8 +518,12 @@ func (metrics *Metrics) registerContestCollector(pool *sql.DB) error {
 	}))
 }
 
-func groupedCounts(ctx context.Context, pool *sql.DB, query string) (map[string]float64, error) {
-	rows, err := pool.QueryContext(ctx, query)
+type queryContexter interface {
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+}
+
+func groupedCounts(ctx context.Context, queryer queryContexter, query string) (map[string]float64, error) {
+	rows, err := queryer.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -491,6 +541,34 @@ func groupedCounts(ctx context.Context, pool *sql.DB, query string) (map[string]
 		return nil, err
 	}
 	return counts, rows.Close()
+}
+
+// withMetricsScope binds an all-tenant read scope only around fixed, code-owned
+// aggregate queries. It does not expose tenant rows to request handlers.
+func withMetricsScope(ctx context.Context, pool *sql.DB, fn func(*sql.Tx) error) error {
+	if pool == nil || fn == nil {
+		return ErrInvalidMetrics
+	}
+	tx, err := pool.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindAllSQLScope(ctx, tx); err != nil {
+		return err
+	}
+	for _, statement := range []string{
+		"SELECT pg_catalog.set_config('app.outbox_worker', 'on', true)",
+		"SELECT pg_catalog.set_config('app.operation_worker', 'on', true)",
+	} {
+		if _, err := tx.ExecContext(ctx, statement); err != nil {
+			return err
+		}
+	}
+	if err := fn(tx); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func appendMetricError(failures []error, err error) []error {

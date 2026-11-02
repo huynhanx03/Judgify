@@ -266,12 +266,12 @@ func (_q *JudgeTestResultQuery) Clone() *JudgeTestResultQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.JudgeTestResult.Query().
-//		GroupBy(judgetestresult.FieldCreatedAt).
+//		GroupBy(judgetestresult.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *JudgeTestResultQuery) GroupBy(field string, fields ...string) *JudgeTestResultGroupBy {
@@ -289,11 +289,11 @@ func (_q *JudgeTestResultQuery) GroupBy(field string, fields ...string) *JudgeTe
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.JudgeTestResult.Query().
-//		Select(judgetestresult.FieldCreatedAt).
+//		Select(judgetestresult.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *JudgeTestResultQuery) Select(fields ...string) *JudgeTestResultSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

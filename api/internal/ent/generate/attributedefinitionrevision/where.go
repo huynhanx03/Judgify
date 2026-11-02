@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.AttributeDefinitionRevision {
 	return predicate.AttributeDefinitionRevision(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
 // DefinitionID applies equality check predicate on the "definition_id" field. It's identical to DefinitionIDEQ.
 func DefinitionID(v uuid.UUID) predicate.AttributeDefinitionRevision {
 	return predicate.AttributeDefinitionRevision(sql.FieldEQ(FieldDefinitionID, v))
@@ -89,6 +94,46 @@ func CreatedBy(v uuid.UUID) predicate.AttributeDefinitionRevision {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.AttributeDefinitionRevision {
 	return predicate.AttributeDefinitionRevision(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.AttributeDefinitionRevision {
+	return predicate.AttributeDefinitionRevision(sql.FieldLTE(FieldTenantID, v))
 }
 
 // DefinitionIDEQ applies the EQ predicate on the "definition_id" field.

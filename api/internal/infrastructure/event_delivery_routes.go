@@ -9,15 +9,17 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	commonjson "github.com/huynhanx03/go-common/pkg/encoding/json"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
 
 	"github.com/huynhanx03/judgify/internal/di"
 	internalent "github.com/huynhanx03/judgify/internal/ent"
 	materialentity "github.com/huynhanx03/judgify/internal/material/domain"
 	platformdelivery "github.com/huynhanx03/judgify/internal/platform/eventdelivery"
+	"github.com/huynhanx03/judgify/internal/platform/tracing"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 type eventEnvelopeExpectation struct {
@@ -49,7 +51,7 @@ func eventDeliveryRoutes(
 	if container == nil || container.Notification == nil ||
 		container.Notification.Consumer == nil || container.Material == nil ||
 		container.Material.ViewProjection == nil || container.Realtime == nil ||
-		container.Realtime.Publisher == nil || container.Contest == nil ||
+		container.Realtime.Publisher == nil || container.Identity == nil || container.Contest == nil ||
 		container.Contest.RatingService == nil || database == nil {
 		return nil, nil, ErrInvalidEventDelivery
 	}
@@ -84,11 +86,16 @@ func eventDeliveryRoutes(
 			},
 		),
 	}
+	var authorizationReconciler authorizationRuntimeReconciler
+	if candidate, ok := container.Identity.AuthorizationRuntime.(authorizationRuntimeReconciler); ok {
+		authorizationReconciler = candidate
+	}
 	notificationRoutes, err := eventNotificationRoutes(
 		container.Notification.Consumer,
 		container.Realtime.Publisher,
 		container.Realtime.Publisher,
 		container.Realtime.AuthorizationSource,
+		authorizationReconciler,
 	)
 	if err != nil {
 		return nil, nil, err
@@ -120,6 +127,43 @@ func eventDeliveryRoutes(
 	}
 	routes = append(routes, ratingActivationRoute)
 	routes = append(routes, eventObservationRoutes()...)
+	for index := range routes {
+		handle := routes[index].Handle
+		routes[index].Handle = func(ctx context.Context, message commonoutbox.Message) error {
+			origin := ""
+			for _, attribute := range message.Metadata.Attributes {
+				if attribute.Key == "traceparent" {
+					origin = attribute.Value
+					break
+				}
+			}
+			ctx, span := tracing.StartDurableWork(ctx, "outbox.deliver", origin)
+			defer span.End()
+			tenantIDText := ""
+			for _, attribute := range message.Metadata.Attributes {
+				if attribute.Key == "tenant_id" {
+					if tenantIDText != "" {
+						return ErrInvalidEventDelivery
+					}
+					tenantIDText = attribute.Value
+				}
+			}
+			if tenantIDText != "" {
+				tenantID, parseErr := canonicalMessageUUID(tenantIDText)
+				if parseErr != nil {
+					return ErrInvalidEventDelivery
+				}
+				scope, scopeErr := tenantctx.Tenant(tenantID)
+				if scopeErr != nil {
+					return ErrInvalidEventDelivery
+				}
+				ctx = tenantctx.WithContext(ctx, scope)
+			} else {
+				ctx = tenantctx.WithoutScope(ctx)
+			}
+			return handle(ctx, message)
+		}
+	}
 	reconcilers := []platformdelivery.Reconciler{
 		{
 			Name:      "material.daily-view",

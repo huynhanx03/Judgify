@@ -40,7 +40,7 @@ func ValidateBatchListFilter(filter BatchListFilter) error {
 }
 
 type OperationBatchReader interface {
-	ListBatches(context.Context, uuid.UUID, BatchListFilter) (BatchProjectionPage, error)
+	FindBatches(context.Context, uuid.UUID, BatchListFilter) (BatchProjectionPage, error)
 }
 
 func validateBatchProjection(value BatchProjection) error {

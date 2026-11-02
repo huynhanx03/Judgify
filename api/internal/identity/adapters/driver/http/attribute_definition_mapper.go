@@ -102,18 +102,7 @@ func toAttributeDefinitionResponse(v *contract.AttributeDefinitionResponse) *att
 	return &attributeDefinitionResponse{ID: v.ID.String(), Key: v.Key, Kind: v.Kind, RequiredOnOnboarding: v.RequiredOnOnboarding, Status: v.Status, Version: v.Version, DraftRevisionID: idString(v.DraftRevisionID), ActiveRevisionID: idString(v.ActiveRevisionID), DraftRevision: toAttributeDefinitionRevisionResponse(v.DraftRevision), ActiveRevision: toAttributeDefinitionRevisionResponse(v.ActiveRevision)}
 }
 func toAttributeDefinitionPage(v *d.Paginated[*contract.AttributeDefinitionResponse]) *d.Paginated[*attributeDefinitionResponse] {
-	if v == nil {
-		return nil
-	}
-	r := &d.Paginated[*attributeDefinitionResponse]{Pagination: v.Pagination}
-	if v.Records != nil {
-		values := make([]*attributeDefinitionResponse, len(*v.Records))
-		for i, x := range *v.Records {
-			values[i] = toAttributeDefinitionResponse(x)
-		}
-		r.Records = &values
-	}
-	return r
+	return d.MapPaginated(v, toAttributeDefinitionResponse)
 }
 func toAttributeDefinitionRevisionPageResponse(v *contract.AttributeDefinitionRevisionPage) *attributeDefinitionRevisionPageResponse {
 	if v == nil {

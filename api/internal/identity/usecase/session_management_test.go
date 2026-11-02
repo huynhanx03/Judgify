@@ -27,7 +27,7 @@ type sessionManagementMemoryRepository struct {
 	lastList        ports.SessionListQuery
 }
 
-func (repository *sessionManagementMemoryRepository) List(
+func (repository *sessionManagementMemoryRepository) Find(
 	_ context.Context,
 	query ports.SessionListQuery,
 ) (ports.SessionListResult, error) {
@@ -203,7 +203,7 @@ func TestSessionManagementListsBoundedCanonicalSafeViews(t *testing.T) {
 	repository.sessions[otherID].RevokeReason = &reason
 	service := newSessionManagementFixture(t, repository, now, &securityMutationJournalCapture{}).service
 
-	page, err := service.List(context.Background(), userID, currentID, &dto.SessionListRequest{})
+	page, err := service.Find(context.Background(), userID, currentID, &dto.SessionListRequest{})
 	require.NoError(t, err)
 	require.Len(t, page.Items, 2)
 	require.Equal(t, 20, repository.lastList.Limit)
@@ -216,9 +216,9 @@ func TestSessionManagementListsBoundedCanonicalSafeViews(t *testing.T) {
 		require.NotContains(t, string(encoded), forbidden)
 	}
 
-	_, err = service.List(context.Background(), userID, currentID, &dto.SessionListRequest{Limit: 51})
+	_, err = service.Find(context.Background(), userID, currentID, &dto.SessionListRequest{Limit: 51})
 	requireAppErrorCode(t, err, apperr.CodeBadRequest)
-	_, err = service.List(context.Background(), userID, currentID, &dto.SessionListRequest{Cursor: "not-a-cursor"})
+	_, err = service.Find(context.Background(), userID, currentID, &dto.SessionListRequest{Cursor: "not-a-cursor"})
 	requireAppErrorCode(t, err, apperr.CodeBadRequest)
 }
 

@@ -14,7 +14,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
@@ -195,7 +195,8 @@ func validSecurityMutation(kind entity.SecurityMutationKind) entity.SecurityMuta
 	}
 	switch kind {
 	case entity.SecurityMutationUserRegistered:
-		mutation.Version = 1
+		mutation.ContactID = nil
+		mutation.Version = 0
 		mutation.SecurityVersion = 1
 	case entity.SecurityMutationOAuthUserRegistered:
 		mutation.ContactID = nil

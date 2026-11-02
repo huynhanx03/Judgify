@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -24,6 +24,12 @@ type ContentRenderArtifactCreate struct {
 	mutation *ContentRenderArtifactMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContentRenderArtifactCreate) SetTenantID(v uuid.UUID) *ContentRenderArtifactCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetRenderSourceID sets the "render_source_id" field.
@@ -83,7 +89,7 @@ func (_c *ContentRenderArtifactCreate) SetStatus(v contentrenderartifact.Status)
 }
 
 // SetDiagnostics sets the "diagnostics" field.
-func (_c *ContentRenderArtifactCreate) SetDiagnostics(v json.RawMessage) *ContentRenderArtifactCreate {
+func (_c *ContentRenderArtifactCreate) SetDiagnostics(v jsontext.Value) *ContentRenderArtifactCreate {
 	_c.mutation.SetDiagnostics(v)
 	return _c
 }
@@ -191,6 +197,9 @@ func (_c *ContentRenderArtifactCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ContentRenderArtifactCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContentRenderArtifact.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.RenderSourceID(); !ok {
 		return &ValidationError{Name: "render_source_id", err: errors.New(`generate: missing required field "ContentRenderArtifact.render_source_id"`)}
 	}
@@ -279,6 +288,10 @@ func (_c *ContentRenderArtifactCreate) createSpec() (*ContentRenderArtifact, *sq
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contentrenderartifact.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.RenderSourceKind(); ok {
 		_spec.SetField(contentrenderartifact.FieldRenderSourceKind, field.TypeEnum, value)
 		_node.RenderSourceKind = value
@@ -343,7 +356,7 @@ func (_c *ContentRenderArtifactCreate) createSpec() (*ContentRenderArtifact, *sq
 // of the `INSERT` statement. For example:
 //
 //	client.ContentRenderArtifact.Create().
-//		SetRenderSourceID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -352,7 +365,7 @@ func (_c *ContentRenderArtifactCreate) createSpec() (*ContentRenderArtifact, *sq
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContentRenderArtifactUpsert) {
-//			SetRenderSourceID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContentRenderArtifactCreate) OnConflict(opts ...sql.ConflictOption) *ContentRenderArtifactUpsertOne {
@@ -404,6 +417,9 @@ func (u *ContentRenderArtifactUpsertOne) UpdateNewValues() *ContentRenderArtifac
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(contentrenderartifact.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contentrenderartifact.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.RenderSourceID(); exists {
 			s.SetIgnore(contentrenderartifact.FieldRenderSourceID)
@@ -605,7 +621,7 @@ func (_c *ContentRenderArtifactCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ContentRenderArtifactUpsert) {
-//			SetRenderSourceID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *ContentRenderArtifactCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContentRenderArtifactUpsertBulk {
@@ -651,6 +667,9 @@ func (u *ContentRenderArtifactUpsertBulk) UpdateNewValues() *ContentRenderArtifa
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(contentrenderartifact.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contentrenderartifact.FieldTenantID)
 			}
 			if _, exists := b.mutation.RenderSourceID(); exists {
 				s.SetIgnore(contentrenderartifact.FieldRenderSourceID)

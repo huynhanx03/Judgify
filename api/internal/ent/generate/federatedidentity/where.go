@@ -684,6 +684,29 @@ func HasUserWith(preds ...predicate.User) predicate.FederatedIdentity {
 	})
 }
 
+// HasRecoveryContacts applies the HasEdge predicate on the "recovery_contacts" edge.
+func HasRecoveryContacts() predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RecoveryContactsTable, RecoveryContactsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRecoveryContactsWith applies the HasEdge predicate on the "recovery_contacts" edge with a given conditions (other predicates).
+func HasRecoveryContactsWith(preds ...predicate.UserRecoveryContact) predicate.FederatedIdentity {
+	return predicate.FederatedIdentity(func(s *sql.Selector) {
+		step := newRecoveryContactsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.FederatedIdentity) predicate.FederatedIdentity {
 	return predicate.FederatedIdentity(sql.AndPredicates(predicates...))

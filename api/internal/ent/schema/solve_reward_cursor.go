@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,6 +19,10 @@ import (
 // progression ledger. It is mutable coordination state; immutable accounting
 // and replay evidence live in ledger entries and processed transitions.
 type SolveRewardCursor struct{ ent.Schema }
+
+func (SolveRewardCursor) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
 
 func (SolveRewardCursor) Fields() []ent.Field {
 	return []ent.Field{

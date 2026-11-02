@@ -6,7 +6,7 @@ directory.
 
 ## Safety model
 
-- SQL files and `atlas.sum` are embedded in the operator binary. The checksum,
+- SQL files and `atlas.sum` in `api/migration/` are embedded in the operator binary. The checksum,
   canonical filenames, versions, size limits, and PostgreSQL statement parse
   are verified before any product DDL runs.
 - A PostgreSQL session advisory lock serializes operators. The lock connection

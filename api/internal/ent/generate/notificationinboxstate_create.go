@@ -24,6 +24,12 @@ type NotificationInboxStateCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *NotificationInboxStateCreate) SetTenantID(v uuid.UUID) *NotificationInboxStateCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetVersion sets the "version" field.
 func (_c *NotificationInboxStateCreate) SetVersion(v int64) *NotificationInboxStateCreate {
 	_c.mutation.SetVersion(v)
@@ -111,6 +117,9 @@ func (_c *NotificationInboxStateCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *NotificationInboxStateCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "NotificationInboxState.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Version(); !ok {
 		return &ValidationError{Name: "version", err: errors.New(`generate: missing required field "NotificationInboxState.version"`)}
 	}
@@ -166,6 +175,10 @@ func (_c *NotificationInboxStateCreate) createSpec() (*NotificationInboxState, *
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(notificationinboxstate.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.Version(); ok {
 		_spec.SetField(notificationinboxstate.FieldVersion, field.TypeInt64, value)
 		_node.Version = value
@@ -185,7 +198,7 @@ func (_c *NotificationInboxStateCreate) createSpec() (*NotificationInboxState, *
 // of the `INSERT` statement. For example:
 //
 //	client.NotificationInboxState.Create().
-//		SetVersion(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -194,7 +207,7 @@ func (_c *NotificationInboxStateCreate) createSpec() (*NotificationInboxState, *
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationInboxStateUpsert) {
-//			SetVersion(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationInboxStateCreate) OnConflict(opts ...sql.ConflictOption) *NotificationInboxStateUpsertOne {
@@ -294,6 +307,9 @@ func (u *NotificationInboxStateUpsertOne) UpdateNewValues() *NotificationInboxSt
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(notificationinboxstate.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(notificationinboxstate.FieldTenantID)
 		}
 	}))
 	return u
@@ -518,7 +534,7 @@ func (_c *NotificationInboxStateCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationInboxStateUpsert) {
-//			SetVersion(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationInboxStateCreateBulk) OnConflict(opts ...sql.ConflictOption) *NotificationInboxStateUpsertBulk {
@@ -564,6 +580,9 @@ func (u *NotificationInboxStateUpsertBulk) UpdateNewValues() *NotificationInboxS
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(notificationinboxstate.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(notificationinboxstate.FieldTenantID)
 			}
 		}
 	}))

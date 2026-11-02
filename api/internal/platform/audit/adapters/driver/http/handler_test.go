@@ -3,6 +3,7 @@ package audithttp
 import (
 	"context"
 	"encoding/json"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +28,7 @@ type auditReaderStub struct {
 	calls  int
 }
 
-func (reader *auditReaderStub) Search(_ context.Context, filter audit.Filter) (*audit.Page, error) {
+func (reader *auditReaderStub) Find(_ context.Context, filter audit.Filter) (*audit.Page, error) {
 	reader.calls++
 	reader.filter = filter
 	return reader.page, reader.err
@@ -150,7 +151,7 @@ func newAuditTestRouter(
 		c.Request = c.Request.WithContext(authentication.WithPrincipal(c.Request.Context(), principal))
 		c.Next()
 	})
-	handler.RegisterProtected(router.Group(""), commonmiddlewares.NewAuthorizationChecker(authorizer))
+	handler.RegisterProtected(router.Group(""), authmiddleware.NewAuthorizationChecker(authorizer))
 	return router
 }
 

@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	contract "github.com/huynhanx03/judgify/internal/cultivation/contract"
@@ -55,14 +55,7 @@ func (s *traitService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pagin
 	if result.Records == nil {
 		return &d.Paginated[*contract.TraitResponse]{Records: &[]*contract.TraitResponse{}, Pagination: result.Pagination}, nil
 	}
-
-	entities := *result.Records
-	responses := make([]*contract.TraitResponse, len(entities))
-	for i, e := range entities {
-		responses[i] = ToTraitResponse(e)
-	}
-
-	return &d.Paginated[*contract.TraitResponse]{Records: &responses, Pagination: result.Pagination}, nil
+	return d.MapPaginated(result, ToTraitResponse), nil
 }
 
 func (s *traitService) FindAll(ctx context.Context) ([]*contract.TraitResponse, error) {

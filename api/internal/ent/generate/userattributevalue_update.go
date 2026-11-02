@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -138,13 +138,13 @@ func (_u *UserAttributeValueUpdate) SetNillableSourceRevisionID(v *uuid.UUID) *U
 }
 
 // SetCanonicalValue sets the "canonical_value" field.
-func (_u *UserAttributeValueUpdate) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpdate {
+func (_u *UserAttributeValueUpdate) SetCanonicalValue(v jsontext.Value) *UserAttributeValueUpdate {
 	_u.mutation.SetCanonicalValue(v)
 	return _u
 }
 
 // AppendCanonicalValue appends value to the "canonical_value" field.
-func (_u *UserAttributeValueUpdate) AppendCanonicalValue(v json.RawMessage) *UserAttributeValueUpdate {
+func (_u *UserAttributeValueUpdate) AppendCanonicalValue(v jsontext.Value) *UserAttributeValueUpdate {
 	_u.mutation.AppendCanonicalValue(v)
 	return _u
 }
@@ -626,13 +626,13 @@ func (_u *UserAttributeValueUpdateOne) SetNillableSourceRevisionID(v *uuid.UUID)
 }
 
 // SetCanonicalValue sets the "canonical_value" field.
-func (_u *UserAttributeValueUpdateOne) SetCanonicalValue(v json.RawMessage) *UserAttributeValueUpdateOne {
+func (_u *UserAttributeValueUpdateOne) SetCanonicalValue(v jsontext.Value) *UserAttributeValueUpdateOne {
 	_u.mutation.SetCanonicalValue(v)
 	return _u
 }
 
 // AppendCanonicalValue appends value to the "canonical_value" field.
-func (_u *UserAttributeValueUpdateOne) AppendCanonicalValue(v json.RawMessage) *UserAttributeValueUpdateOne {
+func (_u *UserAttributeValueUpdateOne) AppendCanonicalValue(v jsontext.Value) *UserAttributeValueUpdateOne {
 	_u.mutation.AppendCanonicalValue(v)
 	return _u
 }

@@ -18,6 +18,8 @@ type ContentRenderSource struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// OwnerRevisionID holds the value of the "owner_revision_id" field.
 	OwnerRevisionID uuid.UUID `json:"owner_revision_id,omitempty"`
 	// SourceKind holds the value of the "source_kind" field.
@@ -65,7 +67,7 @@ func (*ContentRenderSource) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case contentrendersource.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case contentrendersource.FieldID, contentrendersource.FieldOwnerRevisionID:
+		case contentrendersource.FieldID, contentrendersource.FieldTenantID, contentrendersource.FieldOwnerRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -87,6 +89,12 @@ func (_m *ContentRenderSource) assignValues(columns []string, values []any) erro
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case contentrendersource.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contentrendersource.FieldOwnerRevisionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -160,6 +168,9 @@ func (_m *ContentRenderSource) String() string {
 	var builder strings.Builder
 	builder.WriteString("ContentRenderSource(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("owner_revision_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OwnerRevisionID))
 	builder.WriteString(", ")

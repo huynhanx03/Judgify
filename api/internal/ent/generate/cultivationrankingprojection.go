@@ -19,6 +19,8 @@ type CultivationRankingProjection struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// PublicID holds the value of the "public_id" field.
@@ -82,7 +84,7 @@ func (*CultivationRankingProjection) scanValues(columns []string) ([]any, error)
 			values[i] = new(sql.NullString)
 		case cultivationrankingprojection.FieldProgressionUpdatedAt, cultivationrankingprojection.FieldRatingUpdatedAt, cultivationrankingprojection.FieldCreatedAt, cultivationrankingprojection.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case cultivationrankingprojection.FieldID, cultivationrankingprojection.FieldUserID, cultivationrankingprojection.FieldPublicID:
+		case cultivationrankingprojection.FieldID, cultivationrankingprojection.FieldTenantID, cultivationrankingprojection.FieldUserID, cultivationrankingprojection.FieldPublicID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -104,6 +106,12 @@ func (_m *CultivationRankingProjection) assignValues(columns []string, values []
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case cultivationrankingprojection.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case cultivationrankingprojection.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -226,6 +234,9 @@ func (_m *CultivationRankingProjection) String() string {
 	var builder strings.Builder
 	builder.WriteString("CultivationRankingProjection(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

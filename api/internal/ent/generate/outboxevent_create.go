@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/outboxevent"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 )
 
 // OutboxEventCreate is the builder for creating a OutboxEvent entity.
@@ -23,6 +24,20 @@ type OutboxEventCreate struct {
 	mutation *OutboxEventMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *OutboxEventCreate) SetTenantID(v uuid.UUID) *OutboxEventCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *OutboxEventCreate) SetNillableTenantID(v *uuid.UUID) *OutboxEventCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
 }
 
 // SetEventType sets the "event_type" field.
@@ -55,6 +70,20 @@ func (_c *OutboxEventCreate) SetCorrelationID(v string) *OutboxEventCreate {
 	return _c
 }
 
+// SetTraceparent sets the "traceparent" field.
+func (_c *OutboxEventCreate) SetTraceparent(v string) *OutboxEventCreate {
+	_c.mutation.SetTraceparent(v)
+	return _c
+}
+
+// SetNillableTraceparent sets the "traceparent" field if the given value is not nil.
+func (_c *OutboxEventCreate) SetNillableTraceparent(v *string) *OutboxEventCreate {
+	if v != nil {
+		_c.SetTraceparent(*v)
+	}
+	return _c
+}
+
 // SetCausationID sets the "causation_id" field.
 func (_c *OutboxEventCreate) SetCausationID(v uuid.UUID) *OutboxEventCreate {
 	_c.mutation.SetCausationID(v)
@@ -70,7 +99,7 @@ func (_c *OutboxEventCreate) SetNillableCausationID(v *uuid.UUID) *OutboxEventCr
 }
 
 // SetPayload sets the "payload" field.
-func (_c *OutboxEventCreate) SetPayload(v json.RawMessage) *OutboxEventCreate {
+func (_c *OutboxEventCreate) SetPayload(v jsontext.Value) *OutboxEventCreate {
 	_c.mutation.SetPayload(v)
 	return _c
 }
@@ -269,6 +298,11 @@ func (_c *OutboxEventCreate) SetNillableID(v *uuid.UUID) *OutboxEventCreate {
 	return _c
 }
 
+// SetTenant sets the "tenant" edge to the Tenant entity.
+func (_c *OutboxEventCreate) SetTenant(v *Tenant) *OutboxEventCreate {
+	return _c.SetTenantID(v.ID)
+}
+
 // Mutation returns the OutboxEventMutation object of the builder.
 func (_c *OutboxEventCreate) Mutation() *OutboxEventMutation {
 	return _c.mutation
@@ -361,6 +395,11 @@ func (_c *OutboxEventCreate) check() error {
 	if v, ok := _c.mutation.CorrelationID(); ok {
 		if err := outboxevent.CorrelationIDValidator(v); err != nil {
 			return &ValidationError{Name: "correlation_id", err: fmt.Errorf(`generate: validator failed for field "OutboxEvent.correlation_id": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.Traceparent(); ok {
+		if err := outboxevent.TraceparentValidator(v); err != nil {
+			return &ValidationError{Name: "traceparent", err: fmt.Errorf(`generate: validator failed for field "OutboxEvent.traceparent": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Payload(); !ok {
@@ -465,6 +504,10 @@ func (_c *OutboxEventCreate) createSpec() (*OutboxEvent, *sqlgraph.CreateSpec) {
 		_spec.SetField(outboxevent.FieldCorrelationID, field.TypeString, value)
 		_node.CorrelationID = value
 	}
+	if value, ok := _c.mutation.Traceparent(); ok {
+		_spec.SetField(outboxevent.FieldTraceparent, field.TypeString, value)
+		_node.Traceparent = &value
+	}
 	if value, ok := _c.mutation.CausationID(); ok {
 		_spec.SetField(outboxevent.FieldCausationID, field.TypeUUID, value)
 		_node.CausationID = &value
@@ -529,6 +572,23 @@ func (_c *OutboxEventCreate) createSpec() (*OutboxEvent, *sqlgraph.CreateSpec) {
 		_spec.SetField(outboxevent.FieldAmbiguous, field.TypeBool, value)
 		_node.Ambiguous = value
 	}
+	if nodes := _c.mutation.TenantIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   outboxevent.TenantTable,
+			Columns: []string{outboxevent.TenantColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TenantID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -536,7 +596,7 @@ func (_c *OutboxEventCreate) createSpec() (*OutboxEvent, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.OutboxEvent.Create().
-//		SetEventType(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -545,7 +605,7 @@ func (_c *OutboxEventCreate) createSpec() (*OutboxEvent, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OutboxEventUpsert) {
-//			SetEventType(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OutboxEventCreate) OnConflict(opts ...sql.ConflictOption) *OutboxEventUpsertOne {
@@ -796,6 +856,9 @@ func (u *OutboxEventUpsertOne) UpdateNewValues() *OutboxEventUpsertOne {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(outboxevent.FieldID)
 		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(outboxevent.FieldTenantID)
+		}
 		if _, exists := u.create.mutation.EventType(); exists {
 			s.SetIgnore(outboxevent.FieldEventType)
 		}
@@ -810,6 +873,9 @@ func (u *OutboxEventUpsertOne) UpdateNewValues() *OutboxEventUpsertOne {
 		}
 		if _, exists := u.create.mutation.CorrelationID(); exists {
 			s.SetIgnore(outboxevent.FieldCorrelationID)
+		}
+		if _, exists := u.create.mutation.Traceparent(); exists {
+			s.SetIgnore(outboxevent.FieldTraceparent)
 		}
 		if _, exists := u.create.mutation.CausationID(); exists {
 			s.SetIgnore(outboxevent.FieldCausationID)
@@ -1221,7 +1287,7 @@ func (_c *OutboxEventCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OutboxEventUpsert) {
-//			SetEventType(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OutboxEventCreateBulk) OnConflict(opts ...sql.ConflictOption) *OutboxEventUpsertBulk {
@@ -1268,6 +1334,9 @@ func (u *OutboxEventUpsertBulk) UpdateNewValues() *OutboxEventUpsertBulk {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(outboxevent.FieldID)
 			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(outboxevent.FieldTenantID)
+			}
 			if _, exists := b.mutation.EventType(); exists {
 				s.SetIgnore(outboxevent.FieldEventType)
 			}
@@ -1282,6 +1351,9 @@ func (u *OutboxEventUpsertBulk) UpdateNewValues() *OutboxEventUpsertBulk {
 			}
 			if _, exists := b.mutation.CorrelationID(); exists {
 				s.SetIgnore(outboxevent.FieldCorrelationID)
+			}
+			if _, exists := b.mutation.Traceparent(); exists {
+				s.SetIgnore(outboxevent.FieldTraceparent)
 			}
 			if _, exists := b.mutation.CausationID(); exists {
 				s.SetIgnore(outboxevent.FieldCausationID)

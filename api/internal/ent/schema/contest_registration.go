@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -24,7 +25,8 @@ func (ContestRegistration) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		e.UUIDMixin{},
 		e.TimeMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 func (ContestRegistration) Fields() []ent.Field {

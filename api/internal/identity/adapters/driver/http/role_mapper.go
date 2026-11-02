@@ -77,15 +77,7 @@ func toRoleResponses(values []*dto.RoleResponse) []*roleResponse {
 }
 
 func toRolePage(value *d.Paginated[*dto.RoleResponse]) *d.Paginated[*roleResponse] {
-	if value == nil {
-		return nil
-	}
-	result := &d.Paginated[*roleResponse]{Pagination: value.Pagination}
-	if value.Records != nil {
-		records := toRoleResponses(*value.Records)
-		result.Records = &records
-	}
-	return result
+	return d.MapPaginated(value, toRoleResponse)
 }
 
 func toRoleMetadataPreviewResponse(value *dto.RoleMetadataPreviewResponse) *roleMetadataPreviewResponse {

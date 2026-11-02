@@ -16,6 +16,7 @@ func ToProblemResult(e *entity.Problem) *contract.ProblemResult {
 	}
 	resp := &contract.ProblemResult{
 		ID:              e.ID,
+		TenantID:        e.TenantID,
 		Slug:            e.Slug,
 		Lifecycle:       string(e.Lifecycle),
 		Version:         e.Version,

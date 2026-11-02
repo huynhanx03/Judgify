@@ -138,7 +138,7 @@ func (r *AttributeDefinitionRepository) GetRevision(ctx context.Context, id uuid
 	return ToAttributeDefinitionRevisionEntity(record), nil
 }
 
-func (r *AttributeDefinitionRepository) ListRevisions(
+func (r *AttributeDefinitionRepository) FindRevisions(
 	ctx context.Context,
 	definitionID uuid.UUID,
 	before int64,
@@ -292,7 +292,7 @@ func (r *AttributeDefinitionRepository) LoadCommandReceipt(
 	if commandID == uuid.Nil {
 		return ports.AttributeCommandReceipt{}, false, ports.ErrAttributeDefinitionVersionConflict
 	}
-	record, err := r.client.DB(ctx).OutboxEvent.Get(ctx, commandID)
+	record, err := r.client.GetOutboxEvent(ctx, commandID)
 	if generate.IsNotFound(err) {
 		return ports.AttributeCommandReceipt{}, false, nil
 	}

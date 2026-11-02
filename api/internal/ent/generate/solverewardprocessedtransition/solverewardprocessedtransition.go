@@ -16,6 +16,8 @@ const (
 	Label = "solve_reward_processed_transition"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldSolveID holds the string denoting the solve_id field in the database.
 	FieldSolveID = "solve_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
@@ -47,6 +49,7 @@ const (
 // Columns holds all SQL columns for solverewardprocessedtransition fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldSolveID,
 	FieldUserID,
 	FieldProblemID,
@@ -118,6 +121,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // BySolveID orders the results by the solve_id field.

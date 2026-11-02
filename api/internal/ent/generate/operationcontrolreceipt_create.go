@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -24,6 +24,20 @@ type OperationControlReceiptCreate struct {
 	mutation *OperationControlReceiptMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *OperationControlReceiptCreate) SetTenantID(v uuid.UUID) *OperationControlReceiptCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *OperationControlReceiptCreate) SetNillableTenantID(v *uuid.UUID) *OperationControlReceiptCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
 }
 
 // SetOperationID sets the "operation_id" field.
@@ -69,7 +83,7 @@ func (_c *OperationControlReceiptCreate) SetResultingStatus(v operationcontrolre
 }
 
 // SetResultProjection sets the "result_projection" field.
-func (_c *OperationControlReceiptCreate) SetResultProjection(v json.RawMessage) *OperationControlReceiptCreate {
+func (_c *OperationControlReceiptCreate) SetResultProjection(v jsontext.Value) *OperationControlReceiptCreate {
 	_c.mutation.SetResultProjection(v)
 	return _c
 }
@@ -281,6 +295,10 @@ func (_c *OperationControlReceiptCreate) createSpec() (*OperationControlReceipt,
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(operationcontrolreceipt.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = &value
+	}
 	if value, ok := _c.mutation.IdempotencyKey(); ok {
 		_spec.SetField(operationcontrolreceipt.FieldIdempotencyKey, field.TypeUUID, value)
 		_node.IdempotencyKey = value
@@ -349,7 +367,7 @@ func (_c *OperationControlReceiptCreate) createSpec() (*OperationControlReceipt,
 // of the `INSERT` statement. For example:
 //
 //	client.OperationControlReceipt.Create().
-//		SetOperationID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -358,7 +376,7 @@ func (_c *OperationControlReceiptCreate) createSpec() (*OperationControlReceipt,
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OperationControlReceiptUpsert) {
-//			SetOperationID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OperationControlReceiptCreate) OnConflict(opts ...sql.ConflictOption) *OperationControlReceiptUpsertOne {
@@ -410,6 +428,9 @@ func (u *OperationControlReceiptUpsertOne) UpdateNewValues() *OperationControlRe
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(operationcontrolreceipt.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(operationcontrolreceipt.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.OperationID(); exists {
 			s.SetIgnore(operationcontrolreceipt.FieldOperationID)
@@ -614,7 +635,7 @@ func (_c *OperationControlReceiptCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OperationControlReceiptUpsert) {
-//			SetOperationID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OperationControlReceiptCreateBulk) OnConflict(opts ...sql.ConflictOption) *OperationControlReceiptUpsertBulk {
@@ -660,6 +681,9 @@ func (u *OperationControlReceiptUpsertBulk) UpdateNewValues() *OperationControlR
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(operationcontrolreceipt.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(operationcontrolreceipt.FieldTenantID)
 			}
 			if _, exists := b.mutation.OperationID(); exists {
 				s.SetIgnore(operationcontrolreceipt.FieldOperationID)

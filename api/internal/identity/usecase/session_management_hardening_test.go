@@ -18,7 +18,7 @@ type oversizedSessionListRepository struct {
 	userID uuid.UUID
 }
 
-func (repository *oversizedSessionListRepository) List(
+func (repository *oversizedSessionListRepository) Find(
 	context.Context,
 	ports.SessionListQuery,
 ) (ports.SessionListResult, error) {
@@ -45,7 +45,7 @@ func TestSessionManagementRejectsOversizedRepositoryPage(t *testing.T) {
 	fixture := newSessionManagementFixture(t, base, now, &securityMutationJournalCapture{})
 	fixture.service.repository = repository
 
-	_, err := fixture.service.List(
+	_, err := fixture.service.Find(
 		context.Background(), userID, currentID, &dto.SessionListRequest{Limit: defaultSessionPageLimit},
 	)
 	requireAppErrorCode(t, err, apperr.CodeInternalServer)

@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.MaterialRevision {
 	return predicate.MaterialRevision(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
 // MaterialID applies equality check predicate on the "material_id" field. It's identical to MaterialIDEQ.
 func MaterialID(v uuid.UUID) predicate.MaterialRevision {
 	return predicate.MaterialRevision(sql.FieldEQ(FieldMaterialID, v))
@@ -124,6 +129,46 @@ func RenderSourceID(v uuid.UUID) predicate.MaterialRevision {
 // RenderArtifactID applies equality check predicate on the "render_artifact_id" field. It's identical to RenderArtifactIDEQ.
 func RenderArtifactID(v uuid.UUID) predicate.MaterialRevision {
 	return predicate.MaterialRevision(sql.FieldEQ(FieldRenderArtifactID, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.MaterialRevision {
+	return predicate.MaterialRevision(sql.FieldLTE(FieldTenantID, v))
 }
 
 // MaterialIDEQ applies the EQ predicate on the "material_id" field.

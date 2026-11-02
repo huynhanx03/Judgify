@@ -36,7 +36,7 @@ func (service *rewardRuleService) Current(ctx context.Context) (entity.RewardRul
 	return rule, mapRewardRuleError(err)
 }
 
-func (service *rewardRuleService) List(
+func (service *rewardRuleService) Find(
 	ctx context.Context,
 	cursor *int64,
 	limit int,
@@ -47,7 +47,7 @@ func (service *rewardRuleService) List(
 	if limit == 0 {
 		limit = 25
 	}
-	page, err := service.repository.List(ctx, cursor, limit)
+	page, err := service.repository.Find(ctx, cursor, limit)
 	return page, mapRewardRuleError(err)
 }
 

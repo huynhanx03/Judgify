@@ -4,7 +4,7 @@ set -Eeuo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root_dir/scripts/lib/operations.sh"
 api_dir="$root_dir/api"
-role_bootstrap="$root_dir/deploy/postgres/init-roles.sql"
+role_setup="$root_dir/scripts/init-roles.sql"
 container_name="judgify-problem-verify-$$-${RANDOM}"
 work_dir="$(mktemp -d "$(ops_temp_root)/judgify-problem-verify.XXXXXX")"
 migrator_binary="$work_dir/judgify-migrate"
@@ -74,7 +74,7 @@ docker exec \
   --set ON_ERROR_STOP=1 \
   --username "$database_admin_user" \
   --dbname "$database_name" \
-  <"$role_bootstrap" >/dev/null
+  <"$role_setup" >/dev/null
 
 (
   cd "$api_dir"

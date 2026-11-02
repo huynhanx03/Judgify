@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -11,50 +12,93 @@ import (
 	"github.com/google/uuid"
 	commoncache "github.com/huynhanx03/go-common/pkg/common/cache"
 	contract "github.com/huynhanx03/judgify/internal/problem/contract"
+	"github.com/huynhanx03/judgify/internal/testutil"
 )
 
 type memoryCacheStore struct {
-	mu     sync.Mutex
-	values map[string]any
+	mu       sync.Mutex
+	values   map[string]any
+	versions map[string]string
+	next     uint64
 }
 
-func (store *memoryCacheStore) Get(key string) (any, bool) {
+func (store *memoryCacheStore) Get(_ context.Context, key string) (any, bool) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	value, ok := store.values[key]
 	return value, ok
 }
 
-func (store *memoryCacheStore) Set(key string, value any) bool {
+func (store *memoryCacheStore) SetWithTTL(_ context.Context, key string, value any, _ time.Duration) bool {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	store.values[key] = value
 	return true
 }
 
-func (store *memoryCacheStore) SetWithTTL(key string, value any, _ time.Duration) bool {
-	return store.Set(key, value)
-}
-
-func (store *memoryCacheStore) Delete(key string) {
-	store.mu.Lock()
-	defer store.mu.Unlock()
-	delete(store.values, key)
-}
-
-func (store *memoryCacheStore) Clear() {
-	store.mu.Lock()
-	defer store.mu.Unlock()
-	clear(store.values)
-}
-
 func (store *memoryCacheStore) Close() {}
 
-func (store *memoryCacheStore) Stats() commoncache.Stats { return commoncache.Stats{} }
+func (store *memoryCacheStore) SnapshotVersion(_ context.Context, key string) (string, error) {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	if token := store.versions[key]; token != "" {
+		return token, nil
+	}
+	store.next++
+	if store.versions == nil {
+		store.versions = make(map[string]string)
+	}
+	token := fmt.Sprintf("%d", store.next)
+	store.versions[key] = token
+	return token, nil
+}
+func (store *memoryCacheStore) SetWithVersion(_ context.Context, versionKey, storageKey string, value any, _ time.Duration, token string) error {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	if store.versions[versionKey] == token {
+		store.values[storageKey] = value
+	}
+	return nil
+}
+func (store *memoryCacheStore) DeleteValueWithVersion(_ context.Context, versionKey, storageKey, token string) error {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	if store.versions[versionKey] == token {
+		delete(store.values, storageKey)
+	}
+	return nil
+}
+func (store *memoryCacheStore) Revoke(_ context.Context, key string) error {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	store.next++
+	if store.versions == nil {
+		store.versions = make(map[string]string)
+	}
+	store.versions[key] = fmt.Sprintf("%d", store.next)
+	delete(store.values, key)
+	delete(store.values, key+":neg")
+	return nil
+}
+
+func (store *memoryCacheStore) RevokeMany(ctx context.Context, keys ...string) error {
+	for _, key := range keys {
+		if err := store.Revoke(ctx, key); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var _ commoncache.L1Engine = (*memoryCacheStore)(nil)
+
+func newMemoryCacheCoordinator(store *memoryCacheStore) *commoncache.Cache {
+	return testutil.NewCacheWithL1(store)
+}
 
 func TestTagOverlappingMissesShareOneLoad(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
-		adapter := NewTag(&memoryCacheStore{values: map[string]any{}})
+		adapter := NewTag(newMemoryCacheCoordinator(&memoryCacheStore{values: map[string]any{}}))
 		key := uuid.MustParse("11111111-1111-4111-8111-111111111111")
 		release := make(chan struct{})
 		errors := make(chan error, 2)
@@ -86,7 +130,7 @@ func TestTagOverlappingMissesShareOneLoad(t *testing.T) {
 
 func TestTagDifferentKeysLoadIndependently(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
-		adapter := NewTag(&memoryCacheStore{values: map[string]any{}})
+		adapter := NewTag(newMemoryCacheCoordinator(&memoryCacheStore{values: map[string]any{}}))
 		keys := []uuid.UUID{
 			uuid.MustParse("11111111-1111-4111-8111-111111111111"),
 			uuid.MustParse("22222222-2222-4222-8222-222222222222"),

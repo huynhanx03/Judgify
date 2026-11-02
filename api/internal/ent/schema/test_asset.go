@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -21,7 +22,8 @@ import (
 type TestAsset struct{ ent.Schema }
 
 func (TestAsset) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (TestAsset) Fields() []ent.Field {
@@ -52,7 +54,7 @@ func (TestAsset) Edges() []ent.Edge {
 
 func (TestAsset) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("sha256").Unique(),
+		index.Fields("tenant_id", "sha256").Unique(),
 		index.Fields("created_at", "id"),
 	}
 }

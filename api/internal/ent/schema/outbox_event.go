@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
 	entschema "entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
@@ -30,6 +31,10 @@ func (OutboxEvent) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).
 			Default(commonent.NewUUID).
 			Immutable(),
+		field.UUID("tenant_id", uuid.UUID{}).
+			Optional().
+			Nillable().
+			Immutable(),
 		field.String("event_type").
 			NotEmpty().
 			MaxLen(128).
@@ -46,6 +51,11 @@ func (OutboxEvent) Fields() []ent.Field {
 		field.String("correlation_id").
 			NotEmpty().
 			MaxLen(128).
+			Immutable(),
+		field.String("traceparent").
+			MaxLen(55).
+			Optional().
+			Nillable().
 			Immutable(),
 		field.UUID("causation_id", uuid.UUID{}).
 			Optional().
@@ -103,6 +113,17 @@ func (OutboxEvent) Fields() []ent.Field {
 	}
 }
 
+func (OutboxEvent) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.From("tenant", Tenant.Type).
+			Ref("outbox_events").
+			Field("tenant_id").
+			Unique().
+			Immutable().
+			Annotations(entsql.OnDelete(entsql.Restrict)),
+	}
+}
+
 // Indexes support deterministic bounded claims, expired-lease recovery,
 // terminal retention, aggregate replay, and correlation-based tracing.
 func (OutboxEvent) Indexes() []ent.Index {
@@ -114,6 +135,7 @@ func (OutboxEvent) Indexes() []ent.Index {
 		index.Fields("state", "dead_at"),
 		index.Fields("aggregate_type", "aggregate_id", "aggregate_version"),
 		index.Fields("correlation_id", "occurred_at", "id"),
+		index.Fields("tenant_id", "state", "next_attempt_at", "occurred_at", "id"),
 	}
 }
 

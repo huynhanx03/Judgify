@@ -80,6 +80,7 @@ type SolveStateV1 struct {
 // and other contiguous consumers. Its outbox aggregate version equals To.Version.
 type ProblemSolveStatusChangedV1 struct {
 	EventID       uuid.UUID    `json:"event_id"`
+	TenantID      uuid.UUID    `json:"tenant_id"`
 	TransitionID  uuid.UUID    `json:"transition_id"`
 	SolveID       uuid.UUID    `json:"solve_id"`
 	UserID        uuid.UUID    `json:"user_id"`

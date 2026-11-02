@@ -447,12 +447,12 @@ func (_q *MaterialRevisionQuery) WithTags(opts ...func(*MaterialRevisionTagQuery
 // Example:
 //
 //	var v []struct {
-//		MaterialID uuid.UUID `json:"material_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.MaterialRevision.Query().
-//		GroupBy(materialrevision.FieldMaterialID).
+//		GroupBy(materialrevision.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *MaterialRevisionQuery) GroupBy(field string, fields ...string) *MaterialRevisionGroupBy {
@@ -470,11 +470,11 @@ func (_q *MaterialRevisionQuery) GroupBy(field string, fields ...string) *Materi
 // Example:
 //
 //	var v []struct {
-//		MaterialID uuid.UUID `json:"material_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.MaterialRevision.Query().
-//		Select(materialrevision.FieldMaterialID).
+//		Select(materialrevision.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *MaterialRevisionQuery) Select(fields ...string) *MaterialRevisionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

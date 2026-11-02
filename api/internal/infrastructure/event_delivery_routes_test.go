@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
 

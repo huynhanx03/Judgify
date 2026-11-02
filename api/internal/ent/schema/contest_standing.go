@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
@@ -19,7 +20,8 @@ type ContestStanding struct {
 func (ContestStanding) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		e.UUIDMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 func (ContestStanding) Fields() []ent.Field {

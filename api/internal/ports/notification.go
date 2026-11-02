@@ -102,7 +102,7 @@ type CampaignRepository interface {
 	Create(context.Context, entity.Campaign, entity.CampaignRevision) (entity.CampaignView, error)
 	Lock(context.Context, uuid.UUID) (entity.CampaignView, error)
 	Get(context.Context, uuid.UUID) (entity.CampaignView, error)
-	List(context.Context, CampaignListQuery) (CampaignPage, error)
+	Find(context.Context, CampaignListQuery) (CampaignPage, error)
 	AddRevision(context.Context, entity.CampaignRevision, int64, time.Time) (entity.CampaignView, error)
 
 	StoreConfirmation(context.Context, entity.CampaignConfirmation) error
@@ -128,21 +128,21 @@ type CampaignRepository interface {
 		string,
 		time.Time,
 	) (entity.CampaignView, error)
-	ListRecipients(context.Context, RecipientListQuery) (RecipientPage, error)
+	FindRecipients(context.Context, RecipientListQuery) (RecipientPage, error)
 }
 
 type CampaignService interface {
 	Create(context.Context, uuid.UUID, *contract.CreateCampaignRequest) (*contract.CampaignResponse, error)
 	Revise(context.Context, uuid.UUID, *contract.ReviseCampaignRequest) (*contract.CampaignResponse, error)
 	Get(context.Context, uuid.UUID) (*contract.CampaignResponse, error)
-	List(context.Context, *contract.CampaignListRequest) (*contract.CampaignListResponse, error)
+	Find(context.Context, *contract.CampaignListRequest) (*contract.CampaignListResponse, error)
 	DryRun(
 		context.Context,
 		uuid.UUID,
 		uuid.UUID,
 		*contract.DryRunCampaignRequest,
 	) (*contract.CampaignDryRunResponse, error)
-	ListRecipients(
+	FindRecipients(
 		context.Context,
 		*contract.CampaignRecipientListRequest,
 	) (*contract.CampaignRecipientListResponse, error)
@@ -217,7 +217,7 @@ type MutationResult struct {
 
 type Repository interface {
 	Create(context.Context, CreateCommand) (*entity.Notification, entity.InboxState, bool, error)
-	List(context.Context, ListQuery) ([]entity.Notification, *string, entity.InboxState, error)
+	Find(context.Context, ListQuery) ([]entity.Notification, *string, entity.InboxState, error)
 	CampaignContent(context.Context, uuid.UUID, uuid.UUID, time.Time) (entity.CampaignContent, error)
 	Unread(context.Context, uuid.UUID, time.Time) (entity.InboxState, error)
 	MarkRead(context.Context, uuid.UUID, uuid.UUID, time.Time) (MutationResult, error)
@@ -229,7 +229,7 @@ type Repository interface {
 
 type Service interface {
 	CreateFromEvent(context.Context, CreateCommand) (*contract.NotificationResponse, bool, error)
-	List(context.Context, uuid.UUID, *contract.ListRequest) (*contract.ListResponse, error)
+	Find(context.Context, uuid.UUID, *contract.ListRequest) (*contract.ListResponse, error)
 	CampaignContent(context.Context, uuid.UUID, uuid.UUID) (*contract.CampaignContentResponse, error)
 	Unread(context.Context, uuid.UUID) (*contract.UnreadCountResponse, error)
 	MarkRead(context.Context, uuid.UUID, uuid.UUID) (*contract.MutationResponse, error)

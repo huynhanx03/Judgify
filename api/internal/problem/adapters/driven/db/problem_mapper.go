@@ -13,6 +13,7 @@ func ToProblemEntity(m *generate.Problem) *entity.Problem {
 	}
 	p := &entity.Problem{
 		ID:              m.ID,
+		TenantID:        m.TenantID,
 		Slug:            m.Slug,
 		Lifecycle:       entity.Lifecycle(m.Lifecycle),
 		Version:         m.Version,

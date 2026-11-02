@@ -1604,6 +1604,75 @@ func HasContestContentCommandsWith(preds ...predicate.ContestContentCommand) pre
 	})
 }
 
+// HasTenantMemberships applies the HasEdge predicate on the "tenant_memberships" edge.
+func HasTenantMemberships() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TenantMembershipsTable, TenantMembershipsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTenantMembershipsWith applies the HasEdge predicate on the "tenant_memberships" edge with a given conditions (other predicates).
+func HasTenantMembershipsWith(preds ...predicate.TenantMembership) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newTenantMembershipsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTenantInvitations applies the HasEdge predicate on the "tenant_invitations" edge.
+func HasTenantInvitations() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TenantInvitationsTable, TenantInvitationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTenantInvitationsWith applies the HasEdge predicate on the "tenant_invitations" edge with a given conditions (other predicates).
+func HasTenantInvitationsWith(preds ...predicate.TenantInvitation) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newTenantInvitationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSentTenantInvitations applies the HasEdge predicate on the "sent_tenant_invitations" edge.
+func HasSentTenantInvitations() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SentTenantInvitationsTable, SentTenantInvitationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSentTenantInvitationsWith applies the HasEdge predicate on the "sent_tenant_invitations" edge with a given conditions (other predicates).
+func HasSentTenantInvitationsWith(preds ...predicate.TenantInvitation) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newSentTenantInvitationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

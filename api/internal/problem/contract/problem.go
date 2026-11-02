@@ -20,6 +20,7 @@ type CreateProblemCommand struct {
 // ProblemResult is the application projection of a problem.
 type ProblemResult struct {
 	ID              uuid.UUID
+	TenantID        uuid.UUID
 	Slug            string
 	Lifecycle       string
 	Version         int64

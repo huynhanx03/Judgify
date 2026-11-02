@@ -14,7 +14,6 @@ type registerProfileValueRequest struct {
 type registerRequest struct {
 	Username              string                        `json:"username" validate:"required,min=3,max=50,alphanum"`
 	Password              string                        `json:"password" validate:"required,min=8,max=256"`
-	RecoveryEmail         string                        `json:"recovery_email" validate:"required,email,max=320"`
 	OfferID               uuid.UUID                     `json:"offer_id" validate:"required"`
 	OfferSequence         int64                         `json:"offer_sequence" validate:"required,min=1"`
 	CatalogRevisionID     uuid.UUID                     `json:"catalog_revision_id" validate:"required"`

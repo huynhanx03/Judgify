@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	commoncasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
 
 	dbent "github.com/huynhanx03/judgify/internal/ent"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
@@ -80,17 +81,18 @@ func (repository *CampaignAudienceRepository) SnapshotCampaignAudience(
 				SELECT rule.v0
 				FROM casbin_rules rule
 				JOIN member_roles parent ON rule.ptype = 'g' AND rule.v1 = parent.subject
-				WHERE rule.v0 LIKE 'role:%'
+				WHERE rule.v0 LIKE 'role:%' AND rule.v2 = $2
 			)
 			SELECT DISTINCT account.id, account.username
 			FROM users account
 			JOIN casbin_rules membership
 				ON membership.ptype = 'g'
 				AND membership.v0 = 'user:' || account.id::text
+				AND membership.v2 = $2
 			JOIN member_roles allowed ON allowed.subject = membership.v1
 			WHERE account.status = 'active' AND account.deleted_at IS NULL
 			ORDER BY account.id
-			LIMIT $2`, *selector.RoleID, limit+1)
+			LIMIT $3`, *selector.RoleID, commoncasbin.SystemScope().Key(), limit+1)
 	case campaignAudienceAll:
 		rows, err = executor.QueryContext(ctx, `
 			SELECT id, username
@@ -213,7 +215,7 @@ func (repository *CampaignAudienceRepository) CheckCampaignRecipient(
 		rows, err := executor.QueryContext(ctx, `
 			WITH RECURSIVE selected_role(subject) AS (
 				SELECT 'role:' || key FROM roles
-				WHERE id = $2 AND deleted_at IS NULL
+				WHERE id = $3 AND deleted_at IS NULL
 			),
 			member_roles(subject) AS (
 				SELECT subject FROM selected_role
@@ -221,7 +223,7 @@ func (repository *CampaignAudienceRepository) CheckCampaignRecipient(
 				SELECT rule.v0
 				FROM casbin_rules rule
 				JOIN member_roles parent ON rule.ptype = 'g' AND rule.v1 = parent.subject
-				WHERE rule.v0 LIKE 'role:%'
+				WHERE rule.v0 LIKE 'role:%' AND rule.v2 = $2
 			)
 			SELECT EXISTS (
 				SELECT 1
@@ -229,7 +231,8 @@ func (repository *CampaignAudienceRepository) CheckCampaignRecipient(
 				JOIN member_roles allowed ON allowed.subject = membership.v1
 				WHERE membership.ptype = 'g'
 					AND membership.v0 = 'user:' || $1::text
-			)`, userID, *roleID)
+					AND membership.v2 = $2
+			)`, userID, commoncasbin.SystemScope().Key(), *roleID)
 		if err != nil {
 			return ports.CampaignRecipientEligibility{}, fmt.Errorf("check campaign role eligibility: %w", err)
 		}

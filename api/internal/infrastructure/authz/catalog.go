@@ -26,7 +26,7 @@ func DefaultPolicies() []RoutePolicy {
 		{Method: "GET", Pattern: "/contests/**", Class: Public},
 		{Method: "POST", Pattern: "/contests/find", Class: Public},
 		{Method: "GET", Pattern: "/materials/**", Class: Public},
-		{Method: "POST", Pattern: "/materials/search", Class: Public},
+		{Method: "POST", Pattern: "/materials/find", Class: Public},
 		{Method: "GET", Pattern: "/rankings/**", Class: Public},
 		{Method: "GET", Pattern: "/categories/**", Class: Public},
 		{Method: "GET", Pattern: "/submissions/**", Class: Public},

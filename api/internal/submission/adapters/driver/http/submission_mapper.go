@@ -60,18 +60,7 @@ func toAdminSubmissionDetailResponse(value *contract.AdminSubmissionDetailRespon
 }
 
 func toAdminSubmissionPageResponse(value *commondto.Paginated[*contract.AdminSubmissionSummaryResponse]) *commondto.Paginated[*adminSubmissionSummaryResponse] {
-	if value == nil {
-		return nil
-	}
-	page := &commondto.Paginated[*adminSubmissionSummaryResponse]{Pagination: value.Pagination}
-	if value.Records != nil {
-		values := make([]*adminSubmissionSummaryResponse, len(*value.Records))
-		for i, item := range *value.Records {
-			values[i] = toAdminSubmissionSummaryResponse(item)
-		}
-		page.Records = &values
-	}
-	return page
+	return commondto.MapPaginated(value, toAdminSubmissionSummaryResponse)
 }
 
 func toSubmissionID(request *submissionIDRequest) (uuid.UUID, error) {

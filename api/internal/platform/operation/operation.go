@@ -78,6 +78,7 @@ type ItemFailure struct {
 
 type Operation struct {
 	ID                uuid.UUID         `json:"id"`
+	TenantID          *uuid.UUID        `json:"tenant_id,omitempty"`
 	Kind              string            `json:"kind"`
 	IdempotencyKey    uuid.UUID         `json:"-"`
 	RequestHash       [sha256.Size]byte `json:"-"`
@@ -110,6 +111,7 @@ type Operation struct {
 
 type CreateCommand struct {
 	ID             uuid.UUID
+	TenantID       *uuid.UUID
 	Kind           string
 	IdempotencyKey uuid.UUID
 	RequestHash    [sha256.Size]byte
@@ -123,6 +125,29 @@ type CreateCommand struct {
 	Reason         string
 	CorrelationID  string
 	NotBefore      *time.Time
+}
+
+func tenantIDFromRequest(request json.RawMessage) (*uuid.UUID, error) {
+	if len(request) == 0 {
+		return nil, ErrInvalidRequest
+	}
+	var payload map[string]json.RawMessage
+	if err := json.Unmarshal(request, &payload); err != nil || payload == nil {
+		return nil, ErrInvalidRequest
+	}
+	encodedTenantID, exists := payload["tenant_id"]
+	if !exists {
+		return nil, nil
+	}
+	var tenantIDText string
+	if err := json.Unmarshal(encodedTenantID, &tenantIDText); err != nil {
+		return nil, ErrInvalidRequest
+	}
+	tenantID, err := uuid.Parse(tenantIDText)
+	if err != nil || tenantID == uuid.Nil || tenantID.String() != tenantIDText {
+		return nil, ErrInvalidRequest
+	}
+	return &tenantID, nil
 }
 
 type CreateResult struct {
@@ -234,7 +259,8 @@ func ValidateCreate(command CreateCommand) error {
 // ValidateCreateIntent validates every replay-bound input before an audit ID
 // exists. LockStart uses this exact tuple to serialize concurrent retries.
 func ValidateCreateIntent(command CreateCommand) error {
-	if command.ID == uuid.Nil || command.IdempotencyKey == uuid.Nil ||
+	if command.ID == uuid.Nil || command.TenantID != nil && *command.TenantID == uuid.Nil ||
+		command.IdempotencyKey == uuid.Nil ||
 		command.ActorUserID == uuid.Nil ||
 		!validIdentifier(command.Kind, MaxKindBytes) ||
 		!validText(command.Reason, MaxReasonBytes) ||

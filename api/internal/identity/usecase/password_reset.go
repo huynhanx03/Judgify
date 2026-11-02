@@ -104,7 +104,7 @@ func NewPasswordResetService(
 		config.Clock == nil {
 		return nil, ErrInvalidPasswordReset
 	}
-	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPolicy())
+	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPassword())
 	return &PasswordResetService{
 		repository: repository, credentials: credentials,
 		tokenLifecycle: tokenLifecycle, scheduler: scheduler, payloadCodec: payloadCodec,

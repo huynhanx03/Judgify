@@ -266,12 +266,12 @@ func (_q *CultivationRankingPrivacyChangeQuery) Clone() *CultivationRankingPriva
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.CultivationRankingPrivacyChange.Query().
-//		GroupBy(cultivationrankingprivacychange.FieldUserID).
+//		GroupBy(cultivationrankingprivacychange.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *CultivationRankingPrivacyChangeQuery) GroupBy(field string, fields ...string) *CultivationRankingPrivacyChangeGroupBy {
@@ -289,11 +289,11 @@ func (_q *CultivationRankingPrivacyChangeQuery) GroupBy(field string, fields ...
 // Example:
 //
 //	var v []struct {
-//		UserID uuid.UUID `json:"user_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.CultivationRankingPrivacyChange.Query().
-//		Select(cultivationrankingprivacychange.FieldUserID).
+//		Select(cultivationrankingprivacychange.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *CultivationRankingPrivacyChangeQuery) Select(fields ...string) *CultivationRankingPrivacyChangeSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

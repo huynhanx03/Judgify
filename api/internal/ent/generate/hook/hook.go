@@ -1197,6 +1197,54 @@ func (f TagRevisionElementFunc) Mutate(ctx context.Context, m generate.Mutation)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TagRevisionElementMutation", m)
 }
 
+// The TenantFunc type is an adapter to allow the use of ordinary
+// function as Tenant mutator.
+type TenantFunc func(context.Context, *generate.TenantMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TenantFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.TenantMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TenantMutation", m)
+}
+
+// The TenantInvitationFunc type is an adapter to allow the use of ordinary
+// function as TenantInvitation mutator.
+type TenantInvitationFunc func(context.Context, *generate.TenantInvitationMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TenantInvitationFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.TenantInvitationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TenantInvitationMutation", m)
+}
+
+// The TenantMembershipFunc type is an adapter to allow the use of ordinary
+// function as TenantMembership mutator.
+type TenantMembershipFunc func(context.Context, *generate.TenantMembershipMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TenantMembershipFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.TenantMembershipMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TenantMembershipMutation", m)
+}
+
+// The TenantRoleFunc type is an adapter to allow the use of ordinary
+// function as TenantRole mutator.
+type TenantRoleFunc func(context.Context, *generate.TenantRoleMutation) (generate.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TenantRoleFunc) Mutate(ctx context.Context, m generate.Mutation) (generate.Value, error) {
+	if mv, ok := m.(*generate.TenantRoleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generate.TenantRoleMutation", m)
+}
+
 // The TestAssetFunc type is an adapter to allow the use of ordinary
 // function as TestAsset mutator.
 type TestAssetFunc func(context.Context, *generate.TestAssetMutation) (generate.Value, error)

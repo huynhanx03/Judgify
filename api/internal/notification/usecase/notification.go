@@ -12,7 +12,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	commontx "github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	contract "github.com/huynhanx03/judgify/internal/notification/contract"
 	entity "github.com/huynhanx03/judgify/internal/notification/domain"
@@ -115,7 +115,7 @@ func (service *notificationService) CreateFromEvent(
 	return toNotificationResponse(created), true, nil
 }
 
-func (service *notificationService) List(
+func (service *notificationService) Find(
 	ctx context.Context,
 	userID uuid.UUID,
 	request *contract.ListRequest,
@@ -139,7 +139,7 @@ func (service *notificationService) List(
 	var inbox entity.InboxState
 	err := service.snapshots.DoInTx(ctx, func(txCtx context.Context) error {
 		var err error
-		records, next, inbox, err = service.repository.List(txCtx, query)
+		records, next, inbox, err = service.repository.Find(txCtx, query)
 		return err
 	})
 	if err != nil {

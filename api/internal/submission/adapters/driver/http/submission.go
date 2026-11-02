@@ -14,8 +14,9 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	commondto "github.com/huynhanx03/go-common/pkg/dto"
+	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	intake "github.com/huynhanx03/judgify/internal/application/workflow/submissionintake"
 	"github.com/huynhanx03/judgify/internal/authctx"
@@ -31,9 +32,9 @@ const idempotencyReplayHeader = "Idempotency-Replayed"
 type SubmissionHandler interface {
 	SubmitAccepted(*gin.Context)
 	Get(ctx context.Context, req *submissionIDRequest) (*submissionResponse, error)
-	FindByProblem(ctx context.Context, req *problemSubmissionsRequest) ([]*submissionSummaryResponse, error)
+	FindByProblemID(ctx context.Context, req *problemSubmissionsRequest) ([]*submissionSummaryResponse, error)
 	FindMySubmissions(*gin.Context)
-	FindAdmin(ctx context.Context, req *contract.AdminSubmissionFindRequest) (*commondto.Paginated[*adminSubmissionSummaryResponse], error)
+	FindForAdmin(ctx context.Context, req *contract.AdminSubmissionFindRequest) (*commondto.Paginated[*adminSubmissionSummaryResponse], error)
 	GetAdmin(ctx context.Context, req *submissionIDRequest) (*adminSubmissionDetailResponse, error)
 	Rejudge(*gin.Context)
 	Cancel(*gin.Context)
@@ -202,10 +203,10 @@ func failSubmissionCommand(c *gin.Context, err error) {
 		appError.Code == ports.CodeJudgeCapacityUnavailable {
 		c.Header("Retry-After", "2")
 		c.JSON(http.StatusServiceUnavailable, response.Body{
-			Code:    appError.Code,
-			Message: appError.Message,
-			Data:    appError.Details,
-			CID:     correlation.FromContext(c.Request.Context()),
+			Code:      appError.Code,
+			Message:   appError.Message,
+			Data:      appError.Details,
+			RequestID: commonlogger.RequestID(c.Request.Context()),
 		})
 		c.Abort()
 		return
@@ -238,7 +239,7 @@ func (h *submissionHandler) Get(ctx context.Context, req *submissionIDRequest) (
 	return toSubmissionResponse(result), nil
 }
 
-func (h *submissionHandler) FindByProblem(ctx context.Context, req *problemSubmissionsRequest) ([]*submissionSummaryResponse, error) {
+func (h *submissionHandler) FindByProblemID(ctx context.Context, req *problemSubmissionsRequest) ([]*submissionSummaryResponse, error) {
 	id, err := toProblemID(req)
 	if err != nil {
 		return nil, err
@@ -276,7 +277,7 @@ func (h *submissionHandler) FindMySubmissions(c *gin.Context) {
 		failSubmissionRead(c, err)
 		return
 	}
-	result, err := h.submissionService.FindMyByProblem(
+	result, err := h.submissionService.FindMySubmissionsByProblem(
 		c.Request.Context(),
 		userID,
 		request,
@@ -367,11 +368,11 @@ func failSubmissionRead(c *gin.Context, err error) {
 	c.Abort()
 }
 
-func (h *submissionHandler) FindAdmin(
+func (h *submissionHandler) FindForAdmin(
 	ctx context.Context,
 	req *contract.AdminSubmissionFindRequest,
 ) (*commondto.Paginated[*adminSubmissionSummaryResponse], error) {
-	result, err := h.submissionService.FindAdmin(ctx, req)
+	result, err := h.submissionService.FindForAdmin(ctx, req)
 	if err != nil {
 		return nil, err
 	}

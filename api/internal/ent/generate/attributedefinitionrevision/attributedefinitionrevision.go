@@ -16,6 +16,8 @@ const (
 	Label = "attribute_definition_revision"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldDefinitionID holds the string denoting the definition_id field in the database.
 	FieldDefinitionID = "definition_id"
 	// FieldRevision holds the string denoting the revision field in the database.
@@ -72,6 +74,7 @@ const (
 // Columns holds all SQL columns for attributedefinitionrevision fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldDefinitionID,
 	FieldRevision,
 	FieldDataType,
@@ -173,6 +176,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByDefinitionID orders the results by the definition_id field.

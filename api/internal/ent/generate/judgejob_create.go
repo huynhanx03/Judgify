@@ -52,6 +52,12 @@ func (_c *JudgeJobCreate) SetNillableUpdatedAt(v *time.Time) *JudgeJobCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *JudgeJobCreate) SetTenantID(v uuid.UUID) *JudgeJobCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetSubmissionID sets the "submission_id" field.
 func (_c *JudgeJobCreate) SetSubmissionID(v uuid.UUID) *JudgeJobCreate {
 	_c.mutation.SetSubmissionID(v)
@@ -276,6 +282,20 @@ func (_c *JudgeJobCreate) SetOriginCid(v string) *JudgeJobCreate {
 	return _c
 }
 
+// SetOriginTraceparent sets the "origin_traceparent" field.
+func (_c *JudgeJobCreate) SetOriginTraceparent(v string) *JudgeJobCreate {
+	_c.mutation.SetOriginTraceparent(v)
+	return _c
+}
+
+// SetNillableOriginTraceparent sets the "origin_traceparent" field if the given value is not nil.
+func (_c *JudgeJobCreate) SetNillableOriginTraceparent(v *string) *JudgeJobCreate {
+	if v != nil {
+		_c.SetOriginTraceparent(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *JudgeJobCreate) SetID(v uuid.UUID) *JudgeJobCreate {
 	_c.mutation.SetID(v)
@@ -363,6 +383,9 @@ func (_c *JudgeJobCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "JudgeJob.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "JudgeJob.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.SubmissionID(); !ok {
 		return &ValidationError{Name: "submission_id", err: errors.New(`generate: missing required field "JudgeJob.submission_id"`)}
 	}
@@ -438,6 +461,11 @@ func (_c *JudgeJobCreate) check() error {
 			return &ValidationError{Name: "origin_cid", err: fmt.Errorf(`generate: validator failed for field "JudgeJob.origin_cid": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.OriginTraceparent(); ok {
+		if err := judgejob.OriginTraceparentValidator(v); err != nil {
+			return &ValidationError{Name: "origin_traceparent", err: fmt.Errorf(`generate: validator failed for field "JudgeJob.origin_traceparent": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -481,6 +509,10 @@ func (_c *JudgeJobCreate) createSpec() (*JudgeJob, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(judgejob.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(judgejob.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.SubmissionID(); ok {
 		_spec.SetField(judgejob.FieldSubmissionID, field.TypeUUID, value)
@@ -561,6 +593,10 @@ func (_c *JudgeJobCreate) createSpec() (*JudgeJob, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.OriginCid(); ok {
 		_spec.SetField(judgejob.FieldOriginCid, field.TypeString, value)
 		_node.OriginCid = value
+	}
+	if value, ok := _c.mutation.OriginTraceparent(); ok {
+		_spec.SetField(judgejob.FieldOriginTraceparent, field.TypeString, value)
+		_node.OriginTraceparent = &value
 	}
 	return _node, _spec
 }
@@ -886,6 +922,9 @@ func (u *JudgeJobUpsertOne) UpdateNewValues() *JudgeJobUpsertOne {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(judgejob.FieldCreatedAt)
 		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(judgejob.FieldTenantID)
+		}
 		if _, exists := u.create.mutation.SubmissionID(); exists {
 			s.SetIgnore(judgejob.FieldSubmissionID)
 		}
@@ -903,6 +942,9 @@ func (u *JudgeJobUpsertOne) UpdateNewValues() *JudgeJobUpsertOne {
 		}
 		if _, exists := u.create.mutation.OriginCid(); exists {
 			s.SetIgnore(judgejob.FieldOriginCid)
+		}
+		if _, exists := u.create.mutation.OriginTraceparent(); exists {
+			s.SetIgnore(judgejob.FieldOriginTraceparent)
 		}
 	}))
 	return u
@@ -1415,6 +1457,9 @@ func (u *JudgeJobUpsertBulk) UpdateNewValues() *JudgeJobUpsertBulk {
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(judgejob.FieldCreatedAt)
 			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(judgejob.FieldTenantID)
+			}
 			if _, exists := b.mutation.SubmissionID(); exists {
 				s.SetIgnore(judgejob.FieldSubmissionID)
 			}
@@ -1432,6 +1477,9 @@ func (u *JudgeJobUpsertBulk) UpdateNewValues() *JudgeJobUpsertBulk {
 			}
 			if _, exists := b.mutation.OriginCid(); exists {
 				s.SetIgnore(judgejob.FieldOriginCid)
+			}
+			if _, exists := b.mutation.OriginTraceparent(); exists {
+				s.SetIgnore(judgejob.FieldOriginTraceparent)
 			}
 		}
 	}))

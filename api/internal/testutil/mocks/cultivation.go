@@ -571,19 +571,19 @@ func (mr *MockProgressionRepositoryMockRecorder) ApplyAdjustment(arg0, arg1 any)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyAdjustment", reflect.TypeOf((*MockProgressionRepository)(nil).ApplyAdjustment), arg0, arg1)
 }
 
-// ListLedger mocks base method.
-func (m *MockProgressionRepository) ListLedger(arg0 context.Context, arg1 uuid.UUID, arg2 *uuid.UUID, arg3 int) (ports.ProgressionLedgerPage, error) {
+// FindLedger mocks base method.
+func (m *MockProgressionRepository) FindLedger(arg0 context.Context, arg1 uuid.UUID, arg2 *uuid.UUID, arg3 int) (ports.ProgressionLedgerPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListLedger", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "FindLedger", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(ports.ProgressionLedgerPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListLedger indicates an expected call of ListLedger.
-func (mr *MockProgressionRepositoryMockRecorder) ListLedger(arg0, arg1, arg2, arg3 any) *gomock.Call {
+// FindLedger indicates an expected call of FindLedger.
+func (mr *MockProgressionRepositoryMockRecorder) FindLedger(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLedger", reflect.TypeOf((*MockProgressionRepository)(nil).ListLedger), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindLedger", reflect.TypeOf((*MockProgressionRepository)(nil).FindLedger), arg0, arg1, arg2, arg3)
 }
 
 // Snapshot mocks base method.
@@ -640,19 +640,19 @@ func (mr *MockProgressionServiceMockRecorder) ApplyAdjustment(arg0, arg1 any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyAdjustment", reflect.TypeOf((*MockProgressionService)(nil).ApplyAdjustment), arg0, arg1)
 }
 
-// ListLedger mocks base method.
-func (m *MockProgressionService) ListLedger(arg0 context.Context, arg1 uuid.UUID, arg2 *uuid.UUID, arg3 int) (ports.ProgressionLedgerPage, error) {
+// FindLedger mocks base method.
+func (m *MockProgressionService) FindLedger(arg0 context.Context, arg1 uuid.UUID, arg2 *uuid.UUID, arg3 int) (ports.ProgressionLedgerPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListLedger", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "FindLedger", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(ports.ProgressionLedgerPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListLedger indicates an expected call of ListLedger.
-func (mr *MockProgressionServiceMockRecorder) ListLedger(arg0, arg1, arg2, arg3 any) *gomock.Call {
+// FindLedger indicates an expected call of FindLedger.
+func (mr *MockProgressionServiceMockRecorder) FindLedger(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLedger", reflect.TypeOf((*MockProgressionService)(nil).ListLedger), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindLedger", reflect.TypeOf((*MockProgressionService)(nil).FindLedger), arg0, arg1, arg2, arg3)
 }
 
 // PreviewAdjustment mocks base method.
@@ -933,19 +933,19 @@ func (m *MockRankingProjectionRepository) EXPECT() *MockRankingProjectionReposit
 	return m.recorder
 }
 
-// Page mocks base method.
-func (m *MockRankingProjectionRepository) Page(arg0 context.Context, arg1 ports.RankingProjectionQuery) (domain.RankingProjectionPage, error) {
+// Find mocks base method.
+func (m *MockRankingProjectionRepository) Find(arg0 context.Context, arg1 ports.RankingProjectionQuery) (domain.RankingProjectionPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Page", arg0, arg1)
+	ret := m.ctrl.Call(m, "Find", arg0, arg1)
 	ret0, _ := ret[0].(domain.RankingProjectionPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Page indicates an expected call of Page.
-func (mr *MockRankingProjectionRepositoryMockRecorder) Page(arg0, arg1 any) *gomock.Call {
+// Find indicates an expected call of Find.
+func (mr *MockRankingProjectionRepositoryMockRecorder) Find(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Page", reflect.TypeOf((*MockRankingProjectionRepository)(nil).Page), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRankingProjectionRepository)(nil).Find), arg0, arg1)
 }
 
 // Privacy mocks base method.
@@ -1002,19 +1002,19 @@ func (m *MockRankingService) EXPECT() *MockRankingServiceMockRecorder {
 	return m.recorder
 }
 
-// Page mocks base method.
-func (m *MockRankingService) Page(arg0 context.Context, arg1 domain.RankingKind, arg2 string, arg3 int) (*contract.RankingPageResponse, error) {
+// Find mocks base method.
+func (m *MockRankingService) Find(arg0 context.Context, arg1 domain.RankingKind, arg2 string, arg3 int) (*contract.RankingPageResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Page", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "Find", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*contract.RankingPageResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Page indicates an expected call of Page.
-func (mr *MockRankingServiceMockRecorder) Page(arg0, arg1, arg2, arg3 any) *gomock.Call {
+// Find indicates an expected call of Find.
+func (mr *MockRankingServiceMockRecorder) Find(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Page", reflect.TypeOf((*MockRankingService)(nil).Page), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRankingService)(nil).Find), arg0, arg1, arg2, arg3)
 }
 
 // Privacy mocks base method.
@@ -1209,19 +1209,19 @@ func (mr *MockRankingOperationReaderMockRecorder) Get(arg0, arg1 any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRankingOperationReader)(nil).Get), arg0, arg1)
 }
 
-// List mocks base method.
-func (m *MockRankingOperationReader) List(arg0 context.Context, arg1 operation.ListFilter) (operation.Page, error) {
+// Find mocks base method.
+func (m *MockRankingOperationReader) Find(arg0 context.Context, arg1 operation.ListFilter) (operation.Page, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0, arg1)
+	ret := m.ctrl.Call(m, "Find", arg0, arg1)
 	ret0, _ := ret[0].(operation.Page)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// List indicates an expected call of List.
-func (mr *MockRankingOperationReaderMockRecorder) List(arg0, arg1 any) *gomock.Call {
+// Find indicates an expected call of Find.
+func (mr *MockRankingOperationReaderMockRecorder) Find(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRankingOperationReader)(nil).List), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRankingOperationReader)(nil).Find), arg0, arg1)
 }
 
 // MockRankingReconciliationService is a mock of RankingReconciliationService interface.
@@ -1739,19 +1739,19 @@ func (mr *MockRewardRuleRepositoryMockRecorder) Current(arg0, arg1 any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Current", reflect.TypeOf((*MockRewardRuleRepository)(nil).Current), arg0, arg1)
 }
 
-// List mocks base method.
-func (m *MockRewardRuleRepository) List(arg0 context.Context, arg1 *int64, arg2 int) (ports.RewardRulePage, error) {
+// Find mocks base method.
+func (m *MockRewardRuleRepository) Find(arg0 context.Context, arg1 *int64, arg2 int) (ports.RewardRulePage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Find", arg0, arg1, arg2)
 	ret0, _ := ret[0].(ports.RewardRulePage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// List indicates an expected call of List.
-func (mr *MockRewardRuleRepositoryMockRecorder) List(arg0, arg1, arg2 any) *gomock.Call {
+// Find indicates an expected call of Find.
+func (mr *MockRewardRuleRepositoryMockRecorder) Find(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRewardRuleRepository)(nil).List), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRewardRuleRepository)(nil).Find), arg0, arg1, arg2)
 }
 
 // Publish mocks base method.
@@ -1808,19 +1808,19 @@ func (mr *MockRewardRuleServiceMockRecorder) Current(arg0 any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Current", reflect.TypeOf((*MockRewardRuleService)(nil).Current), arg0)
 }
 
-// List mocks base method.
-func (m *MockRewardRuleService) List(arg0 context.Context, arg1 *int64, arg2 int) (ports.RewardRulePage, error) {
+// Find mocks base method.
+func (m *MockRewardRuleService) Find(arg0 context.Context, arg1 *int64, arg2 int) (ports.RewardRulePage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Find", arg0, arg1, arg2)
 	ret0, _ := ret[0].(ports.RewardRulePage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// List indicates an expected call of List.
-func (mr *MockRewardRuleServiceMockRecorder) List(arg0, arg1, arg2 any) *gomock.Call {
+// Find indicates an expected call of Find.
+func (mr *MockRewardRuleServiceMockRecorder) Find(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRewardRuleService)(nil).List), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRewardRuleService)(nil).Find), arg0, arg1, arg2)
 }
 
 // PreviewPublication mocks base method.

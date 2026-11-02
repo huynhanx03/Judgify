@@ -16,6 +16,8 @@ const (
 	Label = "reward_rule_revision"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldRuleKey holds the string denoting the rule_key field in the database.
 	FieldRuleKey = "rule_key"
 	// FieldRevision holds the string denoting the revision field in the database.
@@ -48,6 +50,7 @@ const (
 // Columns holds all SQL columns for rewardrulerevision fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldRuleKey,
 	FieldRevision,
 	FieldAlgorithmVersion,
@@ -93,6 +96,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByRuleKey orders the results by the rule_key field.

@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactverificationtoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
@@ -167,6 +168,20 @@ func (_c *UserRecoveryContactCreate) SetNillableReplacedContactID(v *uuid.UUID) 
 	return _c
 }
 
+// SetSourceFederatedIdentityID sets the "source_federated_identity_id" field.
+func (_c *UserRecoveryContactCreate) SetSourceFederatedIdentityID(v uuid.UUID) *UserRecoveryContactCreate {
+	_c.mutation.SetSourceFederatedIdentityID(v)
+	return _c
+}
+
+// SetNillableSourceFederatedIdentityID sets the "source_federated_identity_id" field if the given value is not nil.
+func (_c *UserRecoveryContactCreate) SetNillableSourceFederatedIdentityID(v *uuid.UUID) *UserRecoveryContactCreate {
+	if v != nil {
+		_c.SetSourceFederatedIdentityID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *UserRecoveryContactCreate) SetID(v uuid.UUID) *UserRecoveryContactCreate {
 	_c.mutation.SetID(v)
@@ -214,6 +229,11 @@ func (_c *UserRecoveryContactCreate) AddPasswordResetTokens(v ...*PasswordResetT
 		ids[i] = v[i].ID
 	}
 	return _c.AddPasswordResetTokenIDs(ids...)
+}
+
+// SetSourceFederatedIdentity sets the "source_federated_identity" edge to the FederatedIdentity entity.
+func (_c *UserRecoveryContactCreate) SetSourceFederatedIdentity(v *FederatedIdentity) *UserRecoveryContactCreate {
+	return _c.SetSourceFederatedIdentityID(v.ID)
 }
 
 // Mutation returns the UserRecoveryContactMutation object of the builder.
@@ -488,6 +508,23 @@ func (_c *UserRecoveryContactCreate) createSpec() (*UserRecoveryContact, *sqlgra
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := _c.mutation.SourceFederatedIdentityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   userrecoverycontact.SourceFederatedIdentityTable,
+			Columns: []string{userrecoverycontact.SourceFederatedIdentityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(federatedidentity.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.SourceFederatedIdentityID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -657,6 +694,24 @@ func (u *UserRecoveryContactUpsert) UpdateReplacedContactID() *UserRecoveryConta
 // ClearReplacedContactID clears the value of the "replaced_contact_id" field.
 func (u *UserRecoveryContactUpsert) ClearReplacedContactID() *UserRecoveryContactUpsert {
 	u.SetNull(userrecoverycontact.FieldReplacedContactID)
+	return u
+}
+
+// SetSourceFederatedIdentityID sets the "source_federated_identity_id" field.
+func (u *UserRecoveryContactUpsert) SetSourceFederatedIdentityID(v uuid.UUID) *UserRecoveryContactUpsert {
+	u.Set(userrecoverycontact.FieldSourceFederatedIdentityID, v)
+	return u
+}
+
+// UpdateSourceFederatedIdentityID sets the "source_federated_identity_id" field to the value that was provided on create.
+func (u *UserRecoveryContactUpsert) UpdateSourceFederatedIdentityID() *UserRecoveryContactUpsert {
+	u.SetExcluded(userrecoverycontact.FieldSourceFederatedIdentityID)
+	return u
+}
+
+// ClearSourceFederatedIdentityID clears the value of the "source_federated_identity_id" field.
+func (u *UserRecoveryContactUpsert) ClearSourceFederatedIdentityID() *UserRecoveryContactUpsert {
+	u.SetNull(userrecoverycontact.FieldSourceFederatedIdentityID)
 	return u
 }
 
@@ -863,6 +918,27 @@ func (u *UserRecoveryContactUpsertOne) UpdateReplacedContactID() *UserRecoveryCo
 func (u *UserRecoveryContactUpsertOne) ClearReplacedContactID() *UserRecoveryContactUpsertOne {
 	return u.Update(func(s *UserRecoveryContactUpsert) {
 		s.ClearReplacedContactID()
+	})
+}
+
+// SetSourceFederatedIdentityID sets the "source_federated_identity_id" field.
+func (u *UserRecoveryContactUpsertOne) SetSourceFederatedIdentityID(v uuid.UUID) *UserRecoveryContactUpsertOne {
+	return u.Update(func(s *UserRecoveryContactUpsert) {
+		s.SetSourceFederatedIdentityID(v)
+	})
+}
+
+// UpdateSourceFederatedIdentityID sets the "source_federated_identity_id" field to the value that was provided on create.
+func (u *UserRecoveryContactUpsertOne) UpdateSourceFederatedIdentityID() *UserRecoveryContactUpsertOne {
+	return u.Update(func(s *UserRecoveryContactUpsert) {
+		s.UpdateSourceFederatedIdentityID()
+	})
+}
+
+// ClearSourceFederatedIdentityID clears the value of the "source_federated_identity_id" field.
+func (u *UserRecoveryContactUpsertOne) ClearSourceFederatedIdentityID() *UserRecoveryContactUpsertOne {
+	return u.Update(func(s *UserRecoveryContactUpsert) {
+		s.ClearSourceFederatedIdentityID()
 	})
 }
 
@@ -1236,6 +1312,27 @@ func (u *UserRecoveryContactUpsertBulk) UpdateReplacedContactID() *UserRecoveryC
 func (u *UserRecoveryContactUpsertBulk) ClearReplacedContactID() *UserRecoveryContactUpsertBulk {
 	return u.Update(func(s *UserRecoveryContactUpsert) {
 		s.ClearReplacedContactID()
+	})
+}
+
+// SetSourceFederatedIdentityID sets the "source_federated_identity_id" field.
+func (u *UserRecoveryContactUpsertBulk) SetSourceFederatedIdentityID(v uuid.UUID) *UserRecoveryContactUpsertBulk {
+	return u.Update(func(s *UserRecoveryContactUpsert) {
+		s.SetSourceFederatedIdentityID(v)
+	})
+}
+
+// UpdateSourceFederatedIdentityID sets the "source_federated_identity_id" field to the value that was provided on create.
+func (u *UserRecoveryContactUpsertBulk) UpdateSourceFederatedIdentityID() *UserRecoveryContactUpsertBulk {
+	return u.Update(func(s *UserRecoveryContactUpsert) {
+		s.UpdateSourceFederatedIdentityID()
+	})
+}
+
+// ClearSourceFederatedIdentityID clears the value of the "source_federated_identity_id" field.
+func (u *UserRecoveryContactUpsertBulk) ClearSourceFederatedIdentityID() *UserRecoveryContactUpsertBulk {
+	return u.Update(func(s *UserRecoveryContactUpsert) {
+		s.ClearSourceFederatedIdentityID()
 	})
 }
 

@@ -15,6 +15,8 @@ import (
 	cultivationports "github.com/huynhanx03/judgify/internal/ports"
 	identityports "github.com/huynhanx03/judgify/internal/ports"
 	problementity "github.com/huynhanx03/judgify/internal/problem/domain"
+	tenantdomain "github.com/huynhanx03/judgify/internal/tenant/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -54,15 +56,20 @@ type DifficultyCatalog interface {
 	FindAllBounded(context.Context, int) ([]*problementity.Difficulty, error)
 }
 
+type TenantMembershipInitializer interface {
+	JoinCommunity(context.Context, uuid.UUID) error
+}
+
 type RegistrationDependencies struct {
-	OfferRepository cultivationports.TraitOfferRepository
-	RewardProfiles  RewardProfileInitializer
-	UserStats       UserStatsInitializer
-	UserElementExp  UserElementInitializer
-	Elements        ElementCatalog
-	UserDifficulty  UserDifficultyInitializer
-	Difficulties    DifficultyCatalog
-	Clock           func() time.Time
+	OfferRepository  cultivationports.TraitOfferRepository
+	RewardProfiles   RewardProfileInitializer
+	UserStats        UserStatsInitializer
+	UserElementExp   UserElementInitializer
+	Elements         ElementCatalog
+	UserDifficulty   UserDifficultyInitializer
+	Difficulties     DifficultyCatalog
+	TenantMembership TenantMembershipInitializer
+	Clock            func() time.Time
 }
 
 // RegistrationLifecycle is the application-level bridge between Identity,
@@ -136,6 +143,7 @@ func (lifecycle *RegistrationLifecycle) Consume(
 		lifecycle.dependencies.Clock == nil {
 		return registrationUnavailable()
 	}
+	ctx = withCommunityScope(ctx)
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -159,6 +167,7 @@ func (lifecycle *RegistrationLifecycle) Provision(
 	if lifecycle == nil || ctx == nil || userID == uuid.Nil || !validAuthorizedOffer(authorized) {
 		return registrationUnavailable()
 	}
+	ctx = withCommunityScope(ctx)
 	now := lifecycle.dependencies.Clock().UTC()
 	offer, err := lifecycle.dependencies.OfferRepository.LockOffer(ctx, authorized.OfferID)
 	if err != nil {
@@ -231,7 +240,17 @@ func (lifecycle *RegistrationLifecycle) Provision(
 	if err := lifecycle.dependencies.UserDifficulty.CreateBulk(ctx, userID, difficultyIDs); err != nil {
 		return apperr.New(apperr.CodeInternalServer, "failed to init difficulty stats", err)
 	}
+	if lifecycle.dependencies.TenantMembership != nil {
+		if err := lifecycle.dependencies.TenantMembership.JoinCommunity(ctx, userID); err != nil {
+			return apperr.New(apperr.CodeInternalServer, "failed to join Judgify Community", err)
+		}
+	}
 	return nil
+}
+
+func withCommunityScope(ctx context.Context) context.Context {
+	scope, _ := tenantctx.Tenant(tenantdomain.CommunityID)
+	return tenantctx.WithContext(ctx, scope)
 }
 
 func validAuthorizedOffer(authorized identityports.AuthorizedTraitOffer) bool {

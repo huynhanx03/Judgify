@@ -76,6 +76,7 @@ func (event ContestInvalidationV1) Validate() error {
 type ContestChange struct {
 	EventID      uuid.UUID
 	EventType    string
+	TenantID     uuid.UUID
 	Audience     ContestAudience
 	RecipientID  uuid.UUID
 	IncludeStaff bool
@@ -128,7 +129,15 @@ func MessagesForContestChange(change ContestChange) ([]RoutedMessage, error) {
 	topics := []string{primaryTopic}
 	if change.Audience == ContestAudiencePublic &&
 		change.Event.Resource == ContestResourceLifecycle {
-		topics = []string{ContestLifecycleTopic(), primaryTopic}
+		if change.TenantID != uuid.Nil {
+			lifecycleTopic, err := TenantContestLifecycleTopic(change.TenantID)
+			if err != nil {
+				return nil, err
+			}
+			topics = []string{lifecycleTopic, primaryTopic}
+		} else {
+			topics = []string{ContestLifecycleTopic(), primaryTopic}
+		}
 	}
 	if change.IncludeStaff && change.Audience != ContestAudienceStaff {
 		staffTopic, err := ContestStaffTopic(change.Event.ContestID)

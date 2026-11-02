@@ -19,6 +19,8 @@ type MaterialRevisionTag struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// RevisionID holds the value of the "revision_id" field.
 	RevisionID uuid.UUID `json:"revision_id,omitempty"`
 	// TagID holds the value of the "tag_id" field.
@@ -71,7 +73,7 @@ func (*MaterialRevisionTag) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case materialrevisiontag.FieldID, materialrevisiontag.FieldDisplayOrder:
 			values[i] = new(sql.NullInt64)
-		case materialrevisiontag.FieldRevisionID, materialrevisiontag.FieldTagID:
+		case materialrevisiontag.FieldTenantID, materialrevisiontag.FieldRevisionID, materialrevisiontag.FieldTagID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -94,6 +96,12 @@ func (_m *MaterialRevisionTag) assignValues(columns []string, values []any) erro
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case materialrevisiontag.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
+			}
 		case materialrevisiontag.FieldRevisionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field revision_id", values[i])
@@ -158,6 +166,9 @@ func (_m *MaterialRevisionTag) String() string {
 	var builder strings.Builder
 	builder.WriteString("MaterialRevisionTag(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("revision_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RevisionID))
 	builder.WriteString(", ")

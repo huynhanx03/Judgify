@@ -47,7 +47,7 @@ func TestGetContestRatingChangesProjectsCanonicalActiveRun(t *testing.T) {
 	service, ledger, _ := newRatingTestEnv(t)
 	ctx := context.Background()
 	contestID := uuid.New()
-	ledger.EXPECT().FindActiveByContest(ctx, contestID).Return(&entity.RatingRun{
+	ledger.EXPECT().FindActiveByContestID(ctx, contestID).Return(&entity.RatingRun{
 		Results: []entity.RatingRunResult{
 			{
 				UserID:         uuid.New(),
@@ -81,7 +81,7 @@ func TestGetContestRatingChangesProjectsCanonicalActiveRun(t *testing.T) {
 func TestGetContestRatingChangesReturnsEmptyBeforeSettlement(t *testing.T) {
 	service, ledger, _ := newRatingTestEnv(t)
 	contestID := uuid.New()
-	ledger.EXPECT().FindActiveByContest(gomock.Any(), contestID).Return(
+	ledger.EXPECT().FindActiveByContestID(gomock.Any(), contestID).Return(
 		nil,
 		ports.ErrRatingNotAvailable,
 	)
@@ -97,7 +97,7 @@ func TestGetContestRatingChangesPreservesRepositoryFailure(t *testing.T) {
 	service, ledger, _ := newRatingTestEnv(t)
 	contestID := uuid.New()
 	databaseError := errors.New("database unavailable")
-	ledger.EXPECT().FindActiveByContest(gomock.Any(), contestID).Return(nil, databaseError)
+	ledger.EXPECT().FindActiveByContestID(gomock.Any(), contestID).Return(nil, databaseError)
 
 	response, err := service.GetContestRatingChanges(context.Background(), contestID)
 

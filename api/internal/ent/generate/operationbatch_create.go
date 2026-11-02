@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -26,6 +26,20 @@ type OperationBatchCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *OperationBatchCreate) SetTenantID(v uuid.UUID) *OperationBatchCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *OperationBatchCreate) SetNillableTenantID(v *uuid.UUID) *OperationBatchCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetOperationID sets the "operation_id" field.
 func (_c *OperationBatchCreate) SetOperationID(v uuid.UUID) *OperationBatchCreate {
 	_c.mutation.SetOperationID(v)
@@ -45,13 +59,13 @@ func (_c *OperationBatchCreate) SetLeaseToken(v uuid.UUID) *OperationBatchCreate
 }
 
 // SetInputCheckpoint sets the "input_checkpoint" field.
-func (_c *OperationBatchCreate) SetInputCheckpoint(v json.RawMessage) *OperationBatchCreate {
+func (_c *OperationBatchCreate) SetInputCheckpoint(v jsontext.Value) *OperationBatchCreate {
 	_c.mutation.SetInputCheckpoint(v)
 	return _c
 }
 
 // SetOutputCheckpoint sets the "output_checkpoint" field.
-func (_c *OperationBatchCreate) SetOutputCheckpoint(v json.RawMessage) *OperationBatchCreate {
+func (_c *OperationBatchCreate) SetOutputCheckpoint(v jsontext.Value) *OperationBatchCreate {
 	_c.mutation.SetOutputCheckpoint(v)
 	return _c
 }
@@ -75,7 +89,7 @@ func (_c *OperationBatchCreate) SetFailedCount(v int64) *OperationBatchCreate {
 }
 
 // SetFailureSummary sets the "failure_summary" field.
-func (_c *OperationBatchCreate) SetFailureSummary(v json.RawMessage) *OperationBatchCreate {
+func (_c *OperationBatchCreate) SetFailureSummary(v jsontext.Value) *OperationBatchCreate {
 	_c.mutation.SetFailureSummary(v)
 	return _c
 }
@@ -291,6 +305,10 @@ func (_c *OperationBatchCreate) createSpec() (*OperationBatch, *sqlgraph.CreateS
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(operationbatch.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = &value
+	}
 	if value, ok := _c.mutation.Sequence(); ok {
 		_spec.SetField(operationbatch.FieldSequence, field.TypeInt64, value)
 		_node.Sequence = value
@@ -359,7 +377,7 @@ func (_c *OperationBatchCreate) createSpec() (*OperationBatch, *sqlgraph.CreateS
 // of the `INSERT` statement. For example:
 //
 //	client.OperationBatch.Create().
-//		SetOperationID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -368,7 +386,7 @@ func (_c *OperationBatchCreate) createSpec() (*OperationBatch, *sqlgraph.CreateS
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OperationBatchUpsert) {
-//			SetOperationID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OperationBatchCreate) OnConflict(opts ...sql.ConflictOption) *OperationBatchUpsertOne {
@@ -420,6 +438,9 @@ func (u *OperationBatchUpsertOne) UpdateNewValues() *OperationBatchUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(operationbatch.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(operationbatch.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.OperationID(); exists {
 			s.SetIgnore(operationbatch.FieldOperationID)
@@ -624,7 +645,7 @@ func (_c *OperationBatchCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.OperationBatchUpsert) {
-//			SetOperationID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *OperationBatchCreateBulk) OnConflict(opts ...sql.ConflictOption) *OperationBatchUpsertBulk {
@@ -670,6 +691,9 @@ func (u *OperationBatchUpsertBulk) UpdateNewValues() *OperationBatchUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(operationbatch.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(operationbatch.FieldTenantID)
 			}
 			if _, exists := b.mutation.OperationID(); exists {
 				s.SetIgnore(operationbatch.FieldOperationID)

@@ -1,4 +1,5 @@
 import { vi } from "@/i18n/catalog.vi";
+import { en } from "@/i18n/catalog.en";
 import type {
   InterpolationValue,
   TextArguments,
@@ -6,6 +7,8 @@ import type {
 } from "@/i18n/types";
 
 export type { ParamsFor, TextKey } from "@/i18n/types";
+
+export type Language = "vi" | "en";
 
 const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "constructor", "prototype"]);
 
@@ -25,6 +28,31 @@ function resolveLeaf(key: string): unknown {
   }
 
   return current;
+}
+
+function interpolateEnglish(message: string, params: unknown, key: string): string {
+  const values = params as Record<string, InterpolationValue> | undefined;
+  return message.replace(/\{([A-Za-z][A-Za-z0-9_]*)\}/g, (_match, name: string) => {
+    if (!values || !(name in values)) throw new Error(`Missing interpolation parameter "${name}" for ${key}`);
+    return String(values[name]);
+  });
+}
+
+/** Resolve an English override when available, falling back to canonical Vietnamese copy. */
+export function textForLocale<Key extends TextKey>(
+  language: Language,
+  key: Key,
+  ...[params]: TextArguments<Key>
+): string {
+  const english = language === "en" ? en[key] : undefined;
+  if (typeof english === "function") {
+    const formatterParams = params as { args?: readonly unknown[] } | undefined;
+    return english(...(formatterParams?.args ?? []) as never[]);
+  }
+  if (typeof english === "string") {
+    return interpolateEnglish(english, params, key);
+  }
+  return text(key, ...([params] as TextArguments<Key>));
 }
 
 function interpolateNamed(

@@ -34,13 +34,12 @@ func (h *difficultyHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.P
 	if err != nil {
 		return nil, err
 	}
-	responses := make([]*DifficultyResponse, 0)
-	if results.Records != nil {
-		for _, result := range *results.Records {
-			responses = append(responses, toDifficultyResponse(result))
-		}
+	responses := d.MapPaginated(results, toDifficultyResponse)
+	if responses.Records == nil || *responses.Records == nil {
+		empty := []*DifficultyResponse{}
+		responses.Records = &empty
 	}
-	return &d.Paginated[*DifficultyResponse]{Records: &responses, Pagination: results.Pagination}, nil
+	return responses, nil
 }
 
 func (h *difficultyHandler) FindAll(ctx context.Context) ([]*DifficultyResponse, error) {

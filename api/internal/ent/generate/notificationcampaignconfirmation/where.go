@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.NotificationCampaignConfirmation {
 	return predicate.NotificationCampaignConfirmation(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldEQ(FieldTenantID, v))
+}
+
 // NonceHash applies equality check predicate on the "nonce_hash" field. It's identical to NonceHashEQ.
 func NonceHash(v []byte) predicate.NotificationCampaignConfirmation {
 	return predicate.NotificationCampaignConfirmation(sql.FieldEQ(FieldNonceHash, v))
@@ -149,6 +154,46 @@ func ScheduleRequestHash(v []byte) predicate.NotificationCampaignConfirmation {
 // OperationID applies equality check predicate on the "operation_id" field. It's identical to OperationIDEQ.
 func OperationID(v uuid.UUID) predicate.NotificationCampaignConfirmation {
 	return predicate.NotificationCampaignConfirmation(sql.FieldEQ(FieldOperationID, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.NotificationCampaignConfirmation {
+	return predicate.NotificationCampaignConfirmation(sql.FieldLTE(FieldTenantID, v))
 }
 
 // NonceHashEQ applies the EQ predicate on the "nonce_hash" field.

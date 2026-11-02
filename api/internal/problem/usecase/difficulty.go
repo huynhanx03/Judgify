@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/constant"
@@ -41,17 +41,7 @@ func (s *difficultyService) Find(ctx context.Context, opts *d.QueryOptions) (*d.
 			Pagination: difficulties.Pagination,
 		}, nil
 	}
-
-	entities := *difficulties.Records
-	responses := make([]*contract.DifficultyResult, len(entities))
-	for i, d := range entities {
-		responses[i] = ToDifficultyResult(d)
-	}
-
-	return &d.Paginated[*contract.DifficultyResult]{
-		Records:    &responses,
-		Pagination: difficulties.Pagination,
-	}, nil
+	return d.MapPaginated(difficulties, ToDifficultyResult), nil
 }
 
 // Get retrieves a difficulty by ID.

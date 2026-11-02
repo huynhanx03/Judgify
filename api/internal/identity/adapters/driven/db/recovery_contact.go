@@ -370,6 +370,96 @@ func (repository *RecoveryContactRepository) CreatePending(
 	return nil
 }
 
+func (repository *RecoveryContactRepository) CreateOAuthVerifiedIfAbsent(
+	ctx context.Context,
+	prepared ports.PreparedOAuthRecoveryContact,
+) (bool, error) {
+	contact := prepared.Contact
+	if repository == nil || repository.client == nil || ctx == nil ||
+		contact.ID == uuid.Nil || contact.UserID == uuid.Nil ||
+		contact.SourceFederatedIdentityID == nil || *contact.SourceFederatedIdentityID == uuid.Nil ||
+		contact.Kind != recoveryContactEmailKind || contact.Purpose != entity.RecoveryContactPurposeOAuthLink ||
+		contact.Status != entity.RecoveryContactStatusVerified || contact.Version != 1 ||
+		contact.VerifiedAt == nil || len(contact.AddressCiphertext) < 2 ||
+		len(contact.AddressCiphertext) > maximumStoredContactCiphertextBytes || contact.KeyID == "" ||
+		len(prepared.LookupHash) != 32 || len(prepared.FingerprintHash) != 32 {
+		return false, fmt.Errorf("%s: invalid oauth recovery contact", recoveryContactRepositoryName)
+	}
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
+	if err := requireSecurityEmailTransaction(ctx); err != nil {
+		return false, err
+	}
+	client := repository.client.DB(ctx)
+	owner, err := client.User.Query().Where(
+		user.ID(contact.UserID), user.StatusEQ(user.StatusActive), user.DeletedAtIsNil(),
+	).ForUpdate().Only(ctx)
+	if err != nil {
+		return false, commonent.MapEntError(err, recoveryContactRepositoryName)
+	}
+	if owner.ID != contact.UserID {
+		return false, ports.ErrRecoveryContactRejected
+	}
+	// A pending/manual verified contact is user intent. Leave it untouched;
+	// OAuth may only become recovery authority when no contact is in progress.
+	existing, err := client.UserRecoveryContact.Query().Where(
+		userrecoverycontact.UserID(contact.UserID),
+		userrecoverycontact.KindEQ(userrecoverycontact.KindEmail),
+		userrecoverycontact.StatusIn(userrecoverycontact.StatusPending, userrecoverycontact.StatusVerified),
+	).ForUpdate().Exist(ctx)
+	if err != nil {
+		return false, commonent.MapEntError(err, recoveryContactRepositoryName)
+	}
+	if existing {
+		return false, nil
+	}
+	_, err = client.UserRecoveryContact.Create().
+		SetID(contact.ID).
+		SetUserID(contact.UserID).
+		SetKind(userrecoverycontact.KindEmail).
+		SetPurpose(userrecoverycontact.PurposeOauthLink).
+		SetSourceFederatedIdentityID(*contact.SourceFederatedIdentityID).
+		SetLookupHash(append([]byte(nil), prepared.LookupHash...)).
+		SetFingerprintHash(append([]byte(nil), prepared.FingerprintHash...)).
+		SetAddressCiphertext(append([]byte(nil), contact.AddressCiphertext...)).
+		SetKeyID(contact.KeyID).
+		SetStatus(userrecoverycontact.StatusVerified).
+		SetVersion(1).
+		SetVerifiedAt(contact.VerifiedAt.UTC()).
+		SetCreatedAt(contact.CreatedAt.UTC()).
+		SetUpdatedAt(contact.UpdatedAt.UTC()).
+		Save(ctx)
+	if err != nil {
+		return false, commonent.MapEntError(err, recoveryContactRepositoryName)
+	}
+	return true, nil
+}
+
+func (repository *RecoveryContactRepository) RevokeOAuthVerified(
+	ctx context.Context,
+	userID, identityID uuid.UUID,
+	at time.Time,
+) error {
+	if repository == nil || repository.client == nil || ctx == nil ||
+		userID == uuid.Nil || identityID == uuid.Nil || at.IsZero() {
+		return fmt.Errorf("%s: invalid oauth recovery revocation", recoveryContactRepositoryName)
+	}
+	if err := requireSecurityEmailTransaction(ctx); err != nil {
+		return err
+	}
+	_, err := repository.client.DB(ctx).UserRecoveryContact.Update().Where(
+		userrecoverycontact.UserID(userID),
+		userrecoverycontact.PurposeEQ(userrecoverycontact.PurposeOauthLink),
+		userrecoverycontact.SourceFederatedIdentityID(identityID),
+		userrecoverycontact.StatusEQ(userrecoverycontact.StatusVerified),
+	).SetStatus(userrecoverycontact.StatusRevoked).ClearSourceFederatedIdentityID().SetRevokedAt(at.UTC()).SetUpdatedAt(at.UTC()).Save(ctx)
+	if err != nil {
+		return commonent.MapEntError(err, recoveryContactRepositoryName)
+	}
+	return nil
+}
+
 func (repository *RecoveryContactRepository) GetState(
 	ctx context.Context,
 	userID, sessionID uuid.UUID,

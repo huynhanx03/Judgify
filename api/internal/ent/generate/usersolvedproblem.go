@@ -20,6 +20,8 @@ type UserSolvedProblem struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
@@ -72,7 +74,7 @@ func (*UserSolvedProblem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case usersolvedproblem.FieldSolvedAt:
 			values[i] = new(sql.NullTime)
-		case usersolvedproblem.FieldID, usersolvedproblem.FieldUserID, usersolvedproblem.FieldProblemID:
+		case usersolvedproblem.FieldID, usersolvedproblem.FieldTenantID, usersolvedproblem.FieldUserID, usersolvedproblem.FieldProblemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -94,6 +96,12 @@ func (_m *UserSolvedProblem) assignValues(columns []string, values []any) error 
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case usersolvedproblem.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case usersolvedproblem.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -159,6 +167,9 @@ func (_m *UserSolvedProblem) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserSolvedProblem(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

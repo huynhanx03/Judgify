@@ -10,6 +10,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/algorithm"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
+	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/di"
 	internalent "github.com/huynhanx03/judgify/internal/ent"
@@ -24,7 +25,7 @@ func NewEventDelivery(
 	container *di.Container,
 	database *internalent.EntClient,
 	config settings.Outbox,
-	loggerProvider *commonlogger.LoggerZap,
+	loggerProvider *commonlogger.Logger,
 ) (*platformdelivery.Runtime, error) {
 	if container == nil || database == nil || database.Client() == nil ||
 		loggerProvider == nil {
@@ -38,7 +39,7 @@ func NewEventDelivery(
 	if err != nil {
 		return nil, err
 	}
-	router, err := commonoutbox.NewRouter(routes...)
+	router, err := commonoutbox.NewRouter(loggerProvider, routes...)
 	if err != nil {
 		return nil, fmt.Errorf("compose event router: %w", err)
 	}
@@ -47,6 +48,7 @@ func NewEventDelivery(
 		return nil, fmt.Errorf("compose event store: %w", err)
 	}
 	relay, err := commonoutbox.New(
+		loggerProvider,
 		store,
 		router,
 		nil,
@@ -64,7 +66,7 @@ func NewEventDelivery(
 			ReconcileBatch:    config.ReconcileBatch,
 			MaxBatchesPerRun:  config.MaxReconcileBatches,
 		},
-		loggerProvider.Named("event-delivery"),
+		zap.New(loggerProvider.Core()).Named("event-delivery"),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("compose event delivery runtime: %w", err)

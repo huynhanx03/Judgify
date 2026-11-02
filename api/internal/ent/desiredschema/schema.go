@@ -333,7 +333,7 @@ func (state *State) RelationalDDL(ctx context.Context) (string, error) {
 
 // DDL emits the complete desired state, including reviewed triggers and role
 // grants that Atlas OSS cannot model. Runtime migration verification and drift
-// tests use this full representation; cmd/atlas-schema uses RelationalDDL for
+// tests use this full representation; cmd/migrate schema uses RelationalDDL for
 // diffing.
 func (state *State) DDL(ctx context.Context) (string, error) {
 	ddl, err := state.RelationalDDL(ctx)

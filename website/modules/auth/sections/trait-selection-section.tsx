@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 import { Dices, BookOpen, Clock3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TEXT } from "@/constants/text";
+import { useLocale } from "@/contexts/locale-context";
 import { REGISTRATION_TRAIT_RULES } from "@/constants/registration";
 import type { TraitPresentation } from "@/types/cultivation";
 import type { EntityID } from "@/types/api";
@@ -53,6 +53,7 @@ export function TraitSelectionSection({
   isRolling, onRoll, onToggleTalent, onOpenCodex,
   disabled = false,
 }: TraitSelectionSectionProps) {
+  const { t } = useLocale();
   // The roll request is a network round-trip; fetching the card chunk alongside
   // it means the cards are resident by the time the offer resolves.
   useEffect(() => {
@@ -66,15 +67,15 @@ export function TraitSelectionSection({
     >
       <div className="flex items-center justify-between border-b border-border pb-2">
         <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-          {TEXT.AUTH.STEP_TRAITS}
+          {t("AUTH.STEP_TRAITS")}
         </h3>
         <button
           type="button"
           onClick={onOpenCodex}
           disabled={disabled}
           className="flex size-11 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-          title={TEXT.CULTIVATION.TRAIT_CODEX}
-          aria-label={TEXT.CULTIVATION.TRAIT_CODEX}
+          title={t("CULTIVATION.TRAIT_CODEX")}
+          aria-label={t("CULTIVATION.TRAIT_CODEX")}
         >
           <BookOpen className="w-4 h-4" />
         </button>
@@ -82,7 +83,7 @@ export function TraitSelectionSection({
 
       {!rolledRootBone && rolledTalents.length === 0 ? (
         <div className="flex h-[200px] flex-col items-center justify-center space-y-3 rounded-xl border-2 border-dashed border-border">
-          <p className="text-sm text-muted-foreground">{TEXT.AUTH.TRAIT_SUBTITLE}</p>
+          <p className="text-sm text-muted-foreground">{t("AUTH.TRAIT_SUBTITLE")}</p>
           <Button
             type="button"
             onClick={onRoll}
@@ -92,20 +93,20 @@ export function TraitSelectionSection({
             className="min-h-11 gap-2 font-bold tracking-widest uppercase"
           >
             <Dices className="w-4 h-4" />
-            {isRolling ? TEXT.AUTH.TRAIT_ROLLING : TEXT.AUTH.TRAIT_ROLL_BUTTON}
+            {isRolling ? t("AUTH.TRAIT_ROLLING") : t("AUTH.TRAIT_ROLL_BUTTON")}
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
           {rolledRootBone && (
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-cultivation">{TEXT.AUTH.TRAIT_ROOT_BONE}</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-cultivation">{t("AUTH.TRAIT_ROOT_BONE")}</p>
               <TraitCard trait={rolledRootBone} selected animationDelay={0} />
             </div>
           )}
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wider text-primary">
-              {TEXT.AUTH.TRAIT_SELECT_TALENTS} ({selectedTalents.length}/{REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT})
+              {t("AUTH.TRAIT_SELECT_TALENTS")} ({selectedTalents.length}/{REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT})
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {rolledTalents.map((trait, i) => (
@@ -130,7 +131,7 @@ export function TraitSelectionSection({
               className="min-h-11 gap-2 border-primary/40 px-8 py-2 text-sm text-primary transition-colors hover:border-primary/60 hover:bg-primary/10 motion-reduce:transition-none"
             >
               <Dices className="w-4 h-4" />
-              {isRolling ? TEXT.AUTH.TRAIT_ROLLING : TEXT.AUTH.TRAIT_REROLL}
+              {isRolling ? t("AUTH.TRAIT_ROLLING") : t("AUTH.TRAIT_REROLL")}
             </Button>
           </div>
           {rollTicketExpiresAt ? (
@@ -148,13 +149,13 @@ export function TraitSelectionSection({
                 <Clock3 className="size-3.5" aria-hidden="true" />
                 {rollExpired
                   ? remainingOffers === 0
-                    ? TEXT.AUTH.TRAIT_ROLL_EXHAUSTED
-                    : TEXT.AUTH.TRAIT_ROLL_EXPIRED
-                  : `${TEXT.AUTH.TRAIT_ROLL_EXPIRES} ${formatDateTime(rollTicketExpiresAt)}`}
+                    ? t("AUTH.TRAIT_ROLL_EXHAUSTED")
+                    : t("AUTH.TRAIT_ROLL_EXPIRED")
+                  : `${t("AUTH.TRAIT_ROLL_EXPIRES")} ${formatDateTime(rollTicketExpiresAt)}`}
               </p>
               {remainingOffers === undefined ? null : (
                 <p className="text-[11px] text-muted-foreground">
-                  {TEXT.AUTH.TRAIT_ROLL_REMAINING(remainingOffers)}
+                  {t("AUTH.TRAIT_ROLL_REMAINING", { args: [remainingOffers] })}
                 </p>
               )}
             </div>

@@ -90,7 +90,7 @@ export default function MaterialsPage() {
   const articlesFeed = useCursorFeed<MaterialArticle>({
     resetKey: queryKey,
     load: async (cursor, signal) => {
-      const page = await materialService.search(
+      const page = await materialService.findForPublic(
         {
           ...query,
           ...(cursor ? { cursor } : {}),

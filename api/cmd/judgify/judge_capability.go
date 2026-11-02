@@ -12,9 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 
 	"github.com/huynhanx03/judgify/internal/infrastructure/bootstrap"
@@ -75,6 +73,7 @@ type judgeCapabilityOperator struct {
 	ctx     context.Context
 	process *bootstrap.Process
 	service *capability.ActivationService
+	logger  *commonlogger.Logger
 }
 
 func runJudgeCapability(
@@ -145,7 +144,7 @@ func runJudgeCapabilityActivate(
 		return 1
 	}
 
-	operator, err := newJudgeCapabilityOperator(ctx, stderr)
+	operator, err := newJudgeCapabilityOperator(ctx)
 	if err != nil {
 		_, _ = fmt.Fprintln(stderr, "judge-capability activate: operator bootstrap denied")
 		return 1
@@ -166,14 +165,14 @@ func runJudgeCapabilityActivate(
 		_, _ = fmt.Fprintf(
 			stderr,
 			"judge-capability activate: denied; cid=%s\n",
-			correlation.FromContext(operator.ctx),
+			commonlogger.CorrelationID(operator.ctx),
 		)
 		return 1
 	}
 
 	receipt := activationReceipt{
 		SchemaVersion: judgeCapabilityReceiptSchema, Action: "activate",
-		CID:          correlation.FromContext(operator.ctx),
+		CID:          commonlogger.CorrelationID(operator.ctx),
 		ActivationID: activated.ID, ReleaseID: activated.ReleaseID,
 		ApprovedReleaseManifestChecksum: activated.ApprovedReleaseManifestChecksum,
 		CapabilityProfileHash:           activated.Tuple.CapabilityProfileHash,
@@ -192,7 +191,7 @@ func runJudgeCapabilityActivate(
 			stderr,
 			"judge-capability activate: receipt write failed; activation_id=%s cid=%s\n",
 			activated.ID,
-			correlation.FromContext(operator.ctx),
+			commonlogger.CorrelationID(operator.ctx),
 		)
 		return 1
 	}
@@ -225,7 +224,7 @@ func runJudgeCapabilityRetire(
 		return 2
 	}
 
-	operator, err := newJudgeCapabilityOperator(ctx, stderr)
+	operator, err := newJudgeCapabilityOperator(ctx)
 	if err != nil {
 		_, _ = fmt.Fprintln(stderr, "judge-capability retire: operator bootstrap denied")
 		return 1
@@ -247,14 +246,14 @@ func runJudgeCapabilityRetire(
 		_, _ = fmt.Fprintf(
 			stderr,
 			"judge-capability retire: denied; cid=%s\n",
-			correlation.FromContext(operator.ctx),
+			commonlogger.CorrelationID(operator.ctx),
 		)
 		return 1
 	}
 
 	receipt := retirementReceipt{
 		SchemaVersion: judgeCapabilityReceiptSchema, Action: "retire",
-		CID: correlation.FromContext(operator.ctx), ActivationID: activationID,
+		CID: commonlogger.CorrelationID(operator.ctx), ActivationID: activationID,
 		State: capability.ActivationStateRetired, RetiredAt: retiredAt,
 		ActorID: identity.actorID, AuditID: identity.auditID, Reason: identity.reason,
 	}
@@ -263,26 +262,24 @@ func runJudgeCapabilityRetire(
 			stderr,
 			"judge-capability retire: receipt write failed; activation_id=%s cid=%s\n",
 			activationID,
-			correlation.FromContext(operator.ctx),
+			commonlogger.CorrelationID(operator.ctx),
 		)
 		return 1
 	}
 	return 0
 }
 
-func newJudgeCapabilityOperator(
-	ctx context.Context,
-	logWriter io.Writer,
-) (*judgeCapabilityOperator, error) {
+func newJudgeCapabilityOperator(ctx context.Context) (*judgeCapabilityOperator, error) {
 	if ctx == nil || ctx.Err() != nil {
 		return nil, errJudgeCapabilityCommandDenied
 	}
-	ctx = correlation.EnsureContext(ctx)
+	if commonlogger.CorrelationID(ctx) == "" {
+		ctx = commonlogger.WithCorrelationID(ctx, uuid.NewString())
+	}
 	process, err := bootstrap.PrepareForRole(bootstrap.ProfileOperator)
 	if err != nil {
 		return nil, errors.Join(errJudgeCapabilityCommandDenied, err)
 	}
-	ctx = commonlogger.WithContext(ctx, newJudgeCapabilityLogger(process, logWriter))
 	database, err := process.OpenDatabase()
 	if err != nil {
 		return nil, errors.Join(
@@ -313,7 +310,10 @@ func newJudgeCapabilityOperator(
 			process.Sync(),
 		)
 	}
-	return &judgeCapabilityOperator{ctx: ctx, process: process, service: service}, nil
+	return &judgeCapabilityOperator{
+		ctx: ctx, process: process, service: service,
+		logger: process.Logger.Named("judge-capability"),
+	}, nil
 }
 
 func (operator *judgeCapabilityOperator) close() error {
@@ -331,10 +331,10 @@ func (operator *judgeCapabilityOperator) logFailure(
 	releaseID string,
 	profileHash string,
 ) {
-	if operator == nil {
+	if operator == nil || operator.logger == nil {
 		return
 	}
-	commonlogger.FromContext(operator.ctx).Error(
+	operator.logger.Error(operator.ctx,
 		"judge capability operator command denied",
 		zap.String("action", action),
 		zap.String("activation_id", activationID.String()),
@@ -364,10 +364,10 @@ func (operator *judgeCapabilityOperator) logSuccess(
 	activation capability.ActivatedCapability,
 	identity operatorIdentity,
 ) {
-	if operator == nil {
+	if operator == nil || operator.logger == nil {
 		return
 	}
-	commonlogger.FromContext(operator.ctx).Info(
+	operator.logger.Info(operator.ctx,
 		"judge capability operator command committed",
 		zap.String("action", action),
 		zap.String("activation_id", activation.ID.String()),
@@ -377,27 +377,6 @@ func (operator *judgeCapabilityOperator) logSuccess(
 		zap.String("audit_id", identity.auditID.String()),
 		zap.String("state", string(activation.State)),
 	)
-}
-
-func newJudgeCapabilityLogger(
-	process *bootstrap.Process,
-	logWriter io.Writer,
-) *zap.Logger {
-	if process == nil || process.Logger == nil || process.Logger.Logger == nil ||
-		logWriter == nil {
-		if process == nil || process.Logger == nil || process.Logger.Logger == nil {
-			return zap.NewNop()
-		}
-		return process.Logger.Named("judge-capability")
-	}
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.MessageKey = "message"
-	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(encoderConfig),
-		zapcore.AddSync(logWriter),
-		process.Logger.Level(),
-	)
-	return zap.New(core).Named("judge-capability")
 }
 
 func parseOperatorIdentity(

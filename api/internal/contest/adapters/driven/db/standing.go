@@ -77,7 +77,7 @@ func (r *StandingRepository) Upsert(ctx context.Context, e *entity.ContestStandi
 	return nil
 }
 
-func (r *StandingRepository) FindByContest(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestStanding, error) {
+func (r *StandingRepository) FindByContestID(ctx context.Context, contestID uuid.UUID) ([]*entity.ContestStanding, error) {
 	records, err := r.client.DB(ctx).ContestStanding.Query().
 		Where(conteststanding.ContestIDEQ(contestID)).
 		WithUser().
@@ -93,10 +93,10 @@ func (r *StandingRepository) FindByContest(ctx context.Context, contestID uuid.U
 	return entities, nil
 }
 
-// FindByContestLimit is deliberately separate from the domain repository
+// FindByContestIDWithLimit is deliberately separate from the domain repository
 // contract: public callers can detect it and keep a browser response bounded,
 // while internal settlement still obtains the complete final table.
-func (r *StandingRepository) FindByContestLimit(
+func (r *StandingRepository) FindByContestIDWithLimit(
 	ctx context.Context,
 	contestID uuid.UUID,
 	limit int,

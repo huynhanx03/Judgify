@@ -453,7 +453,7 @@ func TestFindProblems_WithAuthContext(t *testing.T) {
 	assert.Len(t, *resp.Records, 2)
 }
 
-func TestFindAdminProblems_IncludesDrafts(t *testing.T) {
+func TestFindForAdminProblems_IncludesDrafts(t *testing.T) {
 	svc, problemRepo, _, _ := newProblemTestEnv(t)
 	ctx := context.Background()
 	records := []*entity.Problem{
@@ -467,7 +467,7 @@ func TestFindAdminProblems_IncludesDrafts(t *testing.T) {
 		Pagination: d.CalculatePagination(1, 10, 2),
 	}, nil)
 
-	resp, err := svc.FindAdmin(ctx, options)
+	resp, err := svc.FindForAdmin(ctx, options)
 
 	assert.NoError(t, err)
 	assert.Len(t, *resp.Records, 2)

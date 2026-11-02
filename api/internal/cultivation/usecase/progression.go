@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	platformmutation "github.com/huynhanx03/judgify/internal/platform/mutation"
@@ -155,7 +155,7 @@ func (service *progressionService) ApplyAdjustment(
 	return result, nil
 }
 
-func (service *progressionService) ListLedger(
+func (service *progressionService) FindLedger(
 	ctx context.Context,
 	userID uuid.UUID,
 	cursor *uuid.UUID,
@@ -167,7 +167,7 @@ func (service *progressionService) ListLedger(
 	if limit == 0 {
 		limit = 25
 	}
-	page, err := service.repository.ListLedger(ctx, userID, cursor, limit)
+	page, err := service.repository.FindLedger(ctx, userID, cursor, limit)
 	if err != nil {
 		return ports.ProgressionLedgerPage{}, mapProgressionError(err)
 	}

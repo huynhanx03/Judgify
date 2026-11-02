@@ -74,7 +74,7 @@ export function OAuthAccountsCard() {
   const identitiesResource = useRetryableResource<OAuthIdentityListResponse>({
     resetKey: "profile-oauth-identities",
     initialData: EMPTY_IDENTITIES,
-    load: (signal) => authService.listOAuthIdentities(signal),
+    load: (signal) => authService.findOAuthIdentities(signal),
   });
   const projection = identitiesResource.data;
 

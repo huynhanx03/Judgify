@@ -28,6 +28,8 @@ type UserTrait struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy *string `json:"deleted_by,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// TraitID holds the value of the "trait_id" field.
@@ -80,7 +82,7 @@ func (*UserTrait) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case usertrait.FieldCreatedAt, usertrait.FieldUpdatedAt, usertrait.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case usertrait.FieldID, usertrait.FieldUserID, usertrait.FieldTraitID:
+		case usertrait.FieldID, usertrait.FieldTenantID, usertrait.FieldUserID, usertrait.FieldTraitID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -128,6 +130,12 @@ func (_m *UserTrait) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedBy = new(string)
 				*_m.DeletedBy = value.String
+			}
+		case usertrait.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case usertrait.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -202,6 +210,9 @@ func (_m *UserTrait) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))

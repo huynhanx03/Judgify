@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -18,7 +19,10 @@ import (
 // ContestTransition is immutable command history and exact replay evidence.
 type ContestTransition struct{ ent.Schema }
 
-func (ContestTransition) Mixin() []ent.Mixin { return []ent.Mixin{commonent.AppendOnlyMixin{}} }
+func (ContestTransition) Mixin() []ent.Mixin {
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
+}
 
 func (ContestTransition) Fields() []ent.Field {
 	return append(problemAppendOnlyRecordFields(),

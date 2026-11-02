@@ -28,6 +28,8 @@ type Problem struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy *string `json:"deleted_by,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// Slug holds the value of the "slug" field.
 	Slug string `json:"slug,omitempty"`
 	// Lifecycle holds the value of the "lifecycle" field.
@@ -246,7 +248,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case problem.FieldCreatedAt, problem.FieldUpdatedAt, problem.FieldDeletedAt, problem.FieldPublishedAt, problem.FieldArchivedAt:
 			values[i] = new(sql.NullTime)
-		case problem.FieldID, problem.FieldTagMappingID, problem.FieldElementMappingID, problem.FieldDifficultyID, problem.FieldAuthorID:
+		case problem.FieldID, problem.FieldTenantID, problem.FieldTagMappingID, problem.FieldElementMappingID, problem.FieldDifficultyID, problem.FieldAuthorID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -294,6 +296,12 @@ func (_m *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedBy = new(string)
 				*_m.DeletedBy = value.String
+			}
+		case problem.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case problem.FieldSlug:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -572,6 +580,9 @@ func (_m *Problem) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("slug=")
 	builder.WriteString(_m.Slug)

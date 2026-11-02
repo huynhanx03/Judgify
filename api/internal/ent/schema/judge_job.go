@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -25,7 +26,8 @@ var judgeJobStates = []string{
 type JudgeJob struct{ ent.Schema }
 
 func (JudgeJob) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.UUIDMixin{}, commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (JudgeJob) Fields() []ent.Field {
@@ -56,6 +58,7 @@ func (JudgeJob) Fields() []ent.Field {
 		field.Time("cancelled_at").Optional().Nillable(),
 		field.String("origin_cid").NotEmpty().MaxLen(maximumSubmissionCorrelationIDBytes).
 			SchemaType(map[string]string{dialect.Postgres: "character varying(128)"}).Immutable(),
+		field.String("origin_traceparent").MaxLen(55).Optional().Nillable().Immutable(),
 	}
 }
 

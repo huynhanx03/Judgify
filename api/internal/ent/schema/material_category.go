@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 
 	e "github.com/huynhanx03/go-common/pkg/database/ent"
 
@@ -21,20 +22,24 @@ func (MaterialCategory) Mixin() []ent.Mixin {
 		e.UUIDMixin{},
 		e.TimeMixin{},
 		mixin.SoftDeleteMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 // Fields of the MaterialCategory.
 func (MaterialCategory) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			Unique().
 			NotEmpty().
 			MaxLen(100),
 		field.String("description").
 			Optional().
 			MaxLen(500),
 	}
+}
+
+func (MaterialCategory) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("tenant_id", "name").Unique()}
 }
 
 // Edges of the MaterialCategory.

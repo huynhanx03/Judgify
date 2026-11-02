@@ -129,7 +129,7 @@ func validSolveRewardEvent(t *testing.T) submissioncontract.ProblemSolveStatusCh
 	submissionID, judgementID, problemRevisionID := uuid.New(), uuid.New(), uuid.New()
 	generation := int64(1)
 	return submissioncontract.ProblemSolveStatusChangedV1{
-		EventID: uuid.New(), TransitionID: grantID, SolveID: uuid.New(),
+		EventID: uuid.New(), TenantID: uuid.New(), TransitionID: grantID, SolveID: uuid.New(),
 		UserID: uuid.New(), ProblemID: uuid.New(), Provenance: "live",
 		OccurredAt: now, CorrelationID: "cid-reward-grant",
 		From: submissioncontract.SolveStateV1{Version: 0, Status: "unsolved"},

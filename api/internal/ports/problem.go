@@ -264,7 +264,7 @@ type ProblemRepository interface {
 type ProblemService interface {
 	Find(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ProblemResult], error)
 	Get(ctx context.Context, id uuid.UUID) (*contract.ProblemResult, error)
-	FindAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ProblemResult], error)
+	FindForAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ProblemResult], error)
 	GetAdmin(ctx context.Context, id uuid.UUID) (*contract.ProblemResult, error)
 	Create(ctx context.Context, authorID uuid.UUID, req *contract.CreateProblemCommand) (*contract.ProblemResult, error)
 }
@@ -694,5 +694,5 @@ type PublishedTestsetRepository interface {
 // unauthenticated problem readers. Authoring uses immutable testset revisions
 // and never mutates stable test-case identities through this boundary.
 type PublicSampleReader interface {
-	FindPublicSamples(ctx context.Context, problemID uuid.UUID) ([]*contract.SampleTestCaseResult, error)
+	FindSamplesForPublic(ctx context.Context, problemID uuid.UUID) ([]*contract.SampleTestCaseResult, error)
 }

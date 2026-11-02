@@ -24,6 +24,7 @@ import { formatDuration, formatMemory } from "@/lib/format";
 import { useRetryableResource } from "@/hooks/use-retryable-resource";
 import type { Problem } from "@/types/problem";
 import type { DifficultyResponse } from "@/types/difficulty";
+import { TenantRowLabel } from "@/modules/layout/tenant-row-label";
 
 export default function AdminProblemsPage() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function AdminProblemsPage() {
   // Lifecycle transitions live in the immutable editor; there is no destructive
   // delete action for problem aggregates.
   const service = useMemo(() => ({
-    find: problemService.findAdmin.bind(problemService),
+    find: problemService.findForAdmin.bind(problemService),
   }), []);
 
   const crud = usePaginatedCRUD({ service, resource, searchKey: "title" });
@@ -53,7 +54,7 @@ export default function AdminProblemsPage() {
     { key: "id", label: ADMIN_TEXT.COLUMN_ID, className: "w-16",
       render: (p) => <span className="text-xs tabular-nums text-muted-foreground">{p.id}</span> },
     { key: "title", label: ADMIN_TEXT.PROBLEMS.COL_TITLE, className: "max-w-[300px]",
-      render: (p) => <p className="font-medium truncate" title={p.title}>{p.title}</p> },
+      render: (p) => <><p className="font-medium truncate" title={p.title}>{p.title}</p><TenantRowLabel tenantID={p.tenant_id} /></> },
     { key: "tags", label: ADMIN_TEXT.PROBLEMS.COL_TAGS, className: "max-w-[200px]",
       render: (p) => {
         if (!p.tags?.length) return <span className="text-xs text-muted-foreground">{TEXT.COMMON.NOT_AVAILABLE}</span>;

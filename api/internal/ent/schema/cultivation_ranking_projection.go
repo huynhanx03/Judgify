@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,6 +20,10 @@ import (
 // a random public identity and privacy policy, while source versions remain
 // tied to the authoritative progression and Contest rating projections.
 type CultivationRankingProjection struct{ ent.Schema }
+
+func (CultivationRankingProjection) Mixin() []ent.Mixin {
+	return []ent.Mixin{mixin.TenantOwnedMixin{}}
+}
 
 func (CultivationRankingProjection) Fields() []ent.Field {
 	return []ent.Field{
@@ -54,7 +59,7 @@ func (CultivationRankingProjection) Edges() []ent.Edge {
 
 func (CultivationRankingProjection) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id").Unique(),
+		index.Fields("tenant_id", "user_id").Unique(),
 		index.Fields("public_id").Unique(),
 		index.Fields("visibility", "rating", "rating_updated_at", "user_id"),
 		index.Fields("visibility", "total_exp", "progression_updated_at", "user_id"),

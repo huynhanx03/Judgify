@@ -39,7 +39,7 @@ export const attributeDefinitionService = {
     );
   },
 
-  async listRevisions(
+  async findRevisions(
     id: string,
     cursor?: string,
     signal?: AbortSignal,

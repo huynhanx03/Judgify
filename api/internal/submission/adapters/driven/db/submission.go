@@ -134,10 +134,10 @@ var submissionSummaryFields = []string{
 	submission.FieldContestID,
 }
 
-// FindMyByProblem uses a composite seek over the same total descending order
+// FindMySubmissionsByProblem uses a composite seek over the same total descending order
 // exposed by the API. Reading one extra row establishes has_more without a
 // count query or an unbounded OFFSET scan.
-func (r *SubmissionRepository) FindMyByProblem(
+func (r *SubmissionRepository) FindMySubmissionsByProblem(
 	ctx context.Context,
 	query ports.MySubmissionQuery,
 ) (ports.MySubmissionPage, error) {
@@ -244,9 +244,9 @@ func (r *SubmissionRepository) findSummaries(ctx context.Context, predicates ...
 	return entities, nil
 }
 
-// FindAdmin implements the typed monitoring read model. The list projection
+// FindForAdmin implements the typed monitoring read model. The list projection
 // never selects source code, diagnostics, bundle IDs, lease data, or rewards.
-func (r *SubmissionRepository) FindAdmin(
+func (r *SubmissionRepository) FindForAdmin(
 	ctx context.Context,
 	query entity.AdminSubmissionQuery,
 ) (*commondto.Paginated[*entity.Submission], error) {

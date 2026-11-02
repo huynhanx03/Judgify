@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonpassword "github.com/huynhanx03/go-common/pkg/security/password"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -113,7 +114,7 @@ func NewRecoveryContactService(
 		config.MaximumTokenBytes < 64 || config.MaximumTokenBytes > 4096 || config.Clock == nil {
 		return nil, ErrInvalidRecoveryContactLifecycle
 	}
-	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPolicy())
+	defaultHasher, _ := commonpassword.New(commonpassword.DefaultPassword())
 	service := &RecoveryContactService{
 		repository: repository, scheduler: scheduler, payloadCodec: payloadCodec,
 		protector: protector, tx: txManager, journal: journal, config: config,
@@ -149,6 +150,85 @@ func (service *RecoveryContactService) PrepareRegistration(
 		entity.RecoveryContactPurposeRegistration,
 		1,
 	)
+}
+
+func (service *RecoveryContactService) PrepareOAuthVerifiedContact(
+	userID, identityID uuid.UUID,
+	email string,
+	emailVerified bool,
+) (*ports.PreparedOAuthRecoveryContact, error) {
+	if !emailVerified || strings.TrimSpace(email) == "" {
+		return nil, nil
+	}
+	if service == nil || userID == uuid.Nil || identityID == uuid.Nil {
+		return nil, recoveryContactInternal("prepare oauth recovery contact", ErrInvalidRecoveryContactLifecycle)
+	}
+	normalized, err := NormalizeRecoveryEmail(email, defaultMaximumRecoveryEmailBytes)
+	if err != nil {
+		return nil, recoveryContactInternal("normalize oauth recovery contact", err)
+	}
+	contactID, err := uuid.NewV7()
+	if err != nil {
+		return nil, recoveryContactInternal("generate oauth recovery contact identifier", err)
+	}
+	now := service.config.Clock().UTC()
+	metadata := RecoveryContactMetadata{UserID: userID, ContactID: contactID, Kind: recoveryContactKindEmail, Version: 1}
+	ciphertext, keyID, err := service.protector.Protect(metadata, normalized)
+	if err != nil {
+		return nil, recoveryContactInternal("protect oauth recovery contact", err)
+	}
+	lookupHash, fingerprintHash, hashKeyID, err := service.protector.ActiveHashes(normalized)
+	if err != nil || hashKeyID != keyID {
+		if err == nil {
+			err = ErrInvalidRecoveryContactLifecycle
+		}
+		return nil, recoveryContactInternal("index oauth recovery contact", err)
+	}
+	verifiedAt := now
+	identityIDCopy := identityID
+	return &ports.PreparedOAuthRecoveryContact{
+		Contact: entity.RecoveryContact{
+			ID: contactID, UserID: userID, Kind: recoveryContactKindEmail,
+			Purpose: entity.RecoveryContactPurposeOAuthLink,
+			Status:  entity.RecoveryContactStatusVerified, Version: 1,
+			AddressCiphertext: ciphertext, KeyID: keyID, VerifiedAt: &verifiedAt,
+			SourceFederatedIdentityID: &identityIDCopy, CreatedAt: now, UpdatedAt: now,
+		},
+		LookupHash: lookupHash, FingerprintHash: fingerprintHash,
+	}, nil
+}
+
+func (service *RecoveryContactService) PersistOAuthVerifiedContact(
+	ctx context.Context,
+	prepared *ports.PreparedOAuthRecoveryContact,
+) error {
+	if service == nil || ctx == nil || ctx.Err() != nil || prepared == nil {
+		return recoveryContactInternal("persist oauth recovery contact", ErrInvalidRecoveryContactLifecycle)
+	}
+	store, ok := service.repository.(ports.OAuthRecoveryContactStore)
+	if !ok {
+		return recoveryContactInternal("persist oauth recovery contact", ErrInvalidRecoveryContactLifecycle)
+	}
+	_, err := store.CreateOAuthVerifiedIfAbsent(ctx, *prepared)
+	if err != nil {
+		return recoveryContactInternal("persist oauth recovery contact", err)
+	}
+	return nil
+}
+
+func (service *RecoveryContactService) RevokeOAuthRecoveryContact(
+	ctx context.Context,
+	userID, identityID uuid.UUID,
+	at time.Time,
+) error {
+	if service == nil || ctx == nil || ctx.Err() != nil || userID == uuid.Nil || identityID == uuid.Nil || at.IsZero() {
+		return recoveryContactInternal("revoke oauth recovery contact", ErrInvalidRecoveryContactLifecycle)
+	}
+	store, ok := service.repository.(ports.OAuthRecoveryContactStore)
+	if !ok {
+		return recoveryContactInternal("revoke oauth recovery contact", ErrInvalidRecoveryContactLifecycle)
+	}
+	return store.RevokeOAuthVerified(ctx, userID, identityID, at)
 }
 
 // PrepareInvitation creates the same protected contact/token material as

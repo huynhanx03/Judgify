@@ -123,6 +123,12 @@ const (
 	EdgeContestClarifications = "contest_clarifications"
 	// EdgeContestContentCommands holds the string denoting the contest_content_commands edge name in mutations.
 	EdgeContestContentCommands = "contest_content_commands"
+	// EdgeTenantMemberships holds the string denoting the tenant_memberships edge name in mutations.
+	EdgeTenantMemberships = "tenant_memberships"
+	// EdgeTenantInvitations holds the string denoting the tenant_invitations edge name in mutations.
+	EdgeTenantInvitations = "tenant_invitations"
+	// EdgeSentTenantInvitations holds the string denoting the sent_tenant_invitations edge name in mutations.
+	EdgeSentTenantInvitations = "sent_tenant_invitations"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// CredentialsTable is the table that holds the credentials relation/edge.
@@ -412,6 +418,27 @@ const (
 	ContestContentCommandsInverseTable = "contest_content_commands"
 	// ContestContentCommandsColumn is the table column denoting the contest_content_commands relation/edge.
 	ContestContentCommandsColumn = "actor_user_id"
+	// TenantMembershipsTable is the table that holds the tenant_memberships relation/edge.
+	TenantMembershipsTable = "tenant_memberships"
+	// TenantMembershipsInverseTable is the table name for the TenantMembership entity.
+	// It exists in this package in order to avoid circular dependency with the "tenantmembership" package.
+	TenantMembershipsInverseTable = "tenant_memberships"
+	// TenantMembershipsColumn is the table column denoting the tenant_memberships relation/edge.
+	TenantMembershipsColumn = "user_id"
+	// TenantInvitationsTable is the table that holds the tenant_invitations relation/edge.
+	TenantInvitationsTable = "tenant_invitations"
+	// TenantInvitationsInverseTable is the table name for the TenantInvitation entity.
+	// It exists in this package in order to avoid circular dependency with the "tenantinvitation" package.
+	TenantInvitationsInverseTable = "tenant_invitations"
+	// TenantInvitationsColumn is the table column denoting the tenant_invitations relation/edge.
+	TenantInvitationsColumn = "invited_user_id"
+	// SentTenantInvitationsTable is the table that holds the sent_tenant_invitations relation/edge.
+	SentTenantInvitationsTable = "tenant_invitations"
+	// SentTenantInvitationsInverseTable is the table name for the TenantInvitation entity.
+	// It exists in this package in order to avoid circular dependency with the "tenantinvitation" package.
+	SentTenantInvitationsInverseTable = "tenant_invitations"
+	// SentTenantInvitationsColumn is the table column denoting the sent_tenant_invitations relation/edge.
+	SentTenantInvitationsColumn = "invited_by"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -1168,6 +1195,48 @@ func ByContestContentCommands(term sql.OrderTerm, terms ...sql.OrderTerm) OrderO
 		sqlgraph.OrderByNeighborTerms(s, newContestContentCommandsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTenantMembershipsCount orders the results by tenant_memberships count.
+func ByTenantMembershipsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTenantMembershipsStep(), opts...)
+	}
+}
+
+// ByTenantMemberships orders the results by tenant_memberships terms.
+func ByTenantMemberships(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTenantMembershipsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTenantInvitationsCount orders the results by tenant_invitations count.
+func ByTenantInvitationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTenantInvitationsStep(), opts...)
+	}
+}
+
+// ByTenantInvitations orders the results by tenant_invitations terms.
+func ByTenantInvitations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTenantInvitationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySentTenantInvitationsCount orders the results by sent_tenant_invitations count.
+func BySentTenantInvitationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSentTenantInvitationsStep(), opts...)
+	}
+}
+
+// BySentTenantInvitations orders the results by sent_tenant_invitations terms.
+func BySentTenantInvitations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSentTenantInvitationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCredentialsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -1453,5 +1522,26 @@ func newContestContentCommandsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContestContentCommandsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ContestContentCommandsTable, ContestContentCommandsColumn),
+	)
+}
+func newTenantMembershipsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TenantMembershipsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TenantMembershipsTable, TenantMembershipsColumn),
+	)
+}
+func newTenantInvitationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TenantInvitationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TenantInvitationsTable, TenantInvitationsColumn),
+	)
+}
+func newSentTenantInvitationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SentTenantInvitationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SentTenantInvitationsTable, SentTenantInvitationsColumn),
 	)
 }

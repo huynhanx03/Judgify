@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -21,6 +22,8 @@ type ProgressionLedgerEntry struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// Kind holds the value of the "kind" field.
@@ -50,15 +53,15 @@ type ProgressionLedgerEntry struct {
 	// ProgressionVersion holds the value of the "progression_version" field.
 	ProgressionVersion int64 `json:"progression_version,omitempty"`
 	// ElementDeltas holds the value of the "element_deltas" field.
-	ElementDeltas json.RawMessage `json:"element_deltas,omitempty"`
+	ElementDeltas jsontext.Value `json:"element_deltas,omitempty"`
 	// DifficultyDeltas holds the value of the "difficulty_deltas" field.
-	DifficultyDeltas json.RawMessage `json:"difficulty_deltas,omitempty"`
+	DifficultyDeltas jsontext.Value `json:"difficulty_deltas,omitempty"`
 	// TagDeltas holds the value of the "tag_deltas" field.
-	TagDeltas json.RawMessage `json:"tag_deltas,omitempty"`
+	TagDeltas jsontext.Value `json:"tag_deltas,omitempty"`
 	// SourceChecksum holds the value of the "source_checksum" field.
 	SourceChecksum []byte `json:"source_checksum,omitempty"`
 	// Provenance holds the value of the "provenance" field.
-	Provenance json.RawMessage `json:"provenance,omitempty"`
+	Provenance jsontext.Value `json:"provenance,omitempty"`
 	// CorrelationID holds the value of the "correlation_id" field.
 	CorrelationID string `json:"correlation_id,omitempty"`
 	// OccurredAt holds the value of the "occurred_at" field.
@@ -145,7 +148,7 @@ func (*ProgressionLedgerEntry) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case progressionledgerentry.FieldOccurredAt, progressionledgerentry.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case progressionledgerentry.FieldID, progressionledgerentry.FieldUserID, progressionledgerentry.FieldSourceAggregateID, progressionledgerentry.FieldSourceTransitionID, progressionledgerentry.FieldSourceEventID:
+		case progressionledgerentry.FieldID, progressionledgerentry.FieldTenantID, progressionledgerentry.FieldUserID, progressionledgerentry.FieldSourceAggregateID, progressionledgerentry.FieldSourceTransitionID, progressionledgerentry.FieldSourceEventID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -167,6 +170,12 @@ func (_m *ProgressionLedgerEntry) assignValues(columns []string, values []any) e
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case progressionledgerentry.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case progressionledgerentry.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -367,6 +376,9 @@ func (_m *ProgressionLedgerEntry) String() string {
 	var builder strings.Builder
 	builder.WriteString("ProgressionLedgerEntry(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

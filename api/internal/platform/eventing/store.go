@@ -88,6 +88,10 @@ func (store *Store) Claim(
 	}
 	claimed := make([]commonoutbox.ClaimedMessage, 0, request.Limit)
 	err := commonent.WithTx(ctx, store.client.Tx, func(transaction *generate.Tx) error {
+		if _, err := transaction.ExecContext(ctx,
+			"SELECT pg_catalog.set_config('app.outbox_worker', 'on', true)"); err != nil {
+			return fmt.Errorf("bind PostgreSQL outbox worker scope: %w", err)
+		}
 		client := transaction.Client()
 		query := client.OutboxEvent.Query().
 			Where(generatedoutbox.Or(
@@ -251,27 +255,39 @@ func (store *Store) ReplayDead(
 	if now.IsZero() {
 		return false, ErrInvalidStoreOperation
 	}
-	updated, err := store.client.OutboxEvent.Update().
-		Where(
-			generatedoutbox.IDEQ(request.EventID),
-			generatedoutbox.StateEQ(generatedoutbox.StateDead),
-			generatedoutbox.AttemptCountEQ(request.ExpectedAttempts),
-		).
-		SetState(generatedoutbox.StatePending).
-		SetAttemptCount(0).
-		SetNextAttemptAt(now).
-		SetAmbiguous(false).
-		ClearLeaseOwner().
-		ClearLeaseToken().
-		ClearLeasedUntil().
-		ClearLastAttemptAt().
-		ClearPublishedAt().
-		ClearDeadAt().
-		ClearPublishReference().
-		ClearLastErrorCode().
-		Save(ctx)
+	var updated int
+	err := commonent.WithTx(ctx, store.client.Tx, func(transaction *generate.Tx) error {
+		if _, err := transaction.ExecContext(ctx,
+			"SELECT pg_catalog.set_config('app.outbox_worker', 'on', true)"); err != nil {
+			return fmt.Errorf("bind PostgreSQL outbox worker scope: %w", err)
+		}
+		var updateErr error
+		updated, updateErr = transaction.Client().OutboxEvent.Update().
+			Where(
+				generatedoutbox.IDEQ(request.EventID),
+				generatedoutbox.StateEQ(generatedoutbox.StateDead),
+				generatedoutbox.AttemptCountEQ(request.ExpectedAttempts),
+			).
+			SetState(generatedoutbox.StatePending).
+			SetAttemptCount(0).
+			SetNextAttemptAt(now).
+			SetAmbiguous(false).
+			ClearLeaseOwner().
+			ClearLeaseToken().
+			ClearLeasedUntil().
+			ClearLastAttemptAt().
+			ClearPublishedAt().
+			ClearDeadAt().
+			ClearPublishReference().
+			ClearLastErrorCode().
+			Save(ctx)
+		if updateErr != nil {
+			return fmt.Errorf("replay dead outbox event: %w", updateErr)
+		}
+		return nil
+	})
 	if err != nil {
-		return false, fmt.Errorf("replay dead outbox event: %w", err)
+		return false, err
 	}
 	return updated == 1, nil
 }
@@ -297,30 +313,47 @@ func (store *Store) finalize(
 	if now.IsZero() {
 		return ErrInvalidStoreOperation
 	}
-	update := store.client.OutboxEvent.Update().Where(
-		generatedoutbox.IDEQ(messageID),
-		generatedoutbox.StateEQ(generatedoutbox.StateLeased),
-		generatedoutbox.LeaseTokenEQ(lease.Token),
-		generatedoutbox.AttemptCountEQ(lease.Attempt),
-	)
-	transition(update, now)
-	updated, err := update.
-		ClearLeaseOwner().
-		ClearLeaseToken().
-		ClearLeasedUntil().
-		Save(ctx)
-	if err != nil {
-		return fmt.Errorf("finalize outbox event: %w", err)
-	}
-	if updated != 1 {
-		return commonoutbox.ErrLeaseLost
-	}
-	return nil
+	return commonent.WithTx(ctx, store.client.Tx, func(transaction *generate.Tx) error {
+		if _, err := transaction.ExecContext(ctx,
+			"SELECT pg_catalog.set_config('app.outbox_worker', 'on', true)"); err != nil {
+			return fmt.Errorf("bind PostgreSQL outbox worker scope: %w", err)
+		}
+		update := transaction.Client().OutboxEvent.Update().Where(
+			generatedoutbox.IDEQ(messageID),
+			generatedoutbox.StateEQ(generatedoutbox.StateLeased),
+			generatedoutbox.LeaseTokenEQ(lease.Token),
+			generatedoutbox.AttemptCountEQ(lease.Attempt),
+		)
+		transition(update, now)
+		updated, err := update.
+			ClearLeaseOwner().
+			ClearLeaseToken().
+			ClearLeasedUntil().
+			Save(ctx)
+		if err != nil {
+			return fmt.Errorf("finalize outbox event: %w", err)
+		}
+		if updated != 1 {
+			return commonoutbox.ErrLeaseLost
+		}
+		return nil
+	})
 }
 
 func messageFromRecord(record *generate.OutboxEvent) commonoutbox.Message {
 	if record == nil {
 		return commonoutbox.Message{}
+	}
+	attributes := []commonoutbox.Attribute{
+		{Key: "aggregate_type", Value: record.AggregateType},
+		{Key: "aggregate_version", Value: strconv.FormatInt(record.AggregateVersion, 10)},
+		{Key: "occurred_at", Value: record.OccurredAt.UTC().Format(time.RFC3339Nano)},
+	}
+	if record.TenantID != nil {
+		attributes = append(attributes, commonoutbox.Attribute{Key: "tenant_id", Value: record.TenantID.String()})
+	}
+	if record.Traceparent != nil {
+		attributes = append(attributes, commonoutbox.Attribute{Key: "traceparent", Value: *record.Traceparent})
 	}
 	return commonoutbox.Message{
 		ID:          record.ID.String(),
@@ -329,11 +362,7 @@ func messageFromRecord(record *generate.OutboxEvent) commonoutbox.Message {
 		Payload:     append([]byte(nil), record.Payload...),
 		Metadata: commonoutbox.Metadata{
 			CorrelationID: record.CorrelationID,
-			Attributes: []commonoutbox.Attribute{
-				{Key: "aggregate_type", Value: record.AggregateType},
-				{Key: "aggregate_version", Value: strconv.FormatInt(record.AggregateVersion, 10)},
-				{Key: "occurred_at", Value: record.OccurredAt.UTC().Format(time.RFC3339Nano)},
-			},
+			Attributes:    attributes,
 		},
 	}
 }

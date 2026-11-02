@@ -19,6 +19,8 @@ type MaterialViewDaily struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// MaterialID holds the value of the "material_id" field.
 	MaterialID uuid.UUID `json:"material_id,omitempty"`
 	// ViewDay holds the value of the "view_day" field.
@@ -64,7 +66,7 @@ func (*MaterialViewDaily) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case materialviewdaily.FieldViewDay, materialviewdaily.FieldCreatedAt, materialviewdaily.FieldProjectedAt:
 			values[i] = new(sql.NullTime)
-		case materialviewdaily.FieldID, materialviewdaily.FieldMaterialID:
+		case materialviewdaily.FieldID, materialviewdaily.FieldTenantID, materialviewdaily.FieldMaterialID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -86,6 +88,12 @@ func (_m *MaterialViewDaily) assignValues(columns []string, values []any) error 
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case materialviewdaily.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case materialviewdaily.FieldMaterialID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -159,6 +167,9 @@ func (_m *MaterialViewDaily) String() string {
 	var builder strings.Builder
 	builder.WriteString("MaterialViewDaily(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("material_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.MaterialID))
 	builder.WriteString(", ")

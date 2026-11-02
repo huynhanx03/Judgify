@@ -17,6 +17,8 @@ const (
 	Label = "content_render_source"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldOwnerRevisionID holds the string denoting the owner_revision_id field in the database.
 	FieldOwnerRevisionID = "owner_revision_id"
 	// FieldSourceKind holds the string denoting the source_kind field in the database.
@@ -43,6 +45,7 @@ const (
 // Columns holds all SQL columns for contentrendersource fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldOwnerRevisionID,
 	FieldSourceKind,
 	FieldSourceChecksum,
@@ -108,6 +111,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByOwnerRevisionID orders the results by the owner_revision_id field.

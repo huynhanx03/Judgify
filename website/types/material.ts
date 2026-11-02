@@ -8,6 +8,7 @@ import type { EntityID, ISODateTime } from "@/types/api";
 /** Material category entity — mirrors BE MaterialCategoryResponse. */
 export interface MaterialCategory {
   id: EntityID;
+  tenant_id?: EntityID;
   name: string;
   description?: string;
   article_count: number;

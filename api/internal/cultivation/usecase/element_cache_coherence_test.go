@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
+	"github.com/huynhanx03/judgify/internal/testutil"
 	cultivationmocks "github.com/huynhanx03/judgify/internal/testutil/mocks"
 )
 
@@ -40,7 +42,7 @@ func TestElementCreateCacheInvalidationWaitsForOuterCommitAndSkipsRollback(t *te
 				return nil
 			},
 		)
-		service := NewElementService(repository, appcache.New(cache).CultivationElement).(*elementService)
+		service := NewElementService(repository, appcache.New(elementCacheCoordinator(cache)).CultivationElement).(*elementService)
 		uow, sqlMock := newElementServiceUOW(t)
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectCommit()
@@ -74,7 +76,7 @@ func TestElementCreateCacheInvalidationWaitsForOuterCommitAndSkipsRollback(t *te
 				return nil
 			},
 		)
-		service := NewElementService(repository, appcache.New(cache).CultivationElement).(*elementService)
+		service := NewElementService(repository, appcache.New(elementCacheCoordinator(cache)).CultivationElement).(*elementService)
 		uow, sqlMock := newElementServiceUOW(t)
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectRollback()
@@ -103,13 +105,17 @@ func newElementServiceUOW(t *testing.T) (platformtx.UnitOfWork, sqlmock.Sqlmock)
 	return platformtx.NewEntUnitOfWork(client), mock
 }
 
-type elementTrackingCache struct{ values map[string]any }
-
-func newElementTrackingCache() *elementTrackingCache {
-	return &elementTrackingCache{values: make(map[string]any)}
+type elementTrackingCache struct {
+	values   map[string]any
+	versions map[string]string
+	next     uint64
 }
 
-func (cache *elementTrackingCache) Get(key string) (any, bool) {
+func newElementTrackingCache() *elementTrackingCache {
+	return &elementTrackingCache{values: make(map[string]any), versions: make(map[string]string)}
+}
+
+func (cache *elementTrackingCache) Get(_ context.Context, key string) (any, bool) {
 	value, ok := cache.values[key]
 	return value, ok
 }
@@ -119,19 +125,56 @@ func (cache *elementTrackingCache) Set(key string, value any) bool {
 	return true
 }
 
-func (cache *elementTrackingCache) SetWithTTL(key string, value any, _ time.Duration) bool {
+func (cache *elementTrackingCache) SetWithTTL(_ context.Context, key string, value any, _ time.Duration) bool {
 	return cache.Set(key, value)
 }
 
-func (cache *elementTrackingCache) Delete(key string) { delete(cache.values, key) }
-func (cache *elementTrackingCache) Clear()            { clear(cache.values) }
-func (*elementTrackingCache) Close()                  {}
-func (cache *elementTrackingCache) Stats() commoncache.Stats {
-	return commoncache.Stats{KeyCount: int64(len(cache.values))}
-}
+func (*elementTrackingCache) Close() {}
 func (cache *elementTrackingCache) Has(key string) bool {
 	_, ok := cache.Get(key)
 	return ok
 }
 
-var _ commoncache.LocalCache[string, any] = (*elementTrackingCache)(nil)
+func (cache *elementTrackingCache) SnapshotVersion(_ context.Context, key string) (string, error) {
+	if token := cache.versions[key]; token != "" {
+		return token, nil
+	}
+	cache.next++
+	token := fmt.Sprintf("%d", cache.next)
+	cache.versions[key] = token
+	return token, nil
+}
+func (cache *elementTrackingCache) SetWithVersion(_ context.Context, versionKey, storageKey string, value any, _ time.Duration, token string) error {
+	if cache.versions[versionKey] == token {
+		cache.values[storageKey] = value
+	}
+	return nil
+}
+func (cache *elementTrackingCache) DeleteValueWithVersion(_ context.Context, versionKey, storageKey, token string) error {
+	if cache.versions[versionKey] == token {
+		delete(cache.values, storageKey)
+	}
+	return nil
+}
+func (cache *elementTrackingCache) Revoke(_ context.Context, key string) error {
+	cache.next++
+	cache.versions[key] = fmt.Sprintf("%d", cache.next)
+	delete(cache.values, key)
+	delete(cache.values, key+":neg")
+	return nil
+}
+
+func (cache *elementTrackingCache) RevokeMany(ctx context.Context, keys ...string) error {
+	for _, key := range keys {
+		if err := cache.Revoke(ctx, key); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var _ commoncache.L1Engine = (*elementTrackingCache)(nil)
+
+func elementCacheCoordinator(store *elementTrackingCache) *commoncache.Cache {
+	return testutil.NewCacheWithL1(store)
+}

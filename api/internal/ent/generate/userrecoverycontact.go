@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
 	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
 )
@@ -47,6 +48,8 @@ type UserRecoveryContact struct {
 	RevokedAt *time.Time `json:"revoked_at,omitempty"`
 	// ReplacedContactID holds the value of the "replaced_contact_id" field.
 	ReplacedContactID *uuid.UUID `json:"replaced_contact_id,omitempty"`
+	// SourceFederatedIdentityID holds the value of the "source_federated_identity_id" field.
+	SourceFederatedIdentityID *uuid.UUID `json:"source_federated_identity_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserRecoveryContactQuery when eager-loading is set.
 	Edges        UserRecoveryContactEdges `json:"edges"`
@@ -61,9 +64,11 @@ type UserRecoveryContactEdges struct {
 	VerificationTokens []*RecoveryContactVerificationToken `json:"verification_tokens,omitempty"`
 	// PasswordResetTokens holds the value of the password_reset_tokens edge.
 	PasswordResetTokens []*PasswordResetToken `json:"password_reset_tokens,omitempty"`
+	// SourceFederatedIdentity holds the value of the source_federated_identity edge.
+	SourceFederatedIdentity *FederatedIdentity `json:"source_federated_identity,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -95,12 +100,23 @@ func (e UserRecoveryContactEdges) PasswordResetTokensOrErr() ([]*PasswordResetTo
 	return nil, &NotLoadedError{edge: "password_reset_tokens"}
 }
 
+// SourceFederatedIdentityOrErr returns the SourceFederatedIdentity value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserRecoveryContactEdges) SourceFederatedIdentityOrErr() (*FederatedIdentity, error) {
+	if e.SourceFederatedIdentity != nil {
+		return e.SourceFederatedIdentity, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: federatedidentity.Label}
+	}
+	return nil, &NotLoadedError{edge: "source_federated_identity"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*UserRecoveryContact) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case userrecoverycontact.FieldReplacedContactID:
+		case userrecoverycontact.FieldReplacedContactID, userrecoverycontact.FieldSourceFederatedIdentityID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case userrecoverycontact.FieldLookupHash, userrecoverycontact.FieldFingerprintHash, userrecoverycontact.FieldAddressCiphertext:
 			values[i] = new([]byte)
@@ -220,6 +236,13 @@ func (_m *UserRecoveryContact) assignValues(columns []string, values []any) erro
 				_m.ReplacedContactID = new(uuid.UUID)
 				*_m.ReplacedContactID = *value.S.(*uuid.UUID)
 			}
+		case userrecoverycontact.FieldSourceFederatedIdentityID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field source_federated_identity_id", values[i])
+			} else if value.Valid {
+				_m.SourceFederatedIdentityID = new(uuid.UUID)
+				*_m.SourceFederatedIdentityID = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -246,6 +269,11 @@ func (_m *UserRecoveryContact) QueryVerificationTokens() *RecoveryContactVerific
 // QueryPasswordResetTokens queries the "password_reset_tokens" edge of the UserRecoveryContact entity.
 func (_m *UserRecoveryContact) QueryPasswordResetTokens() *PasswordResetTokenQuery {
 	return NewUserRecoveryContactClient(_m.config).QueryPasswordResetTokens(_m)
+}
+
+// QuerySourceFederatedIdentity queries the "source_federated_identity" edge of the UserRecoveryContact entity.
+func (_m *UserRecoveryContact) QuerySourceFederatedIdentity() *FederatedIdentityQuery {
+	return NewUserRecoveryContactClient(_m.config).QuerySourceFederatedIdentity(_m)
 }
 
 // Update returns a builder for updating this UserRecoveryContact.
@@ -313,6 +341,11 @@ func (_m *UserRecoveryContact) String() string {
 	builder.WriteString(", ")
 	if v := _m.ReplacedContactID; v != nil {
 		builder.WriteString("replaced_contact_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.SourceFederatedIdentityID; v != nil {
+		builder.WriteString("source_federated_identity_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')

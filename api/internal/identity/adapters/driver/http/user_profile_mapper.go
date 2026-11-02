@@ -48,16 +48,5 @@ func toUserResponse(v *contract.UserResponse) *userResponse {
 	return &userResponse{ID: v.ID.String(), Username: v.Username, Status: v.Status, Version: v.Version, SuspendedAt: v.SuspendedAt, Roles: append([]string(nil), v.Roles...), AuthorizationRevision: v.AuthorizationRevision, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt}
 }
 func toUserPage(v *d.Paginated[*contract.UserResponse]) *d.Paginated[*userResponse] {
-	if v == nil {
-		return nil
-	}
-	r := &d.Paginated[*userResponse]{Pagination: v.Pagination}
-	if v.Records != nil {
-		values := make([]*userResponse, len(*v.Records))
-		for i, x := range *v.Records {
-			values[i] = toUserResponse(x)
-		}
-		r.Records = &values
-	}
-	return r
+	return d.MapPaginated(v, toUserResponse)
 }

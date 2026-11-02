@@ -24,6 +24,12 @@ type CultivationRankingStateCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *CultivationRankingStateCreate) SetTenantID(v uuid.UUID) *CultivationRankingStateCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetKey sets the "key" field.
 func (_c *CultivationRankingStateCreate) SetKey(v string) *CultivationRankingStateCreate {
 	_c.mutation.SetKey(v)
@@ -155,6 +161,9 @@ func (_c *CultivationRankingStateCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *CultivationRankingStateCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "CultivationRankingState.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Key(); !ok {
 		return &ValidationError{Name: "key", err: errors.New(`generate: missing required field "CultivationRankingState.key"`)}
 	}
@@ -213,6 +222,10 @@ func (_c *CultivationRankingStateCreate) createSpec() (*CultivationRankingState,
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(cultivationrankingstate.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.Key(); ok {
 		_spec.SetField(cultivationrankingstate.FieldKey, field.TypeString, value)
 		_node.Key = value
@@ -240,7 +253,7 @@ func (_c *CultivationRankingStateCreate) createSpec() (*CultivationRankingState,
 // of the `INSERT` statement. For example:
 //
 //	client.CultivationRankingState.Create().
-//		SetKey(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -249,7 +262,7 @@ func (_c *CultivationRankingStateCreate) createSpec() (*CultivationRankingState,
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.CultivationRankingStateUpsert) {
-//			SetKey(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *CultivationRankingStateCreate) OnConflict(opts ...sql.ConflictOption) *CultivationRankingStateUpsertOne {
@@ -349,6 +362,9 @@ func (u *CultivationRankingStateUpsertOne) UpdateNewValues() *CultivationRanking
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(cultivationrankingstate.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(cultivationrankingstate.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.Key(); exists {
 			s.SetIgnore(cultivationrankingstate.FieldKey)
@@ -579,7 +595,7 @@ func (_c *CultivationRankingStateCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.CultivationRankingStateUpsert) {
-//			SetKey(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *CultivationRankingStateCreateBulk) OnConflict(opts ...sql.ConflictOption) *CultivationRankingStateUpsertBulk {
@@ -625,6 +641,9 @@ func (u *CultivationRankingStateUpsertBulk) UpdateNewValues() *CultivationRankin
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(cultivationrankingstate.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(cultivationrankingstate.FieldTenantID)
 			}
 			if _, exists := b.mutation.Key(); exists {
 				s.SetIgnore(cultivationrankingstate.FieldKey)

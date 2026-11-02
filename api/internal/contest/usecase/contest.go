@@ -10,7 +10,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/constant"
@@ -69,21 +69,21 @@ func NewContestService(
 	}
 }
 
-// FindPublic retrieves only publicly visible contests. The repository owns the
+// FindForPublic retrieves only publicly visible contests. The repository owns the
 // access predicate, so caller-supplied filters cannot widen the result.
-func (service *contestService) FindPublic(
+func (service *contestService) FindForPublic(
 	ctx context.Context,
 	options *d.QueryOptions,
 ) (*d.Paginated[*contract.ContestResponse], error) {
-	contests, err := service.contestRepo.FindPublic(ctx, options)
+	contests, err := service.contestRepo.FindForPublic(ctx, options)
 	if err != nil {
 		return nil, err
 	}
 	return service.mapContestPage(ctx, contests, false)
 }
 
-// FindAdmin retrieves every lifecycle status for authorized administration.
-func (service *contestService) FindAdmin(
+// FindForAdmin retrieves every lifecycle status for authorized administration.
+func (service *contestService) FindForAdmin(
 	ctx context.Context,
 	options *d.QueryOptions,
 ) (*d.Paginated[*contract.ContestResponse], error) {

@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.NotificationCampaignRevision {
 	return predicate.NotificationCampaignRevision(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
 // CampaignID applies equality check predicate on the "campaign_id" field. It's identical to CampaignIDEQ.
 func CampaignID(v uuid.UUID) predicate.NotificationCampaignRevision {
 	return predicate.NotificationCampaignRevision(sql.FieldEQ(FieldCampaignID, v))
@@ -109,6 +114,46 @@ func AuthorID(v uuid.UUID) predicate.NotificationCampaignRevision {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.NotificationCampaignRevision {
 	return predicate.NotificationCampaignRevision(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.NotificationCampaignRevision {
+	return predicate.NotificationCampaignRevision(sql.FieldLTE(FieldTenantID, v))
 }
 
 // CampaignIDEQ applies the EQ predicate on the "campaign_id" field.

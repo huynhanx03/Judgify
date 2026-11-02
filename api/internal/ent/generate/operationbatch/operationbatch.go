@@ -16,6 +16,8 @@ const (
 	Label = "operation_batch"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldOperationID holds the string denoting the operation_id field in the database.
 	FieldOperationID = "operation_id"
 	// FieldSequence holds the string denoting the sequence field in the database.
@@ -56,6 +58,7 @@ const (
 // Columns holds all SQL columns for operationbatch fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldOperationID,
 	FieldSequence,
 	FieldLeaseToken,
@@ -109,6 +112,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByOperationID orders the results by the operation_id field.

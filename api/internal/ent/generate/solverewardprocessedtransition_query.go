@@ -266,12 +266,12 @@ func (_q *SolveRewardProcessedTransitionQuery) Clone() *SolveRewardProcessedTran
 // Example:
 //
 //	var v []struct {
-//		SolveID uuid.UUID `json:"solve_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.SolveRewardProcessedTransition.Query().
-//		GroupBy(solverewardprocessedtransition.FieldSolveID).
+//		GroupBy(solverewardprocessedtransition.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *SolveRewardProcessedTransitionQuery) GroupBy(field string, fields ...string) *SolveRewardProcessedTransitionGroupBy {
@@ -289,11 +289,11 @@ func (_q *SolveRewardProcessedTransitionQuery) GroupBy(field string, fields ...s
 // Example:
 //
 //	var v []struct {
-//		SolveID uuid.UUID `json:"solve_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.SolveRewardProcessedTransition.Query().
-//		Select(solverewardprocessedtransition.FieldSolveID).
+//		Select(solverewardprocessedtransition.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *SolveRewardProcessedTransitionQuery) Select(fields ...string) *SolveRewardProcessedTransitionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

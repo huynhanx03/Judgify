@@ -29,6 +29,7 @@ func (OperationBatch) Mixin() []ent.Mixin {
 func (OperationBatch) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(commonent.NewUUID).Immutable(),
+		field.UUID("tenant_id", uuid.UUID{}).Optional().Nillable().Immutable(),
 		field.UUID("operation_id", uuid.UUID{}).Immutable(),
 		field.Int64("sequence").Positive().Immutable(),
 		field.UUID("lease_token", uuid.UUID{}).Immutable(),

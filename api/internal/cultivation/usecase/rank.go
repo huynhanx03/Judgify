@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/constant"
@@ -40,14 +40,7 @@ func (s *rankService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pagina
 	if result.Records == nil {
 		return &d.Paginated[*contract.RankResponse]{Records: &[]*contract.RankResponse{}, Pagination: result.Pagination}, nil
 	}
-
-	entities := *result.Records
-	responses := make([]*contract.RankResponse, len(entities))
-	for i, e := range entities {
-		responses[i] = ToRankResponse(e)
-	}
-
-	return &d.Paginated[*contract.RankResponse]{Records: &responses, Pagination: result.Pagination}, nil
+	return d.MapPaginated(result, ToRankResponse), nil
 }
 
 func (s *rankService) Get(ctx context.Context, id uuid.UUID) (*contract.RankResponse, error) {

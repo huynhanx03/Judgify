@@ -6,7 +6,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/cache"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
+	commonlogger "github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	appcache "github.com/huynhanx03/judgify/internal/cache"
@@ -51,7 +51,7 @@ type ProblemContainer struct {
 func NewProblemContainer(
 	ctx context.Context,
 	client *internalent.EntClient,
-	localCache cache.LocalCache[string, any],
+	localCache *cache.Cache,
 	txMgr tx.Manager,
 	judgeConfig settings.Judge,
 	allowDevelopmentAuthoringCatalog bool,

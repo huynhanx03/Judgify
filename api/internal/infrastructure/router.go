@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"fmt"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"os"
 	"strings"
@@ -13,7 +14,6 @@ import (
 	commonhealth "github.com/huynhanx03/go-common/pkg/common/health"
 	commonhandler "github.com/huynhanx03/go-common/pkg/common/http/handler"
 	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 
@@ -31,6 +31,8 @@ import (
 	problemHttp "github.com/huynhanx03/judgify/internal/problem/adapters/driver/http"
 	realtimeHttp "github.com/huynhanx03/judgify/internal/realtime/adapters/driver/http"
 	submissionHttp "github.com/huynhanx03/judgify/internal/submission/adapters/driver/http"
+	"github.com/huynhanx03/judgify/internal/tenant/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/settings"
 )
 
@@ -49,8 +51,13 @@ type RouterGroup struct {
 	OperationHandler            *operationhttp.Handler
 	RealtimeHandler             *realtimeHttp.HandlerGroup
 	DebugLevelHandler           *debuglevel.HTTPHandler
-	AuthzChecker                *middlewares.AuthorizationChecker
+	AuthzChecker                *authmiddleware.AuthorizationChecker
 	AccessVerifier              authentication.Verifier
+	TenantScope                 gin.HandlerFunc
+	OptionalTenantScope         gin.HandlerFunc
+	TenantTransaction           gin.HandlerFunc
+	OptionalTenantTransaction   gin.HandlerFunc
+	CommunityTransaction        gin.HandlerFunc
 }
 
 // NewRouterGroup creates a new RouterGroup.
@@ -68,8 +75,13 @@ func NewRouterGroup(
 	operationHandler *operationhttp.Handler,
 	realtimeHandler *realtimeHttp.HandlerGroup,
 	debugLevelHandler *debuglevel.HTTPHandler,
-	authzChecker *middlewares.AuthorizationChecker,
+	authzChecker *authmiddleware.AuthorizationChecker,
 	accessVerifier authentication.Verifier,
+	tenantScope gin.HandlerFunc,
+	optionalTenantScope gin.HandlerFunc,
+	tenantTransaction gin.HandlerFunc,
+	optionalTenantTransaction gin.HandlerFunc,
+	communityTransaction gin.HandlerFunc,
 ) *RouterGroup {
 	return &RouterGroup{
 		AuditHandler:                auditHandler,
@@ -87,6 +99,11 @@ func NewRouterGroup(
 		DebugLevelHandler:           debugLevelHandler,
 		AuthzChecker:                authzChecker,
 		AccessVerifier:              accessVerifier,
+		TenantScope:                 tenantScope,
+		OptionalTenantScope:         optionalTenantScope,
+		TenantTransaction:           tenantTransaction,
+		OptionalTenantTransaction:   optionalTenantTransaction,
+		CommunityTransaction:        communityTransaction,
 	}
 }
 
@@ -111,6 +128,9 @@ func (rg *RouterGroup) registerRoutes(
 		rg.IdentityHandler.BrowserSession.Access.Name,
 		authenticationConfig.MaximumCredentialBytes,
 	)
+	if rg.CommunityTransaction != nil {
+		publicContent.Use(rg.CommunityTransaction)
+	}
 	rg.IdentityHandler.RegisterPublic(publicAuth)
 	// Refresh is an opaque, single-use HttpOnly cookie flow. It deliberately
 	// never passes through JWT bearer authentication.
@@ -133,17 +153,31 @@ func (rg *RouterGroup) registerRoutes(
 	}
 	protected := r.Group("/")
 	protected.Use(
-		middlewares.AuthenticationWithVerifier(
+		authmiddleware.AuthenticationWithVerifier(
 			rg.AccessVerifier,
-			middlewares.WithCredentialSources(middlewares.CredentialBearer, middlewares.CredentialCookie),
-			middlewares.WithCredentialCookie(rg.IdentityHandler.BrowserSession.Access.Name),
-			middlewares.WithMaxCredentialBytes(authenticationConfig.MaximumCredentialBytes),
+			authmiddleware.WithCredentialSources(authmiddleware.CredentialBearer, authmiddleware.CredentialCookie),
+			authmiddleware.WithCredentialCookie(rg.IdentityHandler.BrowserSession.Access.Name),
+			authmiddleware.WithMaxCredentialBytes(authenticationConfig.MaximumCredentialBytes),
 		),
-		requestIdentityLogContext(),
 		protectedCSRF,
 	)
+	if rg.OptionalTenantScope != nil {
+		protected.Use(rg.OptionalTenantScope)
+	}
+	if rg.OptionalTenantTransaction != nil {
+		protected.Use(rg.OptionalTenantTransaction)
+	}
+	if rg.TenantScope == nil {
+		return fmt.Errorf("http router: tenant scope middleware is required")
+	}
+	tenantProtected := protected.Group("/")
+	tenantProtected.Use(rg.TenantScope)
+	if rg.TenantTransaction == nil {
+		return fmt.Errorf("http router: tenant transaction middleware is required")
+	}
+	tenantProtected.Use(rg.TenantTransaction)
 	{
-		protected.POST(
+		tenantProtected.POST(
 			"/realtime/tickets",
 			realtimeHttp.NoStore,
 			commonhandler.WrapNoReq(rg.RealtimeHandler.IssueTicket),
@@ -151,14 +185,14 @@ func (rg *RouterGroup) registerRoutes(
 		rg.IdentityHandler.RegisterProtected(protected, rg.AuthzChecker)
 		rg.JudgeHandler.RegisterProtected(protected, rg.AuthzChecker)
 		rg.AuditHandler.RegisterProtected(protected, rg.AuthzChecker)
-		rg.ProblemHandler.RegisterProtected(protected, rg.AuthzChecker)
-		rg.CultivationHandler.RegisterProtected(protected, rg.AuthzChecker)
-		rg.SubmissionHandler.RegisterProtected(protected, rg.AuthzChecker)
-		rg.ContestHandler.RegisterProtected(protected, rg.AuthzChecker)
-		rg.MaterialHandler.RegisterProtected(protected, rg.AuthzChecker)
-		rg.NotificationHandler.RegisterProtected(protected)
+		rg.ProblemHandler.RegisterProtected(tenantProtected, rg.AuthzChecker)
+		rg.CultivationHandler.RegisterProtected(tenantProtected, rg.AuthzChecker)
+		rg.SubmissionHandler.RegisterProtected(tenantProtected, rg.AuthzChecker)
+		rg.ContestHandler.RegisterProtected(tenantProtected, rg.AuthzChecker)
+		rg.MaterialHandler.RegisterProtected(tenantProtected, rg.AuthzChecker)
+		rg.NotificationHandler.RegisterProtected(tenantProtected)
 		rg.NotificationCampaignHandler.RegisterProtected(
-			protected,
+			tenantProtected,
 			rg.AuthzChecker,
 		)
 		rg.OperationHandler.RegisterProtected(protected, rg.AuthzChecker)
@@ -211,39 +245,18 @@ func publicContentWithOptionalIdentity(
 	maximumCredentialBytes int,
 ) *gin.RouterGroup {
 	group := parent.Group("/")
-	group.Use(middlewares.OptionalAuthenticationWithVerifier(
+	group.Use(authmiddleware.OptionalAuthenticationWithVerifier(
 		verifier,
-		middlewares.WithCredentialSources(middlewares.CredentialBearer, middlewares.CredentialCookie),
-		middlewares.WithCredentialCookie(accessCookieName),
-		middlewares.WithMaxCredentialBytes(maximumCredentialBytes),
+		authmiddleware.WithCredentialSources(authmiddleware.CredentialBearer, authmiddleware.CredentialCookie),
+		authmiddleware.WithCredentialCookie(accessCookieName),
+		authmiddleware.WithMaxCredentialBytes(maximumCredentialBytes),
 	))
-	group.Use(requestIdentityLogContext())
-	return group
-}
-
-// requestIdentityLogContext adds stable, non-secret identity references to
-// downstream logs after authentication has established the canonical live
-// principal. Raw credentials and token identifiers deliberately never become
-// ambient fields repeated by every log line.
-func requestIdentityLogContext() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		principal, exists := authentication.FromContext(c.Request.Context())
-		if exists && principal.Authenticated {
-			fields := make([]commonlogger.Field, 0, 2)
-			if principal.UserID != "" {
-				fields = append(fields, commonlogger.String("user_id", principal.UserID))
-			}
-			if principal.SessionID != "" {
-				fields = append(fields, commonlogger.String("session_id", principal.SessionID))
-			}
-			ctx := commonlogger.WithFields(
-				c.Request.Context(),
-				fields...,
-			)
-			c.Request = c.Request.WithContext(ctx)
-		}
+	communityScope, _ := tenantctx.Tenant(domain.CommunityID)
+	group.Use(func(c *gin.Context) {
+		c.Request = c.Request.WithContext(tenantctx.WithContext(c.Request.Context(), communityScope))
 		c.Next()
-	}
+	})
+	return group
 }
 
 // Ping health check endpoint.
@@ -289,7 +302,7 @@ func NewEngine(
 	metrics *observability.Metrics,
 	serverConfig settings.Server,
 	authenticationConfig settings.Authentication,
-	logger *commonlogger.LoggerZap,
+	logger *commonlogger.Logger,
 ) (*gin.Engine, error) {
 	if routerGroup == nil || routerGroup.AccessVerifier == nil || routerGroup.RealtimeHandler == nil ||
 		routerGroup.NotificationHandler == nil ||
@@ -298,7 +311,7 @@ func NewEngine(
 		routerGroup.DebugLevelHandler == nil ||
 		routerGroup.JudgeHandler == nil ||
 		routerGroup.AuditHandler == nil || healthRegistry == nil ||
-		metrics == nil || logger == nil || logger.Logger == nil {
+		metrics == nil || logger == nil {
 		return nil, fmt.Errorf("http router: invalid dependencies")
 	}
 	switch strings.ToLower(strings.TrimSpace(string(serverConfig.Mode))) {
@@ -312,17 +325,21 @@ func NewEngine(
 	if err := r.SetTrustedProxies(append([]string(nil), serverConfig.TrustedProxies...)); err != nil {
 		return nil, fmt.Errorf("http router: configure trusted proxies: %w", err)
 	}
-	// Metrics wraps recovery so a recovered panic is still accounted as a 5xx.
-	r.Use(GatewayIdentity(os.Getenv("JUDGIFY_GATEWAY_IDENTITY_MODE")))
+	// Envoy owns public completion logs. Direct development traffic gets its
+	// completion log here; both paths still receive a contextual logger.
+	gatewayMode := os.Getenv("JUDGIFY_GATEWAY_IDENTITY_MODE")
+	r.Use(GatewayIdentity(gatewayMode))
 	r.Use(otelgin.Middleware("judgify-api"))
 	r.Use(observabilityhttp.Middleware(metrics, "api"))
-	r.Use(middlewares.RecoveryMiddleware)
-	r.Use(middlewares.RequestLogger(logger.Logger))
+	r.Use(middlewares.RequestID())
+	r.Use(requestLoggerContext(logger, !strings.EqualFold(strings.TrimSpace(gatewayMode), GatewayIdentityEnvoy)))
+	// Metrics wraps recovery so a recovered panic is still accounted as a 5xx.
+	r.Use(middlewares.RecoveryMiddleware(logger))
 	cors, err := middlewares.CORS(middlewares.CORSOptions{
 		AllowedOrigins:   append([]string(nil), authenticationConfig.BrowserOrigins...),
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
-		AllowedHeaders:   []string{"Authorization", "Content-Type", "Idempotency-Key", "If-Match", identityHttp.CSRFHeaderName},
-		ExposedHeaders:   []string{"ETag", "Idempotency-Replayed", "Location", "Retry-After", correlation.Header},
+		AllowedHeaders:   []string{"Authorization", "Content-Type", "Idempotency-Key", "If-Match", "X-Tenant-ID", identityHttp.CSRFHeaderName},
+		ExposedHeaders:   []string{"ETag", "Idempotency-Replayed", "Location", "Retry-After", commonlogger.RequestIDHeader},
 		AllowCredentials: true,
 		MaxAge:           10 * time.Minute,
 	})

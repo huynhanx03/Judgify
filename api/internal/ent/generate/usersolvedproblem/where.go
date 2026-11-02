@@ -56,6 +56,11 @@ func IDLTE(id uuid.UUID) predicate.UserSolvedProblem {
 	return predicate.UserSolvedProblem(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldEQ(FieldTenantID, v))
+}
+
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v uuid.UUID) predicate.UserSolvedProblem {
 	return predicate.UserSolvedProblem(sql.FieldEQ(FieldUserID, v))
@@ -69,6 +74,46 @@ func ProblemID(v uuid.UUID) predicate.UserSolvedProblem {
 // SolvedAt applies equality check predicate on the "solved_at" field. It's identical to SolvedAtEQ.
 func SolvedAt(v time.Time) predicate.UserSolvedProblem {
 	return predicate.UserSolvedProblem(sql.FieldEQ(FieldSolvedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v uuid.UUID) predicate.UserSolvedProblem {
+	return predicate.UserSolvedProblem(sql.FieldLTE(FieldTenantID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.

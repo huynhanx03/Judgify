@@ -21,7 +21,7 @@ import (
 )
 
 const operationColumns = `
-	id, kind, idempotency_key, request_hash, request_payload,
+	id, tenant_id, kind, idempotency_key, request_hash, request_payload,
 	actor_user_id, actor_session_id, audit_id, reason, correlation_id,
 	status, requested_action, total_count, processed_count, succeeded_count,
 	failed_count, next_batch_sequence, batch_size, checkpoint, version,
@@ -58,7 +58,11 @@ func (repository *EntRepository) LockStart(
 	if err != nil {
 		return Operation{}, false, err
 	}
-	lockKey := command.Kind + ":" + command.IdempotencyKey.String()
+	tenantKey := "global"
+	if command.TenantID != nil {
+		tenantKey = command.TenantID.String()
+	}
+	lockKey := command.Kind + ":" + tenantKey + ":" + command.IdempotencyKey.String()
 	if _, err := client.AuditLog.ExecContext(
 		ctx,
 		`SELECT pg_advisory_xact_lock(hashtextextended($1, 0))`,
@@ -72,9 +76,11 @@ func (repository *EntRepository) LockStart(
 		`SELECT `+operationColumns+`
 		 FROM operations
 		 WHERE kind = $1 AND idempotency_key = $2
+		   AND tenant_id IS NOT DISTINCT FROM $3
 		 FOR UPDATE`,
 		command.Kind,
 		command.IdempotencyKey,
+		command.TenantID,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Operation{}, false, nil
@@ -104,23 +110,24 @@ func (repository *EntRepository) Create(
 			SELECT clock_timestamp() AS now
 		)
 		INSERT INTO operations (
-			id, kind, idempotency_key, request_hash, request_payload,
+			id, tenant_id, kind, idempotency_key, request_hash, request_payload,
 			actor_user_id, actor_session_id, audit_id, reason, correlation_id,
 			status, requested_action, total_count, processed_count, succeeded_count,
 			failed_count, next_batch_sequence, batch_size, checkpoint, version,
 			not_before, available_at, attempt_count, created_at, updated_at
 		)
 		SELECT
-			$1, $2, $3, $4, $5::jsonb,
-			$6, $7, $8, $9, $10,
-			'pending', 'none', $11, 0, 0,
-			0, 1, $12, $13::jsonb, 1,
-			$14::timestamptz,
-			COALESCE($14::timestamptz, database_clock.now), 0,
+			$1, $2, $3, $4, $5, $6::jsonb,
+			$7, $8, $9, $10, $11,
+			'pending', 'none', $12, 0, 0,
+			0, 1, $13, $14::jsonb, 1,
+			$15::timestamptz,
+			COALESCE($15::timestamptz, database_clock.now), 0,
 			database_clock.now, database_clock.now
 		FROM database_clock
 		RETURNING `+operationColumns,
 		command.ID,
+		command.TenantID,
 		command.Kind,
 		command.IdempotencyKey,
 		command.RequestHash[:],
@@ -152,6 +159,18 @@ func (repository *EntRepository) Get(
 		id == uuid.Nil {
 		return Operation{}, ErrInvalidOperation
 	}
+	if _, txErr := platformtx.Client(ctx, nil); errors.Is(txErr, platformtx.ErrTransactionRequired) {
+		var value Operation
+		err := platformtx.NewEntUnitOfWork(repository.client.Client()).Within(
+			ctx,
+			func(txCtx context.Context) error {
+				var readErr error
+				value, readErr = repository.Get(txCtx, id)
+				return readErr
+			},
+		)
+		return value, err
+	}
 	client, err := platformtx.Client(ctx, repository.client.Client())
 	if err != nil {
 		return Operation{}, err
@@ -171,7 +190,7 @@ func (repository *EntRepository) Get(
 	return value, nil
 }
 
-func (repository *EntRepository) List(
+func (repository *EntRepository) Find(
 	ctx context.Context,
 	filter ListFilter,
 ) (Page, error) {
@@ -180,6 +199,18 @@ func (repository *EntRepository) List(
 	}
 	if err := ValidateListFilter(filter); err != nil {
 		return Page{}, ErrInvalidOperation
+	}
+	if _, txErr := platformtx.Client(ctx, nil); errors.Is(txErr, platformtx.ErrTransactionRequired) {
+		var page Page
+		err := platformtx.NewEntUnitOfWork(repository.client.Client()).Within(
+			ctx,
+			func(txCtx context.Context) error {
+				var readErr error
+				page, readErr = repository.Find(txCtx, filter)
+				return readErr
+			},
+		)
+		return page, err
 	}
 	client, err := platformtx.Client(ctx, repository.client.Client())
 	if err != nil {
@@ -235,7 +266,7 @@ func (repository *EntRepository) List(
 	return page, nil
 }
 
-func (repository *EntRepository) ListBatches(
+func (repository *EntRepository) FindBatches(
 	ctx context.Context,
 	operationID uuid.UUID,
 	filter BatchListFilter,
@@ -246,6 +277,18 @@ func (repository *EntRepository) ListBatches(
 	}
 	if err := ValidateBatchListFilter(filter); err != nil {
 		return BatchProjectionPage{}, ErrInvalidOperation
+	}
+	if _, txErr := platformtx.Client(ctx, nil); errors.Is(txErr, platformtx.ErrTransactionRequired) {
+		var page BatchProjectionPage
+		err := platformtx.NewEntUnitOfWork(repository.client.Client()).Within(
+			ctx,
+			func(txCtx context.Context) error {
+				var readErr error
+				page, readErr = repository.FindBatches(txCtx, operationID, filter)
+				return readErr
+			},
+		)
+		return page, err
 	}
 	client, err := platformtx.Client(ctx, repository.client.Client())
 	if err != nil {
@@ -533,17 +576,18 @@ func (repository *EntRepository) CommitBatch(
 	if _, err := client.AuditLog.ExecContext(
 		ctx,
 		`INSERT INTO operation_batches (
-			id, operation_id, sequence, lease_token,
+			id, tenant_id, operation_id, sequence, lease_token,
 			input_checkpoint, output_checkpoint,
 			processed_count, succeeded_count, failed_count, failure_summary,
 			started_at, completed_at, created_at
 		) VALUES (
-			$1, $2, $3, $4,
-			$5::jsonb, $6::jsonb,
-			$7, $8, $9, $10::jsonb,
-			LEAST($11, clock_timestamp()), clock_timestamp(), clock_timestamp()
+			$1, $2, $3, $4, $5,
+			$6::jsonb, $7::jsonb,
+			$8, $9, $10, $11::jsonb,
+			LEAST($12, clock_timestamp()), clock_timestamp(), clock_timestamp()
 		)`,
 		batchID,
+		current.TenantID,
 		current.ID,
 		current.NextBatchSequence,
 		lease.Token,
@@ -896,15 +940,16 @@ func (repository *EntRepository) ApplyControl(
 	if _, err := client.AuditLog.ExecContext(
 		ctx,
 		`INSERT INTO operation_control_receipts (
-			id, operation_id, idempotency_key, request_hash, action,
+			id, tenant_id, operation_id, idempotency_key, request_hash, action,
 			expected_version, resulting_version, resulting_status,
 			result_projection, actor_user_id, actor_session_id, audit_id, created_at
 		) VALUES (
-			$1, $2, $3, $4, $5,
-			$6, $7, $8,
-			$9::jsonb, $10, $11, $12, clock_timestamp()
+			$1, $2, $3, $4, $5, $6,
+			$7, $8, $9,
+			$10::jsonb, $11, $12, $13, clock_timestamp()
 		)`,
 		receiptID,
+		updated.TenantID,
 		command.OperationID,
 		command.IdempotencyKey,
 		requestHash[:],
@@ -1014,6 +1059,7 @@ func queryOneOperation(
 func scanOperation(scanner rowScanner) (Operation, error) {
 	var (
 		value          Operation
+		tenantID       uuid.NullUUID
 		requestHash    []byte
 		requestPayload []byte
 		checkpoint     []byte
@@ -1030,6 +1076,7 @@ func scanOperation(scanner rowScanner) (Operation, error) {
 	)
 	if err := scanner.Scan(
 		&value.ID,
+		&tenantID,
 		&value.Kind,
 		&value.IdempotencyKey,
 		&requestHash,
@@ -1062,6 +1109,9 @@ func scanOperation(scanner rowScanner) (Operation, error) {
 		&value.UpdatedAt,
 	); err != nil {
 		return Operation{}, err
+	}
+	if tenantID.Valid {
+		value.TenantID = &tenantID.UUID
 	}
 	if len(requestHash) != sha256.Size || attemptCount < 0 ||
 		attemptCount > math.MaxUint32 {

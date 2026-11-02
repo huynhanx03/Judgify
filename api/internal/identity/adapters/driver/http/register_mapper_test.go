@@ -10,7 +10,7 @@ import (
 func TestToRegisterRequestCopiesTransportAndOnboardingEvidence(t *testing.T) {
 	t.Parallel()
 	value := &registerRequest{
-		Username: "judgify", Password: "correct-horse", RecoveryEmail: "user@example.com",
+		Username: "judgify", Password: "correct-horse",
 		OfferID: uuid.New(), OfferSequence: 1, CatalogRevisionID: uuid.New(), CatalogChecksum: "catalog", OfferChecksum: "offer", RootBoneID: uuid.New(), TalentIDs: []uuid.UUID{uuid.New(), uuid.New(), uuid.New()},
 		ProfileSchemaRevision: 3, ProfileSchemaChecksum: "schema", ProfileValues: []registerProfileValueRequest{{DefinitionID: uuid.New(), DefinitionRevisionID: uuid.New(), Value: []byte(`"value"`)}},
 		IPHash: []byte{1, 2, 3},

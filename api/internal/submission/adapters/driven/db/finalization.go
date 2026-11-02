@@ -22,6 +22,7 @@ import (
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	"github.com/huynhanx03/judgify/internal/ports"
 	entity "github.com/huynhanx03/judgify/internal/submission/domain"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 type finalizationSQLDatabase interface {
@@ -145,6 +146,9 @@ func (repository *FinalizationRepository) FinalizeContestantEvaluation(
 		)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return ports.FinalizationResult{}, err
+	}
 	if err := lockRewardTimelineForTransition(ctx, tx); err != nil {
 		return ports.FinalizationResult{}, err
 	}
@@ -354,6 +358,9 @@ func (repository *FinalizationRepository) FinalizeSystemError(
 		)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if err := tenantctx.BindSQLScope(ctx, tx); err != nil {
+		return ports.FinalizationResult{}, err
+	}
 	now, err := jobDatabaseNow(ctx, tx)
 	if err != nil {
 		return ports.FinalizationResult{}, err

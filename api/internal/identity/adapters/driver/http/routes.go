@@ -2,18 +2,19 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
 	"github.com/huynhanx03/judgify/internal/ports"
+	tenanthttp "github.com/huynhanx03/judgify/internal/tenant/adapters/driver/http"
 	"github.com/huynhanx03/judgify/pkg/permissions"
 )
 
@@ -35,6 +36,7 @@ type IdentityHandler struct {
 	ProfileSchemaHandler       ProfileSchemaHandler
 	PublicProfileHandler       PublicProfileHandler
 	UserInvitation             ports.UserInvitationService
+	TenantHandler              *tenanthttp.Handler
 	OnboardingTraitOffer       OnboardingTraitOfferIssuer
 	// BrowserSession is the single browser credential and CSRF transport.
 	BrowserSession BrowserSessionConfig
@@ -146,9 +148,12 @@ func (h *IdentityHandler) RegisterRefresh(r *gin.RouterGroup) {
 	r.POST("/auth/refresh", h.refreshSession)
 }
 
-func (h *IdentityHandler) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.AuthorizationChecker) {
+func (h *IdentityHandler) RegisterProtected(r *gin.RouterGroup, permChecker *authmiddleware.AuthorizationChecker) {
 	if h == nil || r == nil {
 		return
+	}
+	if h.TenantHandler != nil {
+		h.TenantHandler.RegisterProtected(r)
 	}
 	// This narrow projection is the bootstrapping boundary for a cookie-backed
 	// browser. It deliberately exposes neither raw roles nor credentials.
@@ -208,7 +213,7 @@ func (h *IdentityHandler) RegisterProtected(r *gin.RouterGroup, permChecker *mid
 	{
 		attrDefs.POST("/find", handler.Wrap(h.AttributeDefinitionHandler.Find))
 		attrDefs.GET("/:id", handler.Wrap(h.AttributeDefinitionHandler.Get))
-		attrDefs.GET("/:id/revisions", handler.Wrap(h.AttributeDefinitionHandler.ListRevisions))
+		attrDefs.GET("/:id/revisions", handler.Wrap(h.AttributeDefinitionHandler.FindRevisions))
 		attrDefs.POST("", permChecker.RequirePermission(permissions.ResourceKeyAttributeDefinition, permissions.PermissionScopeCreate), noStore, captureIdentityCommandID(), handler.Wrap(h.AttributeDefinitionHandler.Create))
 		attrDefs.PUT("/:id", permChecker.RequirePermission(permissions.ResourceKeyAttributeDefinition, permissions.PermissionScopeUpdate), noStore, captureIdentityCommandID(), handler.Wrap(h.AttributeDefinitionHandler.Update))
 		attrDefs.POST("/:id/activation/preview", permChecker.RequirePermission(permissions.ResourceKeyAttributeDefinition, permissions.PermissionScopeUpdate), noStore, captureIdentityCommandID(), handler.Wrap(h.AttributeDefinitionHandler.PreviewActivation))
@@ -379,7 +384,7 @@ func (h *IdentityHandler) sessionMe(c *gin.Context) {
 
 func (h *IdentityHandler) registerAuthorizationRoutes(
 	r *gin.RouterGroup,
-	permChecker *middlewares.AuthorizationChecker,
+	permChecker *authmiddleware.AuthorizationChecker,
 ) {
 	// The principal projection requires only the protected session boundary.
 	// It never returns raw roles, wildcard policies, or internal capabilities.
@@ -392,11 +397,11 @@ func (h *IdentityHandler) registerAuthorizationRoutes(
 	authorizationGroup.GET(
 		"/catalog",
 		permChecker.RequireAnyPermission(
-			middlewares.PermissionRequirement{
+			authmiddleware.PermissionRequirement{
 				Resource: permissions.ResourceKeyRole,
 				Action:   permissions.PermissionScopeRead,
 			},
-			middlewares.PermissionRequirement{
+			authmiddleware.PermissionRequirement{
 				Resource: permissions.ResourceKeyAuthorization,
 				Action:   permissions.PermissionScopeManage,
 			},
@@ -407,14 +412,14 @@ func (h *IdentityHandler) registerAuthorizationRoutes(
 
 func (h *IdentityHandler) registerRoleRoutes(
 	r *gin.RouterGroup,
-	permChecker *middlewares.AuthorizationChecker,
+	permChecker *authmiddleware.AuthorizationChecker,
 ) {
 	readRoleFoundation := permChecker.RequireAnyPermission(
-		middlewares.PermissionRequirement{
+		authmiddleware.PermissionRequirement{
 			Resource: permissions.ResourceKeyRole,
 			Action:   permissions.PermissionScopeRead,
 		},
-		middlewares.PermissionRequirement{
+		authmiddleware.PermissionRequirement{
 			Resource: permissions.ResourceKeyAuthorization,
 			Action:   permissions.PermissionScopeManage,
 		},

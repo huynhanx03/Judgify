@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -23,7 +24,10 @@ const maximumContestContentResultProjectionBytes = 1 << 20
 // solely to return the original response after a lost network acknowledgement.
 type ContestContentCommand struct{ ent.Schema }
 
-func (ContestContentCommand) Mixin() []ent.Mixin { return []ent.Mixin{commonent.UUIDMixin{}} }
+func (ContestContentCommand) Mixin() []ent.Mixin {
+	return []ent.Mixin{commonent.UUIDMixin{},
+		mixin.TenantOwnedMixin{}}
+}
 func (ContestContentCommand) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("contest_id", uuid.UUID{}).Immutable(),

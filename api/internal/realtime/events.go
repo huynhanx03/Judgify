@@ -166,11 +166,33 @@ func SubmissionProjectionFromOutbox(
 func MessagesForSubmissionOutbox(
 	event submissioncontract.SubmissionJudgedV1,
 ) ([]RoutedMessage, error) {
+	return messagesForSubmissionOutbox(event, uuid.Nil)
+}
+
+func MessagesForTenantSubmissionOutbox(
+	event submissioncontract.SubmissionJudgedV1,
+	tenantID uuid.UUID,
+) ([]RoutedMessage, error) {
+	if tenantID == uuid.Nil {
+		return nil, ErrInvalidChange
+	}
+	return messagesForSubmissionOutbox(event, tenantID)
+}
+
+func messagesForSubmissionOutbox(
+	event submissioncontract.SubmissionJudgedV1,
+	tenantID uuid.UUID,
+) ([]RoutedMessage, error) {
 	projection, err := SubmissionProjectionFromOutbox(event)
 	if err != nil {
 		return nil, err
 	}
-	topic, err := UserSubmissionsTopic(projection.UserID)
+	var topic string
+	if tenantID != uuid.Nil {
+		topic, err = TenantUserSubmissionsTopic(tenantID, projection.UserID)
+	} else {
+		topic, err = UserSubmissionsTopic(projection.UserID)
+	}
 	if err != nil {
 		return nil, err
 	}

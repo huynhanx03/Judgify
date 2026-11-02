@@ -32,11 +32,11 @@ func NewSearchService(repository ports.MaterialQueryRepository, content ...conte
 	return service, nil
 }
 
-func (service *searchService) Search(ctx context.Context, query ports.SearchQuery) (*contract.MaterialSearchResponse, error) {
-	return service.search(ctx, query, false)
+func (service *searchService) FindForPublic(ctx context.Context, query ports.SearchQuery) (*contract.MaterialSearchResponse, error) {
+	return service.find(ctx, query, false)
 }
 
-func (service *searchService) SearchAdmin(ctx context.Context, query ports.SearchQuery) (*contract.AdminMaterialSearchResponse, error) {
+func (service *searchService) FindForAdmin(ctx context.Context, query ports.SearchQuery) (*contract.AdminMaterialSearchResponse, error) {
 	query.Text = strings.TrimSpace(query.Text)
 	if invalidSearchIdentity(query) ||
 		query.Sort != "updated" ||
@@ -53,7 +53,7 @@ func (service *searchService) SearchAdmin(ctx context.Context, query ports.Searc
 	if query.Limit == 0 {
 		query.Limit = 24
 	}
-	result, err := service.repository.SearchAdmin(ctx, query)
+	result, err := service.repository.FindForAdmin(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (service *searchService) GetAdmin(
 	return ToPublicMaterialResponse(material, true), nil
 }
 
-func (service *searchService) search(ctx context.Context, query ports.SearchQuery, admin bool) (*contract.MaterialSearchResponse, error) {
+func (service *searchService) find(ctx context.Context, query ports.SearchQuery, admin bool) (*contract.MaterialSearchResponse, error) {
 	query.Text = strings.TrimSpace(query.Text)
 	if invalidSearchIdentity(query) ||
 		(query.Limit < 0 || query.Limit > entity.MaximumMaterialPageSize) {
@@ -105,7 +105,7 @@ func (service *searchService) search(ctx context.Context, query ports.SearchQuer
 	if admin {
 		return nil, entity.ErrMaterialInvalidCommand
 	} else {
-		result, err = service.repository.SearchPublic(ctx, query)
+		result, err = service.repository.FindForPublic(ctx, query)
 	}
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func invalidSearchIdentity(query ports.SearchQuery) bool {
 	return false
 }
 
-func (service *searchService) ListRevisions(
+func (service *searchService) FindRevisions(
 	ctx context.Context,
 	materialID uuid.UUID,
 	cursor string,
@@ -160,7 +160,7 @@ func (service *searchService) ListRevisions(
 	if limit == 0 {
 		limit = 25
 	}
-	revisions, err := service.repository.ListRevisions(ctx, materialID, before, limit+1)
+	revisions, err := service.repository.FindRevisions(ctx, materialID, before, limit+1)
 	if err != nil {
 		return nil, err
 	}

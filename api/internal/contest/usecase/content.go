@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
@@ -865,26 +865,26 @@ func (service *contentService) changeClarificationState(
 	})
 }
 
-func (service *contentService) ListPublicAnnouncements(
+func (service *contentService) FindAnnouncementsForPublic(
 	ctx context.Context,
 	request *contract.ContestContentListRequest,
 ) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
-	return service.listAnnouncements(ctx, uuid.Nil, request, announcementVisibilityPublic)
+	return service.findAnnouncements(ctx, uuid.Nil, request, announcementVisibilityPublic)
 }
 
-func (service *contentService) ListParticipantAnnouncements(
+func (service *contentService) FindAnnouncementsForParticipant(
 	ctx context.Context,
 	actorID uuid.UUID,
 	request *contract.ContestContentListRequest,
 ) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
-	return service.listAnnouncements(ctx, actorID, request, announcementVisibilityParticipant)
+	return service.findAnnouncements(ctx, actorID, request, announcementVisibilityParticipant)
 }
 
-func (service *contentService) ListAdminAnnouncements(
+func (service *contentService) FindAnnouncementsForAdmin(
 	ctx context.Context,
 	request *contract.ContestContentListRequest,
 ) (*contract.ContestContentPage[contract.AnnouncementResponse], error) {
-	return service.listAnnouncements(ctx, uuid.Nil, request, announcementVisibilityAdmin)
+	return service.findAnnouncements(ctx, uuid.Nil, request, announcementVisibilityAdmin)
 }
 
 func (service *contentService) GetAdminAnnouncement(
@@ -911,7 +911,7 @@ const (
 	announcementVisibilityAdmin
 )
 
-func (service *contentService) listAnnouncements(
+func (service *contentService) findAnnouncements(
 	ctx context.Context,
 	actorID uuid.UUID,
 	request *contract.ContestContentListRequest,
@@ -938,11 +938,11 @@ func (service *contentService) listAnnouncements(
 	)
 	switch visibility {
 	case announcementVisibilityPublic:
-		items, next, err = service.dependencies.Repository.ListPublicAnnouncements(ctx, query)
+		items, next, err = service.dependencies.Repository.FindAnnouncementsForPublic(ctx, query)
 	case announcementVisibilityParticipant:
-		items, next, err = service.dependencies.Repository.ListParticipantAnnouncements(ctx, query)
+		items, next, err = service.dependencies.Repository.FindAnnouncementsForParticipant(ctx, query)
 	case announcementVisibilityAdmin:
-		items, next, err = service.dependencies.Repository.ListAdminAnnouncements(ctx, query)
+		items, next, err = service.dependencies.Repository.FindAnnouncementsForAdmin(ctx, query)
 	default:
 		return nil, ports.ErrInvalidContestContentCommand
 	}
@@ -963,7 +963,7 @@ func (service *contentService) listAnnouncements(
 	return page, err
 }
 
-func (service *contentService) ListParticipantClarifications(
+func (service *contentService) FindClarificationsForParticipant(
 	ctx context.Context,
 	actorID uuid.UUID,
 	request *contract.ContestContentListRequest,
@@ -975,7 +975,7 @@ func (service *contentService) ListParticipantClarifications(
 	if err != nil {
 		return nil, err
 	}
-	items, next, err := service.dependencies.Repository.ListParticipantClarifications(ctx, query)
+	items, next, err := service.dependencies.Repository.FindClarificationsForParticipant(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -989,22 +989,22 @@ func (service *contentService) ListParticipantClarifications(
 	return page, err
 }
 
-func (service *contentService) ListOwnClarifications(
+func (service *contentService) FindMyClarifications(
 	ctx context.Context,
 	actorID uuid.UUID,
 	request *contract.ContestContentListRequest,
 ) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
-	return service.listPrivateClarifications(ctx, actorID, request, true)
+	return service.findPrivateClarifications(ctx, actorID, request, true)
 }
 
-func (service *contentService) ListAdminClarifications(
+func (service *contentService) FindClarificationsForAdmin(
 	ctx context.Context,
 	request *contract.ContestContentListRequest,
 ) (*contract.ContestContentPage[contract.ClarificationResponse], error) {
-	return service.listPrivateClarifications(ctx, uuid.Nil, request, false)
+	return service.findPrivateClarifications(ctx, uuid.Nil, request, false)
 }
 
-func (service *contentService) listPrivateClarifications(
+func (service *contentService) findPrivateClarifications(
 	ctx context.Context,
 	actorID uuid.UUID,
 	request *contract.ContestContentListRequest,
@@ -1030,9 +1030,9 @@ func (service *contentService) listPrivateClarifications(
 		next  *ports.ContentCursor
 	)
 	if own {
-		items, next, err = service.dependencies.Repository.ListOwnClarifications(ctx, query)
+		items, next, err = service.dependencies.Repository.FindMyClarifications(ctx, query)
 	} else {
-		items, next, err = service.dependencies.Repository.ListAdminClarifications(ctx, query)
+		items, next, err = service.dependencies.Repository.FindClarificationsForAdmin(ctx, query)
 	}
 	if err != nil {
 		return nil, err
@@ -1085,12 +1085,12 @@ func (service *contentService) GetAdminClarification(
 	return clarificationAdminDTO(view), nil
 }
 
-func (service *contentService) ListRevisions(
+func (service *contentService) FindRevisions(
 	ctx context.Context,
 	owner entity.ContentOwnerType,
 	ownerID uuid.UUID,
 ) ([]contract.ContentRevisionResponse, error) {
-	values, err := service.dependencies.Repository.ListRevisions(ctx, owner, ownerID)
+	values, err := service.dependencies.Repository.FindRevisions(ctx, owner, ownerID)
 	if err != nil {
 		return nil, err
 	}

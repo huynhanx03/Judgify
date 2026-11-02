@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/DATA-DOG/go-sqlmock"
-	adaptercasbinrule "github.com/casbin/ent-adapter/ent/casbinrule"
 	"github.com/google/uuid"
 	authcasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
 	"github.com/stretchr/testify/assert"
@@ -217,7 +216,7 @@ func TestAuthorizationListRulesReturnsCanonicalDeterministicCopy(t *testing.T) {
 			AddRow(1, "p", "role:teacher", "submission", "read", "", "", "").
 			AddRow(2, "g", userSubject, "role:teacher", "", "", "", "").
 			AddRow(3, "p", "role:teacher", "problem", "read", "", "", ""))
-	rules, err := repository.ListRules(context.Background())
+	rules, err := repository.FindRules(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, []authcasbin.PolicyRule{
 		{Type: "g", V0: userSubject, V1: "role:teacher"},
@@ -374,10 +373,9 @@ func TestAuthorizationPolicyRepositorySatisfiesPort(t *testing.T) {
 	require.Implements(t, (*ports.AuthorizationPolicyRepository)(nil), (*AuthorizationPolicyRepository)(nil))
 }
 
-func TestAuthorizationSchemaMatchesPinnedEntAdapter(t *testing.T) {
-	// Production deliberately avoids ent-adapter constructors because v1.4.0
-	// performs runtime Schema.Create. This compatibility fence keeps Judgify's
-	// migration-owned table wire-compatible with the pinned adapter contract.
-	require.Equal(t, adaptercasbinrule.Table, casbinrule.Table)
-	require.Equal(t, adaptercasbinrule.Columns, casbinrule.Columns)
+func TestAuthorizationSchemaMatchesSharedEntContract(t *testing.T) {
+	require.Equal(t, "casbin_rules", casbinrule.Table)
+	require.Equal(t, []string{
+		"id", "ptype", "v0", "v1", "v2", "v3", "v4", "v5",
+	}, casbinrule.Columns)
 }

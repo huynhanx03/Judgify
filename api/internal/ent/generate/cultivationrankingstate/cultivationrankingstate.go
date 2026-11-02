@@ -14,6 +14,8 @@ const (
 	Label = "cultivation_ranking_state"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldKey holds the string denoting the key field in the database.
 	FieldKey = "key"
 	// FieldRevision holds the string denoting the revision field in the database.
@@ -31,6 +33,7 @@ const (
 // Columns holds all SQL columns for cultivationrankingstate fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldKey,
 	FieldRevision,
 	FieldLastReconciledAt,
@@ -69,6 +72,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByKey orders the results by the key field.

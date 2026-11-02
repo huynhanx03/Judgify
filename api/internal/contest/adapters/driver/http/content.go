@@ -19,15 +19,15 @@ import (
 )
 
 type ContentHandler interface {
-	ListPublicAnnouncements(
+	FindAnnouncementsForPublic(
 		context.Context,
 		*contestContentListRequest,
 	) (*announcementPageResponse, error)
-	ListParticipantAnnouncements(
+	FindAnnouncementsForParticipant(
 		context.Context,
 		*contestContentListRequest,
 	) (*announcementPageResponse, error)
-	ListOwnClarifications(
+	FindMyClarifications(
 		context.Context,
 		*contestContentListRequest,
 	) (*clarificationPageResponse, error)
@@ -35,11 +35,11 @@ type ContentHandler interface {
 		context.Context,
 		*contestContentIDRequest,
 	) (*clarificationResponse, error)
-	ListParticipantClarifications(
+	FindClarificationsForParticipant(
 		context.Context,
 		*contestContentListRequest,
 	) (*clarificationPageResponse, error)
-	ListAdminAnnouncements(
+	FindAnnouncementsForAdmin(
 		context.Context,
 		*contestContentListRequest,
 	) (*announcementPageResponse, error)
@@ -47,7 +47,7 @@ type ContentHandler interface {
 		context.Context,
 		*contestContentIDRequest,
 	) (*announcementResponse, error)
-	ListAdminClarifications(
+	FindClarificationsForAdmin(
 		context.Context,
 		*contestContentListRequest,
 	) (*clarificationPageResponse, error)
@@ -55,11 +55,11 @@ type ContentHandler interface {
 		context.Context,
 		*contestContentIDRequest,
 	) (*clarificationResponse, error)
-	ListClarificationRevisions(
+	FindClarificationRevisions(
 		context.Context,
 		*contestContentIDRequest,
 	) ([]contentRevisionResponse, error)
-	ListAnnouncementRevisions(
+	FindAnnouncementRevisions(
 		context.Context,
 		*contestContentIDRequest,
 	) ([]contentRevisionResponse, error)
@@ -82,18 +82,18 @@ func NewContentHandler(content ports.ContentService) ContentHandler {
 	return &contentHandler{content: content}
 }
 
-func (handler *contentHandler) ListPublicAnnouncements(
+func (handler *contentHandler) FindAnnouncementsForPublic(
 	ctx context.Context,
 	request *contestContentListRequest,
 ) (*announcementPageResponse, error) {
-	result, err := handler.content.ListPublicAnnouncements(ctx, toContestContentListRequest(request))
+	result, err := handler.content.FindAnnouncementsForPublic(ctx, toContestContentListRequest(request))
 	if err != nil {
 		return nil, mapContestContentError(err)
 	}
 	return toAnnouncementPageResponse(result), nil
 }
 
-func (handler *contentHandler) ListParticipantAnnouncements(
+func (handler *contentHandler) FindAnnouncementsForParticipant(
 	ctx context.Context,
 	request *contestContentListRequest,
 ) (*announcementPageResponse, error) {
@@ -101,7 +101,7 @@ func (handler *contentHandler) ListParticipantAnnouncements(
 	if err != nil {
 		return nil, err
 	}
-	result, err := handler.content.ListParticipantAnnouncements(
+	result, err := handler.content.FindAnnouncementsForParticipant(
 		ctx,
 		actorID,
 		toContestContentListRequest(request),
@@ -112,7 +112,7 @@ func (handler *contentHandler) ListParticipantAnnouncements(
 	return toAnnouncementPageResponse(result), nil
 }
 
-func (handler *contentHandler) ListOwnClarifications(
+func (handler *contentHandler) FindMyClarifications(
 	ctx context.Context,
 	request *contestContentListRequest,
 ) (*clarificationPageResponse, error) {
@@ -120,7 +120,7 @@ func (handler *contentHandler) ListOwnClarifications(
 	if err != nil {
 		return nil, err
 	}
-	result, err := handler.content.ListOwnClarifications(ctx, actorID, toContestContentListRequest(request))
+	result, err := handler.content.FindMyClarifications(ctx, actorID, toContestContentListRequest(request))
 	if err != nil {
 		return nil, mapContestContentError(err)
 	}
@@ -147,7 +147,7 @@ func (handler *contentHandler) GetOwnClarification(
 	return toClarificationResponse(result), nil
 }
 
-func (handler *contentHandler) ListParticipantClarifications(
+func (handler *contentHandler) FindClarificationsForParticipant(
 	ctx context.Context,
 	request *contestContentListRequest,
 ) (*clarificationPageResponse, error) {
@@ -155,7 +155,7 @@ func (handler *contentHandler) ListParticipantClarifications(
 	if err != nil {
 		return nil, err
 	}
-	result, err := handler.content.ListParticipantClarifications(
+	result, err := handler.content.FindClarificationsForParticipant(
 		ctx,
 		actorID,
 		toContestContentListRequest(request),
@@ -166,11 +166,11 @@ func (handler *contentHandler) ListParticipantClarifications(
 	return toClarificationPageResponse(result), nil
 }
 
-func (handler *contentHandler) ListAdminAnnouncements(
+func (handler *contentHandler) FindAnnouncementsForAdmin(
 	ctx context.Context,
 	request *contestContentListRequest,
 ) (*announcementPageResponse, error) {
-	result, err := handler.content.ListAdminAnnouncements(ctx, toContestContentListRequest(request))
+	result, err := handler.content.FindAnnouncementsForAdmin(ctx, toContestContentListRequest(request))
 	if err != nil {
 		return nil, mapContestContentError(err)
 	}
@@ -192,11 +192,11 @@ func (handler *contentHandler) GetAdminAnnouncement(
 	return toAnnouncementResponse(result), nil
 }
 
-func (handler *contentHandler) ListAdminClarifications(
+func (handler *contentHandler) FindClarificationsForAdmin(
 	ctx context.Context,
 	request *contestContentListRequest,
 ) (*clarificationPageResponse, error) {
-	result, err := handler.content.ListAdminClarifications(ctx, toContestContentListRequest(request))
+	result, err := handler.content.FindClarificationsForAdmin(ctx, toContestContentListRequest(request))
 	if err != nil {
 		return nil, mapContestContentError(err)
 	}
@@ -218,7 +218,7 @@ func (handler *contentHandler) GetAdminClarification(
 	return toClarificationResponse(result), nil
 }
 
-func (handler *contentHandler) ListClarificationRevisions(
+func (handler *contentHandler) FindClarificationRevisions(
 	ctx context.Context,
 	request *contestContentIDRequest,
 ) ([]contentRevisionResponse, error) {
@@ -229,7 +229,7 @@ func (handler *contentHandler) ListClarificationRevisions(
 	); err != nil {
 		return nil, mapContestContentError(err)
 	}
-	result, err := handler.content.ListRevisions(
+	result, err := handler.content.FindRevisions(
 		ctx,
 		entity.ContentOwnerClarification,
 		request.ContentID,
@@ -240,7 +240,7 @@ func (handler *contentHandler) ListClarificationRevisions(
 	return toContentRevisionResponses(result), nil
 }
 
-func (handler *contentHandler) ListAnnouncementRevisions(
+func (handler *contentHandler) FindAnnouncementRevisions(
 	ctx context.Context,
 	request *contestContentIDRequest,
 ) ([]contentRevisionResponse, error) {
@@ -251,7 +251,7 @@ func (handler *contentHandler) ListAnnouncementRevisions(
 	); err != nil {
 		return nil, mapContestContentError(err)
 	}
-	result, err := handler.content.ListRevisions(
+	result, err := handler.content.FindRevisions(
 		ctx,
 		entity.ContentOwnerAnnouncement,
 		request.ContentID,

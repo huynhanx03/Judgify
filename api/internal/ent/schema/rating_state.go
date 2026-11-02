@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/google/uuid"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -20,7 +21,8 @@ const defaultRatingStateID = "global"
 type RatingState struct{ ent.Schema }
 
 func (RatingState) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.TimeMixin{}}
+	return []ent.Mixin{commonent.TimeMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (RatingState) Edges() []ent.Edge {

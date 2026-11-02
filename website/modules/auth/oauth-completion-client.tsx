@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { CircleAlert, Loader2, ShieldCheck } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { TEXT } from "@/constants/text";
+import { useLocale } from "@/contexts/locale-context";
 import { APP_ROUTES } from "@/constants/routes";
 import { REGISTRATION_TRAIT_RULES } from "@/constants/registration";
 import { useAuth } from "@/contexts/auth-context";
@@ -24,6 +24,7 @@ import { AuthSurface } from "@/modules/auth/auth-surface";
 import { TraitSelectionSection } from "@/modules/auth/sections/trait-selection-section";
 import { OnboardingProfileFields } from "@/modules/auth/onboarding-profile-fields";
 import { useOnboardingProfileForm } from "@/modules/auth/hooks/use-onboarding-profile-form";
+import { OnboardingStepper } from "@/modules/auth/onboarding-stepper";
 import { authService } from "@/services/auth.service";
 import { cultivationService } from "@/services/cultivation.service";
 import type { EntityID } from "@/types/api";
@@ -35,14 +36,14 @@ import type {
 
 const MAXIMUM_BROWSER_TIMEOUT_MILLISECONDS = 2_147_000_000;
 
-function callbackError(result: OAuthCallbackQueryResult): string {
+function callbackError(result: OAuthCallbackQueryResult, t: ReturnType<typeof useLocale>["t"]): string {
   if (!result.ok && result.reason === "provider_denied") {
-    return TEXT.AUTH.OAUTH_PROVIDER_DENIED;
+    return t("AUTH.OAUTH_PROVIDER_DENIED");
   }
   if (!result.ok && result.reason === "invalid_callback") {
-    return TEXT.AUTH.OAUTH_CALLBACK_INVALID;
+    return t("AUTH.OAUTH_CALLBACK_INVALID");
   }
-  return TEXT.AUTH.OAUTH_CALLBACK_ERROR;
+  return t("AUTH.OAUTH_CALLBACK_ERROR");
 }
 
 export function OAuthCompletionClient({
@@ -50,18 +51,21 @@ export function OAuthCompletionClient({
 }: {
   result: OAuthCallbackQueryResult;
 }) {
+  const { t } = useLocale();
   const auth = useAuth();
   const router = useRouter();
   const startedRef = useRef(false);
   const offerRequestRef = useRef(0);
+  const onboardingTraitStepRequested = useRef(false);
   const offerAbortRef = useRef<AbortController | null>(null);
   const completionExpiresAtRef = useRef<number | null>(null);
   const existingLoginFinalizeRef = useRef(false);
   const onboardingFinalizeRef = useRef(false);
   const [attempt, setAttempt] = useState(0);
   const [failed, setFailed] = useState(!result.ok);
-  const [failureMessage, setFailureMessage] = useState(callbackError(result));
+  const [failureMessage, setFailureMessage] = useState(callbackError(result, t));
   const [onboardingRequired, setOnboardingRequired] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
   const [profileSuggestions, setProfileSuggestions] = useState<
     ProfileValueSuggestion[]
   >([]);
@@ -131,7 +135,7 @@ export function OAuthCompletionClient({
         requestID === offerRequestRef.current &&
         !(error instanceof DOMException && error.name === "AbortError")
       ) {
-        setOperationError(TEXT.AUTH.TRAIT_FETCH_ERROR);
+        setOperationError(t("AUTH.TRAIT_FETCH_ERROR"));
       }
     } finally {
       if (requestID === offerRequestRef.current) {
@@ -139,7 +143,7 @@ export function OAuthCompletionClient({
         setIsRolling(false);
       }
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!result.ok || startedRef.current) return;
@@ -149,12 +153,12 @@ export function OAuthCompletionClient({
     if (result.purpose === "link" && auth.isLoading) return;
     startedRef.current = true;
     setFailed(false);
-    setFailureMessage(TEXT.AUTH.OAUTH_CALLBACK_ERROR);
+    setFailureMessage(t("AUTH.OAUTH_CALLBACK_ERROR"));
     const complete = async () => {
       if (result.purpose === "link") {
         if (!auth.isAuthenticated) throw new Error("link session unavailable");
         await authService.finalizeOAuthLink();
-        notify.success(TEXT.AUTH.OAUTH_LINK_SUCCESS);
+        notify.success(t("AUTH.OAUTH_LINK_SUCCESS"));
         router.replace(APP_ROUTES.PROFILE);
         return;
       }
@@ -183,10 +187,17 @@ export function OAuthCompletionClient({
         return;
       }
       setOnboardingRequired(true);
-      await rollTraits();
     };
     void complete().catch(() => setFailed(true));
-  }, [attempt, auth, result, rollTraits, router]);
+  }, [attempt, auth, result, rollTraits, router, t]);
+
+  useEffect(() => {
+    if (onboardingRequired && onboardingStep === 1 && !traitOffer && !onboardingTraitStepRequested.current) {
+      onboardingTraitStepRequested.current = true;
+      void rollTraits();
+    }
+    if (onboardingStep !== 1) onboardingTraitStepRequested.current = false;
+  }, [onboardingRequired, onboardingStep, rollTraits, traitOffer]);
 
   useEffect(
     () => () => {
@@ -212,9 +223,10 @@ export function OAuthCompletionClient({
   }, [traitOffer]);
 
   const retryCompletion = () => {
+    onboardingTraitStepRequested.current = false;
     startedRef.current = false;
     setFailed(false);
-    setFailureMessage(TEXT.AUTH.OAUTH_CALLBACK_ERROR);
+    setFailureMessage(t("AUTH.OAUTH_CALLBACK_ERROR"));
     setProfileSuggestions([]);
     setAttempt((value) => value + 1);
   };
@@ -226,7 +238,7 @@ export function OAuthCompletionClient({
         return current.filter((talentID) => talentID !== id);
       }
       if (current.length >= REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT) {
-        notify.warning(TEXT.AUTH.TRAIT_MAX_TALENTS);
+        notify.warning(t("AUTH.TRAIT_MAX_TALENTS"));
         return current;
       }
       return [...current, id];
@@ -241,14 +253,14 @@ export function OAuthCompletionClient({
     ) {
       setOperationError(
         rollExpired
-          ? TEXT.AUTH.TRAIT_ROLL_EXPIRED
-          : TEXT.AUTH.TRAIT_TALENTS_REQUIRED,
+          ? t("AUTH.TRAIT_ROLL_EXPIRED")
+          : t("AUTH.TRAIT_TALENTS_REQUIRED"),
       );
       return;
     }
     const profileEvidence = profileForm.buildEvidence();
     if (!profileEvidence) {
-      setOperationError(TEXT.ONBOARDING_PROFILE.COMPLETE_REQUIRED);
+      setOperationError(t("ONBOARDING_PROFILE.COMPLETE_REQUIRED"));
       return;
     }
     if (onboardingFinalizeRef.current) {
@@ -295,10 +307,10 @@ export function OAuthCompletionClient({
         // Preserve the original finalize failure and allow an exact retry.
       }
       if (profileForm.handleSubmissionError(error)) {
-        setOperationError(TEXT.ONBOARDING_PROFILE.SUBMISSION_REVIEW_REQUIRED);
+        setOperationError(t("ONBOARDING_PROFILE.SUBMISSION_REVIEW_REQUIRED"));
         return;
       }
-      setOperationError(TEXT.AUTH.OAUTH_ONBOARDING_COMPLETE_ERROR);
+      setOperationError(t("AUTH.OAUTH_ONBOARDING_COMPLETE_ERROR"));
     } finally {
       setIsSubmitting(false);
     }
@@ -307,8 +319,8 @@ export function OAuthCompletionClient({
   const isLink = result.ok && result.purpose === "link";
   const returnPath = isLink ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN;
   const returnLabel = isLink
-    ? TEXT.AUTH.OAUTH_BACK_TO_PROFILE
-    : TEXT.AUTH.BACK_TO_LOGIN;
+    ? t("AUTH.OAUTH_BACK_TO_PROFILE")
+    : t("AUTH.BACK_TO_LOGIN");
 
   if (onboardingRequired && !failed) {
     return (
@@ -317,17 +329,17 @@ export function OAuthCompletionClient({
           <CardContent className="px-5 py-7 sm:px-8">
             <div className="text-center">
               <h1 className="text-xl font-bold tracking-tight">
-                {TEXT.AUTH.OAUTH_ONBOARDING_TITLE}
+                {t("AUTH.OAUTH_ONBOARDING_TITLE")}
               </h1>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {TEXT.AUTH.OAUTH_ONBOARDING_DESCRIPTION}
+                {t("AUTH.OAUTH_ONBOARDING_DESCRIPTION")}
               </p>
             </div>
 
             {isRolling && !traitOffer ? (
               <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground" role="status" aria-live="polite">
                 <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                {TEXT.AUTH.OAUTH_ONBOARDING_LOADING}
+                {t("AUTH.OAUTH_ONBOARDING_LOADING")}
               </div>
             ) : null}
 
@@ -336,50 +348,80 @@ export function OAuthCompletionClient({
                 <p>{operationError}</p>
                 {!traitOffer ? (
                   <Button type="button" variant="outline" className="mt-3" onClick={() => void rollTraits()}>
-                    {TEXT.AUTH.OAUTH_ONBOARDING_RETRY}
+                    {t("AUTH.OAUTH_ONBOARDING_RETRY")}
                   </Button>
                 ) : null}
               </div>
             ) : null}
 
-            <OnboardingProfileFields
-              form={profileForm}
-              disabled={isSubmitting}
-              className="mt-6"
-            />
-
-            <TraitSelectionSection
-              rolledRootBone={traitOffer?.rootBone ?? null}
-              rolledTalents={traitOffer?.talents ?? []}
-              selectedTalents={selectedTalents}
-              rollTicketExpiresAt={traitOffer?.expiresAt ?? ""}
-              remainingOffers={traitOffer?.remainingOffers}
-              rollExpired={rollExpired}
-              isRolling={isRolling}
-              onRoll={() => void rollTraits()}
-              onToggleTalent={toggleTalent}
-              onOpenCodex={() => setShowCodex(true)}
-              disabled={isSubmitting}
-            />
-
-            <Button
-              type="button"
-              className="mt-6 min-h-11 w-full"
-              disabled={
-                isSubmitting ||
-                isRolling ||
-                !traitOffer ||
-                rollExpired ||
-                profileForm.status !== "ready" ||
-                selectedTalents.length !== REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT
-              }
-              onClick={() => void finishOnboarding()}
+            <OnboardingStepper
+              steps={[
+                { id: "profile", label: t("AUTH.ONBOARDING_PROFILE") },
+                { id: "character", label: t("AUTH.ONBOARDING_CHARACTER") },
+              ]}
+              activeStep={onboardingStep}
+              title={onboardingStep === 0 ? t("AUTH.ONBOARDING_PROFILE_TITLE") : t("AUTH.ONBOARDING_CHARACTER_TITLE")}
             >
-              {isSubmitting ? <Loader2 className="mr-2 size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : null}
-              {isSubmitting
-                ? TEXT.AUTH.OAUTH_ONBOARDING_SUBMITTING
-                : TEXT.AUTH.OAUTH_ONBOARDING_COMPLETE}
-            </Button>
+              {onboardingStep === 0 ? (
+                <OnboardingProfileFields
+                  form={profileForm}
+                  disabled={isSubmitting}
+                  className="mt-2"
+                />
+              ) : (
+                <TraitSelectionSection
+                  rolledRootBone={traitOffer?.rootBone ?? null}
+                  rolledTalents={traitOffer?.talents ?? []}
+                  selectedTalents={selectedTalents}
+                  rollTicketExpiresAt={traitOffer?.expiresAt ?? ""}
+                  remainingOffers={traitOffer?.remainingOffers}
+                  rollExpired={rollExpired}
+                  isRolling={isRolling}
+                  onRoll={() => void rollTraits()}
+                  onToggleTalent={toggleTalent}
+                  onOpenCodex={() => setShowCodex(true)}
+                  disabled={isSubmitting}
+                />
+              )}
+            </OnboardingStepper>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row-reverse">
+              {onboardingStep === 0 ? (
+                <Button
+                  type="button"
+                  className="min-h-11 flex-1"
+                  disabled={isSubmitting || profileForm.status !== "ready"}
+                  onClick={() => {
+                    if (!profileForm.buildEvidence()) {
+                      setOperationError(t("ONBOARDING_PROFILE.COMPLETE_REQUIRED"));
+                      return;
+                    }
+                    setOperationError(null);
+                    setOnboardingStep(1);
+                  }}
+                >
+                  {t("AUTH.ONBOARDING_CONTINUE")}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="min-h-11 flex-1"
+                  disabled={
+                    isSubmitting || isRolling || !traitOffer || rollExpired ||
+                    selectedTalents.length !== REGISTRATION_TRAIT_RULES.SELECTED_TALENT_COUNT
+                  }
+                  onClick={() => void finishOnboarding()}
+                >
+                  {isSubmitting ? <Loader2 className="mr-2 size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : null}
+                  {isSubmitting ? t("AUTH.OAUTH_ONBOARDING_SUBMITTING") : t("AUTH.OAUTH_ONBOARDING_COMPLETE")}
+                </Button>
+              )}
+              {onboardingStep > 0 ? (
+                <Button type="button" variant="outline" className="min-h-11 flex-1" disabled={isSubmitting} onClick={() => setOnboardingStep(0)}>
+                  {t("AUTH.ONBOARDING_BACK")}
+                </Button>
+              ) : null}
+            </div>
           </CardContent>
         </AuthSurface>
         <TraitCodexModal
@@ -394,8 +436,8 @@ export function OAuthCompletionClient({
   }
 
   const description = isLink
-    ? TEXT.AUTH.OAUTH_LINK_DESCRIPTION
-    : TEXT.AUTH.OAUTH_CALLBACK_DESCRIPTION;
+    ? t("AUTH.OAUTH_LINK_DESCRIPTION")
+    : t("AUTH.OAUTH_CALLBACK_DESCRIPTION");
 
   return (
     <AuthSurface className="mx-auto max-w-md overflow-hidden">
@@ -407,7 +449,7 @@ export function OAuthCompletionClient({
               <Loader2 className="absolute -right-1 -top-1 size-5 animate-spin rounded-full bg-background motion-reduce:animate-none" aria-hidden="true" />
             </div>
             <h1 className="text-xl font-bold tracking-tight">
-              {TEXT.AUTH.OAUTH_CALLBACK_TITLE}
+              {t("AUTH.OAUTH_CALLBACK_TITLE")}
             </h1>
             <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
               {description}
@@ -419,14 +461,14 @@ export function OAuthCompletionClient({
               <CircleAlert className="size-7" aria-hidden="true" />
             </div>
             <h1 className="text-xl font-bold tracking-tight">
-              {TEXT.AUTH.OAUTH_CALLBACK_FAILED_TITLE}
+              {t("AUTH.OAUTH_CALLBACK_FAILED_TITLE")}
             </h1>
             <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
               {failureMessage}
             </p>
             {result.ok ? (
               <Button type="button" size="lg" className="mt-7" onClick={retryCompletion}>
-                {TEXT.AUTH.OAUTH_ONBOARDING_RETRY}
+                {t("AUTH.OAUTH_ONBOARDING_RETRY")}
               </Button>
             ) : (
               <Link

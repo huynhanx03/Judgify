@@ -338,12 +338,12 @@ func (_q *ContestStandingQuery) WithUser(opts ...func(*UserQuery)) *ContestStand
 // Example:
 //
 //	var v []struct {
-//		ContestID uuid.UUID `json:"contest_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContestStanding.Query().
-//		GroupBy(conteststanding.FieldContestID).
+//		GroupBy(conteststanding.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *ContestStandingQuery) GroupBy(field string, fields ...string) *ContestStandingGroupBy {
@@ -361,11 +361,11 @@ func (_q *ContestStandingQuery) GroupBy(field string, fields ...string) *Contest
 // Example:
 //
 //	var v []struct {
-//		ContestID uuid.UUID `json:"contest_id,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.ContestStanding.Query().
-//		Select(conteststanding.FieldContestID).
+//		Select(conteststanding.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ContestStandingQuery) Select(fields ...string) *ContestStandingSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

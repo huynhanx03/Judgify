@@ -54,6 +54,12 @@ func (_c *RatingProjectionGenerationCreate) SetNillableUpdatedAt(v *time.Time) *
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RatingProjectionGenerationCreate) SetTenantID(v uuid.UUID) *RatingProjectionGenerationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *RatingProjectionGenerationCreate) SetStatus(v ratingprojectiongeneration.Status) *RatingProjectionGenerationCreate {
 	_c.mutation.SetStatus(v)
@@ -231,6 +237,9 @@ func (_c *RatingProjectionGenerationCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "RatingProjectionGeneration.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "RatingProjectionGeneration.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "RatingProjectionGeneration.status"`)}
 	}
@@ -303,6 +312,10 @@ func (_c *RatingProjectionGenerationCreate) createSpec() (*RatingProjectionGener
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(ratingprojectiongeneration.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(ratingprojectiongeneration.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(ratingprojectiongeneration.FieldStatus, field.TypeEnum, value)
@@ -527,6 +540,9 @@ func (u *RatingProjectionGenerationUpsertOne) UpdateNewValues() *RatingProjectio
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(ratingprojectiongeneration.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(ratingprojectiongeneration.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.BasedOnProjectionRevision(); exists {
 			s.SetIgnore(ratingprojectiongeneration.FieldBasedOnProjectionRevision)
@@ -859,6 +875,9 @@ func (u *RatingProjectionGenerationUpsertBulk) UpdateNewValues() *RatingProjecti
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(ratingprojectiongeneration.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(ratingprojectiongeneration.FieldTenantID)
 			}
 			if _, exists := b.mutation.BasedOnProjectionRevision(); exists {
 				s.SetIgnore(ratingprojectiongeneration.FieldBasedOnProjectionRevision)

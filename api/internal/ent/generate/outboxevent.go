@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/huynhanx03/judgify/internal/ent/generate/outboxevent"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
 )
 
 // OutboxEvent is the model entity for the OutboxEvent schema.
@@ -19,6 +21,8 @@ type OutboxEvent struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID *uuid.UUID `json:"tenant_id,omitempty"`
 	// EventType holds the value of the "event_type" field.
 	EventType string `json:"event_type,omitempty"`
 	// AggregateType holds the value of the "aggregate_type" field.
@@ -29,10 +33,12 @@ type OutboxEvent struct {
 	AggregateVersion int64 `json:"aggregate_version,omitempty"`
 	// CorrelationID holds the value of the "correlation_id" field.
 	CorrelationID string `json:"correlation_id,omitempty"`
+	// Traceparent holds the value of the "traceparent" field.
+	Traceparent *string `json:"traceparent,omitempty"`
 	// CausationID holds the value of the "causation_id" field.
 	CausationID *uuid.UUID `json:"causation_id,omitempty"`
 	// Payload holds the value of the "payload" field.
-	Payload json.RawMessage `json:"payload,omitempty"`
+	Payload jsontext.Value `json:"payload,omitempty"`
 	// OccurredAt holds the value of the "occurred_at" field.
 	OccurredAt time.Time `json:"occurred_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -60,8 +66,31 @@ type OutboxEvent struct {
 	// LastErrorCode holds the value of the "last_error_code" field.
 	LastErrorCode *string `json:"last_error_code,omitempty"`
 	// Ambiguous holds the value of the "ambiguous" field.
-	Ambiguous    bool `json:"ambiguous,omitempty"`
+	Ambiguous bool `json:"ambiguous,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the OutboxEventQuery when eager-loading is set.
+	Edges        OutboxEventEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// OutboxEventEdges holds the relations/edges for other nodes in the graph.
+type OutboxEventEdges struct {
+	// Tenant holds the value of the tenant edge.
+	Tenant *Tenant `json:"tenant,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// TenantOrErr returns the Tenant value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e OutboxEventEdges) TenantOrErr() (*Tenant, error) {
+	if e.Tenant != nil {
+		return e.Tenant, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: tenant.Label}
+	}
+	return nil, &NotLoadedError{edge: "tenant"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -69,7 +98,7 @@ func (*OutboxEvent) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case outboxevent.FieldCausationID:
+		case outboxevent.FieldTenantID, outboxevent.FieldCausationID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case outboxevent.FieldPayload:
 			values[i] = new([]byte)
@@ -77,7 +106,7 @@ func (*OutboxEvent) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case outboxevent.FieldAggregateVersion, outboxevent.FieldAttemptCount:
 			values[i] = new(sql.NullInt64)
-		case outboxevent.FieldEventType, outboxevent.FieldAggregateType, outboxevent.FieldCorrelationID, outboxevent.FieldState, outboxevent.FieldLeaseOwner, outboxevent.FieldLeaseToken, outboxevent.FieldPublishReference, outboxevent.FieldLastErrorCode:
+		case outboxevent.FieldEventType, outboxevent.FieldAggregateType, outboxevent.FieldCorrelationID, outboxevent.FieldTraceparent, outboxevent.FieldState, outboxevent.FieldLeaseOwner, outboxevent.FieldLeaseToken, outboxevent.FieldPublishReference, outboxevent.FieldLastErrorCode:
 			values[i] = new(sql.NullString)
 		case outboxevent.FieldOccurredAt, outboxevent.FieldCreatedAt, outboxevent.FieldLeasedUntil, outboxevent.FieldNextAttemptAt, outboxevent.FieldLastAttemptAt, outboxevent.FieldPublishedAt, outboxevent.FieldDeadAt:
 			values[i] = new(sql.NullTime)
@@ -103,6 +132,13 @@ func (_m *OutboxEvent) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case outboxevent.FieldTenantID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = new(uuid.UUID)
+				*_m.TenantID = *value.S.(*uuid.UUID)
 			}
 		case outboxevent.FieldEventType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -133,6 +169,13 @@ func (_m *OutboxEvent) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field correlation_id", values[i])
 			} else if value.Valid {
 				_m.CorrelationID = value.String
+			}
+		case outboxevent.FieldTraceparent:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field traceparent", values[i])
+			} else if value.Valid {
+				_m.Traceparent = new(string)
+				*_m.Traceparent = value.String
 			}
 		case outboxevent.FieldCausationID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -254,6 +297,11 @@ func (_m *OutboxEvent) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
+// QueryTenant queries the "tenant" edge of the OutboxEvent entity.
+func (_m *OutboxEvent) QueryTenant() *TenantQuery {
+	return NewOutboxEventClient(_m.config).QueryTenant(_m)
+}
+
 // Update returns a builder for updating this OutboxEvent.
 // Note that you need to call OutboxEvent.Unwrap() before calling this method if this OutboxEvent
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -277,6 +325,11 @@ func (_m *OutboxEvent) String() string {
 	var builder strings.Builder
 	builder.WriteString("OutboxEvent(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.TenantID; v != nil {
+		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("event_type=")
 	builder.WriteString(_m.EventType)
 	builder.WriteString(", ")
@@ -291,6 +344,11 @@ func (_m *OutboxEvent) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("correlation_id=")
 	builder.WriteString(_m.CorrelationID)
+	builder.WriteString(", ")
+	if v := _m.Traceparent; v != nil {
+		builder.WriteString("traceparent=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	if v := _m.CausationID; v != nil {
 		builder.WriteString("causation_id=")

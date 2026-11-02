@@ -24,6 +24,12 @@ type CultivationRankingPrivacyChangeCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *CultivationRankingPrivacyChangeCreate) SetTenantID(v uuid.UUID) *CultivationRankingPrivacyChangeCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *CultivationRankingPrivacyChangeCreate) SetUserID(v uuid.UUID) *CultivationRankingPrivacyChangeCreate {
 	_c.mutation.SetUserID(v)
@@ -153,6 +159,9 @@ func (_c *CultivationRankingPrivacyChangeCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *CultivationRankingPrivacyChangeCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "CultivationRankingPrivacyChange.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "CultivationRankingPrivacyChange.user_id"`)}
 	}
@@ -257,6 +266,10 @@ func (_c *CultivationRankingPrivacyChangeCreate) createSpec() (*CultivationRanki
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(cultivationrankingprivacychange.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(cultivationrankingprivacychange.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
@@ -308,7 +321,7 @@ func (_c *CultivationRankingPrivacyChangeCreate) createSpec() (*CultivationRanki
 // of the `INSERT` statement. For example:
 //
 //	client.CultivationRankingPrivacyChange.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -317,7 +330,7 @@ func (_c *CultivationRankingPrivacyChangeCreate) createSpec() (*CultivationRanki
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.CultivationRankingPrivacyChangeUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *CultivationRankingPrivacyChangeCreate) OnConflict(opts ...sql.ConflictOption) *CultivationRankingPrivacyChangeUpsertOne {
@@ -369,6 +382,9 @@ func (u *CultivationRankingPrivacyChangeUpsertOne) UpdateNewValues() *Cultivatio
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(cultivationrankingprivacychange.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(cultivationrankingprivacychange.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(cultivationrankingprivacychange.FieldUserID)
@@ -570,7 +586,7 @@ func (_c *CultivationRankingPrivacyChangeCreateBulk) ExecX(ctx context.Context) 
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.CultivationRankingPrivacyChangeUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *CultivationRankingPrivacyChangeCreateBulk) OnConflict(opts ...sql.ConflictOption) *CultivationRankingPrivacyChangeUpsertBulk {
@@ -616,6 +632,9 @@ func (u *CultivationRankingPrivacyChangeUpsertBulk) UpdateNewValues() *Cultivati
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(cultivationrankingprivacychange.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(cultivationrankingprivacychange.FieldTenantID)
 			}
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(cultivationrankingprivacychange.FieldUserID)

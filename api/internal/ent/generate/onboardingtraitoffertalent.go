@@ -19,6 +19,8 @@ type OnboardingTraitOfferTalent struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// OfferID holds the value of the "offer_id" field.
 	OfferID uuid.UUID `json:"offer_id,omitempty"`
 	// TraitID holds the value of the "trait_id" field.
@@ -73,7 +75,7 @@ func (*OnboardingTraitOfferTalent) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case onboardingtraitoffertalent.FieldID, onboardingtraitoffertalent.FieldTraitRevision, onboardingtraitoffertalent.FieldDisplayOrder:
 			values[i] = new(sql.NullInt64)
-		case onboardingtraitoffertalent.FieldOfferID, onboardingtraitoffertalent.FieldTraitID:
+		case onboardingtraitoffertalent.FieldTenantID, onboardingtraitoffertalent.FieldOfferID, onboardingtraitoffertalent.FieldTraitID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -96,6 +98,12 @@ func (_m *OnboardingTraitOfferTalent) assignValues(columns []string, values []an
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case onboardingtraitoffertalent.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
+			}
 		case onboardingtraitoffertalent.FieldOfferID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field offer_id", values[i])
@@ -166,6 +174,9 @@ func (_m *OnboardingTraitOfferTalent) String() string {
 	var builder strings.Builder
 	builder.WriteString("OnboardingTraitOfferTalent(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("offer_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OfferID))
 	builder.WriteString(", ")

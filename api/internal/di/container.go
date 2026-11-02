@@ -2,6 +2,7 @@ package di
 
 import (
 	commonobservability "github.com/huynhanx03/go-common/pkg/common/observability"
+	internalent "github.com/huynhanx03/judgify/internal/ent"
 
 	debuglevel "github.com/huynhanx03/judgify/internal/application/workflow/debuglevel"
 	judgeOperations "github.com/huynhanx03/judgify/internal/judge/operations"
@@ -13,6 +14,7 @@ import (
 
 // Container holds all domain-specific dependency containers.
 type Container struct {
+	Database             *internalent.EntClient
 	Audit                *audithttp.Handler
 	Identity             *IdentityContainer
 	Judge                *judgeOperations.HTTPHandler

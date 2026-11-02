@@ -92,6 +92,12 @@ func (_c *ProblemCreate) SetNillableDeletedBy(v *string) *ProblemCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ProblemCreate) SetTenantID(v uuid.UUID) *ProblemCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetSlug sets the "slug" field.
 func (_c *ProblemCreate) SetSlug(v string) *ProblemCreate {
 	_c.mutation.SetSlug(v)
@@ -685,6 +691,9 @@ func (_c *ProblemCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "Problem.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "Problem.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`generate: missing required field "Problem.slug"`)}
 	}
@@ -819,6 +828,10 @@ func (_c *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(problem.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(problem.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(problem.FieldSlug, field.TypeString, value)
@@ -1608,6 +1621,9 @@ func (u *ProblemUpsertOne) UpdateNewValues() *ProblemUpsertOne {
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(problem.FieldCreatedAt)
 		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(problem.FieldTenantID)
+		}
 		if _, exists := u.create.mutation.Slug(); exists {
 			s.SetIgnore(problem.FieldSlug)
 		}
@@ -2330,6 +2346,9 @@ func (u *ProblemUpsertBulk) UpdateNewValues() *ProblemUpsertBulk {
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(problem.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(problem.FieldTenantID)
 			}
 			if _, exists := b.mutation.Slug(); exists {
 				s.SetIgnore(problem.FieldSlug)

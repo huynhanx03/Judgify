@@ -34,14 +34,12 @@ func (h *tagHandler) Find(ctx context.Context, req *d.QueryOptions) (*d.Paginate
 	if err != nil {
 		return nil, err
 	}
-	responses := make([]*TagResponse, 0)
-	if results.Records != nil {
-		responses = make([]*TagResponse, len(*results.Records))
-		for index, result := range *results.Records {
-			responses[index] = toTagResponse(result)
-		}
+	responses := d.MapPaginated(results, toTagResponse)
+	if responses.Records == nil || *responses.Records == nil {
+		empty := []*TagResponse{}
+		responses.Records = &empty
 	}
-	return &d.Paginated[*TagResponse]{Records: &responses, Pagination: results.Pagination}, nil
+	return responses, nil
 }
 
 func (h *tagHandler) FindAll(ctx context.Context) ([]*TagResponse, error) {

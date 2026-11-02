@@ -50,7 +50,7 @@ func (repository *runnerTestRepository) Get(
 	return repository.operation, nil
 }
 
-func (repository *runnerTestRepository) List(
+func (repository *runnerTestRepository) Find(
 	context.Context,
 	ListFilter,
 ) (Page, error) {

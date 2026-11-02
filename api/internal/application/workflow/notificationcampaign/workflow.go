@@ -17,8 +17,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	contract "github.com/huynhanx03/judgify/internal/notification/contract"
 	entity "github.com/huynhanx03/judgify/internal/notification/domain"
@@ -29,6 +29,7 @@ import (
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
 	identityports "github.com/huynhanx03/judgify/internal/ports"
 	notificationports "github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 type Config struct {
@@ -55,6 +56,7 @@ type Dependencies struct {
 // references to the frozen render tuple and audience snapshot, never the
 // confirmation token or mutable content.
 type DeliveryRequest struct {
+	TenantID                 uuid.UUID         `json:"tenant_id"`
 	CampaignID               uuid.UUID         `json:"campaign_id"`
 	CampaignRevisionID       uuid.UUID         `json:"campaign_revision_id"`
 	RenderSourceID           uuid.UUID         `json:"render_source_id"`
@@ -186,6 +188,10 @@ func (workflow *Workflow) Schedule(
 		return nil, notificationservice.MapCampaignError(err)
 	}
 	ctx = correlation.EnsureContext(ctx)
+	tenantID, err := tenantctx.RequireTenant(ctx)
+	if err != nil {
+		return nil, notificationservice.MapCampaignError(notificationports.ErrInvalidRequest)
+	}
 	now := workflow.now().UTC()
 	var (
 		view     entity.CampaignView
@@ -316,6 +322,7 @@ func (workflow *Workflow) Schedule(
 		}
 
 		deliveryRequest := DeliveryRequest{
+			TenantID:                 tenantID,
 			CampaignID:               view.Campaign.ID,
 			CampaignRevisionID:       view.Revision.ID,
 			RenderSourceID:           view.Revision.BodyRenderSourceID,
@@ -554,6 +561,14 @@ func (workflow *Workflow) executeBatch(
 			notificationports.ErrInvalidRequest,
 		)
 	}
+	tenantContext, err := tenantctx.WithTenantID(ctx, request.TenantID)
+	if err != nil {
+		return operation.BatchResult{}, operation.Terminal(
+			"invalid_campaign_delivery_tenant",
+			err,
+		)
+	}
+	ctx = tenantContext
 	checkpoint, err := decodeCheckpoint(input.Checkpoint)
 	if err != nil || checkpoint.Processed > request.RecipientCount {
 		return operation.BatchResult{}, operation.Terminal(
@@ -768,7 +783,7 @@ func validateReviewedCampaign(
 }
 
 func validateDeliveryRequest(request DeliveryRequest) error {
-	if request.CampaignID == uuid.Nil ||
+	if request.TenantID == uuid.Nil || request.CampaignID == uuid.Nil ||
 		request.CampaignRevisionID == uuid.Nil ||
 		request.RenderSourceID == uuid.Nil ||
 		request.RenderSourceKind != "notification_campaign_body" ||

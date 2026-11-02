@@ -10,10 +10,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	internalent "github.com/huynhanx03/judgify/internal/ent"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 var (
@@ -49,6 +50,9 @@ func (query *Query) Get(ctx context.Context) (Overview, error) {
 	}
 	var result Overview
 	err := query.transaction.DoInTx(ctx, func(txCtx context.Context) error {
+		if err := tenantctx.BindAllSQLScope(txCtx, query.client.DB(txCtx)); err != nil {
+			return fmt.Errorf("bind tenant scope for judge operations overview: %w", err)
+		}
 		var err error
 		result.GeneratedAt, err = query.databaseTime(txCtx)
 		if err != nil {

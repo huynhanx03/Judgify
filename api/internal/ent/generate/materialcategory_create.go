@@ -82,6 +82,12 @@ func (_c *MaterialCategoryCreate) SetNillableDeletedBy(v *string) *MaterialCateg
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *MaterialCategoryCreate) SetTenantID(v uuid.UUID) *MaterialCategoryCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetName sets the "name" field.
 func (_c *MaterialCategoryCreate) SetName(v string) *MaterialCategoryCreate {
 	_c.mutation.SetName(v)
@@ -215,6 +221,9 @@ func (_c *MaterialCategoryCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "MaterialCategory.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "MaterialCategory.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`generate: missing required field "MaterialCategory.name"`)}
 	}
@@ -279,6 +288,10 @@ func (_c *MaterialCategoryCreate) createSpec() (*MaterialCategory, *sqlgraph.Cre
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(materialcategory.FieldDeletedBy, field.TypeString, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(materialcategory.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(materialcategory.FieldName, field.TypeString, value)
@@ -469,6 +482,9 @@ func (u *MaterialCategoryUpsertOne) UpdateNewValues() *MaterialCategoryUpsertOne
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(materialcategory.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(materialcategory.FieldTenantID)
 		}
 	}))
 	return u
@@ -777,6 +793,9 @@ func (u *MaterialCategoryUpsertBulk) UpdateNewValues() *MaterialCategoryUpsertBu
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(materialcategory.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(materialcategory.FieldTenantID)
 			}
 		}
 	}))

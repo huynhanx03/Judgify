@@ -266,12 +266,12 @@ func (_q *JudgementQuery) Clone() *JudgementQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Judgement.Query().
-//		GroupBy(judgement.FieldCreatedAt).
+//		GroupBy(judgement.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *JudgementQuery) GroupBy(field string, fields ...string) *JudgementGroupBy {
@@ -289,11 +289,11 @@ func (_q *JudgementQuery) GroupBy(field string, fields ...string) *JudgementGrou
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Judgement.Query().
-//		Select(judgement.FieldCreatedAt).
+//		Select(judgement.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *JudgementQuery) Select(fields ...string) *JudgementSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

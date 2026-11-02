@@ -27,6 +27,7 @@ func (Operation) Mixin() []ent.Mixin {
 
 func (Operation) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("tenant_id", uuid.UUID{}).Optional().Nillable().Immutable(),
 		field.String("kind").NotEmpty().MaxLen(128).Immutable(),
 		field.UUID("idempotency_key", uuid.UUID{}).Immutable(),
 		field.Bytes("request_hash").NotEmpty().MaxLen(32).Immutable().Sensitive(),
@@ -81,8 +82,15 @@ func (Operation) Edges() []ent.Edge {
 
 func (Operation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("kind", "idempotency_key").Unique(),
+		index.Fields("tenant_id", "id").Unique(),
+		index.Fields("kind", "idempotency_key").Unique().Annotations(
+			entsql.IndexWhere("tenant_id IS NULL"),
+		),
+		index.Fields("tenant_id", "kind", "idempotency_key").Unique().Annotations(
+			entsql.IndexWhere("tenant_id IS NOT NULL"),
+		),
 		index.Fields("not_before", "created_at", "id"),
+		index.Fields("tenant_id", "created_at", "id"),
 		index.Fields("status", "available_at", "created_at", "id"),
 		index.Fields("status", "leased_until"),
 		index.Fields("actor_user_id", "created_at", "id"),

@@ -266,12 +266,12 @@ func (_q *UserProblemSolveTransitionQuery) Clone() *UserProblemSolveTransitionQu
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserProblemSolveTransition.Query().
-//		GroupBy(userproblemsolvetransition.FieldCreatedAt).
+//		GroupBy(userproblemsolvetransition.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *UserProblemSolveTransitionQuery) GroupBy(field string, fields ...string) *UserProblemSolveTransitionGroupBy {
@@ -289,11 +289,11 @@ func (_q *UserProblemSolveTransitionQuery) GroupBy(field string, fields ...strin
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.UserProblemSolveTransition.Query().
-//		Select(userproblemsolvetransition.FieldCreatedAt).
+//		Select(userproblemsolvetransition.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *UserProblemSolveTransitionQuery) Select(fields ...string) *UserProblemSolveTransitionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

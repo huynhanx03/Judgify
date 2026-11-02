@@ -146,7 +146,7 @@ func TestNoAmbientMutableDependencyOwnership(t *testing.T) {
 		"Config":          {},
 		"LoggerZap":       {},
 		"EntClient":       {},
-		"LocalCache":      {},
+		"Cache":           {},
 	}
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
 		if walkErr != nil {

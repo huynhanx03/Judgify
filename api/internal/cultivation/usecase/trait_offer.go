@@ -13,7 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	contract "github.com/huynhanx03/judgify/internal/cultivation/contract"

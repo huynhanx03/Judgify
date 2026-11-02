@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -46,13 +46,13 @@ func (_c *TraitEffectRevisionCreate) SetSchemaVersion(v int) *TraitEffectRevisio
 }
 
 // SetEffect sets the "effect" field.
-func (_c *TraitEffectRevisionCreate) SetEffect(v json.RawMessage) *TraitEffectRevisionCreate {
+func (_c *TraitEffectRevisionCreate) SetEffect(v jsontext.Value) *TraitEffectRevisionCreate {
 	_c.mutation.SetEffect(v)
 	return _c
 }
 
 // SetTargetElementIds sets the "target_element_ids" field.
-func (_c *TraitEffectRevisionCreate) SetTargetElementIds(v json.RawMessage) *TraitEffectRevisionCreate {
+func (_c *TraitEffectRevisionCreate) SetTargetElementIds(v jsontext.Value) *TraitEffectRevisionCreate {
 	_c.mutation.SetTargetElementIds(v)
 	return _c
 }

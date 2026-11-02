@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -23,6 +23,12 @@ type JudgementCreate struct {
 	mutation *JudgementMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *JudgementCreate) SetTenantID(v uuid.UUID) *JudgementCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -136,7 +142,7 @@ func (_c *JudgementCreate) SetJudgeSpecChecksum(v []byte) *JudgementCreate {
 }
 
 // SetRewardSnapshot sets the "reward_snapshot" field.
-func (_c *JudgementCreate) SetRewardSnapshot(v json.RawMessage) *JudgementCreate {
+func (_c *JudgementCreate) SetRewardSnapshot(v jsontext.Value) *JudgementCreate {
 	_c.mutation.SetRewardSnapshot(v)
 	return _c
 }
@@ -297,6 +303,9 @@ func (_c *JudgementCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *JudgementCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "Judgement.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "Judgement.created_at"`)}
 	}
@@ -497,6 +506,10 @@ func (_c *JudgementCreate) createSpec() (*Judgement, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(judgement.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(judgement.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -612,7 +625,7 @@ func (_c *JudgementCreate) createSpec() (*Judgement, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.Judgement.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -621,7 +634,7 @@ func (_c *JudgementCreate) createSpec() (*Judgement, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.JudgementUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *JudgementCreate) OnConflict(opts ...sql.ConflictOption) *JudgementUpsertOne {
@@ -673,6 +686,9 @@ func (u *JudgementUpsertOne) UpdateNewValues() *JudgementUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(judgement.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(judgement.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(judgement.FieldCreatedAt)
@@ -922,7 +938,7 @@ func (_c *JudgementCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.JudgementUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *JudgementCreateBulk) OnConflict(opts ...sql.ConflictOption) *JudgementUpsertBulk {
@@ -968,6 +984,9 @@ func (u *JudgementUpsertBulk) UpdateNewValues() *JudgementUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(judgement.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(judgement.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(judgement.FieldCreatedAt)

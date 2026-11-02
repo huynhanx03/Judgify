@@ -115,7 +115,7 @@ func (r *FederatedIdentityRepository) GetByUserAndProvider(ctx context.Context, 
 	return ToFederatedIdentityEntity(record), nil
 }
 
-func (r *FederatedIdentityRepository) ListByUser(ctx context.Context, userID uuid.UUID) ([]*entity.FederatedIdentity, error) {
+func (r *FederatedIdentityRepository) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*entity.FederatedIdentity, error) {
 	records, err := r.client.DB(ctx).FederatedIdentity.Query().Where(
 		federatedidentity.UserID(userID),
 		federatedidentity.DeletedAtIsNil(),

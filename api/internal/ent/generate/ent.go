@@ -111,6 +111,10 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/tag"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevision"
 	"github.com/huynhanx03/judgify/internal/ent/generate/tagrevisionelement"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenant"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantinvitation"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantmembership"
+	"github.com/huynhanx03/judgify/internal/ent/generate/tenantrole"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testasset"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcase"
 	"github.com/huynhanx03/judgify/internal/ent/generate/testcasegroup"
@@ -290,6 +294,10 @@ func checkColumn(t, c string) error {
 			tag.Table:                              tag.ValidColumn,
 			tagrevision.Table:                      tagrevision.ValidColumn,
 			tagrevisionelement.Table:               tagrevisionelement.ValidColumn,
+			tenant.Table:                           tenant.ValidColumn,
+			tenantinvitation.Table:                 tenantinvitation.ValidColumn,
+			tenantmembership.Table:                 tenantmembership.ValidColumn,
+			tenantrole.Table:                       tenantrole.ValidColumn,
 			testasset.Table:                        testasset.ValidColumn,
 			testcase.Table:                         testcase.ValidColumn,
 			testcasegroup.Table:                    testcasegroup.ValidColumn,

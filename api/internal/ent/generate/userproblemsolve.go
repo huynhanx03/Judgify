@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -23,6 +24,8 @@ type UserProblemSolve struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
@@ -38,7 +41,7 @@ type UserProblemSolve struct {
 	// ActiveProblemRevisionID holds the value of the "active_problem_revision_id" field.
 	ActiveProblemRevisionID *uuid.UUID `json:"active_problem_revision_id,omitempty"`
 	// RewardFacts holds the value of the "reward_facts" field.
-	RewardFacts json.RawMessage `json:"reward_facts,omitempty"`
+	RewardFacts jsontext.Value `json:"reward_facts,omitempty"`
 	// RewardFactsChecksum holds the value of the "reward_facts_checksum" field.
 	RewardFactsChecksum *[]byte `json:"reward_facts_checksum,omitempty"`
 	// ActiveRewardTransitionID holds the value of the "active_reward_transition_id" field.
@@ -67,7 +70,7 @@ func (*UserProblemSolve) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case userproblemsolve.FieldCreatedAt, userproblemsolve.FieldUpdatedAt, userproblemsolve.FieldSolvedAt:
 			values[i] = new(sql.NullTime)
-		case userproblemsolve.FieldID, userproblemsolve.FieldUserID, userproblemsolve.FieldProblemID:
+		case userproblemsolve.FieldID, userproblemsolve.FieldTenantID, userproblemsolve.FieldUserID, userproblemsolve.FieldProblemID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -101,6 +104,12 @@ func (_m *UserProblemSolve) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case userproblemsolve.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case userproblemsolve.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -230,6 +239,9 @@ func (_m *UserProblemSolve) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))

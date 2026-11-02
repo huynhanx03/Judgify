@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -51,7 +52,7 @@ func (h *materialHandlerSpy) Get(_ context.Context, request *materialIDRequest) 
 	return &MaterialResponse{}, nil
 }
 
-func (h *materialHandlerSpy) FindPublic(context.Context, *commonDTO.QueryOptions) (*commonDTO.Paginated[*MaterialResponse], error) {
+func (h *materialHandlerSpy) FindMaterialsForPublic(context.Context, *commonDTO.QueryOptions) (*commonDTO.Paginated[*MaterialResponse], error) {
 	h.publicFindCalled = true
 	return emptyMaterialPage(), nil
 }
@@ -61,7 +62,7 @@ func (h *materialHandlerSpy) GetPublic(_ context.Context, request *materialIDReq
 	return &MaterialResponse{}, nil
 }
 
-func (h *materialHandlerSpy) FindAdmin(context.Context, *commonDTO.QueryOptions) (*commonDTO.Paginated[*MaterialResponse], error) {
+func (h *materialHandlerSpy) FindMaterialsForAdmin(context.Context, *commonDTO.QueryOptions) (*commonDTO.Paginated[*MaterialResponse], error) {
 	return emptyMaterialPage(), nil
 }
 
@@ -81,12 +82,12 @@ func (*materialHandlerSpy) Delete(context.Context, *materialIDRequest) (*Materia
 	return nil, nil
 }
 
-func (h *materialHandlerSpy) Search(context.Context, *materialSearchRequest) (*materialSearchResponse, error) {
+func (h *materialHandlerSpy) FindForPublic(context.Context, *materialSearchRequest) (*materialSearchResponse, error) {
 	h.searchCalled = true
 	return &materialSearchResponse{Records: []*MaterialResponse{}}, nil
 }
 
-func (*materialHandlerSpy) SearchAdmin(context.Context, *adminMaterialSearchRequest) (*adminMaterialSearchResponse, error) {
+func (*materialHandlerSpy) FindForAdmin(context.Context, *adminMaterialSearchRequest) (*adminMaterialSearchResponse, error) {
 	return &adminMaterialSearchResponse{Records: []*MaterialResponse{}}, nil
 }
 
@@ -99,7 +100,7 @@ func (*materialHandlerSpy) Related(context.Context, *RelatedMaterialRequest) ([]
 	return []*MaterialResponse{}, nil
 }
 
-func (*materialHandlerSpy) ListRevisions(context.Context, *ListMaterialRevisionsRequest) (*materialRevisionPage, error) {
+func (*materialHandlerSpy) FindRevisions(context.Context, *ListMaterialRevisionsRequest) (*materialRevisionPage, error) {
 	return &materialRevisionPage{Records: []*materialRevisionResponse{}}, nil
 }
 
@@ -199,7 +200,7 @@ func TestPublicMaterialRoutesUseRestrictedHandlers(t *testing.T) {
 	group := &MaterialHandlerGroup{CategoryHandler: materialCategoryHandlerStub{}, MaterialHandler: spy}
 	group.RegisterPublic(router.Group(""))
 
-	findRequest := httptest.NewRequest(http.MethodPost, "/materials/search", strings.NewReader(`{}`))
+	findRequest := httptest.NewRequest(http.MethodPost, "/materials/find", strings.NewReader(`{}`))
 	findRequest.Header.Set("Content-Type", "application/json")
 	findResponse := httptest.NewRecorder()
 	router.ServeHTTP(findResponse, findRequest)
@@ -227,7 +228,7 @@ func TestProtectedMaterialReadRoutesRequireCapabilities(t *testing.T) {
 		body     string
 		resource string
 	}{
-		{name: "material search", method: http.MethodPost, path: "/admin/materials/search", body: `{}`, resource: permissions.ResourceKeyMaterial},
+		{name: "material find", method: http.MethodPost, path: "/admin/materials/find", body: `{}`, resource: permissions.ResourceKeyMaterial},
 		{name: "material detail", method: http.MethodGet, path: "/admin/materials/" + uuid.NewString(), resource: permissions.ResourceKeyMaterial},
 		{name: "material revision history", method: http.MethodGet, path: "/admin/materials/" + uuid.NewString() + "/revisions", resource: permissions.ResourceKeyMaterial},
 		{name: "material revision detail", method: http.MethodGet, path: "/admin/materials/" + uuid.NewString() + "/revisions/" + uuid.NewString(), resource: permissions.ResourceKeyMaterial},
@@ -252,7 +253,7 @@ func TestProtectedMaterialReadRoutesRequireCapabilities(t *testing.T) {
 				CategoryHandler: materialCategoryHandlerStub{},
 				MaterialHandler: &materialHandlerSpy{},
 			}
-			group.RegisterProtected(router.Group(""), middlewares.NewAuthorizationChecker(authorizer))
+			group.RegisterProtected(router.Group(""), authmiddleware.NewAuthorizationChecker(authorizer))
 
 			request := httptest.NewRequest(tt.method, tt.path, strings.NewReader(tt.body))
 			request.Header.Set("Content-Type", "application/json")
@@ -318,7 +319,7 @@ func TestMaterialLifecyclePreviewAndApplyUseSameExactCapability(t *testing.T) {
 			}
 			group.RegisterProtected(
 				router.Group(""),
-				middlewares.NewAuthorizationChecker(authorizer),
+				authmiddleware.NewAuthorizationChecker(authorizer),
 			)
 			request := httptest.NewRequest(
 				http.MethodPost,

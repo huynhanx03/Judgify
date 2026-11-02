@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	commonwebsocket "github.com/huynhanx03/go-common/pkg/common/websocket"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 )
 

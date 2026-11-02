@@ -8,7 +8,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
 	commonlogger "github.com/huynhanx03/go-common/pkg/logger"
 	authcasbin "github.com/huynhanx03/go-common/pkg/security/authorization/casbin"
 	"go.uber.org/zap"
@@ -31,7 +30,7 @@ func (service *authorizationService) Run(ctx context.Context) error {
 		return fmt.Errorf("authorization reconciler: already running")
 	}
 	defer service.reconcilerRunning.Store(false)
-	ctx = commonlogger.WithContext(ctx, service.log)
+	log := commonlogger.Wrap(service.log)
 
 	ticker := time.NewTicker(authorizationReconcileInterval)
 	defer ticker.Stop()
@@ -42,14 +41,11 @@ func (service *authorizationService) Run(ctx context.Context) error {
 		case <-service.reconcilerStop:
 			return nil
 		case <-ticker.C:
-			reconcileCtx, cancel := context.WithTimeout(
-				correlation.EnsureContext(ctx),
-				authorizationReconcileInterval/2,
-			)
+			reconcileCtx, cancel := context.WithTimeout(ctx, authorizationReconcileInterval/2)
 			err := service.ReconcileNow(reconcileCtx)
 			cancel()
 			if err != nil && !errors.Is(err, context.Canceled) {
-				commonlogger.FromContext(reconcileCtx).Warn(
+				log.Warn(reconcileCtx,
 					"authorization reconciliation failed",
 					zap.Int64("authorization_desired_revision", service.runtime.DesiredRevision()),
 					zap.Int64("authorization_applied_revision", service.runtime.AppliedRevision()),
@@ -80,8 +76,6 @@ func (service *authorizationService) ReconcileNow(ctx context.Context) error {
 	// publishes an in-flight desired-revision fence.
 	service.mutationGate.Lock()
 	defer service.mutationGate.Unlock()
-	ctx = correlation.EnsureContext(ctx)
-	ctx = commonlogger.WithContext(ctx, service.log)
 	var snapshot authcasbin.Snapshot
 	err := service.txManager.DoInTx(ctx, func(txCtx context.Context) error {
 		state, err := service.repository.LockState(txCtx)
@@ -101,7 +95,7 @@ func (service *authorizationService) ReconcileNow(ctx context.Context) error {
 		if state.DesiredRevision == applied {
 			return nil
 		}
-		rules, err := service.repository.ListRules(txCtx)
+		rules, err := service.repository.FindRules(txCtx)
 		if err != nil {
 			return fmt.Errorf("load authorization reconciliation snapshot: %w", err)
 		}
@@ -115,7 +109,7 @@ func (service *authorizationService) ReconcileNow(ctx context.Context) error {
 	if err != nil || snapshot.Revision == 0 {
 		return err
 	}
-	prepared, err := service.runtime.Prepare(ctx, snapshot)
+	prepared, err := service.runtime.Prepare(ctx, systemAuthorizationSnapshot(snapshot))
 	if err != nil {
 		if errors.Is(err, authcasbin.ErrStaleRevision) &&
 			service.runtime.AppliedRevision() >= snapshot.Revision {
@@ -130,8 +124,11 @@ func (service *authorizationService) ReconcileNow(ctx context.Context) error {
 		}
 		return fmt.Errorf("publish reconciled authorization snapshot: %w", err)
 	}
+	if err := service.refreshRuntimeCache(); err != nil {
+		return fmt.Errorf("refresh reconciled authorization runtime cache: %w", err)
+	}
 	service.storeViewIfNewer(newAuthorizationView(snapshot.Revision, snapshot.Rules))
-	commonlogger.FromContext(ctx).Info(
+	commonlogger.Wrap(service.log).Info(ctx,
 		"authorization snapshot reconciled",
 		zap.Int64("authorization_revision", snapshot.Revision),
 	)

@@ -70,6 +70,41 @@ export const vi = {
     GUEST_RANK: "Trúc Cơ Kỳ",
   },
 
+  TENANT: {
+    SELECT: "Chọn tông môn",
+    ALL: "Tất cả tông môn · chỉ xem",
+    ROW_LABEL: "Tông môn: {name}",
+    ALL_READ_ONLY: "Đang xem dữ liệu của nhiều Tông môn. Hãy chọn một Tông môn cụ thể để tạo hoặc chỉnh sửa dữ liệu.",
+    CREATE: "Tạo tông môn",
+    CREATE_TITLE: "Khai lập tông môn",
+    CREATE_DESCRIPTION: "Tông môn mới bắt đầu với không gian trống. Bạn sẽ là Tông chủ.",
+    RENAME: "Đổi tên",
+    RENAME_TITLE: "Đổi tên tông môn",
+    RENAME_DESCRIPTION: "Tên tông môn chỉ đổi được một lần mỗi 365 ngày. Mã định danh và đường dẫn kỹ thuật sẽ giữ nguyên.",
+    NAME: "Tên tông môn",
+    NAME_PLACEHOLDER: "Nhập tên tông môn",
+    SAVE: "Lưu thay đổi",
+    SAVING: "Đang lưu...",
+    CANCEL: "Hủy",
+    RENAME_AVAILABLE: "Còn {remaining} mới được đổi tên",
+    COOLDOWN_ERROR: "Tông môn chỉ được đổi tên một lần mỗi năm.",
+    ACTION_ERROR: "Chưa thể cập nhật tông môn. Vui lòng thử lại.",
+    OWNER: "Tông chủ",
+    MEMBER: "Đệ tử",
+    INVITE: "Mời Đệ tử",
+    INVITE_TITLE: "Mời tài khoản vào Tông môn",
+    INVITE_DESCRIPTION: "Nhập username của tài khoản Judgify hiện có. Lời mời có hiệu lực trong 7 ngày.",
+    USERNAME: "Username tài khoản",
+    INVITATIONS: "Lời mời vào Tông môn",
+    ACCEPT_INVITATION: "Gia nhập",
+    LEAVE: "Rời tông môn",
+    LEAVE_CONFIRM: "Bạn chắc chắn muốn rời Tông môn này? Tài khoản phải còn ở ít nhất một Tông môn.",
+    MANAGE_MEMBERS: "Thành viên Tông môn",
+    REMOVE_MEMBER: "Xóa khỏi Tông môn",
+    TRANSFER_OWNER: "Chuyển Tông chủ",
+    TRANSFER_CONFIRM: "Chuyển quyền Tông chủ cho {username}? Tài khoản của bạn sẽ trở thành Đệ tử.",
+  },
+
   NOTIFICATION: {
     TITLE: "Thông Báo",
     EYEBROW: "Hộp thư của bạn",
@@ -250,6 +285,16 @@ export const vi = {
 
   // Auth
   AUTH: {
+    ONBOARDING_STEP: (current: number, total: number, label: string) =>
+      `Bước ${current}/${total} · ${label}`,
+    ONBOARDING_ACCOUNT: "Tài khoản",
+    ONBOARDING_PROFILE: "Thông tin cơ bản",
+    ONBOARDING_CHARACTER: "Căn cốt & Thiên Phú",
+    ONBOARDING_ACCOUNT_TITLE: "Tạo tài khoản",
+    ONBOARDING_PROFILE_TITLE: "Thông tin của bạn",
+    ONBOARDING_CHARACTER_TITLE: "Chọn Căn Cốt và Thiên Phú",
+    ONBOARDING_CONTINUE: "Tiếp tục",
+    ONBOARDING_BACK: "Quay lại",
     // Tabs
     TAB_LOGIN: "Đăng Nhập",
     TAB_REGISTER: "Đăng Ký",

@@ -9,7 +9,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	"github.com/huynhanx03/go-common/pkg/common/tx"
 	d "github.com/huynhanx03/go-common/pkg/dto"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
@@ -77,16 +77,7 @@ func (s *problemService) Find(ctx context.Context, opts *d.QueryOptions) (*d.Pag
 
 	entities := *problems.Records
 	s.enrichSolvedStatus(ctx, entities)
-
-	responses := make([]*contract.ProblemResult, len(entities))
-	for i, p := range entities {
-		responses[i] = ToProblemResult(p)
-	}
-
-	return &d.Paginated[*contract.ProblemResult]{
-		Records:    &responses,
-		Pagination: problems.Pagination,
-	}, nil
+	return d.MapPaginated(problems, ToProblemResult), nil
 }
 
 // Get retrieves a problem by ID.
@@ -99,8 +90,8 @@ func (s *problemService) Get(ctx context.Context, id uuid.UUID) (*contract.Probl
 	return ToProblemResult(problem), nil
 }
 
-// FindAdmin retrieves every problem status for authorized administration.
-func (s *problemService) FindAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ProblemResult], error) {
+// FindForAdmin retrieves every problem status for authorized administration.
+func (s *problemService) FindForAdmin(ctx context.Context, opts *d.QueryOptions) (*d.Paginated[*contract.ProblemResult], error) {
 	problems, err := s.problemRepo.Find(ctx, opts)
 	if err != nil {
 		return nil, err
@@ -109,13 +100,7 @@ func (s *problemService) FindAdmin(ctx context.Context, opts *d.QueryOptions) (*
 		responses := []*contract.ProblemResult{}
 		return &d.Paginated[*contract.ProblemResult]{Records: &responses, Pagination: problems.Pagination}, nil
 	}
-
-	entities := *problems.Records
-	responses := make([]*contract.ProblemResult, len(entities))
-	for i, problem := range entities {
-		responses[i] = ToProblemResult(problem)
-	}
-	return &d.Paginated[*contract.ProblemResult]{Records: &responses, Pagination: problems.Pagination}, nil
+	return d.MapPaginated(problems, ToProblemResult), nil
 }
 
 // GetAdmin retrieves a problem regardless of publication status.

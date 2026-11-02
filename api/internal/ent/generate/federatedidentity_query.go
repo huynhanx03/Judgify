@@ -4,6 +4,7 @@ package generate
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -16,17 +17,19 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
 )
 
 // FederatedIdentityQuery is the builder for querying FederatedIdentity entities.
 type FederatedIdentityQuery struct {
 	config
-	ctx        *QueryContext
-	order      []federatedidentity.OrderOption
-	inters     []Interceptor
-	predicates []predicate.FederatedIdentity
-	withUser   *UserQuery
-	modifiers  []func(*sql.Selector)
+	ctx                  *QueryContext
+	order                []federatedidentity.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.FederatedIdentity
+	withUser             *UserQuery
+	withRecoveryContacts *UserRecoveryContactQuery
+	modifiers            []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +81,28 @@ func (_q *FederatedIdentityQuery) QueryUser() *UserQuery {
 			sqlgraph.From(federatedidentity.Table, federatedidentity.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, federatedidentity.UserTable, federatedidentity.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRecoveryContacts chains the current query on the "recovery_contacts" edge.
+func (_q *FederatedIdentityQuery) QueryRecoveryContacts() *UserRecoveryContactQuery {
+	query := (&UserRecoveryContactClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(federatedidentity.Table, federatedidentity.FieldID, selector),
+			sqlgraph.To(userrecoverycontact.Table, userrecoverycontact.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, federatedidentity.RecoveryContactsTable, federatedidentity.RecoveryContactsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -272,12 +297,13 @@ func (_q *FederatedIdentityQuery) Clone() *FederatedIdentityQuery {
 		return nil
 	}
 	return &FederatedIdentityQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]federatedidentity.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.FederatedIdentity{}, _q.predicates...),
-		withUser:   _q.withUser.Clone(),
+		config:               _q.config,
+		ctx:                  _q.ctx.Clone(),
+		order:                append([]federatedidentity.OrderOption{}, _q.order...),
+		inters:               append([]Interceptor{}, _q.inters...),
+		predicates:           append([]predicate.FederatedIdentity{}, _q.predicates...),
+		withUser:             _q.withUser.Clone(),
+		withRecoveryContacts: _q.withRecoveryContacts.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -293,6 +319,17 @@ func (_q *FederatedIdentityQuery) WithUser(opts ...func(*UserQuery)) *FederatedI
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithRecoveryContacts tells the query-builder to eager-load the nodes that are connected to
+// the "recovery_contacts" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *FederatedIdentityQuery) WithRecoveryContacts(opts ...func(*UserRecoveryContactQuery)) *FederatedIdentityQuery {
+	query := (&UserRecoveryContactClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRecoveryContacts = query
 	return _q
 }
 
@@ -374,8 +411,9 @@ func (_q *FederatedIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	var (
 		nodes       = []*FederatedIdentity{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withUser != nil,
+			_q.withRecoveryContacts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -402,6 +440,18 @@ func (_q *FederatedIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	if query := _q.withUser; query != nil {
 		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *FederatedIdentity, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withRecoveryContacts; query != nil {
+		if err := _q.loadRecoveryContacts(ctx, query, nodes,
+			func(n *FederatedIdentity) { n.Edges.RecoveryContacts = []*UserRecoveryContact{} },
+			func(n *FederatedIdentity, e *UserRecoveryContact) {
+				n.Edges.RecoveryContacts = append(n.Edges.RecoveryContacts, e)
+				if !e.Edges.loadedTypes[3] {
+					e.Edges.SourceFederatedIdentity = n
+				}
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -434,6 +484,39 @@ func (_q *FederatedIdentityQuery) loadUser(ctx context.Context, query *UserQuery
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (_q *FederatedIdentityQuery) loadRecoveryContacts(ctx context.Context, query *UserRecoveryContactQuery, nodes []*FederatedIdentity, init func(*FederatedIdentity), assign func(*FederatedIdentity, *UserRecoveryContact)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*FederatedIdentity)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userrecoverycontact.FieldSourceFederatedIdentityID)
+	}
+	query.Where(predicate.UserRecoveryContact(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(federatedidentity.RecoveryContactsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.SourceFederatedIdentityID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "source_federated_identity_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "source_federated_identity_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

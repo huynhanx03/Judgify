@@ -13,14 +13,20 @@ import {
   RealtimeProvider,
 } from "@/contexts/realtime-context";
 import { SessionProvider } from "@/contexts/session-context";
+import { TenantProvider } from "@/contexts/tenant-context";
+import { LocaleProvider } from "@/contexts/locale-context";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
+    <LocaleProvider>
     <SessionProvider>
-      <RealtimeProvider>
-        <AuthorizationRealtimeSynchronizer />
-        <NotificationProvider>{children}</NotificationProvider>
-      </RealtimeProvider>
+      <TenantProvider>
+        <RealtimeProvider>
+          <AuthorizationRealtimeSynchronizer />
+          <NotificationProvider>{children}</NotificationProvider>
+        </RealtimeProvider>
+      </TenantProvider>
     </SessionProvider>
+    </LocaleProvider>
   );
 }

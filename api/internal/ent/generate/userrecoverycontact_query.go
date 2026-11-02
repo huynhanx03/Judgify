@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/passwordresettoken"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/recoverycontactverificationtoken"
@@ -24,14 +25,15 @@ import (
 // UserRecoveryContactQuery is the builder for querying UserRecoveryContact entities.
 type UserRecoveryContactQuery struct {
 	config
-	ctx                     *QueryContext
-	order                   []userrecoverycontact.OrderOption
-	inters                  []Interceptor
-	predicates              []predicate.UserRecoveryContact
-	withUser                *UserQuery
-	withVerificationTokens  *RecoveryContactVerificationTokenQuery
-	withPasswordResetTokens *PasswordResetTokenQuery
-	modifiers               []func(*sql.Selector)
+	ctx                         *QueryContext
+	order                       []userrecoverycontact.OrderOption
+	inters                      []Interceptor
+	predicates                  []predicate.UserRecoveryContact
+	withUser                    *UserQuery
+	withVerificationTokens      *RecoveryContactVerificationTokenQuery
+	withPasswordResetTokens     *PasswordResetTokenQuery
+	withSourceFederatedIdentity *FederatedIdentityQuery
+	modifiers                   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -127,6 +129,28 @@ func (_q *UserRecoveryContactQuery) QueryPasswordResetTokens() *PasswordResetTok
 			sqlgraph.From(userrecoverycontact.Table, userrecoverycontact.FieldID, selector),
 			sqlgraph.To(passwordresettoken.Table, passwordresettoken.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, userrecoverycontact.PasswordResetTokensTable, userrecoverycontact.PasswordResetTokensColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySourceFederatedIdentity chains the current query on the "source_federated_identity" edge.
+func (_q *UserRecoveryContactQuery) QuerySourceFederatedIdentity() *FederatedIdentityQuery {
+	query := (&FederatedIdentityClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userrecoverycontact.Table, userrecoverycontact.FieldID, selector),
+			sqlgraph.To(federatedidentity.Table, federatedidentity.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userrecoverycontact.SourceFederatedIdentityTable, userrecoverycontact.SourceFederatedIdentityColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -321,14 +345,15 @@ func (_q *UserRecoveryContactQuery) Clone() *UserRecoveryContactQuery {
 		return nil
 	}
 	return &UserRecoveryContactQuery{
-		config:                  _q.config,
-		ctx:                     _q.ctx.Clone(),
-		order:                   append([]userrecoverycontact.OrderOption{}, _q.order...),
-		inters:                  append([]Interceptor{}, _q.inters...),
-		predicates:              append([]predicate.UserRecoveryContact{}, _q.predicates...),
-		withUser:                _q.withUser.Clone(),
-		withVerificationTokens:  _q.withVerificationTokens.Clone(),
-		withPasswordResetTokens: _q.withPasswordResetTokens.Clone(),
+		config:                      _q.config,
+		ctx:                         _q.ctx.Clone(),
+		order:                       append([]userrecoverycontact.OrderOption{}, _q.order...),
+		inters:                      append([]Interceptor{}, _q.inters...),
+		predicates:                  append([]predicate.UserRecoveryContact{}, _q.predicates...),
+		withUser:                    _q.withUser.Clone(),
+		withVerificationTokens:      _q.withVerificationTokens.Clone(),
+		withPasswordResetTokens:     _q.withPasswordResetTokens.Clone(),
+		withSourceFederatedIdentity: _q.withSourceFederatedIdentity.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -366,6 +391,17 @@ func (_q *UserRecoveryContactQuery) WithPasswordResetTokens(opts ...func(*Passwo
 		opt(query)
 	}
 	_q.withPasswordResetTokens = query
+	return _q
+}
+
+// WithSourceFederatedIdentity tells the query-builder to eager-load the nodes that are connected to
+// the "source_federated_identity" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserRecoveryContactQuery) WithSourceFederatedIdentity(opts ...func(*FederatedIdentityQuery)) *UserRecoveryContactQuery {
+	query := (&FederatedIdentityClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSourceFederatedIdentity = query
 	return _q
 }
 
@@ -447,10 +483,11 @@ func (_q *UserRecoveryContactQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	var (
 		nodes       = []*UserRecoveryContact{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withUser != nil,
 			_q.withVerificationTokens != nil,
 			_q.withPasswordResetTokens != nil,
+			_q.withSourceFederatedIdentity != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -501,6 +538,12 @@ func (_q *UserRecoveryContactQuery) sqlAll(ctx context.Context, hooks ...queryHo
 					e.Edges.Contact = n
 				}
 			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSourceFederatedIdentity; query != nil {
+		if err := _q.loadSourceFederatedIdentity(ctx, query, nodes, nil,
+			func(n *UserRecoveryContact, e *FederatedIdentity) { n.Edges.SourceFederatedIdentity = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -596,6 +639,38 @@ func (_q *UserRecoveryContactQuery) loadPasswordResetTokens(ctx context.Context,
 	}
 	return nil
 }
+func (_q *UserRecoveryContactQuery) loadSourceFederatedIdentity(ctx context.Context, query *FederatedIdentityQuery, nodes []*UserRecoveryContact, init func(*UserRecoveryContact), assign func(*UserRecoveryContact, *FederatedIdentity)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*UserRecoveryContact)
+	for i := range nodes {
+		if nodes[i].SourceFederatedIdentityID == nil {
+			continue
+		}
+		fk := *nodes[i].SourceFederatedIdentityID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(federatedidentity.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "source_federated_identity_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *UserRecoveryContactQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -627,6 +702,9 @@ func (_q *UserRecoveryContactQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(userrecoverycontact.FieldUserID)
+		}
+		if _q.withSourceFederatedIdentity != nil {
+			_spec.Node.AddColumnOnce(userrecoverycontact.FieldSourceFederatedIdentityID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

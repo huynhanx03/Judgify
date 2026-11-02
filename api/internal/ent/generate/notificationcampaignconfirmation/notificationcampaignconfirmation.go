@@ -15,6 +15,8 @@ const (
 	Label = "notification_campaign_confirmation"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldNonceHash holds the string denoting the nonce_hash field in the database.
 	FieldNonceHash = "nonce_hash"
 	// FieldActorID holds the string denoting the actor_id field in the database.
@@ -71,6 +73,7 @@ const (
 // Columns holds all SQL columns for notificationcampaignconfirmation fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldNonceHash,
 	FieldActorID,
 	FieldSessionID,
@@ -146,6 +149,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByActorID orders the results by the actor_id field.

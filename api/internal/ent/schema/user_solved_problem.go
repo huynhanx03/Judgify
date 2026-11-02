@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,7 +23,8 @@ type UserSolvedProblem struct {
 func (UserSolvedProblem) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		e.UUIDMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 func (UserSolvedProblem) Fields() []ent.Field {

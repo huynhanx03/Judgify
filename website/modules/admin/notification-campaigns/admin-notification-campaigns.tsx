@@ -478,7 +478,7 @@ export function AdminNotificationCampaigns() {
     resetKey: `${authorizationRevision}:${JSON.stringify(query)}`,
     initialData: null,
     keepPreviousData: true,
-    load: (signal) => notificationCampaignService.list(query, signal),
+    load: (signal) => notificationCampaignService.find(query, signal),
     onSuccess: (result) => {
       if (!result) return;
       setUpdatedAt(new Date().toISOString());

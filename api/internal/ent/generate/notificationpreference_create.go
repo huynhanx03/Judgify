@@ -25,6 +25,12 @@ type NotificationPreferenceCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *NotificationPreferenceCreate) SetTenantID(v uuid.UUID) *NotificationPreferenceCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *NotificationPreferenceCreate) SetUserID(v uuid.UUID) *NotificationPreferenceCreate {
 	_c.mutation.SetUserID(v)
@@ -141,6 +147,9 @@ func (_c *NotificationPreferenceCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *NotificationPreferenceCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "NotificationPreference.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "NotificationPreference.user_id"`)}
 	}
@@ -205,6 +214,10 @@ func (_c *NotificationPreferenceCreate) createSpec() (*NotificationPreference, *
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(notificationpreference.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.Category(); ok {
 		_spec.SetField(notificationpreference.FieldCategory, field.TypeEnum, value)
 		_node.Category = value
@@ -245,7 +258,7 @@ func (_c *NotificationPreferenceCreate) createSpec() (*NotificationPreference, *
 // of the `INSERT` statement. For example:
 //
 //	client.NotificationPreference.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -254,7 +267,7 @@ func (_c *NotificationPreferenceCreate) createSpec() (*NotificationPreference, *
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationPreferenceUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationPreferenceCreate) OnConflict(opts ...sql.ConflictOption) *NotificationPreferenceUpsertOne {
@@ -348,6 +361,9 @@ func (u *NotificationPreferenceUpsertOne) UpdateNewValues() *NotificationPrefere
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(notificationpreference.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(notificationpreference.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(notificationpreference.FieldUserID)
@@ -571,7 +587,7 @@ func (_c *NotificationPreferenceCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationPreferenceUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationPreferenceCreateBulk) OnConflict(opts ...sql.ConflictOption) *NotificationPreferenceUpsertBulk {
@@ -617,6 +633,9 @@ func (u *NotificationPreferenceUpsertBulk) UpdateNewValues() *NotificationPrefer
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(notificationpreference.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(notificationpreference.FieldTenantID)
 			}
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(notificationpreference.FieldUserID)

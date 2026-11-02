@@ -18,6 +18,8 @@ type CultivationRankingPrivacyChange struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// FromVisibility holds the value of the "from_visibility" field.
@@ -56,7 +58,7 @@ func (*CultivationRankingPrivacyChange) scanValues(columns []string) ([]any, err
 			values[i] = new(sql.NullString)
 		case cultivationrankingprivacychange.FieldOccurredAt, cultivationrankingprivacychange.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case cultivationrankingprivacychange.FieldID, cultivationrankingprivacychange.FieldUserID:
+		case cultivationrankingprivacychange.FieldID, cultivationrankingprivacychange.FieldTenantID, cultivationrankingprivacychange.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -78,6 +80,12 @@ func (_m *CultivationRankingPrivacyChange) assignValues(columns []string, values
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case cultivationrankingprivacychange.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case cultivationrankingprivacychange.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -181,6 +189,9 @@ func (_m *CultivationRankingPrivacyChange) String() string {
 	var builder strings.Builder
 	builder.WriteString("CultivationRankingPrivacyChange(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

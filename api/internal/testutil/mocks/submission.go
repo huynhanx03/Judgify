@@ -343,19 +343,19 @@ func (m *MockSubmissionRepository) EXPECT() *MockSubmissionRepositoryMockRecorde
 	return m.recorder
 }
 
-// FindAdmin mocks base method.
-func (m *MockSubmissionRepository) FindAdmin(ctx context.Context, query domain.AdminSubmissionQuery) (*dto.Paginated[*domain.Submission], error) {
+// FindForAdmin mocks base method.
+func (m *MockSubmissionRepository) FindForAdmin(ctx context.Context, query domain.AdminSubmissionQuery) (*dto.Paginated[*domain.Submission], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAdmin", ctx, query)
+	ret := m.ctrl.Call(m, "FindForAdmin", ctx, query)
 	ret0, _ := ret[0].(*dto.Paginated[*domain.Submission])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindAdmin indicates an expected call of FindAdmin.
-func (mr *MockSubmissionRepositoryMockRecorder) FindAdmin(ctx, query any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockSubmissionRepositoryMockRecorder) FindForAdmin(ctx, query any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAdmin", reflect.TypeOf((*MockSubmissionRepository)(nil).FindAdmin), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockSubmissionRepository)(nil).FindForAdmin), ctx, query)
 }
 
 // FindByProblemID mocks base method.
@@ -373,19 +373,19 @@ func (mr *MockSubmissionRepositoryMockRecorder) FindByProblemID(ctx, problemID a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByProblemID", reflect.TypeOf((*MockSubmissionRepository)(nil).FindByProblemID), ctx, problemID)
 }
 
-// FindMyByProblem mocks base method.
-func (m *MockSubmissionRepository) FindMyByProblem(ctx context.Context, query ports.MySubmissionQuery) (ports.MySubmissionPage, error) {
+// FindMySubmissionsByProblem mocks base method.
+func (m *MockSubmissionRepository) FindMySubmissionsByProblem(ctx context.Context, query ports.MySubmissionQuery) (ports.MySubmissionPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindMyByProblem", ctx, query)
+	ret := m.ctrl.Call(m, "FindMySubmissionsByProblem", ctx, query)
 	ret0, _ := ret[0].(ports.MySubmissionPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindMyByProblem indicates an expected call of FindMyByProblem.
-func (mr *MockSubmissionRepositoryMockRecorder) FindMyByProblem(ctx, query any) *gomock.Call {
+// FindMySubmissionsByProblem indicates an expected call of FindMySubmissionsByProblem.
+func (mr *MockSubmissionRepositoryMockRecorder) FindMySubmissionsByProblem(ctx, query any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMyByProblem", reflect.TypeOf((*MockSubmissionRepository)(nil).FindMyByProblem), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMySubmissionsByProblem", reflect.TypeOf((*MockSubmissionRepository)(nil).FindMySubmissionsByProblem), ctx, query)
 }
 
 // Get mocks base method.
@@ -442,19 +442,19 @@ func (m *MockSubmissionService) EXPECT() *MockSubmissionServiceMockRecorder {
 	return m.recorder
 }
 
-// FindAdmin mocks base method.
-func (m *MockSubmissionService) FindAdmin(ctx context.Context, req *contract.AdminSubmissionFindRequest) (*dto.Paginated[*contract.AdminSubmissionSummaryResponse], error) {
+// FindForAdmin mocks base method.
+func (m *MockSubmissionService) FindForAdmin(ctx context.Context, req *contract.AdminSubmissionFindRequest) (*dto.Paginated[*contract.AdminSubmissionSummaryResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAdmin", ctx, req)
+	ret := m.ctrl.Call(m, "FindForAdmin", ctx, req)
 	ret0, _ := ret[0].(*dto.Paginated[*contract.AdminSubmissionSummaryResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindAdmin indicates an expected call of FindAdmin.
-func (mr *MockSubmissionServiceMockRecorder) FindAdmin(ctx, req any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockSubmissionServiceMockRecorder) FindForAdmin(ctx, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAdmin", reflect.TypeOf((*MockSubmissionService)(nil).FindAdmin), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockSubmissionService)(nil).FindForAdmin), ctx, req)
 }
 
 // FindByProblemID mocks base method.
@@ -472,19 +472,19 @@ func (mr *MockSubmissionServiceMockRecorder) FindByProblemID(ctx, problemID any)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByProblemID", reflect.TypeOf((*MockSubmissionService)(nil).FindByProblemID), ctx, problemID)
 }
 
-// FindMyByProblem mocks base method.
-func (m *MockSubmissionService) FindMyByProblem(ctx context.Context, userID uuid.UUID, req *contract.MySubmissionsRequest) (*contract.MySubmissionsPageResponse, error) {
+// FindMySubmissionsByProblem mocks base method.
+func (m *MockSubmissionService) FindMySubmissionsByProblem(ctx context.Context, userID uuid.UUID, req *contract.MySubmissionsRequest) (*contract.MySubmissionsPageResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindMyByProblem", ctx, userID, req)
+	ret := m.ctrl.Call(m, "FindMySubmissionsByProblem", ctx, userID, req)
 	ret0, _ := ret[0].(*contract.MySubmissionsPageResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindMyByProblem indicates an expected call of FindMyByProblem.
-func (mr *MockSubmissionServiceMockRecorder) FindMyByProblem(ctx, userID, req any) *gomock.Call {
+// FindMySubmissionsByProblem indicates an expected call of FindMySubmissionsByProblem.
+func (mr *MockSubmissionServiceMockRecorder) FindMySubmissionsByProblem(ctx, userID, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMyByProblem", reflect.TypeOf((*MockSubmissionService)(nil).FindMyByProblem), ctx, userID, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMySubmissionsByProblem", reflect.TypeOf((*MockSubmissionService)(nil).FindMySubmissionsByProblem), ctx, userID, req)
 }
 
 // Get mocks base method.

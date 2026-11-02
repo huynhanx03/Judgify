@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/judgify/internal/constant"
@@ -37,7 +37,7 @@ func (s *userService) GetProfileAttributes(
 	if err != nil {
 		return nil, err
 	}
-	attributes, err := reader.ListActiveProfileAttributes(ctx, userID)
+	attributes, err := reader.FindActiveProfileAttributes(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *userService) UpdateProfileAttributes(
 		if getErr != nil {
 			return getErr
 		}
-		current, listErr := reader.ListActiveProfileAttributes(transactionContext, userID)
+		current, listErr := reader.FindActiveProfileAttributes(transactionContext, userID)
 		if listErr != nil {
 			return listErr
 		}
@@ -110,7 +110,7 @@ func (s *userService) UpdateProfileAttributes(
 				return mapSelfProfileAttributeMutationError(writeErr, mutation.DefinitionID)
 			}
 		}
-		updated, listErr := reader.ListActiveProfileAttributes(transactionContext, userID)
+		updated, listErr := reader.FindActiveProfileAttributes(transactionContext, userID)
 		if listErr != nil {
 			return listErr
 		}

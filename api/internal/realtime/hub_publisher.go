@@ -7,6 +7,9 @@ import (
 
 	"github.com/google/uuid"
 	commonwebsocket "github.com/huynhanx03/go-common/pkg/common/websocket"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type HubPublisher struct {
@@ -126,6 +129,13 @@ func (publisher *HubPublisher) publishRouted(
 	if publisher == nil || publisher.hub == nil || publisher.projection == nil || ctx == nil ||
 		len(messages) == 0 {
 		return ErrInvalidConfig
+	}
+	if parent := trace.SpanContextFromContext(ctx); parent.IsValid() && parent.IsSampled() {
+		var span trace.Span
+		ctx, span = otel.Tracer("judgify/realtime").Start(ctx, "realtime.publish",
+			trace.WithAttributes(attribute.Int("message_count", len(messages))),
+		)
+		defer span.End()
 	}
 	projected, err := publisher.projection.ProjectBatch(ctx, messages)
 	if err != nil {

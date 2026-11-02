@@ -332,6 +332,9 @@ func (_u *OutboxEventUpdate) sqlSave(ctx context.Context) (_node int, err error)
 			}
 		}
 	}
+	if _u.mutation.TraceparentCleared() {
+		_spec.ClearField(outboxevent.FieldTraceparent, field.TypeString)
+	}
 	if _u.mutation.CausationIDCleared() {
 		_spec.ClearField(outboxevent.FieldCausationID, field.TypeUUID)
 	}
@@ -752,6 +755,9 @@ func (_u *OutboxEventUpdateOne) sqlSave(ctx context.Context) (_node *OutboxEvent
 				ps[i](selector)
 			}
 		}
+	}
+	if _u.mutation.TraceparentCleared() {
+		_spec.ClearField(outboxevent.FieldTraceparent, field.TypeString)
 	}
 	if _u.mutation.CausationIDCleared() {
 		_spec.ClearField(outboxevent.FieldCausationID, field.TypeUUID)

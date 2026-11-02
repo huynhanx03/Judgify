@@ -15,6 +15,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/ent/generate/federatedidentity"
 	"github.com/huynhanx03/judgify/internal/ent/generate/predicate"
 	"github.com/huynhanx03/judgify/internal/ent/generate/user"
+	"github.com/huynhanx03/judgify/internal/ent/generate/userrecoverycontact"
 )
 
 // FederatedIdentityUpdate is the builder for updating FederatedIdentity entities.
@@ -184,6 +185,21 @@ func (_u *FederatedIdentityUpdate) SetUser(v *User) *FederatedIdentityUpdate {
 	return _u.SetUserID(v.ID)
 }
 
+// AddRecoveryContactIDs adds the "recovery_contacts" edge to the UserRecoveryContact entity by IDs.
+func (_u *FederatedIdentityUpdate) AddRecoveryContactIDs(ids ...uuid.UUID) *FederatedIdentityUpdate {
+	_u.mutation.AddRecoveryContactIDs(ids...)
+	return _u
+}
+
+// AddRecoveryContacts adds the "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *FederatedIdentityUpdate) AddRecoveryContacts(v ...*UserRecoveryContact) *FederatedIdentityUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRecoveryContactIDs(ids...)
+}
+
 // Mutation returns the FederatedIdentityMutation object of the builder.
 func (_u *FederatedIdentityUpdate) Mutation() *FederatedIdentityMutation {
 	return _u.mutation
@@ -193,6 +209,27 @@ func (_u *FederatedIdentityUpdate) Mutation() *FederatedIdentityMutation {
 func (_u *FederatedIdentityUpdate) ClearUser() *FederatedIdentityUpdate {
 	_u.mutation.ClearUser()
 	return _u
+}
+
+// ClearRecoveryContacts clears all "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *FederatedIdentityUpdate) ClearRecoveryContacts() *FederatedIdentityUpdate {
+	_u.mutation.ClearRecoveryContacts()
+	return _u
+}
+
+// RemoveRecoveryContactIDs removes the "recovery_contacts" edge to UserRecoveryContact entities by IDs.
+func (_u *FederatedIdentityUpdate) RemoveRecoveryContactIDs(ids ...uuid.UUID) *FederatedIdentityUpdate {
+	_u.mutation.RemoveRecoveryContactIDs(ids...)
+	return _u
+}
+
+// RemoveRecoveryContacts removes "recovery_contacts" edges to UserRecoveryContact entities.
+func (_u *FederatedIdentityUpdate) RemoveRecoveryContacts(v ...*UserRecoveryContact) *FederatedIdentityUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRecoveryContactIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -344,6 +381,51 @@ func (_u *FederatedIdentityUpdate) sqlSave(ctx context.Context) (_node int, err 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRecoveryContactsIDs(); len(nodes) > 0 && !_u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RecoveryContactsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -526,6 +608,21 @@ func (_u *FederatedIdentityUpdateOne) SetUser(v *User) *FederatedIdentityUpdateO
 	return _u.SetUserID(v.ID)
 }
 
+// AddRecoveryContactIDs adds the "recovery_contacts" edge to the UserRecoveryContact entity by IDs.
+func (_u *FederatedIdentityUpdateOne) AddRecoveryContactIDs(ids ...uuid.UUID) *FederatedIdentityUpdateOne {
+	_u.mutation.AddRecoveryContactIDs(ids...)
+	return _u
+}
+
+// AddRecoveryContacts adds the "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *FederatedIdentityUpdateOne) AddRecoveryContacts(v ...*UserRecoveryContact) *FederatedIdentityUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddRecoveryContactIDs(ids...)
+}
+
 // Mutation returns the FederatedIdentityMutation object of the builder.
 func (_u *FederatedIdentityUpdateOne) Mutation() *FederatedIdentityMutation {
 	return _u.mutation
@@ -535,6 +632,27 @@ func (_u *FederatedIdentityUpdateOne) Mutation() *FederatedIdentityMutation {
 func (_u *FederatedIdentityUpdateOne) ClearUser() *FederatedIdentityUpdateOne {
 	_u.mutation.ClearUser()
 	return _u
+}
+
+// ClearRecoveryContacts clears all "recovery_contacts" edges to the UserRecoveryContact entity.
+func (_u *FederatedIdentityUpdateOne) ClearRecoveryContacts() *FederatedIdentityUpdateOne {
+	_u.mutation.ClearRecoveryContacts()
+	return _u
+}
+
+// RemoveRecoveryContactIDs removes the "recovery_contacts" edge to UserRecoveryContact entities by IDs.
+func (_u *FederatedIdentityUpdateOne) RemoveRecoveryContactIDs(ids ...uuid.UUID) *FederatedIdentityUpdateOne {
+	_u.mutation.RemoveRecoveryContactIDs(ids...)
+	return _u
+}
+
+// RemoveRecoveryContacts removes "recovery_contacts" edges to UserRecoveryContact entities.
+func (_u *FederatedIdentityUpdateOne) RemoveRecoveryContacts(v ...*UserRecoveryContact) *FederatedIdentityUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveRecoveryContactIDs(ids...)
 }
 
 // Where appends a list predicates to the FederatedIdentityUpdate builder.
@@ -716,6 +834,51 @@ func (_u *FederatedIdentityUpdateOne) sqlSave(ctx context.Context) (_node *Feder
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedRecoveryContactsIDs(); len(nodes) > 0 && !_u.mutation.RecoveryContactsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RecoveryContactsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   federatedidentity.RecoveryContactsTable,
+			Columns: []string{federatedidentity.RecoveryContactsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrecoverycontact.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

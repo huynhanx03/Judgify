@@ -25,6 +25,12 @@ type UserTagStatsCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserTagStatsCreate) SetTenantID(v uuid.UUID) *UserTagStatsCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *UserTagStatsCreate) SetUserID(v uuid.UUID) *UserTagStatsCreate {
 	_c.mutation.SetUserID(v)
@@ -122,6 +128,9 @@ func (_c *UserTagStatsCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserTagStatsCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserTagStats.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "UserTagStats.user_id"`)}
 	}
@@ -178,6 +187,10 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(usertagstats.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SolvedCount(); ok {
 		_spec.SetField(usertagstats.FieldSolvedCount, field.TypeInt, value)
 		_node.SolvedCount = value
@@ -223,7 +236,7 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 // of the `INSERT` statement. For example:
 //
 //	client.UserTagStats.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -232,7 +245,7 @@ func (_c *UserTagStatsCreate) createSpec() (*UserTagStats, *sqlgraph.CreateSpec)
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserTagStatsUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserTagStatsCreate) OnConflict(opts ...sql.ConflictOption) *UserTagStatsUpsertOne {
@@ -326,6 +339,9 @@ func (u *UserTagStatsUpsertOne) UpdateNewValues() *UserTagStatsUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(usertagstats.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(usertagstats.FieldTenantID)
 		}
 	}))
 	return u
@@ -543,7 +559,7 @@ func (_c *UserTagStatsCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserTagStatsUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserTagStatsCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserTagStatsUpsertBulk {
@@ -589,6 +605,9 @@ func (u *UserTagStatsUpsertBulk) UpdateNewValues() *UserTagStatsUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(usertagstats.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(usertagstats.FieldTenantID)
 			}
 		}
 	}))

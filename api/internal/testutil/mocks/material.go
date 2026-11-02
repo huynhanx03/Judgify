@@ -244,19 +244,19 @@ func (mr *MockMaterialRepositoryMockRecorder) Find(ctx, opts any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockMaterialRepository)(nil).Find), ctx, opts)
 }
 
-// FindPublic mocks base method.
-func (m *MockMaterialRepository) FindPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*domain.Material], error) {
+// FindForPublic mocks base method.
+func (m *MockMaterialRepository) FindForPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*domain.Material], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindPublic", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForPublic", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*domain.Material])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindPublic indicates an expected call of FindPublic.
-func (mr *MockMaterialRepositoryMockRecorder) FindPublic(ctx, opts any) *gomock.Call {
+// FindForPublic indicates an expected call of FindForPublic.
+func (mr *MockMaterialRepositoryMockRecorder) FindForPublic(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublic", reflect.TypeOf((*MockMaterialRepository)(nil).FindPublic), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForPublic", reflect.TypeOf((*MockMaterialRepository)(nil).FindForPublic), ctx, opts)
 }
 
 // Get mocks base method.
@@ -497,34 +497,34 @@ func (mr *MockMaterialServiceMockRecorder) Delete(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockMaterialService)(nil).Delete), ctx, id)
 }
 
-// FindAdmin mocks base method.
-func (m *MockMaterialService) FindAdmin(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.MaterialResponse], error) {
+// FindForAdmin mocks base method.
+func (m *MockMaterialService) FindForAdmin(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.MaterialResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAdmin", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForAdmin", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*contract.MaterialResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindAdmin indicates an expected call of FindAdmin.
-func (mr *MockMaterialServiceMockRecorder) FindAdmin(ctx, opts any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockMaterialServiceMockRecorder) FindForAdmin(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAdmin", reflect.TypeOf((*MockMaterialService)(nil).FindAdmin), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockMaterialService)(nil).FindForAdmin), ctx, opts)
 }
 
-// FindPublic mocks base method.
-func (m *MockMaterialService) FindPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.MaterialResponse], error) {
+// FindForPublic mocks base method.
+func (m *MockMaterialService) FindForPublic(ctx context.Context, opts *dto.QueryOptions) (*dto.Paginated[*contract.MaterialResponse], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindPublic", ctx, opts)
+	ret := m.ctrl.Call(m, "FindForPublic", ctx, opts)
 	ret0, _ := ret[0].(*dto.Paginated[*contract.MaterialResponse])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindPublic indicates an expected call of FindPublic.
-func (mr *MockMaterialServiceMockRecorder) FindPublic(ctx, opts any) *gomock.Call {
+// FindForPublic indicates an expected call of FindForPublic.
+func (mr *MockMaterialServiceMockRecorder) FindForPublic(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublic", reflect.TypeOf((*MockMaterialService)(nil).FindPublic), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForPublic", reflect.TypeOf((*MockMaterialService)(nil).FindForPublic), ctx, opts)
 }
 
 // GetAdmin mocks base method.
@@ -814,19 +814,19 @@ func (m *MockMaterialQueryRepository) EXPECT() *MockMaterialQueryRepositoryMockR
 	return m.recorder
 }
 
-// ListRevisions mocks base method.
-func (m *MockMaterialQueryRepository) ListRevisions(arg0 context.Context, arg1 uuid.UUID, arg2 int64, arg3 int) ([]domain.MaterialRevisionSummary, error) {
+// FindRevisions mocks base method.
+func (m *MockMaterialQueryRepository) FindRevisions(arg0 context.Context, arg1 uuid.UUID, arg2 int64, arg3 int) ([]domain.MaterialRevisionSummary, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRevisions", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "FindRevisions", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].([]domain.MaterialRevisionSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRevisions indicates an expected call of ListRevisions.
-func (mr *MockMaterialQueryRepositoryMockRecorder) ListRevisions(arg0, arg1, arg2, arg3 any) *gomock.Call {
+// FindRevisions indicates an expected call of FindRevisions.
+func (mr *MockMaterialQueryRepositoryMockRecorder) FindRevisions(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisions", reflect.TypeOf((*MockMaterialQueryRepository)(nil).ListRevisions), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindRevisions", reflect.TypeOf((*MockMaterialQueryRepository)(nil).FindRevisions), arg0, arg1, arg2, arg3)
 }
 
 // LoadAdminProjection mocks base method.
@@ -889,34 +889,34 @@ func (mr *MockMaterialQueryRepositoryMockRecorder) ResolvePublicSlug(arg0, arg1,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResolvePublicSlug", reflect.TypeOf((*MockMaterialQueryRepository)(nil).ResolvePublicSlug), arg0, arg1, arg2)
 }
 
-// SearchAdmin mocks base method.
-func (m *MockMaterialQueryRepository) SearchAdmin(arg0 context.Context, arg1 ports.SearchQuery) (ports.SearchResult, error) {
+// FindForAdmin mocks base method.
+func (m *MockMaterialQueryRepository) FindForAdmin(arg0 context.Context, arg1 ports.SearchQuery) (ports.SearchResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchAdmin", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindForAdmin", arg0, arg1)
 	ret0, _ := ret[0].(ports.SearchResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SearchAdmin indicates an expected call of SearchAdmin.
-func (mr *MockMaterialQueryRepositoryMockRecorder) SearchAdmin(arg0, arg1 any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockMaterialQueryRepositoryMockRecorder) FindForAdmin(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchAdmin", reflect.TypeOf((*MockMaterialQueryRepository)(nil).SearchAdmin), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockMaterialQueryRepository)(nil).FindForAdmin), arg0, arg1)
 }
 
-// SearchPublic mocks base method.
-func (m *MockMaterialQueryRepository) SearchPublic(arg0 context.Context, arg1 ports.SearchQuery) (ports.SearchResult, error) {
+// FindForPublic mocks base method.
+func (m *MockMaterialQueryRepository) FindForPublic(arg0 context.Context, arg1 ports.SearchQuery) (ports.SearchResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchPublic", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindForPublic", arg0, arg1)
 	ret0, _ := ret[0].(ports.SearchResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SearchPublic indicates an expected call of SearchPublic.
-func (mr *MockMaterialQueryRepositoryMockRecorder) SearchPublic(arg0, arg1 any) *gomock.Call {
+// FindForPublic indicates an expected call of FindForPublic.
+func (mr *MockMaterialQueryRepositoryMockRecorder) FindForPublic(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPublic", reflect.TypeOf((*MockMaterialQueryRepository)(nil).SearchPublic), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForPublic", reflect.TypeOf((*MockMaterialQueryRepository)(nil).FindForPublic), arg0, arg1)
 }
 
 // MockMaterialViewRepository is a mock of MaterialViewRepository interface.
@@ -1141,19 +1141,19 @@ func (mr *MockMaterialQueryServiceMockRecorder) GetRevision(arg0, arg1, arg2 any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRevision", reflect.TypeOf((*MockMaterialQueryService)(nil).GetRevision), arg0, arg1, arg2)
 }
 
-// ListRevisions mocks base method.
-func (m *MockMaterialQueryService) ListRevisions(arg0 context.Context, arg1 uuid.UUID, arg2 string, arg3 int) (*contract.MaterialRevisionPage, error) {
+// FindRevisions mocks base method.
+func (m *MockMaterialQueryService) FindRevisions(arg0 context.Context, arg1 uuid.UUID, arg2 string, arg3 int) (*contract.MaterialRevisionPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRevisions", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "FindRevisions", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*contract.MaterialRevisionPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRevisions indicates an expected call of ListRevisions.
-func (mr *MockMaterialQueryServiceMockRecorder) ListRevisions(arg0, arg1, arg2, arg3 any) *gomock.Call {
+// FindRevisions indicates an expected call of FindRevisions.
+func (mr *MockMaterialQueryServiceMockRecorder) FindRevisions(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisions", reflect.TypeOf((*MockMaterialQueryService)(nil).ListRevisions), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindRevisions", reflect.TypeOf((*MockMaterialQueryService)(nil).FindRevisions), arg0, arg1, arg2, arg3)
 }
 
 // Related mocks base method.
@@ -1186,34 +1186,34 @@ func (mr *MockMaterialQueryServiceMockRecorder) Resolve(arg0, arg1, arg2 any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Resolve", reflect.TypeOf((*MockMaterialQueryService)(nil).Resolve), arg0, arg1, arg2)
 }
 
-// Search mocks base method.
-func (m *MockMaterialQueryService) Search(arg0 context.Context, arg1 ports.SearchQuery) (*contract.MaterialSearchResponse, error) {
+// FindForPublic mocks base method.
+func (m *MockMaterialQueryService) FindForPublic(arg0 context.Context, arg1 ports.SearchQuery) (*contract.MaterialSearchResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindForPublic", arg0, arg1)
 	ret0, _ := ret[0].(*contract.MaterialSearchResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Search indicates an expected call of Search.
-func (mr *MockMaterialQueryServiceMockRecorder) Search(arg0, arg1 any) *gomock.Call {
+// FindForPublic indicates an expected call of FindForPublic.
+func (mr *MockMaterialQueryServiceMockRecorder) FindForPublic(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockMaterialQueryService)(nil).Search), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForPublic", reflect.TypeOf((*MockMaterialQueryService)(nil).FindForPublic), arg0, arg1)
 }
 
-// SearchAdmin mocks base method.
-func (m *MockMaterialQueryService) SearchAdmin(arg0 context.Context, arg1 ports.SearchQuery) (*contract.AdminMaterialSearchResponse, error) {
+// FindForAdmin mocks base method.
+func (m *MockMaterialQueryService) FindForAdmin(arg0 context.Context, arg1 ports.SearchQuery) (*contract.AdminMaterialSearchResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchAdmin", arg0, arg1)
+	ret := m.ctrl.Call(m, "FindForAdmin", arg0, arg1)
 	ret0, _ := ret[0].(*contract.AdminMaterialSearchResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SearchAdmin indicates an expected call of SearchAdmin.
-func (mr *MockMaterialQueryServiceMockRecorder) SearchAdmin(arg0, arg1 any) *gomock.Call {
+// FindForAdmin indicates an expected call of FindForAdmin.
+func (mr *MockMaterialQueryServiceMockRecorder) FindForAdmin(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchAdmin", reflect.TypeOf((*MockMaterialQueryService)(nil).SearchAdmin), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindForAdmin", reflect.TypeOf((*MockMaterialQueryService)(nil).FindForAdmin), arg0, arg1)
 }
 
 // MockMaterialViewService is a mock of MaterialViewService interface.

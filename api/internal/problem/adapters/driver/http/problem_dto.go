@@ -20,6 +20,7 @@ type problemIDRequest struct {
 // ProblemResponse is the HTTP representation of a problem.
 type ProblemResponse struct {
 	ID              string              `json:"id"`
+	TenantID        string              `json:"tenant_id"`
 	Slug            string              `json:"slug"`
 	Lifecycle       string              `json:"lifecycle"`
 	Version         int64               `json:"version"`

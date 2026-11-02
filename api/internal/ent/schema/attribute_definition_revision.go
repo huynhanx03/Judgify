@@ -2,6 +2,7 @@ package schema
 
 import (
 	"encoding/json"
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 
 	"github.com/google/uuid"
 
@@ -25,7 +26,8 @@ func (AttributeDefinitionRevision) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		commonent.UUIDMixin{},
 		commonent.AppendOnlyMixin{},
-	}
+
+		mixin.TenantOwnedMixin{}}
 }
 
 func (AttributeDefinitionRevision) Fields() []ent.Field {

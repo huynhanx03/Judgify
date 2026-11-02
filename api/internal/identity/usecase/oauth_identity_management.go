@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	dto "github.com/huynhanx03/judgify/internal/identity/contract"
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
@@ -25,7 +25,7 @@ func (s *authenticationService) OAuthIdentities(
 		isNilTokenDependency(s.fedIdentityRepo) {
 		return nil, apperr.New(apperr.CodeBadRequest, "invalid oauth identity query", nil)
 	}
-	identities, err := s.fedIdentityRepo.ListByUser(ctx, userID)
+	identities, err := s.fedIdentityRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -69,6 +69,22 @@ func (s *authenticationService) OAuthUnlink(
 	}
 	now := time.Now().UTC()
 	err = s.txMgr.DoInTx(ctx, func(transactionContext context.Context) error {
+		linkedIdentity, lookupErr := s.fedIdentityRepo.GetByUserAndProvider(
+			transactionContext, userID, provider,
+		)
+		if lookupErr != nil {
+			return lookupErr
+		}
+		if linkedIdentity == nil || linkedIdentity.ID == uuid.Nil {
+			return ports.ErrFederatedIdentityNotFound
+		}
+		if s.oauthRecoveryContact != nil {
+			if revokeErr := s.oauthRecoveryContact.RevokeOAuthRecoveryContact(
+				transactionContext, userID, linkedIdentity.ID, now,
+			); revokeErr != nil {
+				return revokeErr
+			}
+		}
 		identity, unlinkErr := s.fedIdentityRepo.Unlink(
 			transactionContext, userID, sessionID, provider, now,
 		)

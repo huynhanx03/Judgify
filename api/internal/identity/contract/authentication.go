@@ -13,7 +13,6 @@ import (
 type RegisterRequest struct {
 	Username      string
 	Password      string
-	RecoveryEmail string
 	TraitOfferSelectionRequest
 	ProfileSchemaEvidence
 

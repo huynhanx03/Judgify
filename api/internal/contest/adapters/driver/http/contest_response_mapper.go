@@ -30,18 +30,7 @@ func toContestProblems(v []contract.ContestProblemResponse) []contestProblemResp
 	return r
 }
 func toContestPage(v *d.Paginated[*contract.ContestResponse]) *d.Paginated[*contestResponse] {
-	if v == nil {
-		return nil
-	}
-	r := &d.Paginated[*contestResponse]{Pagination: v.Pagination}
-	if v.Records != nil {
-		records := make([]*contestResponse, len(*v.Records))
-		for i, x := range *v.Records {
-			records[i] = toContestResponse(x)
-		}
-		r.Records = &records
-	}
-	return r
+	return d.MapPaginated(v, toContestResponse)
 }
 func toContestProblemDetailResponse(v *contract.ContestProblemDetailResponse) *contestProblemDetailResponse {
 	if v == nil {

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	entity "github.com/huynhanx03/judgify/internal/cultivation/domain"
 	internalent "github.com/huynhanx03/judgify/internal/ent"
@@ -44,7 +44,7 @@ func NewRankingProjectionRepository(client *internalent.EntClient) (*RankingProj
 
 var _ ports.RankingProjectionRepository = (*RankingProjectionRepository)(nil)
 
-func (repository *RankingProjectionRepository) Page(
+func (repository *RankingProjectionRepository) Find(
 	ctx context.Context,
 	query ports.RankingProjectionQuery,
 ) (entity.RankingProjectionPage, error) {

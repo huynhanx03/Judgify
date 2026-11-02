@@ -12,7 +12,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
 	entity "github.com/huynhanx03/judgify/internal/contest/domain"

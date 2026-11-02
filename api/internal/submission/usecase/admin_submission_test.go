@@ -14,10 +14,10 @@ import (
 	"github.com/huynhanx03/judgify/internal/testutil"
 )
 
-func TestFindAdminUsesDefaultsAndReturnsSafeListProjection(t *testing.T) {
+func TestFindForAdminUsesDefaultsAndReturnsSafeListProjection(t *testing.T) {
 	service, repository := newSubmissionTestEnv(t)
 	createdAt := time.Date(2026, 7, 22, 1, 2, 3, 0, time.UTC)
-	repository.EXPECT().FindAdmin(context.Background(), entity.AdminSubmissionQuery{
+	repository.EXPECT().FindForAdmin(context.Background(), entity.AdminSubmissionQuery{
 		Page: 1, PageSize: entity.DefaultAdminSubmissionPageSize,
 	}).Return(&commondto.Paginated[*entity.Submission]{
 		Records: &[]*entity.Submission{{
@@ -31,7 +31,7 @@ func TestFindAdminUsesDefaultsAndReturnsSafeListProjection(t *testing.T) {
 		},
 	}, nil)
 
-	response, err := service.FindAdmin(context.Background(), nil)
+	response, err := service.FindForAdmin(context.Background(), nil)
 	require.NoError(t, err)
 	require.Len(t, *response.Records, 1)
 	encoded, err := json.Marshal(response)
@@ -42,11 +42,11 @@ func TestFindAdminUsesDefaultsAndReturnsSafeListProjection(t *testing.T) {
 	require.NotContains(t, string(encoded), "expected_output")
 }
 
-func TestFindAdminNormalizesTypedFilters(t *testing.T) {
+func TestFindForAdminNormalizesTypedFilters(t *testing.T) {
 	service, repository := newSubmissionTestEnv(t)
 	status, language := " accepted ", " go "
 	problemID, userID, contestID := testutil.ID(10), testutil.ID(11), testutil.ID(12)
-	repository.EXPECT().FindAdmin(context.Background(), entity.AdminSubmissionQuery{
+	repository.EXPECT().FindForAdmin(context.Background(), entity.AdminSubmissionQuery{
 		Page: 2, PageSize: 50, Status: "accepted", Language: "go",
 		ProblemID: &problemID, UserID: &userID, ContestID: &contestID,
 	}).Return(&commondto.Paginated[*entity.Submission]{
@@ -56,7 +56,7 @@ func TestFindAdminNormalizesTypedFilters(t *testing.T) {
 		},
 	}, nil)
 
-	_, err := service.FindAdmin(context.Background(), &contract.AdminSubmissionFindRequest{
+	_, err := service.FindForAdmin(context.Background(), &contract.AdminSubmissionFindRequest{
 		Pagination: &commondto.PaginationOptions{Page: 2, PageSize: 50},
 		Status:     &status, Language: &language,
 		ProblemID: &problemID, UserID: &userID, ContestID: &contestID,
@@ -64,10 +64,10 @@ func TestFindAdminNormalizesTypedFilters(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestFindAdminRejectsUnknownStatusBeforeRepository(t *testing.T) {
+func TestFindForAdminRejectsUnknownStatusBeforeRepository(t *testing.T) {
 	service, _ := newSubmissionTestEnv(t)
 	status := "rejudging"
-	response, err := service.FindAdmin(context.Background(), &contract.AdminSubmissionFindRequest{
+	response, err := service.FindForAdmin(context.Background(), &contract.AdminSubmissionFindRequest{
 		Status: &status,
 	})
 	require.Nil(t, response)

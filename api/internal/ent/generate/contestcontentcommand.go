@@ -20,6 +20,8 @@ type ContestContentCommand struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
 	ContestID uuid.UUID `json:"contest_id,omitempty"`
 	// CommandKind holds the value of the "command_kind" field.
@@ -98,7 +100,7 @@ func (*ContestContentCommand) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case contestcontentcommand.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case contestcontentcommand.FieldID, contestcontentcommand.FieldContestID, contestcontentcommand.FieldIdempotencyKey, contestcontentcommand.FieldActorUserID, contestcontentcommand.FieldActorSessionID:
+		case contestcontentcommand.FieldID, contestcontentcommand.FieldTenantID, contestcontentcommand.FieldContestID, contestcontentcommand.FieldIdempotencyKey, contestcontentcommand.FieldActorUserID, contestcontentcommand.FieldActorSessionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -120,6 +122,12 @@ func (_m *ContestContentCommand) assignValues(columns []string, values []any) er
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case contestcontentcommand.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case contestcontentcommand.FieldContestID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -243,6 +251,9 @@ func (_m *ContestContentCommand) String() string {
 	var builder strings.Builder
 	builder.WriteString("ContestContentCommand(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ContestID))
 	builder.WriteString(", ")

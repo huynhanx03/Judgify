@@ -56,6 +56,12 @@ func (_c *NotificationCampaignCreate) SetNillableUpdatedAt(v *time.Time) *Notifi
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *NotificationCampaignCreate) SetTenantID(v uuid.UUID) *NotificationCampaignCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *NotificationCampaignCreate) SetStatus(v notificationcampaign.Status) *NotificationCampaignCreate {
 	_c.mutation.SetStatus(v)
@@ -447,6 +453,9 @@ func (_c *NotificationCampaignCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "NotificationCampaign.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "NotificationCampaign.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`generate: missing required field "NotificationCampaign.status"`)}
 	}
@@ -535,6 +544,10 @@ func (_c *NotificationCampaignCreate) createSpec() (*NotificationCampaign, *sqlg
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(notificationcampaign.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(notificationcampaign.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(notificationcampaign.FieldStatus, field.TypeEnum, value)
@@ -1090,6 +1103,9 @@ func (u *NotificationCampaignUpsertOne) UpdateNewValues() *NotificationCampaignU
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(notificationcampaign.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(notificationcampaign.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedBy(); exists {
 			s.SetIgnore(notificationcampaign.FieldCreatedBy)
@@ -1709,6 +1725,9 @@ func (u *NotificationCampaignUpsertBulk) UpdateNewValues() *NotificationCampaign
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(notificationcampaign.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(notificationcampaign.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedBy(); exists {
 				s.SetIgnore(notificationcampaign.FieldCreatedBy)

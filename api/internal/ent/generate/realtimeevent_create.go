@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -62,7 +62,7 @@ func (_c *RealtimeEventCreate) SetOccurredAt(v time.Time) *RealtimeEventCreate {
 }
 
 // SetData sets the "data" field.
-func (_c *RealtimeEventCreate) SetData(v json.RawMessage) *RealtimeEventCreate {
+func (_c *RealtimeEventCreate) SetData(v jsontext.Value) *RealtimeEventCreate {
 	_c.mutation.SetData(v)
 	return _c
 }

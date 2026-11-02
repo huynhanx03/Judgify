@@ -111,6 +111,11 @@ func ReplacedContactID(v uuid.UUID) predicate.UserRecoveryContact {
 	return predicate.UserRecoveryContact(sql.FieldEQ(FieldReplacedContactID, v))
 }
 
+// SourceFederatedIdentityID applies equality check predicate on the "source_federated_identity_id" field. It's identical to SourceFederatedIdentityIDEQ.
+func SourceFederatedIdentityID(v uuid.UUID) predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldEQ(FieldSourceFederatedIdentityID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.UserRecoveryContact {
 	return predicate.UserRecoveryContact(sql.FieldEQ(FieldCreatedAt, v))
@@ -646,6 +651,36 @@ func ReplacedContactIDNotNil() predicate.UserRecoveryContact {
 	return predicate.UserRecoveryContact(sql.FieldNotNull(FieldReplacedContactID))
 }
 
+// SourceFederatedIdentityIDEQ applies the EQ predicate on the "source_federated_identity_id" field.
+func SourceFederatedIdentityIDEQ(v uuid.UUID) predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldEQ(FieldSourceFederatedIdentityID, v))
+}
+
+// SourceFederatedIdentityIDNEQ applies the NEQ predicate on the "source_federated_identity_id" field.
+func SourceFederatedIdentityIDNEQ(v uuid.UUID) predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldNEQ(FieldSourceFederatedIdentityID, v))
+}
+
+// SourceFederatedIdentityIDIn applies the In predicate on the "source_federated_identity_id" field.
+func SourceFederatedIdentityIDIn(vs ...uuid.UUID) predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldIn(FieldSourceFederatedIdentityID, vs...))
+}
+
+// SourceFederatedIdentityIDNotIn applies the NotIn predicate on the "source_federated_identity_id" field.
+func SourceFederatedIdentityIDNotIn(vs ...uuid.UUID) predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldNotIn(FieldSourceFederatedIdentityID, vs...))
+}
+
+// SourceFederatedIdentityIDIsNil applies the IsNil predicate on the "source_federated_identity_id" field.
+func SourceFederatedIdentityIDIsNil() predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldIsNull(FieldSourceFederatedIdentityID))
+}
+
+// SourceFederatedIdentityIDNotNil applies the NotNil predicate on the "source_federated_identity_id" field.
+func SourceFederatedIdentityIDNotNil() predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(sql.FieldNotNull(FieldSourceFederatedIdentityID))
+}
+
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.UserRecoveryContact {
 	return predicate.UserRecoveryContact(func(s *sql.Selector) {
@@ -707,6 +742,29 @@ func HasPasswordResetTokens() predicate.UserRecoveryContact {
 func HasPasswordResetTokensWith(preds ...predicate.PasswordResetToken) predicate.UserRecoveryContact {
 	return predicate.UserRecoveryContact(func(s *sql.Selector) {
 		step := newPasswordResetTokensStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSourceFederatedIdentity applies the HasEdge predicate on the "source_federated_identity" edge.
+func HasSourceFederatedIdentity() predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, SourceFederatedIdentityTable, SourceFederatedIdentityColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSourceFederatedIdentityWith applies the HasEdge predicate on the "source_federated_identity" edge with a given conditions (other predicates).
+func HasSourceFederatedIdentityWith(preds ...predicate.FederatedIdentity) predicate.UserRecoveryContact {
+	return predicate.UserRecoveryContact(func(s *sql.Selector) {
+		step := newSourceFederatedIdentityStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

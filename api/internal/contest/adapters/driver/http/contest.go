@@ -13,7 +13,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 
 	"github.com/huynhanx03/judgify/internal/authctx"
 	contract "github.com/huynhanx03/judgify/internal/contest/contract"
@@ -25,10 +25,10 @@ import (
 
 // ContestHandler defines the contest HTTP handler interface.
 type ContestHandler interface {
-	FindPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error)
+	FindForPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error)
 	GetPublic(ctx context.Context, req *getContestRequest) (*contestResponse, error)
 	GetProblem(ctx context.Context, req *getContestProblemRequest) (*contestProblemDetailResponse, error)
-	FindAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error)
+	FindForAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error)
 	GetAdmin(ctx context.Context, req *getContestRequest) (*contestResponse, error)
 	Create(ctx context.Context, req *createContestRequest) (*contestResponse, error)
 	Update(ctx context.Context, req *updateContestRequest) (*contestResponse, error)
@@ -56,8 +56,8 @@ func NewContestHandler(
 	return value
 }
 
-func (h *contestHandler) FindPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error) {
-	result, err := h.contestService.FindPublic(ctx, req)
+func (h *contestHandler) FindForPublic(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error) {
+	result, err := h.contestService.FindForPublic(ctx, req)
 	return toContestPage(result), err
 }
 
@@ -79,8 +79,8 @@ func (h *contestHandler) GetProblem(
 	return toContestProblemDetailResponse(result), err
 }
 
-func (h *contestHandler) FindAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error) {
-	result, err := h.contestService.FindAdmin(ctx, req)
+func (h *contestHandler) FindForAdmin(ctx context.Context, req *d.QueryOptions) (*d.Paginated[*contestResponse], error) {
+	result, err := h.contestService.FindForAdmin(ctx, req)
 	return toContestPage(result), err
 }
 

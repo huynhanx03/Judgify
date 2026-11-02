@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"encoding/json"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -105,7 +106,7 @@ func TestAllProblemSubmissionsRequireModerationReadCapability(t *testing.T) {
 	}
 	group.RegisterProtected(
 		router.Group(""),
-		middlewares.NewAuthorizationChecker(authorizer),
+		authmiddleware.NewAuthorizationChecker(authorizer),
 	)
 
 	request := httptest.NewRequest(
@@ -170,7 +171,7 @@ func TestAdminSubmissionMonitoringRoutesRequireLeastPrivilegeCapabilities(t *tes
 			}
 			group.RegisterProtected(
 				router.Group(""),
-				middlewares.NewAuthorizationChecker(authorizer),
+				authmiddleware.NewAuthorizationChecker(authorizer),
 			)
 
 			request := httptest.NewRequest(test.method, test.path, nil)

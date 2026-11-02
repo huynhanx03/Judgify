@@ -22,7 +22,7 @@ type sessionManagementHandlerStub struct {
 	logoutAll func(context.Context, uuid.UUID) error
 }
 
-func (stub sessionManagementHandlerStub) List(ctx context.Context, request *sessionListQuery) (*sessionListResponse, error) {
+func (stub sessionManagementHandlerStub) Find(ctx context.Context, request *sessionListQuery) (*sessionListResponse, error) {
 	return stub.list(ctx, request)
 }
 

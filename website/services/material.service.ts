@@ -96,6 +96,22 @@ function lifecycleCall<TResponse, TBody extends object>(
   });
 }
 
+async function findMaterialCursorPageForAdmin(
+  request: AdminMaterialSearchRequest,
+  signal?: AbortSignal,
+): Promise<AdminMaterialSearchResponse> {
+  const body = adminMaterialSearchRequestSchema.parse(request);
+  return api<AdminMaterialSearchResponse, AdminMaterialSearchRequest>(
+    MATERIAL_API.FIND_ADMIN,
+    {
+      method: "POST",
+      body,
+      signal,
+      schema: adminMaterialSearchResponseSchema,
+    },
+  );
+}
+
 async function optimisticMaterialMutation<TBody extends object>(
   namespace: string,
   path: string,
@@ -116,19 +132,17 @@ async function optimisticMaterialMutation<TBody extends object>(
 
 export const materialService = {
   // Materials
-  async search(
+  async findForPublic(
     query: MaterialSearchRequest,
     signal?: AbortSignal,
   ): Promise<MaterialSearchResponse> {
     return api<MaterialSearchResponse, MaterialSearchRequest>(
-      MATERIAL_API.SEARCH,
+      MATERIAL_API.FIND,
       {
         method: "POST",
         body: query,
         signal,
         schema: materialSearchResponseSchema,
-        auth: "none",
-        csrf: "omit",
       },
     );
   },
@@ -167,12 +181,10 @@ export const materialService = {
         method: "POST",
         signal,
         schema: recordMaterialViewResponseSchema,
-        auth: "none",
-        csrf: "omit",
       },
     );
   },
-  async findAdmin(
+  async findForAdmin(
     query?: QueryOptions,
     signal?: AbortSignal,
   ): Promise<Paginated<MaterialArticle>> {
@@ -200,7 +212,7 @@ export const materialService = {
     if (cursor === undefined) {
       throw new TypeError("admin material cursor is unavailable");
     }
-    const response = await this.searchAdmin(
+    const response = await findMaterialCursorPageForAdmin(
       {
         ...(typeof text === "string" && text.trim()
           ? { text: text.trim() }
@@ -247,21 +259,6 @@ export const materialService = {
       },
     };
   },
-  async searchAdmin(
-    query: AdminMaterialSearchRequest,
-    signal?: AbortSignal,
-  ): Promise<AdminMaterialSearchResponse> {
-    const body = adminMaterialSearchRequestSchema.parse(query);
-    return api<AdminMaterialSearchResponse, AdminMaterialSearchRequest>(
-      MATERIAL_API.ADMIN_SEARCH,
-      {
-        method: "POST",
-        body,
-        signal,
-        schema: adminMaterialSearchResponseSchema,
-      },
-    );
-  },
   async getAdmin(
     id: string,
     signal?: AbortSignal,
@@ -275,7 +272,7 @@ export const materialService = {
       },
     );
   },
-  async listRevisions(
+  async findRevisions(
     id: string,
     cursor?: string,
     signal?: AbortSignal,

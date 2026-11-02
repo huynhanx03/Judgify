@@ -3,10 +3,10 @@ package operations
 import (
 	"context"
 	"errors"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 
 	"github.com/huynhanx03/judgify/pkg/permissions"
 )
@@ -30,7 +30,7 @@ func NewHTTPHandler(reader Reader) (*HTTPHandler, error) {
 
 func (value *HTTPHandler) RegisterProtected(
 	router *gin.RouterGroup,
-	permissionChecker *middlewares.AuthorizationChecker,
+	permissionChecker *authmiddleware.AuthorizationChecker,
 ) {
 	if value == nil || value.reader == nil || router == nil || permissionChecker == nil {
 		return

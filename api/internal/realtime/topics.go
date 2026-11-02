@@ -9,6 +9,7 @@ import (
 	"github.com/huynhanx03/go-common/pkg/security/authentication"
 	"github.com/huynhanx03/go-common/pkg/security/authorization"
 
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 	"github.com/huynhanx03/judgify/pkg/permissions"
 )
 
@@ -42,9 +43,10 @@ const (
 )
 
 type Topic struct {
-	Kind    TopicKind
-	ID      uuid.UUID
-	OwnerID uuid.UUID
+	Kind     TopicKind
+	ID       uuid.UUID
+	OwnerID  uuid.UUID
+	TenantID uuid.UUID
 }
 
 // ContestParticipantAccess is the narrow, domain-owned subscription check.
@@ -57,6 +59,10 @@ type ContestParticipantAccess interface {
 // Per-contest anonymous topics must not reveal draft or unpublished contests.
 type ContestPublicAccess interface {
 	IsPubliclyVisible(context.Context, uuid.UUID) (bool, error)
+}
+
+type scopedContestAccess interface {
+	IsInTenantScope(context.Context, uuid.UUID) (bool, error)
 }
 
 type TopicAuthorizer struct {
@@ -91,6 +97,13 @@ func ContestStandingsTopic(contestID uuid.UUID) (string, error) {
 // Per-contest public streams receive the same lifecycle event as well.
 func ContestLifecycleTopic() string {
 	return contestTopicPrefix + ":" + lifecycleTopicSuffix
+}
+
+func TenantContestLifecycleTopic(tenantID uuid.UUID) (string, error) {
+	if tenantID == uuid.Nil {
+		return "", ErrInvalidConfig
+	}
+	return contestTopicPrefix + ":" + lifecycleTopicSuffix + ":" + tenantID.String(), nil
 }
 
 func ContestPublicTopic(contestID uuid.UUID) (string, error) {
@@ -130,6 +143,13 @@ func UserSubmissionsTopic(userID uuid.UUID) (string, error) {
 	return userTopicPrefix + ":" + userID.String() + ":" + submissionsTopicSuffix, nil
 }
 
+func TenantUserSubmissionsTopic(tenantID, userID uuid.UUID) (string, error) {
+	if tenantID == uuid.Nil || userID == uuid.Nil {
+		return "", ErrInvalidConfig
+	}
+	return userTopicPrefix + ":" + tenantID.String() + ":" + userID.String() + ":" + submissionsTopicSuffix, nil
+}
+
 // AuthorizationCapabilitiesTopic is a single authenticated, tenant-wide
 // invalidation stream. Its payload never includes policy or identity data.
 func AuthorizationCapabilitiesTopic() string {
@@ -144,6 +164,13 @@ func NotificationTopic(userID uuid.UUID) (string, error) {
 	return notificationTopicPrefix + ":" + userID.String(), nil
 }
 
+func TenantNotificationTopic(tenantID, userID uuid.UUID) (string, error) {
+	if tenantID == uuid.Nil || userID == uuid.Nil {
+		return "", ErrInvalidConfig
+	}
+	return notificationTopicPrefix + ":" + tenantID.String() + ":" + userID.String(), nil
+}
+
 func ParseTopic(value string) (Topic, error) {
 	if value == AuthorizationCapabilitiesTopic() {
 		return Topic{Kind: TopicAuthorizationCapabilities}, nil
@@ -152,6 +179,14 @@ func ParseTopic(value string) (Topic, error) {
 		return Topic{Kind: TopicContestLifecycle}, nil
 	}
 	parts := strings.Split(value, ":")
+	if len(parts) == 3 && parts[0] == notificationTopicPrefix {
+		tenantID, tenantErr := canonicalTopicID(parts[1])
+		userID, userErr := canonicalTopicID(parts[2])
+		if tenantErr != nil || userErr != nil {
+			return Topic{}, ErrTopicForbidden
+		}
+		return Topic{Kind: TopicNotifications, ID: userID, TenantID: tenantID}, nil
+	}
 	if len(parts) == 2 && parts[0] == notificationTopicPrefix {
 		id, err := uuid.Parse(parts[1])
 		if err != nil || id == uuid.Nil || id.String() != parts[1] {
@@ -175,8 +210,23 @@ func ParseTopic(value string) (Topic, error) {
 			OwnerID: userID,
 		}, nil
 	}
+	if len(parts) == 4 && parts[0] == userTopicPrefix && parts[3] == submissionsTopicSuffix {
+		tenantID, tenantErr := canonicalTopicID(parts[1])
+		userID, userErr := canonicalTopicID(parts[2])
+		if tenantErr != nil || userErr != nil {
+			return Topic{}, ErrTopicForbidden
+		}
+		return Topic{Kind: TopicUserSubmissions, ID: userID, TenantID: tenantID}, nil
+	}
 	if len(parts) != 3 {
 		return Topic{}, ErrTopicForbidden
+	}
+	if parts[0] == contestTopicPrefix && parts[1] == lifecycleTopicSuffix {
+		tenantID, err := canonicalTopicID(parts[2])
+		if err != nil {
+			return Topic{}, ErrTopicForbidden
+		}
+		return Topic{Kind: TopicContestLifecycle, TenantID: tenantID}, nil
 	}
 	id, err := canonicalTopicID(parts[1])
 	if err != nil {
@@ -221,7 +271,28 @@ func (authorizer *TopicAuthorizer) Authorize(
 	if err != nil {
 		return ErrTopicForbidden
 	}
+	if isContestTopic(topic.Kind) {
+		scope, scoped := tenantctx.FromContext(ctx)
+		access, supported := authorizer.public.(scopedContestAccess)
+		if !scoped || !scope.IsTenant() || !supported {
+			return ErrTopicForbidden
+		}
+		inScope, scopeErr := access.IsInTenantScope(ctx, topic.ID)
+		if scopeErr != nil || !inScope {
+			return ErrTopicForbidden
+		}
+	}
 	if topic.Kind == TopicContestLifecycle {
+		if topic.TenantID != uuid.Nil {
+			scope, ok := tenantctx.FromContext(ctx)
+			if !ok {
+				return ErrTopicForbidden
+			}
+			tenantID, single := scope.TenantID()
+			if !single || tenantID != topic.TenantID {
+				return ErrTopicForbidden
+			}
+		}
 		return nil
 	}
 	if topic.Kind == TopicContestStandings || topic.Kind == TopicContestPublic {
@@ -244,6 +315,16 @@ func (authorizer *TopicAuthorizer) Authorize(
 	}
 	if topic.Kind == TopicAuthorizationCapabilities {
 		return nil
+	}
+	if topic.TenantID != uuid.Nil {
+		scope, ok := tenantctx.FromContext(ctx)
+		if !ok {
+			return ErrTopicForbidden
+		}
+		tenantID, single := scope.TenantID()
+		if !single || tenantID != topic.TenantID {
+			return ErrTopicForbidden
+		}
 	}
 	switch topic.Kind {
 	case TopicUserSubmissions, TopicNotifications:
@@ -282,6 +363,16 @@ func (authorizer *TopicAuthorizer) Authorize(
 		return ErrTopicForbidden
 	}
 	return nil
+}
+
+func isContestTopic(kind TopicKind) bool {
+	switch kind {
+	case TopicContestStandings, TopicContestPublic, TopicContestParticipants,
+		TopicContestStaff, TopicContestPrivateUser:
+		return true
+	default:
+		return false
+	}
 }
 
 func canonicalTopicID(value string) (uuid.UUID, error) {

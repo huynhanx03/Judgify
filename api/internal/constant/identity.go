@@ -21,18 +21,17 @@ const (
 	CacheCostName            = 1
 	CacheCostKey             = 1
 
-	CacheKeyPrefixAttrKey           = "attr_def::key::"
-	CacheKeyPrefixRoleName          = "role::name::"
-	CacheKeyPrefixRolePermissions   = "role_perms::"
-	CacheKeyPrefixRoleID            = "role::id::"
-	CacheKeyPrefixAttrID            = "attr_def::id::"
-	CacheKeyPrefixResourceID        = "resource::id::"
-	CacheKeyPrefixResourceKey       = "resource::key::"
-	CacheKeyPrefixPermID            = "perm::id::"
-	CacheKeyPermissionConfigVersion = "perm_conf_ver"
-	CacheKeyAuthRateLimitForgot     = "auth:ratelimit:forgot:"
-	IdentityRoleByIDKeyPrefix       = "judgify:v1:identity:role:id:"
-	IdentityRoleAllKey              = "judgify:v1:identity:role:all"
+	CacheKeyPrefixAttrKey         = "attr_def::key::"
+	CacheKeyPrefixRoleName        = "role::name::"
+	CacheKeyPrefixRolePermissions = "role_perms::"
+	CacheKeyPrefixRoleID          = "role::id::"
+	CacheKeyPrefixAttrID          = "attr_def::id::"
+	CacheKeyPrefixResourceID      = "resource::id::"
+	CacheKeyPrefixResourceKey     = "resource::key::"
+	CacheKeyPrefixPermID          = "perm::id::"
+	CacheKeyAuthRateLimitForgot   = "auth:ratelimit:forgot:"
+	IdentityRoleByIDKeyPrefix     = "judgify:v1:identity:role:id:"
+	IdentityRoleAllKey            = "judgify:v1:identity:role:all"
 
 	OAuthTokenTTL      = 10 * time.Minute
 	ForgotRateLimitTTL = time.Minute

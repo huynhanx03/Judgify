@@ -3,12 +3,12 @@ package http
 import (
 	"context"
 	"crypto/sha256"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/netip"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/huynhanx03/go-common/pkg/common/http/handler"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 
 	"github.com/huynhanx03/judgify/internal/material/viewer"
@@ -32,7 +32,7 @@ func (h *MaterialHandlerGroup) RegisterPublic(r *gin.RouterGroup) {
 
 	materials := r.Group("/materials")
 	{
-		materials.POST("/search", handler.Wrap(h.MaterialHandler.Search))
+		materials.POST("/find", handler.Wrap(h.MaterialHandler.FindForPublic))
 		materials.GET("/slug/:slug", handler.Wrap(h.MaterialHandler.ResolveSlug))
 		materials.GET("/slug/:slug/related", handler.Wrap(h.MaterialHandler.Related))
 		materials.POST("/:id/views", captureAnonymousMaterialViewer(), handler.Wrap(h.MaterialHandler.RecordView))
@@ -60,7 +60,7 @@ func captureAnonymousMaterialViewer() gin.HandlerFunc {
 }
 
 // RegisterProtected registers protected material routes.
-func (h *MaterialHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *middlewares.AuthorizationChecker) {
+func (h *MaterialHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker *authmiddleware.AuthorizationChecker) {
 	categories := r.Group("/material-categories")
 	{
 		categories.POST("/find", permChecker.RequirePermission(permissions.ResourceKeyMaterialCategory, permissions.PermissionScopeRead), handler.Wrap(h.CategoryHandler.Find))
@@ -72,9 +72,9 @@ func (h *MaterialHandlerGroup) RegisterProtected(r *gin.RouterGroup, permChecker
 
 	adminMaterials := r.Group("/admin/materials")
 	{
-		adminMaterials.POST("/search", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeRead), handler.Wrap(h.MaterialHandler.SearchAdmin))
+		adminMaterials.POST("/find", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeRead), handler.Wrap(h.MaterialHandler.FindForAdmin))
 		adminMaterials.GET("/:id", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeRead), handler.Wrap(h.MaterialHandler.GetAdmin))
-		adminMaterials.GET("/:id/revisions", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeRead), handler.Wrap(h.MaterialHandler.ListRevisions))
+		adminMaterials.GET("/:id/revisions", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeRead), handler.Wrap(h.MaterialHandler.FindRevisions))
 		adminMaterials.GET("/:id/revisions/:revision_id", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeRead), handler.Wrap(h.MaterialHandler.GetRevision))
 		adminMaterials.POST("/drafts", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeCreate), materialCommandNoStore(), captureMaterialCommandID(), handler.Wrap(h.MaterialHandler.CreateDraft))
 		adminMaterials.PUT("/:id/draft", permChecker.RequirePermission(permissions.ResourceKeyMaterial, permissions.PermissionScopeUpdate), materialCommandNoStore(), captureMaterialCommandID(), handler.Wrap(h.MaterialHandler.SaveDraft))

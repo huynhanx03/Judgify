@@ -66,7 +66,7 @@ const STAT_CARDS: readonly StatCardDefinition[] = [
       { resource: AUTHORIZATION_RESOURCE.PROBLEM, action: AUTHORIZATION_ACTION.READ },
     ],
     load: async (signal) =>
-      (await problemService.findAdmin(countQuery, signal)).pagination.total_items,
+      (await problemService.findForAdmin(countQuery, signal)).pagination.total_items,
   },
   {
     key: "totalContests",
@@ -77,7 +77,7 @@ const STAT_CARDS: readonly StatCardDefinition[] = [
       { resource: AUTHORIZATION_RESOURCE.CONTEST, action: AUTHORIZATION_ACTION.READ },
     ],
     load: async (signal) =>
-      (await contestService.findAdmin(countQuery, signal)).pagination.total_items,
+      (await contestService.findForAdmin(countQuery, signal)).pagination.total_items,
   },
   {
     key: "totalTags",

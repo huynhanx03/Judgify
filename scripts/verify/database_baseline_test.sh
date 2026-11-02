@@ -4,7 +4,8 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 verifier="$root_dir/scripts/verify/database_baseline.sh"
 workflow="$root_dir/.github/workflows/ci.yml"
-seed="$root_dir/scripts/seed.sql"
+role_setup="$root_dir/scripts/init-roles.sql"
+catalog_migration="$root_dir/api/migration/20261102000000_seed_catalog.sql"
 
 if [[ ! -x "$verifier" ]]; then
   echo "database baseline verifier is missing or not executable: $verifier" >&2
@@ -41,7 +42,10 @@ require_literal "$verifier" '--pull never'
 require_literal "$verifier" 'JUDGIFY_VERIFY_POSTGRES_IMAGE'
 require_literal "$verifier" '@sha256:'
 require_literal "$verifier" 'PostgreSQL init process complete; ready for start up.'
-require_literal "$verifier" 'deploy/postgres/init-roles.sql'
+require_literal "$verifier" 'scripts/init-roles.sql'
+require_absent_literal "$verifier" 'seed_roles'
+require_absent_literal "$role_setup" '\gexec'
+require_absent_literal "$role_setup" '\if'
 require_literal "$verifier" 'go build -trimpath -o "$migrator_binary" ./cmd/migrate'
 require_literal "$verifier" 'run_production_migrator'
 require_literal "$verifier" 'production migration command is not idempotent'
@@ -76,8 +80,8 @@ require_literal "$verifier" 'judgify_migrator'
 require_literal "$verifier" 'judgify_api'
 require_literal "$verifier" 'judgify_worker'
 require_absent_literal "$verifier" 'atlas migrate apply'
-require_absent_literal "$verifier" 'scripts/seed.sql'
-require_absent_literal "$seed" 'TRUNCATE TABLE "audit_logs"'
+require_absent_literal "$verifier" '--set seed_fixtures=1'
+require_absent_literal "$catalog_migration" 'TRUNCATE TABLE "audit_logs"'
 
 require_literal "$workflow" 'permissions:'
 require_literal "$workflow" 'contents: read'

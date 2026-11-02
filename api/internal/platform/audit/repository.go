@@ -13,12 +13,13 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
 	commonent "github.com/huynhanx03/go-common/pkg/database/ent"
 
 	_ "github.com/huynhanx03/judgify/internal/ent/generate/runtime"
 	"github.com/huynhanx03/judgify/internal/platform/internal/boundedjson"
 	platformtx "github.com/huynhanx03/judgify/internal/platform/transaction"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -107,6 +108,7 @@ type SQLExecutor interface {
 
 type preparedEntry struct {
 	id             uuid.UUID
+	tenantID       *uuid.UUID
 	actorUserID    *uuid.UUID
 	actorSessionID *uuid.UUID
 	action         string
@@ -133,6 +135,7 @@ func (repository *Repository) Append(ctx context.Context, entry Entry) (uuid.UUI
 	}
 	_, err = client.AuditLog.Create().
 		SetID(prepared.id).
+		SetNillableTenantID(prepared.tenantID).
 		SetNillableActorUserID(prepared.actorUserID).
 		SetNillableActorSessionID(prepared.actorSessionID).
 		SetAction(prepared.action).
@@ -169,12 +172,13 @@ func (repository *Repository) AppendSQL(
 	}
 	if _, err := executor.ExecContext(ctx, `
 		INSERT INTO audit_logs (
-			id, actor_user_id, actor_session_id, action, resource, resource_id,
+			id, tenant_id, actor_user_id, actor_session_id, action, resource, resource_id,
 			reason, before_data, after_data, correlation_id, occurred_at, created_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
 		)`,
 		prepared.id,
+		prepared.tenantID,
 		prepared.actorUserID,
 		prepared.actorSessionID,
 		prepared.action,
@@ -206,6 +210,20 @@ func (repository *Repository) prepareEntry(ctx context.Context, entry Entry) (pr
 		return preparedEntry{}, ErrInvalidEntry
 	}
 	if entry.ActorSessionID != nil && *entry.ActorSessionID == uuid.Nil {
+		return preparedEntry{}, ErrInvalidEntry
+	}
+	tenantID := entry.TenantID
+	if scope, ok := tenantctx.FromContext(ctx); ok {
+		if scope.IsTenant() {
+			scopedID, _ := scope.TenantID()
+			if tenantID != uuid.Nil && tenantID != scopedID {
+				return preparedEntry{}, ErrInvalidEntry
+			}
+			tenantID = scopedID
+		} else if tenantID == uuid.Nil || !auditContainsTenant(scope.TenantIDs(), tenantID) {
+			return preparedEntry{}, ErrInvalidEntry
+		}
+	} else if tenantID != uuid.Nil {
 		return preparedEntry{}, ErrInvalidEntry
 	}
 
@@ -251,6 +269,7 @@ func (repository *Repository) prepareEntry(ctx context.Context, entry Entry) (pr
 	}
 	return preparedEntry{
 		id:             id,
+		tenantID:       auditOptionalUUID(tenantID),
 		actorUserID:    cloneUUID(entry.ActorUserID),
 		actorSessionID: cloneUUID(entry.ActorSessionID),
 		action:         strings.Clone(entry.Action),
@@ -263,6 +282,23 @@ func (repository *Repository) prepareEntry(ctx context.Context, entry Entry) (pr
 		occurredAt:     occurredAt,
 		createdAt:      now,
 	}, nil
+}
+
+func auditContainsTenant(ids []uuid.UUID, tenantID uuid.UUID) bool {
+	for _, id := range ids {
+		if id == tenantID {
+			return true
+		}
+	}
+	return false
+}
+
+func auditOptionalUUID(id uuid.UUID) *uuid.UUID {
+	if id == uuid.Nil {
+		return nil
+	}
+	value := id
+	return &value
 }
 
 func mapJSONError(err error) error {

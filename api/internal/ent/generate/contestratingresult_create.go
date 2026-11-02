@@ -54,6 +54,12 @@ func (_c *ContestRatingResultCreate) SetNillableUpdatedAt(v *time.Time) *Contest
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ContestRatingResultCreate) SetTenantID(v uuid.UUID) *ContestRatingResultCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetRatingRunID sets the "rating_run_id" field.
 func (_c *ContestRatingResultCreate) SetRatingRunID(v uuid.UUID) *ContestRatingResultCreate {
 	_c.mutation.SetRatingRunID(v)
@@ -189,6 +195,9 @@ func (_c *ContestRatingResultCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "ContestRatingResult.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "ContestRatingResult.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.RatingRunID(); !ok {
 		return &ValidationError{Name: "rating_run_id", err: errors.New(`generate: missing required field "ContestRatingResult.rating_run_id"`)}
 	}
@@ -295,6 +304,10 @@ func (_c *ContestRatingResultCreate) createSpec() (*ContestRatingResult, *sqlgra
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(contestratingresult.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(contestratingresult.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.PriorRating(); ok {
 		_spec.SetField(contestratingresult.FieldPriorRating, field.TypeInt, value)
@@ -441,6 +454,9 @@ func (u *ContestRatingResultUpsertOne) UpdateNewValues() *ContestRatingResultUps
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(contestratingresult.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(contestratingresult.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.RatingRunID(); exists {
 			s.SetIgnore(contestratingresult.FieldRatingRunID)
@@ -699,6 +715,9 @@ func (u *ContestRatingResultUpsertBulk) UpdateNewValues() *ContestRatingResultUp
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(contestratingresult.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(contestratingresult.FieldTenantID)
 			}
 			if _, exists := b.mutation.RatingRunID(); exists {
 				s.SetIgnore(contestratingresult.FieldRatingRunID)

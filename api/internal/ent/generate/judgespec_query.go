@@ -266,12 +266,12 @@ func (_q *JudgeSpecQuery) Clone() *JudgeSpecQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.JudgeSpec.Query().
-//		GroupBy(judgespec.FieldCreatedAt).
+//		GroupBy(judgespec.FieldTenantID).
 //		Aggregate(generate.Count()).
 //		Scan(ctx, &v)
 func (_q *JudgeSpecQuery) GroupBy(field string, fields ...string) *JudgeSpecGroupBy {
@@ -289,11 +289,11 @@ func (_q *JudgeSpecQuery) GroupBy(field string, fields ...string) *JudgeSpecGrou
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		TenantID uuid.UUID `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.JudgeSpec.Query().
-//		Select(judgespec.FieldCreatedAt).
+//		Select(judgespec.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *JudgeSpecQuery) Select(fields ...string) *JudgeSpecSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

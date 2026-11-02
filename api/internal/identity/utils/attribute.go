@@ -5,6 +5,7 @@ import (
 
 	"github.com/huynhanx03/go-common/pkg/common/cache"
 
+	tenantcache "github.com/huynhanx03/judgify/internal/cache"
 	"github.com/huynhanx03/judgify/internal/constant"
 	entity "github.com/huynhanx03/judgify/internal/identity/domain"
 	"github.com/huynhanx03/judgify/internal/ports"
@@ -15,20 +16,12 @@ func GetAttributeDefinition(
 	ctx context.Context,
 	key string,
 	repo ports.AttributeDefinitionRepository,
-	localCache cache.LocalCache[string, any],
+	localCache *cache.Cache,
 ) (*entity.AttributeDefinition, error) {
-	cacheKey := constant.CacheKeyPrefixAttrKey + key
-	if d, found := cache.Get[*entity.AttributeDefinition](localCache, cacheKey); found {
-		return d, nil
-	}
-
-	def, err := repo.GetByKey(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-
-	cache.SetWithTTL(localCache, cacheKey, def, constant.EntityCacheTTL)
-	return def, nil
+	cacheKey := tenantcache.TenantScopedKey(ctx, constant.CacheKeyPrefixAttrKey+key)
+	return cache.Fetch[*entity.AttributeDefinition](ctx, localCache, cacheKey, constant.EntityCacheTTL, func(loadCtx context.Context) (*entity.AttributeDefinition, error) {
+		return repo.GetByKey(loadCtx, key)
+	})
 }
 
 // GetAttributeValue retrieves value of an attribute key from a list of user attributes.
@@ -37,7 +30,7 @@ func GetAttributeValue(
 	key string,
 	existingAttrs []*entity.UserAttributeValue,
 	repo ports.AttributeDefinitionRepository,
-	localCache cache.LocalCache[string, any],
+	localCache *cache.Cache,
 ) string {
 	def, err := GetAttributeDefinition(ctx, key, repo, localCache)
 	if err != nil {

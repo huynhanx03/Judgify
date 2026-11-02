@@ -4,8 +4,8 @@ set -Eeuo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root_dir/scripts/lib/operations.sh"
 api_dir="$root_dir/api"
-migration_dir="$api_dir/internal/ent/migrate/migrations"
-role_bootstrap="$root_dir/deploy/postgres/init-roles.sql"
+migration_dir="$api_dir/migration"
+role_setup="$root_dir/scripts/init-roles.sql"
 container_name="judgify-db-verify-$$-${RANDOM}"
 work_dir="$(mktemp -d "$(ops_temp_root)/judgify-db-verify.XXXXXX")"
 migrator_binary="$work_dir/judgify-migrate"
@@ -75,8 +75,7 @@ if [[ ! "$host_port" =~ ^[0-9]+$ ]]; then
   fail "could not resolve temporary PostgreSQL port"
 fi
 
-# Reproduce the production role bootstrap before any application object is
-# created. Passwords are process-local and never printed.
+# Create the least-privilege database roles before applying migrations.
 docker exec \
   --interactive \
   --env "POSTGRES_DB=$database_name" \
@@ -89,7 +88,7 @@ docker exec \
   --set ON_ERROR_STOP=1 \
   --username "$database_admin_user" \
   --dbname "$database_name" \
-  <"$role_bootstrap" >/dev/null
+  <"$role_setup" >/dev/null
 
 docker exec "$container_name" \
   createdb \

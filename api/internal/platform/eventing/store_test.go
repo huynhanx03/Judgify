@@ -40,6 +40,7 @@ func TestStoreClaimUsesAtomicSkipLockedLease(t *testing.T) {
 			int64(1),
 			"018f5fbe-3d77-7e10-8fd1-8b6f1ca32e17",
 			nil,
+			nil,
 			[]byte(`{"submission_id":"00000000-0000-7000-8000-000000000021"}`),
 			now.Add(-time.Second),
 			now.Add(-time.Second),

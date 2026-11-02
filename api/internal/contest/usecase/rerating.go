@@ -14,8 +14,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	contract "github.com/huynhanx03/judgify/internal/contest/contract"
 	entity "github.com/huynhanx03/judgify/internal/contest/domain"
@@ -23,6 +23,7 @@ import (
 	"github.com/huynhanx03/judgify/internal/platform/eventing"
 	"github.com/huynhanx03/judgify/internal/platform/operation"
 	"github.com/huynhanx03/judgify/internal/ports"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const (
@@ -64,6 +65,7 @@ type RatingReratingWorkflow struct {
 }
 
 type ratingReratingRequest struct {
+	TenantID                     uuid.UUID `json:"tenant_id"`
 	OperationID                  uuid.UUID `json:"operation_id"`
 	TriggerContestID             uuid.UUID `json:"trigger_contest_id"`
 	ActorUserID                  uuid.UUID `json:"actor_user_id"`
@@ -151,6 +153,10 @@ func (workflow *RatingReratingWorkflow) Start(
 		return nil, ErrInvalidRatingRerating
 	}
 	ctx = correlation.EnsureContext(ctx)
+	tenantID, err := tenantctx.RequireTenant(ctx)
+	if err != nil {
+		return nil, ErrInvalidRatingRerating
+	}
 	operationID := deriveRatingReratingID(
 		"operation",
 		idempotencyKey,
@@ -181,7 +187,7 @@ func (workflow *RatingReratingWorkflow) Start(
 		started operation.CreateResult
 		plan    entity.RatingReratingPlan
 	)
-	err := workflow.transactions.Within(
+	err = workflow.transactions.Within(
 		ctx,
 		func(txCtx context.Context) error {
 			existing, existingErr := workflow.operations.Get(
@@ -230,7 +236,7 @@ func (workflow *RatingReratingWorkflow) Start(
 			plan = *prepared
 			plan.ActorUserID = actorUserID
 			plan.Reason = reason
-			request := ratingReratingRequestFromPlan(plan)
+			request := ratingReratingRequestFromPlan(tenantID, plan)
 			encodedRequest, requestHash, encodeErr :=
 				operation.EncodeRequest(request)
 			if encodeErr != nil {
@@ -350,6 +356,14 @@ func (workflow *RatingReratingWorkflow) executeBatch(
 			err,
 		)
 	}
+	tenantContext, err := tenantctx.WithTenantID(ctx, request.TenantID)
+	if err != nil {
+		return operation.BatchResult{}, operation.Terminal(
+			"invalid_rating_rerating_tenant",
+			err,
+		)
+	}
+	ctx = tenantContext
 	checkpoint, err := decodeRatingReratingCheckpoint(
 		input.Checkpoint,
 		plan,
@@ -640,9 +654,11 @@ func ratingReratingStartResponse(
 }
 
 func ratingReratingRequestFromPlan(
+	tenantID uuid.UUID,
 	plan entity.RatingReratingPlan,
 ) ratingReratingRequest {
 	return ratingReratingRequest{
+		TenantID:                     tenantID,
 		OperationID:                  plan.OperationID,
 		TriggerContestID:             plan.TriggerContestID,
 		ActorUserID:                  plan.ActorUserID,
@@ -703,7 +719,8 @@ func validateRatingReratingRequest(
 	request ratingReratingRequest,
 ) error {
 	plan := request.plan()
-	if plan.OperationID == uuid.Nil ||
+	if request.TenantID == uuid.Nil ||
+		plan.OperationID == uuid.Nil ||
 		plan.TriggerContestID == uuid.Nil ||
 		plan.ActorUserID == uuid.Nil ||
 		!utf8.ValidString(plan.Reason) ||

@@ -35,15 +35,7 @@ func toRankResponses(results []*contract.RankResponse) []*rankResponse {
 }
 
 func toRankPage(result *d.Paginated[*contract.RankResponse]) *d.Paginated[*rankResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*rankResponse]{Pagination: result.Pagination}
-	if result.Records != nil {
-		values := toRankResponses(*result.Records)
-		page.Records = &values
-	}
-	return page
+	return d.MapPaginated(result, toRankResponse)
 }
 
 func toCreateRankCommand(request *createRankRequest) *contract.CreateRankCommand {

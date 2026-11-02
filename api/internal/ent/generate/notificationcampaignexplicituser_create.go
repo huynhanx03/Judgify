@@ -26,6 +26,12 @@ type NotificationCampaignExplicitUserCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *NotificationCampaignExplicitUserCreate) SetTenantID(v uuid.UUID) *NotificationCampaignExplicitUserCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetCampaignRevisionID sets the "campaign_revision_id" field.
 func (_c *NotificationCampaignExplicitUserCreate) SetCampaignRevisionID(v uuid.UUID) *NotificationCampaignExplicitUserCreate {
 	_c.mutation.SetCampaignRevisionID(v)
@@ -123,6 +129,9 @@ func (_c *NotificationCampaignExplicitUserCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *NotificationCampaignExplicitUserCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "NotificationCampaignExplicitUser.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CampaignRevisionID(); !ok {
 		return &ValidationError{Name: "campaign_revision_id", err: errors.New(`generate: missing required field "NotificationCampaignExplicitUser.campaign_revision_id"`)}
 	}
@@ -174,6 +183,10 @@ func (_c *NotificationCampaignExplicitUserCreate) createSpec() (*NotificationCam
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(notificationcampaignexplicituser.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(notificationcampaignexplicituser.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -219,7 +232,7 @@ func (_c *NotificationCampaignExplicitUserCreate) createSpec() (*NotificationCam
 // of the `INSERT` statement. For example:
 //
 //	client.NotificationCampaignExplicitUser.Create().
-//		SetCampaignRevisionID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -228,7 +241,7 @@ func (_c *NotificationCampaignExplicitUserCreate) createSpec() (*NotificationCam
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationCampaignExplicitUserUpsert) {
-//			SetCampaignRevisionID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationCampaignExplicitUserCreate) OnConflict(opts ...sql.ConflictOption) *NotificationCampaignExplicitUserUpsertOne {
@@ -280,6 +293,9 @@ func (u *NotificationCampaignExplicitUserUpsertOne) UpdateNewValues() *Notificat
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(notificationcampaignexplicituser.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(notificationcampaignexplicituser.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CampaignRevisionID(); exists {
 			s.SetIgnore(notificationcampaignexplicituser.FieldCampaignRevisionID)
@@ -457,7 +473,7 @@ func (_c *NotificationCampaignExplicitUserCreateBulk) ExecX(ctx context.Context)
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationCampaignExplicitUserUpsert) {
-//			SetCampaignRevisionID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationCampaignExplicitUserCreateBulk) OnConflict(opts ...sql.ConflictOption) *NotificationCampaignExplicitUserUpsertBulk {
@@ -503,6 +519,9 @@ func (u *NotificationCampaignExplicitUserUpsertBulk) UpdateNewValues() *Notifica
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(notificationcampaignexplicituser.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(notificationcampaignexplicituser.FieldTenantID)
 			}
 			if _, exists := b.mutation.CampaignRevisionID(); exists {
 				s.SetIgnore(notificationcampaignexplicituser.FieldCampaignRevisionID)

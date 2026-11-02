@@ -54,6 +54,12 @@ func (_c *RatingSequenceSlotCreate) SetNillableUpdatedAt(v *time.Time) *RatingSe
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RatingSequenceSlotCreate) SetTenantID(v uuid.UUID) *RatingSequenceSlotCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
 // SetRatingSequence sets the "rating_sequence" field.
 func (_c *RatingSequenceSlotCreate) SetRatingSequence(v int64) *RatingSequenceSlotCreate {
 	_c.mutation.SetRatingSequence(v)
@@ -169,6 +175,9 @@ func (_c *RatingSequenceSlotCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`generate: missing required field "RatingSequenceSlot.updated_at"`)}
 	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "RatingSequenceSlot.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.RatingSequence(); !ok {
 		return &ValidationError{Name: "rating_sequence", err: errors.New(`generate: missing required field "RatingSequenceSlot.rating_sequence"`)}
 	}
@@ -232,6 +241,10 @@ func (_c *RatingSequenceSlotCreate) createSpec() (*RatingSequenceSlot, *sqlgraph
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(ratingsequenceslot.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(ratingsequenceslot.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.RatingSequence(); ok {
 		_spec.SetField(ratingsequenceslot.FieldRatingSequence, field.TypeInt64, value)
@@ -361,6 +374,9 @@ func (u *RatingSequenceSlotUpsertOne) UpdateNewValues() *RatingSequenceSlotUpser
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(ratingsequenceslot.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(ratingsequenceslot.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.RatingSequence(); exists {
 			s.SetIgnore(ratingsequenceslot.FieldRatingSequence)
@@ -604,6 +620,9 @@ func (u *RatingSequenceSlotUpsertBulk) UpdateNewValues() *RatingSequenceSlotUpse
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(ratingsequenceslot.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(ratingsequenceslot.FieldTenantID)
 			}
 			if _, exists := b.mutation.RatingSequence(); exists {
 				s.SetIgnore(ratingsequenceslot.FieldRatingSequence)

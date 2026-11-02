@@ -43,3 +43,19 @@ func (access *ContestPublicAccess) IsPubliclyVisible(
 	}
 	return visible, nil
 }
+
+func (access *ContestPublicAccess) IsInTenantScope(
+	ctx context.Context,
+	contestID uuid.UUID,
+) (bool, error) {
+	if access == nil || access.client == nil || ctx == nil || contestID == uuid.Nil {
+		return false, realtime.ErrInvalidConfig
+	}
+	visible, err := access.client.DB(ctx).Contest.Query().Where(
+		contest.IDEQ(contestID),
+	).Exist(ctx)
+	if err != nil {
+		return false, fmt.Errorf("query realtime contest tenant scope: %w", err)
+	}
+	return visible, nil
+}

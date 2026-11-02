@@ -36,13 +36,13 @@ func (capture *adminSubmissionQueries) snapshot() []string {
 	return append([]string(nil), capture.queries...)
 }
 
-func TestFindAdminUsesTypedFiltersDeterministicBoundAndSafeProjection(t *testing.T) {
+func TestFindForAdminUsesTypedFiltersDeterministicBoundAndSafeProjection(t *testing.T) {
 	repository, mock, captured := newAdminSubmissionRepository(t)
 	mock.ExpectQuery("count").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(100))
 	mock.ExpectQuery("records").WillReturnRows(sqlmock.NewRows(adminSubmissionSummaryFields))
 	problemID, userID, contestID := uuid.New(), uuid.New(), uuid.New()
 
-	page, err := repository.FindAdmin(context.Background(), entity.AdminSubmissionQuery{
+	page, err := repository.FindForAdmin(context.Background(), entity.AdminSubmissionQuery{
 		Page: 2, PageSize: 25, Status: "accepted", Language: "go",
 		ProblemID: &problemID, UserID: &userID, ContestID: &contestID,
 	})
@@ -76,9 +76,9 @@ func TestFindAdminUsesTypedFiltersDeterministicBoundAndSafeProjection(t *testing
 	}
 }
 
-func TestFindAdminRejectsInvalidWindowBeforeDatabaseAccess(t *testing.T) {
+func TestFindForAdminRejectsInvalidWindowBeforeDatabaseAccess(t *testing.T) {
 	repository, mock, captured := newAdminSubmissionRepository(t)
-	_, err := repository.FindAdmin(context.Background(), entity.AdminSubmissionQuery{
+	_, err := repository.FindForAdmin(context.Background(), entity.AdminSubmissionQuery{
 		Page: 1, PageSize: entity.MaximumAdminSubmissionPageSize + 1,
 	})
 	require.ErrorIs(t, err, entity.ErrInvalidAdminSubmissionQuery)
@@ -86,12 +86,12 @@ func TestFindAdminRejectsInvalidWindowBeforeDatabaseAccess(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestFindAdminClampsDeletedLastPageBeforeSelecting(t *testing.T) {
+func TestFindForAdminClampsDeletedLastPageBeforeSelecting(t *testing.T) {
 	repository, mock, captured := newAdminSubmissionRepository(t)
 	mock.ExpectQuery("count").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 	mock.ExpectQuery("records").WillReturnRows(sqlmock.NewRows(adminSubmissionSummaryFields))
 
-	page, err := repository.FindAdmin(context.Background(), entity.AdminSubmissionQuery{
+	page, err := repository.FindForAdmin(context.Background(), entity.AdminSubmissionQuery{
 		Page: 3, PageSize: 25,
 	})
 	require.NoError(t, err)

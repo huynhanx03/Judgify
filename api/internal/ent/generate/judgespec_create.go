@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -23,6 +23,12 @@ type JudgeSpecCreate struct {
 	mutation *JudgeSpecMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *JudgeSpecCreate) SetTenantID(v uuid.UUID) *JudgeSpecCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -136,7 +142,7 @@ func (_c *JudgeSpecCreate) SetArtifactManifestChecksum(v string) *JudgeSpecCreat
 }
 
 // SetArtifactManifest sets the "artifact_manifest" field.
-func (_c *JudgeSpecCreate) SetArtifactManifest(v json.RawMessage) *JudgeSpecCreate {
+func (_c *JudgeSpecCreate) SetArtifactManifest(v jsontext.Value) *JudgeSpecCreate {
 	_c.mutation.SetArtifactManifest(v)
 	return _c
 }
@@ -160,7 +166,7 @@ func (_c *JudgeSpecCreate) SetCheckerVersion(v string) *JudgeSpecCreate {
 }
 
 // SetCheckerConfig sets the "checker_config" field.
-func (_c *JudgeSpecCreate) SetCheckerConfig(v json.RawMessage) *JudgeSpecCreate {
+func (_c *JudgeSpecCreate) SetCheckerConfig(v jsontext.Value) *JudgeSpecCreate {
 	_c.mutation.SetCheckerConfig(v)
 	return _c
 }
@@ -190,7 +196,7 @@ func (_c *JudgeSpecCreate) SetCapabilityProfileHash(v string) *JudgeSpecCreate {
 }
 
 // SetRewardSnapshot sets the "reward_snapshot" field.
-func (_c *JudgeSpecCreate) SetRewardSnapshot(v json.RawMessage) *JudgeSpecCreate {
+func (_c *JudgeSpecCreate) SetRewardSnapshot(v jsontext.Value) *JudgeSpecCreate {
 	_c.mutation.SetRewardSnapshot(v)
 	return _c
 }
@@ -337,6 +343,9 @@ func (_c *JudgeSpecCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *JudgeSpecCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "JudgeSpec.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "JudgeSpec.created_at"`)}
 	}
@@ -640,6 +649,10 @@ func (_c *JudgeSpecCreate) createSpec() (*JudgeSpec, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(judgespec.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(judgespec.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -803,7 +816,7 @@ func (_c *JudgeSpecCreate) createSpec() (*JudgeSpec, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.JudgeSpec.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -812,7 +825,7 @@ func (_c *JudgeSpecCreate) createSpec() (*JudgeSpec, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.JudgeSpecUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *JudgeSpecCreate) OnConflict(opts ...sql.ConflictOption) *JudgeSpecUpsertOne {
@@ -864,6 +877,9 @@ func (u *JudgeSpecUpsertOne) UpdateNewValues() *JudgeSpecUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(judgespec.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(judgespec.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(judgespec.FieldCreatedAt)
@@ -1149,7 +1165,7 @@ func (_c *JudgeSpecCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.JudgeSpecUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *JudgeSpecCreateBulk) OnConflict(opts ...sql.ConflictOption) *JudgeSpecUpsertBulk {
@@ -1195,6 +1211,9 @@ func (u *JudgeSpecUpsertBulk) UpdateNewValues() *JudgeSpecUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(judgespec.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(judgespec.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(judgespec.FieldCreatedAt)

@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -113,7 +114,7 @@ func TestAuthorizationMeRouteRequiresAuthenticationButNoRoleRead(t *testing.T) {
 	})
 	identity.registerAuthorizationRoutes(
 		router.Group(""),
-		commonmiddlewares.NewAuthorizationChecker(denier),
+		authmiddleware.NewAuthorizationChecker(denier),
 	)
 
 	meRecorder := httptest.NewRecorder()
@@ -145,7 +146,7 @@ func TestAuthorizationManagerCanReadCatalogAndRoleFoundation(t *testing.T) {
 		c.Request = c.Request.WithContext(authenticatedAuthorizationContext(userID))
 		c.Next()
 	})
-	checker := commonmiddlewares.NewAuthorizationChecker(manager)
+	checker := authmiddleware.NewAuthorizationChecker(manager)
 	identity.registerAuthorizationRoutes(router.Group(""), checker)
 	identity.registerRoleRoutes(router.Group(""), checker)
 

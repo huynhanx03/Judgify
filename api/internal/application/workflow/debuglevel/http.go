@@ -2,13 +2,13 @@ package debuglevel
 
 import (
 	"errors"
+	authmiddleware "github.com/huynhanx03/judgify/internal/platform/authmiddleware"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/common/http/middlewares"
 	commonrequest "github.com/huynhanx03/go-common/pkg/common/http/request"
 	"github.com/huynhanx03/go-common/pkg/common/http/response"
 	commonobservability "github.com/huynhanx03/go-common/pkg/common/observability"
@@ -52,7 +52,7 @@ func NewHTTPHandler(
 
 func (handler *HTTPHandler) RegisterProtected(
 	router *gin.RouterGroup,
-	permissionChecker *middlewares.AuthorizationChecker,
+	permissionChecker *authmiddleware.AuthorizationChecker,
 ) {
 	if handler == nil || router == nil || permissionChecker == nil {
 		return

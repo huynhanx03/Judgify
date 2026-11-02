@@ -9,12 +9,13 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 	commonoutbox "github.com/huynhanx03/go-common/pkg/mq/outbox"
 
 	contestcontract "github.com/huynhanx03/judgify/internal/contest/contract"
 	contestentity "github.com/huynhanx03/judgify/internal/contest/domain"
 	"github.com/huynhanx03/judgify/internal/realtime"
+	"github.com/huynhanx03/judgify/internal/tenantctx"
 )
 
 const contestRealtimeHandler = "realtime.contest-invalidation"
@@ -365,6 +366,11 @@ func publishContestInvalidation(
 	if publisher == nil {
 		return realtime.ErrInvalidConfig
 	}
+	scope, scoped := tenantctx.FromContext(ctx)
+	if !scoped || !scope.IsTenant() {
+		return permanentEventFailure("contest_realtime_tenant_scope_missing", realtime.ErrInvalidChange)
+	}
+	change.TenantID, _ = scope.TenantID()
 	ctx = logger.WithFields(
 		ctx,
 		logger.String("event_type", change.EventType),

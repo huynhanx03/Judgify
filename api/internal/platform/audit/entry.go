@@ -11,6 +11,7 @@ import (
 // redacts, and canonicalizes them before persistence.
 type Entry struct {
 	ID             uuid.UUID
+	TenantID       uuid.UUID
 	ActorUserID    *uuid.UUID
 	ActorSessionID *uuid.UUID
 	Action         string

@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	"github.com/huynhanx03/judgify/internal/platform/contentrender"
 	rendercontract "github.com/huynhanx03/judgify/internal/platform/contentrender/contract"

@@ -111,7 +111,7 @@ func TestOutboxSchemaHasImmutableIdentityAndRelayState(t *testing.T) {
 	}
 	for _, name := range []string{
 		"event_type", "aggregate_type", "aggregate_id", "aggregate_version",
-		"correlation_id", "causation_id", "payload", "occurred_at", "created_at",
+		"correlation_id", "traceparent", "causation_id", "payload", "occurred_at", "created_at",
 	} {
 		immutable, ok := fields[name]
 		require.Truef(t, ok, "missing immutable event field %q", name)

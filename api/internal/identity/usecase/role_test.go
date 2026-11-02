@@ -20,7 +20,6 @@ func newRoleTestEnv(t *testing.T) (
 	*roleService,
 	*idMocks.MockRoleRepository,
 	*idMocks.MockAuthorizationService,
-	*idMocks.MockCacheService,
 	testutil.TxManager,
 ) {
 	t.Helper()
@@ -28,16 +27,15 @@ func newRoleTestEnv(t *testing.T) (
 
 	roleRepo := idMocks.NewMockRoleRepository(ctrl)
 	authzSvc := idMocks.NewMockAuthorizationService(ctrl)
-	cacheSvc := idMocks.NewMockCacheService(ctrl)
 	txMgr := testutil.TxManager{}
 
 	caches := appcache.New(testutil.NewCache())
-	svc := NewRoleService(roleRepo, authzSvc, cacheSvc, txMgr, caches.IdentityRole).(*roleService)
-	return svc, roleRepo, authzSvc, cacheSvc, txMgr
+	svc := NewRoleService(roleRepo, authzSvc, txMgr, caches.IdentityRole).(*roleService)
+	return svc, roleRepo, authzSvc, txMgr
 }
 
 func TestFindAllRoles_Success(t *testing.T) {
-	svc, roleRepo, _, _, _ := newRoleTestEnv(t)
+	svc, roleRepo, _, _ := newRoleTestEnv(t)
 	ctx := context.Background()
 
 	roleRepo.EXPECT().FindAll(ctx).Return([]*entity.Role{
@@ -54,7 +52,7 @@ func TestFindAllRoles_Success(t *testing.T) {
 }
 
 func TestGetRole_NotFound(t *testing.T) {
-	svc, roleRepo, _, _, _ := newRoleTestEnv(t)
+	svc, roleRepo, _, _ := newRoleTestEnv(t)
 	ctx := context.Background()
 
 	roleRepo.EXPECT().Get(ctx, testutil.ID(999)).Return(nil, apperr.New(apperr.CodeNotFound, "role not found", nil))
@@ -66,14 +64,13 @@ func TestGetRole_NotFound(t *testing.T) {
 }
 
 func TestSetRolePolicies_ReplacesCasbinPolicies(t *testing.T) {
-	svc, roleRepo, authzSvc, cacheSvc, _ := newRoleTestEnv(t)
+	svc, roleRepo, authzSvc, _ := newRoleTestEnv(t)
 	ctx := context.Background()
 	rules := []dto.PolicyRule{{Resource: "problem", Action: "create"}}
 	policySnapshot := &dto.RolePolicySnapshot{Revision: 2, Rules: rules}
 
 	roleRepo.EXPECT().Get(ctx, testutil.ID(2)).Return(&entity.Role{ID: testutil.ID(2), Key: "teacher"}, nil)
 	authzSvc.EXPECT().SetRolePolicies(gomock.Any(), "teacher", int64(1), "Grant problem creation", rules).Return(policySnapshot, nil)
-	cacheSvc.EXPECT().InvalidatePermissionConfig(gomock.Any()).Return(nil)
 
 	resp, err := svc.SetPolicies(ctx, testutil.ID(2), &dto.RolePoliciesUpdateRequest{
 		ExpectedRevision: 1,

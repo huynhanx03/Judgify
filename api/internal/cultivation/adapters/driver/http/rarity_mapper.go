@@ -31,15 +31,7 @@ func toRarityResponses(results []*contract.RarityResponse) []*rarityResponse {
 	return values
 }
 func toRarityPage(result *d.Paginated[*contract.RarityResponse]) *d.Paginated[*rarityResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*rarityResponse]{Pagination: result.Pagination}
-	if result.Records != nil {
-		values := toRarityResponses(*result.Records)
-		page.Records = &values
-	}
-	return page
+	return d.MapPaginated(result, toRarityResponse)
 }
 func toCreateRarityCommand(request *createRarityRequest) *contract.CreateRarityCommand {
 	return &contract.CreateRarityCommand{Name: request.Name, Code: request.Code, Weight: request.Weight, Description: request.Description}

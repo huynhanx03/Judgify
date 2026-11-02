@@ -27,7 +27,7 @@ func (UserRecoveryContact) Fields() []ent.Field {
 		field.UUID("user_id", uuid.UUID{}).Immutable(),
 		field.Enum("kind").Values("email").Immutable(),
 		field.Enum("purpose").
-			Values(contactPurposeRegistration, contactPurposeReplacement, contactPurposeInvitation).
+			Values(contactPurposeRegistration, contactPurposeReplacement, contactPurposeInvitation, contactPurposeOAuthLink).
 			Immutable(),
 		field.Bytes("lookup_hash").NotEmpty().MaxLen(32).Immutable().Sensitive(),
 		field.Bytes("fingerprint_hash").NotEmpty().MaxLen(32).Immutable().Sensitive(),
@@ -40,6 +40,7 @@ func (UserRecoveryContact) Fields() []ent.Field {
 		field.Time("verified_at").Optional().Nillable(),
 		field.Time("revoked_at").Optional().Nillable(),
 		field.UUID("replaced_contact_id", uuid.UUID{}).Optional().Nillable(),
+		field.UUID("source_federated_identity_id", uuid.UUID{}).Optional().Nillable(),
 	}
 }
 
@@ -53,6 +54,11 @@ func (UserRecoveryContact) Edges() []ent.Edge {
 			Required(),
 		edge.To("verification_tokens", RecoveryContactVerificationToken.Type),
 		edge.To("password_reset_tokens", PasswordResetToken.Type),
+		edge.From("source_federated_identity", FederatedIdentity.Type).
+			Ref("recovery_contacts").
+			Field("source_federated_identity_id").
+			Unique().
+			Annotations(entsql.OnDelete(entsql.SetNull)),
 	}
 }
 
@@ -63,6 +69,7 @@ func (UserRecoveryContact) Indexes() []ent.Index {
 		// indexed but deliberately not globally unique.
 		index.Fields("lookup_hash"),
 		index.Fields("fingerprint_hash"),
+		index.Fields("source_federated_identity_id").Unique(),
 		index.Fields("user_id", "kind").
 			Unique().
 			StorageKey("userrecoverycontact_user_kind_verified").
@@ -79,7 +86,8 @@ func (UserRecoveryContact) Annotations() []entschema.Annotation {
 	return []entschema.Annotation{
 		entsql.Checks(map[string]string{
 			"recovery_contact_kind_closed":    "kind = 'email'",
-			"recovery_contact_purpose_closed": "purpose IN ('registration', 'replacement', 'invitation')",
+			"recovery_contact_purpose_closed": "purpose IN ('registration', 'replacement', 'invitation', 'oauth_link')",
+			"recovery_contact_oauth_source":   "(purpose = 'oauth_link' AND (source_federated_identity_id IS NOT NULL OR status = 'revoked')) OR (purpose <> 'oauth_link' AND source_federated_identity_id IS NULL)",
 			"recovery_contact_status_closed":  "status IN ('pending', 'verified', 'revoked')",
 			"recovery_contact_verified_at":    "(status = 'verified' AND verified_at IS NOT NULL) OR status <> 'verified'",
 			"recovery_contact_revoked_at":     "(status = 'revoked' AND revoked_at IS NOT NULL) OR status <> 'revoked'",

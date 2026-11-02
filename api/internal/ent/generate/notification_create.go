@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -26,6 +26,12 @@ type NotificationCreate struct {
 	mutation *NotificationMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *NotificationCreate) SetTenantID(v uuid.UUID) *NotificationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
@@ -81,7 +87,7 @@ func (_c *NotificationCreate) SetNillableBodyKey(v *string) *NotificationCreate 
 }
 
 // SetParams sets the "params" field.
-func (_c *NotificationCreate) SetParams(v json.RawMessage) *NotificationCreate {
+func (_c *NotificationCreate) SetParams(v jsontext.Value) *NotificationCreate {
 	_c.mutation.SetParams(v)
 	return _c
 }
@@ -272,6 +278,9 @@ func (_c *NotificationCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *NotificationCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "Notification.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`generate: missing required field "Notification.user_id"`)}
 	}
@@ -366,6 +375,10 @@ func (_c *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(notification.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(notification.FieldType, field.TypeString, value)
@@ -476,7 +489,7 @@ func (_c *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 // of the `INSERT` statement. For example:
 //
 //	client.Notification.Create().
-//		SetUserID(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -485,7 +498,7 @@ func (_c *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationCreate) OnConflict(opts ...sql.ConflictOption) *NotificationUpsertOne {
@@ -591,6 +604,9 @@ func (u *NotificationUpsertOne) UpdateNewValues() *NotificationUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(notification.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(notification.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.UserID(); exists {
 			s.SetIgnore(notification.FieldUserID)
@@ -858,7 +874,7 @@ func (_c *NotificationCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.NotificationUpsert) {
-//			SetUserID(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *NotificationCreateBulk) OnConflict(opts ...sql.ConflictOption) *NotificationUpsertBulk {
@@ -904,6 +920,9 @@ func (u *NotificationUpsertBulk) UpdateNewValues() *NotificationUpsertBulk {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(notification.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(notification.FieldTenantID)
 			}
 			if _, exists := b.mutation.UserID(); exists {
 				s.SetIgnore(notification.FieldUserID)

@@ -14,6 +14,7 @@ var ErrInvalidProjection = errors.New("operation: invalid safe projection")
 // checkpoint, idempotency key, reason, session, lease owner, and lease token.
 type Projection struct {
 	ID              uuid.UUID        `json:"id"`
+	TenantID        *uuid.UUID       `json:"tenant_id,omitempty"`
 	Kind            string           `json:"kind"`
 	Status          Status           `json:"status"`
 	Total           int64            `json:"total"`
@@ -52,7 +53,7 @@ func Project(value Operation) (Projection, error) {
 		return Projection{}, errors.Join(ErrInvalidProjection, err)
 	}
 	projected := Projection{
-		ID: value.ID, Kind: value.Kind, Status: value.Status,
+		ID: value.ID, TenantID: cloneUUID(value.TenantID), Kind: value.Kind, Status: value.Status,
 		Total: value.Total, Processed: value.Processed,
 		Succeeded: value.Succeeded, Failed: value.Failed,
 		BatchSize: value.BatchSize, Version: value.Version,
@@ -93,7 +94,8 @@ func ProjectPage(value Page) (ProjectionPage, error) {
 }
 
 func ValidateProjection(value Projection) error {
-	if value.ID == uuid.Nil || value.ActorUserID == uuid.Nil ||
+	if value.ID == uuid.Nil || value.TenantID != nil && *value.TenantID == uuid.Nil ||
+		value.ActorUserID == uuid.Nil ||
 		value.AuditID == uuid.Nil ||
 		!validIdentifier(value.Kind, MaxKindBytes) ||
 		!validStatus(value.Status) ||

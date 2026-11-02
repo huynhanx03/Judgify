@@ -86,7 +86,8 @@ func (repository *TraitOfferRepository) LoadLiveCatalog(ctx context.Context) ([]
 		       effect.schema_version, effect.effect, effect.target_element_ids,
 		       effect.checksum, effect.effective_at
 		FROM traits trait
-		JOIN rarities rarity ON rarity.id = trait.rarity_id AND rarity.deleted_at IS NULL
+		JOIN rarities rarity ON rarity.id = trait.rarity_id
+		  AND rarity.deleted_at IS NULL
 		JOIN LATERAL (
 			SELECT id, trait_id, revision, schema_version, effect,
 			       target_element_ids, checksum, effective_at

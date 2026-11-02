@@ -18,8 +18,8 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 
 	"github.com/huynhanx03/go-common/pkg/common/apperr"
-	"github.com/huynhanx03/go-common/pkg/correlation"
-	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"github.com/huynhanx03/judgify/internal/platform/logging"
 
 	internalent "github.com/huynhanx03/judgify/internal/ent"
 	"github.com/huynhanx03/judgify/internal/ent/generate"
@@ -102,7 +102,7 @@ type Item struct {
 	OccurredAt    time.Time      `json:"occurred_at"`
 }
 
-// Page is a bounded keyset page. NextCursor is emitted only when HasMore is
+// Find is a bounded keyset page. NextCursor is emitted only when HasMore is
 // true and points at the last returned item.
 type Page struct {
 	Items      []Item `json:"items"`
@@ -112,7 +112,7 @@ type Page struct {
 
 // Searcher is the read capability consumed by the HTTP adapter.
 type Searcher interface {
-	Search(context.Context, Filter) (*Page, error)
+	Find(context.Context, Filter) (*Page, error)
 }
 
 // Query reads immutable audit rows through a fixed field projection and
@@ -238,7 +238,7 @@ func (filter Filter) Validate() error {
 	return nil
 }
 
-func (query *Query) Search(ctx context.Context, filter Filter) (*Page, error) {
+func (query *Query) Find(ctx context.Context, filter Filter) (*Page, error) {
 	if query == nil || query.client == nil || query.redacted == nil || ctx == nil {
 		return nil, ErrInvalidQuery
 	}

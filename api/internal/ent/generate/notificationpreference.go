@@ -19,6 +19,8 @@ type NotificationPreference struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// Category holds the value of the "category" field.
@@ -68,7 +70,7 @@ func (*NotificationPreference) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case notificationpreference.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case notificationpreference.FieldID, notificationpreference.FieldUserID:
+		case notificationpreference.FieldID, notificationpreference.FieldTenantID, notificationpreference.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -90,6 +92,12 @@ func (_m *NotificationPreference) assignValues(columns []string, values []any) e
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case notificationpreference.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case notificationpreference.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -162,6 +170,9 @@ func (_m *NotificationPreference) String() string {
 	var builder strings.Builder
 	builder.WriteString("NotificationPreference(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

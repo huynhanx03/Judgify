@@ -65,7 +65,7 @@ func (handler *rankingHandler) GetByRating(
 	ctx context.Context,
 	request *rankingPageRequest,
 ) (*rankingPageResponse, error) {
-	response, err := handler.rankingService.Page(ctx, entity.RankingByRating, request.Cursor, request.Limit)
+	response, err := handler.rankingService.Find(ctx, entity.RankingByRating, request.Cursor, request.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (handler *rankingHandler) GetByExperience(
 	ctx context.Context,
 	request *rankingPageRequest,
 ) (*rankingPageResponse, error) {
-	response, err := handler.rankingService.Page(ctx, entity.RankingByExperience, request.Cursor, request.Limit)
+	response, err := handler.rankingService.Find(ctx, entity.RankingByExperience, request.Cursor, request.Limit)
 	if err != nil {
 		return nil, err
 	}

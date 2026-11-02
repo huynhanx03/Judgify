@@ -19,6 +19,7 @@ import {
 } from "@/constants/authorization";
 import { APP_ROUTES } from "@/constants/routes";
 import { useSession } from "@/contexts/session-context";
+import { useOptionalTenant } from "@/contexts/tenant-context";
 import { ApiError } from "@/lib/api/error";
 import {
   createCapabilityIndexFromKeys,
@@ -70,6 +71,7 @@ export function isAuthenticationInvalid(error: unknown): error is ApiError {
 export function useAuth(): AuthContextValue {
   const router = useRouter();
   const session = useSession();
+  const isAllTenants = useOptionalTenant()?.isAllTenants ?? false;
   const authenticated =
     session.state.status === "authenticated" ? session.state.session : null;
   const capabilityIndex = useMemo(
@@ -146,15 +148,22 @@ export function useAuth(): AuthContextValue {
   );
 
   const can = useCallback(
-    (resource: string, action: string) =>
-      hasCapability(capabilityIndex, resource, action),
-    [capabilityIndex],
+    (resource: string, action: string) => {
+      if (isAllTenants && action !== "read") return false;
+      return hasCapability(capabilityIndex, resource, action);
+    },
+    [capabilityIndex, isAllTenants],
   );
 
   const canAny = useCallback(
     (requirements: readonly CapabilityRequirement[]) =>
-      hasAnyRequirement(capabilityIndex, requirements),
-    [capabilityIndex],
+      hasAnyRequirement(
+        capabilityIndex,
+        isAllTenants
+          ? requirements.filter(({ action }) => action === "read")
+          : requirements,
+      ),
+    [capabilityIndex, isAllTenants],
   );
 
   const status = session.state.status;

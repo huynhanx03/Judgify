@@ -27,6 +27,8 @@ type AttributeDefinition struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy *string `json:"deleted_by,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// Key holds the value of the "key" field.
 	Key string `json:"key,omitempty"`
 	// Kind holds the value of the "kind" field.
@@ -117,7 +119,7 @@ func (*AttributeDefinition) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case attributedefinition.FieldCreatedAt, attributedefinition.FieldUpdatedAt, attributedefinition.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case attributedefinition.FieldID:
+		case attributedefinition.FieldID, attributedefinition.FieldTenantID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -165,6 +167,12 @@ func (_m *AttributeDefinition) assignValues(columns []string, values []any) erro
 			} else if value.Valid {
 				_m.DeletedBy = new(string)
 				*_m.DeletedBy = value.String
+			}
+		case attributedefinition.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case attributedefinition.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -281,6 +289,9 @@ func (_m *AttributeDefinition) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("key=")
 	builder.WriteString(_m.Key)

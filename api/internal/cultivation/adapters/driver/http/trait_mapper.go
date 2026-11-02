@@ -66,13 +66,5 @@ func toTraitResponses(results []*contract.TraitResponse) []*traitResponse {
 	return values
 }
 func toTraitPage(result *d.Paginated[*contract.TraitResponse]) *d.Paginated[*traitResponse] {
-	if result == nil {
-		return nil
-	}
-	page := &d.Paginated[*traitResponse]{Pagination: result.Pagination}
-	if result.Records != nil {
-		values := toTraitResponses(*result.Records)
-		page.Records = &values
-	}
-	return page
+	return d.MapPaginated(result, toTraitResponse)
 }

@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/huynhanx03/go-common/pkg/common/lifecycle"
-	"github.com/huynhanx03/go-common/pkg/correlation"
+	"github.com/huynhanx03/go-common/pkg/logger"
+	"github.com/huynhanx03/judgify/internal/platform/correlation"
+	"go.uber.org/zap"
 )
 
 type recordingComponent struct {
@@ -141,6 +143,7 @@ func TestRunUsesLifecycleForReverseBoundedShutdown(t *testing.T) {
 		result <- Run(ctx, RoleAPI, Config{
 			ShutdownTimeout:          time.Second,
 			ComponentShutdownTimeout: 100 * time.Millisecond,
+			Logger:                   testRuntimeLogger(),
 			Builders: Builders{API: func(context.Context) ([]lifecycle.Component, error) {
 				return []lifecycle.Component{
 					recordingComponent{name: "database", started: started, shutdown: appendShutdown("database")},
@@ -180,6 +183,7 @@ func TestRunKeepsOneProcessCorrelationIDAcrossCompositionAndLifecycle(t *testing
 		result <- Run(ctx, RoleAPI, Config{
 			ShutdownTimeout:          time.Second,
 			ComponentShutdownTimeout: time.Second,
+			Logger:                   testRuntimeLogger(),
 			Builders: Builders{API: func(buildContext context.Context) ([]lifecycle.Component, error) {
 				observed <- correlation.FromContext(buildContext)
 				return []lifecycle.Component{contextRecordingComponent{
@@ -207,7 +211,7 @@ func TestRunReturnsBuilderAndComponentFailures(t *testing.T) {
 	t.Parallel()
 
 	buildFailure := errors.New("compose failed")
-	err := Run(context.Background(), RoleAPI, Config{Builders: Builders{
+	err := Run(context.Background(), RoleAPI, Config{Logger: testRuntimeLogger(), Builders: Builders{
 		API: func(context.Context) ([]lifecycle.Component, error) { return nil, buildFailure },
 	}})
 	if !errors.Is(err, buildFailure) {
@@ -215,7 +219,7 @@ func TestRunReturnsBuilderAndComponentFailures(t *testing.T) {
 	}
 
 	runFailure := errors.New("listener failed")
-	err = Run(context.Background(), RoleAPI, Config{Builders: Builders{
+	err = Run(context.Background(), RoleAPI, Config{Logger: testRuntimeLogger(), Builders: Builders{
 		API: func(context.Context) ([]lifecycle.Component, error) {
 			return []lifecycle.Component{failingComponent{err: runFailure}}, nil
 		},
@@ -266,7 +270,7 @@ func TestRunValidatesConfigurationBeforeBuilding(t *testing.T) {
 func TestRunRejectsEmptyLongRunningRole(t *testing.T) {
 	t.Parallel()
 
-	err := Run(context.Background(), RoleAPI, Config{Builders: Builders{
+	err := Run(context.Background(), RoleAPI, Config{Logger: testRuntimeLogger(), Builders: Builders{
 		API: func(context.Context) ([]lifecycle.Component, error) { return nil, nil },
 	}})
 	if !errors.Is(err, ErrNoComponents) {
@@ -278,7 +282,7 @@ func TestRunCleansRegisteredComponentsWhenRegistrationFails(t *testing.T) {
 	t.Parallel()
 
 	shutdown := make(chan struct{}, 1)
-	err := Run(context.Background(), RoleAPI, Config{Builders: Builders{
+	err := Run(context.Background(), RoleAPI, Config{Logger: testRuntimeLogger(), Builders: Builders{
 		API: func(context.Context) ([]lifecycle.Component, error) {
 			return []lifecycle.Component{
 				recordingComponent{name: "duplicate", shutdown: func(context.Context) error {
@@ -298,6 +302,8 @@ func TestRunCleansRegisteredComponentsWhenRegistrationFails(t *testing.T) {
 		t.Fatal("registered component was not shut down")
 	}
 }
+
+func testRuntimeLogger() *logger.Logger { return logger.Wrap(zap.NewNop()) }
 
 type failingComponent struct{ err error }
 

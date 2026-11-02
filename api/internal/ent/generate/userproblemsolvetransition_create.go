@@ -4,7 +4,7 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"time"
@@ -23,6 +23,12 @@ type UserProblemSolveTransitionCreate struct {
 	mutation *UserProblemSolveTransitionMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_c *UserProblemSolveTransitionCreate) SetTenantID(v uuid.UUID) *UserProblemSolveTransitionCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -200,13 +206,13 @@ func (_c *UserProblemSolveTransitionCreate) SetNillableToProblemRevisionID(v *uu
 }
 
 // SetFromRewardFacts sets the "from_reward_facts" field.
-func (_c *UserProblemSolveTransitionCreate) SetFromRewardFacts(v json.RawMessage) *UserProblemSolveTransitionCreate {
+func (_c *UserProblemSolveTransitionCreate) SetFromRewardFacts(v jsontext.Value) *UserProblemSolveTransitionCreate {
 	_c.mutation.SetFromRewardFacts(v)
 	return _c
 }
 
 // SetToRewardFacts sets the "to_reward_facts" field.
-func (_c *UserProblemSolveTransitionCreate) SetToRewardFacts(v json.RawMessage) *UserProblemSolveTransitionCreate {
+func (_c *UserProblemSolveTransitionCreate) SetToRewardFacts(v jsontext.Value) *UserProblemSolveTransitionCreate {
 	_c.mutation.SetToRewardFacts(v)
 	return _c
 }
@@ -395,6 +401,9 @@ func (_c *UserProblemSolveTransitionCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserProblemSolveTransitionCreate) check() error {
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`generate: missing required field "UserProblemSolveTransition.tenant_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generate: missing required field "UserProblemSolveTransition.created_at"`)}
 	}
@@ -516,6 +525,10 @@ func (_c *UserProblemSolveTransitionCreate) createSpec() (*UserProblemSolveTrans
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(userproblemsolvetransition.FieldTenantID, field.TypeUUID, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(userproblemsolvetransition.FieldCreatedAt, field.TypeTime, value)
@@ -644,7 +657,7 @@ func (_c *UserProblemSolveTransitionCreate) createSpec() (*UserProblemSolveTrans
 // of the `INSERT` statement. For example:
 //
 //	client.UserProblemSolveTransition.Create().
-//		SetCreatedAt(v).
+//		SetTenantID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -653,7 +666,7 @@ func (_c *UserProblemSolveTransitionCreate) createSpec() (*UserProblemSolveTrans
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserProblemSolveTransitionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserProblemSolveTransitionCreate) OnConflict(opts ...sql.ConflictOption) *UserProblemSolveTransitionUpsertOne {
@@ -705,6 +718,9 @@ func (u *UserProblemSolveTransitionUpsertOne) UpdateNewValues() *UserProblemSolv
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(userproblemsolvetransition.FieldID)
+		}
+		if _, exists := u.create.mutation.TenantID(); exists {
+			s.SetIgnore(userproblemsolvetransition.FieldTenantID)
 		}
 		if _, exists := u.create.mutation.CreatedAt(); exists {
 			s.SetIgnore(userproblemsolvetransition.FieldCreatedAt)
@@ -963,7 +979,7 @@ func (_c *UserProblemSolveTransitionCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.UserProblemSolveTransitionUpsert) {
-//			SetCreatedAt(v+v).
+//			SetTenantID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *UserProblemSolveTransitionCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserProblemSolveTransitionUpsertBulk {
@@ -1009,6 +1025,9 @@ func (u *UserProblemSolveTransitionUpsertBulk) UpdateNewValues() *UserProblemSol
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(userproblemsolvetransition.FieldID)
+			}
+			if _, exists := b.mutation.TenantID(); exists {
+				s.SetIgnore(userproblemsolvetransition.FieldTenantID)
 			}
 			if _, exists := b.mutation.CreatedAt(); exists {
 				s.SetIgnore(userproblemsolvetransition.FieldCreatedAt)

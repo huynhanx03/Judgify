@@ -4,6 +4,7 @@ package generate
 
 import (
 	"encoding/json"
+	"encoding/json/jsontext"
 	"fmt"
 	"strings"
 	"time"
@@ -30,6 +31,8 @@ type UserAttributeValue struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy *string `json:"deleted_by,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// AttributeID holds the value of the "attribute_id" field.
@@ -39,7 +42,7 @@ type UserAttributeValue struct {
 	// SourceRevisionID holds the value of the "source_revision_id" field.
 	SourceRevisionID uuid.UUID `json:"source_revision_id,omitempty"`
 	// CanonicalValue holds the value of the "canonical_value" field.
-	CanonicalValue json.RawMessage `json:"canonical_value,omitempty"`
+	CanonicalValue jsontext.Value `json:"canonical_value,omitempty"`
 	// SourceValueVersion holds the value of the "source_value_version" field.
 	SourceValueVersion int64 `json:"source_value_version,omitempty"`
 	// Version holds the value of the "version" field.
@@ -124,7 +127,7 @@ func (*UserAttributeValue) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case userattributevalue.FieldCreatedAt, userattributevalue.FieldUpdatedAt, userattributevalue.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case userattributevalue.FieldID, userattributevalue.FieldUserID, userattributevalue.FieldAttributeID, userattributevalue.FieldDefinitionRevisionID, userattributevalue.FieldSourceRevisionID:
+		case userattributevalue.FieldID, userattributevalue.FieldTenantID, userattributevalue.FieldUserID, userattributevalue.FieldAttributeID, userattributevalue.FieldDefinitionRevisionID, userattributevalue.FieldSourceRevisionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -172,6 +175,12 @@ func (_m *UserAttributeValue) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				_m.DeletedBy = new(string)
 				*_m.DeletedBy = value.String
+			}
+		case userattributevalue.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
 		case userattributevalue.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -294,6 +303,9 @@ func (_m *UserAttributeValue) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))

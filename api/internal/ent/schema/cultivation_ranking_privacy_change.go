@@ -1,6 +1,7 @@
 package schema
 
 import (
+	mixin "github.com/huynhanx03/judgify/internal/ent/mixin"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,7 +20,8 @@ import (
 type CultivationRankingPrivacyChange struct{ ent.Schema }
 
 func (CultivationRankingPrivacyChange) Mixin() []ent.Mixin {
-	return []ent.Mixin{commonent.AppendOnlyMixin{}}
+	return []ent.Mixin{commonent.AppendOnlyMixin{},
+		mixin.TenantOwnedMixin{}}
 }
 
 func (CultivationRankingPrivacyChange) Fields() []ent.Field {
@@ -42,7 +44,7 @@ func (CultivationRankingPrivacyChange) Fields() []ent.Field {
 
 func (CultivationRankingPrivacyChange) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id", "to_version").Unique(),
+		index.Fields("tenant_id", "user_id", "to_version").Unique(),
 		index.Fields("user_id", "occurred_at", "id"),
 		index.Fields("request_checksum"),
 	}
